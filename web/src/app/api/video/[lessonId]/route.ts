@@ -3,13 +3,26 @@ import { z } from "zod";
 import { getLessonById } from "@/lib/catalog";
 import { openMegaStream } from "@/lib/mega";
 import { openDriveStream, DriveStreamError } from "@/lib/drive";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const lessonIdSchema = z.string().regex(/^[a-zA-Z0-9_-]{1,64}$/);
+
+const RATE_LIMITED_RESPONSE = (retryAfterSeconds: number) =>
+  NextResponse.json(
+    { error: "Too many requests — please slow down and retry shortly." },
+    { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } }
+  );
 
 export async function GET(
   req: NextRequest,
   context: { params: Promise<{ lessonId: string }> }
 ) {
+  // Video players make many Range requests, so the video limit is generous.
+  const limit = checkRateLimit(`video:${getClientIp(req)}`, 120, 60_000);
+  if (!limit.allowed) {
+    return RATE_LIMITED_RESPONSE(limit.retryAfterSeconds);
+  }
+
   const { lessonId } = await context.params;
   const parsed = lessonIdSchema.safeParse(lessonId);
   if (!parsed.success) {

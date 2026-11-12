@@ -1,5 +1,25 @@
 import type { NextConfig } from "next";
 
+const csp = [
+  "default-src 'self'",
+  // NOTE: 'unsafe-inline' is required: Next.js App Router streams its RSC
+  // payload as inline <script>self.__next_f.push(...)</script> tags, and a
+  // real Chromium render proved hydration is fully blocked without it
+  // (28 CSP violations, no client-side rendering). A per-request nonce
+  // via middleware would be the stricter alternative; out of scope here.
+  "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob:",
+  "font-src 'self' data:",
+  "connect-src 'self' https://cdn.jsdelivr.net",
+  "worker-src 'self' blob:",
+  "media-src 'self' blob:",
+  "frame-src 'none'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+].join("; ");
+
 const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -7,6 +27,11 @@ const securityHeaders = [
   {
     key: "Permissions-Policy",
     value: "camera=(), microphone=(), geolocation=()",
+  },
+  { key: "Content-Security-Policy", value: csp },
+  {
+    key: "Strict-Transport-Security",
+    value: "max-age=63072000; includeSubDomains; preload",
   },
 ];
 

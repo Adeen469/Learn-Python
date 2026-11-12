@@ -31,5 +31,8 @@
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.0"
+  },
+  "overrides": {
+    "dompurify": "3.4.17"
   }
 }

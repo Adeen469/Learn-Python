@@ -73,7 +73,7 @@ export default function GitHubPage() {
     localStorage.setItem("lp_github_token", clean);
     setSavedToken(clean);
     setToken("");
-    setSuccessMsg("Token saved securely in local session.");
+    setSuccessMsg("Token saved in this browser only.");
     fetchRepos(clean);
   }
 
@@ -216,7 +216,7 @@ export default function GitHubPage() {
               >
                 github.com/settings/tokens
               </a>{" "}
-              with the <span className="font-mono bg-neutral-800 px-1 py-0.5 rounded text-white">repo</span> scope, then paste it below. It is stored solely in your local browser session.
+              with the <span className="font-mono bg-neutral-800 px-1 py-0.5 rounded text-white">repo</span> scope, then paste it below. Your token lives only in this browser (localStorage). It is sent to the LP server only to call GitHub on your behalf, is never stored on the server, and Disconnect removes it from this browser.
             </p>
 
             <form onSubmit={handleSaveToken} className="mt-4 flex gap-2">
