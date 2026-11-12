@@ -40,6 +40,16 @@ const SEED_LESSONS: Lesson[] = [
     videoSource: "mega",
     notes: "Streamed and decrypted on the fly from MEGA. Click 'Save Offline' to cache inside the app.",
   },
+  {
+    id: "drive-test-01",
+    title: "Drive Test Video",
+    moduleTitle: "Module 1: Getting Started",
+    courseTitle: "LP Foundation",
+    durationSeconds: 0,
+    videoUrl: "dBJFwpXJwPpp8-4DKlRprezVXLc4ErmS",
+    videoSource: "drive",
+    notes: "Test video streamed from Google Drive.",
+  },
 ];
 
 export function getLessons(): Lesson[] {
