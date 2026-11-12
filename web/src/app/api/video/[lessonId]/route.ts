@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getLessonById } from "@/lib/catalog";
 import { openMegaStream } from "@/lib/mega";
+import { openDriveStream, DriveStreamError } from "@/lib/drive";
 
 const lessonIdSchema = z.string().regex(/^[a-zA-Z0-9_-]{1,64}$/);
 
@@ -22,7 +23,10 @@ export async function GET(
 
   try {
     const rangeHeader = req.headers.get("range");
-    const result = await openMegaStream(lesson.videoUrl, rangeHeader);
+    const result =
+      lesson.videoSource === "drive"
+        ? await openDriveStream(lesson.videoUrl, rangeHeader)
+        : await openMegaStream(lesson.videoUrl, rangeHeader);
 
     if (result.status === 416) {
       return new NextResponse(null, {
@@ -47,7 +51,21 @@ export async function GET(
       headers,
     });
   } catch (err) {
-    console.error("MEGA stream error:", err);
+    console.error("Video stream error:", err);
+    if (err instanceof DriveStreamError) {
+      if (err.code === "NOT_FOUND") {
+        return NextResponse.json({ error: err.message }, { status: 404 });
+      }
+      if (err.code === "NOT_CONFIGURED") {
+        return NextResponse.json({ error: err.message }, { status: 503 });
+      }
+      if (err.code === "NOT_DOWNLOADABLE") {
+        return NextResponse.json({ error: err.message }, { status: 422 });
+      }
+      if (err.code === "KEY_INVALID") {
+        return NextResponse.json({ error: err.message }, { status: 502 });
+      }
+    }
     return NextResponse.json(
       { error: "Unable to load video stream" },
       { status: 502 }

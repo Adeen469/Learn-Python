@@ -5,8 +5,18 @@ export interface Lesson {
   courseTitle: string;
   durationSeconds: number;
   videoUrl: string;
+  videoSource: "mega" | "drive";
   notes: string;
 }
+
+// HOW TO ADD A VIDEO
+// MEGA: upload to MEGA, copy the share link, add an entry here with
+// videoSource "mega" and videoUrl set to the full share link.
+// DRIVE: in Drive, share the file as Anyone with the link, copy the
+// file ID from the share URL, add an entry with videoSource "drive"
+// and videoUrl set to the file ID only (not the full URL).
+// After adding an entry, push to main and trigger a Fly deploy —
+// lessons are still hardcoded here, not in Supabase yet.
 
 // Seed lesson using your test MEGA file until Supabase env vars are connected.
 const SEED_LESSONS: Lesson[] = [
@@ -17,6 +27,7 @@ const SEED_LESSONS: Lesson[] = [
     courseTitle: "LP Foundation",
     durationSeconds: 315,
     videoUrl: "https://mega.nz/file/pcQB0LQK#0ogh7nPPNB-hoYC_Y5GzfVZOfr5sNSmBsjVhx92CpIA",
+    videoSource: "mega",
     notes: "Streamed and decrypted on the fly from MEGA. Click 'Save Offline' to cache inside the app.",
   },
 ];
