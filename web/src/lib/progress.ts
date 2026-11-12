@@ -13,10 +13,38 @@ export interface ProgressState {
   seconds: number; // actual seconds watched today
   goalMinutes: number;
   activeDates: string[]; // YYYY-MM-DD, newest last
+  creditedLessonIds: string[]; // lessons whose minutes are already credited today
 }
 
 export const PROGRESS_KEY = "lp_progress_v1";
 export const PROGRESS_UPDATED_EVENT = "lp-progress-updated";
+
+// A lesson counts toward completion and today's progress only once 95% of
+// its unique content has actually been watched (seeks don't count, rewatches
+// of the same seconds don't count twice).
+export const WATCH_QUALIFY_FRACTION = 0.95;
+
+export function coverageFraction(watchedSeconds: number, durationSeconds: number): number {
+  if (!(durationSeconds > 0) || !(watchedSeconds > 0)) return 0;
+  return Math.min(1, watchedSeconds / durationSeconds);
+}
+
+export function qualifiesForCredit(fraction: number): boolean {
+  return fraction >= WATCH_QUALIFY_FRACTION;
+}
+
+/**
+ * Furthest second the user may seek to: the first unwatched second when
+ * counting from the start. Seeking is only allowed inside what has actually
+ * been watched, so skipping ahead is impossible. Gaps (from before the
+ * no-skip rule) stop the frontier at the first gap.
+ */
+export function contiguousCap(watchedSeconds: number[]): number {
+  const set = new Set(watchedSeconds);
+  let cap = 0;
+  while (set.has(cap)) cap += 1;
+  return cap;
+}
 
 export function todayKey(d = new Date()): string {
   const y = d.getFullYear();
@@ -33,7 +61,7 @@ function previousDayKey(dateKey: string): string {
 }
 
 export function emptyProgress(dateKey: string, goalMinutes = 30): ProgressState {
-  return { date: dateKey, seconds: 0, goalMinutes, activeDates: [] };
+  return { date: dateKey, seconds: 0, goalMinutes, activeDates: [], creditedLessonIds: [] };
 }
 
 function isValidProgress(value: unknown): value is ProgressState {
@@ -49,8 +77,22 @@ function isValidProgress(value: unknown): value is ProgressState {
     Number.isFinite(v.goalMinutes) &&
     v.goalMinutes > 0 &&
     Array.isArray(v.activeDates) &&
-    v.activeDates.every((d) => typeof d === "string")
+    v.activeDates.every((d) => typeof d === "string") &&
+    // creditedLessonIds was added later — older records don't have it.
+    (v.creditedLessonIds === undefined ||
+      (Array.isArray(v.creditedLessonIds) &&
+        v.creditedLessonIds.every((d) => typeof d === "string")))
   );
+}
+
+function normalizeProgress(parsed: ProgressState): ProgressState {
+  return {
+    date: parsed.date,
+    seconds: parsed.seconds,
+    goalMinutes: parsed.goalMinutes,
+    activeDates: parsed.activeDates,
+    creditedLessonIds: parsed.creditedLessonIds ?? [],
+  };
 }
 
 export function loadProgress(
@@ -62,16 +104,19 @@ export function loadProgress(
     if (!raw) return emptyProgress(today);
     const parsed: unknown = JSON.parse(raw);
     if (!isValidProgress(parsed)) return emptyProgress(today);
-    if (parsed.date !== today) {
-      // New day: keep the goal + history, reset today's seconds.
+    const state = normalizeProgress(parsed);
+    if (state.date !== today) {
+      // New day: keep the goal + history, reset today's seconds. Lessons can
+      // be credited again today (re-watching counts toward the new day).
       return {
         date: today,
         seconds: 0,
-        goalMinutes: parsed.goalMinutes,
-        activeDates: parsed.activeDates,
+        goalMinutes: state.goalMinutes,
+        activeDates: state.activeDates,
+        creditedLessonIds: [],
       };
     }
-    return parsed;
+    return state;
   } catch {
     return emptyProgress(today);
   }
@@ -86,6 +131,25 @@ export function markActive(state: ProgressState, dateKey = state.date): Progress
 export function addWatchSeconds(state: ProgressState, seconds: number): ProgressState {
   if (!(seconds > 0)) return state;
   return markActive({ ...state, seconds: state.seconds + seconds });
+}
+
+/**
+ * Credits a lesson's watched minutes toward today — once per lesson per day.
+ * A second call for the same lesson on the same day is a no-op, so a lesson
+ * can never inflate the daily goal by being re-opened or re-watched.
+ */
+export function creditLessonWatch(
+  state: ProgressState,
+  lessonId: string,
+  seconds: number
+): ProgressState {
+  if (!(seconds > 0)) return state;
+  if (state.creditedLessonIds.includes(lessonId)) return state;
+  return markActive({
+    ...state,
+    seconds: state.seconds + seconds,
+    creditedLessonIds: [...state.creditedLessonIds, lessonId],
+  });
 }
 
 export function withGoal(state: ProgressState, goalMinutes: number): ProgressState {

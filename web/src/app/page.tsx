@@ -6,7 +6,8 @@ import { getLessons, type Lesson } from "@/lib/catalog";
 import {
   PROGRESS_KEY,
   PROGRESS_UPDATED_EVENT,
-  addWatchSeconds,
+  WATCH_QUALIFY_FRACTION,
+  creditLessonWatch,
   emptyProgress,
   loadProgress,
   markActive,
@@ -31,6 +32,7 @@ export default function HomePage() {
   const [activeLesson, setActiveLesson] = useState<Lesson>(lessons[0]);
   const [completedIds, setCompletedIds] = useState<string[]>([]);
   const [progress, setProgress] = useState<ProgressState>(() => emptyProgress(todayKey()));
+  const [activeCoverage, setActiveCoverage] = useState({ fraction: 0, seconds: 0 });
 
   useEffect(() => {
     const savedCompleted = localStorage.getItem("lp_completed_lessons");
@@ -59,8 +61,20 @@ export default function HomePage() {
     });
   }
 
-  function handleWatchProgress(seconds: number) {
-    updateProgress((prev) => addWatchSeconds(prev, seconds));
+  function handleWatchCoverage(fraction: number, coveredSeconds: number) {
+    setActiveCoverage({ fraction, seconds: coveredSeconds });
+  }
+
+  // 95% rule: a lesson is completed and credited only once 95% of it has
+  // actually been watched. Credit is once per lesson per day (guarded in
+  // the progress lib), so re-opening a finished lesson never inflates today.
+  function qualifyLesson(lessonId: string, coveredSeconds: number) {
+    updateProgress((prev) => creditLessonWatch(prev, lessonId, coveredSeconds));
+    markLessonComplete(lessonId);
+  }
+
+  function handleLessonQualified(coveredSeconds: number) {
+    qualifyLesson(activeLesson.id, coveredSeconds);
   }
 
   function markLessonComplete(lessonId: string) {
@@ -89,8 +103,8 @@ export default function HomePage() {
           <VideoPlayer
             lessonId={activeLesson.id}
             title={activeLesson.title}
-            onCompleteLesson={() => markLessonComplete(activeLesson.id)}
-            onWatchProgress={handleWatchProgress}
+            onWatchCoverage={handleWatchCoverage}
+            onLessonQualified={handleLessonQualified}
           />
 
           <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-4">
@@ -105,16 +119,25 @@ export default function HomePage() {
               </div>
               <button
                 type="button"
-                onClick={() => markLessonComplete(activeLesson.id)}
-                className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-neutral-800 transition"
+                onClick={() => qualifyLesson(activeLesson.id, activeCoverage.seconds)}
+                disabled={
+                  !completedIds.includes(activeLesson.id) &&
+                  activeCoverage.fraction < WATCH_QUALIFY_FRACTION
+                }
+                className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-neutral-800 transition disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-neutral-900"
               >
                 {completedIds.includes(activeLesson.id) ? (
                   <>
                     <CheckCircle2 className="h-4 w-4 text-white" /> Completed
                   </>
-                ) : (
+                ) : activeCoverage.fraction >= WATCH_QUALIFY_FRACTION ? (
                   <>
                     <Circle className="h-4 w-4 text-neutral-400" /> Mark Complete
+                  </>
+                ) : (
+                  <>
+                    <Circle className="h-4 w-4 text-neutral-400" /> Watched{" "}
+                    {Math.round(activeCoverage.fraction * 100)}%
                   </>
                 )}
               </button>
@@ -168,7 +191,10 @@ export default function HomePage() {
                   <li key={lesson.id}>
                     <button
                       type="button"
-                      onClick={() => setActiveLesson(lesson)}
+                      onClick={() => {
+                        setActiveLesson(lesson);
+                        setActiveCoverage({ fraction: 0, seconds: 0 });
+                      }}
                       className={`flex w-full items-start gap-3 rounded-lg border p-3 text-left transition ${
                         isActive
                           ? "border-white bg-neutral-900"

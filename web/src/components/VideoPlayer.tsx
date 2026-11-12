@@ -2,17 +2,18 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Check, Download, HardDrive, Loader2, Trash2, Wifi, WifiOff } from "lucide-react";
+import { WATCH_QUALIFY_FRACTION, contiguousCap } from "@/lib/progress";
 
 const CACHE_NAME = "lp-offline-videos-v1";
 
 interface VideoPlayerProps {
   lessonId: string;
   title: string;
-  onCompleteLesson?: () => void;
-  onWatchProgress?: (seconds: number) => void;
+  onWatchCoverage?: (fraction: number, coveredSeconds: number) => void;
+  onLessonQualified?: (coveredSeconds: number) => void;
 }
 
-export function VideoPlayer({ lessonId, title, onCompleteLesson, onWatchProgress }: VideoPlayerProps) {
+export function VideoPlayer({ lessonId, title, onWatchCoverage, onLessonQualified }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [src, setSrc] = useState<string>(`/api/video/${lessonId}`);
   const [isSavedOffline, setIsSavedOffline] = useState(false);
@@ -21,36 +22,158 @@ export function VideoPlayer({ lessonId, title, onCompleteLesson, onWatchProgress
   const [isOnline, setIsOnline] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Real watch-time tracking: count only small forward steps while playing
-  // (seeks/rewinds are ignored), flush every ~5s and on pause/end/unmount.
+  // 95% watch rule: track which seconds of the video were actually seen
+  // (unique coverage — seeking past content doesn't count it, re-watching
+  // the same seconds doesn't count twice). Coverage persists per lesson in
+  // localStorage, so 95% can be reached across sessions. Completion and
+  // today's-progress credit fire only once per session, when new watching
+  // in this session pushes coverage to 95%.
+  const watchedRef = useRef<Set<number>>(new Set());
+  const durationRef = useRef(0);
   const lastTimeRef = useRef(0);
-  const pendingSecondsRef = useRef(0);
-  const onWatchProgressRef = useRef(onWatchProgress);
-  onWatchProgressRef.current = onWatchProgress;
+  const lastReportedCoverageRef = useRef(-1);
+  const sessionNewBucketsRef = useRef(0);
+  const qualifiedThisSessionRef = useRef(false);
+  const lastPersistedAtRef = useRef(0);
+  const onWatchCoverageRef = useRef(onWatchCoverage);
+  onWatchCoverageRef.current = onWatchCoverage;
+  const onLessonQualifiedRef = useRef(onLessonQualified);
+  onLessonQualifiedRef.current = onLessonQualified;
 
-  function flushWatchProgress() {
-    const pending = pendingSecondsRef.current;
-    if (pending > 0) {
-      pendingSecondsRef.current = 0;
-      onWatchProgressRef.current?.(pending);
+  // No-skip rule: the user may seek only inside what they have actually
+  // watched. The frontier is the furthest second reached by playing (or
+  // the contiguous coverage restored from a previous session). Any seek
+  // past the frontier is clamped back and a short notice is shown.
+  const maxAllowedRef = useRef(0);
+  const skipMsgTimeoutRef = useRef<number | null>(null);
+  const [skipBlocked, setSkipBlocked] = useState(false);
+
+  function coverageKey(id: string) {
+    return `lp_coverage_${id}`;
+  }
+
+  function loadWatched(id: string): Set<number> {
+    try {
+      const raw = localStorage.getItem(coverageKey(id));
+      if (!raw) return new Set();
+      const parsed: unknown = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return new Set();
+      return new Set(parsed.filter((n) => typeof n === "number" && n >= 0));
+    } catch {
+      return new Set();
     }
+  }
+
+  function persistWatched(id: string) {
+    try {
+      localStorage.setItem(coverageKey(id), JSON.stringify([...watchedRef.current]));
+    } catch {
+      // Storage full or blocked — coverage just won't survive a reload.
+    }
+    lastPersistedAtRef.current = Date.now();
+  }
+
+  function currentCoverage(): { fraction: number; seconds: number } {
+    const duration = durationRef.current;
+    const seconds = watchedRef.current.size;
+    return {
+      fraction: duration > 0 ? Math.min(1, seconds / duration) : 0,
+      seconds,
+    };
+  }
+
+  function reportCoverage(force = false) {
+    const { fraction, seconds } = currentCoverage();
+    if (!force && Math.abs(fraction - lastReportedCoverageRef.current) < 0.01) return;
+    lastReportedCoverageRef.current = fraction;
+    onWatchCoverageRef.current?.(fraction, seconds);
+  }
+
+  function maybeQualify() {
+    if (qualifiedThisSessionRef.current) return;
+    if (sessionNewBucketsRef.current <= 0) return;
+    const { fraction, seconds } = currentCoverage();
+    if (fraction < WATCH_QUALIFY_FRACTION) return;
+    qualifiedThisSessionRef.current = true;
+    persistWatched(lessonId);
+    onLessonQualifiedRef.current?.(seconds);
   }
 
   function handleTimeUpdate() {
     const video = videoRef.current;
     if (!video || video.paused) return;
     const now = video.currentTime;
+    maxAllowedRef.current = Math.max(maxAllowedRef.current, now);
     const delta = now - lastTimeRef.current;
     lastTimeRef.current = now;
     if (delta > 0 && delta <= 2) {
-      pendingSecondsRef.current += delta;
-      if (pendingSecondsRef.current >= 5) flushWatchProgress();
+      const from = Math.floor(now - delta);
+      const to = Math.floor(now);
+      let added = 0;
+      for (let s = from; s <= to; s += 1) {
+        if (s >= 0 && !watchedRef.current.has(s)) {
+          watchedRef.current.add(s);
+          added += 1;
+        }
+      }
+      if (added > 0) {
+        sessionNewBucketsRef.current += added;
+        // Persist throttled so a reload mid-video keeps the coverage.
+        if (Date.now() - lastPersistedAtRef.current > 5000) persistWatched(lessonId);
+        reportCoverage();
+        maybeQualify();
+      }
     }
   }
 
+  function handleLoadedMetadata() {
+    const video = videoRef.current;
+    if (video && Number.isFinite(video.duration) && video.duration > 0) {
+      durationRef.current = video.duration;
+    }
+    reportCoverage(true);
+  }
+
   function handleEnded() {
-    flushWatchProgress();
-    onCompleteLesson?.();
+    persistWatched(lessonId);
+    reportCoverage(true);
+    // If the duration was never readable, ending the video is the only
+    // signal we have — qualify on the seconds actually covered.
+    if (
+      !(durationRef.current > 0) &&
+      sessionNewBucketsRef.current > 0 &&
+      !qualifiedThisSessionRef.current
+    ) {
+      qualifiedThisSessionRef.current = true;
+      onLessonQualifiedRef.current?.(watchedRef.current.size);
+    }
+  }
+
+  function showSkipBlocked() {
+    setSkipBlocked(true);
+    if (skipMsgTimeoutRef.current !== null) {
+      window.clearTimeout(skipMsgTimeoutRef.current);
+    }
+    skipMsgTimeoutRef.current = window.setTimeout(() => setSkipBlocked(false), 2500);
+  }
+
+  function handleSeeking() {
+    const video = videoRef.current;
+    if (!video) return;
+    const allowed = maxAllowedRef.current;
+    if (video.currentTime > allowed + 0.5) {
+      video.currentTime = allowed;
+      showSkipBlocked();
+    }
+  }
+
+  function handleSeeked() {
+    const video = videoRef.current;
+    if (!video) return;
+    const allowed = maxAllowedRef.current;
+    if (video.currentTime > allowed + 0.5) {
+      video.currentTime = allowed;
+    }
   }
 
   useEffect(() => {
@@ -68,8 +191,14 @@ export function VideoPlayer({ lessonId, title, onCompleteLesson, onWatchProgress
   useEffect(() => {
     let activeObjectUrl: string | null = null;
     let cancelled = false;
+    watchedRef.current = loadWatched(lessonId);
+    maxAllowedRef.current = contiguousCap([...watchedRef.current]);
+    durationRef.current = 0;
     lastTimeRef.current = 0;
-    pendingSecondsRef.current = 0;
+    lastReportedCoverageRef.current = -1;
+    sessionNewBucketsRef.current = 0;
+    qualifiedThisSessionRef.current = false;
+    lastPersistedAtRef.current = 0;
 
     async function loadSource() {
       setErrorMsg(null);
@@ -101,7 +230,7 @@ export function VideoPlayer({ lessonId, title, onCompleteLesson, onWatchProgress
 
     return () => {
       cancelled = true;
-      flushWatchProgress();
+      persistWatched(lessonId);
       if (activeObjectUrl) URL.revokeObjectURL(activeObjectUrl);
     };
   }, [lessonId]);
@@ -181,11 +310,20 @@ export function VideoPlayer({ lessonId, title, onCompleteLesson, onWatchProgress
           playsInline
           preload="metadata"
           onTimeUpdate={handleTimeUpdate}
-          onPause={flushWatchProgress}
+          onLoadedMetadata={handleLoadedMetadata}
+          onSeeking={handleSeeking}
+          onSeeked={handleSeeked}
+          onPause={() => persistWatched(lessonId)}
           onEnded={handleEnded}
           className="h-full w-full bg-black"
         />
       </div>
+
+      {skipBlocked && (
+        <p className="border-t border-neutral-800 bg-neutral-950 px-4 py-2 text-xs text-amber-400">
+          Skipping ahead is disabled — keep watching to unlock the next part.
+        </p>
+      )}
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-800 px-4 py-3 bg-neutral-950">
         <div className="min-w-0">
