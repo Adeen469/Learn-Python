@@ -3,6 +3,19 @@
 import { useEffect, useState } from "react";
 import { CheckCircle2, Circle, Flame, Play, Target } from "lucide-react";
 import { getLessons, type Lesson } from "@/lib/catalog";
+import {
+  PROGRESS_KEY,
+  PROGRESS_UPDATED_EVENT,
+  addWatchSeconds,
+  emptyProgress,
+  loadProgress,
+  markActive,
+  progressPercent,
+  todayKey,
+  wholeMinutes,
+  withGoal,
+  type ProgressState,
+} from "@/lib/progress";
 import { SplashScreen } from "@/components/SplashScreen";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { AppNavbar } from "@/components/AppNavbar";
@@ -17,16 +30,38 @@ export default function HomePage() {
   const lessons = getLessons();
   const [activeLesson, setActiveLesson] = useState<Lesson>(lessons[0]);
   const [completedIds, setCompletedIds] = useState<string[]>([]);
-  const [dailyGoalMinutes, setDailyGoalMinutes] = useState<number>(30);
-  const [minutesSpent, setMinutesSpent] = useState<number>(0);
-  const [streak, setStreak] = useState<number>(1);
+  const [progress, setProgress] = useState<ProgressState>(() => emptyProgress(todayKey()));
 
   useEffect(() => {
     const savedCompleted = localStorage.getItem("lp_completed_lessons");
-    const savedMins = localStorage.getItem("lp_minutes_today");
-    if (savedCompleted) setCompletedIds(JSON.parse(savedCompleted));
-    if (savedMins) setMinutesSpent(Number(savedMins));
+    if (savedCompleted) {
+      try {
+        setCompletedIds(JSON.parse(savedCompleted));
+      } catch {
+        // Ignore corrupt saved data.
+      }
+    }
+    // Load today's progress (resets automatically on a new calendar day)
+    // and drop the old inflated minute counter, if present.
+    const loaded = loadProgress((key) => localStorage.getItem(key));
+    setProgress(loaded);
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify(loaded));
+    localStorage.removeItem("lp_minutes_today");
   }, []);
+
+  function updateProgress(fn: (prev: ProgressState) => ProgressState) {
+    setProgress((prev) => {
+      const next = fn(prev);
+      if (next === prev) return prev;
+      localStorage.setItem(PROGRESS_KEY, JSON.stringify(next));
+      window.dispatchEvent(new Event(PROGRESS_UPDATED_EVENT));
+      return next;
+    });
+  }
+
+  function handleWatchProgress(seconds: number) {
+    updateProgress((prev) => addWatchSeconds(prev, seconds));
+  }
 
   function markLessonComplete(lessonId: string) {
     setCompletedIds((prev) => {
@@ -35,14 +70,12 @@ export default function HomePage() {
       localStorage.setItem("lp_completed_lessons", JSON.stringify(next));
       return next;
     });
-    setMinutesSpent((prev) => {
-      const next = prev + 10;
-      localStorage.setItem("lp_minutes_today", String(next));
-      return next;
-    });
+    // Completing a lesson counts as activity for the streak, but adds no
+    // watch minutes — minutes come only from actual playback.
+    updateProgress((prev) => markActive(prev));
   }
 
-  const goalPct = Math.min(100, Math.round((minutesSpent / dailyGoalMinutes) * 100));
+  const goalPct = progressPercent(progress);
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
@@ -57,6 +90,7 @@ export default function HomePage() {
             lessonId={activeLesson.id}
             title={activeLesson.title}
             onCompleteLesson={() => markLessonComplete(activeLesson.id)}
+            onWatchProgress={handleWatchProgress}
           />
 
           <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-4">
@@ -104,11 +138,14 @@ export default function HomePage() {
                 style={{ width: `${goalPct}%` }}
               />
             </div>
+            <p className="mt-2 text-xs text-neutral-400">
+              {wholeMinutes(progress.seconds)} min watched of {progress.goalMinutes} min goal
+            </p>
             <div className="mt-3 flex items-center justify-between text-xs text-neutral-400">
               <span>Target (min/day)</span>
               <select
-                value={dailyGoalMinutes}
-                onChange={(e) => setDailyGoalMinutes(Number(e.target.value))}
+                value={progress.goalMinutes}
+                onChange={(e) => updateProgress((prev) => withGoal(prev, Number(e.target.value)))}
                 className="rounded border border-neutral-800 bg-black px-2 py-1 text-xs text-white"
               >
                 <option value={15}>15 min</option>

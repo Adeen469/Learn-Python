@@ -4,15 +4,33 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BookOpen, Code2, Flame, Github, Package, Target } from "lucide-react";
 import { useEffect, useState } from "react";
+import {
+  PROGRESS_UPDATED_EVENT,
+  computeStreak,
+  emptyProgress,
+  loadProgress,
+  todayKey,
+  wholeMinutes,
+  type ProgressState,
+} from "@/lib/progress";
 
 export function AppNavbar() {
   const pathname = usePathname();
-  const [dailyGoalMinutes, setDailyGoalMinutes] = useState(30);
-  const [minutesSpent, setMinutesSpent] = useState(0);
+  const [progress, setProgress] = useState<ProgressState>(() => emptyProgress(todayKey()));
 
   useEffect(() => {
-    const savedMins = localStorage.getItem("lp_minutes_today");
-    if (savedMins) setMinutesSpent(Number(savedMins));
+    const refresh = () => {
+      setProgress(loadProgress((key) => localStorage.getItem(key)));
+    };
+    refresh();
+    window.addEventListener(PROGRESS_UPDATED_EVENT, refresh);
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      window.removeEventListener(PROGRESS_UPDATED_EVENT, refresh);
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+    };
   }, []);
 
   const navLinks = [
@@ -65,11 +83,11 @@ export function AppNavbar() {
         <div className="flex shrink-0 items-center gap-2.5">
           <div className="flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-neutral-800 bg-neutral-950 px-2.5 py-1 text-xs text-neutral-300">
             <Target className="h-3.5 w-3.5 text-neutral-400" />
-            <span>{minutesSpent}/{dailyGoalMinutes}m</span>
+            <span>{wholeMinutes(progress.seconds)}/{progress.goalMinutes}m</span>
           </div>
           <div className="hidden items-center gap-1.5 whitespace-nowrap rounded-lg border border-neutral-800 bg-neutral-950 px-2.5 py-1 text-xs text-white md:flex">
             <Flame className="h-3.5 w-3.5 text-white" />
-            <span>1d streak</span>
+            <span>{computeStreak(progress.activeDates, progress.date)}d streak</span>
           </div>
         </div>
       </div>

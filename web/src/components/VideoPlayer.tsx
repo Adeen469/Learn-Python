@@ -9,9 +9,10 @@ interface VideoPlayerProps {
   lessonId: string;
   title: string;
   onCompleteLesson?: () => void;
+  onWatchProgress?: (seconds: number) => void;
 }
 
-export function VideoPlayer({ lessonId, title, onCompleteLesson }: VideoPlayerProps) {
+export function VideoPlayer({ lessonId, title, onCompleteLesson, onWatchProgress }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [src, setSrc] = useState<string>(`/api/video/${lessonId}`);
   const [isSavedOffline, setIsSavedOffline] = useState(false);
@@ -19,6 +20,38 @@ export function VideoPlayer({ lessonId, title, onCompleteLesson }: VideoPlayerPr
   const [downloadProgress, setDownloadProgress] = useState<number>(0);
   const [isOnline, setIsOnline] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Real watch-time tracking: count only small forward steps while playing
+  // (seeks/rewinds are ignored), flush every ~5s and on pause/end/unmount.
+  const lastTimeRef = useRef(0);
+  const pendingSecondsRef = useRef(0);
+  const onWatchProgressRef = useRef(onWatchProgress);
+  onWatchProgressRef.current = onWatchProgress;
+
+  function flushWatchProgress() {
+    const pending = pendingSecondsRef.current;
+    if (pending > 0) {
+      pendingSecondsRef.current = 0;
+      onWatchProgressRef.current?.(pending);
+    }
+  }
+
+  function handleTimeUpdate() {
+    const video = videoRef.current;
+    if (!video || video.paused) return;
+    const now = video.currentTime;
+    const delta = now - lastTimeRef.current;
+    lastTimeRef.current = now;
+    if (delta > 0 && delta <= 2) {
+      pendingSecondsRef.current += delta;
+      if (pendingSecondsRef.current >= 5) flushWatchProgress();
+    }
+  }
+
+  function handleEnded() {
+    flushWatchProgress();
+    onCompleteLesson?.();
+  }
 
   useEffect(() => {
     setIsOnline(navigator.onLine);
@@ -35,6 +68,8 @@ export function VideoPlayer({ lessonId, title, onCompleteLesson }: VideoPlayerPr
   useEffect(() => {
     let activeObjectUrl: string | null = null;
     let cancelled = false;
+    lastTimeRef.current = 0;
+    pendingSecondsRef.current = 0;
 
     async function loadSource() {
       setErrorMsg(null);
@@ -66,6 +101,7 @@ export function VideoPlayer({ lessonId, title, onCompleteLesson }: VideoPlayerPr
 
     return () => {
       cancelled = true;
+      flushWatchProgress();
       if (activeObjectUrl) URL.revokeObjectURL(activeObjectUrl);
     };
   }, [lessonId]);
@@ -144,7 +180,9 @@ export function VideoPlayer({ lessonId, title, onCompleteLesson }: VideoPlayerPr
           controls
           playsInline
           preload="metadata"
-          onEnded={onCompleteLesson}
+          onTimeUpdate={handleTimeUpdate}
+          onPause={flushWatchProgress}
+          onEnded={handleEnded}
           className="h-full w-full bg-black"
         />
       </div>
