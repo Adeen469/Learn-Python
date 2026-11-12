@@ -45,28 +45,38 @@ export type OpenDriveStreamResult =
 
 const DRIVE_API_BASE = "https://www.googleapis.com/drive/v3/files";
 
-/**
- * Streams a Google Drive file with HTTP Range support.
- * Two Drive calls per request: one tiny metadata call (size + mime type,
- * needed for correct 206/416 handling) and one media download.
- */
-export async function openDriveStream(
-  fileId: string,
-  rangeHeader: string | null
-): Promise<OpenDriveStreamResult> {
-  if (!isValidDriveFileId(fileId)) {
-    throw new DriveStreamError("NOT_FOUND", "Invalid Google Drive file ID");
-  }
+// File metadata (size/mime/name) is stable for a given file, and the browser
+// issues a Range request for every buffer/seek, so cache it in-memory for
+// 10 minutes instead of calling Drive before every stream. If a cached entry
+// goes stale (file replaced/unshared), the media fetch fails and we retry
+// once with fresh metadata instead of failing the playback.
+interface CachedDriveMeta {
+  totalSize: number;
+  mimeType: string;
+  fileName: string;
+  fetchedAt: number;
+}
 
-  const apiKey = process.env.GOOGLE_DRIVE_API_KEY;
-  if (!apiKey) {
-    throw new DriveStreamError(
-      "NOT_CONFIGURED",
-      "Google Drive is not configured: GOOGLE_DRIVE_API_KEY is missing"
-    );
-  }
+const META_CACHE_TTL_MS = 10 * 60 * 1000;
+const metaCache = new Map<string, CachedDriveMeta>();
 
-  // 1. Metadata: size + mime type + name.
+function getCachedMeta(fileId: string): CachedDriveMeta | null {
+  const hit = metaCache.get(fileId);
+  if (!hit) return null;
+  if (Date.now() - hit.fetchedAt > META_CACHE_TTL_MS) {
+    metaCache.delete(fileId);
+    return null;
+  }
+  return hit;
+}
+
+interface DriveMeta {
+  totalSize: number;
+  mimeType: string;
+  fileName: string;
+}
+
+async function fetchDriveMeta(fileId: string, apiKey: string): Promise<DriveMeta> {
   let metaRes: Response;
   try {
     metaRes = await fetch(
@@ -114,46 +124,91 @@ export async function openDriveStream(
       : "video/mp4";
   const fileName =
     typeof meta.name === "string" && meta.name ? meta.name : "video.mp4";
+  return { totalSize, mimeType, fileName };
+}
 
-  const parsedRange = parseHttpRange(rangeHeader, totalSize);
-  if (rangeHeader && !parsedRange) {
-    return { status: 416 as const, totalSize, mimeType, fileName };
+/**
+ * Streams a Google Drive file with HTTP Range support.
+ * One metadata call per file per 10 minutes (cached); every stream is a
+ * single media download with the Range header forwarded so Drive returns 206.
+ */
+export async function openDriveStream(
+  fileId: string,
+  rangeHeader: string | null
+): Promise<OpenDriveStreamResult> {
+  if (!isValidDriveFileId(fileId)) {
+    throw new DriveStreamError("NOT_FOUND", "Invalid Google Drive file ID");
   }
 
-  const start = parsedRange ? parsedRange.start : 0;
-  const end = parsedRange ? parsedRange.end : totalSize - 1;
-
-  // 2. Media download, with the Range header forwarded so Drive returns 206.
-  let mediaRes: Response;
-  try {
-    mediaRes = await fetch(
-      `${DRIVE_API_BASE}/${encodeURIComponent(fileId)}?alt=media&key=${encodeURIComponent(apiKey)}`,
-      {
-        headers: {
-          ...(parsedRange ? { Range: `bytes=${start}-${end}` } : {}),
-          "User-Agent": "LP-Learning-Platform/1.0",
-        },
-      }
-    );
-  } catch {
-    throw new DriveStreamError("UPSTREAM", "Could not reach Google Drive");
-  }
-
-  if (!mediaRes.ok || !mediaRes.body) {
+  const apiKey = process.env.GOOGLE_DRIVE_API_KEY;
+  if (!apiKey) {
     throw new DriveStreamError(
-      "UPSTREAM",
-      `Google Drive download failed (status ${mediaRes.status})`
+      "NOT_CONFIGURED",
+      "Google Drive is not configured: GOOGLE_DRIVE_API_KEY is missing"
     );
   }
 
-  return {
-    status: parsedRange ? (206 as const) : (200 as const),
-    stream: mediaRes.body as ReadableStream<Uint8Array>,
-    start,
-    end,
-    chunkLength: end - start + 1,
-    totalSize,
-    mimeType,
-    fileName,
+  const streamWithMeta = async (meta: DriveMeta): Promise<OpenDriveStreamResult> => {
+    const parsedRange = parseHttpRange(rangeHeader, meta.totalSize);
+    if (rangeHeader && !parsedRange) {
+      return {
+        status: 416 as const,
+        totalSize: meta.totalSize,
+        mimeType: meta.mimeType,
+        fileName: meta.fileName,
+      };
+    }
+
+    const start = parsedRange ? parsedRange.start : 0;
+    const end = parsedRange ? parsedRange.end : meta.totalSize - 1;
+
+    let mediaRes: Response;
+    try {
+      mediaRes = await fetch(
+        `${DRIVE_API_BASE}/${encodeURIComponent(fileId)}?alt=media&key=${encodeURIComponent(apiKey)}`,
+        {
+          headers: {
+            ...(parsedRange ? { Range: `bytes=${start}-${end}` } : {}),
+            "User-Agent": "LP-Learning-Platform/1.0",
+          },
+        }
+      );
+    } catch {
+      throw new DriveStreamError("UPSTREAM", "Could not reach Google Drive");
+    }
+
+    if (!mediaRes.ok || !mediaRes.body) {
+      throw new DriveStreamError(
+        "UPSTREAM",
+        `Google Drive download failed (status ${mediaRes.status})`
+      );
+    }
+
+    return {
+      status: parsedRange ? (206 as const) : (200 as const),
+      stream: mediaRes.body as ReadableStream<Uint8Array>,
+      start,
+      end,
+      chunkLength: end - start + 1,
+      totalSize: meta.totalSize,
+      mimeType: meta.mimeType,
+      fileName: meta.fileName,
+    };
   };
+
+  const cached = getCachedMeta(fileId);
+  if (cached) {
+    try {
+      return await streamWithMeta(cached);
+    } catch (err) {
+      // Cached metadata may be stale (file replaced/unshared) — drop it and
+      // retry once with fresh metadata instead of failing the playback.
+      if (!(err instanceof DriveStreamError) || err.code !== "UPSTREAM") throw err;
+      metaCache.delete(fileId);
+    }
+  }
+
+  const fresh = await fetchDriveMeta(fileId, apiKey);
+  metaCache.set(fileId, { ...fresh, fetchedAt: Date.now() });
+  return streamWithMeta(fresh);
 }

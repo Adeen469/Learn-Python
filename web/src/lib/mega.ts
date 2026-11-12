@@ -3,6 +3,29 @@ import { File as MegaFile } from "megajs";
 
 const MEGA_FILE_URL_RE = /^https:\/\/mega\.nz\/file\/([A-Za-z0-9_-]{8})#([A-Za-z0-9_-]{22,43})$/;
 
+// A loaded MEGA file object (attributes: name/size) is reusable across
+// downloads, and the browser issues a Range request for every buffer/seek,
+// so cache it in-memory for 10 minutes instead of calling MEGA's API
+// before every stream.
+interface CachedMegaFile {
+  file: MegaFile;
+  fetchedAt: number;
+}
+
+const FILE_CACHE_TTL_MS = 10 * 60 * 1000;
+const fileCache = new Map<string, CachedMegaFile>();
+
+async function loadMegaFile(megaUrl: string): Promise<MegaFile> {
+  const hit = fileCache.get(megaUrl);
+  if (hit && Date.now() - hit.fetchedAt <= FILE_CACHE_TTL_MS) {
+    return hit.file;
+  }
+  const file = MegaFile.fromURL(megaUrl);
+  await file.loadAttributes();
+  fileCache.set(megaUrl, { file, fetchedAt: Date.now() });
+  return file;
+}
+
 export function isValidMegaFileUrl(url: string): boolean {
   return MEGA_FILE_URL_RE.test(url);
 }
@@ -57,8 +80,7 @@ export async function openMegaStream(megaUrl: string, rangeHeader: string | null
     throw new Error("Invalid MEGA file URL");
   }
 
-  const file = MegaFile.fromURL(megaUrl);
-  await file.loadAttributes();
+  const file = await loadMegaFile(megaUrl);
 
   const totalSize = file.size ?? 0;
   if (totalSize <= 0) {
