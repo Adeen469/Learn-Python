@@ -34,6 +34,15 @@ export async function GET(
     return NextResponse.json({ error: "Lesson not found" }, { status: 404 });
   }
 
+  // Lessons are added with an empty videoUrl until their MEGA link is pasted
+  // in — fail cleanly instead of sending an empty URL upstream.
+  if (!lesson.videoUrl) {
+    return NextResponse.json(
+      { error: "This video hasn't been uploaded yet" },
+      { status: 503 }
+    );
+  }
+
   try {
     const rangeHeader = req.headers.get("range");
     const result =

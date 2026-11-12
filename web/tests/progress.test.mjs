@@ -142,18 +142,21 @@ test("day rollover resets credited lessons but keeps history", () => {
   assert.deepEqual(next.activeDates, ["2026-11-12"]);
 });
 
-function contiguousCap(watchedSeconds) {
-  const set = new Set(watchedSeconds);
-  let cap = 0;
-  while (set.has(cap)) cap += 1;
-  return cap;
+function isLessonUnlocked(index, lessonIds, completedIds, testPassedIds) {
+  if (index <= 0) return true;
+  const prevId = lessonIds[index - 1];
+  if (!prevId) return true;
+  return completedIds.includes(prevId) || testPassedIds.includes(prevId);
 }
 
-test("no-skip frontier is the first unwatched second from the start", () => {
-  assert.equal(contiguousCap([]), 0);
-  assert.equal(contiguousCap([0, 1, 2]), 3);
-  assert.equal(contiguousCap([0, 1, 2, 5, 6]), 3);
-  assert.equal(contiguousCap([1, 2, 3]), 0);
-  const first300 = Array.from({ length: 300 }, (_, i) => i);
-  assert.equal(contiguousCap(first300), 300);
+test("next lesson unlocks on 95% watch (completed) or test pass", () => {
+  const ids = ["sample-mega-01", "sample-mega-02", "drive-test-01"];
+  assert.equal(isLessonUnlocked(0, ids, [], []), true);
+  assert.equal(isLessonUnlocked(1, ids, [], []), false);
+  assert.equal(isLessonUnlocked(1, ids, ["sample-mega-01"], []), true);
+  assert.equal(isLessonUnlocked(1, ids, [], ["sample-mega-01"]), true);
+  // Lesson 3 stays locked until lesson 2 is done either way.
+  assert.equal(isLessonUnlocked(2, ids, ["sample-mega-01"], []), false);
+  assert.equal(isLessonUnlocked(2, ids, ["sample-mega-01"], ["sample-mega-02"]), true);
+  assert.equal(isLessonUnlocked(2, ids, ["sample-mega-01", "sample-mega-02"], []), true);
 });

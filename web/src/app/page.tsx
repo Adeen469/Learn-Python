@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { CheckCircle2, Circle, Flame, Play, Target } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { BadgeCheck, CheckCircle2, Circle, Flame, Lock, Play, Target } from "lucide-react";
 import { getLessons, type Lesson } from "@/lib/catalog";
 import {
   PROGRESS_KEY,
@@ -9,6 +9,7 @@ import {
   WATCH_QUALIFY_FRACTION,
   creditLessonWatch,
   emptyProgress,
+  isLessonUnlocked,
   loadProgress,
   markActive,
   progressPercent,
@@ -19,6 +20,7 @@ import {
 } from "@/lib/progress";
 import { SplashScreen } from "@/components/SplashScreen";
 import { VideoPlayer } from "@/components/VideoPlayer";
+import { QuizModal } from "@/components/QuizModal";
 import { AppNavbar } from "@/components/AppNavbar";
 
 function formatDuration(totalSeconds: number): string {
@@ -28,11 +30,17 @@ function formatDuration(totalSeconds: number): string {
 }
 
 export default function HomePage() {
-  const lessons = getLessons();
+  // Seed list first (instant render, works offline); replaced by the
+  // Supabase list from /api/lessons on mount when that fetch succeeds.
+  const [lessons, setLessons] = useState<Lesson[]>(() => getLessons());
+  const lessonIds = lessons.map((l) => l.id);
+  const activeLessonIdRef = useRef<string>(lessons[0].id);
   const [activeLesson, setActiveLesson] = useState<Lesson>(lessons[0]);
   const [completedIds, setCompletedIds] = useState<string[]>([]);
+  const [testPassedIds, setTestPassedIds] = useState<string[]>([]);
   const [progress, setProgress] = useState<ProgressState>(() => emptyProgress(todayKey()));
   const [activeCoverage, setActiveCoverage] = useState({ fraction: 0, seconds: 0 });
+  const [showQuiz, setShowQuiz] = useState(false);
 
   useEffect(() => {
     const savedCompleted = localStorage.getItem("lp_completed_lessons");
@@ -43,12 +51,56 @@ export default function HomePage() {
         // Ignore corrupt saved data.
       }
     }
+    const savedTests = localStorage.getItem("lp_test_passed");
+    if (savedTests) {
+      try {
+        const parsed: unknown = JSON.parse(savedTests);
+        if (Array.isArray(parsed)) {
+          setTestPassedIds(parsed.filter((v) => typeof v === "string"));
+        }
+      } catch {
+        // Ignore corrupt saved data.
+      }
+    }
     // Load today's progress (resets automatically on a new calendar day)
     // and drop the old inflated minute counter, if present.
     const loaded = loadProgress((key) => localStorage.getItem(key));
     setProgress(loaded);
     localStorage.setItem(PROGRESS_KEY, JSON.stringify(loaded));
     localStorage.removeItem("lp_minutes_today");
+  }, []);
+
+  // Keep the ref in sync so the lessons fetch below reads the current id.
+  useEffect(() => {
+    activeLessonIdRef.current = activeLesson.id;
+  });
+
+  // Load the lesson list from Supabase via /api/lessons. On success the
+  // list is replaced (the active lesson is kept if its id still exists,
+  // refreshed to the server copy; otherwise the first lesson is selected).
+  // On failure the seed list stays on screen — silent fallback.
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/lessons")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (cancelled || !data || !Array.isArray(data.lessons) || data.lessons.length === 0) return;
+        const fetched = data.lessons as Lesson[];
+        setLessons(fetched);
+        const current = fetched.find((l) => l.id === activeLessonIdRef.current);
+        if (current) {
+          setActiveLesson(current);
+        } else {
+          setActiveLesson(fetched[0]);
+          setActiveCoverage({ fraction: 0, seconds: 0 });
+        }
+      })
+      .catch(() => {
+        // Silent fallback: the seed list stays on screen.
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   function updateProgress(fn: (prev: ProgressState) => ProgressState) {
@@ -89,6 +141,19 @@ export default function HomePage() {
     updateProgress((prev) => markActive(prev));
   }
 
+  // Passing a lesson's test unlocks the next lesson, just like watching 95%.
+  // It does NOT credit watch minutes — today's progress only counts minutes
+  // actually watched. It does count as activity for the streak.
+  function handleTestPass(lessonId: string) {
+    setTestPassedIds((prev) => {
+      if (prev.includes(lessonId)) return prev;
+      const next = [...prev, lessonId];
+      localStorage.setItem("lp_test_passed", JSON.stringify(next));
+      return next;
+    });
+    updateProgress((prev) => markActive(prev));
+  }
+
   const goalPct = progressPercent(progress);
 
   return (
@@ -100,12 +165,22 @@ export default function HomePage() {
       <main className="mx-auto grid max-w-6xl grid-cols-1 gap-6 px-4 py-6 lg:grid-cols-3 flex-1 w-full">
         {/* Left: Video Player & Notes */}
         <section className="space-y-4 lg:col-span-2">
-          <VideoPlayer
-            lessonId={activeLesson.id}
-            title={activeLesson.title}
-            onWatchCoverage={handleWatchCoverage}
-            onLessonQualified={handleLessonQualified}
-          />
+          {activeLesson.videoUrl ? (
+            <VideoPlayer
+              lessonId={activeLesson.id}
+              title={activeLesson.title}
+              onWatchCoverage={handleWatchCoverage}
+              onLessonQualified={handleLessonQualified}
+            />
+          ) : (
+            <div className="flex aspect-video w-full flex-col items-center justify-center rounded-xl border border-neutral-800 bg-neutral-950 px-6 text-center">
+              <p className="text-sm font-medium text-white">Video coming soon</p>
+              <p className="mt-1.5 max-w-sm text-xs leading-relaxed text-neutral-400">
+                This lesson hasn&apos;t been uploaded to MEGA yet. Check back soon — lessons
+                unlock as videos are added.
+              </p>
+            </div>
+          )}
 
           <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-4">
             <div className="flex items-start justify-between gap-3">
@@ -117,34 +192,50 @@ export default function HomePage() {
                   {activeLesson.title}
                 </h1>
               </div>
-              <button
-                type="button"
-                onClick={() => qualifyLesson(activeLesson.id, activeCoverage.seconds)}
-                disabled={
-                  !completedIds.includes(activeLesson.id) &&
-                  activeCoverage.fraction < WATCH_QUALIFY_FRACTION
-                }
-                className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-neutral-800 transition disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-neutral-900"
-              >
-                {completedIds.includes(activeLesson.id) ? (
-                  <>
-                    <CheckCircle2 className="h-4 w-4 text-white" /> Completed
-                  </>
-                ) : activeCoverage.fraction >= WATCH_QUALIFY_FRACTION ? (
-                  <>
-                    <Circle className="h-4 w-4 text-neutral-400" /> Mark Complete
-                  </>
-                ) : (
-                  <>
-                    <Circle className="h-4 w-4 text-neutral-400" /> Watched{" "}
-                    {Math.round(activeCoverage.fraction * 100)}%
-                  </>
+              <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                {activeLesson.quiz && activeLesson.quiz.length > 0 && !completedIds.includes(activeLesson.id) && (
+                  <button
+                    type="button"
+                    onClick={() => setShowQuiz(true)}
+                    className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-black hover:bg-neutral-200 transition"
+                  >
+                    Take test
+                  </button>
                 )}
-              </button>
+                <button
+                  type="button"
+                  onClick={() => qualifyLesson(activeLesson.id, activeCoverage.seconds)}
+                  disabled={
+                    !completedIds.includes(activeLesson.id) &&
+                    activeCoverage.fraction < WATCH_QUALIFY_FRACTION
+                  }
+                  className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-neutral-800 transition disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-neutral-900"
+                >
+                  {completedIds.includes(activeLesson.id) ? (
+                    <>
+                      <CheckCircle2 className="h-4 w-4 text-white" /> Completed
+                    </>
+                  ) : activeCoverage.fraction >= WATCH_QUALIFY_FRACTION ? (
+                    <>
+                      <Circle className="h-4 w-4 text-neutral-400" /> Mark Complete
+                    </>
+                  ) : (
+                    <>
+                      <Circle className="h-4 w-4 text-neutral-400" /> Watched{" "}
+                      {Math.round(activeCoverage.fraction * 100)}%
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
             <p className="mt-3 text-sm leading-relaxed text-neutral-400">
               {activeLesson.notes}
             </p>
+            {testPassedIds.includes(activeLesson.id) && !completedIds.includes(activeLesson.id) && (
+              <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-green-400">
+                <BadgeCheck className="h-4 w-4" /> Test passed — next lesson unlocked
+              </p>
+            )}
           </div>
         </section>
 
@@ -183,14 +274,20 @@ export default function HomePage() {
             <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
               Course Lessons
             </h3>
+            <p className="mt-1.5 text-xs leading-relaxed text-neutral-500">
+              The next lesson unlocks when the previous one is 95% watched or its test is passed.
+            </p>
             <ul className="mt-3 space-y-2">
-              {lessons.map((lesson) => {
+              {lessons.map((lesson, index) => {
                 const isActive = lesson.id === activeLesson.id;
                 const isDone = completedIds.includes(lesson.id);
+                const isTestPassed = testPassedIds.includes(lesson.id);
+                const unlocked = isLessonUnlocked(index, lessonIds, completedIds, testPassedIds);
                 return (
                   <li key={lesson.id}>
                     <button
                       type="button"
+                      disabled={!unlocked}
                       onClick={() => {
                         setActiveLesson(lesson);
                         setActiveCoverage({ fraction: 0, seconds: 0 });
@@ -199,16 +296,26 @@ export default function HomePage() {
                         isActive
                           ? "border-white bg-neutral-900"
                           : "border-neutral-800 bg-black hover:border-neutral-700"
-                      }`}
+                      } ${!unlocked ? "cursor-not-allowed opacity-50 hover:border-neutral-800" : ""}`}
                     >
-                      <Play className="mt-0.5 h-4 w-4 shrink-0 text-white" />
+                      {unlocked ? (
+                        <Play className="mt-0.5 h-4 w-4 shrink-0 text-white" />
+                      ) : (
+                        <Lock className="mt-0.5 h-4 w-4 shrink-0 text-neutral-500" />
+                      )}
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium text-white">
                           {lesson.title}
                         </p>
                         <p className="mt-0.5 text-xs text-neutral-500">
                           {formatDuration(lesson.durationSeconds)} •{" "}
-                          {isDone ? "Completed" : "Not started"}
+                          {isDone
+                            ? "Completed"
+                            : !unlocked
+                              ? "Locked"
+                              : isTestPassed
+                                ? "Test passed"
+                                : "Not started"}
                         </p>
                       </div>
                     </button>
@@ -219,6 +326,13 @@ export default function HomePage() {
           </div>
         </aside>
       </main>
+      {showQuiz && activeLesson.quiz && activeLesson.quiz.length > 0 && (
+        <QuizModal
+          lesson={activeLesson}
+          onClose={() => setShowQuiz(false)}
+          onPass={handleTestPass}
+        />
+      )}
     </div>
   );
 }

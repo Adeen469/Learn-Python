@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Check, Download, HardDrive, Loader2, Trash2, Wifi, WifiOff } from "lucide-react";
-import { WATCH_QUALIFY_FRACTION, contiguousCap } from "@/lib/progress";
+import { WATCH_QUALIFY_FRACTION } from "@/lib/progress";
 
 const CACHE_NAME = "lp-offline-videos-v1";
 
@@ -39,14 +39,6 @@ export function VideoPlayer({ lessonId, title, onWatchCoverage, onLessonQualifie
   onWatchCoverageRef.current = onWatchCoverage;
   const onLessonQualifiedRef = useRef(onLessonQualified);
   onLessonQualifiedRef.current = onLessonQualified;
-
-  // No-skip rule: the user may seek only inside what they have actually
-  // watched. The frontier is the furthest second reached by playing (or
-  // the contiguous coverage restored from a previous session). Any seek
-  // past the frontier is clamped back and a short notice is shown.
-  const maxAllowedRef = useRef(0);
-  const skipMsgTimeoutRef = useRef<number | null>(null);
-  const [skipBlocked, setSkipBlocked] = useState(false);
 
   function coverageKey(id: string) {
     return `lp_coverage_${id}`;
@@ -103,7 +95,6 @@ export function VideoPlayer({ lessonId, title, onWatchCoverage, onLessonQualifie
     const video = videoRef.current;
     if (!video || video.paused) return;
     const now = video.currentTime;
-    maxAllowedRef.current = Math.max(maxAllowedRef.current, now);
     const delta = now - lastTimeRef.current;
     lastTimeRef.current = now;
     if (delta > 0 && delta <= 2) {
@@ -149,33 +140,6 @@ export function VideoPlayer({ lessonId, title, onWatchCoverage, onLessonQualifie
     }
   }
 
-  function showSkipBlocked() {
-    setSkipBlocked(true);
-    if (skipMsgTimeoutRef.current !== null) {
-      window.clearTimeout(skipMsgTimeoutRef.current);
-    }
-    skipMsgTimeoutRef.current = window.setTimeout(() => setSkipBlocked(false), 2500);
-  }
-
-  function handleSeeking() {
-    const video = videoRef.current;
-    if (!video) return;
-    const allowed = maxAllowedRef.current;
-    if (video.currentTime > allowed + 0.5) {
-      video.currentTime = allowed;
-      showSkipBlocked();
-    }
-  }
-
-  function handleSeeked() {
-    const video = videoRef.current;
-    if (!video) return;
-    const allowed = maxAllowedRef.current;
-    if (video.currentTime > allowed + 0.5) {
-      video.currentTime = allowed;
-    }
-  }
-
   useEffect(() => {
     setIsOnline(navigator.onLine);
     const onUp = () => setIsOnline(true);
@@ -192,7 +156,6 @@ export function VideoPlayer({ lessonId, title, onWatchCoverage, onLessonQualifie
     let activeObjectUrl: string | null = null;
     let cancelled = false;
     watchedRef.current = loadWatched(lessonId);
-    maxAllowedRef.current = contiguousCap([...watchedRef.current]);
     durationRef.current = 0;
     lastTimeRef.current = 0;
     lastReportedCoverageRef.current = -1;
@@ -311,19 +274,11 @@ export function VideoPlayer({ lessonId, title, onWatchCoverage, onLessonQualifie
           preload="metadata"
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
-          onSeeking={handleSeeking}
-          onSeeked={handleSeeked}
           onPause={() => persistWatched(lessonId)}
           onEnded={handleEnded}
           className="h-full w-full bg-black"
         />
       </div>
-
-      {skipBlocked && (
-        <p className="border-t border-neutral-800 bg-neutral-950 px-4 py-2 text-xs text-amber-400">
-          Skipping ahead is disabled — keep watching to unlock the next part.
-        </p>
-      )}
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-800 px-4 py-3 bg-neutral-950">
         <div className="min-w-0">

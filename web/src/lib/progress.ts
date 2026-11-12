@@ -34,16 +34,20 @@ export function qualifiesForCredit(fraction: number): boolean {
 }
 
 /**
- * Furthest second the user may seek to: the first unwatched second when
- * counting from the start. Seeking is only allowed inside what has actually
- * been watched, so skipping ahead is impossible. Gaps (from before the
- * no-skip rule) stop the frontier at the first gap.
+ * Is lesson `index` open? The first lesson is always open. Any later lesson
+ * opens when the previous lesson is 95% watched (completed) OR its test was
+ * passed. Seeking is free — the lock is on progress, not on the player.
  */
-export function contiguousCap(watchedSeconds: number[]): number {
-  const set = new Set(watchedSeconds);
-  let cap = 0;
-  while (set.has(cap)) cap += 1;
-  return cap;
+export function isLessonUnlocked(
+  index: number,
+  lessonIds: string[],
+  completedIds: string[],
+  testPassedIds: string[]
+): boolean {
+  if (index <= 0) return true;
+  const prevId = lessonIds[index - 1];
+  if (!prevId) return true;
+  return completedIds.includes(prevId) || testPassedIds.includes(prevId);
 }
 
 export function todayKey(d = new Date()): string {
