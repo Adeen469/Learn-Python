@@ -42,11 +42,11 @@ const SEED_LESSONS: Lesson[] = [
   },
   {
     id: "drive-test-01",
-    title: "Drive Test Video",
+    title: "Locora",
     moduleTitle: "Module 1: Getting Started",
     courseTitle: "LP Foundation",
     durationSeconds: 0,
-    videoUrl: "dBJFwpXJwPpp8-4DKlRprezVXLc4ErmS",
+    videoUrl: "1dBJFwpXJwPpp8-4DKlRprezVXLc4ErmS",
     videoSource: "drive",
     notes: "Test video streamed from Google Drive.",
   },
