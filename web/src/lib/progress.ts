@@ -33,23 +33,6 @@ export function qualifiesForCredit(fraction: number): boolean {
   return fraction >= WATCH_QUALIFY_FRACTION;
 }
 
-/**
- * Is lesson `index` open? The first lesson is always open. Any later lesson
- * opens when the previous lesson is 95% watched (completed) OR its test was
- * passed. Seeking is free — the lock is on progress, not on the player.
- */
-export function isLessonUnlocked(
-  index: number,
-  lessonIds: string[],
-  completedIds: string[],
-  testPassedIds: string[]
-): boolean {
-  if (index <= 0) return true;
-  const prevId = lessonIds[index - 1];
-  if (!prevId) return true;
-  return completedIds.includes(prevId) || testPassedIds.includes(prevId);
-}
-
 export function todayKey(d = new Date()): string {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");

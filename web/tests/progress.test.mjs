@@ -142,21 +142,3 @@ test("day rollover resets credited lessons but keeps history", () => {
   assert.deepEqual(next.activeDates, ["2026-11-12"]);
 });
 
-function isLessonUnlocked(index, lessonIds, completedIds, testPassedIds) {
-  if (index <= 0) return true;
-  const prevId = lessonIds[index - 1];
-  if (!prevId) return true;
-  return completedIds.includes(prevId) || testPassedIds.includes(prevId);
-}
-
-test("next lesson unlocks on 95% watch (completed) or test pass", () => {
-  const ids = ["sample-mega-01", "sample-mega-02", "drive-test-01"];
-  assert.equal(isLessonUnlocked(0, ids, [], []), true);
-  assert.equal(isLessonUnlocked(1, ids, [], []), false);
-  assert.equal(isLessonUnlocked(1, ids, ["sample-mega-01"], []), true);
-  assert.equal(isLessonUnlocked(1, ids, [], ["sample-mega-01"]), true);
-  // Lesson 3 stays locked until lesson 2 is done either way.
-  assert.equal(isLessonUnlocked(2, ids, ["sample-mega-01"], []), false);
-  assert.equal(isLessonUnlocked(2, ids, ["sample-mega-01"], ["sample-mega-02"]), true);
-  assert.equal(isLessonUnlocked(2, ids, ["sample-mega-01", "sample-mega-02"], []), true);
-});

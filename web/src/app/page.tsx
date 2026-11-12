@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { BadgeCheck, CheckCircle2, Circle, Flame, Lock, Play, Target } from "lucide-react";
+import { BadgeCheck, CheckCircle2, Circle, Flame, Play, Target } from "lucide-react";
 import { getLessons, type Lesson } from "@/lib/catalog";
 import {
   PROGRESS_KEY,
@@ -9,7 +9,6 @@ import {
   WATCH_QUALIFY_FRACTION,
   creditLessonWatch,
   emptyProgress,
-  isLessonUnlocked,
   loadProgress,
   markActive,
   progressPercent,
@@ -33,7 +32,6 @@ export default function HomePage() {
   // Seed list first (instant render, works offline); replaced by the
   // Supabase list from /api/lessons on mount when that fetch succeeds.
   const [lessons, setLessons] = useState<Lesson[]>(() => getLessons());
-  const lessonIds = lessons.map((l) => l.id);
   const activeLessonIdRef = useRef<string>(lessons[0].id);
   const [activeLesson, setActiveLesson] = useState<Lesson>(lessons[0]);
   const [completedIds, setCompletedIds] = useState<string[]>([]);
@@ -274,20 +272,15 @@ export default function HomePage() {
             <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
               Course Lessons
             </h3>
-            <p className="mt-1.5 text-xs leading-relaxed text-neutral-500">
-              The next lesson unlocks when the previous one is 95% watched or its test is passed.
-            </p>
             <ul className="mt-3 space-y-2">
-              {lessons.map((lesson, index) => {
+              {lessons.map((lesson) => {
                 const isActive = lesson.id === activeLesson.id;
                 const isDone = completedIds.includes(lesson.id);
                 const isTestPassed = testPassedIds.includes(lesson.id);
-                const unlocked = isLessonUnlocked(index, lessonIds, completedIds, testPassedIds);
                 return (
                   <li key={lesson.id}>
                     <button
                       type="button"
-                      disabled={!unlocked}
                       onClick={() => {
                         setActiveLesson(lesson);
                         setActiveCoverage({ fraction: 0, seconds: 0 });
@@ -296,26 +289,16 @@ export default function HomePage() {
                         isActive
                           ? "border-white bg-neutral-900"
                           : "border-neutral-800 bg-black hover:border-neutral-700"
-                      } ${!unlocked ? "cursor-not-allowed opacity-50 hover:border-neutral-800" : ""}`}
+                      }`}
                     >
-                      {unlocked ? (
-                        <Play className="mt-0.5 h-4 w-4 shrink-0 text-white" />
-                      ) : (
-                        <Lock className="mt-0.5 h-4 w-4 shrink-0 text-neutral-500" />
-                      )}
+                      <Play className="mt-0.5 h-4 w-4 shrink-0 text-white" />
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium text-white">
                           {lesson.title}
                         </p>
                         <p className="mt-0.5 text-xs text-neutral-500">
                           {formatDuration(lesson.durationSeconds)} •{" "}
-                          {isDone
-                            ? "Completed"
-                            : !unlocked
-                              ? "Locked"
-                              : isTestPassed
-                                ? "Test passed"
-                                : "Not started"}
+                          {isDone ? "Completed" : isTestPassed ? "Test passed" : "Not started"}
                         </p>
                       </div>
                     </button>
