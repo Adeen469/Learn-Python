@@ -11,6 +11,9 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Produces a minimal self-contained server (.next/standalone/server.js)
+  // so the app can run on Fly.io from a plain `node server.js`.
+  output: "standalone",
   async headers() {
     return [
       {
