@@ -7,6 +7,12 @@ import { SplashScreen } from "@/components/SplashScreen";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { AppNavbar } from "@/components/AppNavbar";
 
+function formatDuration(totalSeconds: number): string {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = Math.round(totalSeconds % 60);
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
 export default function HomePage() {
   const lessons = getLessons();
   const [activeLesson, setActiveLesson] = useState<Lesson>(lessons[0]);
@@ -138,7 +144,7 @@ export default function HomePage() {
                           {lesson.title}
                         </p>
                         <p className="mt-0.5 text-xs text-neutral-500">
-                          {Math.floor(lesson.durationSeconds / 60)}m •{" "}
+                          {formatDuration(lesson.durationSeconds)} •{" "}
                           {isDone ? "Completed" : "Not started"}
                         </p>
                       </div>
