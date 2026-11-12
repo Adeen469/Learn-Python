@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { getLessonById } from "@/lib/catalog";
+import { fetchLessonById } from "@/lib/lessons";
 import { openMegaStream } from "@/lib/mega";
 import { openDriveStream, DriveStreamError } from "@/lib/drive";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
@@ -29,7 +29,9 @@ export async function GET(
     return NextResponse.json({ error: "Invalid lesson ID" }, { status: 400 });
   }
 
-  const lesson = getLessonById(parsed.data);
+  // Lessons come from Supabase when configured, seed catalog otherwise
+  // (fetchLessons caches for 60s; the video limit above still applies).
+  const lesson = await fetchLessonById(parsed.data);
   if (!lesson) {
     return NextResponse.json({ error: "Lesson not found" }, { status: 404 });
   }
@@ -73,6 +75,29 @@ export async function GET(
       headers,
     });
   } catch (err) {
+    // Structured one-line log for monitoring (no external service):
+    // lessonId + source + error code + HTTP status, then the raw error.
+    const code = err instanceof DriveStreamError ? err.code : "UPSTREAM";
+    const status =
+      err instanceof DriveStreamError
+        ? err.code === "NOT_FOUND"
+          ? 404
+          : err.code === "NOT_CONFIGURED"
+            ? 503
+            : err.code === "NOT_DOWNLOADABLE"
+              ? 422
+              : err.code === "KEY_INVALID"
+                ? 502
+                : 502
+        : 502;
+    console.error(
+      JSON.stringify({
+        lessonId: parsed.data,
+        source: lesson.videoSource,
+        code,
+        status,
+      })
+    );
     console.error("Video stream error:", err);
     if (err instanceof DriveStreamError) {
       if (err.code === "NOT_FOUND") {

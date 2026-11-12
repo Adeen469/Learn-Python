@@ -16,6 +16,17 @@ primary_region = "sin"
   min_machines_running = 0
   processes = ["app"]
 
+# Service-level HTTP health check (Fly docs: [[http_service.checks]] with
+# grace_period / interval / method / path / timeout). Hits /api/health,
+# which answers from the cached lesson fetch — no fresh DB ping per probe.
+# A failing check takes the machine out of routing; it never restarts it.
+[[http_service.checks]]
+  grace_period = "10s"
+  interval = "30s"
+  method = "GET"
+  path = "/api/health"
+  timeout = "5s"
+
 [[vm]]
   cpu_kind = "shared"
   cpus = 1
