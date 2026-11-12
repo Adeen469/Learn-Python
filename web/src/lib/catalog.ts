@@ -30,10 +30,8 @@ const SEED_LESSONS: Lesson[] = [
     videoSource: "mega",
     notes: "Streamed and decrypted on the fly from MEGA. Click 'Save Offline' to cache inside the app.",
   },
-];
-const SAAD_LESSONS: Lesson[] = [
   {
-    id: "sample-mega-01",
+    id: "sample-mega-02",
     title: "Research",
     moduleTitle: "Module 2: Getting Started",
     courseTitle: "LP Foundation",
@@ -46,11 +44,9 @@ const SAAD_LESSONS: Lesson[] = [
 
 export function getLessons(): Lesson[] {
   return SEED_LESSONS;
-  return SAAD_LESSONS;
 }
 
 export function getLessonById(lessonId: string): Lesson | null {
   return SEED_LESSONS.find((l) => l.id === lessonId) ?? null;
-  return SAAD_LESSONS.find((l) => l.id === lessonId) ?? null;
 }
 
