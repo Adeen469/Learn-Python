@@ -225,25 +225,25 @@ export default function GitHubPage() {
                 placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
-                className="flex-1 rounded-lg border border-neutral-800 bg-black px-3 py-2 text-xs text-white placeholder-neutral-600 focus:border-white focus:outline-none"
+                className="min-w-0 flex-1 rounded-lg border border-neutral-800 bg-black px-3 py-2 text-xs text-white placeholder-neutral-600 focus:border-white focus:outline-none"
               />
               <button
                 type="submit"
-                className="rounded-lg bg-white px-4 py-2 text-xs font-semibold text-black hover:bg-neutral-200 transition"
+                className="shrink-0 whitespace-nowrap rounded-lg bg-white px-4 py-2 text-xs font-semibold text-black hover:bg-neutral-200 transition"
               >
                 Connect Token
               </button>
             </form>
           </div>
         ) : (
-          <div className="flex items-center justify-between rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3">
-            <div className="flex items-center gap-2 text-xs">
-              <Check className="h-4 w-4 text-emerald-400" />
-              <span className="text-neutral-300">
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3">
+            <div className="flex min-w-0 items-center gap-2 text-xs">
+              <Check className="h-4 w-4 shrink-0 text-emerald-400" />
+              <span className="truncate text-neutral-300">
                 Connected to GitHub • <span className="font-mono text-neutral-400">{savedToken.slice(0, 7)}...</span>
               </span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex shrink-0 items-center gap-2">
               <button
                 type="button"
                 onClick={() => fetchRepos(savedToken)}
@@ -344,7 +344,7 @@ export default function GitHubPage() {
                   </select>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   <div>
                     <label className="text-xs text-neutral-400 block mb-1">File Path in Repo *</label>
                     <input

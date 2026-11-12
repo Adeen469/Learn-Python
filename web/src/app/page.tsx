@@ -54,9 +54,9 @@ export default function HomePage() {
           />
 
           <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs uppercase tracking-wider text-neutral-500">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-xs uppercase tracking-wider text-neutral-500">
                   {activeLesson.courseTitle} • {activeLesson.moduleTitle}
                 </p>
                 <h1 className="mt-1 text-lg font-semibold text-white">
@@ -66,7 +66,7 @@ export default function HomePage() {
               <button
                 type="button"
                 onClick={() => markLessonComplete(activeLesson.id)}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-neutral-800 transition"
+                className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-neutral-800 transition"
               >
                 {completedIds.includes(activeLesson.id) ? (
                   <>

@@ -199,10 +199,10 @@ if '${pkgName}' in sys.modules:
 
         {/* Tab Selection */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-800 pb-3">
-          <div className="flex gap-1.5 rounded-lg border border-neutral-800 bg-neutral-950 p-1 text-xs">
+          <div className="flex gap-1.5 overflow-x-auto rounded-lg border border-neutral-800 bg-neutral-950 p-1 text-xs">
             <button
               onClick={() => setActiveTab("stdlib")}
-              className={`rounded-md px-3.5 py-1.5 font-medium transition ${
+              className={`shrink-0 whitespace-nowrap rounded-md px-3.5 py-1.5 font-medium transition ${
                 activeTab === "stdlib" ? "bg-white text-black" : "text-neutral-400 hover:text-white"
               }`}
             >
@@ -210,7 +210,7 @@ if '${pkgName}' in sys.modules:
             </button>
             <button
               onClick={() => setActiveTab("external")}
-              className={`rounded-md px-3.5 py-1.5 font-medium transition ${
+              className={`shrink-0 whitespace-nowrap rounded-md px-3.5 py-1.5 font-medium transition ${
                 activeTab === "external" ? "bg-white text-black" : "text-neutral-400 hover:text-white"
               }`}
             >
@@ -218,7 +218,7 @@ if '${pkgName}' in sys.modules:
             </button>
             <button
               onClick={() => setActiveTab("search")}
-              className={`rounded-md px-3.5 py-1.5 font-medium transition ${
+              className={`shrink-0 whitespace-nowrap rounded-md px-3.5 py-1.5 font-medium transition ${
                 activeTab === "search" ? "bg-white text-black" : "text-neutral-400 hover:text-white"
               }`}
             >
@@ -227,14 +227,14 @@ if '${pkgName}' in sys.modules:
           </div>
 
           {activeTab === "stdlib" && (
-            <div className="relative">
+            <div className="relative shrink-0">
               <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-neutral-500" />
               <input
                 type="text"
                 placeholder="Filter built-in modules..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-56 rounded-lg border border-neutral-800 bg-neutral-950 pl-8 pr-3 py-1.5 text-xs text-white placeholder-neutral-600 focus:border-white focus:outline-none"
+                className="w-full rounded-lg border border-neutral-800 bg-neutral-950 pl-8 pr-3 py-1.5 text-xs text-white placeholder-neutral-600 focus:border-white focus:outline-none sm:w-56"
               />
             </div>
           )}
@@ -377,12 +377,12 @@ if '${pkgName}' in sys.modules:
                   placeholder="e.g. rich, requests, sympy, tabulate, httpx, textstat"
                   value={pypiQuery}
                   onChange={(e) => setPypiQuery(e.target.value)}
-                  className="flex-1 rounded-lg border border-neutral-800 bg-black px-3 py-2 text-xs text-white placeholder-neutral-600 focus:border-white focus:outline-none"
+                  className="min-w-0 flex-1 rounded-lg border border-neutral-800 bg-black px-3 py-2 text-xs text-white placeholder-neutral-600 focus:border-white focus:outline-none"
                 />
                 <button
                   type="submit"
                   disabled={pypiSearching}
-                  className="rounded-lg bg-white px-4 py-2 text-xs font-semibold text-black hover:bg-neutral-200 transition disabled:opacity-50 flex items-center gap-1.5"
+                  className="shrink-0 whitespace-nowrap rounded-lg bg-white px-4 py-2 text-xs font-semibold text-black hover:bg-neutral-200 transition disabled:opacity-50 flex items-center gap-1.5"
                 >
                   {pypiSearching ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Search className="h-3.5 w-3.5" />}
                   Search PyPI
@@ -397,8 +397,8 @@ if '${pkgName}' in sys.modules:
 
               {pypiResult && (
                 <div className="mt-4 rounded-xl border border-neutral-800 bg-black p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="min-w-0">
                       <span className="font-mono text-base font-bold text-white">
                         {pypiResult.name}
                       </span>{" "}

@@ -14,6 +14,14 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Safety net: never allow accidental horizontal page scroll from a wide
+   child. `clip` (unlike `hidden`) does not create a scroll container, so
+   sticky positioning keeps working. */
+html,
+body {
+  overflow-x: clip;
+}
+
 @keyframes splash-logo-in {
   0% {
     opacity: 0;

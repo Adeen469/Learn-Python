@@ -425,9 +425,9 @@ sys.stderr = sys.stdout
         {/* Top Control Bar */}
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-2.5">
           <div className="flex items-center gap-3">
-            <span className="text-xs uppercase tracking-wider text-neutral-500 font-semibold flex items-center gap-1.5">
-              <FileCode className="h-4 w-4 text-white" />
-              Active: <span className="text-white font-mono">{activeFile?.path ?? "None"}</span>
+            <span className="text-xs uppercase tracking-wider text-neutral-500 font-semibold flex items-center gap-1.5 min-w-0">
+              <FileCode className="h-4 w-4 text-white shrink-0" />
+              Active: <span className="text-white font-mono truncate">{activeFile?.path ?? "None"}</span>
               {activeFile && !activeFile.isSaved && (
                 <span className="text-amber-400 font-sans text-xs ml-1">(unsaved*)</span>
               )}
@@ -506,7 +506,7 @@ sys.stderr = sys.stdout
             }}
             onDragLeave={() => setIsExternalDragOver(false)}
             onDrop={handleExternalDrop}
-            className={`md:col-span-3 rounded-xl border flex flex-col overflow-hidden transition relative ${
+            className={`max-h-[340px] md:col-span-3 md:max-h-none rounded-xl border flex flex-col overflow-hidden transition relative ${
               isExternalDragOver
                 ? "border-white bg-neutral-900 ring-2 ring-white/20"
                 : "border-neutral-800 bg-neutral-950"
@@ -644,7 +644,7 @@ sys.stderr = sys.stdout
                     <button
                       type="button"
                       onClick={() => handleDeleteItem(item)}
-                      className="opacity-0 group-hover:opacity-100 hover:text-red-400 p-0.5 ml-1"
+                      className="opacity-100 md:opacity-0 md:group-hover:opacity-100 hover:text-red-400 p-0.5 ml-1"
                       title="Delete"
                     >
                       <Trash2 className="h-3 w-3" />
@@ -662,13 +662,13 @@ sys.stderr = sys.stdout
           </div>
 
           {/* Column 2: Real Monaco Code Editor (6 cols) */}
-          <div className="md:col-span-6 rounded-xl border border-neutral-800 bg-neutral-950 flex flex-col overflow-hidden">
+          <div className="min-h-[420px] sm:min-h-[480px] md:col-span-6 md:min-h-0 rounded-xl border border-neutral-800 bg-neutral-950 flex flex-col overflow-hidden">
             <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-2 bg-black/60">
-              <span className="text-xs font-mono text-neutral-300 flex items-center gap-2">
-                <FileCode className="h-3.5 w-3.5 text-white" />
-                {activeFile?.path} {!activeFile?.isSaved && "(unsaved*)"}
+              <span className="text-xs font-mono text-neutral-300 flex items-center gap-2 min-w-0">
+                <FileCode className="h-3.5 w-3.5 text-white shrink-0" />
+                <span className="truncate">{activeFile?.path} {!activeFile?.isSaved && "(unsaved*)"}</span>
               </span>
-              <span className="text-[11px] text-neutral-500 font-mono">
+              <span className="hidden text-[11px] text-neutral-500 font-mono sm:inline shrink-0 ml-2">
                 Python 3.12 (WASM) • Monaco Editor
               </span>
             </div>
@@ -701,7 +701,7 @@ sys.stderr = sys.stdout
           </div>
 
           {/* Column 3: Terminal Output / Compiler Logs (3 cols) */}
-          <div className="md:col-span-3 rounded-xl border border-neutral-800 bg-neutral-950 flex flex-col overflow-hidden">
+          <div className="min-h-[180px] md:col-span-3 md:min-h-0 rounded-xl border border-neutral-800 bg-neutral-950 flex flex-col overflow-hidden">
             <div className="flex items-center justify-between border-b border-neutral-800 px-3.5 py-2 bg-black/60">
               <span className="text-xs font-mono text-neutral-400 flex items-center gap-1.5">
                 <Terminal className="h-3.5 w-3.5 text-white" /> Terminal Logs
