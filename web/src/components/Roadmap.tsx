@@ -6,6 +6,8 @@ import { getLessons, type Lesson } from "@/lib/catalog";
 import {
   EXTRA_ROLES,
   buildRoadmapStages,
+  completedStageCount,
+  currentStage,
   extrasOf,
   type RoadmapStage,
 } from "@/lib/roadmap";
@@ -54,6 +56,10 @@ export function Roadmap({ onClose, onSelectLesson }: RoadmapProps) {
   const totalDone = stages.reduce((n, s) => n + s.completedCount, 0);
   const totalLessons = stages.reduce((n, s) => n + s.lessons.length, 0);
   const overallPct = totalLessons === 0 ? 0 : Math.round((totalDone / totalLessons) * 100);
+  // Completion is stage-by-stage: the learner completes stages, not the
+  // whole course at once. The current stage is the first incomplete one.
+  const current = currentStage(stages);
+  const stagesDone = completedStageCount(stages);
 
   // Expand the first incomplete stage once the stages are known.
   useEffect(() => {
@@ -101,10 +107,13 @@ export function Roadmap({ onClose, onSelectLesson }: RoadmapProps) {
 
   function renderStage(stage: RoadmapStage, index: number) {
     const isOpen = !!expanded[stage.id];
+    const isCurrent = current !== null && current.id === stage.id;
     return (
       <section
         key={stage.id}
-        className="animate-roadmap-stage rounded-xl border border-neutral-800 bg-neutral-950"
+        className={`animate-roadmap-stage rounded-xl border bg-neutral-950 ${
+          isCurrent ? "border-white/70" : "border-neutral-800"
+        }`}
         style={{ animationDelay: `${index * 90}ms` }}
       >
         <button
@@ -116,8 +125,16 @@ export function Roadmap({ onClose, onSelectLesson }: RoadmapProps) {
           <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
               Stage {index + 1} • Day {stage.startDay}–{stage.endDay} • {stage.lessons.length} lessons
+              {isCurrent ? " • Current stage" : ""}
             </p>
-            <h3 className="mt-1 text-base font-semibold text-white">{stage.title}</h3>
+            <h3 className="mt-1 flex flex-wrap items-center gap-2 text-base font-semibold text-white">
+              {stage.title}
+              {stage.complete && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-black">
+                  <CheckCircle2 className="h-3 w-3" /> Complete
+                </span>
+              )}
+            </h3>
             <p className="mt-0.5 text-xs text-neutral-400">{stage.subtitle}</p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
@@ -195,14 +212,18 @@ export function Roadmap({ onClose, onSelectLesson }: RoadmapProps) {
           </button>
         </div>
 
-        {/* Overall progress */}
+        {/* Overall progress — stages, not the course at once */}
         <div className="mt-6 rounded-xl border border-neutral-800 bg-neutral-950 p-4">
           <div className="flex items-center justify-between text-xs">
             <span className="font-medium text-neutral-300">Overall progress</span>
             <span className="font-semibold text-white">
-              {totalDone}/{totalLessons} lessons • {overallPct}%
+              {stagesDone}/{stages.length} stages complete • {totalDone}/{totalLessons} lessons • {overallPct}%
             </span>
           </div>
+          <p className="mt-1.5 text-xs text-neutral-500">
+            You complete the course stage by stage
+            {current ? ` — you are on ${current.title}.` : " — every stage is complete."}
+          </p>
           <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-neutral-800">
             <div
               className="animate-roadmap-bar h-full rounded-full bg-white"

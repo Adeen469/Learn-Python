@@ -9,7 +9,9 @@ const csp = [
   // via middleware would be the stricter alternative; out of scope here.
   "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
+  // lh3.googleusercontent.com serves Google profile pictures (the
+  // navbar avatar comes from the signed-in user's Google photo).
+  "img-src 'self' data: blob: https://lh3.googleusercontent.com",
   "font-src 'self' data:",
   "connect-src 'self' https://cdn.jsdelivr.net",
   "worker-src 'self' blob:",

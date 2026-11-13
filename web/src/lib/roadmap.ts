@@ -25,6 +25,8 @@ export interface RoadmapStage extends RoadmapStageDef {
   lessons: Lesson[];
   completedCount: number;
   percent: number;
+  /** True when EVERY lesson in the stage is completed (95% watched). */
+  complete: boolean;
   /** First uncompleted lesson in the stage, or null when all are done. */
   nextLesson: Lesson | null;
 }
@@ -119,6 +121,32 @@ export function buildRoadmapStages(
         : Math.round((completedCount / stageLessons.length) * 100);
     const nextLesson =
       stageLessons.find((l) => !completedIds.includes(l.id)) ?? null;
-    return { ...def, lessons: stageLessons, completedCount, percent, nextLesson };
+    // A stage is complete only when it has lessons AND all of them are
+    // done. Completion is stage-by-stage — there is no single "course
+    // complete" gate; the course is finished one stage at a time.
+    const complete =
+      stageLessons.length > 0 && completedCount === stageLessons.length;
+    return {
+      ...def,
+      lessons: stageLessons,
+      completedCount,
+      percent,
+      complete,
+      nextLesson,
+    };
   });
+}
+
+/**
+ * The current stage: the FIRST incomplete stage (the one the learner is
+ * working through now). Null when every stage is complete. Extras never
+ * count — they are shortcuts, not a stage.
+ */
+export function currentStage(stages: RoadmapStage[]): RoadmapStage | null {
+  return stages.find((s) => !s.complete) ?? null;
+}
+
+/** How many of the 6 stages are complete. */
+export function completedStageCount(stages: RoadmapStage[]): number {
+  return stages.filter((s) => s.complete).length;
 }

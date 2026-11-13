@@ -34,8 +34,19 @@ function buildRoadmapStages(lessons, completedIds) {
         ? 0
         : Math.round((completedCount / stageLessons.length) * 100);
     const nextLesson = stageLessons.find((l) => !completedIds.includes(l.id)) ?? null;
-    return { ...def, lessons: stageLessons, completedCount, percent, nextLesson };
+    const complete = stageLessons.length > 0 && completedCount === stageLessons.length;
+    return { ...def, lessons: stageLessons, completedCount, percent, complete, nextLesson };
   });
+}
+
+// First incomplete stage — the one the learner is working through now.
+// Null when every stage is complete. Extras never count.
+function currentStage(stages) {
+  return stages.find((s) => !s.complete) ?? null;
+}
+
+function completedStageCount(stages) {
+  return stages.filter((s) => s.complete).length;
 }
 
 function makeLessons() {
@@ -109,4 +120,56 @@ test("dayNumberOf returns null for extras and unknown ids", () => {
   assert.equal(dayNumberOf({ id: "python-extra-001" }), null);
   assert.equal(dayNumberOf({ id: "something-else" }), null);
   assert.equal(dayNumberOf({ id: "python-day-042" }), 42);
+});
+
+test("a stage is complete only when ALL its lessons are done", () => {
+  const lessons = makeLessons();
+  // Basics is 19 lessons; completing 18 of them is not complete.
+  const almost = [];
+  for (let day = 1; day <= 18; day += 1) almost.push(`python-day-${String(day).padStart(3, "0")}`);
+  let stages = buildRoadmapStages(lessons, almost);
+  assert.equal(stages[0].complete, false);
+  assert.equal(stages[0].percent, Math.round((18 / 19) * 100));
+  // All 19 done: complete, 100%, no next lesson.
+  const all = [...almost, "python-day-019"];
+  stages = buildRoadmapStages(lessons, all);
+  assert.equal(stages[0].complete, true);
+  assert.equal(stages[0].percent, 100);
+  assert.equal(stages[0].nextLesson, null);
+  // The other stages are untouched.
+  assert.equal(stages[1].complete, false);
+  assert.equal(stages[1].percent, 0);
+});
+
+test("current stage is the first incomplete stage", () => {
+  const lessons = makeLessons();
+  // Nothing done: Basics is current.
+  let stages = buildRoadmapStages(lessons, []);
+  assert.equal(currentStage(stages).id, "basics");
+  // Basics done (Day 1-19): Functions & Collections is current.
+  const basicsDone = [];
+  for (let day = 1; day <= 19; day += 1) basicsDone.push(`python-day-${String(day).padStart(3, "0")}`);
+  stages = buildRoadmapStages(lessons, basicsDone);
+  assert.equal(currentStage(stages).id, "functions");
+  assert.equal(completedStageCount(stages), 1);
+  // Everything done: no current stage, all 6 complete.
+  const everything = lessons
+    .filter((l) => l.id.startsWith("python-day-"))
+    .map((l) => l.id);
+  stages = buildRoadmapStages(lessons, everything);
+  assert.equal(currentStage(stages), null);
+  assert.equal(completedStageCount(stages), 6);
+});
+
+test("extras never count toward stage completion", () => {
+  const lessons = makeLessons();
+  // Only the 3 extras "done" — no stage may be complete.
+  const stages = buildRoadmapStages(
+    lessons,
+    ["python-extra-001", "python-extra-002", "python-extra-003"]
+  );
+  assert.equal(stages.every((s) => s.complete === false), true);
+  assert.equal(completedStageCount(stages), 0);
+  assert.equal(currentStage(stages).id, "basics");
+  assert.equal(stages.reduce((n, s) => n + s.completedCount, 0), 0);
 });

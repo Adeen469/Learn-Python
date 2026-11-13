@@ -90,6 +90,8 @@ secrets, never paste them in chat):
 | `GOOGLE_CLIENT_ID` | Required for sign-in | Google OAuth client ID (server-side only) |
 | `GOOGLE_CLIENT_SECRET` | Required for sign-in | Google OAuth client secret (server-side only, never in client code) |
 | `SESSION_SECRET` | Required for sign-in | ≥32 random chars; HMAC key for the session cookie. **Missing/short → all auth endpoints fail closed with 503.** Generate with `openssl rand -hex 32` and add it as a Fly secret (see below). |
+| `GEMINI_API_KEY` | Required for AI | Gemini (first provider). Without it AND `GROQ_API_KEY`, `/api/ai` answers 503 and the AI panels show "AI unavailable". |
+| `GROQ_API_KEY` | Required for AI fallback | Groq (fallback provider, models `openai/gpt-oss-120b` then `openai/gpt-oss-20b`). |
 
 ## Authentication (Google sign-in)
 
@@ -118,10 +120,34 @@ One-time setup (owner steps):
    `http://localhost:3000/api/auth/callback/google` — the older localhost
    entry used the path `/auth/callback`, which this app does not serve.
 
+## AI (Gemini first, Groq fallback)
+
+The AI tutor in the course and the "Explain this code" / "Find the bug"
+buttons in the editor both call `POST /api/ai`. Provider order is
+Gemini first (`gemini-3.8-flash`, 7s timeout), Groq as fallback
+(`openai/gpt-oss-120b`, then `openai/gpt-oss-20b` on a 404 only) — the
+same order and model names as the Locora chatbot, verified working
+there. The route is session-required (401 when logged out) and
+rate-limited 20/min per IP. The request carries only the lesson
+context (title/notes, fetched server-side) and the learner's own
+question/code — never any user profile data. No chat history is stored
+server-side (the client sends at most the last 8 turns). Replies never
+contain emojis (house rule). The `quiz` mode drafts 3 quiz questions
+for a lesson and returns them in the response only — they are never
+stored or auto-published; the owner reviews them and adds them to
+`catalog.ts` by hand.
+
+Completion is stage-by-stage: a roadmap stage is "Complete" only when
+ALL its lessons are 95% watched; the roadmap highlights the first
+incomplete stage as the current one. There is no single "course
+complete" gate — the course is finished one stage at a time. Extras
+never count toward stage completion.
+
 ## API endpoints
 
 | Endpoint | Notes |
 | --- | --- |
+| `POST /api/ai` | `{ reply, provider, quiz? }`. Modes: `tutor` \| `explain` \| `debug` \| `quiz`. Session-required (401); rate-limited 20/min per IP; 503 when no AI keys are configured or both providers fail. |
 | `GET /api/lessons` | `{ lessons, source: "supabase" \| "seed" }`. Rate-limited 60/min per IP. Public. |
 | `GET /api/health` | `{ status: "ok", supabase: "configured" \| "not_configured", lessons: "supabase" \| "seed", uptime_seconds }`. Uses the cached lesson fetch — no fresh DB ping per call. Not rate-limited (Fly probes it every 30s). |
 | `GET /api/video/[lessonId]` | Range-capable video stream (MEGA or Drive). Rate-limited 120/min per IP. Errors are logged as one structured JSON line `{ lessonId, source, code, status }` plus the original error. |

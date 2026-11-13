@@ -10,6 +10,7 @@ import { fetchSessionUser } from "@/lib/auth-client";
 import { restoreStoredPackages } from "@/lib/package-storage";
 import {
   AlertCircle,
+  Bug,
   Check,
   ChevronDown,
   ChevronRight,
@@ -23,9 +24,11 @@ import {
   Play,
   Plus,
   Save,
+  Sparkles,
   Terminal,
   Trash2,
   UploadCloud,
+  X,
 } from "lucide-react";
 
 export interface WorkspaceItem {
@@ -136,6 +139,67 @@ export default function CodeEditorPage() {
   }
   const [output, setOutput] = useState<string>("Ready. Write or edit code, click 'Save', then 'Compile & Run'.\n");
   const [isRunning, setIsRunning] = useState(false);
+
+  // AI code help (Gemini first, Groq fallback, via POST /api/ai).
+  // The answer lives only in this component's state — nothing is
+  // stored server-side. Long files are truncated to the API's limit.
+  const [aiMode, setAiMode] = useState<"explain" | "debug" | null>(null);
+  const [aiAnswer, setAiAnswer] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [aiUnavailable, setAiUnavailable] = useState(false);
+  const [aiTruncated, setAiTruncated] = useState(false);
+
+  async function askEditorAi(mode: "explain" | "debug") {
+    if (!activeFile || aiLoading) return;
+    const code = activeFile.content ?? "";
+    if (!code.trim()) {
+      setAiError("This file is empty — write some code first.");
+      setAiMode(mode);
+      setAiAnswer(null);
+      return;
+    }
+    setAiMode(mode);
+    setAiAnswer(null);
+    setAiError(null);
+    setAiLoading(true);
+    const truncated = code.length > 8000;
+    setAiTruncated(truncated);
+    try {
+      const res = await fetch("/api/ai", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode,
+          code: truncated ? code.slice(0, 8000) : code,
+        }),
+      });
+      const data: unknown = await res.json().catch(() => null);
+      if (res.status === 503) {
+        setAiUnavailable(true);
+        return;
+      }
+      if (res.status === 401) {
+        setAiError("Your session expired — please sign in again.");
+        return;
+      }
+      if (!res.ok || typeof data !== "object" || data === null) {
+        setAiError("Something went wrong — please try again.");
+        return;
+      }
+      const reply = (data as { reply?: unknown }).reply;
+      if (typeof reply !== "string" || !reply.trim()) {
+        setAiError("The AI returned an empty reply — please try again.");
+        return;
+      }
+      setAiAnswer(reply.trim());
+    } catch {
+      setAiError("Could not reach the AI — check your connection and try again.");
+    } finally {
+      setAiLoading(false);
+    }
+  }
   const [needsSaveWarning, setNeedsSaveWarning] = useState<string | null>(null);
   const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({ utils: true });
 
@@ -530,6 +594,26 @@ sys.stderr = sys.stdout
 
             <button
               type="button"
+              onClick={() => askEditorAi("explain")}
+              disabled={aiLoading || !activeFile}
+              title="Ask the AI to explain this file"
+              className="flex items-center gap-1.5 rounded-lg border border-neutral-700 bg-neutral-900 px-3.5 py-1.5 text-xs font-medium text-white hover:bg-neutral-800 transition disabled:opacity-50"
+            >
+              <Sparkles className="h-3.5 w-3.5" /> Explain this code
+            </button>
+
+            <button
+              type="button"
+              onClick={() => askEditorAi("debug")}
+              disabled={aiLoading || !activeFile}
+              title="Ask the AI to find the bug in this file"
+              className="flex items-center gap-1.5 rounded-lg border border-neutral-700 bg-neutral-900 px-3.5 py-1.5 text-xs font-medium text-white hover:bg-neutral-800 transition disabled:opacity-50"
+            >
+              <Bug className="h-3.5 w-3.5" /> Find the bug
+            </button>
+
+            <button
+              type="button"
               onClick={compileAndRun}
               disabled={isRunning || loadingEngine}
               className="flex items-center gap-1.5 rounded-lg bg-white px-4 py-1.5 text-xs font-semibold text-black hover:bg-neutral-200 transition disabled:opacity-50"
@@ -791,6 +875,67 @@ sys.stderr = sys.stdout
             </pre>
           </div>
         </div>
+
+        {/* AI code help answer (explain / debug) */}
+        {(aiMode !== null || aiUnavailable) && (
+          <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-4">
+            <div className="flex items-center justify-between gap-3">
+              <span className="flex items-center gap-2 text-sm font-semibold text-white">
+                {aiMode === "explain" ? (
+                  <>
+                    <Sparkles className="h-4 w-4" /> AI explanation
+                  </>
+                ) : aiMode === "debug" ? (
+                  <>
+                    <Bug className="h-4 w-4" /> AI bug check
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4" /> AI code help
+                  </>
+                )}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setAiMode(null);
+                  setAiAnswer(null);
+                  setAiError(null);
+                }}
+                aria-label="Close AI answer"
+                className="rounded-lg border border-neutral-800 bg-black p-1.5 text-neutral-400 hover:text-white"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            {aiUnavailable ? (
+              <p className="mt-3 rounded-lg border border-neutral-800 bg-black px-4 py-3 text-xs leading-relaxed text-neutral-300">
+                AI is not available right now — the API keys are not configured yet.
+                The editor and the rest of the course work normally.
+              </p>
+            ) : aiLoading ? (
+              <p className="mt-3 flex items-center gap-2 text-xs text-neutral-400">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" /> AI is reading your code…
+              </p>
+            ) : aiError ? (
+              <p className="mt-3 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs text-red-200">
+                {aiError}
+              </p>
+            ) : aiAnswer ? (
+              <>
+                {aiTruncated && (
+                  <p className="mt-3 text-xs text-neutral-500">
+                    Note: the file was longer than the AI limit, so only the first
+                    8000 characters were sent.
+                  </p>
+                )}
+                <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-neutral-200">
+                  {aiAnswer}
+                </p>
+              </>
+            ) : null}
+          </div>
+        )}
           </>
         )}
 

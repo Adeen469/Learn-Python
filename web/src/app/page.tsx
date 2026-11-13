@@ -20,6 +20,7 @@ import {
 import { SplashScreen } from "@/components/SplashScreen";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { QuizModal } from "@/components/QuizModal";
+import { AiTutor } from "@/components/AiTutor";
 import { AppNavbar } from "@/components/AppNavbar";
 import { LandingPage } from "@/components/LandingPage";
 import {
@@ -319,6 +320,10 @@ export default function HomePage() {
               </p>
             )}
           </div>
+
+          {/* AI tutor, tied to the active lesson. key resets the chat
+              when the lesson changes. */}
+          <AiTutor key={activeLesson.id} lesson={activeLesson} />
         </section>
 
         {/* Right: Daily Goal Card & Lessons List */}
