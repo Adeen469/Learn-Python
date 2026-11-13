@@ -192,6 +192,18 @@ export function isValidEmail(email: unknown): email is string {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+// Google profile email verification. The OpenID Connect userinfo endpoint
+// returns `email_verified`; the older Google userinfo endpoint returns
+// `verified_email`. Accept either — checking only `verified_email`
+// rejects every real sign-in, because the OIDC field is `undefined`.
+export function isVerifiedGoogleEmail(
+  profile: Record<string, unknown>
+): boolean {
+  return (
+    profile.verified_email === true || profile.email_verified === true
+  );
+}
+
 /** OAuth `state`: 1-256 chars, base64url alphabet only. */
 export function isValidState(state: unknown): state is string {
   return (

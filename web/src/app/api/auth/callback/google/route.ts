@@ -12,6 +12,7 @@ import {
   isValidCode,
   isValidEmail,
   isValidState,
+  isVerifiedGoogleEmail,
   OAUTH_STATE_COOKIE,
   OAUTH_VERIFIER_COOKIE,
   sanitizePictureUrl,
@@ -230,8 +231,7 @@ export async function GET(req: NextRequest) {
   }
 
   const email = profile.email;
-  const verifiedEmail = profile.verified_email;
-  if (!isValidEmail(email) || verifiedEmail !== true) {
+  if (!isValidEmail(email) || !isVerifiedGoogleEmail(profile)) {
     console.error(
       JSON.stringify({ event: "auth_unverified_email", endpoint: "callback" })
     );

@@ -127,6 +127,14 @@ function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+// Mirrors isVerifiedGoogleEmail in auth.ts: the OIDC userinfo endpoint
+// returns `email_verified`, the older Google endpoint `verified_email`.
+function isVerifiedGoogleEmail(profile) {
+  return (
+    profile.verified_email === true || profile.email_verified === true
+  );
+}
+
 function isValidState(state) {
   return (
     typeof state === "string" &&
@@ -292,6 +300,24 @@ test("email validator accepts real addresses and rejects junk", () => {
   assert.equal(isValidEmail("a b@c.com"), false);
   assert.equal(isValidEmail(""), false);
   assert.equal(isValidEmail(null), false);
+});
+
+test("verified-email check accepts the OIDC field and the legacy field", () => {
+  // OpenID Connect userinfo: `email_verified`.
+  assert.equal(isVerifiedGoogleEmail({ email_verified: true }), true);
+  // Older Google userinfo: `verified_email`.
+  assert.equal(isVerifiedGoogleEmail({ verified_email: true }), true);
+  assert.equal(
+    isVerifiedGoogleEmail({ email_verified: true, verified_email: true }),
+    true
+  );
+  // Anything else must not verify — this is what rejected every real
+  // sign-in before the fix (OIDC returns no `verified_email` field).
+  assert.equal(isVerifiedGoogleEmail({}), false);
+  assert.equal(isVerifiedGoogleEmail({ email_verified: false }), false);
+  assert.equal(isVerifiedGoogleEmail({ verified_email: false }), false);
+  assert.equal(isVerifiedGoogleEmail({ email_verified: "true" }), false);
+  assert.equal(isVerifiedGoogleEmail({ verified_email: 1 }), false);
 });
 
 test("picture URLs must be https", () => {
