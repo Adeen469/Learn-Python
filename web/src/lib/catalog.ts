@@ -15,20 +15,21 @@ export interface Lesson {
   videoSource: "mega" | "drive";
   notes: string;
   /**
-   * Optional test for this lesson. The next lesson unlocks when this lesson
-   * is 95% watched OR its test is passed (70%+). A lesson with no quiz can
-   * only be passed by watching.
+   * Optional test for this lesson (pass mark 70%+). Passing earns a
+   * "Test passed" badge and never gates anything — all lessons are open,
+   * and the 95% watch rule is only for completion and today's progress.
    */
   quiz?: QuizQuestion[];
 }
 
 // HOW TO ADD THE MEGA LINKS
 // This is CodeWithHarry's "Python for Beginners (Full Course) | #100DaysOfCode"
-// playlist — 100 videos, Day #1 to Day #100, titles exactly as on YouTube.
+// playlist — 100 videos, Day #1 to Day #100, titles exactly as on YouTube,
+// plus 3 extra CodeWithHarry videos at the end (python-extra-001..003).
 // videoUrl is EMPTY for now: paste the MEGA share link for each video into its
-// videoUrl (in order, Day 1 first — the next lesson unlocks only when the
-// previous one is 95% watched or its test is passed). A lesson with an empty
-// videoUrl shows "Coming soon" in the app and cannot be played yet.
+// videoUrl (Day 1 first is a good order, but nothing is gated — all lessons
+// are open). A lesson with an empty videoUrl shows "Coming soon" in the app
+// and cannot be played yet.
 // QUIZ: add a `quiz` array of { question, options, answer } (answer is the
 // index of the correct option) to any lesson to offer its test.
 // After editing, push to main — auto-deploy picks it up in a few minutes.

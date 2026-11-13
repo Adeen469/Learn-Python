@@ -139,9 +139,9 @@ export default function HomePage() {
     updateProgress((prev) => markActive(prev));
   }
 
-  // Passing a lesson's test unlocks the next lesson, just like watching 95%.
-  // It does NOT credit watch minutes — today's progress only counts minutes
-  // actually watched. It does count as activity for the streak.
+  // Passing a lesson's test earns a "Test passed" badge. It does NOT
+  // credit watch minutes — today's progress only counts minutes actually
+  // watched. It does count as activity for the streak.
   function handleTestPass(lessonId: string) {
     setTestPassedIds((prev) => {
       if (prev.includes(lessonId)) return prev;
@@ -174,8 +174,8 @@ export default function HomePage() {
             <div className="flex aspect-video w-full flex-col items-center justify-center rounded-xl border border-neutral-800 bg-neutral-950 px-6 text-center">
               <p className="text-sm font-medium text-white">Video coming soon</p>
               <p className="mt-1.5 max-w-sm text-xs leading-relaxed text-neutral-400">
-                This lesson hasn&apos;t been uploaded to MEGA yet. Check back soon — lessons
-                unlock as videos are added.
+                This lesson hasn&apos;t been uploaded to MEGA yet. Check back soon — more
+                videos are added regularly.
               </p>
             </div>
           )}
@@ -231,7 +231,7 @@ export default function HomePage() {
             </p>
             {testPassedIds.includes(activeLesson.id) && !completedIds.includes(activeLesson.id) && (
               <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-green-400">
-                <BadgeCheck className="h-4 w-4" /> Test passed — next lesson unlocked
+                <BadgeCheck className="h-4 w-4" /> Test passed
               </p>
             )}
           </div>

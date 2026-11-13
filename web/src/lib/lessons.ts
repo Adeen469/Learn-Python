@@ -48,7 +48,7 @@ export interface LessonRow {
 /**
  * Validate a quiz value from the DB (jsonb). Returns the questions when the
  * shape is exactly {question, options[], answer} per item, else undefined
- * (a lesson without a valid quiz simply has no test — watch-only unlock).
+ * (a lesson without a valid quiz simply has no test).
  */
 export function parseQuiz(value: unknown): QuizQuestion[] | undefined {
   if (!Array.isArray(value) || value.length === 0) return undefined;

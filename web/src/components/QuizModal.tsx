@@ -4,9 +4,9 @@ import { useState } from "react";
 import { CheckCircle2, X, XCircle } from "lucide-react";
 import type { Lesson } from "@/lib/catalog";
 
-// Pass mark for a lesson test. Passing unlocks the next lesson (the 95%
-// watch path stays as the alternative). A test pass does NOT credit watch
-// minutes — today's progress only counts minutes actually watched.
+// Pass mark for a lesson test. Passing earns a "Test passed" badge — it
+// never gates anything (all lessons are open). A test pass does NOT credit
+// watch minutes — today's progress only counts minutes actually watched.
 export const QUIZ_PASS_FRACTION = 0.7;
 
 interface QuizModalProps {
@@ -42,7 +42,7 @@ export function QuizModal({ lesson, onClose, onPass }: QuizModalProps) {
             <p className="text-xs uppercase tracking-wider text-neutral-500">Test</p>
             <h2 className="mt-1 text-base font-semibold text-white">{lesson.title}</h2>
             <p className="mt-1 text-xs text-neutral-400">
-              Score {Math.round(QUIZ_PASS_FRACTION * 100)}% or more to unlock the next lesson.
+              Score {Math.round(QUIZ_PASS_FRACTION * 100)}% or more to pass the test.
             </p>
           </div>
           <button
@@ -126,7 +126,7 @@ export function QuizModal({ lesson, onClose, onPass }: QuizModalProps) {
               Passed — {score}/{questions.length} correct
             </p>
             <p className="mt-1 text-xs text-neutral-300">
-              The next lesson is now unlocked.
+              You passed the test for this lesson.
             </p>
             <button
               type="button"
@@ -136,7 +136,7 @@ export function QuizModal({ lesson, onClose, onPass }: QuizModalProps) {
               }}
               className="mt-3 w-full rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-black hover:bg-neutral-200"
             >
-              Continue to next lesson
+              Done
             </button>
           </div>
         ) : (
@@ -145,7 +145,7 @@ export function QuizModal({ lesson, onClose, onPass }: QuizModalProps) {
               Not passed — {score}/{questions.length} correct
             </p>
             <p className="mt-1 text-xs text-neutral-300">
-              You need {Math.round(QUIZ_PASS_FRACTION * 100)}% to unlock the next lesson. Review the
+              You need {Math.round(QUIZ_PASS_FRACTION * 100)}% to pass. Review the
               answers above and try again.
             </p>
             <div className="mt-3 flex gap-2">

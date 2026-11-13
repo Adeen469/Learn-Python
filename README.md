@@ -3,7 +3,7 @@
 Next.js (App Router) video learning app: MEGA + Google Drive video
 streaming with Range support, a 95%-watched rule for completion and
 daily progress (seeking is free, all lessons are open), daily
-goals/streaks, per-lesson tests, and Supabase-backed lessons.
+goals/streaks, optional per-lesson tests, and Supabase-backed lessons.
 
 ## Quick start (local)
 
@@ -45,9 +45,9 @@ Run these in the Supabase dashboard SQL editor, in order:
    policies for published courses, their modules, and their lessons.
    Re-runnable (drop-if-exists guards).
 3. `supabase/seed_lessons.sql` — inserts the "Python for Beginners
-   (Full Course)" course, its "100 Days of Code" module, and all 100
-   playlist lessons (video URLs empty until the MEGA links are pasted
-   in). Re-runnable (upserts on slug).
+   (Full Course)" course, its "100 Days of Code" module, and all 103
+   lessons (100 playlist lessons + 3 extras, video URLs empty until the
+   MEGA links are pasted in). Re-runnable (upserts on slug).
 
 ### Adding a lesson (no redeploy)
 
@@ -69,11 +69,13 @@ lesson id, e.g. `intro-variables`), `title`, `video_provider`
 The server caches the lesson list in memory for 60 seconds, so a new or
 edited lesson appears within a minute — no redeploy, no restart.
 
-> Note: quizzes are not stored in Supabase yet (the `lessons` table has
-> no quiz column). A lesson served from Supabase has no test, so its
-> "Take test" button is hidden and the next lesson unlocks by watching
-> only. The seed catalog in `catalog.ts` still carries the sample
-> quizzes, which is what you see when Supabase is not configured.
+> Note: no lesson currently has a test — neither the seed catalog in
+> `catalog.ts` nor the Supabase seed inserts quiz questions. The quiz
+> column exists in Supabase (added by 002) and `/api/lessons` serves it
+> when present, so adding a test to a lesson is a data change, not a
+> code change. A lesson without a quiz simply hides its "Take test"
+> button. Tests never gate anything — all lessons are open, and the
+> 95% rule is only for completion and today's progress.
 
 ## Environment variables
 
@@ -124,10 +126,10 @@ deliberately left at `0` for now.
 
 ## Deployment
 
-Push to `main`; deploy from the Fly.io dashboard (the repo has no
-auto-deploy workflow — a push alone does not deploy). After a deploy,
-verify live: home page 200, `/api/lessons` 200,
-`/api/health` 200, and a video Range request 206.
+Push to `main`; the `.github/workflows/fly.yml` workflow deploys
+automatically (takes ~3–5 min). After a deploy, verify live: home page
+200, `/api/lessons` 200, `/api/health` 200, and a video Range request
+206.
 
 ## Security notes
 
