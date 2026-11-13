@@ -97,7 +97,10 @@ export async function GET(req: NextRequest) {
     console.log(
       JSON.stringify({ event: "auth_denied", endpoint: "callback" })
     );
-    return clearOauthCookies(NextResponse.redirect(new URL("/", req.url)));
+    // Redirect to the public origin, NOT req.url: behind Fly's proxy
+    // req.url resolves to the server's own bind address (0.0.0.0:3000),
+    // which is invalid in a browser (ERR_ADDRESS_INVALID).
+    return clearOauthCookies(NextResponse.redirect(new URL("/", origin)));
   }
 
   const code = params.get("code");
@@ -252,7 +255,8 @@ export async function GET(req: NextRequest) {
     secret,
     buildSessionPayload({ email, name, picture })
   );
-  const res = clearOauthCookies(NextResponse.redirect(new URL("/", req.url)));
+  // Same as above: use the public origin, never req.url (0.0.0.0:3000).
+  const res = clearOauthCookies(NextResponse.redirect(new URL("/", origin)));
   res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions(isSecure));
   console.log(
     JSON.stringify({ event: "auth_login", endpoint: "callback", email })

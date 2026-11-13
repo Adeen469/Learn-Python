@@ -188,6 +188,23 @@ function sessionCookieOptions(isSecure) {
   };
 }
 
+// Mirrors getRequestOrigin in auth.ts: the public origin comes from the
+// proxy headers (x-forwarded-proto + host), never from req.url.
+function getRequestOrigin(req) {
+  const forwardedProto = req.headers
+    .get("x-forwarded-proto")
+    ?.split(",")[0]
+    ?.trim();
+  const host =
+    req.headers.get("x-forwarded-host")?.split(",")[0]?.trim() ??
+    req.headers.get("host")?.trim();
+  if (!host || /[\s/@]/.test(host)) return null;
+  const proto =
+    forwardedProto || new URL(req.url).protocol.replace(":", "") || "http";
+  if (proto !== "http" && proto !== "https") return null;
+  return `${proto}://${host}`;
+}
+
 const SECRET = "test-session-secret-0123456789abcdef";
 const USER = {
   email: "test@example.com",
@@ -318,6 +335,35 @@ test("verified-email check accepts the OIDC field and the legacy field", () => {
   assert.equal(isVerifiedGoogleEmail({ verified_email: false }), false);
   assert.equal(isVerifiedGoogleEmail({ email_verified: "true" }), false);
   assert.equal(isVerifiedGoogleEmail({ verified_email: 1 }), false);
+});
+
+test("request origin uses the public host, never the server bind address", () => {
+  // Behind Fly's proxy, req.url is http://0.0.0.0:3000/... — redirecting
+  // to that origin sends the browser to an invalid address
+  // (ERR_ADDRESS_INVALID). The public origin comes from the proxy headers.
+  const flyReq = {
+    headers: new Headers({
+      "x-forwarded-proto": "https",
+      host: "learn-python-programming.fly.dev",
+    }),
+    url: "http://0.0.0.0:3000/api/auth/callback/google?code=x&state=y",
+  };
+  assert.equal(
+    getRequestOrigin(flyReq),
+    "https://learn-python-programming.fly.dev"
+  );
+  // No proxy headers (local dev): falls back to the Host header / URL.
+  const localReq = {
+    headers: new Headers({ host: "localhost:3000" }),
+    url: "http://localhost:3000/api/auth/callback/google?code=x&state=y",
+  };
+  assert.equal(getRequestOrigin(localReq), "http://localhost:3000");
+  // A bad host is rejected outright.
+  const badReq = {
+    headers: new Headers({ host: "exa mple.com" }),
+    url: "http://localhost:3000/",
+  };
+  assert.equal(getRequestOrigin(badReq), null);
 });
 
 test("picture URLs must be https", () => {
