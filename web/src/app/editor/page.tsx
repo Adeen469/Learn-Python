@@ -2,19 +2,24 @@
 
 import { useEffect, useRef, useState } from "react";
 import Script from "next/script";
+import { useRouter } from "next/navigation";
 import Editor from "@monaco-editor/react";
 import { AppNavbar } from "@/components/AppNavbar";
+import { ModulesPanel } from "@/components/ModulesPanel";
+import { isEntered } from "@/lib/entered";
 import { restoreStoredPackages } from "@/lib/package-storage";
 import {
   AlertCircle,
   Check,
   ChevronDown,
   ChevronRight,
+  Code2,
   FileCode,
   Folder,
   FolderPlus,
   GripVertical,
   Loader2,
+  Package,
   Play,
   Plus,
   Save,
@@ -94,8 +99,33 @@ declare global {
 }
 
 export default function CodeEditorPage() {
+  const router = useRouter();
   const [items, setItems] = useState<WorkspaceItem[]>(DEFAULT_WORKSPACE);
   const [activeFilePath, setActiveFilePath] = useState<string>("main.py");
+
+  // Entry gate: guests see only the landing page (route /).
+  const [enteredChecked, setEnteredChecked] = useState(false);
+  useEffect(() => {
+    if (!isEntered((key) => localStorage.getItem(key))) {
+      router.replace("/");
+      return;
+    }
+    setEnteredChecked(true);
+  }, [router]);
+
+  // "Files | Modules" tabs — Modules lives INSIDE the editor now, not on a
+  // separate page. /modules redirects here with ?tab=modules.
+  const [editorTab, setEditorTab] = useState<"files" | "modules">("files");
+  useEffect(() => {
+    const tab = new URLSearchParams(window.location.search).get("tab");
+    if (tab === "modules") setEditorTab("modules");
+  }, []);
+
+  function switchTab(tab: "files" | "modules") {
+    setEditorTab(tab);
+    const url = tab === "modules" ? "/editor?tab=modules" : "/editor";
+    window.history.replaceState(null, "", url);
+  }
   const [output, setOutput] = useState<string>("Ready. Write or edit code, click 'Save', then 'Compile & Run'.\n");
   const [isRunning, setIsRunning] = useState(false);
   const [needsSaveWarning, setNeedsSaveWarning] = useState<string | null>(null);
@@ -143,6 +173,12 @@ export default function CodeEditorPage() {
     } finally {
       setLoadingEngine(false);
     }
+  }
+
+  // Shared by the Modules tab: loads the runtime if needed, true when ready.
+  async function ensurePyodideReady(): Promise<boolean> {
+    await initPyodide();
+    return !!pyodideRef.current;
   }
 
   // Load from localStorage
@@ -413,8 +449,12 @@ sys.stderr = sys.stdout
     }
   }
 
+  // Guests never see the editor — the gate effect above redirects to /.
+  if (!enteredChecked) return null;
+
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col">
+    // pb-20 clears the mobile bottom nav bar (md:pb-0: PC has no bottom bar).
+    <div className="min-h-screen bg-black text-white flex flex-col pb-20 md:pb-0">
       <Script
         src="https://cdn.jsdelivr.net/pyodide/v0.27.2/full/pyodide.js"
         onLoad={initPyodide}
@@ -422,6 +462,30 @@ sys.stderr = sys.stdout
       <AppNavbar />
 
       <main className="flex-1 max-w-[1600px] w-full mx-auto p-4 flex flex-col gap-3">
+        {/* Files | Modules tabs — Modules lives inside the editor now. */}
+        <div className="flex gap-1.5 self-start rounded-lg border border-neutral-800 bg-neutral-950 p-1 text-xs">
+          <button
+            type="button"
+            onClick={() => switchTab("files")}
+            className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-3.5 py-1.5 font-medium transition ${
+              editorTab === "files" ? "bg-white text-black" : "text-neutral-400 hover:text-white"
+            }`}
+          >
+            <Code2 className="h-3.5 w-3.5" /> Files
+          </button>
+          <button
+            type="button"
+            onClick={() => switchTab("modules")}
+            className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-3.5 py-1.5 font-medium transition ${
+              editorTab === "modules" ? "bg-white text-black" : "text-neutral-400 hover:text-white"
+            }`}
+          >
+            <Package className="h-3.5 w-3.5" /> Modules
+          </button>
+        </div>
+
+        {editorTab === "files" && (
+          <>
         {/* Top Control Bar */}
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-2.5">
           <div className="flex items-center gap-3">
@@ -719,6 +783,12 @@ sys.stderr = sys.stdout
             </pre>
           </div>
         </div>
+          </>
+        )}
+
+        {editorTab === "modules" && (
+          <ModulesPanel pyodideRef={pyodideRef} ensurePyodide={ensurePyodideReady} />
+        )}
       </main>
     </div>
   );

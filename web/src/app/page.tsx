@@ -21,6 +21,18 @@ import { SplashScreen } from "@/components/SplashScreen";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { QuizModal } from "@/components/QuizModal";
 import { AppNavbar } from "@/components/AppNavbar";
+import { LandingPage } from "@/components/LandingPage";
+import {
+  ACTIVE_LESSON_KEY,
+  LESSON_SELECT_EVENT,
+  ROADMAP_OPEN_EVENT,
+  clearActiveLessonId,
+  hasSeenRoadmap,
+  isEntered,
+  markEntered,
+  markRoadmapSeen,
+  readActiveLessonId,
+} from "@/lib/entered";
 
 function formatDuration(totalSeconds: number): string {
   const minutes = Math.floor(totalSeconds / 60);
@@ -39,6 +51,60 @@ export default function HomePage() {
   const [progress, setProgress] = useState<ProgressState>(() => emptyProgress(todayKey()));
   const [activeCoverage, setActiveCoverage] = useState({ fraction: 0, seconds: 0 });
   const [showQuiz, setShowQuiz] = useState(false);
+
+  // Entry gate: a guest sees ONLY the landing page until they press
+  // "Start learning". `entered` is null until the first client check runs.
+  // There is no login yet — lp_entered_v1 is a localStorage stand-in that
+  // real Google sign-in will replace later (see lib/entered.ts).
+  const [entered, setEntered] = useState<boolean | null>(null);
+  const [pendingRoadmap, setPendingRoadmap] = useState(false);
+
+  useEffect(() => {
+    setEntered(isEntered((key) => localStorage.getItem(key)));
+    // A lesson picked in the roadmap (on any page) selects it here.
+    const pick = readActiveLessonId((key) => localStorage.getItem(key));
+    if (pick) {
+      const found = getLessons().find((l) => l.id === pick);
+      if (found) {
+        activeLessonIdRef.current = found.id;
+        setActiveLesson(found);
+        setActiveCoverage({ fraction: 0, seconds: 0 });
+      }
+      clearActiveLessonId((key) => localStorage.removeItem(key));
+    }
+    const onSelect = (e: Event) => {
+      const id = (e as CustomEvent<string>).detail;
+      const found = getLessons().find((l) => l.id === id);
+      if (found) {
+        setActiveLesson(found);
+        setActiveCoverage({ fraction: 0, seconds: 0 });
+      }
+    };
+    window.addEventListener(LESSON_SELECT_EVENT, onSelect);
+    return () => window.removeEventListener(LESSON_SELECT_EVENT, onSelect);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function handleEnter() {
+    const firstTime = !isEntered((key) => localStorage.getItem(key));
+    markEntered((key, value) => localStorage.setItem(key, value));
+    setEntered(true);
+    // First entry ever: the animated roadmap opens on top of the course.
+    // It must not auto-show again after closing (lp_roadmap_seen).
+    if (firstTime && !hasSeenRoadmap((key) => localStorage.getItem(key))) {
+      markRoadmapSeen((key, value) => localStorage.setItem(key, value));
+      setPendingRoadmap(true);
+    }
+  }
+
+  // Fire the roadmap-open event after the course (and AppNavbar, which
+  // listens for it) has rendered following entry.
+  useEffect(() => {
+    if (entered && pendingRoadmap) {
+      setPendingRoadmap(false);
+      window.dispatchEvent(new Event(ROADMAP_OPEN_EVENT));
+    }
+  }, [entered, pendingRoadmap]);
 
   useEffect(() => {
     const savedCompleted = localStorage.getItem("lp_completed_lessons");
@@ -154,8 +220,23 @@ export default function HomePage() {
 
   const goalPct = progressPercent(progress);
 
+  // Entry not yet checked on the client — brief splash, no content flash.
+  if (entered === null) {
+    return (
+      <div className="min-h-screen bg-black text-white flex flex-col">
+        <SplashScreen />
+      </div>
+    );
+  }
+
+  // Guests see ONLY the landing page — no course, no app navigation.
+  if (!entered) {
+    return <LandingPage onEnter={handleEnter} />;
+  }
+
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col">
+    // pb-20 clears the mobile bottom nav bar (md:pb-0: PC has no bottom bar).
+    <div className="min-h-screen bg-black text-white flex flex-col pb-20 md:pb-0">
       <SplashScreen />
       <AppNavbar />
 

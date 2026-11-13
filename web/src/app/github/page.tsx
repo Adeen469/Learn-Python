@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AppNavbar } from "@/components/AppNavbar";
+import { isEntered } from "@/lib/entered";
 import {
   Check,
   Code2,
@@ -28,7 +30,18 @@ interface RepoItem {
 }
 
 export default function GitHubPage() {
+  const router = useRouter();
   const [token, setToken] = useState("");
+
+  // Entry gate: guests see only the landing page (route /).
+  const [enteredChecked, setEnteredChecked] = useState(false);
+  useEffect(() => {
+    if (!isEntered((key) => localStorage.getItem(key))) {
+      router.replace("/");
+      return;
+    }
+    setEnteredChecked(true);
+  }, [router]);
   const [savedToken, setSavedToken] = useState("");
   const [repos, setRepos] = useState<RepoItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -174,8 +187,12 @@ export default function GitHubPage() {
     }
   }
 
+  // Guests never see this page — the gate effect above redirects to /.
+  if (!enteredChecked) return null;
+
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col">
+    // pb-20 clears the mobile bottom nav bar (md:pb-0: PC has no bottom bar).
+    <div className="min-h-screen bg-black text-white flex flex-col pb-20 md:pb-0">
       <AppNavbar />
 
       <main className="flex-1 max-w-6xl w-full mx-auto p-4 flex flex-col gap-5">
