@@ -43,7 +43,7 @@ const FEATURES = [
   },
 ];
 
-export function LandingPage({ onEnter }: { onEnter: () => void }) {
+export function LandingPage() {
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
       {/* Slim landing header — no app navigation for guests. */}
@@ -61,13 +61,12 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
               LP <span className="text-xs font-normal text-neutral-500">Learn Python</span>
             </span>
           </div>
-          <button
-            type="button"
-            onClick={onEnter}
+          <a
+            href="/api/auth/google"
             className="rounded-lg bg-white px-3.5 py-1.5 text-xs font-semibold text-black hover:bg-neutral-200 transition"
           >
-            Start learning
-          </button>
+            Sign in with Google
+          </a>
         </div>
       </header>
 
@@ -85,15 +84,14 @@ export function LandingPage({ onEnter }: { onEnter: () => void }) {
             print() to real projects. Watch, code, and build the streak, one day
             at a time.
           </p>
-          <button
-            type="button"
-            onClick={onEnter}
+          <a
+            href="/api/auth/google"
             className="mt-8 inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-black hover:bg-neutral-200 transition"
           >
-            Start learning <ArrowRight className="h-4 w-4" />
-          </button>
+            Sign in with Google <ArrowRight className="h-4 w-4" />
+          </a>
           <p className="mt-3 text-xs text-neutral-500">
-            Free • No sign-up needed yet • Your progress stays on this device
+            Free • Sign in with Google • Your progress stays on this device
           </p>
 
           {/* Stats */}

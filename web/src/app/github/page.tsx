@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppNavbar } from "@/components/AppNavbar";
-import { isEntered } from "@/lib/entered";
+import { fetchSessionUser } from "@/lib/auth-client";
 import {
   Check,
   Code2,
@@ -33,14 +33,22 @@ export default function GitHubPage() {
   const router = useRouter();
   const [token, setToken] = useState("");
 
-  // Entry gate: guests see only the landing page (route /).
+  // Auth gate: guests see only the landing page (route /). Renders
+  // nothing until the session check resolves — no app UI flash.
   const [enteredChecked, setEnteredChecked] = useState(false);
   useEffect(() => {
-    if (!isEntered((key) => localStorage.getItem(key))) {
-      router.replace("/");
-      return;
-    }
-    setEnteredChecked(true);
+    let cancelled = false;
+    fetchSessionUser().then((user) => {
+      if (cancelled) return;
+      if (!user) {
+        router.replace("/");
+        return;
+      }
+      setEnteredChecked(true);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [router]);
   const [savedToken, setSavedToken] = useState("");
   const [repos, setRepos] = useState<RepoItem[]>([]);

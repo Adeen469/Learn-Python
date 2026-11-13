@@ -2,27 +2,12 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 // Inline pure helpers for zero-build node --test verification
-// (mirrors web/src/lib/entered.ts)
+// (mirrors web/src/lib/entered.ts). The old lp_entered_v1 flag is gone —
+// entry is decided by the Google session (GET /api/auth/me); only the
+// roadmap-seen flag and the active-lesson id remain here.
 
-const ENTERED_KEY = "lp_entered_v1";
 const ROADMAP_SEEN_KEY = "lp_roadmap_seen";
 const ACTIVE_LESSON_KEY = "lp_active_lesson";
-
-function isEntered(read) {
-  try {
-    return read(ENTERED_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
-function markEntered(write) {
-  try {
-    write(ENTERED_KEY, "1");
-  } catch {
-    // Private mode: entry just doesn't persist.
-  }
-}
 
 function hasSeenRoadmap(read) {
   try {
@@ -70,14 +55,6 @@ function fakeStore(initial = {}) {
   };
 }
 
-test("guest is not entered until the flag is set", () => {
-  const s = fakeStore();
-  assert.equal(isEntered(s.read), false);
-  markEntered(s.write);
-  assert.equal(isEntered(s.read), true);
-  assert.equal(s.snapshot()[ENTERED_KEY], "1");
-});
-
 test("roadmap seen flag gates the first-entry auto-show", () => {
   const s = fakeStore();
   assert.equal(hasSeenRoadmap(s.read), false);
@@ -106,10 +83,8 @@ test("a throwing store fails closed, never throws", () => {
       throw new Error("denied");
     },
   };
-  assert.equal(isEntered(throwing.read), false);
   assert.equal(hasSeenRoadmap(throwing.read), false);
   assert.equal(readActiveLessonId(throwing.read), null);
-  assert.doesNotThrow(() => markEntered(throwing.write));
   assert.doesNotThrow(() => markRoadmapSeen(throwing.write));
   assert.doesNotThrow(() => clearActiveLessonId(throwing.remove));
 });

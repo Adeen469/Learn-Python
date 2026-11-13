@@ -28,11 +28,10 @@ import {
   ROADMAP_OPEN_EVENT,
   clearActiveLessonId,
   hasSeenRoadmap,
-  isEntered,
-  markEntered,
   markRoadmapSeen,
   readActiveLessonId,
 } from "@/lib/entered";
+import { fetchSessionUser, type SessionUser } from "@/lib/auth-client";
 
 function formatDuration(totalSeconds: number): string {
   const minutes = Math.floor(totalSeconds / 60);
@@ -52,15 +51,28 @@ export default function HomePage() {
   const [activeCoverage, setActiveCoverage] = useState({ fraction: 0, seconds: 0 });
   const [showQuiz, setShowQuiz] = useState(false);
 
-  // Entry gate: a guest sees ONLY the landing page until they press
-  // "Start learning". `entered` is null until the first client check runs.
-  // There is no login yet — lp_entered_v1 is a localStorage stand-in that
-  // real Google sign-in will replace later (see lib/entered.ts).
-  const [entered, setEntered] = useState<boolean | null>(null);
+  // Auth gate: the app is decided by the real Google session
+  // (GET /api/auth/me), not a local flag. `checked` is false until the
+  // first session check resolves — brief splash, no content flash.
+  const [auth, setAuth] = useState<{ checked: boolean; user: SessionUser | null }>({
+    checked: false,
+    user: null,
+  });
   const [pendingRoadmap, setPendingRoadmap] = useState(false);
 
   useEffect(() => {
-    setEntered(isEntered((key) => localStorage.getItem(key)));
+    let cancelled = false;
+    fetchSessionUser().then((user) => {
+      if (cancelled) return;
+      setAuth({ checked: true, user });
+      // First sign-in on this device: the animated roadmap opens on top
+      // of the course. It must not auto-show again after closing
+      // (lp_roadmap_seen).
+      if (user && !hasSeenRoadmap((key) => localStorage.getItem(key))) {
+        markRoadmapSeen((key, value) => localStorage.setItem(key, value));
+        setPendingRoadmap(true);
+      }
+    });
     // A lesson picked in the roadmap (on any page) selects it here.
     const pick = readActiveLessonId((key) => localStorage.getItem(key));
     if (pick) {
@@ -81,30 +93,21 @@ export default function HomePage() {
       }
     };
     window.addEventListener(LESSON_SELECT_EVENT, onSelect);
-    return () => window.removeEventListener(LESSON_SELECT_EVENT, onSelect);
+    return () => {
+      cancelled = true;
+      window.removeEventListener(LESSON_SELECT_EVENT, onSelect);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function handleEnter() {
-    const firstTime = !isEntered((key) => localStorage.getItem(key));
-    markEntered((key, value) => localStorage.setItem(key, value));
-    setEntered(true);
-    // First entry ever: the animated roadmap opens on top of the course.
-    // It must not auto-show again after closing (lp_roadmap_seen).
-    if (firstTime && !hasSeenRoadmap((key) => localStorage.getItem(key))) {
-      markRoadmapSeen((key, value) => localStorage.setItem(key, value));
-      setPendingRoadmap(true);
-    }
-  }
-
   // Fire the roadmap-open event after the course (and AppNavbar, which
-  // listens for it) has rendered following entry.
+  // listens for it) has rendered following sign-in.
   useEffect(() => {
-    if (entered && pendingRoadmap) {
+    if (auth.user && pendingRoadmap) {
       setPendingRoadmap(false);
       window.dispatchEvent(new Event(ROADMAP_OPEN_EVENT));
     }
-  }, [entered, pendingRoadmap]);
+  }, [auth.user, pendingRoadmap]);
 
   useEffect(() => {
     const savedCompleted = localStorage.getItem("lp_completed_lessons");
@@ -220,8 +223,8 @@ export default function HomePage() {
 
   const goalPct = progressPercent(progress);
 
-  // Entry not yet checked on the client — brief splash, no content flash.
-  if (entered === null) {
+  // Session not yet checked — brief splash, no content flash.
+  if (!auth.checked) {
     return (
       <div className="min-h-screen bg-black text-white flex flex-col">
         <SplashScreen />
@@ -230,8 +233,8 @@ export default function HomePage() {
   }
 
   // Guests see ONLY the landing page — no course, no app navigation.
-  if (!entered) {
-    return <LandingPage onEnter={handleEnter} />;
+  if (!auth.user) {
+    return <LandingPage />;
   }
 
   return (

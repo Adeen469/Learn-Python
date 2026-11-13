@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Editor from "@monaco-editor/react";
 import { AppNavbar } from "@/components/AppNavbar";
 import { ModulesPanel } from "@/components/ModulesPanel";
-import { isEntered } from "@/lib/entered";
+import { fetchSessionUser } from "@/lib/auth-client";
 import { restoreStoredPackages } from "@/lib/package-storage";
 import {
   AlertCircle,
@@ -103,14 +103,22 @@ export default function CodeEditorPage() {
   const [items, setItems] = useState<WorkspaceItem[]>(DEFAULT_WORKSPACE);
   const [activeFilePath, setActiveFilePath] = useState<string>("main.py");
 
-  // Entry gate: guests see only the landing page (route /).
+  // Auth gate: guests see only the landing page (route /). Renders
+  // nothing until the session check resolves — no app UI flash.
   const [enteredChecked, setEnteredChecked] = useState(false);
   useEffect(() => {
-    if (!isEntered((key) => localStorage.getItem(key))) {
-      router.replace("/");
-      return;
-    }
-    setEnteredChecked(true);
+    let cancelled = false;
+    fetchSessionUser().then((user) => {
+      if (cancelled) return;
+      if (!user) {
+        router.replace("/");
+        return;
+      }
+      setEnteredChecked(true);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [router]);
 
   // "Files | Modules" tabs — Modules lives INSIDE the editor now, not on a

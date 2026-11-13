@@ -87,6 +87,36 @@ secrets, never paste them in chat):
 | `NEXT_PUBLIC_SUPABASE_URL` | Optional | Supabase project URL; without it (and the key below) lessons come from the seed list |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Optional | Supabase anon/public key; read-only lesson queries |
 | `GOOGLE_DRIVE_API_KEY` | Optional | Google Drive streaming; without it Drive lessons return 503 |
+| `GOOGLE_CLIENT_ID` | Required for sign-in | Google OAuth client ID (server-side only) |
+| `GOOGLE_CLIENT_SECRET` | Required for sign-in | Google OAuth client secret (server-side only, never in client code) |
+| `SESSION_SECRET` | Required for sign-in | ≥32 random chars; HMAC key for the session cookie. **Missing/short → all auth endpoints fail closed with 503.** Generate with `openssl rand -hex 32` and add it as a Fly secret (see below). |
+
+## Authentication (Google sign-in)
+
+Sign-in is Google OAuth (authorization-code flow + PKCE, server-side
+only) with a stateless HMAC-SHA256 session cookie (`lp_session`,
+HttpOnly, Secure on https, SameSite=Lax, 30-day expiry). Guests see
+only the landing page; the course, editor, and GitHub pages call
+`GET /api/auth/me` and redirect to `/` when there is no valid session.
+The Google access token is never stored or sent to the client — only
+the profile (email, name, picture) goes into the session payload.
+
+| Endpoint | Notes |
+| --- | --- |
+| `GET /api/auth/google` | Starts the flow: sets short-lived HttpOnly state + PKCE cookies, redirects to accounts.google.com. Rate-limited 20/min per IP. |
+| `GET /api/auth/callback/google` | Validates `state`, exchanges the code server-side, sets the session cookie, redirects to `/`. Bad/missing state → 400, no session. Rate-limited 20/min per IP. |
+| `GET /api/auth/me` | Returns `{ user: { email, name, picture } }` or 401. Rate-limited 60/min per IP. |
+| `POST /api/auth/logout` | Expires the session cookie. Rate-limited 30/min per IP. |
+
+One-time setup (owner steps):
+
+1. Add `SESSION_SECRET` (≥32 random chars, e.g. `openssl rand -hex 32`)
+   as a Fly secret for `learn-python-programming`, then redeploy.
+2. In the Google Cloud OAuth client, the authorized redirect URI must
+   be `https://learn-python-programming.fly.dev/api/auth/callback/google`
+   (already added). For local dev, add
+   `http://localhost:3000/api/auth/callback/google` — the older localhost
+   entry used the path `/auth/callback`, which this app does not serve.
 
 ## API endpoints
 
