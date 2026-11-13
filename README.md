@@ -129,13 +129,35 @@ Gemini first (`gemini-3.8-flash`, 7s timeout), Groq as fallback
 same order and model names as the Locora chatbot, verified working
 there. The route is session-required (401 when logged out) and
 rate-limited 20/min per IP. The request carries only the lesson
-context (title/notes, fetched server-side) and the learner's own
-question/code — never any user profile data. No chat history is stored
-server-side (the client sends at most the last 8 turns). Replies never
-contain emojis (house rule). The `quiz` mode drafts 3 quiz questions
-for a lesson and returns them in the response only — they are never
-stored or auto-published; the owner reviews them and adds them to
+context and the learner's own question/code — never any user profile
+data. No chat history is stored server-side (the client sends at most
+the last 8 turns). Replies never contain emojis (house rule), and the
+tutor answers in Hinglish in Roman script when the learner asks in
+Hinglish — never in Devanagari script. The `quiz` mode drafts 3 quiz
+questions for a lesson and returns them in the response only — they are
+never stored or auto-published; the owner reviews them and adds them to
 `catalog.ts` by hand.
+
+**Video transcript grounding (tutor + quiz modes).** The tutor answers
+from what the lesson video actually says, not just its title: for
+`tutor` and `quiz` the server fetches the video's transcript live per
+question (YouTube Innertube player API with an ANDROID client —
+plain timedtext requests and yt-dlp get 429/bot-checks from datacenter
+IPs — no API key, no yt-dlp, plain fetch only). Track preference:
+`hi-Latn` (Hinglish already), then Hindi auto-captions `hi`, then
+`hi-orig`, then manual `en-IN` subtitles, then any English auto
+track. The transcript is converted to Roman Hinglish before it
+reaches the model: a `hi-Latn` track passes through, while Devanagari
+captions are transliterated dependency-free in `lib/transcript.ts`
+(if transliteration ever yields nothing, the Devanagari text is kept —
+the model reads it fine). Transcripts are capped at 12,000 characters
+(marked as an excerpt when cut) and cached per video for 1h (max 20
+entries), so a second question about the same lesson does not re-fetch
+YouTube. If YouTube is unreachable (6s timeout) or a video has no
+captions, the tutor falls back to title+notes grounding and answers
+normally — it never fails just because the transcript did. Explain and
+debug modes do not fetch a transcript (they are about the learner's
+own code).
 
 Completion is stage-by-stage: a roadmap stage is "Complete" only when
 ALL its lessons are 95% watched; the roadmap highlights the first

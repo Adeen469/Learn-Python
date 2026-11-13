@@ -12,13 +12,19 @@ import {
   hasAiConfig,
   validateAiRequest,
 } from "@/lib/ai";
+import {
+  extractYouTubeId,
+  fetchTranscript,
+  TRANSCRIPT_TIMEOUT_MS,
+} from "@/lib/transcript";
 
 // AI tutor / code help — Gemini first, Groq fallback.
 // Session-required (401 when logged out). Fail-closed 503 when the
 // session secret or both AI keys are missing. No chat history is
 // stored server-side; the client sends at most the last 8 turns.
 // No user profile data is ever passed to a model — only the lesson
-// context (title/notes) and the learner's own question/code.
+// context (title/notes, plus the lesson video transcript for tutor
+// and quiz modes) and the learner's own question/code.
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
@@ -94,10 +100,36 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // Video transcript grounding, tutor + quiz only (explain/debug are
+  // about the learner's own code, not the video). The transcript is
+  // fetched live per question, cached per video, and capped — but a
+  // YouTube failure must NEVER fail the tutor: on null, answer from
+  // the title/notes grounding exactly as before.
+  let transcript = null;
+  if ((body.mode === "tutor" || body.mode === "quiz") && lesson) {
+    const videoId = extractYouTubeId(lesson.notes);
+    if (videoId) {
+      transcript = await fetchTranscript(videoId, {
+        timeoutMs: TRANSCRIPT_TIMEOUT_MS,
+      });
+      if (!transcript) {
+        console.error(
+          JSON.stringify({
+            event: "ai_transcript_failed",
+            endpoint: "ai",
+            lessonId: body.lessonId ?? null,
+            reason: "fetch_failed",
+          })
+        );
+      }
+    }
+  }
+
   const result = await askAi(
     {
       mode: body.mode,
       lesson,
+      transcript,
       question: body.question,
       code: body.code,
       history: body.history ?? [],
