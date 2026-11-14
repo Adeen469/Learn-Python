@@ -50,7 +50,7 @@ export const ROADMAP_STAGES: RoadmapStageDef[] = [
     subtitle: "Intro, variables, strings, conditionals & loops",
     startDay: 1,
     endDay: 19,
-    color: { from: "#38bdf8", to: "#2563eb", soft: "rgba(56,189,248,0.12)", text: "#7dd3fc" },
+    color: { from: "#7aa2f7", to: "#5b7fd4", soft: "rgba(122,162,247,0.10)", text: "#a8c3f7" },
   },
   {
     id: "functions",
@@ -58,7 +58,7 @@ export const ROADMAP_STAGES: RoadmapStageDef[] = [
     subtitle: "Functions, lists, tuples, f-strings & recursion",
     startDay: 20,
     endDay: 30,
-    color: { from: "#34d399", to: "#059669", soft: "rgba(52,211,153,0.12)", text: "#6ee7b7" },
+    color: { from: "#7ec8a9", to: "#4e9c7c", soft: "rgba(126,200,169,0.10)", text: "#a5d8c0" },
   },
   {
     id: "data",
@@ -66,7 +66,7 @@ export const ROADMAP_STAGES: RoadmapStageDef[] = [
     subtitle: "Sets, dictionaries & exception handling",
     startDay: 31,
     endDay: 39,
-    color: { from: "#fbbf24", to: "#ea580c", soft: "rgba(251,191,36,0.12)", text: "#fcd34d" },
+    color: { from: "#d9a05b", to: "#b57e3a", soft: "rgba(217,160,91,0.10)", text: "#e8c491" },
   },
   {
     id: "intermediate",
@@ -74,7 +74,7 @@ export const ROADMAP_STAGES: RoadmapStageDef[] = [
     subtitle: "Modules, file IO, lambda & map/filter/reduce",
     startDay: 40,
     endDay: 55,
-    color: { from: "#a78bfa", to: "#7c3aed", soft: "rgba(167,139,250,0.12)", text: "#c4b5fd" },
+    color: { from: "#b49ae0", to: "#8b6cc0", soft: "rgba(180,154,224,0.10)", text: "#cdbcf0" },
   },
   {
     id: "oop",
@@ -82,7 +82,7 @@ export const ROADMAP_STAGES: RoadmapStageDef[] = [
     subtitle: "Classes, inheritance, decorators & dunder methods",
     startDay: 56,
     endDay: 83,
-    color: { from: "#f472b6", to: "#db2777", soft: "rgba(244,114,182,0.12)", text: "#f9a8d4" },
+    color: { from: "#e08ba0", to: "#c06a80", soft: "rgba(224,139,160,0.10)", text: "#f0b3c2" },
   },
   {
     id: "advanced",
@@ -90,7 +90,7 @@ export const ROADMAP_STAGES: RoadmapStageDef[] = [
     subtitle: "Requests, generators, regex, asyncio & final projects",
     startDay: 84,
     endDay: 100,
-    color: { from: "#22d3ee", to: "#0891b2", soft: "rgba(34,211,238,0.12)", text: "#67e8f9" },
+    color: { from: "#6fc3c9", to: "#4a9aa0", soft: "rgba(111,195,201,0.10)", text: "#9ed6da" },
   },
 ];
 
