@@ -89,7 +89,7 @@ body {
 @keyframes roadmap-stage-in {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: perspective(900px) translateY(16px) rotateX(8deg);
   }
 }
 
@@ -97,6 +97,27 @@ body {
 @keyframes roadmap-bar-in {
   from {
     width: 0;
+  }
+}
+
+/* Light sweep across a progress bar. */
+@keyframes roadmap-shimmer {
+  from {
+    transform: translateX(-120%) skewX(-12deg);
+  }
+  to {
+    transform: translateX(320%) skewX(-12deg);
+  }
+}
+
+/* Gentle bob for the "Current stage" pill. */
+@keyframes roadmap-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
   }
 }
 
@@ -112,6 +133,85 @@ body {
   animation: roadmap-bar-in 900ms cubic-bezier(0.16, 1, 0.3, 1) 150ms both;
 }
 
+.animate-roadmap-shimmer {
+  animation: roadmap-shimmer 2.2s ease-in-out infinite;
+}
+
+.animate-roadmap-float {
+  animation: roadmap-float 2.4s ease-in-out infinite;
+}
+
+/* 3D stage cards: the list supplies perspective, the card lifts and tilts
+   on hover. Only transform / shadow animate, so it stays smooth (60fps). */
+.roadmap-stage-list {
+  perspective: 1200px;
+}
+
+.roadmap-card {
+  transition:
+    transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.3s ease;
+}
+
+.roadmap-card:hover {
+  transform: translateY(-4px) rotateX(2.5deg);
+  box-shadow:
+    0 24px 50px -20px rgba(0, 0, 0, 0.8),
+    0 12px 30px -12px var(--sc-from);
+  box-shadow:
+    0 24px 50px -20px rgba(0, 0, 0, 0.8),
+    0 12px 30px -12px color-mix(in srgb, var(--sc-from) 55%, transparent);
+}
+
+/* Current stage: colored ring + glow in its stage color. */
+.roadmap-card-current {
+  box-shadow:
+    0 0 0 1px var(--sc-from),
+    0 20px 50px -20px var(--sc-from);
+  box-shadow:
+    0 0 0 1px var(--sc-from),
+    0 20px 50px -20px color-mix(in srgb, var(--sc-from) 55%, transparent);
+}
+
+/* Raised 3D number chip: gradient + top highlight. */
+.roadmap-num {
+  box-shadow:
+    0 8px 16px -6px var(--sc-from),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  box-shadow:
+    0 8px 16px -6px color-mix(in srgb, var(--sc-from) 60%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+/* Lesson rows: lift + stage-colored edge on hover. */
+.roadmap-lesson {
+  transition:
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.25s ease,
+    background-color 0.25s ease;
+}
+
+.roadmap-lesson:hover {
+  transform: translateY(-1px);
+  border-color: var(--sc-from);
+  background-color: var(--sc-soft);
+}
+
+/* Extra cards: same smooth lift. */
+.roadmap-extra {
+  transition:
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.3s ease,
+    box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.roadmap-extra:hover {
+  transform: translateY(-3px);
+  border-color: #52525b;
+  box-shadow: 0 16px 32px -16px rgba(0, 0, 0, 0.8);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-splash-logo,
   .animate-splash-text,
@@ -119,7 +219,21 @@ body {
   .animate-splash-glow,
   .animate-roadmap-overlay,
   .animate-roadmap-stage,
-  .animate-roadmap-bar {
+  .animate-roadmap-bar,
+  .animate-roadmap-shimmer,
+  .animate-roadmap-float {
     animation: none !important;
+  }
+
+  .roadmap-card,
+  .roadmap-lesson,
+  .roadmap-extra {
+    transition: none !important;
+  }
+
+  .roadmap-card:hover,
+  .roadmap-lesson:hover,
+  .roadmap-extra:hover {
+    transform: none !important;
   }
 }

@@ -13,12 +13,24 @@
 
 import type { Lesson } from "./catalog";
 
+export interface StageColor {
+  /** Gradient stops for accents, progress bars and badges. */
+  from: string;
+  to: string;
+  /** Soft translucent tint for card glows and hover states. */
+  soft: string;
+  /** Solid color for small text accents (on the dark background). */
+  text: string;
+}
+
 export interface RoadmapStageDef {
   id: string;
   title: string;
   subtitle: string;
   startDay: number;
   endDay: number;
+  /** One distinct color per stage — the roadmap's color theme. */
+  color: StageColor;
 }
 
 export interface RoadmapStage extends RoadmapStageDef {
@@ -38,6 +50,7 @@ export const ROADMAP_STAGES: RoadmapStageDef[] = [
     subtitle: "Intro, variables, strings, conditionals & loops",
     startDay: 1,
     endDay: 19,
+    color: { from: "#38bdf8", to: "#2563eb", soft: "rgba(56,189,248,0.12)", text: "#7dd3fc" },
   },
   {
     id: "functions",
@@ -45,6 +58,7 @@ export const ROADMAP_STAGES: RoadmapStageDef[] = [
     subtitle: "Functions, lists, tuples, f-strings & recursion",
     startDay: 20,
     endDay: 30,
+    color: { from: "#34d399", to: "#059669", soft: "rgba(52,211,153,0.12)", text: "#6ee7b7" },
   },
   {
     id: "data",
@@ -52,6 +66,7 @@ export const ROADMAP_STAGES: RoadmapStageDef[] = [
     subtitle: "Sets, dictionaries & exception handling",
     startDay: 31,
     endDay: 39,
+    color: { from: "#fbbf24", to: "#ea580c", soft: "rgba(251,191,36,0.12)", text: "#fcd34d" },
   },
   {
     id: "intermediate",
@@ -59,6 +74,7 @@ export const ROADMAP_STAGES: RoadmapStageDef[] = [
     subtitle: "Modules, file IO, lambda & map/filter/reduce",
     startDay: 40,
     endDay: 55,
+    color: { from: "#a78bfa", to: "#7c3aed", soft: "rgba(167,139,250,0.12)", text: "#c4b5fd" },
   },
   {
     id: "oop",
@@ -66,6 +82,7 @@ export const ROADMAP_STAGES: RoadmapStageDef[] = [
     subtitle: "Classes, inheritance, decorators & dunder methods",
     startDay: 56,
     endDay: 83,
+    color: { from: "#f472b6", to: "#db2777", soft: "rgba(244,114,182,0.12)", text: "#f9a8d4" },
   },
   {
     id: "advanced",
@@ -73,6 +90,7 @@ export const ROADMAP_STAGES: RoadmapStageDef[] = [
     subtitle: "Requests, generators, regex, asyncio & final projects",
     startDay: 84,
     endDay: 100,
+    color: { from: "#22d3ee", to: "#0891b2", soft: "rgba(34,211,238,0.12)", text: "#67e8f9" },
   },
 ];
 

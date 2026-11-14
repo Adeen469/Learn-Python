@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { CheckCircle2, ChevronDown, Map, Play, X } from "lucide-react";
 import { getLessons, type Lesson } from "@/lib/catalog";
 import {
   EXTRA_ROLES,
+  ROADMAP_STAGES,
   buildRoadmapStages,
   completedStageCount,
   currentStage,
@@ -16,6 +17,21 @@ function formatDuration(totalSeconds: number): string {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = Math.round(totalSeconds % 60);
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+/** The 6 stage colors as one flowing gradient for the overall bar. */
+const OVERALL_GRADIENT = `linear-gradient(90deg, ${ROADMAP_STAGES.map(
+  (s) => s.color.from
+).join(", ")})`;
+
+/** Per-stage CSS variables, consumed by the 3D/color classes in globals.css. */
+function stageVars(stage: RoadmapStage): CSSProperties {
+  return {
+    "--sc-from": stage.color.from,
+    "--sc-to": stage.color.to,
+    "--sc-soft": stage.color.soft,
+    "--sc-text": stage.color.text,
+  } as CSSProperties;
 }
 
 interface RoadmapProps {
@@ -76,20 +92,23 @@ export function Roadmap({ onClose, onSelectLesson }: RoadmapProps) {
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
   }
 
-  function renderLessonRow(lesson: Lesson, index: number) {
+  function renderLessonRow(lesson: Lesson, index: number, stage: RoadmapStage) {
     const isDone = completedIds.includes(lesson.id);
     return (
       <li key={lesson.id}>
         <button
           type="button"
           onClick={() => onSelectLesson(lesson)}
-          className="flex w-full items-center gap-3 rounded-lg border border-neutral-800 bg-black px-3 py-2 text-left transition hover:border-neutral-600"
+          className="roadmap-lesson flex w-full items-center gap-3 rounded-lg border border-neutral-800 bg-black px-3 py-2 text-left"
         >
           <span className="w-7 shrink-0 text-center font-mono text-[11px] text-neutral-500">
             {index + 1}
           </span>
           {isDone ? (
-            <CheckCircle2 className="h-4 w-4 shrink-0 text-white" />
+            <CheckCircle2
+              className="h-4 w-4 shrink-0"
+              style={{ color: stage.color.text }}
+            />
           ) : (
             <Play className="h-4 w-4 shrink-0 text-neutral-400" />
           )}
@@ -108,29 +127,56 @@ export function Roadmap({ onClose, onSelectLesson }: RoadmapProps) {
   function renderStage(stage: RoadmapStage, index: number) {
     const isOpen = !!expanded[stage.id];
     const isCurrent = current !== null && current.id === stage.id;
+    const { from, to, soft, text } = stage.color;
     return (
       <section
         key={stage.id}
-        className={`animate-roadmap-stage rounded-xl border bg-neutral-950 ${
-          isCurrent ? "border-white/70" : "border-neutral-800"
+        className={`roadmap-card animate-roadmap-stage relative overflow-hidden rounded-xl border ${
+          isCurrent ? "roadmap-card-current border-transparent" : "border-neutral-800"
         }`}
-        style={{ animationDelay: `${index * 90}ms` }}
+        style={{
+          ...stageVars(stage),
+          animationDelay: `${index * 90}ms`,
+          background: `linear-gradient(180deg, ${soft}, transparent 55%), #09090b`,
+        }}
       >
+        {/* Gradient accent edge */}
+        <div
+          aria-hidden
+          className="absolute left-0 top-0 h-full w-1"
+          style={{ background: `linear-gradient(180deg, ${from}, ${to})` }}
+        />
         <button
           type="button"
           onClick={() => toggleStage(stage.id)}
           aria-expanded={isOpen}
-          className="flex w-full items-start justify-between gap-3 p-4 text-left"
+          className="relative flex w-full items-start gap-3 p-4 pl-5 text-left"
         >
-          <div className="min-w-0">
+          <span
+            className="roadmap-num flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-bold text-white"
+            style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}
+          >
+            {index + 1}
+          </span>
+          <div className="min-w-0 flex-1">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
               Stage {index + 1} • Day {stage.startDay}–{stage.endDay} • {stage.lessons.length} lessons
-              {isCurrent ? " • Current stage" : ""}
             </p>
             <h3 className="mt-1 flex flex-wrap items-center gap-2 text-base font-semibold text-white">
               {stage.title}
+              {isCurrent && (
+                <span
+                  className="animate-roadmap-float inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white"
+                  style={{ background: `linear-gradient(90deg, ${from}, ${to})` }}
+                >
+                  Current stage
+                </span>
+              )}
               {stage.complete && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-black">
+                <span
+                  className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white"
+                  style={{ background: `linear-gradient(90deg, ${from}, ${to})` }}
+                >
                   <CheckCircle2 className="h-3 w-3" /> Complete
                 </span>
               )}
@@ -138,19 +184,28 @@ export function Roadmap({ onClose, onSelectLesson }: RoadmapProps) {
             <p className="mt-0.5 text-xs text-neutral-400">{stage.subtitle}</p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            <span className="text-xs font-semibold text-white">{stage.percent}%</span>
+            <span className="text-xs font-semibold" style={{ color: text }}>
+              {stage.percent}%
+            </span>
             <ChevronDown
-              className={`h-4 w-4 text-neutral-400 transition-transform ${isOpen ? "rotate-180" : ""}`}
+              className={`h-4 w-4 text-neutral-400 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
             />
           </div>
         </button>
 
-        <div className="px-4 pb-4">
-          <div className="h-2 w-full overflow-hidden rounded-full bg-neutral-800">
+        <div className="relative px-4 pb-4 pl-5">
+          <div className="h-2.5 w-full overflow-hidden rounded-full bg-neutral-800">
             <div
-              className="animate-roadmap-bar h-full rounded-full bg-white"
-              style={{ width: `${stage.percent}%` }}
-            />
+              className="animate-roadmap-bar relative h-full overflow-hidden rounded-full"
+              style={{
+                width: `${stage.percent}%`,
+                background: `linear-gradient(90deg, ${from}, ${to})`,
+              }}
+            >
+              {isCurrent && stage.percent > 0 && (
+                <div className="animate-roadmap-shimmer absolute inset-y-0 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+              )}
+            </div>
           </div>
           <p className="mt-2 text-xs text-neutral-400">
             {stage.completedCount}/{stage.lessons.length} complete
@@ -163,7 +218,8 @@ export function Roadmap({ onClose, onSelectLesson }: RoadmapProps) {
                     e.stopPropagation();
                     onSelectLesson(stage.nextLesson!);
                   }}
-                  className="font-medium text-white underline underline-offset-2 hover:text-neutral-200"
+                  className="font-medium underline underline-offset-2 hover:opacity-80"
+                  style={{ color: text }}
                 >
                   Next: {stage.nextLesson.title}
                 </button>
@@ -173,9 +229,17 @@ export function Roadmap({ onClose, onSelectLesson }: RoadmapProps) {
             )}
           </p>
 
-          {isOpen && (
-            <ul className="mt-3 space-y-1.5">{stage.lessons.map(renderLessonRow)}</ul>
-          )}
+          {/* Smooth expand / collapse */}
+          <div
+            className="grid transition-[grid-template-rows] duration-300 ease-out"
+            style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
+          >
+            <div className="overflow-hidden">
+              <ul className="mt-3 space-y-1.5">
+                {stage.lessons.map((lesson, i) => renderLessonRow(lesson, i, stage))}
+              </ul>
+            </div>
+          </div>
         </div>
       </section>
     );
@@ -195,7 +259,10 @@ export function Roadmap({ onClose, onSelectLesson }: RoadmapProps) {
               <Map className="h-4 w-4 text-white" /> Your roadmap
             </p>
             <h2 className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">
-              100 days, 6 stages.
+              100 days,{" "}
+              <span className="bg-gradient-to-r from-sky-400 via-violet-400 to-rose-400 bg-clip-text text-transparent">
+                6 stages.
+              </span>
             </h2>
             <p className="mt-2 max-w-lg text-sm leading-relaxed text-neutral-400">
               From your first print() to real projects. Pick any lesson — nothing
@@ -206,14 +273,19 @@ export function Roadmap({ onClose, onSelectLesson }: RoadmapProps) {
             type="button"
             onClick={onClose}
             aria-label="Close roadmap"
-            className="shrink-0 rounded-lg border border-neutral-800 bg-neutral-950 p-2 text-neutral-400 hover:text-white"
+            className="shrink-0 rounded-lg border border-neutral-800 bg-neutral-950 p-2 text-neutral-400 transition hover:text-white"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Overall progress — stages, not the course at once */}
-        <div className="mt-6 rounded-xl border border-neutral-800 bg-neutral-950 p-4">
+        <div className="relative mt-6 overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950 p-4">
+          <div
+            aria-hidden
+            className="absolute inset-x-0 top-0 h-0.5"
+            style={{ background: OVERALL_GRADIENT }}
+          />
           <div className="flex items-center justify-between text-xs">
             <span className="font-medium text-neutral-300">Overall progress</span>
             <span className="font-semibold text-white">
@@ -224,16 +296,20 @@ export function Roadmap({ onClose, onSelectLesson }: RoadmapProps) {
             You complete the course stage by stage
             {current ? ` — you are on ${current.title}.` : " — every stage is complete."}
           </p>
-          <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-neutral-800">
+          <div className="relative mt-2 h-2.5 w-full overflow-hidden rounded-full bg-neutral-800">
             <div
-              className="animate-roadmap-bar h-full rounded-full bg-white"
-              style={{ width: `${overallPct}%` }}
-            />
+              className="animate-roadmap-bar relative h-full overflow-hidden rounded-full"
+              style={{ width: `${overallPct}%`, background: OVERALL_GRADIENT }}
+            >
+              {overallPct > 0 && (
+                <div className="animate-roadmap-shimmer absolute inset-y-0 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+              )}
+            </div>
           </div>
         </div>
 
         {/* Stages */}
-        <div className="mt-4 space-y-3">{stages.map(renderStage)}</div>
+        <div className="roadmap-stage-list mt-4 space-y-3">{stages.map(renderStage)}</div>
 
         {/* Extras */}
         {extras.length > 0 && (
@@ -242,16 +318,27 @@ export function Roadmap({ onClose, onSelectLesson }: RoadmapProps) {
               Extras — shortcuts, not a stage
             </h3>
             <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-              {extras.map((lesson) => {
+              {extras.map((lesson, i) => {
                 const role = EXTRA_ROLES[lesson.id];
+                const color = ROADMAP_STAGES[i % ROADMAP_STAGES.length].color;
                 return (
                   <button
                     key={lesson.id}
                     type="button"
                     onClick={() => onSelectLesson(lesson)}
-                    className="rounded-xl border border-neutral-800 bg-neutral-950 p-4 text-left transition hover:border-neutral-600"
+                    className="roadmap-extra relative overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950 p-4 text-left"
                   >
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
+                    <div
+                      aria-hidden
+                      className="absolute inset-x-0 top-0 h-0.5"
+                      style={{
+                        background: `linear-gradient(90deg, ${color.from}, ${color.to})`,
+                      }}
+                    />
+                    <p
+                      className="text-[11px] font-semibold uppercase tracking-wider"
+                      style={{ color: color.text }}
+                    >
                       {role?.role ?? "Extra"}
                     </p>
                     <p className="mt-1.5 text-sm font-medium leading-snug text-white">
@@ -274,7 +361,7 @@ export function Roadmap({ onClose, onSelectLesson }: RoadmapProps) {
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl bg-white px-6 py-2.5 text-sm font-semibold text-black hover:bg-neutral-200 transition"
+            className="rounded-xl bg-white px-6 py-2.5 text-sm font-semibold text-black transition hover:bg-neutral-200"
           >
             Start learning
           </button>
