@@ -39,6 +39,10 @@ export function removeStoredInstalledPackage(pkgName: string): string[] {
 
 /**
  * Loads all persistently saved packages into an active Pyodide instance.
+ * Uses the shared install logic (Pyodide-built first, micropip fallback,
+ * import verified) so a package that can no longer install is reported
+ * instead of silently skipped — and is NOT removed from storage, so the
+ * user can retry it from the Modules panel.
  */
 export async function restoreStoredPackages(
   pyodide: any,
@@ -48,22 +52,14 @@ export async function restoreStoredPackages(
   const packages = getStoredInstalledPackages();
   if (packages.length === 0) return;
 
+  const { installPackageInto } = await import("./pyodide-install");
   for (const pkg of packages) {
-    try {
-      onProgress?.(pkg, "loading");
-      try {
-        await pyodide.loadPackage(pkg);
-      } catch {
-        // Fallback to micropip for pure Python packages
-        await pyodide.runPythonAsync(`
-import micropip
-await micropip.install('${pkg}')
-`);
-      }
+    onProgress?.(pkg, "loading");
+    const result = await installPackageInto(pyodide, pkg);
+    if (result.ok) {
       onProgress?.(pkg, "done");
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
-      onProgress?.(pkg, "error", msg);
+    } else {
+      onProgress?.(pkg, "error", result.error);
     }
   }
 }

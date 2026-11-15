@@ -14,7 +14,7 @@ const FEATURES = [
   {
     icon: BookOpen,
     title: "100-day course",
-    text: "CodeWithHarry's Python for Beginners full course in Hindi — 100 lessons, Day 1 to Day 100, plus 3 extra videos.",
+    text: "CodeWithHarry's Python for Beginners full course in Hindi — 100 lessons, Day 1 to Day 100.",
   },
   {
     icon: CloudOff,
@@ -74,7 +74,7 @@ export function LandingPage() {
         {/* Hero */}
         <section className="flex flex-col items-center py-14 text-center sm:py-20">
           <p className="rounded-full border border-neutral-800 bg-neutral-950 px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-neutral-400">
-            100 days • 103 lessons • Hindi
+            100 days • 100 lessons • Hindi
           </p>
           <h1 className="mt-5 max-w-2xl text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
             Learn Python in 100 days.
@@ -98,7 +98,7 @@ export function LandingPage() {
           <div className="mt-10 grid w-full max-w-lg grid-cols-3 gap-3">
             {[
               { value: "100", label: "days" },
-              { value: "103", label: "lessons" },
+              { value: "100", label: "lessons" },
               { value: "6", label: "stages" },
             ].map((s) => (
               <div

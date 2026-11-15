@@ -45,8 +45,8 @@ Run these in the Supabase dashboard SQL editor, in order:
    policies for published courses, their modules, and their lessons.
    Re-runnable (drop-if-exists guards).
 3. `supabase/seed_lessons.sql` — inserts the "Python for Beginners
-   (Full Course)" course, its "100 Days of Code" module, and all 103
-   lessons (100 playlist lessons + 3 extras, video URLs empty until the
+   (Full Course)" course, its "100 Days of Code" module, and all 100
+   lessons (Day 1 to Day 100, video URLs empty until the
    MEGA links are pasted in). Re-runnable (upserts on slug).
 
 ### Adding a lesson (no redeploy)

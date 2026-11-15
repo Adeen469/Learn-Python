@@ -4,12 +4,10 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Check, CheckCircle2, ChevronDown, Map, Play, X } from "lucide-react";
 import { getLessons, type Lesson } from "@/lib/catalog";
 import {
-  EXTRA_ROLES,
   ROADMAP_STAGES,
   buildRoadmapStages,
   completedStageCount,
   currentStage,
-  extrasOf,
   type RoadmapStage,
 } from "@/lib/roadmap";
 
@@ -69,7 +67,6 @@ export function Roadmap({ onClose, onSelectLesson }: RoadmapProps) {
   }, []);
 
   const stages = buildRoadmapStages(lessons, completedIds);
-  const extras = extrasOf(lessons);
   const totalDone = stages.reduce((n, s) => n + s.completedCount, 0);
   const totalLessons = stages.reduce((n, s) => n + s.lessons.length, 0);
   const overallPct = totalLessons === 0 ? 0 : Math.round((totalDone / totalLessons) * 100);
@@ -325,46 +322,6 @@ export function Roadmap({ onClose, onSelectLesson }: RoadmapProps) {
           </div>
           {stages.map(renderStage)}
         </div>
-
-        {/* Extras */}
-        {extras.length > 0 && (
-          <section className="animate-roadmap-stage mt-8" style={{ animationDelay: `${stages.length * 70}ms` }}>
-            <h3 className="text-[11px] font-semibold uppercase tracking-widest text-neutral-500">
-              Extras — shortcuts, not a stage
-            </h3>
-            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-              {extras.map((lesson, i) => {
-                const role = EXTRA_ROLES[lesson.id];
-                const color = ROADMAP_STAGES[i % ROADMAP_STAGES.length].color;
-                return (
-                  <button
-                    key={lesson.id}
-                    type="button"
-                    onClick={() => onSelectLesson(lesson)}
-                    className="roadmap-extra rounded-xl border border-neutral-800 bg-neutral-950/60 p-4 text-left"
-                  >
-                    <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider">
-                      <span
-                        className="h-2 w-2 shrink-0 rounded-full"
-                        style={{ background: color.from }}
-                      />
-                      <span style={{ color: color.text }}>{role?.role ?? "Extra"}</span>
-                    </p>
-                    <p className="mt-2 text-sm font-medium leading-snug text-white">
-                      {lesson.title}
-                    </p>
-                    <p className="mt-1.5 text-xs leading-relaxed text-neutral-400">
-                      {role?.blurb ?? ""}
-                    </p>
-                    <p className="mt-2 text-xs text-neutral-500">
-                      {formatDuration(lesson.durationSeconds)}
-                    </p>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-        )}
 
         <div className="mt-8 text-center">
           <button

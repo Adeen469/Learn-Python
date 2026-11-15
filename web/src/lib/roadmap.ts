@@ -94,31 +94,10 @@ export const ROADMAP_STAGES: RoadmapStageDef[] = [
   },
 ];
 
-// What each extra video is for (ids from catalog.ts).
-export const EXTRA_ROLES: Record<string, { role: string; blurb: string }> = {
-  "python-extra-001": {
-    role: "Quick start",
-    blurb: "The whole course in 15 minutes — watch this first for the big picture.",
-  },
-  "python-extra-002": {
-    role: "How to learn",
-    blurb: "The full roadmap from zero to expert — how the 100 days fit together.",
-  },
-  "python-extra-003": {
-    role: "Alternate path",
-    blurb: "The complete 11-hour course — a second way through the same topics.",
-  },
-};
-
 /** Day number for a 100-day lesson (python-day-001..100), null otherwise. */
 export function dayNumberOf(lesson: Lesson): number | null {
   const m = /^python-day-(\d+)$/.exec(lesson.id);
   return m ? parseInt(m[1], 10) : null;
-}
-
-/** The 3 extra videos (python-extra-001..003), in catalog order. */
-export function extrasOf(lessons: Lesson[]): Lesson[] {
-  return lessons.filter((l) => l.id.startsWith("python-extra-"));
 }
 
 export function buildRoadmapStages(

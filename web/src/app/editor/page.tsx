@@ -8,6 +8,7 @@ import { AppNavbar } from "@/components/AppNavbar";
 import { ModulesPanel } from "@/components/ModulesPanel";
 import { fetchSessionUser } from "@/lib/auth-client";
 import { restoreStoredPackages } from "@/lib/package-storage";
+import { waitForPyodideScript } from "@/lib/pyodide-install";
 import {
   AlertCircle,
   Bug,
@@ -25,6 +26,7 @@ import {
   Plus,
   Save,
   Sparkles,
+  Square,
   Terminal,
   Trash2,
   UploadCloud,
@@ -137,8 +139,12 @@ export default function CodeEditorPage() {
     const url = tab === "modules" ? "/editor?tab=modules" : "/editor";
     window.history.replaceState(null, "", url);
   }
-  const [output, setOutput] = useState<string>("Ready. Write or edit code, click 'Save', then 'Compile & Run'.\n");
+  const [output, setOutput] = useState<string>("Ready. Write or edit code, then 'Compile & Run'.\n");
   const [isRunning, setIsRunning] = useState(false);
+  // Text fed to input() calls, one line per call. Without this, any
+  // program using input() used to hang/fail with no way to type an answer.
+  const [programInput, setProgramInput] = useState<string>("");
+  const [pyodideError, setPyodideError] = useState<string | null>(null);
 
   // AI code help (Gemini first, Groq fallback, via POST /api/ai).
   // The answer lives only in this component's state — nothing is
@@ -203,6 +209,19 @@ export default function CodeEditorPage() {
   const [needsSaveWarning, setNeedsSaveWarning] = useState<string | null>(null);
   const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({ utils: true });
 
+  // A file/folder is visible only when every ancestor folder is expanded.
+  // The old tree rendered every item flat, so collapsing a folder did
+  // nothing — its files stayed visible. Folders default to expanded
+  // only when explicitly set (utils starts expanded).
+  function isItemVisible(item: WorkspaceItem): boolean {
+    const parts = item.path.split("/");
+    for (let i = 1; i < parts.length; i += 1) {
+      const ancestor = parts.slice(0, i).join("/");
+      if (expandedFolders[ancestor] === false) return false;
+    }
+    return true;
+  }
+
   // Creation dialogs
   const [newFileInput, setNewFileInput] = useState("");
   const [newFolderInput, setNewFolderInput] = useState("");
@@ -217,21 +236,48 @@ export default function CodeEditorPage() {
   const pyodideRef = useRef<any>(null);
   const [pyodideReady, setPyodideReady] = useState(false);
   const [loadingEngine, setLoadingEngine] = useState(false);
+  // Single-flight init: without this, two callers (the <Script> onLoad
+  // and an Install click) could start two Pyodide loads at once, and a
+  // click before the script finished just gave up with "not ready".
+  const pyodideInitPromiseRef = useRef<Promise<any> | null>(null);
+  // SIGINT buffer for the Stop button. Only works when SharedArrayBuffer
+  // is available (needs cross-origin isolation); otherwise Stop stays
+  // disabled and the UI says so instead of pretending to stop the run.
+  const interruptBufferRef = useRef<Uint8Array | null>(null);
 
   const activeFile =
     items.find((it) => it.type === "file" && it.path === activeFilePath) ||
     items.find((it) => it.type === "file");
 
   async function initPyodide() {
-    if (pyodideRef.current || !window.loadPyodide) return;
-    setLoadingEngine(true);
-    try {
+    if (pyodideRef.current) return pyodideRef.current;
+    if (pyodideInitPromiseRef.current) return pyodideInitPromiseRef.current;
+    const promise = (async () => {
+      // The jsDelivr <Script> loads async — wait for it instead of
+      // returning immediately (the old code did that, so an early
+      // Install click always failed with "environment is not ready").
+      const scriptReady = await waitForPyodideScript(30000);
+      if (!scriptReady || !window.loadPyodide) {
+        throw new Error(
+          "Pyodide script did not load from cdn.jsdelivr.net — check your connection and retry."
+        );
+      }
+      setLoadingEngine(true);
       const pyodide = await window.loadPyodide({
         indexURL: "https://cdn.jsdelivr.net/pyodide/v0.27.2/full/",
       });
+      // Stop button support, when the browser allows SharedArrayBuffer.
+      try {
+        if (typeof SharedArrayBuffer !== "undefined") {
+          const buf = new Uint8Array(new SharedArrayBuffer(1));
+          pyodide.setInterruptBuffer(buf);
+          interruptBufferRef.current = buf;
+        }
+      } catch {}
       await pyodide.loadPackage("micropip");
       pyodideRef.current = pyodide;
       setPyodideReady(true);
+      setPyodideError(null);
       setOutput((prev) => prev + "✓ Python runtime (Pyodide 0.27.2) loaded successfully.\n");
 
       // Auto-load all packages installed on the Modules page
@@ -240,8 +286,18 @@ export default function CodeEditorPage() {
         if (status === "done") setOutput((prev) => prev + `[Package '${pkg}' ready]\n`);
         if (status === "error") setOutput((prev) => prev + `[Failed loading '${pkg}': ${error}]\n`);
       });
+      return pyodide;
+    })();
+    pyodideInitPromiseRef.current = promise;
+    try {
+      return await promise;
     } catch (err: unknown) {
-      setOutput((prev) => prev + `✗ Failed to load runtime: ${err instanceof Error ? err.message : String(err)}\n`);
+      // Let the next attempt retry instead of caching the failure.
+      pyodideInitPromiseRef.current = null;
+      const msg = err instanceof Error ? err.message : String(err);
+      setPyodideError(msg);
+      setOutput((prev) => prev + `✗ Failed to load runtime: ${msg}\n`);
+      return null;
     } finally {
       setLoadingEngine(false);
     }
@@ -249,8 +305,16 @@ export default function CodeEditorPage() {
 
   // Shared by the Modules tab: loads the runtime if needed, true when ready.
   async function ensurePyodideReady(): Promise<boolean> {
-    await initPyodide();
-    return !!pyodideRef.current;
+    const py = await initPyodide();
+    return !!py;
+  }
+
+  function stopRunning() {
+    const buf = interruptBufferRef.current;
+    if (buf) {
+      buf[0] = 2; // SIGINT — interrupts the running Python code.
+      setOutput((prev) => prev + "[Stop requested — interrupting the running code…]\n");
+    }
   }
 
   // Load from localStorage
@@ -481,42 +545,70 @@ export default function CodeEditorPage() {
   async function compileAndRun() {
     if (!activeFile) return;
 
-    if (!activeFile.isSaved) {
-      setNeedsSaveWarning(`Please save '${activeFile.path}' before compiling/running.`);
-      return;
-    }
+    // Auto-save on Run: the old code refused to run an unsaved file and
+    // made the user click Save first. Running now saves first instead.
+    const toRun = items.map((it) =>
+      it.path === activeFile.path ? { ...it, content: activeFile.content ?? "", isSaved: true } : it
+    );
+    setItems(toRun);
+    localStorage.setItem("lp_workspace_tree", JSON.stringify(toRun));
+    setNeedsSaveWarning(null);
+    const code = activeFile.content ?? "";
 
     if (!pyodideRef.current) {
       setOutput((prev) => prev + "Python runtime is loading, please wait...\n");
-      await initPyodide();
-      if (!pyodideRef.current) return;
+      const py = await initPyodide();
+      if (!py) return;
     }
 
     setIsRunning(true);
-    setNeedsSaveWarning(null);
     setOutput(`=== Executing ${activeFile.path} ===\n`);
 
     try {
       const py = pyodideRef.current;
-      syncAllFilesToPyodide(items);
+      syncAllFilesToPyodide(toRun);
 
+      // Capture stdout/stderr and feed input() from the Program input box.
+      // The originals are restored in `finally`, even when the code
+      // crashes or reassigns sys.stdout itself.
       py.runPython(`
 import sys
 import io
+sys.__lp_stdout__ = sys.stdout
+sys.__lp_stderr__ = sys.stderr
+sys.__lp_stdin__ = sys.stdin
 class LPOutputBuffer(io.StringIO):
     pass
 sys.stdout = LPOutputBuffer()
 sys.stderr = sys.stdout
+sys.stdin = io.StringIO(${JSON.stringify(programInput)})
 `);
 
-      await py.runPythonAsync(activeFile.content ?? "");
+      await py.runPythonAsync(code);
 
       const captured = py.runPython("sys.stdout.getvalue()");
       setOutput((prev) => prev + (captured || "(Execution completed with no output)\n") + "\n=== Finished (Exit 0) ===\n");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
-      setOutput((prev) => prev + `\nTraceback (most recent call last):\n${msg}\n=== Execution Failed ===\n`);
+      // Keep whatever the program printed before it crashed.
+      let captured = "";
+      try {
+        captured = pyodideRef.current?.runPython("sys.stdout.getvalue()") ?? "";
+      } catch {}
+      setOutput(
+        (prev) =>
+          prev +
+          (captured ? captured + "\n" : "") +
+          `Traceback (most recent call last):\n${msg}\n=== Execution Failed ===\n`
+      );
     } finally {
+      try {
+        pyodideRef.current?.runPython(
+          "sys.stdout = sys.__lp_stdout__\n" +
+            "sys.stderr = sys.__lp_stderr__\n" +
+            "sys.stdin = sys.__lp_stdin__"
+        );
+      } catch {}
       setIsRunning(false);
     }
   }
@@ -530,6 +622,11 @@ sys.stderr = sys.stdout
       <Script
         src="https://cdn.jsdelivr.net/pyodide/v0.27.2/full/pyodide.js"
         onLoad={initPyodide}
+        onError={() => {
+          const msg = "Pyodide script failed to load from cdn.jsdelivr.net — check your connection and reload the page.";
+          setPyodideError(msg);
+          setOutput((prev) => prev + `✗ ${msg}\n`);
+        }}
       />
       <AppNavbar />
 
@@ -612,6 +709,22 @@ sys.stderr = sys.stdout
               <Bug className="h-3.5 w-3.5" /> Find the bug
             </button>
 
+            {isRunning && (
+              <button
+                type="button"
+                onClick={stopRunning}
+                disabled={!interruptBufferRef.current}
+                title={
+                  interruptBufferRef.current
+                    ? "Interrupt the running code"
+                    : "Stop needs SharedArrayBuffer, which this browser setup does not provide — reload the page to stop a stuck run."
+                }
+                className="flex items-center gap-1.5 rounded-lg border border-red-500/50 bg-red-500/10 px-3.5 py-1.5 text-xs font-medium text-red-200 hover:bg-red-500/20 transition disabled:opacity-50"
+              >
+                <Square className="h-3.5 w-3.5 fill-current" /> Stop
+              </button>
+            )}
+
             <button
               type="button"
               onClick={compileAndRun}
@@ -634,6 +747,22 @@ sys.stderr = sys.stdout
             </button>
           </div>
         </div>
+
+        {pyodideError && (
+          <div className="flex items-center justify-between rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-xs text-red-200">
+            <span>{pyodideError}</span>
+            <button
+              type="button"
+              onClick={() => {
+                setPyodideError(null);
+                initPyodide();
+              }}
+              className="underline font-semibold hover:text-white ml-3"
+            >
+              Retry
+            </button>
+          </div>
+        )}
 
         {/* Warning banner */}
         {needsSaveWarning && (
@@ -735,7 +864,7 @@ sys.stderr = sys.stdout
 
             {/* Tree Items */}
             <div className="flex-1 overflow-auto p-2 space-y-1">
-              {items.map((item) => {
+              {items.filter(isItemVisible).map((item) => {
                 const isFolder = item.type === "folder";
                 const depth = item.path.split("/").length - 1;
                 const isSelected = activeFilePath === item.path;
@@ -773,14 +902,14 @@ sys.stderr = sys.stdout
                             setActiveFilePath(item.path);
                             setNeedsSaveWarning(null);
                           } else {
-                            setExpandedFolders((p) => ({ ...p, [item.path]: !p[item.path] }));
+                            setExpandedFolders((p) => ({ ...p, [item.path]: !(p[item.path] ?? true) }));
                           }
                         }}
                         className="flex items-center gap-1.5 min-w-0 flex-1 truncate text-left"
                       >
                         {isFolder ? (
                           <>
-                            {expandedFolders[item.path] ? (
+                            {(expandedFolders[item.path] ?? true) ? (
                               <ChevronDown className="h-3 w-3 shrink-0" />
                             ) : (
                               <ChevronRight className="h-3 w-3 shrink-0" />
@@ -873,6 +1002,18 @@ sys.stderr = sys.stdout
             <pre className="flex-1 w-full bg-black p-3.5 font-mono text-xs text-neutral-300 overflow-auto whitespace-pre-wrap selection:bg-neutral-800">
               {output}
             </pre>
+            <div className="border-t border-neutral-800 bg-black/60 px-3.5 py-2">
+              <label className="text-[11px] font-mono text-neutral-500">
+                Program input — one line per input() call
+              </label>
+              <textarea
+                value={programInput}
+                onChange={(e) => setProgramInput(e.target.value)}
+                placeholder={"e.g.\nAdeen\n21"}
+                rows={2}
+                className="mt-1 w-full resize-y rounded border border-neutral-800 bg-neutral-950 px-2 py-1 font-mono text-xs text-white placeholder-neutral-600 focus:border-white focus:outline-none"
+              />
+            </div>
           </div>
         </div>
 

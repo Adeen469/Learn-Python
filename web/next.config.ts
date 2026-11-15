@@ -13,7 +13,11 @@ const csp = [
   // navbar avatar comes from the signed-in user's Google photo).
   "img-src 'self' data: blob: https://lh3.googleusercontent.com",
   "font-src 'self' data:",
-  "connect-src 'self' https://cdn.jsdelivr.net",
+  // pypi.org + files.pythonhosted.org: micropip installs PyPI wheels
+  // directly from the browser. Without these, every micropip install
+  // was blocked by the CSP and the Modules panel's Install button
+  // silently failed for any package not built into Pyodide.
+  "connect-src 'self' https://cdn.jsdelivr.net https://pypi.org https://files.pythonhosted.org",
   "worker-src 'self' blob:",
   "media-src 'self' blob:",
   "frame-src 'none'",

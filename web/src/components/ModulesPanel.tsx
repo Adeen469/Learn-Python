@@ -1,7 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PYTHON_STDLIB_MODULES } from "@/lib/stdlib-data";
+import { PYODIDE_PACKAGES } from "@/lib/pyodide-packages";
+import {
+  MICROPIP_PACKAGES,
+  PYODIDE_DESCRIPTIONS,
+} from "@/lib/external-packages";
+import { installPackageInto } from "@/lib/pyodide-install";
 import {
   getStoredInstalledPackages,
   removeStoredInstalledPackage,
@@ -27,22 +33,34 @@ interface PyPiInfo {
   home_page: string;
 }
 
-const TOP_PYPI_PACKAGES = [
-  { name: "numpy", desc: "Scientific computing, N-dimensional arrays, linear algebra" },
-  { name: "pandas", desc: "Fast, flexible data analysis and manipulation structures" },
-  { name: "matplotlib", desc: "Comprehensive 2D plotting and data visualization" },
-  { name: "scipy", desc: "Algorithms for mathematics, science, and engineering" },
-  { name: "sympy", desc: "Computer algebra and symbolic mathematics system" },
-  { name: "scikit-learn", desc: "Machine learning algorithms for classification & regression" },
-  { name: "regex", desc: "Alternative regular expression module supporting full Unicode" },
-  { name: "requests", desc: "Elegant and simple HTTP library for Python" },
-  { name: "beautifulsoup4", desc: "Screen-scraping library for HTML/XML documents" },
-  { name: "pytest", desc: "Mature full-featured Python testing tool" },
-  { name: "rich", desc: "Rich text and beautiful formatting in the terminal" },
-  { name: "networkx", desc: "Creation, manipulation, and study of complex networks" },
-  { name: "jinja2", desc: "Fast, expressive, and extensible template engine" },
-  { name: "pyyaml", desc: "Full-featured YAML parser and emitter for Python" },
-  { name: "pillow", desc: "Python Imaging Library (PIL fork) for opening and saving images" },
+interface ExternalEntry {
+  name: string;
+  desc: string;
+  category: string;
+  source: "pyodide" | "micropip";
+}
+
+// The full external list: every Pyodide-built package (254, from the
+// 0.27.2 lock file) plus the curated pure-Python PyPI packages that are
+// NOT in Pyodide and install via micropip. The old hardcoded list of
+// 15 is gone — that was why users only ever saw 15 packages.
+// Anything on PyPI beyond this list is still installable by exact name
+// in the "Live PyPI Search & Install" tab.
+const ALL_EXTERNAL: ExternalEntry[] = [
+  ...PYODIDE_PACKAGES.map((name): ExternalEntry => ({
+    name,
+    desc:
+      PYODIDE_DESCRIPTIONS[name] ??
+      "Pyodide-built package — installs fast from the CDN, ready to import.",
+    category: "Pyodide",
+    source: "pyodide",
+  })),
+  ...MICROPIP_PACKAGES.map((pkg): ExternalEntry => ({
+    name: pkg.name,
+    desc: pkg.desc,
+    category: pkg.category,
+    source: "micropip",
+  })),
 ];
 
 interface ModulesPanelProps {
@@ -59,6 +77,12 @@ export function ModulesPanel({ pyodideRef, ensurePyodide }: ModulesPanelProps) {
   const [installedList, setInstalledList] = useState<string[]>([]);
   const [installingMap, setInstallingMap] = useState<Record<string, boolean>>({});
   const [logs, setLogs] = useState<string[]>([]);
+  const [lastError, setLastError] = useState<string | null>(null);
+
+  // External tab: search + source filter + install-by-name.
+  const [externalQuery, setExternalQuery] = useState("");
+  const [sourceFilter, setSourceFilter] = useState<"all" | "pyodide" | "micropip">("all");
+  const [installByName, setInstallByName] = useState("");
 
   // PyPI live search
   const [pypiQuery, setPypiQuery] = useState("");
@@ -77,38 +101,36 @@ export function ModulesPanel({ pyodideRef, ensurePyodide }: ModulesPanelProps) {
   }
 
   async function installPackage(pkgName: string) {
+    const clean = pkgName.trim().toLowerCase();
+    if (!clean) return;
+    setLastError(null);
     if (!pyodideRef.current) {
-      addLog("Initializing Python environment...");
+      addLog("Python environment is not ready yet — starting it now, please wait…");
       const ready = await ensurePyodide();
       if (!ready) {
-        addLog("Python environment is not ready yet — try again in a moment.");
+        const msg =
+          "Python environment could not start (the Pyodide script did not load). Check your connection and try again — the Install button will retry.";
+        addLog(msg);
+        setLastError(msg);
         return;
       }
     }
 
-    setInstallingMap((prev) => ({ ...prev, [pkgName]: true }));
-    addLog(`Installing package '${pkgName}' via Pyodide / Micropip...`);
+    setInstallingMap((prev) => ({ ...prev, [clean]: true }));
+    addLog(`Installing '${clean}'…`);
 
-    try {
-      const py = pyodideRef.current;
-      try {
-        await py.loadPackage(pkgName);
-      } catch {
-        await py.runPythonAsync(`
-import micropip
-await micropip.install('${pkgName}')
-`);
-      }
-
-      const updated = saveStoredInstalledPackage(pkgName);
+    const result = await installPackageInto(pyodideRef.current, clean);
+    if (result.ok) {
+      const updated = saveStoredInstalledPackage(clean);
       setInstalledList(updated);
-      addLog(`✓ Successfully installed '${pkgName}'. Now saved in workspace storage!`);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
-      addLog(`✗ Failed to install '${pkgName}': ${msg}`);
-    } finally {
-      setInstallingMap((prev) => ({ ...prev, [pkgName]: false }));
+      addLog(
+        `✓ Installed '${clean}' via ${result.method} (import ${result.importName} works). Saved in workspace storage.`
+      );
+    } else {
+      addLog(`✗ Failed to install '${clean}': ${result.error}`);
+      setLastError(result.error);
     }
+    setInstallingMap((prev) => ({ ...prev, [clean]: false }));
   }
 
   function uninstallPackage(pkgName: string) {
@@ -157,6 +179,19 @@ if '${pkgName}' in sys.modules:
     return true;
   });
 
+  const filteredExternal = useMemo(() => {
+    const q = externalQuery.trim().toLowerCase();
+    return ALL_EXTERNAL.filter((pkg) => {
+      if (sourceFilter !== "all" && pkg.source !== sourceFilter) return false;
+      if (!q) return true;
+      return (
+        pkg.name.toLowerCase().includes(q) ||
+        pkg.desc.toLowerCase().includes(q) ||
+        pkg.category.toLowerCase().includes(q)
+      );
+    });
+  }, [externalQuery, sourceFilter]);
+
   return (
     <div className="flex flex-col gap-5">
       <div>
@@ -185,7 +220,7 @@ if '${pkgName}' in sys.modules:
               activeTab === "external" ? "bg-white text-black" : "text-neutral-400 hover:text-white"
             }`}
           >
-            Popular External Packages ({TOP_PYPI_PACKAGES.length})
+            External Packages ({ALL_EXTERNAL.length})
           </button>
           <button
             onClick={() => setActiveTab("search")}
@@ -210,6 +245,12 @@ if '${pkgName}' in sys.modules:
           </div>
         )}
       </div>
+
+      {lastError && (
+        <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2.5 text-xs leading-relaxed text-red-200">
+          {lastError}
+        </div>
+      )}
 
       {/* TAB 1: Complete Built-in Standard Library */}
       {activeTab === "stdlib" && (
@@ -271,67 +312,134 @@ if '${pkgName}' in sys.modules:
         </div>
       )}
 
-      {/* TAB 2: Popular External Packages */}
+      {/* TAB 2: All External Packages (Pyodide-built + PyPI micropip) */}
       {activeTab === "external" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {TOP_PYPI_PACKAGES.map((pkg) => {
-            const isInstalled = installedList.includes(pkg.name);
-            const isInstalling = installingMap[pkg.name];
-            return (
-              <div
-                key={pkg.name}
-                className="flex flex-col justify-between rounded-xl border border-neutral-800 bg-neutral-950 p-3.5 hover:border-neutral-700 transition"
-              >
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-sm font-semibold text-white">
-                      {pkg.name}
-                    </span>
-                    <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full bg-neutral-800 text-white">
-                      PyPI / WASM
-                    </span>
-                  </div>
-                  <p className="mt-2 text-xs text-neutral-400 leading-relaxed">
-                    {pkg.desc}
-                  </p>
-                </div>
+        <div className="space-y-4">
+          <p className="text-xs leading-relaxed text-neutral-400">
+            {PYODIDE_PACKAGES.length} Pyodide-built packages (install fast from the CDN) +{" "}
+            {MICROPIP_PACKAGES.length} popular pure-Python PyPI packages (install via micropip).{" "}
+            {installedList.length > 0 && (
+              <span className="text-white font-medium">{installedList.length} installed in this workspace.</span>
+            )}{" "}
+            Anything else on PyPI can still be installed by exact name in the Live PyPI Search tab.
+          </p>
 
-                <div className="mt-4 pt-3 border-t border-neutral-900 flex items-center justify-between">
-                  {isInstalled ? (
-                    <div className="flex items-center justify-between w-full">
-                      <span className="inline-flex items-center gap-1 text-[11px] text-white font-medium">
-                        <Check className="h-3.5 w-3.5" /> Installed
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative min-w-0 flex-1">
+              <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-neutral-500" />
+              <input
+                type="text"
+                placeholder="Search all packages — e.g. numpy, flask, seaborn, opencv…"
+                value={externalQuery}
+                onChange={(e) => setExternalQuery(e.target.value)}
+                className="w-full rounded-lg border border-neutral-800 bg-neutral-950 pl-8 pr-3 py-2 text-xs text-white placeholder-neutral-600 focus:border-white focus:outline-none"
+              />
+            </div>
+            <div className="flex gap-1.5 rounded-lg border border-neutral-800 bg-neutral-950 p-1 text-xs">
+              {(["all", "pyodide", "micropip"] as const).map((src) => (
+                <button
+                  key={src}
+                  type="button"
+                  onClick={() => setSourceFilter(src)}
+                  className={`whitespace-nowrap rounded-md px-3 py-1.5 font-medium transition ${
+                    sourceFilter === src ? "bg-white text-black" : "text-neutral-400 hover:text-white"
+                  }`}
+                >
+                  {src === "all" ? "All" : src === "pyodide" ? "Pyodide" : "PyPI (micropip)"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              installPackage(installByName);
+              setInstallByName("");
+            }}
+            className="flex gap-2"
+          >
+            <input
+              type="text"
+              placeholder="Install any package by name — e.g. tabulate"
+              value={installByName}
+              onChange={(e) => setInstallByName(e.target.value)}
+              className="min-w-0 flex-1 rounded-lg border border-neutral-800 bg-black px-3 py-2 text-xs text-white placeholder-neutral-600 focus:border-white focus:outline-none"
+            />
+            <button
+              type="submit"
+              disabled={!installByName.trim()}
+              className="shrink-0 whitespace-nowrap rounded-lg bg-white px-4 py-2 text-xs font-semibold text-black hover:bg-neutral-200 transition disabled:opacity-50"
+            >
+              Install
+            </button>
+          </form>
+
+          <p className="text-[11px] text-neutral-500">
+            Showing {filteredExternal.length} of {ALL_EXTERNAL.length} packages.
+            {filteredExternal.length === 0 && " No match — try the Live PyPI Search tab for an exact package name."}
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {filteredExternal.map((pkg) => {
+              const isInstalled = installedList.includes(pkg.name);
+              const isInstalling = installingMap[pkg.name];
+              return (
+                <div
+                  key={pkg.name}
+                  className="flex flex-col justify-between rounded-xl border border-neutral-800 bg-neutral-950 p-3.5 hover:border-neutral-700 transition"
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-mono text-sm font-semibold text-white truncate">
+                        {pkg.name}
                       </span>
+                      <span className="shrink-0 text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full bg-neutral-800 text-white">
+                        {pkg.source === "pyodide" ? "Pyodide" : "PyPI / micropip"}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-xs text-neutral-400 leading-relaxed">
+                      {pkg.desc}
+                    </p>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-neutral-900 flex items-center justify-between">
+                    {isInstalled ? (
+                      <div className="flex items-center justify-between w-full">
+                        <span className="inline-flex items-center gap-1 text-[11px] text-white font-medium">
+                          <Check className="h-3.5 w-3.5" /> Installed
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => uninstallPackage(pkg.name)}
+                          className="inline-flex items-center gap-1 rounded border border-neutral-800 bg-black px-2 py-1 text-[10px] text-neutral-400 hover:text-red-400 hover:border-red-900 transition"
+                        >
+                          <Trash2 className="h-3 w-3" /> Remove
+                        </button>
+                      </div>
+                    ) : (
                       <button
                         type="button"
-                        onClick={() => uninstallPackage(pkg.name)}
-                        className="inline-flex items-center gap-1 rounded border border-neutral-800 bg-black px-2 py-1 text-[10px] text-neutral-400 hover:text-red-400 hover:border-red-900 transition"
+                        onClick={() => installPackage(pkg.name)}
+                        disabled={isInstalling}
+                        className="ml-auto inline-flex items-center gap-1 rounded-md bg-white px-3 py-1.5 text-xs font-semibold text-black hover:bg-neutral-200 transition disabled:opacity-50"
                       >
-                        <Trash2 className="h-3 w-3" /> Remove
+                        {isInstalling ? (
+                          <>
+                            <Loader2 className="h-3 w-3 animate-spin" /> Installing...
+                          </>
+                        ) : (
+                          <>
+                            <Download className="h-3 w-3" /> Install Package
+                          </>
+                        )}
                       </button>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => installPackage(pkg.name)}
-                      disabled={isInstalling}
-                      className="ml-auto inline-flex items-center gap-1 rounded-md bg-white px-3 py-1.5 text-xs font-semibold text-black hover:bg-neutral-200 transition disabled:opacity-50"
-                    >
-                      {isInstalling ? (
-                        <>
-                          <Loader2 className="h-3 w-3 animate-spin" /> Installing...
-                        </>
-                      ) : (
-                        <>
-                          <Download className="h-3 w-3" /> Install Package
-                        </>
-                      )}
-                    </button>
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       )}
 
@@ -375,7 +483,7 @@ if '${pkgName}' in sys.modules:
                     </span>{" "}
                     <span className="text-xs text-neutral-400 font-mono">v{pypiResult.version}</span>
                   </div>
-                  {installedList.includes(pypiResult.name) ? (
+                  {installedList.includes(pypiResult.name.toLowerCase()) ? (
                     <span className="inline-flex items-center gap-1 text-xs text-emerald-400 font-medium">
                       <Check className="h-4 w-4" /> Installed in Workspace
                     </span>
@@ -383,10 +491,10 @@ if '${pkgName}' in sys.modules:
                     <button
                       type="button"
                       onClick={() => installPackage(pypiResult.name)}
-                      disabled={installingMap[pypiResult.name]}
+                      disabled={installingMap[pypiResult.name.toLowerCase()]}
                       className="rounded-md bg-white px-3.5 py-1.5 text-xs font-semibold text-black hover:bg-neutral-200 transition flex items-center gap-1.5 disabled:opacity-50"
                     >
-                      {installingMap[pypiResult.name] ? (
+                      {installingMap[pypiResult.name.toLowerCase()] ? (
                         <>
                           <Loader2 className="h-3.5 w-3.5 animate-spin" /> Installing...
                         </>
