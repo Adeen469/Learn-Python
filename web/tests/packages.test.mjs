@@ -107,3 +107,135 @@ test("collapsing a folder hides its files (editor tree)", () => {
   // Folders never mentioned default to visible.
   assert.equal(isItemVisible({ path: "tests/test_a.py" }, {}), true);
 });
+
+// --- loadPyodideScript + withTimeout mirrors (pyodide-install.ts) ---
+
+const PYODIDE_SCRIPT_URL =
+  "https://cdn.jsdelivr.net/pyodide/v0.27.2/full/pyodide.js";
+const PYODIDE_LOAD_TIMEOUT_MS = 120_000;
+
+function withTimeout(promise, ms, message) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(message)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timer !== undefined) clearTimeout(timer);
+  });
+}
+
+function loadPyodideScript(timeoutMs = 30000) {
+  if (typeof window === "undefined" || typeof document === "undefined") {
+    return Promise.resolve(false);
+  }
+  if (typeof window.loadPyodide === "function") {
+    return Promise.resolve(true);
+  }
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    let done = false;
+    const finish = (ok) => {
+      if (done) return;
+      done = true;
+      window.clearTimeout(timer);
+      if (!ok) script.remove();
+      resolve(ok && typeof window.loadPyodide === "function");
+    };
+    const timer = window.setTimeout(() => finish(false), timeoutMs);
+    script.src = PYODIDE_SCRIPT_URL;
+    script.onload = () => finish(true);
+    script.onerror = () => finish(false);
+    document.head.appendChild(script);
+  });
+}
+
+function stubDom({ loadPyodide, behavior = "load" } = {}) {
+  const appended = [];
+  const win = {
+    loadPyodide,
+    setTimeout: (fn, ms) => setTimeout(fn, ms),
+    clearTimeout: (id) => clearTimeout(id),
+  };
+  const doc = {
+    head: {
+      appendChild: (el) => {
+        appended.push(el);
+        if (behavior === "load") {
+          queueMicrotask(() => {
+            win.loadPyodide = () => ({});
+            el.onload?.();
+          });
+        } else if (behavior === "error") {
+          queueMicrotask(() => el.onerror?.());
+        }
+        // "never": the tag just sits there until the timeout fires.
+      },
+    },
+    createElement: () => ({
+      src: "",
+      onload: null,
+      onerror: null,
+      removed: false,
+      remove() {
+        this.removed = true;
+      },
+    }),
+  };
+  globalThis.window = win;
+  globalThis.document = doc;
+  return { win, appended };
+}
+
+function unstubDom() {
+  delete globalThis.window;
+  delete globalThis.document;
+}
+
+test("withTimeout resolves fast promises and rejects slow ones with the message", async () => {
+  assert.equal(await withTimeout(Promise.resolve(42), 1000, "slow"), 42);
+  await assert.rejects(
+    withTimeout(new Promise(() => {}), 20, "Python runtime download timed out"),
+    /timed out/
+  );
+});
+
+test("loadPyodideScript returns true at once when the runtime is already there", async () => {
+  stubDom({ loadPyodide: () => ({}) });
+  try {
+    assert.equal(await loadPyodideScript(), true);
+  } finally {
+    unstubDom();
+  }
+});
+
+test("loadPyodideScript injects a fresh tag and succeeds on load", async () => {
+  const { win, appended } = stubDom({ behavior: "load" });
+  try {
+    assert.equal(await loadPyodideScript(1000), true);
+    assert.equal(appended.length, 1);
+    assert.equal(appended[0].src, PYODIDE_SCRIPT_URL);
+    assert.equal(typeof win.loadPyodide, "function");
+  } finally {
+    unstubDom();
+  }
+});
+
+test("loadPyodideScript removes the tag and returns false on error", async () => {
+  const { appended } = stubDom({ behavior: "error" });
+  try {
+    assert.equal(await loadPyodideScript(1000), false);
+    assert.equal(appended.length, 1);
+    assert.equal(appended[0].removed, true);
+  } finally {
+    unstubDom();
+  }
+});
+
+test("loadPyodideScript returns false when the tag never loads (timeout)", async () => {
+  stubDom({ behavior: "never" });
+  try {
+    assert.equal(await loadPyodideScript(20), false);
+  } finally {
+    unstubDom();
+  }
+});

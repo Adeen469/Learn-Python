@@ -104,19 +104,27 @@ export function ModulesPanel({ pyodideRef, ensurePyodide }: ModulesPanelProps) {
     const clean = pkgName.trim().toLowerCase();
     if (!clean) return;
     setLastError(null);
+    // Mark installing FIRST — the runtime load is a one-time ~15 MB
+    // download that takes a while, and until now the button showed
+    // nothing during it: every click just logged "not ready yet" again
+    // and the user could not tell loading from broken. The spinner
+    // (installingMap) now covers the whole ensure + install flow, and
+    // repeat clicks are blocked while it runs.
+    setInstallingMap((prev) => ({ ...prev, [clean]: true }));
     if (!pyodideRef.current) {
-      addLog("Python environment is not ready yet — starting it now, please wait…");
+      addLog("Starting Python runtime — one-time download (~15 MB), please wait…");
       const ready = await ensurePyodide();
       if (!ready) {
         const msg =
           "Python environment could not start (the Pyodide script did not load). Check your connection and try again — the Install button will retry.";
         addLog(msg);
         setLastError(msg);
+        setInstallingMap((prev) => ({ ...prev, [clean]: false }));
         return;
       }
+      addLog("Python runtime ready.");
     }
 
-    setInstallingMap((prev) => ({ ...prev, [clean]: true }));
     addLog(`Installing '${clean}'…`);
 
     const result = await installPackageInto(pyodideRef.current, clean);

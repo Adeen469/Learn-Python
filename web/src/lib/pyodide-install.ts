@@ -124,6 +124,31 @@ export async function installPackageInto(
   return { ok: true, method: viaPyodide ? "pyodide" : "micropip", importName };
 }
 
+/** The Pyodide loader script (same URL the editor's <Script> uses). */
+export const PYODIDE_SCRIPT_URL =
+  "https://cdn.jsdelivr.net/pyodide/v0.27.2/full/pyodide.js";
+/** How long loadPyodide() may take to download the runtime (~15 MB). */
+export const PYODIDE_LOAD_TIMEOUT_MS = 120_000;
+
+/**
+ * Run a promise with a timeout. loadPyodide() downloads the whole
+ * runtime and has no timeout of its own — without this, a stalled
+ * download hangs the install forever with no error at all.
+ */
+export function withTimeout<T>(
+  promise: Promise<T>,
+  ms: number,
+  message: string
+): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(message)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timer !== undefined) clearTimeout(timer);
+  });
+}
+
 /** Wait for the Pyodide <Script> to define window.loadPyodide. */
 export function waitForPyodideScript(timeoutMs = 30000): Promise<boolean> {
   if (typeof window === "undefined") return Promise.resolve(false);
@@ -141,5 +166,40 @@ export function waitForPyodideScript(timeoutMs = 30000): Promise<boolean> {
         resolve(false);
       }
     }, 200);
+  });
+}
+
+/**
+ * Load the Pyodide script with a fresh <script> tag. The editor's
+ * <Script> tag loads it once — but jsDelivr occasionally 404s a
+ * single request, and then window.loadPyodide never appears and no
+ * Install can ever succeed until a page reload. Retrying with a new
+ * tag fixes that without a reload. Returns true when loadPyodide is
+ * defined afterwards (immediately true when it already is).
+ */
+export function loadPyodideScript(timeoutMs = 30000): Promise<boolean> {
+  if (typeof window === "undefined" || typeof document === "undefined") {
+    return Promise.resolve(false);
+  }
+  if (typeof (window as any).loadPyodide === "function") {
+    return Promise.resolve(true);
+  }
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    let done = false;
+    const finish = (ok: boolean) => {
+      if (done) return;
+      done = true;
+      window.clearTimeout(timer);
+      if (!ok) script.remove();
+      resolve(
+        ok && typeof (window as any).loadPyodide === "function"
+      );
+    };
+    const timer = window.setTimeout(() => finish(false), timeoutMs);
+    script.src = PYODIDE_SCRIPT_URL;
+    script.onload = () => finish(true);
+    script.onerror = () => finish(false);
+    document.head.appendChild(script);
   });
 }
