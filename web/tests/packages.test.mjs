@@ -239,3 +239,42 @@ test("loadPyodideScript returns false when the tag never loads (timeout)", async
     unstubDom();
   }
 });
+
+// --- restore loop mirror (package-storage.ts): one stalled package
+// must time out and let the next one load, never hang init ---
+
+async function restoreWithTimeout(pkgs, installFn, onProgress, timeoutMs = 90_000) {
+  for (const pkg of pkgs) {
+    onProgress?.(pkg, "loading");
+    let result;
+    try {
+      result = await withTimeout(
+        installFn(pkg),
+        timeoutMs,
+        `Timed out loading '${pkg}'`
+      );
+    } catch (err) {
+      result = { ok: false, error: err instanceof Error ? err.message : String(err) };
+    }
+    onProgress?.(pkg, result.ok ? "done" : "error", result.error);
+  }
+}
+
+test("restore continues past a package whose download stalls", async () => {
+  const seen = [];
+  await restoreWithTimeout(
+    ["numpy", "pandas"],
+    async (pkg) => {
+      if (pkg === "numpy") return new Promise(() => {}); // never settles
+      return { ok: true };
+    },
+    (pkg, status, error) => seen.push([pkg, status, error || null]),
+    20
+  );
+  assert.deepEqual(seen, [
+    ["numpy", "loading", null],
+    ["numpy", "error", "Timed out loading 'numpy'"],
+    ["pandas", "loading", null],
+    ["pandas", "done", null],
+  ]);
+});

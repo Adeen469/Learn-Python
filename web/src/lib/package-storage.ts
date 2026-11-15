@@ -52,10 +52,28 @@ export async function restoreStoredPackages(
   const packages = getStoredInstalledPackages();
   if (packages.length === 0) return;
 
-  const { installPackageInto } = await import("./pyodide-install");
+  const { installPackageInto, withTimeout } = await import("./pyodide-install");
   for (const pkg of packages) {
     onProgress?.(pkg, "loading");
-    const result = await installPackageInto(pyodide, pkg);
+    // One stalled wheel download used to hang the whole editor init
+    // forever (no timeout anywhere in this path) — the runtime never
+    // became ready and every Install click waited on the same stuck
+    // promise. Cap each package at 90s and move on to the next one;
+    // a package that times out stays in storage and can be retried
+    // from the Modules panel.
+    let result: Awaited<ReturnType<typeof installPackageInto>>;
+    try {
+      result = await withTimeout(
+        installPackageInto(pyodide, pkg),
+        90_000,
+        `Timed out loading '${pkg}' (90s) — check your connection and retry from the Modules panel.`
+      );
+    } catch (err: unknown) {
+      result = {
+        ok: false,
+        error: err instanceof Error ? err.message : String(err),
+      };
+    }
     if (result.ok) {
       onProgress?.(pkg, "done");
     } else {

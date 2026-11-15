@@ -287,18 +287,28 @@ export default function CodeEditorPage() {
           interruptBufferRef.current = buf;
         }
       } catch {}
-      await pyodide.loadPackage("micropip");
+      // micropip's wheel download has no timeout either — cap it.
+      await withTimeout(
+        pyodide.loadPackage("micropip"),
+        60_000,
+        "Loading micropip timed out after 1 minute — check your connection and retry."
+      );
       pyodideRef.current = pyodide;
       setPyodideReady(true);
       setPyodideError(null);
       setOutput((prev) => prev + "✓ Python runtime (Pyodide 0.27.2) loaded successfully.\n");
 
-      // Auto-load all packages installed on the Modules page
-      await restoreStoredPackages(pyodide, (pkg, status, error) => {
+      // Saved packages are restored in the BACKGROUND, not awaited
+      // here: a stalled wheel re-download used to block init itself,
+      // so the runtime never became ready and every Install click
+      // waited on the same stuck promise (the "Installing…" that
+      // never ends). Each package is capped at 90s inside
+      // restoreStoredPackages and never blocks init.
+      restoreStoredPackages(pyodide, (pkg, status, error) => {
         if (status === "loading") setOutput((prev) => prev + `[Loading installed package '${pkg}'...]\n`);
         if (status === "done") setOutput((prev) => prev + `[Package '${pkg}' ready]\n`);
         if (status === "error") setOutput((prev) => prev + `[Failed loading '${pkg}': ${error}]\n`);
-      });
+      }).catch(() => {});
       return pyodide;
     })();
     pyodideInitPromiseRef.current = promise;
