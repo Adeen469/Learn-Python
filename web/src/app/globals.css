@@ -5,6 +5,62 @@
 :root {
   --background: #000000;
   --foreground: #ffffff;
+  /* Dark native controls (form fields, default scrollbars) so nothing
+     renders white-on-black by accident. */
+  color-scheme: dark;
+}
+
+/* Modern scrollbars, everywhere — matched to the theme: the app's
+   accent is white (buttons, active nav, progress fill). The bar is a
+   subtle groove with a white pill that stays faint at rest and turns
+   solid when you hover the scroll area — the macOS-style reveal, so
+   it never shouts when you're just reading. The `*` selectors cover
+   every scroll container — page, sidebar, modals, lesson lists,
+   editor — in one place. Firefox gets the same treatment via
+   scrollbar-width / scrollbar-color. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.45) rgba(255, 255, 255, 0.05);
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.45);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+/* Reveal on hover: the thumb goes solid white when the pointer is
+   over the scroll area (or on the thumb itself / while dragging). */
+*:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+*::-webkit-scrollbar-thumb:hover,
+*::-webkit-scrollbar-thumb:active {
+  background-color: #ffffff;
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Monaco (code editor) draws its own scrollbars, so the webkit rules
+   above can't reach them — match them here instead: the slider colors
+   live in the lp-dark theme (editor/page.tsx), this just rounds the
+   thumb into the same pill shape. */
+.monaco-scrollable-element > .scrollbar > .slider {
+  border-radius: 999px;
 }
 
 body {

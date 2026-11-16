@@ -998,9 +998,27 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
               <Editor
                 height="100%"
                 language="python"
-                theme="vs-dark"
+                theme="lp-dark"
                 value={activeFile?.content ?? ""}
                 onChange={handleEditorChange}
+                beforeMount={(monaco) => {
+                  // lp-dark: vs-dark + scrollbars matched to the app's
+                  // white-pill scrollbar (same as globals.css).
+                  monaco.editor.defineTheme("lp-dark", {
+                    base: "vs-dark",
+                    inherit: true,
+                    rules: [],
+                    colors: {
+                      "scrollbarSliderBackground": "#ffffff73",
+                      "scrollbarSliderHoverBackground": "#ffffffe6",
+                      "scrollbarSliderActiveBackground": "#ffffff",
+                      "scrollbarShadow": "#00000000",
+                      "minimapSliderBackground": "#ffffff33",
+                      "minimapSliderHoverBackground": "#ffffff73",
+                      "minimapSliderActiveBackground": "#ffffffbf",
+                    },
+                  });
+                }}
                 options={{
                   fontSize: 13,
                   lineNumbers: "on",
@@ -1016,6 +1034,11 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
                   renderWhitespace: "selection",
                   wordWrap: "on",
                   fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+                  scrollbar: {
+                    verticalScrollbarSize: 8,
+                    horizontalScrollbarSize: 8,
+                    useShadows: false,
+                  },
                 }}
               />
             </div>
