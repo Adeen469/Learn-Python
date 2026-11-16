@@ -1,10 +1,46 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Check, Download, HardDrive, Loader2, Trash2, Wifi, WifiOff } from "lucide-react";
+import { Check, Download, HardDrive, Loader2, Maximize, Minimize, Pause, Play, Trash2, Volume2, VolumeX, Wifi, WifiOff } from "lucide-react";
+import ElasticSlider from "@/components/ElasticSlider";
 import { WATCH_QUALIFY_FRACTION } from "@/lib/progress";
 
 const CACHE_NAME = "lp-offline-videos-v1";
+const VOLUME_KEY = "lp_volume";
+const MUTED_KEY = "lp_muted";
+
+function formatTime(totalSeconds: number): string {
+  if (!Number.isFinite(totalSeconds) || totalSeconds < 0) return "0:00";
+  const total = Math.floor(totalSeconds);
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  return `${m}:${String(s).padStart(2, "0")}`;
+}
+
+function storedVolume(): number {
+  if (typeof window === "undefined") return 100;
+  try {
+    const raw = localStorage.getItem(VOLUME_KEY);
+    // Number(null) is 0 — a missing key must mean the default 100,
+    // not a muted player.
+    if (raw === null) return 100;
+    const n = Number(raw);
+    return Number.isFinite(n) ? Math.min(100, Math.max(0, Math.round(n))) : 100;
+  } catch {
+    return 100;
+  }
+}
+
+function storedMuted(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return localStorage.getItem(MUTED_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
 
 interface VideoPlayerProps {
   lessonId: string;
@@ -21,6 +57,84 @@ export function VideoPlayer({ lessonId, title, onWatchCoverage, onLessonQualifie
   const [downloadProgress, setDownloadProgress] = useState<number>(0);
   const [isOnline, setIsOnline] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Custom control bar (no native controls): one place holding the
+  // seek bar and the volume control — the volume slider stays hidden
+  // until you hover the speaker icon, then it slides out.
+  const playerRef = useRef<HTMLDivElement | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [paused, setPaused] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Volume — React Bits ElasticSlider, wired to the <video> element
+  // (persisted per browser, like everything else).
+  const [volume, setVolume] = useState(storedVolume);
+  const [muted, setMuted] = useState(storedMuted);
+
+  // Push volume/mute onto the element whenever either changes or the
+  // source swaps (the <video> remounts on src change).
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.volume = volume / 100;
+    video.muted = muted;
+  }, [volume, muted, src]);
+
+  // Keep in sync when the native controls change the volume instead.
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const sync = () => {
+      setVolume(Math.round(video.volume * 100));
+      setMuted(video.muted);
+    };
+    video.addEventListener("volumechange", sync);
+    return () => video.removeEventListener("volumechange", sync);
+  }, [src]);
+
+  function handleVolumeChange(next: number) {
+    const v = Math.min(100, Math.max(0, Math.round(next)));
+    setVolume(v);
+    try {
+      localStorage.setItem(VOLUME_KEY, String(v));
+    } catch {
+      // Volume just won't survive a reload.
+    }
+    const video = videoRef.current;
+    if (!video) return;
+    video.volume = v / 100;
+    // Dragging to 0 mutes; dragging back up unmutes.
+    if (v > 0 && video.muted) {
+      video.muted = false;
+      setMuted(false);
+      try {
+        localStorage.setItem(MUTED_KEY, "0");
+      } catch {
+        // Ignore.
+      }
+    } else if (v === 0 && !video.muted) {
+      video.muted = true;
+      setMuted(true);
+      try {
+        localStorage.setItem(MUTED_KEY, "1");
+      } catch {
+        // Ignore.
+      }
+    }
+  }
+
+  function toggleMute() {
+    const next = !muted;
+    setMuted(next);
+    try {
+      localStorage.setItem(MUTED_KEY, next ? "1" : "0");
+    } catch {
+      // Ignore.
+    }
+    const video = videoRef.current;
+    if (video) video.muted = next;
+  }
 
   // 95% watch rule: track which seconds of the video were actually seen
   // (unique coverage — seeking past content doesn't count it, re-watching
@@ -94,6 +208,7 @@ export function VideoPlayer({ lessonId, title, onWatchCoverage, onLessonQualifie
   function handleTimeUpdate() {
     const video = videoRef.current;
     if (!video || video.paused) return;
+    setCurrentTime(video.currentTime);
     const now = video.currentTime;
     const delta = now - lastTimeRef.current;
     lastTimeRef.current = now;
@@ -121,9 +236,49 @@ export function VideoPlayer({ lessonId, title, onWatchCoverage, onLessonQualifie
     const video = videoRef.current;
     if (video && Number.isFinite(video.duration) && video.duration > 0) {
       durationRef.current = video.duration;
+      setDuration(video.duration);
     }
     reportCoverage(true);
   }
+
+  function togglePlay() {
+    const video = videoRef.current;
+    if (!video) return;
+    if (video.paused) void video.play();
+    else video.pause();
+  }
+
+  function handleSeek(next: number) {
+    const video = videoRef.current;
+    if (!video || !(duration > 0)) return;
+    video.currentTime = Math.min(duration, Math.max(0, next));
+    setCurrentTime(video.currentTime);
+  }
+
+  function toggleFullscreen() {
+    if (document.fullscreenElement) {
+      void document.exitFullscreen();
+      return;
+    }
+    void playerRef.current?.requestFullscreen();
+  }
+
+  // Keep play/pause + fullscreen state in sync with the element.
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const onPlay = () => setPaused(false);
+    const onPause = () => setPaused(true);
+    video.addEventListener("play", onPlay);
+    video.addEventListener("pause", onPause);
+    const onFs = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener("fullscreenchange", onFs);
+    return () => {
+      video.removeEventListener("play", onPlay);
+      video.removeEventListener("pause", onPause);
+      document.removeEventListener("fullscreenchange", onFs);
+    };
+  }, [src]);
 
   function handleEnded() {
     persistWatched(lessonId);
@@ -157,6 +312,9 @@ export function VideoPlayer({ lessonId, title, onWatchCoverage, onLessonQualifie
     let cancelled = false;
     watchedRef.current = loadWatched(lessonId);
     durationRef.current = 0;
+    setCurrentTime(0);
+    setDuration(0);
+    setPaused(true);
     lastTimeRef.current = 0;
     lastReportedCoverageRef.current = -1;
     sessionNewBucketsRef.current = 0;
@@ -264,20 +422,97 @@ export function VideoPlayer({ lessonId, title, onWatchCoverage, onLessonQualifie
 
   return (
     <div className="rounded-xl border border-neutral-800 bg-neutral-950 overflow-hidden">
-      <div className="aspect-video w-full bg-black flex items-center justify-center relative">
+      <div
+        ref={playerRef}
+        className="aspect-video w-full bg-black flex items-center justify-center relative"
+      >
         <video
           ref={videoRef}
           key={src}
           src={src}
-          controls
           playsInline
           preload="metadata"
+          onClick={togglePlay}
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
           onPause={() => persistWatched(lessonId)}
           onEnded={handleEnded}
           className="h-full w-full bg-black"
         />
+
+        {/* One control bar for both sliders: seek on top, and the
+            volume slider slides out when you hover the speaker. */}
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent px-3 pb-2.5 pt-10 text-white">
+          <ElasticSlider
+            value={currentTime}
+            maxValue={duration > 0 ? duration : 1}
+            onChange={handleSeek}
+            valuePosition="none"
+            thumb
+            leftIcon={null}
+            rightIcon={null}
+            disabled={duration <= 0}
+            ariaLabel="Seek"
+          />
+          <div className="mt-1 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={togglePlay}
+              title={paused ? "Play" : "Pause"}
+              aria-label={paused ? "Play" : "Pause"}
+              className="shrink-0 rounded-lg p-1.5 text-white transition hover:bg-white/10"
+            >
+              {paused ? (
+                <Play className="h-5 w-5" />
+              ) : (
+                <Pause className="h-5 w-5" />
+              )}
+            </button>
+            <div className="group/vol flex items-center">
+              <button
+                type="button"
+                onClick={toggleMute}
+                title={muted ? "Unmute" : "Mute"}
+                aria-label={muted ? "Unmute" : "Mute"}
+                className="shrink-0 rounded-lg p-1.5 text-white transition hover:bg-white/10"
+              >
+                {muted || volume === 0 ? (
+                  <VolumeX className="h-5 w-5" />
+                ) : (
+                  <Volume2 className="h-5 w-5" />
+                )}
+              </button>
+              <div className="w-0 overflow-hidden opacity-0 transition-all duration-300 group-hover/vol:w-48 group-hover/vol:opacity-100">
+                <ElasticSlider
+                  value={volume}
+                  onChange={handleVolumeChange}
+                  valuePosition="none"
+                  thumb
+                  leftIcon={null}
+                  rightIcon={null}
+                  ariaLabel="Volume"
+                />
+              </div>
+            </div>
+            <span className="shrink-0 text-xs tabular-nums text-neutral-200">
+              {formatTime(currentTime)} / {formatTime(duration)}
+            </span>
+            <div className="flex-1" />
+            <button
+              type="button"
+              onClick={toggleFullscreen}
+              title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+              aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+              className="shrink-0 rounded-lg p-1.5 text-white transition hover:bg-white/10"
+            >
+              {isFullscreen ? (
+                <Minimize className="h-5 w-5" />
+              ) : (
+                <Maximize className="h-5 w-5" />
+              )}
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-800 px-4 py-3 bg-neutral-950">

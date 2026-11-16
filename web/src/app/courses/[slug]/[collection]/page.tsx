@@ -2,11 +2,17 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { ArrowLeft, CheckCircle2, Circle, Play } from "lucide-react";
 import { fetchSessionUser } from "@/lib/auth-client";
 import { AppNavbar } from "@/components/AppNavbar";
 import { VideoPlayer } from "@/components/VideoPlayer";
+import AnimatedList, { type AnimatedListEntry } from "@/components/AnimatedList";
+import {
+  THEME_CHANGED_EVENT,
+  getStoredTheme,
+  type Theme,
+} from "@/lib/theme";
 import {
   PROGRESS_KEY,
   PROGRESS_UPDATED_EVENT,
@@ -47,6 +53,28 @@ function completionId(video: CourseVideo): string {
 }
 
 /**
+ * The AnimatedList's built-in dark theme is a purple-grey; these
+ * overrides keep the list in the app's own black/neutral palette.
+ * (Light mode uses the component's built-in light theme as-is.)
+ */
+const AL_DARK_OVERRIDES = {
+  "--al-frame": "rgba(10, 10, 10, 0.95)",
+  "--al-frame-edge": "rgba(255, 255, 255, 0.08)",
+  "--al-frame-highlight": "rgba(255, 255, 255, 0.05)",
+  "--al-frame-shadow": "none",
+  "--al-tile": "linear-gradient(180deg, #171717 0%, #0a0a0a 100%)",
+  "--al-tile-edge": "rgba(255, 255, 255, 0.07)",
+  "--al-tile-highlight": "rgba(255, 255, 255, 0.06)",
+  "--al-tile-shadow": "0 4px 10px -4px rgba(0, 0, 0, 0.7)",
+  "--al-well": "rgba(255, 255, 255, 0.08)",
+  "--al-ink": "#ffffff",
+  "--al-muted": "rgba(255, 255, 255, 0.55)",
+  "--al-thumb": "rgba(255, 255, 255, 0.16)",
+  "--al-ring": "rgba(255, 255, 255, 0.7)",
+  "--al-ring-fill": "rgba(255, 255, 255, 0.04)",
+} as CSSProperties;
+
+/**
  * Course player — the old course UI: video + Today's Progress +
  * lesson list. Videos play from MEGA/Drive through
  * /api/video/[lessonId]; a video with no MEGA link yet shows the
@@ -66,6 +94,15 @@ export default function CoursePlayerPage({
     loadProgress((key) => (typeof localStorage === "undefined" ? null : localStorage.getItem(key)))
   );
   const [activeCoverage, setActiveCoverage] = useState({ fraction: 0, seconds: 0 });
+  const [theme, setTheme] = useState<Theme>("dark");
+
+  // The lessons list follows the app theme (same pattern as the editor).
+  useEffect(() => {
+    setTheme(getStoredTheme());
+    const sync = () => setTheme(getStoredTheme());
+    window.addEventListener(THEME_CHANGED_EVENT, sync);
+    return () => window.removeEventListener(THEME_CHANGED_EVENT, sync);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -160,6 +197,20 @@ export default function CoursePlayerPage({
   // YouTube videos can't report watch coverage, so their Mark Complete
   // button is manual (always enabled); MEGA videos need 95% watched.
   const isYouTube = !activeVideo.megaLessonId;
+
+  // The video list, as React Bits AnimatedList entries — same rows as
+  // before (Play icon, title, duration, status), now springing into
+  // view with a gliding selection ring.
+  const listItems: AnimatedListEntry[] = videos.map((video) => {
+    const done = completedIds.includes(completionId(video));
+    return {
+      id: completionId(video),
+      icon: <Play className="h-4 w-4" />,
+      title: video.title,
+      description: done ? "Completed" : "Not started",
+      meta: formatDuration(video.durationSeconds),
+    };
+  });
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col pb-20 md:pb-0">
@@ -293,39 +344,23 @@ export default function CoursePlayerPage({
               <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
                 Course Lessons
               </h3>
-              <ul className="mt-3 space-y-2">
-                {videos.map((video, i) => {
-                  const active = i === activeIndex;
-                  const done = completedIds.includes(completionId(video));
-                  return (
-                    <li key={video.videoId}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setActiveIndex(i);
-                          setActiveCoverage({ fraction: 0, seconds: 0 });
-                        }}
-                        className={`flex w-full items-start gap-3 rounded-lg border p-3 text-left transition ${
-                          active
-                            ? "border-white bg-neutral-900"
-                            : "border-neutral-800 bg-black hover:border-neutral-700"
-                        }`}
-                      >
-                        <Play className="mt-0.5 h-4 w-4 shrink-0 text-white" />
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium text-white">
-                            {video.title}
-                          </p>
-                          <p className="mt-0.5 text-xs text-neutral-500">
-                            {formatDuration(video.durationSeconds)} •{" "}
-                            {done ? "Completed" : "Not started"}
-                          </p>
-                        </div>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
+              <div className="mt-3">
+                <AnimatedList
+                  items={listItems}
+                  initialSelectedIndex={activeIndex}
+                  onItemSelect={(_item, index) => {
+                    setActiveIndex(index);
+                    setActiveCoverage({ fraction: 0, seconds: 0 });
+                  }}
+                  frame={false}
+                  width="100%"
+                  maxHeight={480}
+                  radius={12}
+                  gap={8}
+                  theme={theme}
+                  style={theme === "dark" ? AL_DARK_OVERRIDES : undefined}
+                />
+              </div>
             </div>
           </aside>
         </main>

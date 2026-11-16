@@ -1,0 +1,130 @@
+import assert from "node:assert";
+import { describe, test } from "node:test";
+import { readFileSync, existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const read = (rel) => readFileSync(path.join(root, rel), "utf8");
+
+// React Bits components, installed as source via the shadcn registry
+// (npx shadcn@latest add @react-bits/...): Counter for the streak,
+// AnimatedList for the video list, ElasticSlider for player volume.
+
+describe("react bits install", () => {
+  test("all three components are vendored with no framer-motion dep", () => {
+    for (const file of [
+      "src/components/Counter.tsx",
+      "src/components/AnimatedList.tsx",
+      "src/components/ElasticSlider.tsx",
+    ]) {
+      assert.ok(existsSync(path.join(root, file)), `${file} must exist`);
+      const src = read(file);
+      assert.ok(!src.includes("framer-motion"), `${file} must not need framer-motion`);
+      assert.ok(!src.includes("from 'motion'"), `${file} must not need motion`);
+    }
+    const pkg = JSON.parse(read("package.json"));
+    assert.ok(!pkg.dependencies["framer-motion"], "no framer-motion dependency");
+    assert.ok(!pkg.dependencies["motion"], "no motion dependency");
+  });
+
+  test("animated list root className keeps its spaces (upstream typo fixed)", () => {
+    const src = read("src/components/AnimatedList.tsx");
+    assert.ok(
+      !src.includes(".replace(/\\s+/g, '')"),
+      "the upstream .replace(/\\s+/g, '') that glued every class together must stay fixed"
+    );
+    assert.ok(
+      src.includes(".replace(/\\s+/g, ' ')"),
+      "root className must collapse whitespace to single spaces"
+    );
+  });
+});
+
+describe("counter — streaks", () => {
+  test("settings page shows the streak as an odometer counter", () => {
+    const page = read("src/app/settings/page.tsx");
+    assert.ok(page.includes('from "@/components/Counter"'), "page must import Counter");
+    assert.ok(page.includes("<Counter value={streak}"), "streak must render through Counter");
+    assert.ok(page.includes("fontSize={14}"), "counter must match the row's text size");
+    assert.ok(!page.includes("{streak}d streak"), "plain streak text must be gone");
+  });
+});
+
+describe("animated list — video list", () => {
+  test("player page renders Course Lessons through AnimatedList", () => {
+    const page = read("src/app/courses/[slug]/[collection]/page.tsx");
+    assert.ok(
+      page.includes('from "@/components/AnimatedList"'),
+      "player must import AnimatedList"
+    );
+    assert.ok(page.includes("<AnimatedList"), "lessons must render through AnimatedList");
+    assert.ok(page.includes("initialSelectedIndex={activeIndex}"), "selection must start on the active video");
+    assert.ok(page.includes("onItemSelect"), "selecting a row must change the video");
+    assert.ok(page.includes("setActiveIndex(index)"), "selection must set the active video");
+    assert.ok(!page.includes("<ul className=\"mt-3 space-y-2\">"), "plain lessons <ul> must be gone");
+  });
+
+  test("list entries carry the same info as the old rows", () => {
+    const page = read("src/app/courses/[slug]/[collection]/page.tsx");
+    assert.ok(page.includes("listItems"), "player must map videos to list entries");
+    assert.ok(page.includes("description: done ? \"Completed\" : \"Not started\""), "entries must show completion status");
+    assert.ok(page.includes("meta: formatDuration(video.durationSeconds)"), "entries must show the duration");
+  });
+
+  test("list follows the app theme and stays in the app palette", () => {
+    const page = read("src/app/courses/[slug]/[collection]/page.tsx");
+    assert.ok(page.includes("theme={theme}"), "list must receive the app theme");
+    assert.ok(page.includes("AL_DARK_OVERRIDES"), "dark theme must be overridden to the app palette");
+    assert.ok(page.includes("getStoredTheme()"), "theme must come from the app theme store");
+    assert.ok(page.includes("THEME_CHANGED_EVENT"), "list must follow theme changes");
+  });
+});
+
+describe("elastic slider — one video control bar", () => {
+  test("player uses a custom bar, not native controls", () => {
+    const player = read("src/components/VideoPlayer.tsx");
+    assert.ok(
+      !/^\s*controls$/m.test(player),
+      "video must not use native controls — the custom bar replaces them"
+    );
+    assert.ok(player.includes("togglePlay"), "bar must offer play/pause");
+    assert.ok(player.includes("requestFullscreen"), "bar must offer fullscreen");
+    assert.ok(player.includes("formatTime(currentTime)"), "bar must show the time");
+  });
+
+  test("seek bar and volume slider live in the same bar", () => {
+    const player = read("src/components/VideoPlayer.tsx");
+    assert.ok(player.includes('ariaLabel="Seek"'), "bar must have a seek slider");
+    assert.ok(player.includes('ariaLabel="Volume"'), "bar must have a volume slider");
+    assert.ok(player.includes("value={currentTime}"), "seek must follow playback");
+    assert.ok(player.includes("maxValue={duration"), "seek must span the duration");
+    assert.ok(player.includes("onChange={handleSeek}"), "seek must move the video");
+    assert.ok(player.includes("value={volume}"), "volume slider must be controlled by volume state");
+    assert.ok(player.includes("onChange={handleVolumeChange}"), "volume slider must drive the volume");
+  });
+
+  test("volume slider is hover-only, sliding out from the speaker icon", () => {
+    const player = read("src/components/VideoPlayer.tsx");
+    assert.ok(player.includes("group/vol"), "volume group must exist for hover");
+    assert.ok(
+      player.includes("group-hover/vol:w-48"),
+      "volume slider must expand to full width on hover"
+    );
+    assert.ok(
+      player.includes("w-0 overflow-hidden opacity-0"),
+      "volume slider must start collapsed and invisible"
+    );
+    assert.ok(player.includes("video.volume = v / 100"), "slider must set the element volume");
+    assert.ok(player.includes("volumechange"), "player must sync when volume changes elsewhere");
+    assert.ok(player.includes("lp_volume"), "volume must persist per browser");
+  });
+
+  test("elastic slider stretches to its container (seek bar is full-width)", () => {
+    const slider = read("src/components/ElasticSlider.tsx");
+    assert.ok(
+      slider.includes("flex w-full"),
+      "vendored slider root must follow its container width, not the demo's fixed w-48"
+    );
+  });
+});

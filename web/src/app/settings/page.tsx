@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Flame, Moon, Settings, Sun, Target } from "lucide-react";
 import { AppNavbar } from "@/components/AppNavbar";
+import Counter from "@/components/Counter";
 import {
   PROGRESS_UPDATED_EVENT,
   computeStreak,
@@ -101,7 +102,10 @@ export default function SettingsPage() {
             <Flame className="h-4 w-4 text-white" />
             Streak
           </span>
-          <span className="text-sm font-medium text-white">{streak}d streak</span>
+          <span className="flex items-center gap-1 text-sm font-medium text-white">
+            <Counter value={streak} fontSize={14} fontWeight={500} />
+            d streak
+          </span>
         </div>
 
         <h2 className="mb-3 mt-8 text-xs font-semibold uppercase tracking-wider text-neutral-500">
