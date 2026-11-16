@@ -381,7 +381,7 @@ async function loadPyodideRuntimeMirror(onStage) {
       onStage?.(`Runtime loaded from ${cdnName}`);
       return rt;
     } catch {
-      onStage?.(`${cdnName} timed out after 60s — trying the next CDN…`);
+      onStage?.(`${cdnName} timed out after ${RUNTIME_LOAD_TIMEOUT_MS / 1000}s — trying the next CDN…`);
     }
   }
   throw new Error(

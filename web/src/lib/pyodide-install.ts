@@ -152,8 +152,17 @@ export const PYODIDE_CDN_BASES = [
   "https://cdn.jsdelivr.net/pyodide/v0.27.2/full/",
   "https://unpkg.com/pyodide@0.27.2/",
 ];
-/** How long one CDN gets to deliver the runtime (~15 MB) per try. */
-export const PYODIDE_LOAD_TIMEOUT_MS = 60_000;
+/**
+ * How long one CDN gets to deliver the runtime (~15 MB) per try.
+ * Was 60s — but the user's screenshot proved jsDelivr was
+ * DOWNLOADING, just slowly: it hit the 60s cap and got abandoned
+ * mid-download, then unpkg faced the same cap. A ~15 MB runtime at
+ * ~100 KB/s needs ~150s, so 60s killed every attempt before it
+ * could finish. 3 minutes per CDN gives a slow download a real
+ * chance; the progress bar shows the elapsed time the whole way,
+ * so a slow load reads as "working", not "stuck".
+ */
+export const PYODIDE_LOAD_TIMEOUT_MS = 180_000;
 /** How long one package's wheel download (loadPackage) may take. */
 export const PYODIDE_PACKAGE_LOAD_TIMEOUT_MS = 120_000;
 /** How long a micropip install from PyPI may take. */
@@ -241,7 +250,7 @@ export function loadPyodideScript(
  * Load the Pyodide runtime, trying each CDN base in turn. One slow
  * CDN used to doom the whole install: loadPyodide() has no timeout
  * of its own, and a stalled 15 MB download hung "Installing…"
- * for minutes with no error. Now each CDN gets 60s — jsDelivr
+ * for minutes with no error. Now each CDN gets 3 minutes — jsDelivr
  * first, unpkg second — and a stalled one is abandoned for the
  * next instead of blocking the install. `onStage` reports each
  * step (which CDN is being tried, timeouts, success) so the UI can
@@ -276,7 +285,9 @@ export async function loadPyodideRuntime(
       onStage?.(`Runtime loaded from ${cdnName}`);
       return pyodide;
     } catch {
-      onStage?.(`${cdnName} timed out after 60s — trying the next CDN…`);
+      onStage?.(
+        `${cdnName} timed out after ${PYODIDE_LOAD_TIMEOUT_MS / 1000}s — trying the next CDN…`
+      );
     }
   }
   throw new Error(
