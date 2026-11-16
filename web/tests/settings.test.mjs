@@ -7,19 +7,20 @@ import { fileURLToPath } from "node:url";
 const webDir = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (rel) => readFileSync(join(webDir, rel), "utf8");
 
-describe("settings modal (profile dropdown)", () => {
-  test("modal shows today's goal, streak, and a theme toggle", () => {
-    const modal = read("src/components/SettingsModal.tsx");
-    assert.ok(modal.includes("Settings"), "modal must be titled Settings");
-    assert.ok(modal.includes("Today&apos;s goal"), "modal must show today's goal");
-    assert.ok(modal.includes("Streak"), "modal must show the streak");
-    assert.ok(modal.includes("wholeMinutes"), "goal must come from progress");
-    assert.ok(modal.includes("computeStreak"), "streak must come from progress");
-    assert.ok(modal.includes("Theme"), "modal must have a theme section");
-    assert.ok(modal.includes("Dark"), "theme toggle must offer Dark");
-    assert.ok(modal.includes("Light"), "theme toggle must offer Light");
-    assert.ok(modal.includes("aria-pressed"), "toggle must mark the active theme");
-    assert.ok(modal.includes('aria-label="Close settings"'), "modal must have a Close button");
+describe("settings page (/settings)", () => {
+  test("page shows today's goal, streak, and a theme toggle", () => {
+    const page = read("src/app/settings/page.tsx");
+    assert.ok(page.includes("Settings"), "page must be titled Settings");
+    assert.ok(page.includes("Today&apos;s goal"), "page must show today's goal");
+    assert.ok(page.includes("Streak"), "page must show the streak");
+    assert.ok(page.includes("wholeMinutes"), "goal must come from progress");
+    assert.ok(page.includes("computeStreak"), "streak must come from progress");
+    assert.ok(page.includes("Theme"), "page must have a theme section");
+    assert.ok(page.includes("Dark"), "theme toggle must offer Dark");
+    assert.ok(page.includes("Light"), "theme toggle must offer Light");
+    assert.ok(page.includes("aria-pressed"), "toggle must mark the active theme");
+    assert.ok(page.includes("AppNavbar"), "page must render the navbar");
+    assert.ok(page.includes("applyTheme"), "toggle must apply the theme");
   });
 });
 
@@ -45,22 +46,20 @@ describe("navbar: stats moved out, nav centred, settings in the menu", () => {
     );
   });
 
-  test("profile menu has a Settings item that opens the modal", () => {
+  test("profile menu links to the settings page (no modal)", () => {
     const nav = read("src/components/AppNavbar.tsx");
     assert.ok(nav.includes("Settings"), "profile menu must offer Settings");
-    assert.ok(nav.includes("onSettings"), "menu must take an onSettings handler");
-    assert.ok(nav.includes("SettingsModal"), "navbar must mount the settings modal");
     assert.ok(
-      nav.includes("onSettings={() => setSettingsOpen(true)}"),
-      "settings item must open the modal"
+      nav.includes('href="/settings"'),
+      "settings must link to the /settings page"
     );
     assert.ok(
-      nav.includes("theme={theme}"),
-      "modal must receive the current theme"
+      !nav.includes("SettingsModal"),
+      "navbar must not mount a settings modal anymore"
     );
     assert.ok(
-      nav.includes("onThemeChange={handleThemeChange}"),
-      "modal must receive the theme toggle handler"
+      !nav.includes("settingsOpen"),
+      "navbar must not keep settings-modal state"
     );
   });
 });

@@ -11,12 +11,6 @@ import {
 } from "@/lib/auth-client";
 import { ROADMAP_SEEN_KEY } from "@/lib/roadmap";
 import { RoadmapHint, RoadmapModal } from "@/components/RoadmapModal";
-import { SettingsModal } from "@/components/SettingsModal";
-import {
-  applyTheme,
-  getStoredTheme,
-  type Theme,
-} from "@/lib/theme";
 import {
   PROGRESS_UPDATED_EVENT,
   emptyProgress,
@@ -37,13 +31,11 @@ function ProfileMenuItems({
   user,
   onSignOut,
   onRoadmap,
-  onSettings,
   onClose,
 }: {
   user: SessionUser | null;
   onSignOut: () => void;
   onRoadmap: () => void;
-  onSettings: () => void;
   onClose: () => void;
 }) {
   return (
@@ -85,16 +77,13 @@ function ProfileMenuItems({
       >
         <Github className="h-4 w-4 text-neutral-400" /> GitHub
       </Link>
-      <button
-        type="button"
-        onClick={() => {
-          onClose();
-          onSettings();
-        }}
+      <Link
+        href="/settings"
+        onClick={onClose}
         className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-neutral-200 hover:bg-neutral-900 hover:text-white transition"
       >
         <Settings className="h-4 w-4 text-neutral-400" /> Settings
-      </button>
+      </Link>
       {user && (
         <button
           type="button"
@@ -127,20 +116,6 @@ export function AppNavbar() {
   const [user, setUser] = useState<SessionUser | null>(null);
   const [roadmapOpen, setRoadmapOpen] = useState(false);
   const [roadmapHintOpen, setRoadmapHintOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [theme, setTheme] = useState<Theme>("dark");
-
-  // Apply the saved theme (dark by default) once the navbar mounts.
-  // The inline script in layout.tsx already applied it before paint;
-  // this just syncs the toggle state with it.
-  useEffect(() => {
-    setTheme(getStoredTheme());
-  }, []);
-
-  function handleThemeChange(next: Theme) {
-    setTheme(next);
-    applyTheme(next);
-  }
 
   useEffect(() => {
     let cancelled = false;
@@ -335,7 +310,6 @@ export function AppNavbar() {
                     user={user}
                     onSignOut={handleSignOut}
                     onRoadmap={() => setRoadmapOpen(true)}
-                    onSettings={() => setSettingsOpen(true)}
                     onClose={() => setProfileOpen(false)}
                   />
                 </div>
@@ -397,7 +371,6 @@ export function AppNavbar() {
                   user={user}
                   onSignOut={handleSignOut}
                   onRoadmap={() => setRoadmapOpen(true)}
-                  onSettings={() => setSettingsOpen(true)}
                   onClose={() => setProfileOpen(false)}
                 />
               </div>
@@ -413,14 +386,6 @@ export function AppNavbar() {
         <RoadmapModal onClose={handleCloseRoadmap} onNavigate={handleRoadmapNavigate} />
       )}
       {roadmapHintOpen && <RoadmapHint onGotIt={handleRoadmapHintGotIt} />}
-      {settingsOpen && (
-        <SettingsModal
-          progress={progress}
-          theme={theme}
-          onThemeChange={handleThemeChange}
-          onClose={() => setSettingsOpen(false)}
-        />
-      )}
     </>
   );
 }
