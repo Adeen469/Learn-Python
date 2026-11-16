@@ -12,7 +12,7 @@ const csp = [
   // lh3.googleusercontent.com serves Google profile pictures (the
   // navbar avatar comes from the signed-in user's Google photo).
   // i.ytimg.com serves YouTube video thumbnails on the Courses page.
-  "img-src 'self' data: blob: https://lh3.googleusercontent.com https://i.ytimg.com",
+  "img-src 'self' data: blob: https://lh3.googleusercontent.com https://yt3.googleusercontent.com https://i.ytimg.com",
   "font-src 'self' data:",
   // pypi.org + files.pythonhosted.org: micropip installs PyPI wheels
   // directly from the browser. Without these, every micropip install

@@ -4,7 +4,11 @@
 // YouTube playlists (learn-courses.json); video IDs, titles
 // and durations are the live YouTube values, never invented.
 // One-shots that also sit inside a playlist are listed once,
-// under the playlist. Mosh's playlist dump also contained one
+// under the playlist. Channel PFPs + subscriber counts were read
+// from each channel's own YouTube page on 2026-11-16.
+// Videos play from MEGA/Drive, never YouTube: a video with a
+// megaLessonId streams through /api/video/[lessonId]; the rest
+// wait for Maalik's MEGA/Drive links. Mosh's playlist dump also contained one
 // non-Python video ("The 3 MOST IMPORTANT JAZZ SCALES…") —
 // excluded, it does not belong in a Python course list.
 
@@ -13,6 +17,12 @@ export interface CourseVideo {
   videoId: string;
   /** Duration in seconds, when known. */
   durationSeconds?: number;
+  /**
+   * Catalog lesson id (e.g. "python-day-001") when this video is
+   * available from MEGA/Drive through /api/video/[lessonId].
+   * Absent until Maalik supplies a MEGA/Drive link for the video.
+   */
+  megaLessonId?: string;
 }
 
 export interface CoursePlaylist {
@@ -23,8 +33,17 @@ export interface CoursePlaylist {
 
 export interface CourseCreator {
   name: string;
+  /** URL slug for /courses/[slug]. */
+  slug: string;
   tagline: string;
-  channelUrl: string;
+  /** YouTube handle, display only — never rendered as a link. */
+  handle: string;
+  /** Channel avatar (YouTube PFP), served by Google. */
+  avatarUrl: string;
+  /** Subscriber count as shown on the channel, e.g. "10M subscribers". */
+  subscribers: string;
+  /** Teaching language: "Hindi" or "English". */
+  language: string;
   playlists: CoursePlaylist[];
   oneShots: CourseVideo[];
 }
@@ -32,113 +51,117 @@ export interface CourseCreator {
 export const COURSE_CREATORS: CourseCreator[] = [
   {
     name: "CodeWithHarry",
+    slug: "codewithharry",
+    handle: "@CodeWithHarry",
+    avatarUrl: "https://yt3.googleusercontent.com/ytc/AIdro_kX3sdbuu3KFmRPsmlu0R5Rx_BhpxwupjtvJmkEdNfla7w=s176-c-k-c0x00ffffff-no-rj",
+    subscribers: "10M subscribers",
+    language: "Hindi",
     tagline: "Complete Python courses in Hindi — step by step, with notes.",
-    channelUrl: "https://www.youtube.com/@CodeWithHarry",
     playlists: [
       {
         title: "Python for Beginners (Full Course) | #100DaysOfCode Programming Tutorial in Hindi",
         url: "https://www.youtube.com/playlist?list=PLu0W_9lII9agwh1XjRt242xIpHhPT2llg",
         videos: [
-          { title: "Introduction to Programming & Python | Python Tutorial - Day #1", videoId: "7wnove7K-ZQ" , durationSeconds: 710},
-          { title: "Some Amazing Python Programs - The Power of Python | Python Tutorial - Day #2", videoId: "Tto8TS-fJQU" , durationSeconds: 518},
-          { title: "Modules and Pip | Python Tutorial - Day #3", videoId: "xwKO_y2gHxQ" , durationSeconds: 761},
-          { title: "Our First Python Program | Python Tutorial - Day #4", videoId: "7IWOYhfAcVg" , durationSeconds: 444},
-          { title: "Comments, Escape Sequences & Print Statement | Python Tutorial - Day #5", videoId: "qxPMmW93eDs" , durationSeconds: 1122},
-          { title: "Variables and Data Types | Python Tutorial - Day #6", videoId: "ORCuz7s5cCY" , durationSeconds: 1005},
-          { title: "Exercise 1: Calculator using Python | Python Tutorial - Day #7", videoId: "FLVqcxnJP_E" , durationSeconds: 410},
-          { title: "Exercise 1: Calculator using Python (Solution) | Python Tutorial - Day #8", videoId: "dohaSBCKCr0" , durationSeconds: 622},
-          { title: "Typecasting in Python | Python Tutorial - Day #9", videoId: "Pu5bqySSSS0" , durationSeconds: 565},
-          { title: "Taking User Input in Python | Python Tutorial - Day #10", videoId: "WvG-R-xXouA" , durationSeconds: 616},
-          { title: "Strings in Python | Python Tutorial - Day #11", videoId: "kMNFQYArrLg" , durationSeconds: 695},
-          { title: "Strings Slicing and Operations on Strings in Python | Python Tutorial - Day #12", videoId: "8jW7lpT8HW8" , durationSeconds: 708},
-          { title: "String Methods in Python | Python Tutorial - Day #13", videoId: "0INvoK_T0cE" , durationSeconds: 1352},
-          { title: "If Else Conditional Statements in Python | Python Tutorial - Day #14", videoId: "ceiuLR2ysas" , durationSeconds: 1167},
-          { title: "Exercise 2: Good Morning Sir | Python Tutorial - Day #15", videoId: "d7ng_aV4qdI" , durationSeconds: 319},
-          { title: "Match Case Statements in Python | Python Tutorial - Day #16", videoId: "bthQCK1QAmQ" , durationSeconds: 491},
-          { title: "For Loops in Python | Python Tutorial - Day #17", videoId: "fIYVzKp0q5w" , durationSeconds: 781},
-          { title: "While Loops in Python | Python Tutorial - Day #18", videoId: "-tCFyIyKVx0" , durationSeconds: 850},
-          { title: "break and continue in Python | Python Tutorial - Day #19", videoId: "RkwJnjdrm70" , durationSeconds: 734},
-          { title: "Functions in Python | Python Tutorial - Day #20", videoId: "dyvxxJSGUsE" , durationSeconds: 978},
-          { title: "Function Arguments in Python | Python Tutorial - Day #21", videoId: "0d6b6fFuCkE" , durationSeconds: 830},
-          { title: "Introduction to Lists in Python | Python Tutorial - Day #22", videoId: "eF6nK5bSlmg" , durationSeconds: 1207},
-          { title: "List Methods in Python | Python Tutorial - Day #23", videoId: "scWc3F8LbOo" , durationSeconds: 572},
-          { title: "Tuples in Python | Python Tutorial - Day #24", videoId: "PipsOUDKrVk" , durationSeconds: 495},
-          { title: "Operations on Tuples in Python | Python Tutorial - Day #25", videoId: "XblLSduioJI" , durationSeconds: 419},
-          { title: "Exercise 2: Solution & Shoutouts | Python Tutorial - Day #26", videoId: "IZBKXWrbqBM" , durationSeconds: 462},
-          { title: "Exercise 3: Kaun Banega Crorepati (KBC) | Python Tutorial - Day #27", videoId: "Vs1Z7K70Mvw" , durationSeconds: 167},
-          { title: "f-strings in Python | Python Tutorial - Day #28", videoId: "ixmxgUf8yIg" , durationSeconds: 532},
-          { title: "Docstrings in Python | Python Tutorial - Day #29", videoId: "SJzsNd7SM0g" , durationSeconds: 512},
-          { title: "Recursion in Python | Python Tutorial - Day #30", videoId: "XYwJKFB8DUk" , durationSeconds: 601},
-          { title: "Sets in Python | Python Tutorial - Day #31", videoId: "l3kCO8cVA6o" , durationSeconds: 472},
-          { title: "Set Methods in Python | Python Tutorial - Day #32", videoId: "HOrutCnp2zo" , durationSeconds: 958},
-          { title: "Dictionaries in Python | Python Tutorial - Day #33", videoId: "j2G68uQtOwM" , durationSeconds: 620},
-          { title: "Dictionary Methods in Python | Python Tutorial - Day #34", videoId: "LmbFwaLjT9k" , durationSeconds: 507},
-          { title: "for Loop with else in Python | Python Tutorial - Day #35", videoId: "qUkcIgErZzc" , durationSeconds: 393},
-          { title: "Exception Handling in Python | Python Tutorial - Day #36", videoId: "4LKo6dlku7M" , durationSeconds: 653},
-          { title: "Finally keyword in Python | Python Tutorial - Day #37", videoId: "r_iuC-IDpPM" , durationSeconds: 485},
-          { title: "Raising custom errors in Python | Python Tutorial - Day #38", videoId: "Phr4CNppYoM" , durationSeconds: 642},
-          { title: "Kaun Banega Crorepati: Exercise 3 - Solution & Shoutouts | Python Tutorial - Day #39", videoId: "nyfeYAxP-EM" , durationSeconds: 1396},
-          { title: "Exercise 4: Secret Code Language | Python Tutorial - Day #40", videoId: "pOWJ6WgVRIU" , durationSeconds: 365},
-          { title: "Short hand if else statements | Python Tutorial - Day #41", videoId: "Qqx_zNmQVGI" , durationSeconds: 463},
-          { title: "Enumerate Function in Python | Python Tutorial - Day #42", videoId: "kGnYc_h1geM" , durationSeconds: 457},
-          { title: "Virtual Environment in Python | Python Tutorial - Day #43", videoId: "nt6LlFTWOkg" , durationSeconds: 1298},
-          { title: "How import works in Python | Python Tutorial - Day #44", videoId: "Pr7UOr35NcI" , durationSeconds: 762},
-          { title: "if __name__ == \"__main__\" in Python | Python Tutorial - Day #45", videoId: "y_CX2Rvitk8" , durationSeconds: 564},
-          { title: "os Module in Python | Python Tutorial - Day #46", videoId: "dkVYSsL90Oo" , durationSeconds: 924},
-          { title: "Exercise 4: Solutions and Shoutouts | Python Tutorial - Day #47", videoId: "4lSQfOJKn7U" , durationSeconds: 1171},
-          { title: "Local vs Global Variables in Python| Python Tutorial - Day #48", videoId: "RaG6GgcDt54" , durationSeconds: 637},
-          { title: "File IO in Python | Python Tutorial - Day #49", videoId: "eDBPlcWYses" , durationSeconds: 773},
-          { title: "read(), readlines() and other methods | Python Tutorial - Day #50", videoId: "l1FsnQxET9U" , durationSeconds: 647},
-          { title: "seek(), tell() and other functions | Python Tutorial - Day #51", videoId: "PByYX-2l5Us" , durationSeconds: 467},
-          { title: "Lambda functions in Python | Python Tutorial - Day #52", videoId: "UfFWf-PXUqE" , durationSeconds: 558},
-          { title: "Map, Filter and Reduce in Python | Python Tutorial - Day #53", videoId: "OErhjT4f5Cs" , durationSeconds: 781},
-          { title: "'is' vs '==' in Python | Python Tutorial - Day #54", videoId: "TOemdfX_0xc" , durationSeconds: 481},
-          { title: "Exercise 5 - Snake Water Gun | Python Tutorial - Day #55", videoId: "dDsh7FT6-0I" , durationSeconds: 355},
-          { title: "Introduction to OOPs in Python | Python Tutorial - Day #56", videoId: "HQnoYzxOHMw" , durationSeconds: 954},
-          { title: "Classes and Objects in Python | Python Tutorial - Day #57", videoId: "a7baAGCBA9U" , durationSeconds: 572},
-          { title: "Constructors in Python | Python Tutorial - Day #58", videoId: "12HRkYld22c" , durationSeconds: 677},
-          { title: "Decorators in Python | Python Tutorial - Day #59", videoId: "PTBZ674EsvI" , durationSeconds: 785},
-          { title: "Getters and Setters in Python | Python Tutorial - Day #60", videoId: "2gbCT8h9uyk" , durationSeconds: 637},
-          { title: "Inheritance in Python | Python Tutorial - Day #61", videoId: "-KsfUaQEY9Y" , durationSeconds: 454},
-          { title: "Access Modifiers in Python | Python Tutorial - Day #62", videoId: "43FK20rWvKQ" , durationSeconds: 703},
-          { title: "Snake Water Gun Game in Python - Exercise 5 - Solution | Python Tutorial - Day #63", videoId: "GkfBpm6MN9A" , durationSeconds: 928},
-          { title: "Exercise 6 - Library Management System in Python | Python Tutorial - Day #64", videoId: "mlDZTSH2FFc" , durationSeconds: 195},
-          { title: "Static Methods in Python | Python Tutorial - Day #65", videoId: "GcSVYNSsJxo" , durationSeconds: 457},
-          { title: "Instance variables vs Class variables in Python | Python Tutorial - Day #66", videoId: "tQdaeiF4j38" , durationSeconds: 877},
-          { title: "Exercise 6 Solution - Library Management Software in Python | Python Tutorial - Day #67", videoId: "uRIEjf2vCIg" , durationSeconds: 574},
-          { title: "Exercise 7 - Clear the Clutter | Python Tutorial - Day #68", videoId: "6KvnP13TnhY" , durationSeconds: 214},
-          { title: "Class Methods in Python | Python Tutorial - Day #69", videoId: "9ynmDLc5FYo" , durationSeconds: 385},
-          { title: "Class Methods as Alternative Constructors in Python | Python Tutorial - Day #70", videoId: "FGlKJdy--p8" , durationSeconds: 786},
-          { title: "dir, __dict__ and help method in Python | Python Tutorial - Day #71", videoId: "Wgo9TaBcuJ4" , durationSeconds: 443},
-          { title: "super keyword in Python | Python Tutorial - Day #72", videoId: "P648reefNh0" , durationSeconds: 548},
-          { title: "Magic/Dunder Methods in Python | Python Tutorial - Day #73", videoId: "DmgQVJXhuLQ" , durationSeconds: 732},
-          { title: "Method Overriding in Python | Python Tutorial - Day #74", videoId: "46_yfYC36JY" , durationSeconds: 387},
-          { title: "Exercise 7 Solution + Shoutouts | Python Tutorial - Day #75", videoId: "Wt9Shnzv_Yg" , durationSeconds: 732},
-          { title: "Exercise 8 - Merge the PDF | Python Tutorial - Day #76", videoId: "uUbvJ7ZEhPE" , durationSeconds: 194},
-          { title: "Operator Overloading in Python | Python Tutorial - Day #77", videoId: "D67-b2t-y4k" , durationSeconds: 444},
-          { title: "Single Inheritance in Python | Python Tutorial - Day #78", videoId: "U53_Gw55NI8" , durationSeconds: 279},
-          { title: "Multiple Inheritance in Python | Python Tutorial - Day #79", videoId: "4o7xSHgKlvI" , durationSeconds: 371},
-          { title: "Multilevel Inheritance in Python | Python Tutorial - Day #80", videoId: "Il7XMJJeXiA" , durationSeconds: 474},
-          { title: "Hybrid and Hierarchical Inheritance in Python | Python Tutorial - Day #81", videoId: "B4Q8zxRkm_I" , durationSeconds: 534},
-          { title: "Exercise 8 - Merge the Pdf Solution in Python | Python Tutorial - Day #82", videoId: "qKKGemhBRVM" , durationSeconds: 471},
-          { title: "Exercise 9 - Shoutouts to Everyone | Python Tutorial - Day #83", videoId: "1WjwnlRXfHc" , durationSeconds: 228},
-          { title: "Time Module in Python | Python Tutorial - Day #84", videoId: "oTtIvV-Q1FY" , durationSeconds: 697},
-          { title: "Creating command line utility in python | Python Tutorial - Day #85", videoId: "3IAu6-pgw7I" , durationSeconds: 1112},
-          { title: "Walrus Operator in Python | Python Tutorial - Day #86", videoId: "NCmMEEyzLT8" , durationSeconds: 576},
-          { title: "Shutil Module in Python | Python Tutorial - Day #87", videoId: "wII2JhNACJE" , durationSeconds: 762},
-          { title: "Exercise 9: Solution - Shoutouts to Everyone | Python Tutorial - Day #88", videoId: "C9VP-56RXNM" , durationSeconds: 734},
-          { title: "Requests Module in Python | Python Tutorial - Day #89", videoId: "Nsb3bLIlO4w" , durationSeconds: 526},
-          { title: "Exercise 10: News App in Python | Python Tutorial - Day #90", videoId: "BGzFp9mwFQ4" , durationSeconds: 274},
-          { title: "Generators in Python | Python Tutorial - Day #91", videoId: "ixd-u3pmsUc" , durationSeconds: 527},
-          { title: "Function Caching in Python | Python Tutorial - Day #92", videoId: "K8gjSwc3Rlo" , durationSeconds: 674},
-          { title: "Exercise 10 - News App Solution & Shoutout | Python Tutorial - Day #93", videoId: "bnAz7Kb2efE" , durationSeconds: 691},
-          { title: "Exercise 11 - Drink Water Reminder | Python Tutorial - Day #94", videoId: "1i4piFhpnm8" , durationSeconds: 260},
-          { title: "Regular Expressions in Python | Python Tutorial - Day #95", videoId: "TCWOwavqFrw" , durationSeconds: 783},
-          { title: "AsyncIO in Python | Python Tutorial - Day #96", videoId: "lgoB3_-ejnI" , durationSeconds: 629},
-          { title: "Multithreading in Python | Python Tutorial - Day #97", videoId: "ICbU6zAKtqQ" , durationSeconds: 1069},
-          { title: "MultiProcessing in Python | Python Tutorial - Day #98", videoId: "zGe-9LfnAaA" , durationSeconds: 1204},
-          { title: "Exercise 11: Solution + Shoutouts - Desktop Notification System | Python Tutorial - Day #99", videoId: "18vZnLqXMoM" , durationSeconds: 606},
-          { title: "Conclusion and Where to go from here | Python Tutorial - Day #100", videoId: "5Pz8WGiMJ_c" , durationSeconds: 999},
+          { title: "Introduction to Programming & Python | Python Tutorial - Day #1", videoId: "7wnove7K-ZQ" , durationSeconds: 710, megaLessonId: "python-day-001"},
+          { title: "Some Amazing Python Programs - The Power of Python | Python Tutorial - Day #2", videoId: "Tto8TS-fJQU" , durationSeconds: 518, megaLessonId: "python-day-002"},
+          { title: "Modules and Pip | Python Tutorial - Day #3", videoId: "xwKO_y2gHxQ" , durationSeconds: 761, megaLessonId: "python-day-003"},
+          { title: "Our First Python Program | Python Tutorial - Day #4", videoId: "7IWOYhfAcVg" , durationSeconds: 444, megaLessonId: "python-day-004"},
+          { title: "Comments, Escape Sequences & Print Statement | Python Tutorial - Day #5", videoId: "qxPMmW93eDs" , durationSeconds: 1122, megaLessonId: "python-day-005"},
+          { title: "Variables and Data Types | Python Tutorial - Day #6", videoId: "ORCuz7s5cCY" , durationSeconds: 1005, megaLessonId: "python-day-006"},
+          { title: "Exercise 1: Calculator using Python | Python Tutorial - Day #7", videoId: "FLVqcxnJP_E" , durationSeconds: 410, megaLessonId: "python-day-007"},
+          { title: "Exercise 1: Calculator using Python (Solution) | Python Tutorial - Day #8", videoId: "dohaSBCKCr0" , durationSeconds: 622, megaLessonId: "python-day-008"},
+          { title: "Typecasting in Python | Python Tutorial - Day #9", videoId: "Pu5bqySSSS0" , durationSeconds: 565, megaLessonId: "python-day-009"},
+          { title: "Taking User Input in Python | Python Tutorial - Day #10", videoId: "WvG-R-xXouA" , durationSeconds: 616, megaLessonId: "python-day-010"},
+          { title: "Strings in Python | Python Tutorial - Day #11", videoId: "kMNFQYArrLg" , durationSeconds: 695, megaLessonId: "python-day-011"},
+          { title: "Strings Slicing and Operations on Strings in Python | Python Tutorial - Day #12", videoId: "8jW7lpT8HW8" , durationSeconds: 708, megaLessonId: "python-day-012"},
+          { title: "String Methods in Python | Python Tutorial - Day #13", videoId: "0INvoK_T0cE" , durationSeconds: 1352, megaLessonId: "python-day-013"},
+          { title: "If Else Conditional Statements in Python | Python Tutorial - Day #14", videoId: "ceiuLR2ysas" , durationSeconds: 1167, megaLessonId: "python-day-014"},
+          { title: "Exercise 2: Good Morning Sir | Python Tutorial - Day #15", videoId: "d7ng_aV4qdI" , durationSeconds: 319, megaLessonId: "python-day-015"},
+          { title: "Match Case Statements in Python | Python Tutorial - Day #16", videoId: "bthQCK1QAmQ" , durationSeconds: 491, megaLessonId: "python-day-016"},
+          { title: "For Loops in Python | Python Tutorial - Day #17", videoId: "fIYVzKp0q5w" , durationSeconds: 781, megaLessonId: "python-day-017"},
+          { title: "While Loops in Python | Python Tutorial - Day #18", videoId: "-tCFyIyKVx0" , durationSeconds: 850, megaLessonId: "python-day-018"},
+          { title: "break and continue in Python | Python Tutorial - Day #19", videoId: "RkwJnjdrm70" , durationSeconds: 734, megaLessonId: "python-day-019"},
+          { title: "Functions in Python | Python Tutorial - Day #20", videoId: "dyvxxJSGUsE" , durationSeconds: 978, megaLessonId: "python-day-020"},
+          { title: "Function Arguments in Python | Python Tutorial - Day #21", videoId: "0d6b6fFuCkE" , durationSeconds: 830, megaLessonId: "python-day-021"},
+          { title: "Introduction to Lists in Python | Python Tutorial - Day #22", videoId: "eF6nK5bSlmg" , durationSeconds: 1207, megaLessonId: "python-day-022"},
+          { title: "List Methods in Python | Python Tutorial - Day #23", videoId: "scWc3F8LbOo" , durationSeconds: 572, megaLessonId: "python-day-023"},
+          { title: "Tuples in Python | Python Tutorial - Day #24", videoId: "PipsOUDKrVk" , durationSeconds: 495, megaLessonId: "python-day-024"},
+          { title: "Operations on Tuples in Python | Python Tutorial - Day #25", videoId: "XblLSduioJI" , durationSeconds: 419, megaLessonId: "python-day-025"},
+          { title: "Exercise 2: Solution & Shoutouts | Python Tutorial - Day #26", videoId: "IZBKXWrbqBM" , durationSeconds: 462, megaLessonId: "python-day-026"},
+          { title: "Exercise 3: Kaun Banega Crorepati (KBC) | Python Tutorial - Day #27", videoId: "Vs1Z7K70Mvw" , durationSeconds: 167, megaLessonId: "python-day-027"},
+          { title: "f-strings in Python | Python Tutorial - Day #28", videoId: "ixmxgUf8yIg" , durationSeconds: 532, megaLessonId: "python-day-028"},
+          { title: "Docstrings in Python | Python Tutorial - Day #29", videoId: "SJzsNd7SM0g" , durationSeconds: 512, megaLessonId: "python-day-029"},
+          { title: "Recursion in Python | Python Tutorial - Day #30", videoId: "XYwJKFB8DUk" , durationSeconds: 601, megaLessonId: "python-day-030"},
+          { title: "Sets in Python | Python Tutorial - Day #31", videoId: "l3kCO8cVA6o" , durationSeconds: 472, megaLessonId: "python-day-031"},
+          { title: "Set Methods in Python | Python Tutorial - Day #32", videoId: "HOrutCnp2zo" , durationSeconds: 958, megaLessonId: "python-day-032"},
+          { title: "Dictionaries in Python | Python Tutorial - Day #33", videoId: "j2G68uQtOwM" , durationSeconds: 620, megaLessonId: "python-day-033"},
+          { title: "Dictionary Methods in Python | Python Tutorial - Day #34", videoId: "LmbFwaLjT9k" , durationSeconds: 507, megaLessonId: "python-day-034"},
+          { title: "for Loop with else in Python | Python Tutorial - Day #35", videoId: "qUkcIgErZzc" , durationSeconds: 393, megaLessonId: "python-day-035"},
+          { title: "Exception Handling in Python | Python Tutorial - Day #36", videoId: "4LKo6dlku7M" , durationSeconds: 653, megaLessonId: "python-day-036"},
+          { title: "Finally keyword in Python | Python Tutorial - Day #37", videoId: "r_iuC-IDpPM" , durationSeconds: 485, megaLessonId: "python-day-037"},
+          { title: "Raising custom errors in Python | Python Tutorial - Day #38", videoId: "Phr4CNppYoM" , durationSeconds: 642, megaLessonId: "python-day-038"},
+          { title: "Kaun Banega Crorepati: Exercise 3 - Solution & Shoutouts | Python Tutorial - Day #39", videoId: "nyfeYAxP-EM" , durationSeconds: 1396, megaLessonId: "python-day-039"},
+          { title: "Exercise 4: Secret Code Language | Python Tutorial - Day #40", videoId: "pOWJ6WgVRIU" , durationSeconds: 365, megaLessonId: "python-day-040"},
+          { title: "Short hand if else statements | Python Tutorial - Day #41", videoId: "Qqx_zNmQVGI" , durationSeconds: 463, megaLessonId: "python-day-041"},
+          { title: "Enumerate Function in Python | Python Tutorial - Day #42", videoId: "kGnYc_h1geM" , durationSeconds: 457, megaLessonId: "python-day-042"},
+          { title: "Virtual Environment in Python | Python Tutorial - Day #43", videoId: "nt6LlFTWOkg" , durationSeconds: 1298, megaLessonId: "python-day-043"},
+          { title: "How import works in Python | Python Tutorial - Day #44", videoId: "Pr7UOr35NcI" , durationSeconds: 762, megaLessonId: "python-day-044"},
+          { title: "if __name__ == \"__main__\" in Python | Python Tutorial - Day #45", videoId: "y_CX2Rvitk8" , durationSeconds: 564, megaLessonId: "python-day-045"},
+          { title: "os Module in Python | Python Tutorial - Day #46", videoId: "dkVYSsL90Oo" , durationSeconds: 924, megaLessonId: "python-day-046"},
+          { title: "Exercise 4: Solutions and Shoutouts | Python Tutorial - Day #47", videoId: "4lSQfOJKn7U" , durationSeconds: 1171, megaLessonId: "python-day-047"},
+          { title: "Local vs Global Variables in Python| Python Tutorial - Day #48", videoId: "RaG6GgcDt54" , durationSeconds: 637, megaLessonId: "python-day-048"},
+          { title: "File IO in Python | Python Tutorial - Day #49", videoId: "eDBPlcWYses" , durationSeconds: 773, megaLessonId: "python-day-049"},
+          { title: "read(), readlines() and other methods | Python Tutorial - Day #50", videoId: "l1FsnQxET9U" , durationSeconds: 647, megaLessonId: "python-day-050"},
+          { title: "seek(), tell() and other functions | Python Tutorial - Day #51", videoId: "PByYX-2l5Us" , durationSeconds: 467, megaLessonId: "python-day-051"},
+          { title: "Lambda functions in Python | Python Tutorial - Day #52", videoId: "UfFWf-PXUqE" , durationSeconds: 558, megaLessonId: "python-day-052"},
+          { title: "Map, Filter and Reduce in Python | Python Tutorial - Day #53", videoId: "OErhjT4f5Cs" , durationSeconds: 781, megaLessonId: "python-day-053"},
+          { title: "'is' vs '==' in Python | Python Tutorial - Day #54", videoId: "TOemdfX_0xc" , durationSeconds: 481, megaLessonId: "python-day-054"},
+          { title: "Exercise 5 - Snake Water Gun | Python Tutorial - Day #55", videoId: "dDsh7FT6-0I" , durationSeconds: 355, megaLessonId: "python-day-055"},
+          { title: "Introduction to OOPs in Python | Python Tutorial - Day #56", videoId: "HQnoYzxOHMw" , durationSeconds: 954, megaLessonId: "python-day-056"},
+          { title: "Classes and Objects in Python | Python Tutorial - Day #57", videoId: "a7baAGCBA9U" , durationSeconds: 572, megaLessonId: "python-day-057"},
+          { title: "Constructors in Python | Python Tutorial - Day #58", videoId: "12HRkYld22c" , durationSeconds: 677, megaLessonId: "python-day-058"},
+          { title: "Decorators in Python | Python Tutorial - Day #59", videoId: "PTBZ674EsvI" , durationSeconds: 785, megaLessonId: "python-day-059"},
+          { title: "Getters and Setters in Python | Python Tutorial - Day #60", videoId: "2gbCT8h9uyk" , durationSeconds: 637, megaLessonId: "python-day-060"},
+          { title: "Inheritance in Python | Python Tutorial - Day #61", videoId: "-KsfUaQEY9Y" , durationSeconds: 454, megaLessonId: "python-day-061"},
+          { title: "Access Modifiers in Python | Python Tutorial - Day #62", videoId: "43FK20rWvKQ" , durationSeconds: 703, megaLessonId: "python-day-062"},
+          { title: "Snake Water Gun Game in Python - Exercise 5 - Solution | Python Tutorial - Day #63", videoId: "GkfBpm6MN9A" , durationSeconds: 928, megaLessonId: "python-day-063"},
+          { title: "Exercise 6 - Library Management System in Python | Python Tutorial - Day #64", videoId: "mlDZTSH2FFc" , durationSeconds: 195, megaLessonId: "python-day-064"},
+          { title: "Static Methods in Python | Python Tutorial - Day #65", videoId: "GcSVYNSsJxo" , durationSeconds: 457, megaLessonId: "python-day-065"},
+          { title: "Instance variables vs Class variables in Python | Python Tutorial - Day #66", videoId: "tQdaeiF4j38" , durationSeconds: 877, megaLessonId: "python-day-066"},
+          { title: "Exercise 6 Solution - Library Management Software in Python | Python Tutorial - Day #67", videoId: "uRIEjf2vCIg" , durationSeconds: 574, megaLessonId: "python-day-067"},
+          { title: "Exercise 7 - Clear the Clutter | Python Tutorial - Day #68", videoId: "6KvnP13TnhY" , durationSeconds: 214, megaLessonId: "python-day-068"},
+          { title: "Class Methods in Python | Python Tutorial - Day #69", videoId: "9ynmDLc5FYo" , durationSeconds: 385, megaLessonId: "python-day-069"},
+          { title: "Class Methods as Alternative Constructors in Python | Python Tutorial - Day #70", videoId: "FGlKJdy--p8" , durationSeconds: 786, megaLessonId: "python-day-070"},
+          { title: "dir, __dict__ and help method in Python | Python Tutorial - Day #71", videoId: "Wgo9TaBcuJ4" , durationSeconds: 443, megaLessonId: "python-day-071"},
+          { title: "super keyword in Python | Python Tutorial - Day #72", videoId: "P648reefNh0" , durationSeconds: 548, megaLessonId: "python-day-072"},
+          { title: "Magic/Dunder Methods in Python | Python Tutorial - Day #73", videoId: "DmgQVJXhuLQ" , durationSeconds: 732, megaLessonId: "python-day-073"},
+          { title: "Method Overriding in Python | Python Tutorial - Day #74", videoId: "46_yfYC36JY" , durationSeconds: 387, megaLessonId: "python-day-074"},
+          { title: "Exercise 7 Solution + Shoutouts | Python Tutorial - Day #75", videoId: "Wt9Shnzv_Yg" , durationSeconds: 732, megaLessonId: "python-day-075"},
+          { title: "Exercise 8 - Merge the PDF | Python Tutorial - Day #76", videoId: "uUbvJ7ZEhPE" , durationSeconds: 194, megaLessonId: "python-day-076"},
+          { title: "Operator Overloading in Python | Python Tutorial - Day #77", videoId: "D67-b2t-y4k" , durationSeconds: 444, megaLessonId: "python-day-077"},
+          { title: "Single Inheritance in Python | Python Tutorial - Day #78", videoId: "U53_Gw55NI8" , durationSeconds: 279, megaLessonId: "python-day-078"},
+          { title: "Multiple Inheritance in Python | Python Tutorial - Day #79", videoId: "4o7xSHgKlvI" , durationSeconds: 371, megaLessonId: "python-day-079"},
+          { title: "Multilevel Inheritance in Python | Python Tutorial - Day #80", videoId: "Il7XMJJeXiA" , durationSeconds: 474, megaLessonId: "python-day-080"},
+          { title: "Hybrid and Hierarchical Inheritance in Python | Python Tutorial - Day #81", videoId: "B4Q8zxRkm_I" , durationSeconds: 534, megaLessonId: "python-day-081"},
+          { title: "Exercise 8 - Merge the Pdf Solution in Python | Python Tutorial - Day #82", videoId: "qKKGemhBRVM" , durationSeconds: 471, megaLessonId: "python-day-082"},
+          { title: "Exercise 9 - Shoutouts to Everyone | Python Tutorial - Day #83", videoId: "1WjwnlRXfHc" , durationSeconds: 228, megaLessonId: "python-day-083"},
+          { title: "Time Module in Python | Python Tutorial - Day #84", videoId: "oTtIvV-Q1FY" , durationSeconds: 697, megaLessonId: "python-day-084"},
+          { title: "Creating command line utility in python | Python Tutorial - Day #85", videoId: "3IAu6-pgw7I" , durationSeconds: 1112, megaLessonId: "python-day-085"},
+          { title: "Walrus Operator in Python | Python Tutorial - Day #86", videoId: "NCmMEEyzLT8" , durationSeconds: 576, megaLessonId: "python-day-086"},
+          { title: "Shutil Module in Python | Python Tutorial - Day #87", videoId: "wII2JhNACJE" , durationSeconds: 762, megaLessonId: "python-day-087"},
+          { title: "Exercise 9: Solution - Shoutouts to Everyone | Python Tutorial - Day #88", videoId: "C9VP-56RXNM" , durationSeconds: 734, megaLessonId: "python-day-088"},
+          { title: "Requests Module in Python | Python Tutorial - Day #89", videoId: "Nsb3bLIlO4w" , durationSeconds: 526, megaLessonId: "python-day-089"},
+          { title: "Exercise 10: News App in Python | Python Tutorial - Day #90", videoId: "BGzFp9mwFQ4" , durationSeconds: 274, megaLessonId: "python-day-090"},
+          { title: "Generators in Python | Python Tutorial - Day #91", videoId: "ixd-u3pmsUc" , durationSeconds: 527, megaLessonId: "python-day-091"},
+          { title: "Function Caching in Python | Python Tutorial - Day #92", videoId: "K8gjSwc3Rlo" , durationSeconds: 674, megaLessonId: "python-day-092"},
+          { title: "Exercise 10 - News App Solution & Shoutout | Python Tutorial - Day #93", videoId: "bnAz7Kb2efE" , durationSeconds: 691, megaLessonId: "python-day-093"},
+          { title: "Exercise 11 - Drink Water Reminder | Python Tutorial - Day #94", videoId: "1i4piFhpnm8" , durationSeconds: 260, megaLessonId: "python-day-094"},
+          { title: "Regular Expressions in Python | Python Tutorial - Day #95", videoId: "TCWOwavqFrw" , durationSeconds: 783, megaLessonId: "python-day-095"},
+          { title: "AsyncIO in Python | Python Tutorial - Day #96", videoId: "lgoB3_-ejnI" , durationSeconds: 629, megaLessonId: "python-day-096"},
+          { title: "Multithreading in Python | Python Tutorial - Day #97", videoId: "ICbU6zAKtqQ" , durationSeconds: 1069, megaLessonId: "python-day-097"},
+          { title: "MultiProcessing in Python | Python Tutorial - Day #98", videoId: "zGe-9LfnAaA" , durationSeconds: 1204, megaLessonId: "python-day-098"},
+          { title: "Exercise 11: Solution + Shoutouts - Desktop Notification System | Python Tutorial - Day #99", videoId: "18vZnLqXMoM" , durationSeconds: 606, megaLessonId: "python-day-099"},
+          { title: "Conclusion and Where to go from here | Python Tutorial - Day #100", videoId: "5Pz8WGiMJ_c" , durationSeconds: 999, megaLessonId: "python-day-100"},
         ],
       },
       {
@@ -286,21 +309,13 @@ export const COURSE_CREATORS: CourseCreator[] = [
     ],
   },
   {
-    name: "Apna College",
-    tagline: "Full Python courses in Hindi, with notes and practice questions.",
-    channelUrl: "https://www.youtube.com/@ApnaCollegeOfficial",
-    playlists: [
-    ],
-    oneShots: [
-      { title: "Python Tutorial for Beginners - Full Course (with Notes & Practice Questions)", videoId: "ERCMXc8x7mc" , durationSeconds: 37491},
-      { title: "Python Full Course for Beginners", videoId: "q3AuP01daL4" , durationSeconds: 7352},
-      { title: "Python Tutorial for Beginners | Learn Python in 1.5 Hours", videoId: "vLqTf2b6GZw" , durationSeconds: 4632},
-    ],
-  },
-  {
     name: "Code With Mosh",
+    slug: "code-with-mosh",
+    handle: "@programmingwithmosh",
+    avatarUrl: "https://yt3.googleusercontent.com/HCv0fXFEEcD0HRyF0_qR1K7b7qO3KCzmIoyH1DEJYB94CIUFhIE5i2t2IDIPX97W1-DK4hegww=s176-c-k-c0x00ffffff-no-rj",
+    subscribers: "5.19M subscribers",
+    language: "English",
     tagline: "The classic Python course in English — full course plus topic videos.",
-    channelUrl: "https://www.youtube.com/@programmingwithmosh",
     playlists: [
       {
         title: "Python Tutorials",
@@ -334,6 +349,22 @@ export const COURSE_CREATORS: CourseCreator[] = [
     oneShots: [
     ],
   },
+  {
+    name: "Apna College",
+    slug: "apna-college",
+    handle: "@ApnaCollegeOfficial",
+    avatarUrl: "https://yt3.googleusercontent.com/FEcjRtez5od8UowDo6tTt9WlE-MrIFEmcwPMTORmK9Swk6KCklOmA3xfIG9WuLWfNYfNThQE=s176-c-k-c0x00ffffff-no-rj",
+    subscribers: "7.99M subscribers",
+    language: "Hindi",
+    tagline: "Full Python courses in Hindi, with notes and practice questions.",
+    playlists: [
+    ],
+    oneShots: [
+      { title: "Python Tutorial for Beginners - Full Course (with Notes & Practice Questions)", videoId: "ERCMXc8x7mc" , durationSeconds: 37491},
+      { title: "Python Full Course for Beginners", videoId: "q3AuP01daL4" , durationSeconds: 7352},
+      { title: "Python Tutorial for Beginners | Learn Python in 1.5 Hours", videoId: "vLqTf2b6GZw" , durationSeconds: 4632},
+    ],
+  },
 ];
 
 export function totalCourseVideos(): number {
@@ -344,4 +375,10 @@ export function totalCourseVideos(): number {
       c.oneShots.length,
     0
   );
+}
+
+/** The YouTube playlist id from a playlist URL (the `list=` param). */
+export function playlistListId(url: string): string {
+  const m = /[?&]list=([^&]+)/.exec(url);
+  return m ? m[1] : "";
 }
