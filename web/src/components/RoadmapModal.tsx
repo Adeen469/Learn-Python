@@ -62,8 +62,18 @@ function TopicRow({
  * stages down the left, one row per topic. Clicking a topic opens
  * its tutorial (and closes the modal). Done states come from the
  * /learn pages' own completion store.
+ *
+ * onClose is the real close (X / Escape): the navbar may show the
+ * first-time hint over the still-open modal instead of closing it.
+ * onNavigate is a topic click: the modal just goes away quietly.
  */
-export function RoadmapModal({ onClose }: { onClose: () => void }) {
+export function RoadmapModal({
+  onClose,
+  onNavigate,
+}: {
+  onClose: () => void;
+  onNavigate: () => void;
+}) {
   const [completedSlugs, setCompletedSlugs] = useState<string[]>([]);
 
   useEffect(() => {
@@ -153,7 +163,7 @@ export function RoadmapModal({ onClose }: { onClose: () => void }) {
                     key={topic.id}
                     topic={topic}
                     isDone={!!topic.learnSlug && completedSlugs.includes(topic.learnSlug)}
-                    onNavigate={onClose}
+                    onNavigate={onNavigate}
                   />
                 ))}
               </ul>
@@ -166,10 +176,20 @@ export function RoadmapModal({ onClose }: { onClose: () => void }) {
 }
 
 /**
- * Shown right after the roadmap is closed the first time: tells the
- * user where to find it again.
+ * Shown when the roadmap is closed the first time — over the
+ * still-open roadmap, before it goes away. Dismissing it closes
+ * the roadmap too, and it never appears again.
  */
 export function RoadmapHint({ onGotIt }: { onGotIt: () => void }) {
+  // Escape dismisses the hint (and with it, the roadmap behind it).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onGotIt();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onGotIt]);
+
   return (
     <div
       className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"

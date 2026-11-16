@@ -89,6 +89,26 @@ describe("roadmap modal + hint", () => {
       "hint must point at the profile dropdown"
     );
     assert.ok(modal.includes("Got it"), "hint must have a Got it button");
+    // The hint sits above the still-open roadmap (z-60 over z-50),
+    // and Escape on it dismisses both.
+    assert.ok(modal.includes("z-[60]"), "hint must overlay the roadmap modal");
+    assert.ok(modal.includes("z-50"), "roadmap modal must sit below the hint");
+    assert.ok(
+      modal.includes('if (e.key === "Escape") onGotIt()'),
+      "Escape on the hint must dismiss it"
+    );
+  });
+
+  test("a topic click navigates quietly — it must not fire the hint", () => {
+    const modal = read("src/components/RoadmapModal.tsx");
+    assert.ok(
+      modal.includes("onNavigate: () => void"),
+      "modal must take a separate onNavigate for topic clicks"
+    );
+    assert.ok(
+      modal.includes("onNavigate={onNavigate}"),
+      "topic rows must call onNavigate, not onClose"
+    );
   });
 });
 
@@ -115,6 +135,54 @@ describe("roadmap wiring in the navbar", () => {
     assert.ok(
       nav.includes('localStorage.setItem(ROADMAP_SEEN_KEY, "1")'),
       "closing the roadmap must mark it seen"
+    );
+  });
+
+  test("hint fires only on the first close, over the still-open roadmap", () => {
+    const nav = read("src/components/AppNavbar.tsx");
+    // The close handler must read the seen flag BEFORE deciding to
+    // show the hint — otherwise it fires on every close.
+    const closeFn = nav.slice(nav.indexOf("function handleCloseRoadmap()"));
+    assert.ok(
+      closeFn.includes('localStorage.getItem(ROADMAP_SEEN_KEY) !== "1"'),
+      "close must check whether this is the first close"
+    );
+    assert.ok(
+      closeFn.includes("if (firstClose)"),
+      "hint must open only on the first close"
+    );
+    assert.ok(
+      closeFn.includes("if (roadmapHintOpen) return;"),
+      "close must ignore Escape/X while the hint is already up"
+    );
+    // First close keeps the roadmap mounted (no setRoadmapOpen(false)
+    // on the firstClose branch) — the hint overlays it.
+    const firstBranch = closeFn.slice(closeFn.indexOf("if (firstClose)"));
+    assert.ok(
+      firstBranch.indexOf("setRoadmapHintOpen(true)") <
+        firstBranch.indexOf("setRoadmapOpen(false)"),
+      "first close must open the hint before any close of the modal"
+    );
+    // Dismissing the hint is what finally closes the roadmap.
+    assert.ok(
+      nav.includes("function handleRoadmapHintGotIt()"),
+      "hint dismissal must have its own handler"
+    );
+    const gotIt = nav.slice(nav.indexOf("function handleRoadmapHintGotIt()"));
+    assert.ok(gotIt.includes("setRoadmapHintOpen(false)"), "Got it must close the hint");
+    assert.ok(gotIt.includes("setRoadmapOpen(false)"), "Got it must close the roadmap");
+    assert.ok(
+      nav.includes("onGotIt={handleRoadmapHintGotIt}"),
+      "hint must be wired to the Got it handler"
+    );
+    // Topic clicks navigate quietly, no hint.
+    assert.ok(
+      nav.includes("function handleRoadmapNavigate()"),
+      "topic clicks must have their own handler"
+    );
+    assert.ok(
+      nav.includes("onNavigate={handleRoadmapNavigate}"),
+      "modal must be wired to the navigate handler"
     );
   });
 });

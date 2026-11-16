@@ -136,14 +136,44 @@ export function AppNavbar() {
     }
   }, [user]);
 
+  // Closing the roadmap: the hint is a one-time notice — it appears
+  // ONLY the first time the roadmap is closed, and it appears BEFORE
+  // the roadmap goes away (over the still-open modal), never after.
+  // Later closes just close the modal, no hint.
   function handleCloseRoadmap() {
+    // While the hint is up, the modal underneath must not react to
+    // Escape — the hint is dismissed with Got it (or its own Escape).
+    if (roadmapHintOpen) return;
+    let firstClose = false;
+    try {
+      firstClose = localStorage.getItem(ROADMAP_SEEN_KEY) !== "1";
+      localStorage.setItem(ROADMAP_SEEN_KEY, "1");
+    } catch {
+      // Ignore storage failures.
+    }
+    if (firstClose) {
+      setRoadmapHintOpen(true);
+    } else {
+      setRoadmapOpen(false);
+    }
+  }
+
+  // Dismissing the hint is what finally closes the roadmap (first
+  // close only). After this, the hint never appears again.
+  function handleRoadmapHintGotIt() {
+    setRoadmapHintOpen(false);
+    setRoadmapOpen(false);
+  }
+
+  // Picking a topic is a navigation, not a close: the modal goes
+  // away quietly and the hint never fires for it.
+  function handleRoadmapNavigate() {
     setRoadmapOpen(false);
     try {
       localStorage.setItem(ROADMAP_SEEN_KEY, "1");
     } catch {
       // Ignore storage failures.
     }
-    setRoadmapHintOpen(true);
   }
 
   useEffect(() => {
@@ -352,9 +382,12 @@ export function AppNavbar() {
       </nav>
 
       {/* Python roadmap: auto-shows once after first sign-in, and
-          reopens from the profile menu any time after that. */}
-      {roadmapOpen && <RoadmapModal onClose={handleCloseRoadmap} />}
-      {roadmapHintOpen && <RoadmapHint onGotIt={() => setRoadmapHintOpen(false)} />}
+          the hint appears only on the first close, over the still-open
+          modal — the modal goes away only when the hint is dismissed. */}
+      {roadmapOpen && (
+        <RoadmapModal onClose={handleCloseRoadmap} onNavigate={handleRoadmapNavigate} />
+      )}
+      {roadmapHintOpen && <RoadmapHint onGotIt={handleRoadmapHintGotIt} />}
     </>
   );
 }
