@@ -131,3 +131,37 @@ describe("elastic slider — one video control bar", () => {
     );
   });
 });
+
+describe("player page — no title card, button in the player footer, short scrollable list", () => {
+  test("the title card under the player is gone", () => {
+    const page = read("src/app/courses/[slug]/[collection]/page.tsx");
+    assert.ok(!page.includes("collectionTitle"), "the playlist/title card and its data must be gone");
+    assert.ok(!page.includes("text-lg font-semibold text-white"), "the card's big video title must be gone");
+    assert.ok(!page.includes("uppercase tracking-wider text-neutral-500"), "the card's playlist line must be gone");
+  });
+
+  test("the Mark Complete / Watched button moved into the player's footer row", () => {
+    const page = read("src/app/courses/[slug]/[collection]/page.tsx");
+    assert.ok(page.includes("const completionButton = ("), "the button must be one shared element");
+    assert.ok(page.includes("Watched"), "the button must still show the watched %");
+    assert.ok(page.includes("Math.round(activeCoverage.fraction * 100)"), "the watched % must come from coverage");
+    assert.ok(page.includes("Mark Complete"), "the button must still offer Mark Complete");
+    assert.ok(page.includes("completionButton={completionButton}"), "MEGA videos must get the button in the player footer");
+    assert.ok(page.includes("{completionButton}</div>"), "YouTube videos must get the button in their footer row");
+    const player = read("src/components/VideoPlayer.tsx");
+    assert.ok(player.includes("completionButton?: ReactNode"), "VideoPlayer must accept the button as a slot");
+    const slotAt = player.indexOf("{completionButton}");
+    assert.ok(
+      slotAt > 0 && player.indexOf("Save Offline", slotAt) > slotAt,
+      "the button must sit in the footer before Save Offline"
+    );
+  });
+
+  test("the lesson list shows exactly 4 rows and scrolls inside itself", () => {
+    const page = read("src/app/courses/[slug]/[collection]/page.tsx");
+    assert.ok(page.includes("maxHeight={268}"), "the list must fit exactly 4 rows (tiles + its own padding)");
+    assert.ok(page.includes("showGradients={false}"), "the bottom fade must not dim the 4th row");
+    assert.ok(!page.includes("maxHeight={480}"), "the old 7-row list must be gone");
+    assert.ok(!page.includes("maxHeight={320}"), "no half-cut 5th row may peek in");
+  });
+});

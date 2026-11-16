@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Check, Download, HardDrive, Loader2, Maximize, Minimize, Pause, Play, Trash2, Volume2, VolumeX, Wifi, WifiOff } from "lucide-react";
 import ElasticSlider from "@/components/ElasticSlider";
 import { WATCH_QUALIFY_FRACTION } from "@/lib/progress";
@@ -47,9 +47,12 @@ interface VideoPlayerProps {
   title: string;
   onWatchCoverage?: (fraction: number, coveredSeconds: number) => void;
   onLessonQualified?: (coveredSeconds: number) => void;
+  // The page's Mark Complete / Watched % button, rendered in the
+  // footer next to Save Offline (the page owns the completion logic).
+  completionButton?: ReactNode;
 }
 
-export function VideoPlayer({ lessonId, title, onWatchCoverage, onLessonQualified }: VideoPlayerProps) {
+export function VideoPlayer({ lessonId, title, onWatchCoverage, onLessonQualified, completionButton }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [src, setSrc] = useState<string>(`/api/video/${lessonId}`);
   const [isSavedOffline, setIsSavedOffline] = useState(false);
@@ -536,6 +539,7 @@ export function VideoPlayer({ lessonId, title, onWatchCoverage, onLessonQualifie
         </div>
 
         <div className="flex items-center gap-2">
+          {completionButton}
           {isSavedOffline ? (
             <>
               <span className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white">

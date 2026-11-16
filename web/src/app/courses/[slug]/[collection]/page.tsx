@@ -153,9 +153,6 @@ export default function CoursePlayerPage({
     return null;
   }
 
-  const collectionTitle = isOneShots
-    ? "One-shot videos on Python"
-    : (playlist?.title ?? "");
   const videos: CourseVideo[] = isOneShots ? creator.oneShots : (playlist?.videos ?? []);
   const activeVideo = videos[Math.min(activeIndex, Math.max(0, videos.length - 1))];
   if (!activeVideo) {
@@ -198,6 +195,42 @@ export default function CoursePlayerPage({
   // button is manual (always enabled); MEGA videos need 95% watched.
   const isYouTube = !activeVideo.megaLessonId;
 
+  // The Mark Complete / Watched % button for the active video. It used
+  // to live in a title card under the player; that card made the page
+  // scroll, so the button now sits in the player's footer row (next to
+  // Save Offline for MEGA videos, in the same row under the YouTube
+  // embed otherwise).
+  const completionButton = (
+    <button
+      type="button"
+      onClick={() =>
+        qualifyVideo(completionId(activeVideo), activeCoverage.seconds)
+      }
+      disabled={
+        !isDone &&
+        !isYouTube &&
+        activeCoverage.fraction < WATCH_QUALIFY_FRACTION
+      }
+      className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-neutral-800 transition disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-neutral-900"
+    >
+      {isDone ? (
+        <>
+          <CheckCircle2 className="h-4 w-4 text-white" /> Completed
+        </>
+      ) : isYouTube ||
+        activeCoverage.fraction >= WATCH_QUALIFY_FRACTION ? (
+        <>
+          <Circle className="h-4 w-4 text-neutral-400" /> Mark Complete
+        </>
+      ) : (
+        <>
+          <Circle className="h-4 w-4 text-neutral-400" /> Watched{" "}
+          {Math.round(activeCoverage.fraction * 100)}%
+        </>
+      )}
+    </button>
+  );
+
   // The video list, as React Bits AnimatedList entries — same rows as
   // before (Play icon, title, duration, status), now springing into
   // view with a gliding selection ring.
@@ -234,6 +267,7 @@ export default function CoursePlayerPage({
                   setActiveCoverage({ fraction, seconds })
                 }
                 onLessonQualified={handleVideoQualified}
+                completionButton={completionButton}
               />
             ) : (
               // No MEGA/Drive link yet: play from YouTube for now.
@@ -252,59 +286,19 @@ export default function CoursePlayerPage({
                     className="h-full w-full"
                   />
                 </div>
-                <div className="border-t border-neutral-800 px-4 py-3">
-                  <h2 className="truncate text-sm font-medium text-white">
-                    {activeVideo.title}
-                  </h2>
-                  <p className="mt-0.5 text-xs text-neutral-400">
-                    Playing from YouTube — MEGA link coming soon
-                  </p>
+                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-800 px-4 py-3">
+                  <div className="min-w-0">
+                    <h2 className="truncate text-sm font-medium text-white">
+                      {activeVideo.title}
+                    </h2>
+                    <p className="mt-0.5 text-xs text-neutral-400">
+                      Playing from YouTube — MEGA link coming soon
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">{completionButton}</div>
                 </div>
               </div>
             )}
-
-            <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-xs uppercase tracking-wider text-neutral-500">
-                    {creator.name} • {collectionTitle}
-                  </p>
-                  <h1 className="mt-1 text-lg font-semibold text-white">
-                    {activeVideo.title}
-                  </h1>
-                </div>
-                <div className="flex shrink-0">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      qualifyVideo(completionId(activeVideo), activeCoverage.seconds)
-                    }
-                    disabled={
-                      !isDone &&
-                      !isYouTube &&
-                      activeCoverage.fraction < WATCH_QUALIFY_FRACTION
-                    }
-                    className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-neutral-800 transition disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-neutral-900"
-                  >
-                    {isDone ? (
-                      <>
-                        <CheckCircle2 className="h-4 w-4 text-white" /> Completed
-                      </>
-                    ) : isYouTube ||
-                      activeCoverage.fraction >= WATCH_QUALIFY_FRACTION ? (
-                      <>
-                        <Circle className="h-4 w-4 text-neutral-400" /> Mark Complete
-                      </>
-                    ) : (
-                      <>
-                        <Circle className="h-4 w-4 text-neutral-400" /> Watched{" "}
-                        {Math.round(activeCoverage.fraction * 100)}%
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
           </section>
 
           {/* Right: Daily Goal Card & Lessons List */}
@@ -354,7 +348,13 @@ export default function CoursePlayerPage({
                   }}
                   frame={false}
                   width="100%"
-                  maxHeight={480}
+                  // Exactly 4 rows visible: 4 tiles + 3 gaps (256px) +
+                  // the list's own 6px top/bottom padding (12px).
+                  // Gradients off — with only 4 rows the bottom fade
+                  // would dim the 4th row and make it look cut off;
+                  // the scrollbar still shows there's more below.
+                  maxHeight={268}
+                  showGradients={false}
                   radius={12}
                   gap={8}
                   theme={theme}
