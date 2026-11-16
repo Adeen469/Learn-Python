@@ -97,15 +97,15 @@ export default function SettingsPage() {
             />
           </div>
         </div>
-        <div className="mt-2 flex items-center justify-between gap-3 rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3">
+        <div className="mt-2 rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-4">
           <span className="flex items-center gap-2 text-sm text-neutral-300">
             <Flame className="h-4 w-4 text-white" />
             Streak
           </span>
-          <span className="flex items-center gap-1 text-sm font-medium text-white">
-            <Counter value={streak} fontSize={14} fontWeight={500} />
-            d streak
-          </span>
+          <div className="mt-1 flex items-end gap-2 text-white">
+            <Counter value={streak} fontSize={56} fontWeight={600} />
+            <span className="pb-2 text-sm text-neutral-400">day streak</span>
+          </div>
         </div>
 
         <h2 className="mb-3 mt-8 text-xs font-semibold uppercase tracking-wider text-neutral-500">

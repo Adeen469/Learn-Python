@@ -42,11 +42,14 @@ describe("react bits install", () => {
 });
 
 describe("counter — streaks", () => {
-  test("settings page shows the streak as an odometer counter", () => {
+  test("settings page shows the streak as a big odometer counter, like the React Bits demo", () => {
     const page = read("src/app/settings/page.tsx");
     assert.ok(page.includes('from "@/components/Counter"'), "page must import Counter");
     assert.ok(page.includes("<Counter value={streak}"), "streak must render through Counter");
-    assert.ok(page.includes("fontSize={14}"), "counter must match the row's text size");
+    assert.ok(page.includes("fontSize={56}"), "counter must be large and prominent like the demo, not row-sized");
+    assert.ok(page.includes("fontWeight={600}"), "counter must be semibold like the demo");
+    assert.ok(page.includes("day streak"), "counter must carry a day-streak label");
+    assert.ok(!page.includes("fontSize={14}"), "the old small inline counter must be gone");
     assert.ok(!page.includes("{streak}d streak"), "plain streak text must be gone");
   });
 });
