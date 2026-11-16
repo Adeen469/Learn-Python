@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { BookOpen, BookOpenText, Code2, Flame, Github, LogOut, Map, Target, User } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { BookOpenText, Code2, Flame, Github, LogOut, MonitorPlay, Target, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   fetchSessionUser,
@@ -18,23 +18,21 @@ import {
   wholeMinutes,
   type ProgressState,
 } from "@/lib/progress";
-import {
-  ACTIVE_LESSON_KEY,
-  LESSON_SELECT_EVENT,
-  ROADMAP_OPEN_EVENT,
-} from "@/lib/entered";
-import { Roadmap } from "@/components/Roadmap";
-import { dayNumberOf } from "@/lib/roadmap";
-import type { Lesson } from "@/lib/catalog";
+
+// Three items, everywhere: Learn (the W3Schools-style main page),
+// Video Courses (Harry / Apna College / Mosh), Code Editor.
+const navLinks = [
+  { href: "/learn/python-home", label: "Learn", icon: BookOpenText, match: "/learn" },
+  { href: "/courses", label: "Video Courses", icon: MonitorPlay, match: "/courses" },
+  { href: "/editor", label: "Code Editor", icon: Code2, match: "/editor" },
+];
 
 function ProfileMenuItems({
   user,
-  onOpenRoadmap,
   onSignOut,
   onClose,
 }: {
   user: SessionUser | null;
-  onOpenRoadmap: () => void;
   onSignOut: () => void;
   onClose: () => void;
 }) {
@@ -70,13 +68,6 @@ function ProfileMenuItems({
           Sign in with Google
         </a>
       )}
-      <button
-        type="button"
-        onClick={onOpenRoadmap}
-        className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-neutral-200 hover:bg-neutral-900 hover:text-white transition"
-      >
-        <Map className="h-4 w-4 text-neutral-400" /> Roadmap
-      </button>
       <Link
         href="/github"
         onClick={onClose}
@@ -99,10 +90,8 @@ function ProfileMenuItems({
 
 export function AppNavbar() {
   const pathname = usePathname();
-  const router = useRouter();
   const [progress, setProgress] = useState<ProgressState>(() => emptyProgress(todayKey()));
   const [profileOpen, setProfileOpen] = useState(false);
-  const [roadmapOpen, setRoadmapOpen] = useState(false);
   const [user, setUser] = useState<SessionUser | null>(null);
 
   useEffect(() => {
@@ -130,21 +119,10 @@ export function AppNavbar() {
     };
   }, []);
 
-  // The roadmap opens from the first-entry flow (home page) and from the
-  // profile dropdown — both go through this event.
-  useEffect(() => {
-    const open = () => setRoadmapOpen(true);
-    window.addEventListener(ROADMAP_OPEN_EVENT, open);
-    return () => window.removeEventListener(ROADMAP_OPEN_EVENT, open);
-  }, []);
-
-  // Escape closes the menu and the roadmap.
+  // Escape closes the menu.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setProfileOpen(false);
-        setRoadmapOpen(false);
-      }
+      if (e.key === "Escape") setProfileOpen(false);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -162,17 +140,6 @@ export function AppNavbar() {
     return () => document.removeEventListener("mousedown", onClick);
   }, [profileOpen]);
 
-  const navLinks = [
-    { href: "/tutorials", label: "Tutorials", icon: BookOpenText },
-    { href: "/", label: "Course", icon: BookOpen },
-    { href: "/editor", label: "Code Editor", icon: Code2 },
-  ];
-
-  function openRoadmap() {
-    setProfileOpen(false);
-    setRoadmapOpen(true);
-  }
-
   async function handleSignOut() {
     setProfileOpen(false);
     await signOut();
@@ -181,30 +148,12 @@ export function AppNavbar() {
     window.location.href = "/";
   }
 
-  function selectRoadmapLesson(lesson: Lesson) {
-    try {
-      localStorage.setItem(ACTIVE_LESSON_KEY, lesson.id);
-    } catch {
-      // Ignore.
-    }
-    setRoadmapOpen(false);
-    // Roadmap lessons open the text tutorial now — the tutorials are
-    // the main learning surface, with the video inside the lesson page.
-    const day = dayNumberOf(lesson);
-    if (day !== null) {
-      router.push(`/tutorials/${day}`);
-      return;
-    }
-    window.dispatchEvent(new CustomEvent(LESSON_SELECT_EVENT, { detail: lesson.id }));
-    if (pathname !== "/") router.push("/");
-  }
-
   const profileTriggerClass =
     "flex items-center justify-center rounded-full border border-neutral-800 bg-neutral-950 text-neutral-300 hover:text-white hover:border-neutral-600 transition";
 
   return (
     <>
-      {/* PC top bar: Course, Code Editor, profile dropdown top-right. */}
+      {/* PC top bar: Learn, Video Courses, Code Editor, profile dropdown top-right. */}
       <header className="sticky top-0 z-30 border-b border-neutral-800 bg-black/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-2.5">
           <div className="flex min-w-0 items-center gap-4 sm:gap-6">
@@ -223,8 +172,8 @@ export function AppNavbar() {
 
             {/* Nav links live here on PC only; mobile uses the bottom bar. */}
             <nav className="hidden items-center gap-1 md:flex">
-              {navLinks.map(({ href, label, icon: Icon }) => {
-                const active = pathname === href;
+              {navLinks.map(({ href, label, icon: Icon, match }) => {
+                const active = pathname === href || pathname.startsWith(match + "/");
                 return (
                   <Link
                     key={href}
@@ -289,7 +238,6 @@ export function AppNavbar() {
                 <div className="absolute right-0 top-full z-40 mt-2 w-52 rounded-xl border border-neutral-800 bg-neutral-950 shadow-xl">
                   <ProfileMenuItems
                     user={user}
-                    onOpenRoadmap={openRoadmap}
                     onSignOut={handleSignOut}
                     onClose={() => setProfileOpen(false)}
                   />
@@ -302,9 +250,9 @@ export function AppNavbar() {
 
       {/* Mobile bottom nav bar (website or APK): same items as the PC bar. */}
       <nav className="fixed bottom-0 left-0 right-0 z-30 border-t border-neutral-800 bg-black/95 backdrop-blur md:hidden">
-        <div className="grid grid-cols-3">
-          {navLinks.map(({ href, label, icon: Icon }) => {
-            const active = pathname === href;
+        <div className="grid grid-cols-4">
+          {navLinks.map(({ href, label, icon: Icon, match }) => {
+            const active = pathname === href || pathname.startsWith(match + "/");
             return (
               <Link
                 key={href}
@@ -350,7 +298,6 @@ export function AppNavbar() {
               <div className="absolute bottom-full right-2 z-40 mb-2 w-52 rounded-xl border border-neutral-800 bg-neutral-950 shadow-xl">
                 <ProfileMenuItems
                   user={user}
-                  onOpenRoadmap={openRoadmap}
                   onSignOut={handleSignOut}
                   onClose={() => setProfileOpen(false)}
                 />
@@ -359,10 +306,6 @@ export function AppNavbar() {
           </div>
         </div>
       </nav>
-
-      {roadmapOpen && (
-        <Roadmap onClose={() => setRoadmapOpen(false)} onSelectLesson={selectRoadmapLesson} />
-      )}
     </>
   );
 }
