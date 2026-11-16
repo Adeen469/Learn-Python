@@ -21,7 +21,10 @@ const csp = [
   "connect-src 'self' https://cdn.jsdelivr.net https://pypi.org https://files.pythonhosted.org",
   "worker-src 'self' blob:",
   "media-src 'self' blob:",
-  "frame-src 'none'",
+  // youtube-nocookie embeds the course videos that don't have a
+  // MEGA/Drive link yet (temporary fallback — Maalik replaces them
+  // with MEGA/Drive links when he has them).
+  "frame-src https://www.youtube-nocookie.com https://www.youtube.com",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",

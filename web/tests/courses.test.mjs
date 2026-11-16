@@ -92,9 +92,32 @@ test("creator and player routes exist and use the MEGA player", () => {
   const player = read(playerPath);
   assert.ok(player.includes("VideoPlayer"), "player must use the VideoPlayer");
   assert.ok(player.includes("megaLessonId"), "player must stream via the MEGA lesson id");
-  assert.ok(player.includes("Video coming soon"), "player must have a coming-soon state");
+  assert.ok(
+    player.includes("youtube-nocookie.com/embed/"),
+    "player must embed YouTube for videos with no MEGA link yet"
+  );
+  assert.ok(
+    player.includes("Playing from YouTube"),
+    "player must label the YouTube fallback"
+  );
   assert.ok(player.includes("Today&apos;s Progress"), "player must keep Today's Progress");
   assert.ok(player.includes("Course Lessons"), "player must keep the lessons list");
+});
+
+test("video lengths read h:m:s once past an hour, m:ss below", () => {
+  const player = read(playerPath);
+  assert.ok(
+    player.includes('if (h > 0) return `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`'),
+    "formatDuration must use h:m:s for videos >= 1h (not 374:07)"
+  );
+});
+
+test("CSP allows YouTube embeds (frame-src)", () => {
+  const config = read(join(webDir, "next.config.ts"));
+  assert.ok(
+    config.includes("frame-src https://www.youtube-nocookie.com"),
+    "CSP frame-src must allow the YouTube nocookie embed"
+  );
 });
 
 test("video route allows the full Hobby duration for slow streams", () => {

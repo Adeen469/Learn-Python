@@ -27,9 +27,14 @@ import {
 
 function formatDuration(totalSeconds?: number): string {
   if (totalSeconds === undefined) return "";
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = Math.round(totalSeconds % 60);
-  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = Math.round(totalSeconds % 60);
+  // Video lengths read h:m:s once they pass an hour (6:14:07, not
+  // 374:07); shorter ones stay m:ss (11:50). Totals elsewhere read
+  // "nh nm" (17h 57m).
+  if (h > 0) return `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  return `${m}:${String(s).padStart(2, "0")}`;
 }
 
 /**
@@ -152,6 +157,9 @@ export default function CoursePlayerPage({
 
   const goalPct = progressPercent(progress);
   const isDone = completedIds.includes(completionId(activeVideo));
+  // YouTube videos can't report watch coverage, so their Mark Complete
+  // button is manual (always enabled); MEGA videos need 95% watched.
+  const isYouTube = !activeVideo.megaLessonId;
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col pb-20 md:pb-0">
@@ -177,12 +185,30 @@ export default function CoursePlayerPage({
                 onLessonQualified={handleVideoQualified}
               />
             ) : (
-              <div className="flex aspect-video w-full flex-col items-center justify-center rounded-xl border border-neutral-800 bg-neutral-950 px-6 text-center">
-                <p className="text-sm font-medium text-white">Video coming soon</p>
-                <p className="mt-1.5 max-w-sm text-xs leading-relaxed text-neutral-400">
-                  This video hasn&apos;t been added to MEGA yet. Check back soon — more
-                  videos are added regularly.
-                </p>
+              // No MEGA/Drive link yet: play from YouTube for now.
+              // Maalik will replace these with MEGA/Drive links when
+              // he has them (then megaLessonId is set and the
+              // VideoPlayer above takes over). Watch time can't be
+              // measured inside the embed, so Mark Complete below is
+              // manual for these videos.
+              <div className="overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950">
+                <div className="aspect-video w-full bg-black">
+                  <iframe
+                    src={`https://www.youtube-nocookie.com/embed/${activeVideo.videoId}`}
+                    title={activeVideo.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className="h-full w-full"
+                  />
+                </div>
+                <div className="border-t border-neutral-800 px-4 py-3">
+                  <h2 className="truncate text-sm font-medium text-white">
+                    {activeVideo.title}
+                  </h2>
+                  <p className="mt-0.5 text-xs text-neutral-400">
+                    Playing from YouTube — MEGA link coming soon
+                  </p>
+                </div>
               </div>
             )}
 
@@ -203,7 +229,9 @@ export default function CoursePlayerPage({
                       qualifyVideo(completionId(activeVideo), activeCoverage.seconds)
                     }
                     disabled={
-                      !isDone && activeCoverage.fraction < WATCH_QUALIFY_FRACTION
+                      !isDone &&
+                      !isYouTube &&
+                      activeCoverage.fraction < WATCH_QUALIFY_FRACTION
                     }
                     className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-neutral-800 transition disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-neutral-900"
                   >
@@ -211,7 +239,8 @@ export default function CoursePlayerPage({
                       <>
                         <CheckCircle2 className="h-4 w-4 text-white" /> Completed
                       </>
-                    ) : activeCoverage.fraction >= WATCH_QUALIFY_FRACTION ? (
+                    ) : isYouTube ||
+                      activeCoverage.fraction >= WATCH_QUALIFY_FRACTION ? (
                       <>
                         <Circle className="h-4 w-4 text-neutral-400" /> Mark Complete
                       </>

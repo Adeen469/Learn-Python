@@ -6,9 +6,10 @@
 // One-shots that also sit inside a playlist are listed once,
 // under the playlist. Channel PFPs + subscriber counts were read
 // from each channel's own YouTube page on 2026-11-16.
-// Videos play from MEGA/Drive, never YouTube: a video with a
-// megaLessonId streams through /api/video/[lessonId]; the rest
-// wait for Maalik's MEGA/Drive links. Mosh's playlist dump also contained one
+// Videos play from MEGA/Drive, never YouTube — except as a temporary
+// fallback: a video with no megaLessonId plays from its YouTube embed
+// until Maalik supplies a MEGA/Drive link for it, then the link is
+// replaced (megaLessonId set) and the MEGA player takes over. Mosh's playlist dump also contained one
 // non-Python video ("The 3 MOST IMPORTANT JAZZ SCALES…") —
 // excluded, it does not belong in a Python course list.
 

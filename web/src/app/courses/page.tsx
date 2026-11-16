@@ -117,7 +117,7 @@ export default function CoursesPage() {
             live on the Learn page.
           </p>
           <p className="mt-2 text-xs text-neutral-500">
-            {totalCourseVideos()} videos • Plays from MEGA &amp; Drive
+            {totalCourseVideos()} videos • MEGA &amp; Drive, YouTube for now
           </p>
         </header>
 
