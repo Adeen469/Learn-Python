@@ -93,12 +93,14 @@ export function ModulesPanel({ pyodideRef, ensurePyodide }: ModulesPanelProps) {
   // Elapsed-time ticker for the progress bars: the user kept asking
   // "5 min hogaye?" because nothing showed how long an install had
   // been running. Ticks once a second while any install is active.
-  const [installStartedAt, setInstallStartedAt] = useState<number | null>(null);
+  // Per package, not shared: a shared start time survived a crashed
+  // install and made the NEXT attempt show 1193s at once (2026-11-16).
+  const [installStartedAt, setInstallStartedAt] = useState<Record<string, number>>({});
   const [now, setNow] = useState(() => Date.now());
   const anyInstalling = Object.values(installingMap).some(Boolean);
   useEffect(() => {
     if (!anyInstalling) {
-      setInstallStartedAt(null);
+      setInstallStartedAt({});
       return;
     }
     const t = window.setInterval(() => setNow(Date.now()), 1000);
@@ -137,7 +139,7 @@ export function ModulesPanel({ pyodideRef, ensurePyodide }: ModulesPanelProps) {
     // (installingMap) now covers the whole ensure + install flow, and
     // repeat clicks are blocked while it runs.
     setInstallingMap((prev) => ({ ...prev, [clean]: true }));
-    setInstallStartedAt((prev) => prev ?? Date.now());
+    setInstallStartedAt((prev) => ({ ...prev, [clean]: Date.now() }));
     // A new install replaces any finished (100%) bars, keeping the
     // card to the installs actually running.
     setInstallProgress((prev) => {
@@ -155,32 +157,42 @@ export function ModulesPanel({ pyodideRef, ensurePyodide }: ModulesPanelProps) {
       addLog("Starting Python runtime — one-time download (~15 MB), please wait…");
       // The init reports each step (which CDN, timeouts, success) so
       // the bar shows WHERE a slow load is stuck instead of a frozen
-      // "Starting Python runtime…" at 10%.
-      const ready = await ensurePyodide((stage) => {
-        const pct = stage.startsWith("Downloading runtime")
-          ? 15
-          : stage.includes("timed out") || stage.includes("trying the next CDN")
-            ? 20
-            : stage === "Loading micropip…"
-              ? 25
-              : stage === "Python runtime ready" || stage.startsWith("Runtime loaded")
-                ? 30
-                : 10;
-        setInstallProgress((prev) => ({
-          ...prev,
-          [clean]: { stage, pct },
-        }));
-        if (
-          stage.includes("timed out") ||
-          stage.startsWith("Runtime loaded") ||
-          stage.includes("did not load")
-        ) {
-          addLog(stage);
-        }
-      });
+      // "Starting Python runtime…" at 10%. Never let ensurePyodide
+      // throw out of here: a joining install used to crash when the
+      // shared init failed, leaving its button stuck on
+      // "Installing…" with a frozen bar and a polluted timer.
+      let ready = false;
+      let ensureError: string | null = null;
+      try {
+        ready = await ensurePyodide((stage) => {
+          const pct = stage.startsWith("Downloading runtime")
+            ? 15
+            : stage.includes("timed out") || stage.includes("trying the next CDN")
+              ? 20
+              : stage === "Loading micropip…"
+                ? 25
+                : stage === "Python runtime ready" || stage.startsWith("Runtime loaded")
+                  ? 30
+                  : 10;
+          setInstallProgress((prev) => ({
+            ...prev,
+            [clean]: { stage, pct },
+          }));
+          if (
+            stage.includes("timed out") ||
+            stage.startsWith("Runtime loaded") ||
+            stage.includes("did not load")
+          ) {
+            addLog(stage);
+          }
+        });
+      } catch (err) {
+        ensureError = err instanceof Error ? err.message : String(err);
+      }
       if (!ready) {
-        const msg =
-          "Python environment could not start (the Pyodide script did not load). Check your connection and try again — the Install button will retry.";
+        const msg = ensureError
+          ? `Python environment could not start: ${ensureError}`
+          : "Python environment could not start (the Pyodide script did not load). Check your connection and try again — the Install button will retry.";
         addLog(msg);
         setLastError(msg);
         setInstallProgress((prev) => {
@@ -189,6 +201,11 @@ export function ModulesPanel({ pyodideRef, ensurePyodide }: ModulesPanelProps) {
           return next;
         });
         setInstallingMap((prev) => ({ ...prev, [clean]: false }));
+        setInstallStartedAt((prev) => {
+          const next = { ...prev };
+          delete next[clean];
+          return next;
+        });
         return;
       }
       setInstallProgress((prev) => ({
@@ -225,6 +242,11 @@ export function ModulesPanel({ pyodideRef, ensurePyodide }: ModulesPanelProps) {
       setLastError(result.error);
     }
     setInstallingMap((prev) => ({ ...prev, [clean]: false }));
+    setInstallStartedAt((prev) => {
+      const next = { ...prev };
+      delete next[clean];
+      return next;
+    });
   }
 
   function uninstallPackage(pkgName: string) {
@@ -633,8 +655,8 @@ if '${pkgName}' in sys.modules:
             <div className="flex justify-between text-[11px] font-mono text-neutral-300 mb-1">
               <span>
                 {pkg} — {progress.stage}
-                {installingMap[pkg] && installStartedAt
-                  ? ` · ${Math.max(0, Math.floor((now - installStartedAt) / 1000))}s`
+                {installingMap[pkg] && installStartedAt[pkg]
+                  ? ` · ${Math.max(0, Math.floor((now - installStartedAt[pkg]) / 1000))}s`
                   : ""}
               </span>
               <span>{progress.pct}%</span>

@@ -450,3 +450,60 @@ test("runtime reports each CDN stage while falling back", async () => {
     unstubDom();
   }
 });
+
+// --- shared-init single-flight mirror (editor/page.tsx initPyodide) ---
+// The creator AND any joiner must both get null (never a throw) when
+// the shared init fails — a throw used to crash the joining install
+// and freeze its button on "Installing…" with a stuck bar forever
+// (scikit-image, 2026-11-16: the 12:10 init failed, the joiner
+// crashed, its bar stayed at "unpkg timed out after 60s · 1193s").
+
+function makeSharedInitMirror(loadFn) {
+  let promise = null;
+  async function init(onStage) {
+    if (promise) {
+      try {
+        return await promise;
+      } catch {
+        return null;
+      }
+    }
+    promise = (async () => loadFn(onStage))();
+    try {
+      return await promise;
+    } catch {
+      promise = null;
+      return null;
+    }
+  }
+  return init;
+}
+
+test("joining init caller gets null (not a throw) when the shared init fails", async () => {
+  let calls = 0;
+  const init = makeSharedInitMirror(async () => {
+    calls += 1;
+    await new Promise((r) => setTimeout(r, 10));
+    throw new Error("runtime load failed");
+  });
+  const [creator, joiner] = await Promise.all([init(), init()]);
+  assert.equal(creator, null);
+  assert.equal(joiner, null);
+  assert.equal(calls, 1);
+  // A later attempt retries instead of reusing the failed promise.
+  assert.equal(await init(), null);
+  assert.equal(calls, 2);
+});
+
+test("creator and joiner share one successful init", async () => {
+  let calls = 0;
+  const init = makeSharedInitMirror(async () => {
+    calls += 1;
+    await new Promise((r) => setTimeout(r, 10));
+    return { ready: true };
+  });
+  const [creator, joiner] = await Promise.all([init(), init()]);
+  assert.deepEqual(creator, { ready: true });
+  assert.deepEqual(joiner, { ready: true });
+  assert.equal(calls, 1);
+});

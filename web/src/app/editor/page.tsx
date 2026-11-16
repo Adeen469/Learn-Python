@@ -263,6 +263,14 @@ export default function CodeEditorPage() {
     if (pyodideInitPromiseRef.current) {
       try {
         return await pyodideInitPromiseRef.current;
+      } catch {
+        // The shared init failed: a joiner must get null (not a
+        // throw), or its install crashes mid-flow and leaves its
+        // button stuck on "Installing…" with a frozen bar forever —
+        // exactly what happened to scikit-image on 2026-11-16, when
+        // the 12:10 init failed and the joining install never
+        // cleaned up.
+        return null;
       } finally {
         if (onStage) initStageListenersRef.current.delete(onStage);
       }
