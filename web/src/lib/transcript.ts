@@ -19,6 +19,147 @@ export interface Transcript {
   language: string;
   /** True when the text was capped at TRANSCRIPT_MAX_CHARS. */
   truncated: boolean;
+  /** True when text lines carry [mm:ss] timestamps into the video. */
+  hasTimestamps: boolean;
+}
+
+/** One caption event: when it starts in the video, and what was said. */
+export interface TranscriptSegment {
+  startMs: number;
+  text: string;
+}
+
+/** Parse a timedtext json3 body into timed segments (keeps tStartMs). */
+export function parseTimedtextJson3Segments(
+  body: unknown
+): TranscriptSegment[] | null {
+  try {
+    const events = (body as { events?: unknown })?.events;
+    if (!Array.isArray(events)) return null;
+    const segments: TranscriptSegment[] = [];
+    for (const e of events) {
+      if (typeof (e as { tStartMs?: unknown })?.tStartMs !== "number") continue;
+      const text = (
+        (Array.isArray((e as { segs?: unknown })?.segs)
+          ? ((e as { segs: unknown[] }).segs as unknown[])
+          : []) as Array<{ utf8?: unknown }>
+      )
+        .map((s) => (typeof s?.utf8 === "string" ? s.utf8 : ""))
+        .join("")
+        .replace(/<[^>]*>/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+      if (text) segments.push({ startMs: (e as { tStartMs: number }).tStartMs, text });
+    }
+    return segments.length > 0 ? segments : null;
+  } catch {
+    return null;
+  }
+}
+
+/** "mm:ss" for a millisecond offset into the video. */
+export function formatTranscriptTime(ms: number): string {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return `${m}:${String(s).padStart(2, "0")}`;
+}
+
+/**
+ * One "[mm:ss] text" line per caption event. Events that start in the
+ * same second are merged, so the model sees a clean timeline it can
+ * cite — "[04:12] ..." means "Harry says this 4 minutes 12 seconds
+ * into the video".
+ */
+export function formatTimestampedTranscript(
+  segments: TranscriptSegment[]
+): string {
+  const lines: string[] = [];
+  let currentTime = "";
+  let currentText = "";
+  const flush = () => {
+    if (currentText) lines.push(`[${currentTime}] ${currentText}`);
+  };
+  for (const seg of segments) {
+    const t = formatTranscriptTime(seg.startMs);
+    if (t === currentTime) {
+      currentText += ` ${seg.text}`;
+    } else {
+      flush();
+      currentTime = t;
+      currentText = seg.text;
+    }
+  }
+  flush();
+  return lines.join("\n");
+}
+
+// Words ignored when matching a question to transcript lines. Note:
+// "for" is deliberately NOT a stopword — "for loop" is one of the
+// most-asked topics in this course, and dropping it would break
+// windowing for exactly those questions.
+const WINDOW_STOPWORDS = new Set([
+  "what", "how", "why", "when", "which", "does", "mean", "means", "tell",
+  "about", "this", "that", "with", "from", "your", "you", "the", "and",
+  "are", "was", "were", "can", "could", "should", "would", "please",
+  "kya", "kaise", "kyu", "kyun", "hai", "hain", "mein", "main", "ko", "ka",
+  "ki", "se", "aur", "ye", "yeh", "woh", "batao", "bataiye", "samjhao",
+  "samajh", "nahi", "karo", "karna", "lesson", "video", "harry", "sir",
+]);
+
+/** Distinct content words from the learner's question. */
+export function questionKeywords(question: string): string[] {
+  const words = question
+    .toLowerCase()
+    .split(/[^a-z0-9_]+/)
+    .filter((w) => w.length >= 2 && !WINDOW_STOPWORDS.has(w));
+  return [...new Set(words)];
+}
+
+/**
+ * Pick the transcript window that actually answers the question.
+ * Long videos are longer than the model's transcript budget, so
+ * sending the first 12,000 characters would cut off everything the
+ * learner asked about when it comes late in the video. Instead:
+ * score every timestamped line by how many of the question's words
+ * it contains, keep the best lines plus one line of context on each
+ * side, always keep the opening lines (what the lesson is about),
+ * and return them in video order, capped at maxChars. No keyword
+ * hits at all → fall back to the head of the transcript.
+ */
+export function selectTranscriptWindow(
+  text: string,
+  question: string,
+  maxChars: number = TRANSCRIPT_MAX_CHARS
+): { text: string; truncated: boolean } {
+  if (text.length <= maxChars) return { text, truncated: false };
+  const lines = text.split("\n").filter((l) => l.trim().length > 0);
+  const keywords = questionKeywords(question);
+  const picked = new Set<number>();
+  for (let i = 0; i < Math.min(3, lines.length); i++) picked.add(i);
+  const ranked = lines
+    .map((line, i) => ({
+      i,
+      score: keywords.reduce(
+        (a, kw) => a + (line.toLowerCase().includes(kw) ? 1 : 0),
+        0
+      ),
+    }))
+    .filter((s) => s.score > 0)
+    .sort((a, b) => b.score - a.score || a.i - b.i);
+  for (const { i } of ranked) {
+    picked.add(i);
+    if (i > 0) picked.add(i - 1);
+    if (i + 1 < lines.length) picked.add(i + 1);
+  }
+  if (picked.size <= 3) return truncateTranscript(text);
+  const ordered = [...picked].sort((a, b) => a - b);
+  let out = "";
+  for (const i of ordered) {
+    if (out && out.length + 1 + lines[i].length > maxChars) break;
+    out += (out ? "\n" : "") + lines[i];
+  }
+  return { text: out, truncated: true };
 }
 
 /** Max transcript characters sent to the model (one named constant). */
@@ -337,8 +478,8 @@ async function fetchTranscriptUncached(
   url.searchParams.set("fmt", "json3");
   const timed = await fetchJson(fetchImpl, url.toString(), {}, signal);
   if (!timed) return null;
-  const text = parseTimedtextJson3(timed);
-  if (!text) return null;
+  const segments = parseTimedtextJson3Segments(timed);
+  if (!segments) return null;
   // The tutor works in Hinglish (Roman script). If the captions came
   // back in Devanagari, transliterate them — the model reads the
   // Roman text the same way the learner writes it. A hi-Latn track
@@ -347,16 +488,21 @@ async function fetchTranscriptUncached(
   // text is kept instead — the model reads it fine, and a transcript
   // is better than none.
   let language = track.languageCode;
-  let finalText = text;
-  if (containsDevanagari(text)) {
-    const roman = transliterateDevanagariToLatin(text);
-    if (roman.trim()) {
-      finalText = roman;
+  let finalSegments = segments;
+  if (segments.some((s) => containsDevanagari(s.text))) {
+    const roman = segments.map((s) => ({
+      startMs: s.startMs,
+      text: transliterateDevanagariToLatin(s.text),
+    }));
+    if (roman.some((s) => s.text.trim())) {
+      finalSegments = roman;
       language = "hi-Latn";
     }
   }
-  const capped = truncateTranscript(finalText);
-  return { text: capped.text, language, truncated: capped.truncated };
+  // Timestamps stay on: the tutor cites [mm:ss] moments from the
+  // video, and the route windows long transcripts to the question.
+  const capped = truncateTranscript(formatTimestampedTranscript(finalSegments));
+  return { text: capped.text, language, truncated: capped.truncated, hasTimestamps: true };
 }
 
 /**

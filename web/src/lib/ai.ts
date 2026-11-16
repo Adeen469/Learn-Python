@@ -52,6 +52,15 @@ export const MAX_HISTORY_CHARS = 2000;
 export const MAX_OUTPUT_TOKENS = 600;
 export const AI_TEMPERATURE = 0.7;
 
+/**
+ * Grounded answers must be steady, not creative: tutor and quiz read
+ * the video transcript, so they run cool (0.3). Explain/debug are
+ * about the learner's own code, where a warmer 0.7 is fine.
+ */
+export function temperatureForMode(mode: AiMode): number {
+  return mode === "tutor" || mode === "quiz" ? 0.3 : AI_TEMPERATURE;
+}
+
 export const AI_MODES: AiMode[] = ["tutor", "explain", "debug", "quiz"];
 
 // ---------------------------------------------------------------------------
@@ -171,8 +180,8 @@ function lessonContext(
   const base = `Current lesson: "${lesson.title}" (${lesson.courseTitle} — ${lesson.moduleTitle}).\nLesson notes: ${lesson.notes || "none"}`;
   if (!transcript) return base;
   const label = transcript.truncated
-    ? "Lesson video transcript (excerpt — the full video is longer)"
-    : "Lesson video transcript";
+    ? "Lesson video transcript (relevant excerpt for this question — timestamps are [mm:ss] into the video)"
+    : "Lesson video transcript (timestamps are [mm:ss] into the video)";
   return `${base}\n${label} (${transcript.language}):\n${transcript.text}`;
 }
 
@@ -194,7 +203,7 @@ Rules you must follow:
 - NEVER invent lesson content. If you don't know something, say so and suggest where to check (the lesson video or the Python docs).`;
   switch (mode) {
     case "tutor":
-      return `${base}\n\nThe learner has a doubt about the current lesson. Answer it directly, grounded in the lesson video transcript above when one is present (otherwise the lesson title/notes), with a tiny example if it helps.`;
+      return `${base}\n\nThe learner has a doubt about the current lesson. Answer it from the lesson video transcript above — that transcript is what Harry actually taught in this video, and it is your source of truth for this lesson. Whenever you state something the video taught, cite the moment it was said, like [04:12], so the learner can jump to that part of the video. If the transcript does not cover the question, say so plainly first — "Is video me ye nahi bataya gaya" — and only then give a short general Python answer, clearly marked as general knowledge and not from the video. Never present general knowledge as if Harry taught it in the video.`;
     case "explain":
       return `${base}\n\nThe learner pasted code from the editor. Explain what the code does, line by line where it matters, in plain words. Keep it short.`;
     case "debug":
@@ -365,7 +374,7 @@ export async function callGemini(
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ role: "user", parts: [{ text: buildGeminiPrompt(args) }] }],
-          generationConfig: { temperature: AI_TEMPERATURE, maxOutputTokens: MAX_OUTPUT_TOKENS },
+          generationConfig: { temperature: temperatureForMode(args.mode), maxOutputTokens: MAX_OUTPUT_TOKENS },
         }),
       },
       GEMINI_TIMEOUT_MS
@@ -403,7 +412,7 @@ export async function callGroq(
           body: JSON.stringify({
             model,
             messages: buildGroqMessages(args),
-            temperature: AI_TEMPERATURE,
+            temperature: temperatureForMode(args.mode),
             max_tokens: MAX_OUTPUT_TOKENS,
           }),
         },

@@ -76,14 +76,18 @@ function sanitizeHistory(history) {
     .map((h) => ({ role: h.role, text: h.text.trim().slice(0, MAX_HISTORY_CHARS) }));
 }
 
+function temperatureForMode(mode) {
+  return mode === "tutor" || mode === "quiz" ? 0.3 : 0.7;
+}
+
 function buildAiSystemPrompt(mode, lesson, transcript) {
   let context = lesson
     ? `Current lesson: "${lesson.title}" (${lesson.courseTitle} — ${lesson.moduleTitle}).\nLesson notes: ${lesson.notes || "none"}`
     : "";
   if (lesson && transcript) {
     const label = transcript.truncated
-      ? "Lesson video transcript (excerpt — the full video is longer)"
-      : "Lesson video transcript";
+      ? "Lesson video transcript (relevant excerpt for this question — timestamps are [mm:ss] into the video)"
+      : "Lesson video transcript (timestamps are [mm:ss] into the video)";
     context += `\n${label} (${transcript.language}):\n${transcript.text}`;
   }
   const base = `You are the AI tutor for LP — Learn Python, a free Python course (CodeWithHarry's 100-day Python for Beginners course in Hindi). The learner is working through the lessons and the code editor.
@@ -98,7 +102,7 @@ Rules you must follow:
 - NEVER invent lesson content. If you don't know something, say so and suggest where to check (the lesson video or the Python docs).`;
   switch (mode) {
     case "tutor":
-      return `${base}\n\nThe learner has a doubt about the current lesson. Answer it directly, grounded in the lesson video transcript above when one is present (otherwise the lesson title/notes), with a tiny example if it helps.`;
+      return `${base}\n\nThe learner has a doubt about the current lesson. Answer it from the lesson video transcript above — that transcript is what Harry actually taught in this video, and it is your source of truth for this lesson. Whenever you state something the video taught, cite the moment it was said, like [04:12], so the learner can jump to that part of the video. If the transcript does not cover the question, say so plainly first — "Is video me ye nahi bataya gaya" — and only then give a short general Python answer, clearly marked as general knowledge and not from the video. Never present general knowledge as if Harry taught it in the video.`;
     case "explain":
       return `${base}\n\nThe learner pasted code from the editor. Explain what the code does, line by line where it matters, in plain words. Keep it short.`;
     case "debug":
@@ -322,15 +326,17 @@ test("system prompt includes the video transcript when one is present", () => {
     language: "hi",
     truncated: false,
   });
-  assert.match(prompt, /Lesson video transcript \(hi\):/);
+  assert.match(prompt, /Lesson video transcript \(timestamps are \[mm:ss\] into the video\) \(hi\):/);
   assert.match(prompt, /Guido van Rossum/);
-  assert.match(prompt, /grounded in the lesson video transcript above/);
+  assert.match(prompt, /cite the moment it was said, like \[04:12\]/);
+  assert.match(prompt, /Is video me ye nahi bataya gaya/);
+  assert.match(prompt, /Never present general knowledge as if Harry taught it/);
   const excerpt = buildAiSystemPrompt("tutor", lesson, {
     text: "x".repeat(10),
     language: "hi",
     truncated: true,
   });
-  assert.match(excerpt, /Lesson video transcript \(excerpt/);
+  assert.match(excerpt, /relevant excerpt for this question/);
   // No transcript: no transcript section at all (the tutor instruction
   // still mentions transcripts, but no video text is included).
   const plain = buildAiSystemPrompt("tutor", lesson);
@@ -473,4 +479,11 @@ test("Groq tries the second model only on a 404 (retired model)", async () => {
   res = await askAiMock({ mode: "tutor" }, { geminiKey: null, groqKey: "q-key" }, m.fetchImpl);
   assert.equal(res, null);
   assert.equal(m.calls.length, 1);
+});
+
+test("temperatureForMode: grounded modes run cool, code modes stay warm", () => {
+  assert.equal(temperatureForMode("tutor"), 0.3);
+  assert.equal(temperatureForMode("quiz"), 0.3);
+  assert.equal(temperatureForMode("explain"), 0.7);
+  assert.equal(temperatureForMode("debug"), 0.7);
 });

@@ -15,8 +15,11 @@ import {
 import {
   extractYouTubeId,
   fetchTranscript,
+  selectTranscriptWindow,
+  TRANSCRIPT_MAX_CHARS,
   TRANSCRIPT_TIMEOUT_MS,
 } from "@/lib/transcript";
+import { getStoredTranscript } from "@/lib/stored-transcripts";
 
 // AI tutor / code help — Gemini first, Groq fallback.
 // Session-required (401 when logged out). Fail-closed 503 when the
@@ -101,27 +104,51 @@ export async function POST(req: NextRequest) {
   }
 
   // Video transcript grounding, tutor + quiz only (explain/debug are
-  // about the learner's own code, not the video). The transcript is
-  // fetched live per question, cached per video, and capped — but a
-  // YouTube failure must NEVER fail the tutor: on null, answer from
-  // the title/notes grounding exactly as before.
+  // about the learner's own code, not the video). The transcript comes
+  // FIRST from the stored captions shipped with the code — the lesson
+  // video's real words, harvested once, with [mm:ss] timestamps. A
+  // live YouTube fetch is only the fallback for a lesson with no
+  // stored transcript (YouTube 429s datacenter IPs, so live fetch
+  // fails often — stored captions are what make the tutor real).
+  // Long transcripts are windowed to the question, so the answer
+  // comes from the part of the video the learner asked about.
   let transcript = null;
+  let transcriptSource: "stored" | "live" | "none" = "none";
   if ((body.mode === "tutor" || body.mode === "quiz") && lesson) {
-    const videoId = extractYouTubeId(lesson.notes);
-    if (videoId) {
-      transcript = await fetchTranscript(videoId, {
-        timeoutMs: TRANSCRIPT_TIMEOUT_MS,
-      });
-      if (!transcript) {
-        console.error(
-          JSON.stringify({
-            event: "ai_transcript_failed",
-            endpoint: "ai",
-            lessonId: body.lessonId ?? null,
-            reason: "fetch_failed",
-          })
-        );
+    transcript = getStoredTranscript(lesson.id);
+    if (transcript) {
+      transcriptSource = "stored";
+    } else {
+      const videoId = extractYouTubeId(lesson.notes);
+      if (videoId) {
+        transcript = await fetchTranscript(videoId, {
+          timeoutMs: TRANSCRIPT_TIMEOUT_MS,
+        });
+        if (transcript) {
+          transcriptSource = "live";
+        } else {
+          console.error(
+            JSON.stringify({
+              event: "ai_transcript_failed",
+              endpoint: "ai",
+              lessonId: body.lessonId ?? null,
+              reason: "fetch_failed",
+            })
+          );
+        }
       }
+    }
+    if (transcript?.hasTimestamps && body.question) {
+      const windowed = selectTranscriptWindow(
+        transcript.text,
+        body.question,
+        TRANSCRIPT_MAX_CHARS
+      );
+      transcript = {
+        ...transcript,
+        text: windowed.text,
+        truncated: windowed.truncated,
+      };
     }
   }
 
@@ -146,5 +173,14 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  return NextResponse.json(result);
+  return NextResponse.json({
+    ...result,
+    // Grounded = the answer was built from the lesson video's real
+    // transcript (stored captions, or a live fetch). False means the
+    // tutor answered from the lesson title/notes only — the UI says
+    // so, so a general answer is never passed off as video content.
+    grounded: transcript !== null,
+    transcriptSource,
+    transcriptLanguage: transcript?.language ?? null,
+  });
 }

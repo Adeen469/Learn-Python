@@ -12,6 +12,8 @@ import type { Lesson } from "@/lib/catalog";
 interface ChatMessage {
   role: "user" | "assistant";
   text: string;
+  /** True when this reply was built from the lesson video's transcript. */
+  grounded?: boolean;
 }
 
 interface AiTutorProps {
@@ -73,7 +75,11 @@ export function AiTutor({ lesson }: AiTutorProps) {
         setInput(question);
         return;
       }
-      setMessages((prev) => [...prev, { role: "assistant", text: reply.trim() }]);
+      const grounded = (data as { grounded?: unknown }).grounded === true;
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", text: reply.trim(), grounded },
+      ]);
       requestAnimationFrame(() => {
         listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
       });
@@ -93,8 +99,10 @@ export function AiTutor({ lesson }: AiTutorProps) {
         <h2 className="text-sm font-semibold text-white">Ask AI about this lesson</h2>
       </div>
       <p className="mt-1 text-xs leading-relaxed text-neutral-400">
-        Doubts, explanations, examples — in Hindi or English. The AI only
-        knows this lesson and Python, and its answers are not stored anywhere.
+        Doubts, explanations, examples — in Hindi or English. Answers
+        come from this lesson&apos;s actual video, with timestamps, and
+        anything the video doesn&apos;t cover is marked as general
+        knowledge. Chats are not stored anywhere.
       </p>
 
       {unavailable ? (
@@ -122,6 +130,13 @@ export function AiTutor({ lesson }: AiTutorProps) {
                     {m.role === "user" ? "You" : "AI Tutor"}
                   </p>
                   <p className="whitespace-pre-wrap">{m.text}</p>
+                  {m.role === "assistant" && (
+                    <p className="mt-1.5 text-[10px] leading-relaxed text-neutral-500">
+                      {m.grounded
+                        ? "✓ From this lesson's video — timestamps point to the moment in the video."
+                        : "General answer — this lesson's video transcript was not available."}
+                    </p>
+                  )}
                 </div>
               ))}
               {sending && (

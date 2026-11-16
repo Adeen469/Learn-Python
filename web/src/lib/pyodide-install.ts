@@ -85,11 +85,21 @@ export async function installPackageInto(
 
   try {
     if (viaPyodide) {
-      await pyodide.loadPackage(name);
+      // The wheel download has no timeout of its own — a stalled
+      // download used to hang "Installing…" forever with no error.
+      await withTimeout(
+        pyodide.loadPackage(name),
+        PYODIDE_PACKAGE_LOAD_TIMEOUT_MS,
+        `Downloading '${name}' timed out after 2 minutes — check your connection and retry.`
+      );
     } else {
-      await pyodide.runPythonAsync(
-        "import micropip\n" +
-          `await micropip.install(${JSON.stringify(name)})`
+      await withTimeout(
+        pyodide.runPythonAsync(
+          "import micropip\n" +
+            `await micropip.install(${JSON.stringify(name)})`
+        ),
+        MICROPIP_INSTALL_TIMEOUT_MS,
+        `Installing '${name}' from PyPI timed out after 3 minutes — check your connection and retry.`
       );
     }
   } catch (err: unknown) {
@@ -110,7 +120,11 @@ export async function installPackageInto(
   // Verify the import actually works — download success alone is not
   // enough (e.g. beautifulsoup4 installs but must be imported as bs4).
   try {
-    await pyodide.runPythonAsync(`import ${importName}`);
+    await withTimeout(
+      pyodide.runPythonAsync(`import ${importName}`),
+      60_000,
+      `Verifying 'import ${importName}' timed out after 1 minute.`
+    );
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     return {
@@ -129,6 +143,10 @@ export const PYODIDE_SCRIPT_URL =
   "https://cdn.jsdelivr.net/pyodide/v0.27.2/full/pyodide.js";
 /** How long loadPyodide() may take to download the runtime (~15 MB). */
 export const PYODIDE_LOAD_TIMEOUT_MS = 120_000;
+/** How long one package's wheel download (loadPackage) may take. */
+export const PYODIDE_PACKAGE_LOAD_TIMEOUT_MS = 120_000;
+/** How long a micropip install from PyPI may take. */
+export const MICROPIP_INSTALL_TIMEOUT_MS = 180_000;
 
 /**
  * Run a promise with a timeout. loadPyodide() downloads the whole

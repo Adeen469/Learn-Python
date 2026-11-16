@@ -191,6 +191,103 @@ function truncateTranscript(text) {
   return { text: text.slice(0, TRANSCRIPT_MAX_CHARS), truncated: true };
 }
 
+function parseTimedtextJson3Segments(body) {
+  try {
+    const events = body?.events;
+    if (!Array.isArray(events)) return null;
+    const segments = [];
+    for (const e of events) {
+      if (typeof e?.tStartMs !== "number") continue;
+      const text = (Array.isArray(e?.segs) ? e.segs : [])
+        .map((s) => (typeof s?.utf8 === "string" ? s.utf8 : ""))
+        .join("")
+        .replace(/<[^>]*>/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+      if (text) segments.push({ startMs: e.tStartMs, text });
+    }
+    return segments.length > 0 ? segments : null;
+  } catch {
+    return null;
+  }
+}
+
+function formatTranscriptTime(ms) {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return `${m}:${String(s).padStart(2, "0")}`;
+}
+
+function formatTimestampedTranscript(segments) {
+  const lines = [];
+  let currentTime = "";
+  let currentText = "";
+  const flush = () => {
+    if (currentText) lines.push(`[${currentTime}] ${currentText}`);
+  };
+  for (const seg of segments) {
+    const t = formatTranscriptTime(seg.startMs);
+    if (t === currentTime) {
+      currentText += ` ${seg.text}`;
+    } else {
+      flush();
+      currentTime = t;
+      currentText = seg.text;
+    }
+  }
+  flush();
+  return lines.join("\n");
+}
+
+const WINDOW_STOPWORDS = new Set([
+  "what", "how", "why", "when", "which", "does", "mean", "means", "tell",
+  "about", "this", "that", "with", "from", "your", "you", "the", "and",
+  "are", "was", "were", "can", "could", "should", "would", "please",
+  "kya", "kaise", "kyu", "kyun", "hai", "hain", "mein", "main", "ko", "ka",
+  "ki", "se", "aur", "ye", "yeh", "woh", "batao", "bataiye", "samjhao",
+  "samajh", "nahi", "karo", "karna", "lesson", "video", "harry", "sir",
+]);
+
+function questionKeywords(question) {
+  const words = question
+    .toLowerCase()
+    .split(/[^a-z0-9_]+/)
+    .filter((w) => w.length >= 2 && !WINDOW_STOPWORDS.has(w));
+  return [...new Set(words)];
+}
+
+function selectTranscriptWindow(text, question, maxChars = TRANSCRIPT_MAX_CHARS) {
+  if (text.length <= maxChars) return { text, truncated: false };
+  const lines = text.split("\n").filter((l) => l.trim().length > 0);
+  const keywords = questionKeywords(question);
+  const picked = new Set();
+  for (let i = 0; i < Math.min(3, lines.length); i++) picked.add(i);
+  const ranked = lines
+    .map((line, i) => ({
+      i,
+      score: keywords.reduce(
+        (a, kw) => a + (line.toLowerCase().includes(kw) ? 1 : 0),
+        0
+      ),
+    }))
+    .filter((s) => s.score > 0)
+    .sort((a, b) => b.score - a.score || a.i - b.i);
+  for (const { i } of ranked) {
+    picked.add(i);
+    if (i > 0) picked.add(i - 1);
+    if (i + 1 < lines.length) picked.add(i + 1);
+  }
+  if (picked.size <= 3) return truncateTranscript(text);
+  const ordered = [...picked].sort((a, b) => a - b);
+  let out = "";
+  for (const i of ordered) {
+    if (out && out.length + 1 + lines[i].length > maxChars) break;
+    out += (out ? "\n" : "") + lines[i];
+  }
+  return { text: out, truncated: true };
+}
+
 // --- fetchTranscript mirror (cache + Innertube + transliteration) ---
 
 const cache = new Map();
@@ -245,19 +342,22 @@ async function fetchTranscriptUncached(videoId, fetchImpl, signal) {
   url.searchParams.set("fmt", "json3");
   const timed = await fetchJson(fetchImpl, url.toString(), {}, signal);
   if (!timed) return null;
-  const text = parseTimedtextJson3(timed);
-  if (!text) return null;
+  const segments = parseTimedtextJson3Segments(timed);
+  if (!segments) return null;
   let language = track.languageCode;
-  let finalText = text;
-  if (containsDevanagari(text)) {
-    const roman = transliterateDevanagariToLatin(text);
-    if (roman.trim()) {
-      finalText = roman;
+  let finalSegments = segments;
+  if (segments.some((s) => containsDevanagari(s.text))) {
+    const roman = segments.map((s) => ({
+      startMs: s.startMs,
+      text: transliterateDevanagariToLatin(s.text),
+    }));
+    if (roman.some((s) => s.text.trim())) {
+      finalSegments = roman;
       language = "hi-Latn";
     }
   }
-  const capped = truncateTranscript(finalText);
-  return { text: capped.text, language, truncated: capped.truncated };
+  const capped = truncateTranscript(formatTimestampedTranscript(finalSegments));
+  return { text: capped.text, language, truncated: capped.truncated, hasTimestamps: true };
 }
 
 async function fetchTranscript(videoId, opts = {}) {
@@ -450,15 +550,16 @@ test("fetchTranscript returns a Roman Hinglish transcript and caches it", async 
       ok: true,
       status: 200,
       json: async () => ({
-        events: [{ segs: [{ utf8: "वेलकम " }, { utf8: "टू पाइथन" }] }],
+        events: [{ tStartMs: 42000, segs: [{ utf8: "वेलकम " }, { utf8: "टू पाइथन" }] }],
       }),
     };
   };
   const first = await fetchTranscript("VID-cache-1", { fetchImpl: mockFetch });
   assert.deepEqual(first, {
-    text: "velakam tu paithan",
+    text: "[0:42] velakam tu paithan",
     language: "hi-Latn",
     truncated: false,
+    hasTimestamps: true,
   });
   assert.equal(calls, 2);
   // Second question about the same lesson: no re-fetch.
@@ -492,15 +593,16 @@ test("fetchTranscript keeps a hi-Latn track as-is and never throws", async () =>
       ok: true,
       status: 200,
       json: async () => ({
-        events: [{ segs: [{ utf8: "welcome to python" }] }],
+        events: [{ tStartMs: 0, segs: [{ utf8: "welcome to python" }] }],
       }),
     };
   };
   const result = await fetchTranscript("VID-latn-1", { fetchImpl: mockFetch });
   assert.deepEqual(result, {
-    text: "welcome to python",
+    text: "[0:00] welcome to python",
     language: "hi-Latn",
     truncated: false,
+    hasTimestamps: true,
   });
 });
 
@@ -540,4 +642,113 @@ test("fetchTranscript returns null on failure and never throws", async () => {
     await fetchTranscript("VID-throw-1", { fetchImpl: throwingFetch }),
     null
   );
+});
+
+test("parseTimedtextJson3Segments keeps start times and drops empty events", () => {
+  assert.deepEqual(
+    parseTimedtextJson3Segments({
+      events: [
+        { tStartMs: 0, segs: [{ utf8: "hello " }, { utf8: "<b>world</b>" }] },
+        { tStartMs: 2500, segs: [{ utf8: "  " }] },
+        { tStartMs: 5000, segs: [{ utf8: "next line" }] },
+        { segs: [{ utf8: "no timestamp" }] },
+      ],
+    }),
+    [
+      { startMs: 0, text: "hello world" },
+      { startMs: 5000, text: "next line" },
+    ]
+  );
+  assert.equal(parseTimedtextJson3Segments({}), null);
+  assert.equal(parseTimedtextJson3Segments({ events: [] }), null);
+  assert.equal(parseTimedtextJson3Segments(null), null);
+});
+
+test("formatTranscriptTime renders mm:ss", () => {
+  assert.equal(formatTranscriptTime(0), "0:00");
+  assert.equal(formatTranscriptTime(42000), "0:42");
+  assert.equal(formatTranscriptTime(61000), "1:01");
+  assert.equal(formatTranscriptTime(754000), "12:34");
+  assert.equal(formatTranscriptTime(-500), "0:00");
+});
+
+test("formatTimestampedTranscript merges same-second events into [mm:ss] lines", () => {
+  assert.equal(
+    formatTimestampedTranscript([
+      { startMs: 0, text: "welcome" },
+      { startMs: 800, text: "to python" },
+      { startMs: 42000, text: "for loops" },
+      { startMs: 42500, text: "are easy" },
+    ]),
+    "[0:00] welcome to python\n[0:42] for loops are easy"
+  );
+  assert.equal(formatTimestampedTranscript([]), "");
+});
+
+test("selectTranscriptWindow returns the full text when it fits", () => {
+  const text = "[0:00] welcome\n[0:05] for loops";
+  assert.deepEqual(selectTranscriptWindow(text, "for loop kya hai"), {
+    text,
+    truncated: false,
+  });
+});
+
+test("selectTranscriptWindow picks the lines that answer the question", () => {
+  const filler = Array.from(
+    { length: 60 },
+    (_, i) =>
+      `[${i + 1}:00] filler line number ${i} ` +
+      "about the course intro ".repeat(10)
+  ).join("\n");
+  const text = [
+    "[0:00] welcome to the lesson",
+    "[0:05] today we learn variables",
+    "[0:10] a variable stores a value",
+    filler,
+    "[20:00] for loop repeats code",
+    "[20:05] for i in range five",
+    "[20:10] range gives numbers zero to four",
+  ].join("\n");
+  const { text: windowed, truncated } = selectTranscriptWindow(
+    text,
+    "for loop kaise kaam karta hai",
+    12000
+  );
+  assert.equal(truncated, true);
+  // The for-loop lines are in the window, in video order.
+  assert.match(windowed, /\[20:00\] for loop repeats code/);
+  assert.match(windowed, /\[20:05\] for i in range five/);
+  // One line of context on each side is included.
+  assert.match(windowed, /\[20:10\] range gives numbers/);
+  // The opening lines stay (what the lesson is about).
+  assert.match(windowed, /\[0:00\] welcome to the lesson/);
+  // But the 60 filler lines in the middle are dropped.
+  assert.doesNotMatch(windowed, /filler line number 30/);
+  // Window stays within budget.
+  assert.ok(windowed.length <= 12000);
+});
+
+test("selectTranscriptWindow falls back to the head when nothing matches", () => {
+  const lines = Array.from(
+    { length: 60 },
+    (_, i) => `[${i}:00] ${"filler ".repeat(40)}${i}`
+  ).join("\n");
+  const { text: windowed, truncated } = selectTranscriptWindow(
+    lines,
+    "recursion kya hota hai",
+    12000
+  );
+  assert.equal(truncated, true);
+  assert.ok(windowed.startsWith("[0:00]"));
+  assert.ok(windowed.length <= 12000);
+});
+
+test("questionKeywords drops stopwords and dedupes", () => {
+  assert.deepEqual(questionKeywords("for loop kaise kaam karta hai for"), [
+    "for",
+    "loop",
+    "kaam",
+    "karta",
+  ]);
+  assert.deepEqual(questionKeywords("kya hai ye"), []);
 });

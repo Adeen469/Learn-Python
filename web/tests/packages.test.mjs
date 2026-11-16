@@ -278,3 +278,50 @@ test("restore continues past a package whose download stalls", async () => {
     ["pandas", "done", null],
   ]);
 });
+
+// --- installPackageInto timeout mirror (pyodide-install.ts) ---
+
+const PYODIDE_PACKAGE_LOAD_TIMEOUT_MS = 20;
+const MICROPIP_INSTALL_TIMEOUT_MS = 20;
+
+async function installPackageIntoMirror(pyodide, packageName) {
+  const name = packageName.trim().toLowerCase();
+  const importName = name.replace(/-/g, "_").split(".")[0];
+  const viaPyodide = true; // numpy path
+  try {
+    if (viaPyodide) {
+      await withTimeout(
+        pyodide.loadPackage(name),
+        PYODIDE_PACKAGE_LOAD_TIMEOUT_MS,
+        `Downloading '${name}' timed out after 2 minutes — check your connection and retry.`
+      );
+    }
+  } catch (err) {
+    return { ok: false, error: `Could not load '${name}' from Pyodide: ${err.message}` };
+  }
+  try {
+    await withTimeout(pyodide.runPythonAsync(`import ${importName}`), 20, "verify timed out");
+  } catch (err) {
+    return { ok: false, error: `import failed: ${err.message}` };
+  }
+  return { ok: true, method: "pyodide", importName };
+}
+
+test("install fails with a clear timeout error when the wheel download stalls", async () => {
+  const neverPyodide = {
+    loadPackage: () => new Promise(() => {}), // never settles
+    runPythonAsync: async () => {},
+  };
+  const result = await installPackageIntoMirror(neverPyodide, "numpy");
+  assert.equal(result.ok, false);
+  assert.match(result.error, /timed out/);
+});
+
+test("install succeeds when the wheel loads and the import works", async () => {
+  const okPyodide = {
+    loadPackage: async () => {},
+    runPythonAsync: async () => {},
+  };
+  const result = await installPackageIntoMirror(okPyodide, "numpy");
+  assert.deepEqual(result, { ok: true, method: "pyodide", importName: "numpy" });
+});
