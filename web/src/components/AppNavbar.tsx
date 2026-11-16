@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { BookOpen, Code2, Flame, Github, LogOut, Map, Target, User } from "lucide-react";
+import { BookOpen, BookOpenText, Code2, Flame, Github, LogOut, Map, Target, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   fetchSessionUser,
@@ -24,6 +24,7 @@ import {
   ROADMAP_OPEN_EVENT,
 } from "@/lib/entered";
 import { Roadmap } from "@/components/Roadmap";
+import { dayNumberOf } from "@/lib/roadmap";
 import type { Lesson } from "@/lib/catalog";
 
 function ProfileMenuItems({
@@ -162,6 +163,7 @@ export function AppNavbar() {
   }, [profileOpen]);
 
   const navLinks = [
+    { href: "/tutorials", label: "Tutorials", icon: BookOpenText },
     { href: "/", label: "Course", icon: BookOpen },
     { href: "/editor", label: "Code Editor", icon: Code2 },
   ];
@@ -186,6 +188,13 @@ export function AppNavbar() {
       // Ignore.
     }
     setRoadmapOpen(false);
+    // Roadmap lessons open the text tutorial now — the tutorials are
+    // the main learning surface, with the video inside the lesson page.
+    const day = dayNumberOf(lesson);
+    if (day !== null) {
+      router.push(`/tutorials/${day}`);
+      return;
+    }
     window.dispatchEvent(new CustomEvent(LESSON_SELECT_EVENT, { detail: lesson.id }));
     if (pathname !== "/") router.push("/");
   }

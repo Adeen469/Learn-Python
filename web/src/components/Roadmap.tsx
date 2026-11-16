@@ -241,12 +241,16 @@ export function Roadmap({ onClose, onSelectLesson }: RoadmapProps) {
               )}
             </p>
 
-            {/* Smooth expand / collapse */}
+            {/* Smooth expand / collapse: the rows glide open with a
+                spring ease, and the list fades in with them. */}
             <div
-              className="grid transition-[grid-template-rows] duration-300 ease-out"
+              className="grid transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
               style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
             >
-              <div className="overflow-hidden">
+              <div
+                className="roadmap-lessons overflow-hidden"
+                style={{ opacity: isOpen ? 1 : 0 }}
+              >
                 <ul className="mt-3 space-y-1.5">
                   {stage.lessons.map((lesson, i) => renderLessonRow(lesson, i, stage, isOpen))}
                 </ul>
@@ -316,7 +320,7 @@ export function Roadmap({ onClose, onSelectLesson }: RoadmapProps) {
             className="absolute bottom-9 left-[19px] top-9 w-px bg-neutral-800"
           >
             <div
-              className="w-px bg-neutral-200 transition-[height] duration-1000 ease-out"
+              className="w-px bg-neutral-200 transition-[height] duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)]"
               style={{ height: `${overallPct}%` }}
             />
           </div>

@@ -90,14 +90,14 @@ body {
 @keyframes roadmap-panel-in {
   from {
     opacity: 0;
-    transform: translateY(10px) scale(0.995);
+    transform: translateY(16px) scale(0.98);
   }
 }
 
 @keyframes roadmap-stage-in {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(14px) scale(0.99);
   }
 }
 
@@ -108,54 +108,67 @@ body {
   }
 }
 
-/* Lesson rows cascade in when their stage opens. */
+/* Lesson rows cascade in when their stage opens — a soft glide from
+   the rail, not a pop. */
 @keyframes roadmap-lesson-in {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translate(-4px, 6px);
   }
 }
 
 /* Soft ring breathing out from the current stage's node. */
 @keyframes roadmap-pulse {
   from {
-    opacity: 0.55;
+    opacity: 0.5;
     transform: scale(1);
   }
   to {
     opacity: 0;
-    transform: scale(1.7);
+    transform: scale(1.8);
   }
 }
 
+/* Tutorials pages: sections rise in, staggered via inline delay. */
+@keyframes tutorials-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+.animate-tutorials-in {
+  animation: tutorials-in 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 .animate-roadmap-overlay {
-  animation: roadmap-overlay-in 200ms ease-out both;
+  animation: roadmap-overlay-in 250ms ease-out both;
 }
 
 .animate-roadmap-panel {
-  animation: roadmap-panel-in 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: roadmap-panel-in 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .animate-roadmap-stage {
-  animation: roadmap-stage-in 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: roadmap-stage-in 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .animate-roadmap-bar {
-  animation: roadmap-bar-in 1100ms cubic-bezier(0.22, 1, 0.36, 1) 200ms both;
+  animation: roadmap-bar-in 1200ms cubic-bezier(0.22, 1, 0.36, 1) 200ms both;
 }
 
 .animate-roadmap-lesson {
-  animation: roadmap-lesson-in 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: roadmap-lesson-in 350ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .animate-roadmap-pulse {
-  animation: roadmap-pulse 2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  animation: roadmap-pulse 2.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
 }
 
 /* Stage rows: only the background fades in on hover — the node stays
    pinned to the timeline spine, so the row never shifts sideways. */
 .roadmap-row {
-  transition: background-color 0.25s ease;
+  transition: background-color 0.3s ease;
 }
 
 .roadmap-row:hover {
@@ -163,17 +176,32 @@ body {
 }
 
 .roadmap-node {
-  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.3s ease,
+    box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .roadmap-row:hover .roadmap-node {
-  transform: scale(1.06);
+  transform: scale(1.08);
+  box-shadow: 0 0 0 4px var(--sc-soft);
 }
 
-/* Progress fill: a soft glow at its leading edge, in the stage color. */
+.roadmap-node:active {
+  transform: scale(0.96);
+}
+
+/* The lesson list fades as its stage opens / closes, so the
+   grid-rows expand reads as one smooth reveal instead of a snap. */
+.roadmap-lessons {
+  transition: opacity 0.35s ease;
+}
+
+/* Progress fill: a soft glow at its leading edge, in the stage color,
+   and a smooth width transition when the percent changes live. */
 .roadmap-bar-fill {
-  box-shadow: 0 0 12px -2px var(--sc-from);
   box-shadow: 0 0 12px -2px color-mix(in srgb, var(--sc-from) 55%, transparent);
+  transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Lesson rows: lift + stage-colored edge on hover. */
@@ -209,6 +237,7 @@ body {
   .animate-splash-text,
   .animate-splash-bar,
   .animate-splash-glow,
+  .animate-tutorials-in,
   .animate-roadmap-overlay,
   .animate-roadmap-panel,
   .animate-roadmap-stage,
@@ -221,6 +250,8 @@ body {
   .roadmap-row,
   .roadmap-node,
   .roadmap-lesson,
+  .roadmap-lessons,
+  .roadmap-bar-fill,
   .roadmap-extra {
     transition: none !important;
   }
