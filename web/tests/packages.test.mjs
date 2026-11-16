@@ -124,7 +124,7 @@ function withTimeout(promise, ms, message) {
   });
 }
 
-function loadPyodideScript(timeoutMs = 30000) {
+function loadPyodideScript(url = PYODIDE_SCRIPT_URL, timeoutMs = 30000) {
   if (typeof window === "undefined" || typeof document === "undefined") {
     return Promise.resolve(false);
   }
@@ -142,7 +142,7 @@ function loadPyodideScript(timeoutMs = 30000) {
       resolve(ok && typeof window.loadPyodide === "function");
     };
     const timer = window.setTimeout(() => finish(false), timeoutMs);
-    script.src = PYODIDE_SCRIPT_URL;
+    script.src = url;
     script.onload = () => finish(true);
     script.onerror = () => finish(false);
     document.head.appendChild(script);
@@ -160,12 +160,17 @@ function stubDom({ loadPyodide, behavior = "load" } = {}) {
     head: {
       appendChild: (el) => {
         appended.push(el);
-        if (behavior === "load") {
+        // behavior may be a fixed string or a function of the tag URL.
+        const b =
+          typeof behavior === "function" ? behavior(el.src) : behavior;
+        if (b === "load") {
           queueMicrotask(() => {
-            win.loadPyodide = () => ({});
+            if (typeof win.loadPyodide !== "function") {
+              win.loadPyodide = async (opts) => ({ loadedFrom: opts.indexURL });
+            }
             el.onload?.();
           });
-        } else if (behavior === "error") {
+        } else if (b === "error") {
           queueMicrotask(() => el.onerror?.());
         }
         // "never": the tag just sits there until the timeout fires.
@@ -211,7 +216,7 @@ test("loadPyodideScript returns true at once when the runtime is already there",
 test("loadPyodideScript injects a fresh tag and succeeds on load", async () => {
   const { win, appended } = stubDom({ behavior: "load" });
   try {
-    assert.equal(await loadPyodideScript(1000), true);
+    assert.equal(await loadPyodideScript(PYODIDE_SCRIPT_URL, 1000), true);
     assert.equal(appended.length, 1);
     assert.equal(appended[0].src, PYODIDE_SCRIPT_URL);
     assert.equal(typeof win.loadPyodide, "function");
@@ -223,7 +228,7 @@ test("loadPyodideScript injects a fresh tag and succeeds on load", async () => {
 test("loadPyodideScript removes the tag and returns false on error", async () => {
   const { appended } = stubDom({ behavior: "error" });
   try {
-    assert.equal(await loadPyodideScript(1000), false);
+    assert.equal(await loadPyodideScript(PYODIDE_SCRIPT_URL, 1000), false);
     assert.equal(appended.length, 1);
     assert.equal(appended[0].removed, true);
   } finally {
@@ -234,7 +239,7 @@ test("loadPyodideScript removes the tag and returns false on error", async () =>
 test("loadPyodideScript returns false when the tag never loads (timeout)", async () => {
   stubDom({ behavior: "never" });
   try {
-    assert.equal(await loadPyodideScript(20), false);
+    assert.equal(await loadPyodideScript(PYODIDE_SCRIPT_URL, 20), false);
   } finally {
     unstubDom();
   }
@@ -324,4 +329,96 @@ test("install succeeds when the wheel loads and the import works", async () => {
   };
   const result = await installPackageIntoMirror(okPyodide, "numpy");
   assert.deepEqual(result, { ok: true, method: "pyodide", importName: "numpy" });
+});
+
+// --- loadPyodideRuntime CDN-fallback mirror (pyodide-install.ts) ---
+
+const PYODIDE_CDN_BASES = [
+  "https://cdn.jsdelivr.net/pyodide/v0.27.2/full/",
+  "https://unpkg.com/pyodide@0.27.2/",
+];
+const RUNTIME_LOAD_TIMEOUT_MS = 20;
+
+function waitForPyodideScriptMirror(timeoutMs = 20) {
+  if (typeof window === "undefined") return Promise.resolve(false);
+  if (typeof window.loadPyodide === "function") return Promise.resolve(true);
+  return new Promise((resolve) => {
+    const started = Date.now();
+    const timer = setInterval(() => {
+      if (typeof window.loadPyodide === "function") {
+        clearInterval(timer);
+        resolve(true);
+      } else if (Date.now() - started > timeoutMs) {
+        clearInterval(timer);
+        resolve(false);
+      }
+    }, 5);
+  });
+}
+
+async function loadPyodideRuntimeMirror() {
+  if (typeof window === "undefined") {
+    throw new Error("Pyodide can only load in the browser.");
+  }
+  await waitForPyodideScriptMirror(20);
+  for (const base of PYODIDE_CDN_BASES) {
+    if (typeof window.loadPyodide !== "function") {
+      const scriptOk = await loadPyodideScript(base + "pyodide.js", 20);
+      if (!scriptOk) continue;
+    }
+    try {
+      return await withTimeout(
+        window.loadPyodide({ indexURL: base }),
+        RUNTIME_LOAD_TIMEOUT_MS,
+        `Python runtime download from ${base} timed out.`
+      );
+    } catch {
+      // Stalled or failed on this CDN — try the next one.
+    }
+  }
+  throw new Error(
+    "Python runtime could not load from jsDelivr or unpkg — check your connection and retry."
+  );
+}
+
+test("runtime falls back to unpkg when the jsDelivr script fails", async () => {
+  stubDom({
+    behavior: (src) =>
+      src.includes("jsdelivr") ? "error" : "load",
+  });
+  try {
+    const rt = await loadPyodideRuntimeMirror();
+    assert.equal(rt.loadedFrom, "https://unpkg.com/pyodide@0.27.2/");
+  } finally {
+    unstubDom();
+  }
+});
+
+test("runtime falls back to unpkg when the jsDelivr download stalls", async () => {
+  stubDom({
+    loadPyodide: (opts) =>
+      opts.indexURL.includes("jsdelivr")
+        ? new Promise(() => {}) // never settles
+        : Promise.resolve({ loadedFrom: opts.indexURL }),
+  });
+  try {
+    const rt = await loadPyodideRuntimeMirror();
+    assert.equal(rt.loadedFrom, "https://unpkg.com/pyodide@0.27.2/");
+  } finally {
+    unstubDom();
+  }
+});
+
+test("runtime throws a clear error when both CDNs fail", async () => {
+  stubDom({
+    loadPyodide: () => new Promise(() => {}), // never settles, either CDN
+  });
+  try {
+    await assert.rejects(
+      loadPyodideRuntimeMirror(),
+      /could not load from jsDelivr or unpkg/
+    );
+  } finally {
+    unstubDom();
+  }
 });

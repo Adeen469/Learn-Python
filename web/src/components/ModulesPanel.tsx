@@ -76,16 +76,16 @@ export function ModulesPanel({ pyodideRef, ensurePyodide }: ModulesPanelProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [installedList, setInstalledList] = useState<string[]>([]);
   const [installingMap, setInstallingMap] = useState<Record<string, boolean>>({});
-  // Progress bar shown inside the Terminal Logs card while an install
-  // runs. Stage-based, not byte-based: Pyodide's loadPackage exposes
-  // no download progress, so the bar marks the install stages
-  // (runtime → download → verify → done) and pulses while a download
-  // is in flight, so a slow network reads as "working", not "stuck".
-  const [installProgress, setInstallProgress] = useState<{
-    pkg: string;
-    stage: string;
-    pct: number;
-  } | null>(null);
+  // Progress bars shown inside the Terminal Logs card while installs
+  // run — one bar per package, so two installs at once don't hide
+  // each other. Stage-based, not byte-based: Pyodide's loadPackage
+  // exposes no download progress, so the bar marks the install
+  // stages (runtime → download → verify → done) and pulses while a
+  // download is in flight, so a slow network reads as "working",
+  // not "stuck". A finished bar stays until the next install starts.
+  const [installProgress, setInstallProgress] = useState<
+    Record<string, { stage: string; pct: number }>
+  >({});
   const [logs, setLogs] = useState<string[]>([]);
   const [lastError, setLastError] = useState<string | null>(null);
 
@@ -121,8 +121,20 @@ export function ModulesPanel({ pyodideRef, ensurePyodide }: ModulesPanelProps) {
     // (installingMap) now covers the whole ensure + install flow, and
     // repeat clicks are blocked while it runs.
     setInstallingMap((prev) => ({ ...prev, [clean]: true }));
+    // A new install replaces any finished (100%) bars, keeping the
+    // card to the installs actually running.
+    setInstallProgress((prev) => {
+      const next: Record<string, { stage: string; pct: number }> = {};
+      for (const [k, v] of Object.entries(prev)) {
+        if (v.pct < 100) next[k] = v;
+      }
+      return next;
+    });
     if (!pyodideRef.current) {
-      setInstallProgress({ pkg: clean, stage: "Starting Python runtime…", pct: 10 });
+      setInstallProgress((prev) => ({
+        ...prev,
+        [clean]: { stage: "Starting Python runtime…", pct: 10 },
+      }));
       addLog("Starting Python runtime — one-time download (~15 MB), please wait…");
       const ready = await ensurePyodide();
       if (!ready) {
@@ -130,27 +142,44 @@ export function ModulesPanel({ pyodideRef, ensurePyodide }: ModulesPanelProps) {
           "Python environment could not start (the Pyodide script did not load). Check your connection and try again — the Install button will retry.";
         addLog(msg);
         setLastError(msg);
-        setInstallProgress(null);
+        setInstallProgress((prev) => {
+          const next = { ...prev };
+          delete next[clean];
+          return next;
+        });
         setInstallingMap((prev) => ({ ...prev, [clean]: false }));
         return;
       }
-      setInstallProgress({ pkg: clean, stage: "Python runtime ready", pct: 30 });
+      setInstallProgress((prev) => ({
+        ...prev,
+        [clean]: { stage: "Python runtime ready", pct: 30 },
+      }));
       addLog("Python runtime ready.");
     }
 
-    setInstallProgress({ pkg: clean, stage: `Downloading '${clean}'…`, pct: 55 });
+    setInstallProgress((prev) => ({
+      ...prev,
+      [clean]: { stage: `Downloading '${clean}'…`, pct: 55 },
+    }));
     addLog(`Installing '${clean}'…`);
 
     const result = await installPackageInto(pyodideRef.current, clean);
     if (result.ok) {
       const updated = saveStoredInstalledPackage(clean);
       setInstalledList(updated);
-      setInstallProgress({ pkg: clean, stage: `Installed '${clean}' ✓`, pct: 100 });
+      setInstallProgress((prev) => ({
+        ...prev,
+        [clean]: { stage: `Installed '${clean}' ✓`, pct: 100 },
+      }));
       addLog(
         `✓ Installed '${clean}' via ${result.method} (import ${result.importName} works). Saved in workspace storage.`
       );
     } else {
-      setInstallProgress(null);
+      setInstallProgress((prev) => {
+        const next = { ...prev };
+        delete next[clean];
+        return next;
+      });
       addLog(`✗ Failed to install '${clean}': ${result.error}`);
       setLastError(result.error);
     }
@@ -558,24 +587,24 @@ if '${pkgName}' in sys.modules:
         <span className="text-xs font-mono text-neutral-400 flex items-center gap-1.5 mb-2">
           <Info className="h-3.5 w-3.5" /> Package Engine Terminal Logs
         </span>
-        {installProgress && (
-          <div className="mb-3">
+        {Object.entries(installProgress).map(([pkg, progress]) => (
+          <div className="mb-3" key={pkg}>
             <div className="flex justify-between text-[11px] font-mono text-neutral-300 mb-1">
               <span>
-                {installProgress.pkg} — {installProgress.stage}
+                {pkg} — {progress.stage}
               </span>
-              <span>{installProgress.pct}%</span>
+              <span>{progress.pct}%</span>
             </div>
             <div className="h-2 w-full rounded-full bg-neutral-800 overflow-hidden">
               <div
                 className={`h-full rounded-full bg-emerald-500 transition-all duration-500 ${
-                  installProgress.pct < 100 ? "animate-pulse" : ""
+                  progress.pct < 100 ? "animate-pulse" : ""
                 }`}
-                style={{ width: `${installProgress.pct}%` }}
+                style={{ width: `${progress.pct}%` }}
               />
             </div>
           </div>
-        )}
+        ))}
         <pre className="max-h-36 overflow-auto bg-black p-3 rounded-lg font-mono text-[11px] text-neutral-400 whitespace-pre-wrap">
           {logs.length > 0 ? logs.join("\n") : "Python environment ready. Install any package to load it into your workspace."}
         </pre>

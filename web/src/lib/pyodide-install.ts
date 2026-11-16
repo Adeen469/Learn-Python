@@ -141,8 +141,19 @@ export async function installPackageInto(
 /** The Pyodide loader script (same URL the editor's <Script> uses). */
 export const PYODIDE_SCRIPT_URL =
   "https://cdn.jsdelivr.net/pyodide/v0.27.2/full/pyodide.js";
-/** How long loadPyodide() may take to download the runtime (~15 MB). */
-export const PYODIDE_LOAD_TIMEOUT_MS = 120_000;
+/**
+ * CDN bases that host the Pyodide runtime, in try order. jsDelivr is
+ * fast for most users, but it stalls for minutes on some networks —
+ * the runtime download is then the whole install. unpkg hosts the
+ * same files (at the package root, no /full/ subdir) and gives the
+ * load a second, independent path instead of one slow CDN.
+ */
+export const PYODIDE_CDN_BASES = [
+  "https://cdn.jsdelivr.net/pyodide/v0.27.2/full/",
+  "https://unpkg.com/pyodide@0.27.2/",
+];
+/** How long one CDN gets to deliver the runtime (~15 MB) per try. */
+export const PYODIDE_LOAD_TIMEOUT_MS = 60_000;
 /** How long one package's wheel download (loadPackage) may take. */
 export const PYODIDE_PACKAGE_LOAD_TIMEOUT_MS = 120_000;
 /** How long a micropip install from PyPI may take. */
@@ -188,14 +199,18 @@ export function waitForPyodideScript(timeoutMs = 30000): Promise<boolean> {
 }
 
 /**
- * Load the Pyodide script with a fresh <script> tag. The editor's
- * <Script> tag loads it once — but jsDelivr occasionally 404s a
- * single request, and then window.loadPyodide never appears and no
- * Install can ever succeed until a page reload. Retrying with a new
- * tag fixes that without a reload. Returns true when loadPyodide is
- * defined afterwards (immediately true when it already is).
+ * Load the Pyodide script from the given URL with a fresh <script>
+ * tag. The editor's <Script> tag loads it once — but jsDelivr
+ * occasionally 404s a single request, and then window.loadPyodide
+ * never appears and no Install can ever succeed until a page reload.
+ * Retrying with a new tag fixes that without a reload. Returns true
+ * when loadPyodide is defined afterwards (immediately true when it
+ * already is).
  */
-export function loadPyodideScript(timeoutMs = 30000): Promise<boolean> {
+export function loadPyodideScript(
+  url: string = PYODIDE_SCRIPT_URL,
+  timeoutMs = 30000
+): Promise<boolean> {
   if (typeof window === "undefined" || typeof document === "undefined") {
     return Promise.resolve(false);
   }
@@ -215,9 +230,44 @@ export function loadPyodideScript(timeoutMs = 30000): Promise<boolean> {
       );
     };
     const timer = window.setTimeout(() => finish(false), timeoutMs);
-    script.src = PYODIDE_SCRIPT_URL;
+    script.src = url;
     script.onload = () => finish(true);
     script.onerror = () => finish(false);
     document.head.appendChild(script);
   });
+}
+
+/**
+ * Load the Pyodide runtime, trying each CDN base in turn. One slow
+ * CDN used to doom the whole install: loadPyodide() has no timeout
+ * of its own, and a stalled 15 MB download hung "Installing…"
+ * for minutes with no error. Now each CDN gets 60s — jsDelivr
+ * first, unpkg second — and a stalled one is abandoned for the
+ * next instead of blocking the install. Throws when no CDN
+ * delivers the runtime.
+ */
+export async function loadPyodideRuntime(): Promise<any> {
+  if (typeof window === "undefined") {
+    throw new Error("Pyodide can only load in the browser.");
+  }
+  // Give the editor's <Script> tag (jsDelivr) a chance first.
+  await waitForPyodideScript(10000);
+  for (const base of PYODIDE_CDN_BASES) {
+    if (typeof (window as any).loadPyodide !== "function") {
+      const scriptOk = await loadPyodideScript(base + "pyodide.js", 30000);
+      if (!scriptOk) continue;
+    }
+    try {
+      return await withTimeout(
+        (window as any).loadPyodide({ indexURL: base }),
+        PYODIDE_LOAD_TIMEOUT_MS,
+        `Python runtime download from ${base} timed out.`
+      );
+    } catch {
+      // Stalled or failed on this CDN — try the next one.
+    }
+  }
+  throw new Error(
+    "Python runtime could not load from jsDelivr or unpkg — check your connection and retry."
+  );
 }

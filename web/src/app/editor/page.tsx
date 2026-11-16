@@ -8,7 +8,7 @@ import { AppNavbar } from "@/components/AppNavbar";
 import { ModulesPanel } from "@/components/ModulesPanel";
 import { fetchSessionUser } from "@/lib/auth-client";
 import { restoreStoredPackages } from "@/lib/package-storage";
-import { waitForPyodideScript, loadPyodideScript, withTimeout, PYODIDE_LOAD_TIMEOUT_MS } from "@/lib/pyodide-install";
+import { loadPyodideRuntime, withTimeout } from "@/lib/pyodide-install";
 import {
   AlertCircle,
   Bug,
@@ -253,32 +253,12 @@ export default function CodeEditorPage() {
     if (pyodideRef.current) return pyodideRef.current;
     if (pyodideInitPromiseRef.current) return pyodideInitPromiseRef.current;
     const promise = (async () => {
-      // The jsDelivr <Script> loads async — wait for it instead of
-      // returning immediately (the old code did that, so an early
-      // Install click always failed with "environment is not ready").
-      // If the <Script> tag itself failed (jsDelivr occasionally 404s
-      // a single request), retry with a fresh <script> tag instead of
-      // failing — otherwise no Install can ever work until a reload.
-      let scriptReady = await waitForPyodideScript(10000);
-      if (!scriptReady) {
-        scriptReady = await loadPyodideScript(30000);
-      }
-      if (!scriptReady || !window.loadPyodide) {
-        throw new Error(
-          "Pyodide script did not load from cdn.jsdelivr.net — check your connection and retry."
-        );
-      }
+      // Load the runtime with CDN fallback (jsDelivr, then unpkg):
+      // the jsDelivr download alone used to stall for minutes on
+      // some networks and hang the whole install. loadPyodideRuntime
+      // gives each CDN 60s and tries the next one on a stall.
       setLoadingEngine(true);
-      // The runtime download (~15 MB) has no timeout of its own — a
-      // stalled download used to hang the install forever with no
-      // error. Fail loudly after 2 minutes instead.
-      const pyodide = await withTimeout(
-        window.loadPyodide({
-          indexURL: "https://cdn.jsdelivr.net/pyodide/v0.27.2/full/",
-        }),
-        PYODIDE_LOAD_TIMEOUT_MS,
-        "Python runtime download timed out after 2 minutes — check your connection and retry."
-      );
+      const pyodide = await loadPyodideRuntime();
       // Stop button support, when the browser allows SharedArrayBuffer.
       try {
         if (typeof SharedArrayBuffer !== "undefined") {
