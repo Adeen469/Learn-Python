@@ -10,6 +10,294 @@
   color-scheme: dark;
 }
 
+/* Light theme (Settings → Appearance → Light). The app is built with
+   hardcoded dark Tailwind utilities, so light mode flips them here —
+   one override block, same muted palette (white surfaces, black
+   text, neutral greys). Anything not listed keeps its dark value,
+   so keep this list in sync with the utilities the app uses. */
+html.light {
+  color-scheme: light;
+}
+
+html.light .bg-black,
+html.light .bg-neutral-950 {
+  background-color: #ffffff;
+}
+html.light .bg-neutral-900 {
+  background-color: #f5f5f5;
+}
+html.light .bg-neutral-800 {
+  background-color: #e5e5e5;
+}
+html.light .bg-white {
+  background-color: #000000;
+}
+html.light .bg-neutral-200 {
+  background-color: #e5e5e5;
+}
+html.light .bg-neutral-500 {
+  background-color: #a3a3a3;
+}
+html.light .bg-black\/95 {
+  background-color: rgba(255, 255, 255, 0.95);
+}
+html.light .bg-black\/85 {
+  background-color: rgba(255, 255, 255, 0.85);
+}
+html.light .bg-black\/80 {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+html.light .bg-black\/70 {
+  background-color: rgba(255, 255, 255, 0.7);
+}
+html.light .bg-black\/60 {
+  background-color: rgba(255, 255, 255, 0.6);
+}
+html.light .bg-neutral-900\/60 {
+  background-color: rgba(245, 245, 245, 0.6);
+}
+html.light .bg-white\/20 {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+html.light .border-neutral-800,
+html.light .border-neutral-800\/70 {
+  border-color: #e5e5e5;
+}
+html.light .border-neutral-900 {
+  border-color: #f5f5f5;
+}
+html.light .border-neutral-700 {
+  border-color: #d4d4d4;
+}
+html.light .border-neutral-600 {
+  border-color: #a3a3a3;
+}
+html.light .border-white {
+  border-color: #000000;
+}
+
+html.light .text-white {
+  color: #000000;
+}
+html.light .text-neutral-100,
+html.light .text-neutral-200 {
+  color: #171717;
+}
+html.light .text-neutral-300,
+html.light .text-neutral-700 {
+  color: #404040;
+}
+html.light .text-neutral-400,
+html.light .text-neutral-600 {
+  color: #525252;
+}
+html.light .text-neutral-500 {
+  color: #737373;
+}
+html.light .text-black {
+  color: #ffffff;
+}
+
+html.light .hover\:text-white:hover {
+  color: #000000;
+}
+html.light .hover\:text-neutral-100:hover {
+  color: #171717;
+}
+html.light .hover\:text-neutral-300:hover {
+  color: #404040;
+}
+html.light .hover\:bg-neutral-900:hover,
+html.light .hover\:bg-neutral-900\/60:hover {
+  background-color: #f5f5f5;
+}
+html.light .hover\:bg-neutral-800:hover {
+  background-color: #e5e5e5;
+}
+html.light .hover\:bg-neutral-200:hover {
+  background-color: #262626;
+}
+html.light .hover\:border-neutral-600:hover {
+  border-color: #a3a3a3;
+}
+html.light .hover\:border-neutral-700:hover {
+  border-color: #d4d4d4;
+}
+html.light .focus\:border-white:focus {
+  border-color: #000000;
+}
+html.light .focus\:border-neutral-600:focus {
+  border-color: #a3a3a3;
+}
+html.light .placeholder-neutral-600::placeholder {
+  color: #a3a3a3;
+}
+html.light .ring-neutral-800 {
+  --tw-ring-color: #e5e5e5;
+}
+html.light .ring-white {
+  --tw-ring-color: #000000;
+}
+html.light .ring-white\/20 {
+  --tw-ring-color: rgba(0, 0, 0, 0.2);
+}
+html.light .selection\:bg-white::selection {
+  background-color: #000000;
+}
+html.light .selection\:text-black::selection {
+  color: #ffffff;
+}
+
+/* Accent colours (quiz/editor states, code output): bright-on-dark
+   shades go deep so they still read on white. */
+html.light .text-red-200 {
+  color: #991b1b;
+}
+html.light .text-red-400 {
+  color: #dc2626;
+}
+html.light .text-green-400 {
+  color: #15803d;
+}
+html.light .text-emerald-200 {
+  color: #065f46;
+}
+html.light .text-emerald-300 {
+  color: #047857;
+}
+html.light .text-emerald-400 {
+  color: #059669;
+}
+html.light .text-amber-200 {
+  color: #92400e;
+}
+html.light .text-amber-300 {
+  color: #b45309;
+}
+html.light .text-amber-400 {
+  color: #d97706;
+}
+html.light .text-sky-200 {
+  color: #075985;
+}
+html.light .text-sky-300 {
+  color: #0369a1;
+}
+html.light .bg-red-500 {
+  background-color: #dc2626;
+}
+html.light .bg-emerald-500 {
+  background-color: #059669;
+}
+html.light .bg-green-500 {
+  background-color: #16a34a;
+}
+html.light .bg-amber-500,
+html.light .bg-amber-400 {
+  background-color: #d97706;
+}
+html.light .bg-sky-500 {
+  background-color: #0284c7;
+}
+html.light .border-red-500 {
+  border-color: #dc2626;
+}
+html.light .border-green-500 {
+  border-color: #16a34a;
+}
+html.light .border-emerald-500 {
+  border-color: #059669;
+}
+html.light .border-amber-500 {
+  border-color: #d97706;
+}
+html.light .border-sky-500 {
+  border-color: #0284c7;
+}
+html.light .border-red-900 {
+  border-color: #fecaca;
+}
+
+/* Same accents with opacity (code output, quiz states). */
+html.light .text-emerald-300\/90 {
+  color: rgba(4, 120, 87, 0.9);
+}
+html.light .text-emerald-400\/90 {
+  color: rgba(5, 150, 105, 0.9);
+}
+html.light .text-sky-300\/90 {
+  color: rgba(3, 105, 161, 0.9);
+}
+html.light .text-amber-300\/90 {
+  color: rgba(180, 83, 9, 0.9);
+}
+html.light .border-emerald-500\/40 {
+  border-color: rgba(5, 150, 105, 0.4);
+}
+html.light .border-green-500\/40 {
+  border-color: rgba(22, 163, 74, 0.4);
+}
+html.light .border-red-500\/40 {
+  border-color: rgba(220, 38, 38, 0.4);
+}
+html.light .border-red-500\/50 {
+  border-color: rgba(220, 38, 38, 0.5);
+}
+html.light .border-amber-500\/40 {
+  border-color: rgba(217, 119, 6, 0.4);
+}
+html.light .border-amber-500\/25 {
+  border-color: rgba(217, 119, 6, 0.25);
+}
+html.light .border-sky-500\/25 {
+  border-color: rgba(2, 132, 199, 0.25);
+}
+html.light .bg-red-500\/10 {
+  background-color: rgba(220, 38, 38, 0.1);
+}
+html.light .bg-red-500\/20 {
+  background-color: rgba(220, 38, 38, 0.2);
+}
+html.light .bg-green-500\/10 {
+  background-color: rgba(22, 163, 74, 0.1);
+}
+html.light .bg-emerald-500\/10 {
+  background-color: rgba(5, 150, 105, 0.1);
+}
+html.light .bg-amber-500\/10 {
+  background-color: rgba(217, 119, 6, 0.1);
+}
+html.light .bg-amber-500\/5 {
+  background-color: rgba(217, 119, 6, 0.05);
+}
+html.light .bg-sky-500\/5 {
+  background-color: rgba(2, 132, 199, 0.05);
+}
+
+/* The logo is a white-on-black tile, so it inverts in light mode. */
+html.light img[src="/lp-logo.png"] {
+  filter: invert(1);
+}
+
+/* Light-mode scrollbars: same slim pill, dark on light. */
+html.light * {
+  scrollbar-color: rgba(0, 0, 0, 0.45) rgba(0, 0, 0, 0.05);
+}
+html.light *::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+html.light *::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.45);
+}
+html.light *:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.9);
+}
+html.light *::-webkit-scrollbar-thumb:hover,
+html.light *::-webkit-scrollbar-thumb:active {
+  background-color: #000000;
+}
+
 /* Modern scrollbars, everywhere — matched to the theme: the app's
    accent is white (buttons, active nav, progress fill). The bar is a
    subtle groove with a white pill that stays faint at rest and turns

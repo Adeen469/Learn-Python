@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpenText, Code2, Flame, Github, LogOut, Map, MonitorPlay, Target, User } from "lucide-react";
+import { BookOpenText, Code2, Github, LogOut, Map, MonitorPlay, Settings, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   fetchSessionUser,
@@ -11,13 +11,17 @@ import {
 } from "@/lib/auth-client";
 import { ROADMAP_SEEN_KEY } from "@/lib/roadmap";
 import { RoadmapHint, RoadmapModal } from "@/components/RoadmapModal";
+import { SettingsModal } from "@/components/SettingsModal";
+import {
+  applyTheme,
+  getStoredTheme,
+  type Theme,
+} from "@/lib/theme";
 import {
   PROGRESS_UPDATED_EVENT,
-  computeStreak,
   emptyProgress,
   loadProgress,
   todayKey,
-  wholeMinutes,
   type ProgressState,
 } from "@/lib/progress";
 
@@ -33,11 +37,13 @@ function ProfileMenuItems({
   user,
   onSignOut,
   onRoadmap,
+  onSettings,
   onClose,
 }: {
   user: SessionUser | null;
   onSignOut: () => void;
   onRoadmap: () => void;
+  onSettings: () => void;
   onClose: () => void;
 }) {
   return (
@@ -79,6 +85,16 @@ function ProfileMenuItems({
       >
         <Github className="h-4 w-4 text-neutral-400" /> GitHub
       </Link>
+      <button
+        type="button"
+        onClick={() => {
+          onClose();
+          onSettings();
+        }}
+        className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-neutral-200 hover:bg-neutral-900 hover:text-white transition"
+      >
+        <Settings className="h-4 w-4 text-neutral-400" /> Settings
+      </button>
       {user && (
         <button
           type="button"
@@ -111,6 +127,20 @@ export function AppNavbar() {
   const [user, setUser] = useState<SessionUser | null>(null);
   const [roadmapOpen, setRoadmapOpen] = useState(false);
   const [roadmapHintOpen, setRoadmapHintOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [theme, setTheme] = useState<Theme>("dark");
+
+  // Apply the saved theme (dark by default) once the navbar mounts.
+  // The inline script in layout.tsx already applied it before paint;
+  // this just syncs the toggle state with it.
+  useEffect(() => {
+    setTheme(getStoredTheme());
+  }, []);
+
+  function handleThemeChange(next: Theme) {
+    setTheme(next);
+    applyTheme(next);
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -225,10 +255,11 @@ export function AppNavbar() {
 
   return (
     <>
-      {/* PC top bar: Learn, Video Courses, Code Editor, profile dropdown top-right. */}
+      {/* PC top bar: logo left, the three nav buttons centred, profile
+          dropdown top-right. */}
       <header className="sticky top-0 z-30 border-b border-neutral-800 bg-black/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-2.5">
-          <div className="flex min-w-0 items-center gap-4 sm:gap-6">
+        <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-2.5">
+          <div className="flex min-w-0 items-center justify-start">
             <Link href="/" className="flex shrink-0 items-center gap-2.5 hover:opacity-90 transition">
               <img
                 src="/lp-logo.png"
@@ -241,44 +272,36 @@ export function AppNavbar() {
                 LP <span className="hidden text-xs text-neutral-500 font-normal lg:inline">Learn Python</span>
               </span>
             </Link>
-
-            {/* Nav links live here on PC only; mobile uses the bottom bar. */}
-            <nav className="hidden items-center gap-1 md:flex">
-              {navLinks.map(({ href, label, icon: Icon, match }) => {
-                const active = pathname === href || pathname.startsWith(match + "/");
-                return (
-                  <Link
-                    key={href}
-                    href={href}
-                    title={label}
-                    aria-label={label}
-                    className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-xs font-medium transition sm:px-3 ${
-                      active
-                        ? "bg-white text-black"
-                        : "text-neutral-400 hover:text-white hover:bg-neutral-900"
-                    }`}
-                  >
-                    <Icon className="h-3.5 w-3.5" />
-                    <span className="hidden lg:inline">{label}</span>
-                  </Link>
-                );
-              })}
-            </nav>
           </div>
 
-          <div className="flex shrink-0 items-center gap-2.5">
-            <div className="flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-neutral-800 bg-neutral-950 px-2.5 py-1 text-xs text-neutral-300">
-              <Target className="h-3.5 w-3.5 text-neutral-400" />
-              <span>{wholeMinutes(progress.seconds)}/{progress.goalMinutes}m</span>
-            </div>
-            <div className="hidden items-center gap-1.5 whitespace-nowrap rounded-lg border border-neutral-800 bg-neutral-950 px-2.5 py-1 text-xs text-white md:flex">
-              <Flame className="h-3.5 w-3.5 text-white" />
-              <span>{computeStreak(progress.activeDates, progress.date)}d streak</span>
-            </div>
+          {/* Nav links live here on PC only, centred; mobile uses the bottom bar. */}
+          <nav className="hidden items-center justify-center gap-1 md:flex">
+            {navLinks.map(({ href, label, icon: Icon, match }) => {
+              const active = pathname === href || pathname.startsWith(match + "/");
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  title={label}
+                  aria-label={label}
+                  className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-xs font-medium transition sm:px-3 ${
+                    active
+                      ? "bg-white text-black"
+                      : "text-neutral-400 hover:text-white hover:bg-neutral-900"
+                  }`}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  <span className="hidden lg:inline">{label}</span>
+                </Link>
+              );
+            })}
+          </nav>
 
+          <div className="flex shrink-0 items-center justify-end gap-2.5">
             {/* Profile dropdown (top-right). Shows the signed-in Google
                 account (picture + name) with Sign out; guests get a
-                sign-in link. */}
+                sign-in link. Today's goal and streak now live in
+                Settings, not as pills in the bar. */}
             <div className="relative hidden md:block">
               <button
                 type="button"
@@ -312,6 +335,7 @@ export function AppNavbar() {
                     user={user}
                     onSignOut={handleSignOut}
                     onRoadmap={() => setRoadmapOpen(true)}
+                    onSettings={() => setSettingsOpen(true)}
                     onClose={() => setProfileOpen(false)}
                   />
                 </div>
@@ -373,6 +397,7 @@ export function AppNavbar() {
                   user={user}
                   onSignOut={handleSignOut}
                   onRoadmap={() => setRoadmapOpen(true)}
+                  onSettings={() => setSettingsOpen(true)}
                   onClose={() => setProfileOpen(false)}
                 />
               </div>
@@ -388,6 +413,14 @@ export function AppNavbar() {
         <RoadmapModal onClose={handleCloseRoadmap} onNavigate={handleRoadmapNavigate} />
       )}
       {roadmapHintOpen && <RoadmapHint onGotIt={handleRoadmapHintGotIt} />}
+      {settingsOpen && (
+        <SettingsModal
+          progress={progress}
+          theme={theme}
+          onThemeChange={handleThemeChange}
+          onClose={() => setSettingsOpen(false)}
+        />
+      )}
     </>
   );
 }

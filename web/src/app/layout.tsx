@@ -44,6 +44,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
+      <head>
+        {/* Apply the saved theme before first paint, so a light-mode
+            user never sees a flash of dark. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem("lp_theme")==="light"){document.documentElement.classList.add("light")}}catch(e){}`,
+          }}
+        />
+      </head>
       <body className="min-h-screen bg-black text-white antialiased selection:bg-white selection:text-black">
         {children}
       </body>

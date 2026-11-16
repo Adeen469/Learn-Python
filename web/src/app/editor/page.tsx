@@ -7,6 +7,10 @@ import Editor from "@monaco-editor/react";
 import { AppNavbar } from "@/components/AppNavbar";
 import { ModulesPanel } from "@/components/ModulesPanel";
 import { fetchSessionUser } from "@/lib/auth-client";
+import {
+  THEME_CHANGED_EVENT,
+  getStoredTheme,
+} from "@/lib/theme";
 import { restoreStoredPackages } from "@/lib/package-storage";
 import { loadPyodideRuntime, withTimeout } from "@/lib/pyodide-install";
 import {
@@ -104,6 +108,18 @@ declare global {
 }
 
 export default function CodeEditorPage() {
+  const [editorTheme, setEditorTheme] = useState<"lp-dark" | "lp-light">(() =>
+    typeof window === "undefined" || getStoredTheme() === "dark" ? "lp-dark" : "lp-light"
+  );
+
+  // Follow the theme toggle (Settings → Appearance) live.
+  useEffect(() => {
+    const sync = () => {
+      setEditorTheme(getStoredTheme() === "light" ? "lp-light" : "lp-dark");
+    };
+    window.addEventListener(THEME_CHANGED_EVENT, sync);
+    return () => window.removeEventListener(THEME_CHANGED_EVENT, sync);
+  }, []);
   const router = useRouter();
   const [items, setItems] = useState<WorkspaceItem[]>(DEFAULT_WORKSPACE);
   const [activeFilePath, setActiveFilePath] = useState<string>("main.py");
@@ -998,7 +1014,7 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
               <Editor
                 height="100%"
                 language="python"
-                theme="lp-dark"
+                theme={editorTheme}
                 value={activeFile?.content ?? ""}
                 onChange={handleEditorChange}
                 beforeMount={(monaco) => {
@@ -1016,6 +1032,22 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
                       "minimapSliderBackground": "#ffffff33",
                       "minimapSliderHoverBackground": "#ffffff73",
                       "minimapSliderActiveBackground": "#ffffffbf",
+                    },
+                  });
+                  // lp-light: the same, on the light base — dark pill
+                  // on a light editor.
+                  monaco.editor.defineTheme("lp-light", {
+                    base: "vs",
+                    inherit: true,
+                    rules: [],
+                    colors: {
+                      "scrollbarSliderBackground": "#00000073",
+                      "scrollbarSliderHoverBackground": "#000000e6",
+                      "scrollbarSliderActiveBackground": "#000000",
+                      "scrollbarShadow": "#00000000",
+                      "minimapSliderBackground": "#00000033",
+                      "minimapSliderHoverBackground": "#00000073",
+                      "minimapSliderActiveBackground": "#000000bf",
                     },
                   });
                 }}
