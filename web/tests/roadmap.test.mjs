@@ -1,148 +1,120 @@
+import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import test from "node:test";
+import { readdirSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
-// Inline pure helpers for zero-build node --test verification
-// (mirrors web/src/lib/roadmap.ts)
+const webDir = join(dirname(fileURLToPath(import.meta.url)), "..");
+const read = (rel) => readFileSync(join(webDir, rel), "utf8");
 
-const ROADMAP_STAGES = [
-  { id: "basics", title: "Basics", startDay: 1, endDay: 19 },
-  { id: "functions", title: "Functions & Collections", startDay: 20, endDay: 30 },
-  { id: "data", title: "Data Structures & Errors", startDay: 31, endDay: 39 },
-  { id: "intermediate", title: "Intermediate Python", startDay: 40, endDay: 55 },
-  { id: "oop", title: "Object-Oriented Programming", startDay: 56, endDay: 83 },
-  { id: "advanced", title: "Advanced & Projects", startDay: 84, endDay: 100 },
-];
-
-function dayNumberOf(lesson) {
-  const m = /^python-day-(\d+)$/.exec(lesson.id);
-  return m ? parseInt(m[1], 10) : null;
+// Extract the topic rows from the data file (static mirror of the
+// ROADMAP_STAGES shape — the component is checked separately).
+function topicsFromData() {
+  const src = read("src/lib/roadmap.ts");
+  const rows = [...src.matchAll(
+    /\{\s*id: "([^"]+)", title: "([^"]+)", learnSlug: ("[^"]+"|null), difficulty: "(Beginner|Intermediate|Advanced)", estimatedMinutes: (\d+),/g
+  )];
+  return rows.map((m) => ({
+    id: m[1],
+    title: m[2],
+    learnSlug: m[3] === "null" ? null : m[3].slice(1, -1),
+    difficulty: m[4],
+    minutes: Number(m[5]),
+  }));
 }
 
-function buildRoadmapStages(lessons, completedIds) {
-  return ROADMAP_STAGES.map((def) => {
-    const stageLessons = lessons.filter((l) => {
-      const d = dayNumberOf(l);
-      return d !== null && d >= def.startDay && d <= def.endDay;
-    });
-    const completedCount = stageLessons.filter((l) => completedIds.includes(l.id)).length;
-    const percent =
-      stageLessons.length === 0
-        ? 0
-        : Math.round((completedCount / stageLessons.length) * 100);
-    const nextLesson = stageLessons.find((l) => !completedIds.includes(l.id)) ?? null;
-    const complete = stageLessons.length > 0 && completedCount === stageLessons.length;
-    return { ...def, lessons: stageLessons, completedCount, percent, complete, nextLesson };
+describe("roadmap data (LP-RM topics, timeline rail)", () => {
+  test("29 topics in 6 stages, unique ids", () => {
+    const src = read("src/lib/roadmap.ts");
+    const stages = [...src.matchAll(/id: "(basics|structures|control|oop|libraries|advanced)",/g)];
+    assert.equal(stages.length, 6, "must have exactly 6 stages");
+    const topics = topicsFromData();
+    assert.equal(topics.length, 29, "must carry all 29 LP-RM topics");
+    assert.equal(new Set(topics.map((t) => t.id)).size, 29, "topic ids must be unique");
   });
-}
 
-// First incomplete stage — the one the learner is working through now.
-// Null when every stage is complete.
-function currentStage(stages) {
-  return stages.find((s) => !s.complete) ?? null;
-}
+  test("every topic links to a real /learn page, except Machine Learning", () => {
+    const learnFiles = readdirSync(join(webDir, "src/lib/learn")).filter((f) =>
+      f.endsWith(".ts")
+    );
+    const learnSrc = learnFiles
+      .map((f) => readFileSync(join(webDir, "src/lib/learn", f), "utf8"))
+      .join("\n");
+    const topics = topicsFromData();
+    const noPage = topics.filter((t) => t.learnSlug === null);
+    assert.deepEqual(
+      noPage.map((t) => t.id),
+      ["machine-learning"],
+      "only Machine Learning may lack a /learn page"
+    );
+    for (const t of topics) {
+      if (!t.learnSlug) continue;
+      assert.ok(
+        learnSrc.includes(`slug: "${t.learnSlug}"`),
+        `${t.id} links to /learn/${t.learnSlug}, which must exist`
+      );
+    }
+  });
 
-function completedStageCount(stages) {
-  return stages.filter((s) => s.complete).length;
-}
+  test("total time is 580 minutes", () => {
+    const topics = topicsFromData();
+    const total = topics.reduce((n, t) => n + t.minutes, 0);
+    assert.equal(total, 580, "29 topics must total 580 minutes (~9h 40m)");
+  });
 
-function makeLessons() {
-  const lessons = [];
-  for (let day = 1; day <= 100; day += 1) {
-    lessons.push({
-      id: `python-day-${String(day).padStart(3, "0")}`,
-      title: `Day ${day}`,
-      moduleTitle: "100 Days of Code",
-      courseTitle: "Python for Beginners (Full Course)",
-      durationSeconds: 600,
-      videoUrl: "",
-      videoSource: "mega",
-      notes: "",
-    });
-  }
-  return lessons;
-}
-
-test("100 day-lessons split into 6 stages with the honest day ranges", () => {
-  const stages = buildRoadmapStages(makeLessons(), []);
-  assert.equal(stages.length, 6);
-  assert.deepEqual(
-    stages.map((s) => s.lessons.length),
-    [19, 11, 9, 16, 28, 17]
-  );
-  assert.equal(stages.reduce((n, s) => n + s.lessons.length, 0), 100);
-  // Stage boundaries follow the titles: Day 20 is Functions, Day 56 is OOP.
-  assert.equal(stages[1].lessons[0].id, "python-day-020");
-  assert.equal(stages[4].lessons[0].id, "python-day-056");
-  assert.equal(stages[5].lessons.at(-1).id, "python-day-100");
+  test("no 3D street baggage from LP-RM", () => {
+    const data = read("src/lib/roadmap.ts");
+    const modal = read("src/components/RoadmapModal.tsx");
+    for (const [name, src] of [["roadmap.ts", data], ["RoadmapModal.tsx", modal]]) {
+      for (const banned of ["@react-three", "three", "shapeType", "icosahedron", "RoadmapCanvas"]) {
+        assert.ok(!src.includes(banned), `${name} must not contain ${banned}`);
+      }
+    }
+  });
 });
 
+describe("roadmap modal + hint", () => {
+  test("modal shows the path, progress, and done states from /learn", () => {
+    const modal = read("src/components/RoadmapModal.tsx");
+    assert.ok(modal.includes("Your Python Roadmap"), "modal must be titled Your Python Roadmap");
+    assert.ok(modal.includes('aria-label="Close roadmap"'), "modal must have a Close button");
+    assert.ok(modal.includes("lp_learn_completed"), "modal must read /learn completion");
+    assert.ok(modal.includes("roadmapTopicHref"), "topics must link through roadmapTopicHref");
+  });
 
-test("percent and next lesson follow the completed ids", () => {
-  const lessons = makeLessons();
-  const done = ["python-day-001", "python-day-002", "python-day-020"];
-  const stages = buildRoadmapStages(lessons, done);
-  const basics = stages[0];
-  assert.equal(basics.completedCount, 2);
-  assert.equal(basics.percent, Math.round((2 / 19) * 100));
-  assert.equal(basics.nextLesson.id, "python-day-003");
-  const functions = stages[1];
-  assert.equal(functions.completedCount, 1);
-  assert.equal(functions.nextLesson.id, "python-day-021");
+  test("closing shows where to find the roadmap again", () => {
+    const modal = read("src/components/RoadmapModal.tsx");
+    assert.ok(
+      modal.includes("Next time you can preview the roadmap from the profile dropdown"),
+      "hint must point at the profile dropdown"
+    );
+    assert.ok(modal.includes("Got it"), "hint must have a Got it button");
+  });
 });
 
-test("a fully completed stage has 100% and no next lesson", () => {
-  const lessons = makeLessons();
-  const done = [];
-  for (let day = 31; day <= 39; day += 1) done.push(`python-day-${String(day).padStart(3, "0")}`);
-  const stages = buildRoadmapStages(lessons, done);
-  assert.equal(stages[2].percent, 100);
-  assert.equal(stages[2].nextLesson, null);
-  assert.equal(stages[0].percent, 0);
-  assert.equal(stages[0].nextLesson.id, "python-day-001");
+describe("roadmap wiring in the navbar", () => {
+  test("profile menu has a Roadmap item (signed-in) and the modal is mounted", () => {
+    const nav = read("src/components/AppNavbar.tsx");
+    assert.ok(nav.includes("Roadmap"), "profile menu must offer Roadmap");
+    assert.ok(nav.includes("RoadmapModal"), "navbar must mount the roadmap modal");
+    assert.ok(nav.includes("RoadmapHint"), "navbar must mount the hint popup");
+  });
+
+  test("first sign-in auto-shows once, then marks it seen", () => {
+    const nav = read("src/components/AppNavbar.tsx");
+    const data = read("src/lib/roadmap.ts");
+    assert.ok(
+      data.includes('ROADMAP_SEEN_KEY = "lp_roadmap_seen"'),
+      "lib/roadmap must define the lp_roadmap_seen flag"
+    );
+    assert.ok(nav.includes("ROADMAP_SEEN_KEY"), "navbar must use the ROADMAP_SEEN_KEY flag");
+    assert.ok(
+      nav.includes("localStorage.getItem(ROADMAP_SEEN_KEY)"),
+      "navbar must check the flag before auto-showing"
+    );
+    assert.ok(
+      nav.includes('localStorage.setItem(ROADMAP_SEEN_KEY, "1")'),
+      "closing the roadmap must mark it seen"
+    );
+  });
 });
-
-test("dayNumberOf returns null for unknown ids", () => {
-  assert.equal(dayNumberOf({ id: "something-else" }), null);
-  assert.equal(dayNumberOf({ id: "python-day-042" }), 42);
-});
-
-test("a stage is complete only when ALL its lessons are done", () => {
-  const lessons = makeLessons();
-  // Basics is 19 lessons; completing 18 of them is not complete.
-  const almost = [];
-  for (let day = 1; day <= 18; day += 1) almost.push(`python-day-${String(day).padStart(3, "0")}`);
-  let stages = buildRoadmapStages(lessons, almost);
-  assert.equal(stages[0].complete, false);
-  assert.equal(stages[0].percent, Math.round((18 / 19) * 100));
-  // All 19 done: complete, 100%, no next lesson.
-  const all = [...almost, "python-day-019"];
-  stages = buildRoadmapStages(lessons, all);
-  assert.equal(stages[0].complete, true);
-  assert.equal(stages[0].percent, 100);
-  assert.equal(stages[0].nextLesson, null);
-  // The other stages are untouched.
-  assert.equal(stages[1].complete, false);
-  assert.equal(stages[1].percent, 0);
-});
-
-test("current stage is the first incomplete stage", () => {
-  const lessons = makeLessons();
-  // Nothing done: Basics is current.
-  let stages = buildRoadmapStages(lessons, []);
-  assert.equal(currentStage(stages).id, "basics");
-  // Basics done (Day 1-19): Functions & Collections is current.
-  const basicsDone = [];
-  for (let day = 1; day <= 19; day += 1) basicsDone.push(`python-day-${String(day).padStart(3, "0")}`);
-  stages = buildRoadmapStages(lessons, basicsDone);
-  assert.equal(currentStage(stages).id, "functions");
-  assert.equal(completedStageCount(stages), 1);
-  // Everything done: no current stage, all 6 complete.
-  const everything = lessons
-    .filter((l) => l.id.startsWith("python-day-"))
-    .map((l) => l.id);
-  stages = buildRoadmapStages(lessons, everything);
-  assert.equal(currentStage(stages), null);
-  assert.equal(completedStageCount(stages), 6);
-});
-
-

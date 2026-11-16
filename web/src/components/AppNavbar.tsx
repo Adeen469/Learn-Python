@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpenText, Code2, Flame, Github, LogOut, MonitorPlay, Target, User } from "lucide-react";
+import { BookOpenText, Code2, Flame, Github, LogOut, Map, MonitorPlay, Target, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   fetchSessionUser,
   signOut,
   type SessionUser,
 } from "@/lib/auth-client";
+import { ROADMAP_SEEN_KEY } from "@/lib/roadmap";
+import { RoadmapHint, RoadmapModal } from "@/components/RoadmapModal";
 import {
   PROGRESS_UPDATED_EVENT,
   computeStreak,
@@ -30,10 +32,12 @@ const navLinks = [
 function ProfileMenuItems({
   user,
   onSignOut,
+  onRoadmap,
   onClose,
 }: {
   user: SessionUser | null;
   onSignOut: () => void;
+  onRoadmap: () => void;
   onClose: () => void;
 }) {
   return (
@@ -78,6 +82,18 @@ function ProfileMenuItems({
       {user && (
         <button
           type="button"
+          onClick={() => {
+            onClose();
+            onRoadmap();
+          }}
+          className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-neutral-200 hover:bg-neutral-900 hover:text-white transition"
+        >
+          <Map className="h-4 w-4 text-neutral-400" /> Roadmap
+        </button>
+      )}
+      {user && (
+        <button
+          type="button"
           onClick={onSignOut}
           className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-neutral-200 hover:bg-neutral-900 hover:text-white transition"
         >
@@ -93,6 +109,8 @@ export function AppNavbar() {
   const [progress, setProgress] = useState<ProgressState>(() => emptyProgress(todayKey()));
   const [profileOpen, setProfileOpen] = useState(false);
   const [user, setUser] = useState<SessionUser | null>(null);
+  const [roadmapOpen, setRoadmapOpen] = useState(false);
+  const [roadmapHintOpen, setRoadmapHintOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -103,6 +121,30 @@ export function AppNavbar() {
       cancelled = true;
     };
   }, []);
+
+  // First sign-in on this browser: show the roadmap once, right
+  // after registration. Closing it marks it seen, so it never
+  // auto-shows again — it stays reachable from the profile menu.
+  useEffect(() => {
+    if (!user) return;
+    try {
+      if (localStorage.getItem(ROADMAP_SEEN_KEY) !== "1") {
+        setRoadmapOpen(true);
+      }
+    } catch {
+      // If storage is unavailable, don't block the page.
+    }
+  }, [user]);
+
+  function handleCloseRoadmap() {
+    setRoadmapOpen(false);
+    try {
+      localStorage.setItem(ROADMAP_SEEN_KEY, "1");
+    } catch {
+      // Ignore storage failures.
+    }
+    setRoadmapHintOpen(true);
+  }
 
   useEffect(() => {
     const refresh = () => {
@@ -239,6 +281,7 @@ export function AppNavbar() {
                   <ProfileMenuItems
                     user={user}
                     onSignOut={handleSignOut}
+                    onRoadmap={() => setRoadmapOpen(true)}
                     onClose={() => setProfileOpen(false)}
                   />
                 </div>
@@ -299,6 +342,7 @@ export function AppNavbar() {
                 <ProfileMenuItems
                   user={user}
                   onSignOut={handleSignOut}
+                  onRoadmap={() => setRoadmapOpen(true)}
                   onClose={() => setProfileOpen(false)}
                 />
               </div>
@@ -306,6 +350,11 @@ export function AppNavbar() {
           </div>
         </div>
       </nav>
+
+      {/* Python roadmap: auto-shows once after first sign-in, and
+          reopens from the profile menu any time after that. */}
+      {roadmapOpen && <RoadmapModal onClose={handleCloseRoadmap} />}
+      {roadmapHintOpen && <RoadmapHint onGotIt={() => setRoadmapHintOpen(false)} />}
     </>
   );
 }
