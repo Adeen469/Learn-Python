@@ -113,9 +113,9 @@ the profile (email, name, picture) goes into the session payload.
 One-time setup (owner steps):
 
 1. Add `SESSION_SECRET` (≥32 random chars, e.g. `openssl rand -hex 32`)
-   as a Fly secret for `learn-python-programming`, then redeploy.
+   as a Fly secret for `learnpython`, then redeploy.
 2. In the Google Cloud OAuth client, the authorized redirect URI must
-   be `https://learn-python-programming.fly.dev/api/auth/callback/google`
+   be `https://learnpython.fly.dev/api/auth/callback/google`
    (already added). For local dev, add
    `http://localhost:3000/api/auth/callback/google` — the older localhost
    entry used the path `/auth/callback`, which this app does not serve.
