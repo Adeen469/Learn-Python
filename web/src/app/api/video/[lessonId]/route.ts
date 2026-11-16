@@ -7,6 +7,12 @@ import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const lessonIdSchema = z.string().regex(/^[a-zA-Z0-9_-]{1,64}$/);
 
+// Video streams run long on a slow upstream (MEGA/Drive), so give this
+// route the full Hobby allowance — otherwise Vercel cuts playback
+// mid-chunk. (On Fly this was a no-op; a persistent machine has no
+// function timeout.)
+export const maxDuration = 60;
+
 const RATE_LIMITED_RESPONSE = (retryAfterSeconds: number) =>
   NextResponse.json(
     { error: "Too many requests — please slow down and retry shortly." },

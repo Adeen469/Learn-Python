@@ -96,3 +96,13 @@ test("creator and player routes exist and use the MEGA player", () => {
   assert.ok(player.includes("Today&apos;s Progress"), "player must keep Today's Progress");
   assert.ok(player.includes("Course Lessons"), "player must keep the lessons list");
 });
+
+test("video route allows the full Hobby duration for slow streams", () => {
+  const videoRoute = read(
+    join(webDir, "src/app/api/video/[lessonId]/route.ts")
+  );
+  assert.ok(
+    videoRoute.includes("export const maxDuration = 60"),
+    "video route must export maxDuration = 60 (Vercel Hobby cap)"
+  );
+});
