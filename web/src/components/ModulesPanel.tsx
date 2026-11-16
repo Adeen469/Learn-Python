@@ -66,8 +66,10 @@ const ALL_EXTERNAL: ExternalEntry[] = [
 interface ModulesPanelProps {
   /** The editor's shared Pyodide instance (same ref the editor uses). */
   pyodideRef: { current: any };
-  /** Loads the editor's Pyodide runtime if needed; true when ready. */
-  ensurePyodide: () => Promise<boolean>;
+  /** Loads the editor's Pyodide runtime if needed; true when ready.
+   * `onStage` reports each init step (which CDN is being tried,
+   * timeouts, success) so the progress bar shows real progress. */
+  ensurePyodide: (onStage?: (stage: string) => void) => Promise<boolean>;
 }
 
 export function ModulesPanel({ pyodideRef, ensurePyodide }: ModulesPanelProps) {
@@ -88,6 +90,20 @@ export function ModulesPanel({ pyodideRef, ensurePyodide }: ModulesPanelProps) {
   >({});
   const [logs, setLogs] = useState<string[]>([]);
   const [lastError, setLastError] = useState<string | null>(null);
+  // Elapsed-time ticker for the progress bars: the user kept asking
+  // "5 min hogaye?" because nothing showed how long an install had
+  // been running. Ticks once a second while any install is active.
+  const [installStartedAt, setInstallStartedAt] = useState<number | null>(null);
+  const [now, setNow] = useState(() => Date.now());
+  const anyInstalling = Object.values(installingMap).some(Boolean);
+  useEffect(() => {
+    if (!anyInstalling) {
+      setInstallStartedAt(null);
+      return;
+    }
+    const t = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(t);
+  }, [anyInstalling]);
 
   // External tab: search + source filter + install-by-name.
   const [externalQuery, setExternalQuery] = useState("");
@@ -121,6 +137,7 @@ export function ModulesPanel({ pyodideRef, ensurePyodide }: ModulesPanelProps) {
     // (installingMap) now covers the whole ensure + install flow, and
     // repeat clicks are blocked while it runs.
     setInstallingMap((prev) => ({ ...prev, [clean]: true }));
+    setInstallStartedAt((prev) => prev ?? Date.now());
     // A new install replaces any finished (100%) bars, keeping the
     // card to the installs actually running.
     setInstallProgress((prev) => {
@@ -136,7 +153,31 @@ export function ModulesPanel({ pyodideRef, ensurePyodide }: ModulesPanelProps) {
         [clean]: { stage: "Starting Python runtime…", pct: 10 },
       }));
       addLog("Starting Python runtime — one-time download (~15 MB), please wait…");
-      const ready = await ensurePyodide();
+      // The init reports each step (which CDN, timeouts, success) so
+      // the bar shows WHERE a slow load is stuck instead of a frozen
+      // "Starting Python runtime…" at 10%.
+      const ready = await ensurePyodide((stage) => {
+        const pct = stage.startsWith("Downloading runtime")
+          ? 15
+          : stage.includes("timed out") || stage.includes("trying the next CDN")
+            ? 20
+            : stage === "Loading micropip…"
+              ? 25
+              : stage === "Python runtime ready" || stage.startsWith("Runtime loaded")
+                ? 30
+                : 10;
+        setInstallProgress((prev) => ({
+          ...prev,
+          [clean]: { stage, pct },
+        }));
+        if (
+          stage.includes("timed out") ||
+          stage.startsWith("Runtime loaded") ||
+          stage.includes("did not load")
+        ) {
+          addLog(stage);
+        }
+      });
       if (!ready) {
         const msg =
           "Python environment could not start (the Pyodide script did not load). Check your connection and try again — the Install button will retry.";
@@ -592,6 +633,9 @@ if '${pkgName}' in sys.modules:
             <div className="flex justify-between text-[11px] font-mono text-neutral-300 mb-1">
               <span>
                 {pkg} — {progress.stage}
+                {installingMap[pkg] && installStartedAt
+                  ? ` · ${Math.max(0, Math.floor((now - installStartedAt) / 1000))}s`
+                  : ""}
               </span>
               <span>{progress.pct}%</span>
             </div>

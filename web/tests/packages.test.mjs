@@ -356,24 +356,32 @@ function waitForPyodideScriptMirror(timeoutMs = 20) {
   });
 }
 
-async function loadPyodideRuntimeMirror() {
+async function loadPyodideRuntimeMirror(onStage) {
   if (typeof window === "undefined") {
     throw new Error("Pyodide can only load in the browser.");
   }
+  onStage?.("Waiting for Pyodide script…");
   await waitForPyodideScriptMirror(20);
   for (const base of PYODIDE_CDN_BASES) {
+    const cdnName = base.includes("unpkg") ? "unpkg" : "jsDelivr";
     if (typeof window.loadPyodide !== "function") {
       const scriptOk = await loadPyodideScript(base + "pyodide.js", 20);
-      if (!scriptOk) continue;
+      if (!scriptOk) {
+        onStage?.(`${cdnName} script did not load — trying the next CDN…`);
+        continue;
+      }
     }
+    onStage?.(`Downloading runtime from ${cdnName}…`);
     try {
-      return await withTimeout(
+      const rt = await withTimeout(
         window.loadPyodide({ indexURL: base }),
         RUNTIME_LOAD_TIMEOUT_MS,
         `Python runtime download from ${base} timed out.`
       );
+      onStage?.(`Runtime loaded from ${cdnName}`);
+      return rt;
     } catch {
-      // Stalled or failed on this CDN — try the next one.
+      onStage?.(`${cdnName} timed out after 60s — trying the next CDN…`);
     }
   }
   throw new Error(
@@ -418,6 +426,26 @@ test("runtime throws a clear error when both CDNs fail", async () => {
       loadPyodideRuntimeMirror(),
       /could not load from jsDelivr or unpkg/
     );
+  } finally {
+    unstubDom();
+  }
+});
+
+test("runtime reports each CDN stage while falling back", async () => {
+  stubDom({
+    loadPyodide: (opts) =>
+      opts.indexURL.includes("jsdelivr")
+        ? new Promise(() => {}) // never settles
+        : Promise.resolve({ loadedFrom: opts.indexURL }),
+  });
+  try {
+    const stages = [];
+    const rt = await loadPyodideRuntimeMirror((s) => stages.push(s));
+    assert.equal(rt.loadedFrom, "https://unpkg.com/pyodide@0.27.2/");
+    assert.ok(stages.some((s) => s.includes("Downloading runtime from jsDelivr")));
+    assert.ok(stages.some((s) => s.includes("jsDelivr timed out")));
+    assert.ok(stages.some((s) => s.includes("Downloading runtime from unpkg")));
+    assert.ok(stages.some((s) => s.includes("Runtime loaded from unpkg")));
   } finally {
     unstubDom();
   }

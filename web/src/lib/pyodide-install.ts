@@ -243,28 +243,40 @@ export function loadPyodideScript(
  * of its own, and a stalled 15 MB download hung "Installing…"
  * for minutes with no error. Now each CDN gets 60s — jsDelivr
  * first, unpkg second — and a stalled one is abandoned for the
- * next instead of blocking the install. Throws when no CDN
- * delivers the runtime.
+ * next instead of blocking the install. `onStage` reports each
+ * step (which CDN is being tried, timeouts, success) so the UI can
+ * show WHERE a slow load is stuck instead of a frozen 10%.
+ * Throws when no CDN delivers the runtime.
  */
-export async function loadPyodideRuntime(): Promise<any> {
+export async function loadPyodideRuntime(
+  onStage?: (stage: string) => void
+): Promise<any> {
   if (typeof window === "undefined") {
     throw new Error("Pyodide can only load in the browser.");
   }
   // Give the editor's <Script> tag (jsDelivr) a chance first.
+  onStage?.("Waiting for Pyodide script…");
   await waitForPyodideScript(10000);
   for (const base of PYODIDE_CDN_BASES) {
+    const cdnName = base.includes("unpkg") ? "unpkg" : "jsDelivr";
     if (typeof (window as any).loadPyodide !== "function") {
       const scriptOk = await loadPyodideScript(base + "pyodide.js", 30000);
-      if (!scriptOk) continue;
+      if (!scriptOk) {
+        onStage?.(`${cdnName} script did not load — trying the next CDN…`);
+        continue;
+      }
     }
+    onStage?.(`Downloading runtime from ${cdnName}…`);
     try {
-      return await withTimeout(
+      const pyodide = await withTimeout(
         (window as any).loadPyodide({ indexURL: base }),
         PYODIDE_LOAD_TIMEOUT_MS,
         `Python runtime download from ${base} timed out.`
       );
+      onStage?.(`Runtime loaded from ${cdnName}`);
+      return pyodide;
     } catch {
-      // Stalled or failed on this CDN — try the next one.
+      onStage?.(`${cdnName} timed out after 60s — trying the next CDN…`);
     }
   }
   throw new Error(

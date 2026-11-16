@@ -240,6 +240,13 @@ export default function CodeEditorPage() {
   // and an Install click) could start two Pyodide loads at once, and a
   // click before the script finished just gave up with "not ready".
   const pyodideInitPromiseRef = useRef<Promise<any> | null>(null);
+  // Stage listeners for the in-flight init: the Modules tab registers
+  // one when the user clicks Install, so the progress bar can show
+  // WHICH CDN is being tried and how far the load got — the old
+  // frozen "Starting Python runtime…" at 10% told the user nothing.
+  const initStageListenersRef = useRef<Set<(stage: string) => void>>(
+    new Set()
+  );
   // SIGINT buffer for the Stop button. Only works when SharedArrayBuffer
   // is available (needs cross-origin isolation); otherwise Stop stays
   // disabled and the UI says so instead of pretending to stop the run.
@@ -249,16 +256,27 @@ export default function CodeEditorPage() {
     items.find((it) => it.type === "file" && it.path === activeFilePath) ||
     items.find((it) => it.type === "file");
 
-  async function initPyodide() {
+  async function initPyodide(onStage?: (stage: string) => void) {
     if (pyodideRef.current) return pyodideRef.current;
-    if (pyodideInitPromiseRef.current) return pyodideInitPromiseRef.current;
+    // A caller joining the in-flight init still gets later stages.
+    if (onStage) initStageListenersRef.current.add(onStage);
+    if (pyodideInitPromiseRef.current) {
+      try {
+        return await pyodideInitPromiseRef.current;
+      } finally {
+        if (onStage) initStageListenersRef.current.delete(onStage);
+      }
+    }
+    const emitStage = (stage: string) => {
+      initStageListenersRef.current.forEach((fn) => fn(stage));
+    };
     const promise = (async () => {
       // Load the runtime with CDN fallback (jsDelivr, then unpkg):
       // the jsDelivr download alone used to stall for minutes on
       // some networks and hang the whole install. loadPyodideRuntime
       // gives each CDN 60s and tries the next one on a stall.
       setLoadingEngine(true);
-      const pyodide = await loadPyodideRuntime();
+      const pyodide = await loadPyodideRuntime(emitStage);
       // Stop button support, when the browser allows SharedArrayBuffer.
       try {
         if (typeof SharedArrayBuffer !== "undefined") {
@@ -268,6 +286,7 @@ export default function CodeEditorPage() {
         }
       } catch {}
       // micropip's wheel download has no timeout either — cap it.
+      emitStage("Loading micropip…");
       await withTimeout(
         pyodide.loadPackage("micropip"),
         60_000,
@@ -276,6 +295,7 @@ export default function CodeEditorPage() {
       pyodideRef.current = pyodide;
       setPyodideReady(true);
       setPyodideError(null);
+      emitStage("Python runtime ready");
       setOutput((prev) => prev + "✓ Python runtime (Pyodide 0.27.2) loaded successfully.\n");
 
       // Saved packages are restored in the BACKGROUND, not awaited
@@ -302,13 +322,18 @@ export default function CodeEditorPage() {
       setOutput((prev) => prev + `✗ Failed to load runtime: ${msg}\n`);
       return null;
     } finally {
+      if (onStage) initStageListenersRef.current.delete(onStage);
       setLoadingEngine(false);
     }
   }
 
   // Shared by the Modules tab: loads the runtime if needed, true when ready.
-  async function ensurePyodideReady(): Promise<boolean> {
-    const py = await initPyodide();
+  // `onStage` gets each init step (which CDN is being tried, timeouts,
+  // success) so the Modules progress bar shows real progress.
+  async function ensurePyodideReady(
+    onStage?: (stage: string) => void
+  ): Promise<boolean> {
+    const py = await initPyodide(onStage);
     return !!py;
   }
 
