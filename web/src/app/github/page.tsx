@@ -29,6 +29,20 @@ interface RepoItem {
   default_branch: string;
 }
 
+// The repo-name rule, kept identical to the server's
+// (src/app/api/github/repos/route.ts): 1-100 chars, letters, numbers,
+// hyphen, underscore and dot only — no spaces. The form checks it live
+// so a bad name is caught here, not by the server's generic 400.
+const REPO_NAME_RE = /^[a-zA-Z0-9_.-]+$/;
+function repoNameError(name: string): string | null {
+  const clean = name.trim();
+  if (!clean) return null; // an empty name is covered by `required`
+  if (clean.length > 100) return "Repo name must be 100 characters or fewer.";
+  if (!REPO_NAME_RE.test(clean))
+    return "Repo names can't contain spaces or special characters — only letters, numbers, - _ . are allowed.";
+  return null;
+}
+
 export default function GitHubPage() {
   const router = useRouter();
   const [token, setToken] = useState("");
@@ -56,10 +70,13 @@ export default function GitHubPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  // New Repo Form
+  // New Repo Form — both options are ON by default (the way GitHub
+  // checks `repo` by default on its token page): the user unchecks
+  // to make the repo private or to skip the README.
   const [newRepoName, setNewRepoName] = useState("");
   const [newRepoDesc, setNewRepoDesc] = useState("");
-  const [isPrivate, setIsPrivate] = useState(false);
+  const [isPublic, setIsPublic] = useState(true);
+  const [autoInit, setAutoInit] = useState(true);
   const [creating, setCreating] = useState(false);
 
   // Commit File Form
@@ -129,6 +146,7 @@ export default function GitHubPage() {
   async function handleCreateRepo(e: React.FormEvent) {
     e.preventDefault();
     if (!newRepoName.trim() || !savedToken) return;
+    if (repoNameError(newRepoName)) return;
     setCreating(true);
     setErrorMsg(null);
     setSuccessMsg(null);
@@ -143,8 +161,8 @@ export default function GitHubPage() {
         body: JSON.stringify({
           name: newRepoName.trim(),
           description: newRepoDesc.trim(),
-          isPrivate,
-          autoInit: true,
+          isPrivate: !isPublic,
+          autoInit,
         }),
       });
       const data = await res.json();
@@ -305,8 +323,12 @@ export default function GitHubPage() {
                     placeholder="my-python-learning"
                     value={newRepoName}
                     onChange={(e) => setNewRepoName(e.target.value)}
-                    className="w-full rounded-lg border border-neutral-800 bg-black px-3 py-2 text-xs text-white placeholder-neutral-600 focus:border-white focus:outline-none"
+                    aria-invalid={!!repoNameError(newRepoName)}
+                    className={`w-full rounded-lg border bg-black px-3 py-2 text-xs text-white placeholder-neutral-600 focus:outline-none ${repoNameError(newRepoName) ? "border-red-500 focus:border-red-400" : "border-neutral-800 focus:border-white"}`}
                   />
+                  {repoNameError(newRepoName) && (
+                    <p className="mt-1 text-[11px] text-red-400">{repoNameError(newRepoName)}</p>
+                  )}
                 </div>
 
                 <div>
@@ -323,20 +345,33 @@ export default function GitHubPage() {
                 <div className="flex items-center gap-2 pt-1">
                   <input
                     type="checkbox"
-                    id="isPrivate"
-                    checked={isPrivate}
-                    onChange={(e) => setIsPrivate(e.target.checked)}
+                    id="isPublic"
+                    checked={isPublic}
+                    onChange={(e) => setIsPublic(e.target.checked)}
                     className="rounded border-neutral-800 bg-black"
                   />
-                  <label htmlFor="isPrivate" className="text-xs text-neutral-300 flex items-center gap-1 cursor-pointer">
-                    {isPrivate ? <Lock className="h-3.5 w-3.5" /> : <Unlock className="h-3.5 w-3.5 text-neutral-400" />}
-                    {isPrivate ? "Private repository" : "Public repository"}
+                  <label htmlFor="isPublic" className="text-xs text-neutral-300 flex items-center gap-1 cursor-pointer">
+                    {isPublic ? <Unlock className="h-3.5 w-3.5 text-neutral-400" /> : <Lock className="h-3.5 w-3.5" />}
+                    {isPublic ? "Public repository" : "Private repository"}
+                  </label>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="autoInit"
+                    checked={autoInit}
+                    onChange={(e) => setAutoInit(e.target.checked)}
+                    className="rounded border-neutral-800 bg-black"
+                  />
+                  <label htmlFor="autoInit" className="text-xs text-neutral-300 cursor-pointer">
+                    Initialize with README
                   </label>
                 </div>
 
                 <button
                   type="submit"
-                  disabled={creating}
+                  disabled={creating || !!repoNameError(newRepoName)}
                   className="w-full mt-2 rounded-lg bg-white px-4 py-2 text-xs font-semibold text-black hover:bg-neutral-200 transition disabled:opacity-50 flex items-center justify-center gap-1.5"
                 >
                   {creating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}

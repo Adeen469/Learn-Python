@@ -440,9 +440,15 @@ test("TOTP secrets encrypt and decrypt, and tampering fails closed", () => {
     decryptTotpSecret("another-secret-0123456789abcdef", stored),
     null
   );
-  // A tampered ciphertext fails the GCM tag check.
+  // A tampered ciphertext fails the GCM tag check. Tamper with the
+  // FIRST character, not the last: the last base64 char can carry
+  // padding bits, so swapping it sometimes leaves the decoded bytes
+  // unchanged and the tamper silently passes. The first char's bits
+  // are all significant, so any change there alters the ciphertext.
   const parts = stored.split(".");
-  const tampered = `${parts[0]}.${parts[1]}.${parts[2].slice(0, -1)}A.${parts[3]}`;
+  const firstChar = parts[2][0];
+  const replacement = firstChar === "A" ? "B" : "A";
+  const tampered = `${parts[0]}.${parts[1]}.${replacement}${parts[2].slice(1)}.${parts[3]}`;
   assert.equal(decryptTotpSecret(sessionSecret, tampered), null);
   assert.equal(decryptTotpSecret(sessionSecret, "garbage"), null);
 });
