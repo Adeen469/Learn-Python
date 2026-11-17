@@ -28,9 +28,13 @@ describe("landing page — no 100-days, no creator, no video source", () => {
     }
   });
 
-  test("the hero sells learning online or off, with real content numbers", () => {
+  test("the hero sells Learn Python programming, online then offline, with real content numbers", () => {
     const landing = read("src/components/LandingPage.tsx");
-    assert.ok(landing.includes("Learn Python, online or off."), "hero must lead with online-or-offline learning");
+    assert.ok(landing.includes("Learn Python programming,"), "hero must lead with Learn Python programming");
+    assert.ok(landing.includes('texts={["online", "offline"]}'), "the rotating word must swap online and offline");
+    assert.ok(landing.includes('style={{ display: "inline-flex" }}'), "the rotating word must flow inline on the same line");
+    assert.ok(landing.includes("mt-5 max-w-4xl text-3xl"), "the headline must be wide enough for one line on desktop and wrap cleanly on mobile");
+    assert.ok(!landing.includes("online or off"), "the headline must say offline, not off");
     assert.ok(landing.includes('{ value: "812", label: "topics" }'), "stats must show 812 topics");
     assert.ok(landing.includes('{ value: "259", label: "videos" }'), "stats must show 259 videos");
     assert.ok(landing.includes('{ value: "6", label: "stages" }'), "stats must keep the 6 roadmap stages");

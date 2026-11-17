@@ -12,11 +12,12 @@ const read = (rel) => readFileSync(path.join(root, rel), "utf8");
 // AnimatedList for the video list, ElasticSlider for player volume.
 
 describe("react bits install", () => {
-  test("all three components are vendored with no framer-motion dep", () => {
+  test("the first four components are vendored with no motion dep; motion exists only for RotatingText", () => {
     for (const file of [
       "src/components/Counter.tsx",
       "src/components/AnimatedList.tsx",
       "src/components/ElasticSlider.tsx",
+      "src/components/StarBorder.tsx",
     ]) {
       assert.ok(existsSync(path.join(root, file)), `${file} must exist`);
       const src = read(file);
@@ -25,7 +26,11 @@ describe("react bits install", () => {
     }
     const pkg = JSON.parse(read("package.json"));
     assert.ok(!pkg.dependencies["framer-motion"], "no framer-motion dependency");
-    assert.ok(!pkg.dependencies["motion"], "no motion dependency");
+    assert.ok(pkg.dependencies["motion"], "motion is required by RotatingText");
+    assert.ok(
+      read("src/components/RotatingText.tsx").includes("from 'motion/react'"),
+      "RotatingText must import motion/react",
+    );
   });
 
   test("animated list root className keeps its spaces (upstream typo fixed)", () => {

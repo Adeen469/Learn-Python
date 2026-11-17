@@ -10,6 +10,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import StarBorder from "@/components/StarBorder";
+import RotatingText from "@/components/RotatingText";
 
 const FEATURES = [
   {
@@ -71,8 +72,20 @@ export function LandingPage() {
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4">
         {/* Hero */}
         <section className="flex flex-col items-center py-14 text-center sm:py-20">
-          <h1 className="mt-5 max-w-2xl text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
-            Learn Python, online or off.
+          <h1 className="mt-5 max-w-4xl text-3xl font-bold leading-tight tracking-tight sm:text-5xl">
+            Learn Python programming,{" "}
+            <RotatingText
+              texts={["online", "offline"]}
+              effect="drop"
+              direction="up"
+              highlight={true}
+              highlightColor="#434245"
+              staggerFrom="first"
+              staggerDuration={0.04}
+              splitLevelClassName="overflow-hidden pb-0.5 sm:pb-1 md:pb-1"
+              rotationInterval={2000}
+              style={{ display: "inline-flex" }}
+            />
           </h1>
           <p className="mt-4 max-w-xl text-sm leading-relaxed text-neutral-400 sm:text-base">
             Topic-by-topic tutorials, video courses, and a real code editor —
