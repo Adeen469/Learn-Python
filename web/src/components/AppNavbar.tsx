@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BookOpenText, Code2, Github, LogOut, Map, MonitorPlay, Settings, User } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import {
   fetchSessionUser,
   signOut,
@@ -229,6 +229,15 @@ export function AppNavbar() {
   const profileTriggerClass =
     "flex items-center justify-center rounded-full border border-neutral-800 bg-neutral-950 text-neutral-300 hover:text-white hover:border-neutral-600 transition";
 
+  // Which nav item is the current page ("" = none, e.g. landing/settings).
+  const activeNavHref = pathname.startsWith("/learn")
+    ? "/learn/python-home"
+    : pathname.startsWith("/courses")
+      ? "/courses"
+      : pathname.startsWith("/editor")
+        ? "/editor"
+        : "";
+
   return (
     <>
       {/* PC top bar: logo left, the three nav buttons centred, profile
@@ -258,15 +267,7 @@ export function AppNavbar() {
                 href,
                 icon: <Icon />,
               }))}
-              activeHref={
-                pathname.startsWith("/learn")
-                  ? "/learn/python-home"
-                  : pathname.startsWith("/courses")
-                    ? "/courses"
-                    : pathname.startsWith("/editor")
-                      ? "/editor"
-                      : ""
-              }
+              activeHref={activeNavHref}
               linkComponent={Link}
               theme="dark"
               itemStyle="plain"
@@ -324,65 +325,65 @@ export function AppNavbar() {
         </div>
       </header>
 
-      {/* Mobile bottom nav bar (website or APK): same items as the PC bar. */}
-      <nav className="fixed bottom-0 left-0 right-0 z-30 border-t border-neutral-800 bg-black/95 backdrop-blur md:hidden">
-        <div className="grid grid-cols-4">
-          {navLinks.map(({ href, label, icon: Icon, match }) => {
-            const active = pathname === href || pathname.startsWith(match + "/");
-            return (
-              <Link
-                key={href}
-                href={href}
-                aria-label={label}
-                className={`flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium transition ${
-                  active ? "text-white" : "text-neutral-500 hover:text-white"
-                }`}
-              >
-                <Icon className="h-5 w-5" />
-                {label}
-              </Link>
-            );
-          })}
-          <div className="relative">
-            <button
-              type="button"
-              data-profile-trigger
-              onClick={() => setProfileOpen((v) => !v)}
-              aria-label="Profile menu"
-              aria-expanded={profileOpen}
-              className={`flex w-full flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium transition ${
-                profileOpen ? "text-white" : "text-neutral-500 hover:text-white"
-              }`}
-            >
-              {user?.picture ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={user.picture}
-                  alt=""
-                  width={20}
-                  height={20}
-                  className="h-5 w-5 rounded-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <User className="h-5 w-5" />
-              )}
-              Profile
-            </button>
-            {/* Menu opens upward from the bottom bar. */}
-            {profileOpen && (
-              <div className="absolute bottom-full right-2 z-40 mb-2 w-52 rounded-xl border border-neutral-800 bg-neutral-950 shadow-xl">
-                <ProfileMenuItems
-                  user={user}
-                  onSignOut={handleSignOut}
-                  onRoadmap={() => setRoadmapOpen(true)}
-                  onClose={() => setProfileOpen(false)}
-                />
-              </div>
+      {/* Mobile bottom nav (floating dock): the same PillNav as the PC bar,
+          plus the profile circle beside it. The menu opens upward. */}
+      <div className="fixed bottom-3 left-0 right-0 z-30 flex items-center justify-center gap-2 md:hidden">
+        <PillNav
+          items={navLinks.map(({ href, label, icon: Icon }) => ({
+            label,
+            href,
+            icon: <Icon />,
+          }))}
+          activeHref={activeNavHref}
+          linkComponent={Link}
+          theme="dark"
+          itemStyle="plain"
+          hoverEffect="fill"
+          indicator="dot"
+          size="sm"
+          collapse="never"
+          style={{ "--pn-x": "8px", "--pn-font": "12px" } as CSSProperties}
+        />
+        <div className="relative">
+          <button
+            type="button"
+            data-profile-trigger
+            onClick={() => setProfileOpen((v) => !v)}
+            aria-label="Profile menu"
+            aria-expanded={profileOpen}
+            className={`${profileTriggerClass} h-8 w-8 overflow-hidden`}
+          >
+            {user?.picture ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={user.picture}
+                alt=""
+                width={32}
+                height={32}
+                className="h-8 w-8 rounded-full object-cover"
+                referrerPolicy="no-referrer"
+              />
+            ) : user ? (
+              <span className="text-sm font-semibold text-white">
+                {user.name.charAt(0).toUpperCase()}
+              </span>
+            ) : (
+              <User className="h-4 w-4" />
             )}
-          </div>
+          </button>
+          {/* Menu opens upward from the bottom dock. */}
+          {profileOpen && (
+            <div className="absolute bottom-full right-0 z-40 mb-2 w-52 rounded-xl border border-neutral-800 bg-neutral-950 shadow-xl">
+              <ProfileMenuItems
+                user={user}
+                onSignOut={handleSignOut}
+                onRoadmap={() => setRoadmapOpen(true)}
+                onClose={() => setProfileOpen(false)}
+              />
+            </div>
+          )}
         </div>
-      </nav>
+      </div>
 
       {/* Python roadmap: auto-shows once after first sign-in, and
           the hint appears only on the first close, over the still-open
