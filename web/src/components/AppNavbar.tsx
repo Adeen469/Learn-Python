@@ -249,13 +249,10 @@ export function AppNavbar() {
               <img
                 src="/lp-logo.png"
                 alt="LP Logo"
-                width={28}
-                height={28}
-                className="h-7 w-7 rounded-md object-contain"
+                width={40}
+                height={40}
+                className="h-10 w-10 rounded-md object-contain"
               />
-              <span className="whitespace-nowrap text-sm font-semibold tracking-tight text-white">
-                LP <span className="hidden text-xs text-neutral-500 font-normal lg:inline">Learn Python</span>
-              </span>
             </Link>
           </div>
 
@@ -342,6 +339,7 @@ export function AppNavbar() {
           indicator="dot"
           size="sm"
           collapse="never"
+          className="pill-nav--dock"
           style={{ "--pn-x": "8px", "--pn-font": "12px" } as CSSProperties}
         />
         <div className="relative">

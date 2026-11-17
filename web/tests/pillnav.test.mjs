@@ -65,4 +65,49 @@ describe("pill nav install", () => {
     assert.ok(navbar.includes("data-profile-trigger"), "the profile circle must stay beside the dock");
     assert.ok(navbar.includes("absolute bottom-full right-0"), "the profile menu must open upward");
   });
+
+  test("the header shows only the bigger logo, no wordmark text", () => {
+    const navbar = read("src/components/AppNavbar.tsx");
+    assert.ok(
+      !navbar.includes("whitespace-nowrap text-sm font-semibold tracking-tight text-white"),
+      "the LP / Learn Python wordmark span must be gone from the header",
+    );
+    assert.ok(navbar.includes("width={40}"), "the logo must be bigger than before (40px)");
+    assert.ok(navbar.includes("h-10 w-10"), "the logo must render at 40px");
+    assert.ok(navbar.includes('src="/lp-logo.png"'), "the logo image must stay");
+  });
+
+  test("the nav is icon-only, with the label as a hover tooltip", () => {
+    const component = read("src/components/PillNav.tsx");
+    assert.ok(
+      component.includes('<span className={LABEL}>{item.label}</span>'),
+      "the label must sit in its own span so CSS can hide it",
+    );
+    assert.ok(component.includes("pill-nav__tip"), "each bar item must carry a tooltip span");
+    assert.ok(
+      component.includes('<span className={TIP} aria-hidden="true">'),
+      "the tooltip must hold the label and stay out of the accessibility tree",
+    );
+    const css = read("src/components/PillNav.css");
+    assert.ok(
+      css.includes(".pill-nav__bar .pill-nav__label"),
+      "the bar must visually hide its inline labels (panel rows keep theirs)",
+    );
+    assert.ok(css.includes(".pill-nav__tip"), "CSS must style the tooltip");
+    assert.ok(
+      css.includes(".pill-nav__slot:hover .pill-nav__tip"),
+      "the tooltip must appear when its item is hovered",
+    );
+    assert.ok(
+      css.includes(".pill-nav--dock .pill-nav__tip"),
+      "the mobile dock tooltip must open upward, not off the bottom of the screen",
+    );
+    assert.ok(css.includes("@media (hover: none)"), "touch screens must never see a tooltip");
+    assert.ok(css.includes("width: 1.3em"), "icons must be slightly bigger now they stand alone");
+    const navbar = read("src/components/AppNavbar.tsx");
+    assert.ok(
+      navbar.includes('className="pill-nav--dock"'),
+      "the mobile dock must carry the dock class for its upward tooltip",
+    );
+  });
 });

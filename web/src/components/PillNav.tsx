@@ -149,6 +149,8 @@ const SLOT = 'pill-nav__slot';
 const ITEM = 'pill-nav__item';
 const FACE = 'pill-nav__face';
 const FACE_ALT = 'pill-nav__face-alt';
+const LABEL = 'pill-nav__label';
+const TIP = 'pill-nav__tip';
 const FILL = 'pill-nav__fill';
 const GLIDE = 'pill-nav__glide';
 const INK = 'pill-nav__ink';
@@ -780,7 +782,7 @@ const PillNav = ({
   const face = (item: PillNavItem) => (
     <>
       {item.icon}
-      {item.label}
+      <span className={LABEL}>{item.label}</span>
     </>
   );
 
@@ -842,6 +844,11 @@ const PillNav = ({
                       )}
                     </>,
                   )}
+                  {/* Icon-only bar: the label lives in this tooltip, shown
+                      on hover (below the bar, above the mobile dock). */}
+                  <span className={TIP} aria-hidden="true">
+                    {item.label}
+                  </span>
                 </li>
               ))}
             </ul>
