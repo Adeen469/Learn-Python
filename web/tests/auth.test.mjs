@@ -98,7 +98,9 @@ async function verifySession(secret, token, nowSeconds) {
     typeof p.name !== "string" ||
     typeof p.iat !== "number" ||
     typeof p.exp !== "number" ||
-    (typeof p.picture !== "string" && p.picture !== null)
+    (typeof p.picture !== "string" && p.picture !== null) ||
+    (p.auth !== undefined && p.auth !== "google" && p.auth !== "email") ||
+    (p.mfa !== undefined && typeof p.mfa !== "boolean")
   ) {
     return { ok: false, reason: "malformed" };
   }
@@ -106,19 +108,80 @@ async function verifySession(secret, token, nowSeconds) {
   if (p.iat > now + 60) return { ok: false, reason: "not_yet_valid" };
   return {
     ok: true,
-    user: { email: p.email, name: p.name, picture: p.picture },
+    user: {
+      email: p.email,
+      name: p.name,
+      picture: p.picture,
+      auth: p.auth ?? "google",
+      mfa: p.mfa ?? false,
+    },
   };
 }
 
-function buildSessionPayload(user, nowSeconds) {
+function buildSessionPayload(user, nowSeconds, opts) {
   const now = nowSeconds ?? Math.floor(Date.now() / 1000);
   return {
     email: user.email,
     name: user.name,
     picture: user.picture,
+    auth: opts?.auth ?? user.auth ?? "google",
+    mfa: opts?.mfa ?? user.mfa ?? false,
     iat: now,
     exp: now + SESSION_MAX_AGE_SECONDS,
   };
+}
+
+// Mirrors signToken / verifyToken in auth.ts: same HMAC construction,
+// different prefix ("v1p.") so a pending token can never verify as a
+// session and vice versa.
+async function signToken(secret, payload) {
+  const payloadJson = JSON.stringify(payload);
+  const payloadB64 = base64urlEncode(payloadJson);
+  const key = await hmacKey(secret, ["sign"]);
+  const sig = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    new TextEncoder().encode(payloadB64)
+  );
+  return `v1p.${payloadB64}.${base64urlEncode(new Uint8Array(sig))}`;
+}
+
+async function verifyToken(secret, token, nowSeconds) {
+  const now = nowSeconds ?? Math.floor(Date.now() / 1000);
+  const parts = token.split(".");
+  if (parts.length !== 3 || parts[0] !== "v1p") {
+    return { ok: false, reason: "malformed" };
+  }
+  const [, payloadB64, sigB64] = parts;
+  const payloadBytes = base64urlDecode(payloadB64);
+  const sigBytes = base64urlDecode(sigB64);
+  if (!payloadBytes || !sigBytes) {
+    return { ok: false, reason: "malformed" };
+  }
+  const key = await hmacKey(secret, ["verify"]);
+  const valid = await crypto.subtle.verify(
+    "HMAC",
+    key,
+    sigBytes,
+    new TextEncoder().encode(payloadB64)
+  );
+  if (!valid) return { ok: false, reason: "bad_signature" };
+  let payload;
+  try {
+    payload = JSON.parse(new TextDecoder().decode(payloadBytes));
+  } catch {
+    return { ok: false, reason: "malformed" };
+  }
+  if (typeof payload !== "object" || payload === null) {
+    return { ok: false, reason: "malformed" };
+  }
+  const p = payload;
+  if (typeof p.exp !== "number" || typeof p.iat !== "number") {
+    return { ok: false, reason: "malformed" };
+  }
+  if (p.exp <= now) return { ok: false, reason: "expired" };
+  if (p.iat > now + 60) return { ok: false, reason: "not_yet_valid" };
+  return { ok: true, payload: p };
 }
 
 function isValidEmail(email) {
@@ -233,7 +296,77 @@ test("a signed session verifies and returns the user", async () => {
   const token = await signSession(SECRET, buildSessionPayload(USER, 1_700_000_000));
   const result = await verifySession(SECRET, token, 1_700_000_100);
   assert.equal(result.ok, true);
-  assert.deepEqual(result.user, USER);
+  assert.deepEqual(result.user, { ...USER, auth: "google", mfa: false });
+});
+
+test("old sessions without auth/mfa still verify as Google sessions", async () => {
+  const legacy = {
+    email: USER.email,
+    name: USER.name,
+    picture: USER.picture,
+    iat: 1_700_000_000,
+    exp: 1_700_000_000 + SESSION_MAX_AGE_SECONDS,
+  };
+  const token = await signSession(SECRET, legacy);
+  const result = await verifySession(SECRET, token, 1_700_000_100);
+  assert.equal(result.ok, true);
+  assert.equal(result.user.auth, "google");
+  assert.equal(result.user.mfa, false);
+});
+
+test("an email session with completed 2FA verifies with auth and mfa", async () => {
+  const token = await signSession(
+    SECRET,
+    buildSessionPayload(USER, 1_700_000_000, { auth: "email", mfa: true })
+  );
+  const result = await verifySession(SECRET, token, 1_700_000_100);
+  assert.equal(result.ok, true);
+  assert.equal(result.user.auth, "email");
+  assert.equal(result.user.mfa, true);
+});
+
+test("a session with a bad auth value or non-boolean mfa is rejected", async () => {
+  for (const bad of [
+    { ...USER, auth: "facebook", mfa: false },
+    { ...USER, auth: "email", mfa: "yes" },
+  ]) {
+    const token = await signSession(
+      SECRET,
+      buildSessionPayload(bad, 1_700_000_000)
+    );
+    const result = await verifySession(SECRET, token, 1_700_000_100);
+    assert.equal(result.ok, false);
+    assert.equal(result.reason, "malformed");
+  }
+});
+
+test("a pending 2FA token signs and verifies, and never as a session", async () => {
+  const pending = await signToken(SECRET, {
+    kind: "2fa",
+    email: USER.email,
+    iat: 1_700_000_000,
+    exp: 1_700_000_000 + 600,
+  });
+  const checked = await verifyToken(SECRET, pending, 1_700_000_100);
+  assert.equal(checked.ok, true);
+  assert.equal(checked.payload.kind, "2fa");
+  assert.equal(checked.payload.email, USER.email);
+  // The "v1p." prefix keeps the two token kinds apart.
+  const asSession = await verifySession(SECRET, pending, 1_700_000_100);
+  assert.equal(asSession.ok, false);
+  const session = await signSession(
+    SECRET,
+    buildSessionPayload(USER, 1_700_000_000)
+  );
+  const asPending = await verifyToken(SECRET, session, 1_700_000_100);
+  assert.equal(asPending.ok, false);
+  // A tampered or expired pending token is rejected.
+  const tampered = pending.slice(0, -2) + "AA";
+  assert.equal((await verifyToken(SECRET, tampered, 1_700_000_100)).ok, false);
+  assert.equal(
+    (await verifyToken(SECRET, pending, 1_700_000_000 + 601)).ok,
+    false
+  );
 });
 
 test("a tampered payload is rejected", async () => {

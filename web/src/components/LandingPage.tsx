@@ -3,28 +3,23 @@
 import {
   ArrowRight,
   BookOpen,
-  CloudOff,
   Code2,
   Flame,
-  Package,
+  Github,
   Play,
+  Sparkles,
 } from "lucide-react";
 
 const FEATURES = [
   {
+    icon: Play,
+    title: "Videos, online & offline",
+    text: "Watch video lessons with or without internet — save them on your device and keep watching when the connection drops.",
+  },
+  {
     icon: BookOpen,
-    title: "100-day course",
-    text: "CodeWithHarry's Python for Beginners full course in Hindi — 100 lessons, Day 1 to Day 100.",
-  },
-  {
-    icon: CloudOff,
-    title: "Offline video",
-    text: "Lessons cache in your browser, so a video you watched once keeps playing even with a weak connection.",
-  },
-  {
-    icon: Flame,
-    title: "Daily goals & streaks",
-    text: "Set a daily watch goal, keep the streak alive, and see today's real progress at a glance.",
+    title: "Tutorials, offline too",
+    text: "Topic-by-topic tutorials and reference entries — read them anywhere, even without internet.",
   },
   {
     icon: Code2,
@@ -32,14 +27,19 @@ const FEATURES = [
     text: "Write and run real Python in the browser — Monaco editor with Pyodide, multi-file workspace, no install needed.",
   },
   {
-    icon: Package,
-    title: "Modules & packages",
-    text: "The full Python standard library catalog plus live PyPI search and install, right inside the editor.",
+    icon: Sparkles,
+    title: "Ask the AI tutor",
+    text: "Stuck on a concept or an error? Ask the AI tutor anything — it answers from the lesson you're on, with examples and fixes.",
   },
   {
-    icon: Play,
-    title: "Learn by doing",
-    text: "Every lesson has exercises and tests — watch 95% to complete a lesson, pass its test to earn the badge.",
+    icon: Github,
+    title: "GitHub, built in",
+    text: "Connect your GitHub account, create repos, and push your code straight from the editor — your work, versioned from day one.",
+  },
+  {
+    icon: Flame,
+    title: "Daily goals & streaks",
+    text: "Set a daily watch goal, keep the streak alive, and see today's real progress at a glance.",
   },
 ];
 
@@ -74,15 +74,15 @@ export function LandingPage() {
         {/* Hero */}
         <section className="flex flex-col items-center py-14 text-center sm:py-20">
           <p className="rounded-full border border-neutral-800 bg-neutral-950 px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-neutral-400">
-            100 days • 100 lessons • Hindi
+            812 topics • 259 videos • Code editor
           </p>
           <h1 className="mt-5 max-w-2xl text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
-            Learn Python in 100 days.
+            Learn Python, online or off.
           </h1>
           <p className="mt-4 max-w-xl text-sm leading-relaxed text-neutral-400 sm:text-base">
-            CodeWithHarry&apos;s Python for Beginners full course — from your first
-            print() to real projects. Watch, code, and build the streak, one day
-            at a time.
+            Topic-by-topic tutorials, video courses, and a real code editor —
+            from your first print() to real projects. Watch, code, and build
+            the streak.
           </p>
           <a
             href="/api/auth/google"
@@ -97,8 +97,8 @@ export function LandingPage() {
           {/* Stats */}
           <div className="mt-10 grid w-full max-w-lg grid-cols-3 gap-3">
             {[
-              { value: "100", label: "days" },
-              { value: "100", label: "lessons" },
+              { value: "812", label: "topics" },
+              { value: "259", label: "videos" },
               { value: "6", label: "stages" },
             ].map((s) => (
               <div
@@ -133,7 +133,7 @@ export function LandingPage() {
       </main>
 
       <footer className="border-t border-neutral-800 py-5 text-center text-xs text-neutral-600">
-        LP — Learn Python • Python for Beginners (Full Course) by CodeWithHarry
+        LP — Learn Python
       </footer>
     </div>
   );

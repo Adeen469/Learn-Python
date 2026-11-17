@@ -29,6 +29,7 @@ import {
   getStoredTheme,
   type Theme,
 } from "@/lib/theme";
+import TwoFactorSettings from "@/components/TwoFactorSettings";
 
 /**
  * Settings as its own page (/settings), reached from the profile
@@ -276,6 +277,11 @@ export default function SettingsPage() {
             </button>
           </div>
         </div>
+
+        <h2 className="mb-3 mt-8 text-xs font-semibold uppercase tracking-wider text-neutral-500">
+          Account security
+        </h2>
+        <TwoFactorSettings />
       </main>
     </>
   );

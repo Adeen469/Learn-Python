@@ -19,6 +19,10 @@ export interface SessionUser {
   email: string;
   name: string;
   picture: string | null;
+  /** How this session was created. Missing on old sessions = "google". */
+  auth?: "google" | "email";
+  /** True only when two-factor authentication was completed for this session. */
+  mfa?: boolean;
 }
 
 export interface SessionPayload extends SessionUser {
@@ -152,7 +156,9 @@ export async function verifySession(
     typeof p.name !== "string" ||
     typeof p.iat !== "number" ||
     typeof p.exp !== "number" ||
-    (typeof p.picture !== "string" && p.picture !== null)
+    (typeof p.picture !== "string" && p.picture !== null) ||
+    (p.auth !== undefined && p.auth !== "google" && p.auth !== "email") ||
+    (p.mfa !== undefined && typeof p.mfa !== "boolean")
   ) {
     return { ok: false, reason: "malformed" };
   }
@@ -164,21 +170,96 @@ export async function verifySession(
       email: p.email,
       name: p.name,
       picture: p.picture as string | null,
+      // Old sessions carry neither field — they are Google sessions
+      // without a completed second factor.
+      auth: (p.auth as "google" | "email" | undefined) ?? "google",
+      mfa: (p.mfa as boolean | undefined) ?? false,
     },
   };
 }
 
 export function buildSessionPayload(
   user: SessionUser,
-  nowSeconds: number = Math.floor(Date.now() / 1000)
+  nowSeconds: number = Math.floor(Date.now() / 1000),
+  opts: { auth?: "google" | "email"; mfa?: boolean } = {}
 ): SessionPayload {
   return {
     email: user.email,
     name: user.name,
     picture: user.picture,
+    auth: opts.auth ?? user.auth ?? "google",
+    mfa: opts.mfa ?? user.mfa ?? false,
     iat: nowSeconds,
     exp: nowSeconds + SESSION_MAX_AGE_SECONDS,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Short-lived pending tokens (e.g. the 2FA step-up cookie).
+//
+// Same HMAC construction as sessions, but a different prefix ("v1p.")
+// so a pending token can never verify as a session and vice versa.
+// The payload is a free-form JSON object; callers validate its fields.
+// ---------------------------------------------------------------------------
+
+export async function signToken(
+  secret: string,
+  payload: Record<string, unknown>
+): Promise<string> {
+  const payloadJson = JSON.stringify(payload);
+  const payloadB64 = base64urlEncode(payloadJson);
+  const key = await hmacKey(secret, ["sign"]);
+  const sig = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    new TextEncoder().encode(payloadB64)
+  );
+  return `v1p.${payloadB64}.${base64urlEncode(new Uint8Array(sig))}`;
+}
+
+export type VerifyTokenResult =
+  | { ok: true; payload: Record<string, unknown> }
+  | { ok: false; reason: string };
+
+export async function verifyToken(
+  secret: string,
+  token: string,
+  nowSeconds: number = Math.floor(Date.now() / 1000)
+): Promise<VerifyTokenResult> {
+  const parts = token.split(".");
+  if (parts.length !== 3 || parts[0] !== "v1p") {
+    return { ok: false, reason: "malformed" };
+  }
+  const [, payloadB64, sigB64] = parts;
+  const payloadBytes = base64urlDecode(payloadB64);
+  const sigBytes = base64urlDecode(sigB64);
+  if (!payloadBytes || !sigBytes) {
+    return { ok: false, reason: "malformed" };
+  }
+  const key = await hmacKey(secret, ["verify"]);
+  const valid = await crypto.subtle.verify(
+    "HMAC",
+    key,
+    sigBytes as BufferSource,
+    new TextEncoder().encode(payloadB64)
+  );
+  if (!valid) return { ok: false, reason: "bad_signature" };
+  let payload: unknown;
+  try {
+    payload = JSON.parse(new TextDecoder().decode(payloadBytes));
+  } catch {
+    return { ok: false, reason: "malformed" };
+  }
+  if (typeof payload !== "object" || payload === null) {
+    return { ok: false, reason: "malformed" };
+  }
+  const p = payload as Record<string, unknown>;
+  if (typeof p.exp !== "number" || typeof p.iat !== "number") {
+    return { ok: false, reason: "malformed" };
+  }
+  if (p.exp <= nowSeconds) return { ok: false, reason: "expired" };
+  if (p.iat > nowSeconds + 60) return { ok: false, reason: "not_yet_valid" };
+  return { ok: true, payload: p };
 }
 
 // ---------------------------------------------------------------------------

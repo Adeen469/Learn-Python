@@ -7,6 +7,10 @@ export interface SessionUser {
   email: string;
   name: string;
   picture: string | null;
+  /** How this session was created ("google" for old sessions). */
+  auth?: "google" | "email";
+  /** True only when two-factor authentication was completed. */
+  mfa?: boolean;
 }
 
 let cachedUserPromise: Promise<SessionUser | null> | null = null;
@@ -34,6 +38,10 @@ export function fetchSessionUser(): Promise<SessionUser | null> {
           email: u.email,
           name: u.name,
           picture: typeof u.picture === "string" ? u.picture : null,
+          auth: (
+            u.auth === "email" || u.auth === "google" ? u.auth : "google"
+          ) as "google" | "email",
+          mfa: u.mfa === true,
         };
       })
       .catch(() => null);
