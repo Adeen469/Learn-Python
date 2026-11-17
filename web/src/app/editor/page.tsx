@@ -14,6 +14,10 @@ import {
 import { restoreStoredPackages } from "@/lib/package-storage";
 import { loadPyodideRuntime, withTimeout } from "@/lib/pyodide-install";
 import {
+  HighlightedMarkdown,
+  HighlightedTerminal,
+} from "@/lib/highlight";
+import {
   AlertCircle,
   Bug,
   Check,
@@ -275,7 +279,16 @@ export default function CodeEditorPage() {
   async function initPyodide(onStage?: (stage: string) => void) {
     if (pyodideRef.current) return pyodideRef.current;
     // A caller joining the in-flight init still gets later stages.
-    if (onStage) initStageListenersRef.current.add(onStage);
+    // Guard the type: next/script calls onLoad with the DOM load
+    // Event as its first argument, so passing initPyodide straight
+    // to the Script's onLoad used to register that Event as a
+    // "stage listener" — and the first emitStage() then called the
+    // Event as a function, killing the whole runtime load with
+    // "t is not a function" before the download even started.
+    // Only real functions may join.
+    if (onStage && typeof onStage === "function") {
+      initStageListenersRef.current.add(onStage);
+    }
     if (pyodideInitPromiseRef.current) {
       try {
         return await pyodideInitPromiseRef.current;
@@ -673,7 +686,10 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
     <div className="min-h-screen bg-black text-white flex flex-col pb-20 md:pb-0">
       <Script
         src="https://cdn.jsdelivr.net/pyodide/v0.27.2/full/pyodide.js"
-        onLoad={initPyodide}
+        // Never pass initPyodide directly: next/script calls onLoad
+        // with the DOM load Event, and initPyodide would take that
+        // Event for a stage-listener function — see the guard above.
+        onLoad={() => initPyodide()}
         onError={() => {
           const msg = "Pyodide script failed to load from cdn.jsdelivr.net — check your connection and reload the page.";
           setPyodideError(msg);
@@ -1091,7 +1107,7 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
               </button>
             </div>
             <pre className="flex-1 w-full bg-black p-3.5 font-mono text-xs text-neutral-300 overflow-auto whitespace-pre-wrap selection:bg-neutral-800">
-              {output}
+              <HighlightedTerminal output={output} />
             </pre>
             <div className="border-t border-neutral-800 bg-black/60 px-3.5 py-2">
               <label className="text-[11px] font-mono text-neutral-500">
@@ -1161,9 +1177,7 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
                     8000 characters were sent.
                   </p>
                 )}
-                <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-neutral-200">
-                  {aiAnswer}
-                </p>
+                <HighlightedMarkdown text={aiAnswer} />
               </>
             ) : null}
           </div>

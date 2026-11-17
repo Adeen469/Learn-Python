@@ -164,4 +164,14 @@ describe("player page — no title card, button in the player footer, short scro
     assert.ok(!page.includes("maxHeight={480}"), "the old 7-row list must be gone");
     assert.ok(!page.includes("maxHeight={320}"), "no half-cut 5th row may peek in");
   });
+
+  test("the page itself never scrolls — no page sidebar on any screen", () => {
+    const page = read("src/app/courses/[slug]/[collection]/page.tsx");
+    assert.ok(page.includes("h-dvh"), "the page must be exactly one viewport tall");
+    assert.ok(page.includes("overflow-hidden"), "the page must not scroll itself");
+    assert.ok(!page.includes("min-h-screen"), "the old growing page must be gone");
+    assert.ok(page.includes("overflow-y-auto"), "the content must scroll inside its container");
+    assert.ok(page.includes("[scrollbar-width:none]"), "the container must hide its scrollbar (Firefox)");
+    assert.ok(page.includes("[&::-webkit-scrollbar]:hidden"), "the container must hide its scrollbar (Chrome)");
+  });
 });

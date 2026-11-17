@@ -8,7 +8,11 @@ const csp = [
   // (28 CSP violations, no client-side rendering). A per-request nonce
   // via middleware would be the stricter alternative; out of scope here.
   "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
-  "style-src 'self' 'unsafe-inline'",
+  // jsDelivr again: @monaco-editor/react loads Monaco's editor.main.css
+  // from the CDN. Without this the stylesheet is CSP-blocked, Monaco
+  // loses all layout CSS, and its hidden input textarea renders as a
+  // plain grey block at the top of the editor pane.
+  "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
   // lh3.googleusercontent.com serves Google profile pictures (the
   // navbar avatar comes from the signed-in user's Google photo).
   // i.ytimg.com serves YouTube video thumbnails on the Courses page.
