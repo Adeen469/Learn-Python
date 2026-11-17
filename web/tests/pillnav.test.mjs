@@ -58,10 +58,16 @@ describe("pill nav install", () => {
     assert.ok(!navbar.includes("grid grid-cols-4"), "the old four-column tab bar must be gone");
     assert.ok(!navbar.includes("fixed bottom-0"), "the old full-width bottom bar must be gone");
     assert.ok(navbar.includes("fixed bottom-3"), "the mobile dock must float above the bottom edge");
+    assert.ok(navbar.includes('size="md"'), "the mobile dock must use the bigger md size");
     assert.ok(
-      navbar.includes('"--pn-x": "8px"'),
-      "the mobile dock must use tighter item padding so it fits small phones",
+      navbar.includes('"--pn-h": "48px"'),
+      "the mobile dock bar must be 48px tall, not the short 36px",
     );
+    assert.ok(
+      navbar.includes('"--pn-x": "14px"'),
+      "the mobile dock must use wider item padding for its bigger icons",
+    );
+    assert.ok(navbar.includes("h-11 w-11"), "the profile circle beside the dock must match its height");
     assert.ok(navbar.includes("data-profile-trigger"), "the profile circle must stay beside the dock");
     assert.ok(navbar.includes("absolute bottom-full right-0"), "the profile menu must open upward");
   });
@@ -72,8 +78,8 @@ describe("pill nav install", () => {
       !navbar.includes("whitespace-nowrap text-sm font-semibold tracking-tight text-white"),
       "the LP / Learn Python wordmark span must be gone from the header",
     );
-    assert.ok(navbar.includes("width={40}"), "the logo must be bigger than before (40px)");
-    assert.ok(navbar.includes("h-10 w-10"), "the logo must render at 40px");
+    assert.ok(navbar.includes("width={48}"), "the logo must be bigger than before (48px)");
+    assert.ok(navbar.includes("h-12 w-12"), "the logo must render at 48px");
     assert.ok(navbar.includes('src="/lp-logo.png"'), "the logo image must stay");
   });
 

@@ -249,9 +249,9 @@ export function AppNavbar() {
               <img
                 src="/lp-logo.png"
                 alt="LP Logo"
-                width={40}
-                height={40}
-                className="h-10 w-10 rounded-md object-contain"
+                width={48}
+                height={48}
+                className="h-12 w-12 rounded-md object-contain"
               />
             </Link>
           </div>
@@ -337,10 +337,10 @@ export function AppNavbar() {
           itemStyle="plain"
           hoverEffect="fill"
           indicator="dot"
-          size="sm"
+          size="md"
           collapse="never"
           className="pill-nav--dock"
-          style={{ "--pn-x": "8px", "--pn-font": "12px" } as CSSProperties}
+          style={{ "--pn-h": "48px", "--pn-inner": "40px", "--pn-x": "14px", "--pn-font": "14px" } as CSSProperties}
         />
         <div className="relative">
           <button
@@ -349,16 +349,16 @@ export function AppNavbar() {
             onClick={() => setProfileOpen((v) => !v)}
             aria-label="Profile menu"
             aria-expanded={profileOpen}
-            className={`${profileTriggerClass} h-8 w-8 overflow-hidden`}
+            className={`${profileTriggerClass} h-11 w-11 overflow-hidden`}
           >
             {user?.picture ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={user.picture}
                 alt=""
-                width={32}
-                height={32}
-                className="h-8 w-8 rounded-full object-cover"
+                width={44}
+                height={44}
+                className="h-11 w-11 rounded-full object-cover"
                 referrerPolicy="no-referrer"
               />
             ) : user ? (
