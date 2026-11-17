@@ -12,13 +12,14 @@ const read = (rel) => readFileSync(path.join(root, rel), "utf8");
 // AnimatedList for the video list, ElasticSlider for player volume.
 
 describe("react bits install", () => {
-  test("the first five components are vendored with no motion dep; gsap exists only for TextType", () => {
+  test("the first six components are vendored with no motion dep; gsap exists only for TextType", () => {
     for (const file of [
       "src/components/Counter.tsx",
       "src/components/AnimatedList.tsx",
       "src/components/ElasticSlider.tsx",
       "src/components/StarBorder.tsx",
       "src/components/TextType.tsx",
+      "src/components/PillNav.tsx",
     ]) {
       assert.ok(existsSync(path.join(root, file)), `${file} must exist`);
       const src = read(file);

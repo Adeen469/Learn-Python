@@ -82,7 +82,7 @@ export function LandingPage() {
               deletingSpeed={50}
               deleteMode="backspace"
               typeEffect="fade"
-              mistakes={0.2}
+              mistakes={0}
               cursorStyle="bar"
               cursorGlide
               showCursor

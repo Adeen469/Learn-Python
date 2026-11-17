@@ -31,6 +31,8 @@ describe("text type install", () => {
     assert.ok(landing.includes("<TextType"), "the headline must render TextType");
     assert.ok(landing.includes('text={["online", "offline"]}'), "the typed words must be online then offline");
     assert.ok(landing.includes('cursorStyle="bar"'), "the cursor must be a bar");
+    assert.ok(landing.includes("mistakes={0}"), "the typed word must never make a typo");
+    assert.ok(!landing.includes("mistakes={0.2}"), "no typo rate may remain");
     assert.ok(!landing.includes("RotatingText"), "RotatingText must not be used anymore");
     assert.ok(!existsSync(path.join(root, "src/components/RotatingText.tsx")), "RotatingText.tsx must be deleted");
     assert.ok(!existsSync(path.join(root, "src/components/RotatingText.css")), "RotatingText.css must be deleted");

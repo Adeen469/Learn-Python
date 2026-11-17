@@ -18,6 +18,7 @@ import {
   todayKey,
   type ProgressState,
 } from "@/lib/progress";
+import PillNav from "@/components/PillNav";
 
 // Three items, everywhere: Learn (the W3Schools-style main page),
 // Video Courses (Harry / Apna College / Mosh), Code Editor.
@@ -249,28 +250,32 @@ export function AppNavbar() {
             </Link>
           </div>
 
-          {/* Nav links live here on PC only, centred; mobile uses the bottom bar. */}
-          <nav className="hidden items-center justify-center gap-1 md:flex">
-            {navLinks.map(({ href, label, icon: Icon, match }) => {
-              const active = pathname === href || pathname.startsWith(match + "/");
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  title={label}
-                  aria-label={label}
-                  className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-xs font-medium transition sm:px-3 ${
-                    active
-                      ? "bg-white text-black"
-                      : "text-neutral-400 hover:text-white hover:bg-neutral-900"
-                  }`}
-                >
-                  <Icon className="h-3.5 w-3.5" />
-                  <span className="hidden lg:inline">{label}</span>
-                </Link>
-              );
-            })}
-          </nav>
+          {/* Nav links live here on PC only, centred (PillNav); mobile uses the bottom bar. */}
+          <div className="hidden items-center justify-center md:flex">
+            <PillNav
+              items={navLinks.map(({ href, label, icon: Icon }) => ({
+                label,
+                href,
+                icon: <Icon />,
+              }))}
+              activeHref={
+                pathname.startsWith("/learn")
+                  ? "/learn/python-home"
+                  : pathname.startsWith("/courses")
+                    ? "/courses"
+                    : pathname.startsWith("/editor")
+                      ? "/editor"
+                      : ""
+              }
+              linkComponent={Link}
+              theme="dark"
+              itemStyle="plain"
+              hoverEffect="fill"
+              indicator="dot"
+              size="sm"
+              collapse="never"
+            />
+          </div>
 
           <div className="flex shrink-0 items-center justify-end gap-2.5">
             {/* Profile dropdown (top-right). Shows the signed-in Google
