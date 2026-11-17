@@ -57,15 +57,12 @@ export function LandingPage() {
               height={28}
               className="h-7 w-7 rounded-md object-contain"
             />
-            <span className="text-sm font-semibold tracking-tight">
-              LP <span className="text-xs font-normal text-neutral-500">Learn Python</span>
-            </span>
           </div>
           <a
-            href="/api/auth/google"
+            href="/auth/email"
             className="rounded-lg bg-white px-3.5 py-1.5 text-xs font-semibold text-black hover:bg-neutral-200 transition"
           >
-            Sign in with Google
+            Sign in
           </a>
         </div>
       </header>
@@ -73,9 +70,6 @@ export function LandingPage() {
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4">
         {/* Hero */}
         <section className="flex flex-col items-center py-14 text-center sm:py-20">
-          <p className="rounded-full border border-neutral-800 bg-neutral-950 px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-neutral-400">
-            812 topics • 259 videos • Code editor
-          </p>
           <h1 className="mt-5 max-w-2xl text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
             Learn Python, online or off.
           </h1>
@@ -85,13 +79,13 @@ export function LandingPage() {
             the streak.
           </p>
           <a
-            href="/api/auth/google"
+            href="/auth/email"
             className="mt-8 inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-black hover:bg-neutral-200 transition"
           >
-            Sign in with Google <ArrowRight className="h-4 w-4" />
+            Get started <ArrowRight className="h-4 w-4" />
           </a>
           <p className="mt-3 text-xs text-neutral-500">
-            Free • Sign in with Google • Your progress stays on this device
+            Free • Sign in with email or Google • Your progress stays on this device
           </p>
 
           {/* Stats */}

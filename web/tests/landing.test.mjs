@@ -31,11 +31,23 @@ describe("landing page — no 100-days, no creator, no video source", () => {
   test("the hero sells learning online or off, with real content numbers", () => {
     const landing = read("src/components/LandingPage.tsx");
     assert.ok(landing.includes("Learn Python, online or off."), "hero must lead with online-or-offline learning");
-    assert.ok(landing.includes("812 topics"), "pill must show the real topic count");
-    assert.ok(landing.includes("259 videos"), "pill must show the real video count");
     assert.ok(landing.includes('{ value: "812", label: "topics" }'), "stats must show 812 topics");
     assert.ok(landing.includes('{ value: "259", label: "videos" }'), "stats must show 259 videos");
     assert.ok(landing.includes('{ value: "6", label: "stages" }'), "stats must keep the 6 roadmap stages");
+  });
+
+  test("no pill above the hero and no wordmark text beside the logo", () => {
+    const landing = read("src/components/LandingPage.tsx");
+    assert.ok(!landing.includes("812 topics • 259 videos • Code editor"), "the stats pill must be gone");
+    assert.ok(!landing.includes("rounded-full border border-neutral-800"), "no pill styling may remain");
+    assert.ok(!landing.includes('LP <span className="text-xs font-normal text-neutral-500">Learn Python</span>'), "the header wordmark text must be gone");
+  });
+
+  test("login/register has a clear entry — Get started and Sign in both go to /auth/email", () => {
+    const landing = read("src/components/LandingPage.tsx");
+    assert.ok(landing.includes("Get started"), "hero must have a Get started button");
+    assert.ok(landing.includes('href="/auth/email"'), "the buttons must link to the login/register page");
+    assert.ok(!landing.includes('href="/api/auth/google"'), "the landing page must not link straight to Google — the login page offers both");
   });
 
   test("the feature cards cover offline videos, offline tutorials, AI and GitHub", () => {
