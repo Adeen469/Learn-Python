@@ -38,6 +38,11 @@ interface AnimatedListProps {
   onItemSelect?: (item: AnimatedListItem, index: number) => void;
   renderItem?: (item: AnimatedListItem, index: number, isSelected: boolean) => ReactNode;
   initialSelectedIndex?: number;
+  // Controlled selection: when given, the ring follows this index
+  // (clicks and programmatic changes alike) and comes back to it when
+  // the cursor leaves the list. Without it the list keeps its own
+  // internal selection, as before.
+  selectedIndex?: number;
   selectOnHover?: boolean;
   enableArrowNavigation?: boolean;
   loop?: boolean;
@@ -176,6 +181,7 @@ const AnimatedList = ({
   onItemSelect,
   renderItem,
   initialSelectedIndex = -1,
+  selectedIndex,
   selectOnHover = true,
   enableArrowNavigation = true,
   loop = false,
@@ -211,6 +217,7 @@ const AnimatedList = ({
     items,
     onItemSelect,
     selected,
+    selectedIndex,
     selectOnHover,
     enableArrowNavigation,
     loop,
@@ -473,6 +480,11 @@ const AnimatedList = ({
     };
     const onLeave = () => {
       engaged = false;
+      // The ring glides to the hovered row while the cursor is over the
+      // list; when it leaves, the box comes back to the controlled
+      // (currently playing) item instead of staying on the last hover.
+      const controlled = settingsRef.current.selectedIndex;
+      if (controlled !== undefined) setSelected(controlled);
     };
 
     viewport.addEventListener('scroll', onScroll, { passive: true });
@@ -529,6 +541,12 @@ const AnimatedList = ({
   useEffect(() => {
     engineRef.current?.updateFades();
   }, [showGradients, fadeSize, maxHeight, gap]);
+
+  // Controlled selection: the ring follows the parent's index whenever
+  // it changes (a click, or autoplay advancing to the next lesson).
+  useEffect(() => {
+    if (selectedIndex !== undefined) setSelected(selectedIndex);
+  }, [selectedIndex]);
 
   const hover = (index: number) => {
     if (!navigatingRef.current) setSelected(index);

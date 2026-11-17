@@ -72,11 +72,15 @@ describe("pill nav install", () => {
     assert.ok(navbar.includes("absolute bottom-full right-0"), "the profile menu must open upward");
   });
 
-  test("the header shows only the bigger logo, no wordmark text", () => {
+  test("the header shows only the bigger logo, no wordmark", () => {
     const navbar = read("src/components/AppNavbar.tsx");
     assert.ok(
       !navbar.includes("whitespace-nowrap text-sm font-semibold tracking-tight text-white"),
-      "the LP / Learn Python wordmark span must be gone from the header",
+      "the old LP / Learn Python wordmark span must stay gone",
+    );
+    assert.ok(
+      !navbar.includes('font-bold text-white">L</span>'),
+      "the Learn Python wordmark must be gone — Maalik picked streak + Continue instead",
     );
     assert.ok(navbar.includes("width={48}"), "the logo must be bigger than before (48px)");
     assert.ok(navbar.includes("h-12 w-12"), "the logo must render at 48px");
@@ -114,6 +118,34 @@ describe("pill nav install", () => {
     assert.ok(
       navbar.includes('className="pill-nav--dock"'),
       "the mobile dock must carry the dock class for its upward tooltip",
+    );
+  });
+
+  test("the mobile header shows streak + Continue top-right, desktop unchanged", () => {
+    const navbar = read("src/components/AppNavbar.tsx");
+    // Maalik picked these two from the five-idea preview (2026-11-18):
+    // streak chip + Continue, mobile only, on the right side.
+    assert.ok(navbar.includes("Flame"), "the streak chip must use the Flame icon");
+    assert.ok(navbar.includes("computeStreak"), "the streak must come from the real progress record");
+    assert.ok(navbar.includes("Continue"), "the Continue button must be there");
+    assert.ok(navbar.includes("LEARN_SECTIONS"), "Continue must find the next uncompleted topic");
+    assert.ok(
+      navbar.includes("flex items-center gap-2 md:hidden"),
+      "streak + Continue must sit in a mobile-only wrapper on the right",
+    );
+    assert.ok(
+      navbar.includes("grid-cols-[1fr_auto]") && navbar.includes("md:grid-cols-[1fr_auto_1fr]"),
+      "mobile must be a 2-zone grid (logo left, chips right) — the centre cell is hidden on mobile, so a 3-zone grid would park the chips in the middle",
+    );
+    // The three he dropped must be gone.
+    assert.ok(!navbar.includes("progressPercent"), "the goal ring must be gone");
+    assert.ok(!navbar.includes("strokeDasharray"), "the goal ring SVG must be gone");
+    assert.ok(!navbar.includes("/ 100"), "the Day counter must be gone");
+    assert.ok(!navbar.includes("lp_completed_lessons"), "the Day counter must not read video lessons");
+    // Desktop is exactly as it was: the plain 3-zone grid, no chips.
+    assert.ok(
+      navbar.includes("grid-cols-[1fr_auto_1fr]"),
+      "the desktop header must keep its 3-zone grid",
     );
   });
 });

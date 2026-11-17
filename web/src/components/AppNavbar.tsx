@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpenText, Code2, Github, LogOut, Map, MonitorPlay, Settings, User } from "lucide-react";
+import { ArrowRight, BookOpenText, Code2, Flame, Github, LogOut, Map, MonitorPlay, Settings, User } from "lucide-react";
 import { useEffect, useState, type CSSProperties } from "react";
 import {
   fetchSessionUser,
@@ -13,11 +13,13 @@ import { ROADMAP_SEEN_KEY } from "@/lib/roadmap";
 import { RoadmapHint, RoadmapModal } from "@/components/RoadmapModal";
 import {
   PROGRESS_UPDATED_EVENT,
+  computeStreak,
   emptyProgress,
   loadProgress,
   todayKey,
   type ProgressState,
 } from "@/lib/progress";
+import { LEARN_SECTIONS } from "@/lib/learn/sidebar";
 import PillNav from "@/components/PillNav";
 
 // Three items, everywhere: Learn (the W3Schools-style main page),
@@ -27,6 +29,19 @@ const navLinks = [
   { href: "/courses", label: "Video Courses", icon: MonitorPlay, match: "/courses" },
   { href: "/editor", label: "Code Editor", icon: Code2, match: "/editor" },
 ];
+
+// Reads the same localStorage stores the pages themselves use, so the
+// numbers are real, not hardcoded.
+function readStringArray(key: string): string[] {
+  try {
+    const parsed: unknown = JSON.parse(localStorage.getItem(key) ?? "[]");
+    return Array.isArray(parsed)
+      ? parsed.filter((x): x is string => typeof x === "string")
+      : [];
+  } catch {
+    return [];
+  }
+}
 
 function ProfileMenuItems({
   user,
@@ -113,6 +128,7 @@ function ProfileMenuItems({
 export function AppNavbar() {
   const pathname = usePathname();
   const [progress, setProgress] = useState<ProgressState>(() => emptyProgress(todayKey()));
+  const [completedTopics, setCompletedTopics] = useState<string[]>([]);
   const [profileOpen, setProfileOpen] = useState(false);
   const [user, setUser] = useState<SessionUser | null>(null);
   const [roadmapOpen, setRoadmapOpen] = useState(false);
@@ -185,6 +201,7 @@ export function AppNavbar() {
   useEffect(() => {
     const refresh = () => {
       setProgress(loadProgress((key) => localStorage.getItem(key)));
+      setCompletedTopics(readStringArray("lp_learn_completed"));
     };
     refresh();
     window.addEventListener(PROGRESS_UPDATED_EVENT, refresh);
@@ -238,12 +255,20 @@ export function AppNavbar() {
         ? "/editor"
         : "";
 
+  // Mobile header (right side): the streak chip and the Continue button.
+  // Both come from the same stores the pages use — streak from the shared
+  // progress record, Continue from the next uncompleted tutorial topic.
+  const streak = computeStreak(progress.activeDates);
+  const allTopics = LEARN_SECTIONS.flatMap((s) => s.groups.flatMap((g) => g.topics));
+  const nextTopic = allTopics.find((t) => !completedTopics.includes(t.slug));
+  const nextSlug = nextTopic ? nextTopic.slug : "python-home";
+
   return (
     <>
       {/* PC top bar: logo left, the three nav buttons centred, profile
           dropdown top-right. */}
       <header className="sticky top-0 z-30 border-b border-neutral-800 bg-black/95 backdrop-blur">
-        <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-2.5">
+        <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto] items-center gap-2 px-4 py-2.5 md:grid-cols-[1fr_auto_1fr]">
           <div className="flex min-w-0 items-center justify-start">
             <Link href="/" className="flex shrink-0 items-center gap-2.5 hover:opacity-90 transition">
               <img
@@ -255,7 +280,6 @@ export function AppNavbar() {
               />
             </Link>
           </div>
-
           {/* Nav links live here on PC only, centred (PillNav); mobile uses the bottom bar. */}
           <div className="hidden items-center justify-center md:flex">
             <PillNav
@@ -276,10 +300,26 @@ export function AppNavbar() {
           </div>
 
           <div className="flex shrink-0 items-center justify-end gap-2.5">
+            {/* Mobile only: streak chip + Continue, top-right. Desktop
+                stays exactly as it was — logo, centred nav, profile. */}
+            <div className="flex items-center gap-2 md:hidden">
+              <Link
+                href="/settings"
+                aria-label={`Streak: ${streak} days`}
+                className="flex shrink-0 items-center gap-1 rounded-full border border-neutral-800 bg-neutral-950 px-2.5 py-1.5 text-xs font-semibold text-white"
+              >
+                <Flame className="h-3.5 w-3.5" /> {streak}
+              </Link>
+              <Link
+                href={`/learn/${nextSlug}`}
+                className="flex shrink-0 items-center gap-1 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-black hover:bg-neutral-200 transition"
+              >
+                Continue <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
             {/* Profile dropdown (top-right). Shows the signed-in Google
                 account (picture + name) with Sign out; guests get a
-                sign-in link. Today's goal and streak now live in
-                Settings, not as pills in the bar. */}
+                sign-in link. */}
             <div className="relative hidden md:block">
               <button
                 type="button"

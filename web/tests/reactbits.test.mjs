@@ -79,7 +79,12 @@ describe("animated list — video list", () => {
   test("list entries carry the same info as the old rows", () => {
     const page = read("src/app/courses/[slug]/[collection]/page.tsx");
     assert.ok(page.includes("listItems"), "player must map videos to list entries");
-    assert.ok(page.includes("description: done ? \"Completed\" : \"Not started\""), "entries must show completion status");
+    // The status is richer now: Playing for the video that is playing,
+    // Watched % for a partly watched one, Completed, else Not started.
+    assert.ok(page.includes('"Playing"'), "entries must show the playing video");
+    assert.ok(page.includes('"Completed"'), "entries must show completion status");
+    assert.ok(page.includes("`Watched ${pct}%`"), "entries must show partial watch progress");
+    assert.ok(page.includes('"Not started"'), "entries must show the untouched state");
     assert.ok(page.includes("meta: formatDuration(video.durationSeconds)"), "entries must show the duration");
   });
 

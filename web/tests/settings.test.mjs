@@ -24,14 +24,16 @@ describe("settings page (/settings)", () => {
   });
 });
 
-describe("navbar: stats moved out, nav centred, settings in the menu", () => {
-  test("the goal/streak pills are gone from the navbar", () => {
+describe("navbar: streak chip in mobile header, nav centred, settings in the menu", () => {
+  test("the streak chip is back in the mobile header; the goal stays in Settings", () => {
+    // Maalik picked streak + Continue from the five-idea preview
+    // (2026-11-18). The goal ring was dropped, so the goal stays in
+    // Settings only — the old "pills gone" call stands for the goal.
     const nav = read("src/components/AppNavbar.tsx");
-    assert.ok(!nav.includes("computeStreak"), "navbar must not render the streak pill");
-    assert.ok(!nav.includes("wholeMinutes"), "navbar must not render the goal pill");
-    assert.ok(!nav.includes("d streak</span>"), "navbar must not show a streak pill");
-    assert.ok(!nav.includes("Flame"), "navbar must not import the Flame pill icon");
-    assert.ok(!nav.includes("Target"), "navbar must not import the Target pill icon");
+    assert.ok(nav.includes("computeStreak"), "the mobile header must show the streak chip");
+    assert.ok(nav.includes("Flame"), "the streak chip must use the Flame icon");
+    assert.ok(!nav.includes("progressPercent"), "the goal ring must be gone — goal stays in Settings");
+    assert.ok(!nav.includes("wholeMinutes"), "the navbar must not render the goal pill");
   });
 
   test("the three nav buttons sit centred", () => {

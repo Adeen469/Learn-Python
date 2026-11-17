@@ -1,13 +1,48 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Check, Download, HardDrive, Loader2, Maximize, Minimize, Pause, Play, Trash2, Volume2, VolumeX, Wifi, WifiOff } from "lucide-react";
+import { Captions, Check, Download, HardDrive, Loader2, Maximize, Minimize, Pause, Play, Settings, Trash2, Volume2, VolumeX, Wifi, WifiOff } from "lucide-react";
 import ElasticSlider from "@/components/ElasticSlider";
 import { WATCH_QUALIFY_FRACTION } from "@/lib/progress";
 
 const CACHE_NAME = "lp-offline-videos-v1";
 const VOLUME_KEY = "lp_volume";
 const MUTED_KEY = "lp_muted";
+const PLAYBACK_RATE_KEY = "lp_playback_rate";
+const QUALITY_KEY = "lp_quality";
+const CAPTIONS_KEY = "lp_captions";
+const PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
+// The controls hide themselves this long after the last mouse move
+// (only while the video is playing and no menu is open).
+const CONTROLS_HIDE_MS = 2500;
+
+function storedPlaybackRate(): number {
+  if (typeof window === "undefined") return 1;
+  try {
+    const n = Number(localStorage.getItem(PLAYBACK_RATE_KEY));
+    return PLAYBACK_RATES.includes(n) ? n : 1;
+  } catch {
+    return 1;
+  }
+}
+
+function storedQuality(): string {
+  if (typeof window === "undefined") return "auto";
+  try {
+    return localStorage.getItem(QUALITY_KEY) ?? "auto";
+  } catch {
+    return "auto";
+  }
+}
+
+function storedCaptions(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return localStorage.getItem(CAPTIONS_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
 
 function formatTime(totalSeconds: number): string {
   if (!Number.isFinite(totalSeconds) || totalSeconds < 0) return "0:00";
@@ -44,15 +79,27 @@ function storedMuted(): boolean {
 
 interface VideoPlayerProps {
   lessonId: string;
+  // The YouTube id of the same video — English captions (when the
+  // .vtt file exists under /public/captions) are named after it.
+  videoId: string;
   title: string;
+  // Autoplay the next lesson when this one ends. The toggle lives in
+  // the footer; the page owns the state and advances the playlist.
+  autoplay?: boolean;
+  onAutoplayChange?: (next: boolean) => void;
   onWatchCoverage?: (fraction: number, coveredSeconds: number) => void;
   onLessonQualified?: (coveredSeconds: number) => void;
+  // Fired when the video ends (the page advances the playlist when
+  // autoplay is on) and whenever play/pause flips (the page shows
+  // "Playing" for the active row in the lesson list).
+  onEnded?: () => void;
+  onPlayStateChange?: (playing: boolean) => void;
   // The page's Mark Complete / Watched % button, rendered in the
   // footer next to Save Offline (the page owns the completion logic).
   completionButton?: ReactNode;
 }
 
-export function VideoPlayer({ lessonId, title, onWatchCoverage, onLessonQualified, completionButton }: VideoPlayerProps) {
+export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutoplayChange, onWatchCoverage, onLessonQualified, onEnded, onPlayStateChange, completionButton }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [src, setSrc] = useState<string>(`/api/video/${lessonId}`);
   const [isSavedOffline, setIsSavedOffline] = useState(false);
@@ -74,6 +121,102 @@ export function VideoPlayer({ lessonId, title, onWatchCoverage, onLessonQualifie
   // (persisted per browser, like everything else).
   const [volume, setVolume] = useState(storedVolume);
   const [muted, setMuted] = useState(storedMuted);
+
+  // Playback speed + quality (both in the gear menu, persisted per
+  // browser). Quality: MEGA serves one file per lesson, so the menu
+  // lists the real resolution of that file next to Auto — there is no
+  // lower-quality stream to switch to.
+  const [playbackRate, setPlaybackRate] = useState(storedPlaybackRate);
+  const [quality, setQuality] = useState(storedQuality);
+  const [detectedQuality, setDetectedQuality] = useState<string | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
+  // English captions: a .vtt file under /public/captions named after
+  // the YouTube id (<videoId>.en.vtt). The CC button only shows when
+  // the file is actually there — no fake button for a missing file.
+  const [captionsAvailable, setCaptionsAvailable] = useState(false);
+  const [captionsOn, setCaptionsOn] = useState(storedCaptions);
+  const trackRef = useRef<HTMLTrackElement | null>(null);
+
+  // Auto-hide controls: the bar fades out 2.5s after the last mouse
+  // move (playing only, menu closed) and comes back on any movement.
+  const [showControls, setShowControls] = useState(true);
+  const hideTimerRef = useRef<number | null>(null);
+
+  // Push the playback rate onto the element whenever it changes or
+  // the source swaps (the <video> remounts on src change).
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.playbackRate = playbackRate;
+  }, [playbackRate, src]);
+
+  // Check whether English captions exist for this video.
+  useEffect(() => {
+    let cancelled = false;
+    setCaptionsAvailable(false);
+    fetch(`/captions/${videoId}.en.vtt`, { method: "HEAD" })
+      .then((res) => {
+        if (!cancelled) setCaptionsAvailable(res.ok);
+      })
+      .catch(() => {
+        if (!cancelled) setCaptionsAvailable(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [videoId]);
+
+  // Show/hide the caption track when the toggle (or the video) changes.
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const apply = () => {
+      const track = video.textTracks[0];
+      if (track) track.mode = captionsOn && captionsAvailable ? "showing" : "disabled";
+    };
+    apply();
+    const trackEl = trackRef.current;
+    trackEl?.addEventListener("load", apply);
+    return () => trackEl?.removeEventListener("load", apply);
+  }, [captionsOn, captionsAvailable, src]);
+
+  function clearHideTimer() {
+    if (hideTimerRef.current !== null) {
+      window.clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
+  }
+
+  function scheduleHide() {
+    clearHideTimer();
+    // Never hide while paused or while a menu is open — the bar must
+    // stay put when the user is reading it.
+    if (paused || settingsOpen) return;
+    hideTimerRef.current = window.setTimeout(() => {
+      setShowControls(false);
+    }, CONTROLS_HIDE_MS);
+  }
+
+  function handlePointerActivity() {
+    setShowControls(true);
+    scheduleHide();
+  }
+
+  // Keep the bar visible while paused (or while a menu is open) and
+  // restart the hide timer whenever that changes.
+  useEffect(() => {
+    if (paused || settingsOpen) {
+      clearHideTimer();
+      setShowControls(true);
+      return;
+    }
+    scheduleHide();
+    return clearHideTimer;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paused, settingsOpen]);
+
+  useEffect(() => clearHideTimer, []);
 
   // Push volume/mute onto the element whenever either changes or the
   // source swaps (the <video> remounts on src change).
@@ -139,6 +282,55 @@ export function VideoPlayer({ lessonId, title, onWatchCoverage, onLessonQualifie
     if (video) video.muted = next;
   }
 
+  function selectPlaybackRate(next: number) {
+    setPlaybackRate(next);
+    try {
+      localStorage.setItem(PLAYBACK_RATE_KEY, String(next));
+    } catch {
+      // Ignore.
+    }
+    const video = videoRef.current;
+    if (video) video.playbackRate = next;
+    setSettingsOpen(false);
+  }
+
+  function selectQuality(next: string) {
+    setQuality(next);
+    try {
+      localStorage.setItem(QUALITY_KEY, next);
+    } catch {
+      // Ignore.
+    }
+    // One stream per video, so this only records the choice — there is
+    // no other file to switch to.
+    setSettingsOpen(false);
+  }
+
+  function toggleCaptions() {
+    const next = !captionsOn;
+    setCaptionsOn(next);
+    try {
+      localStorage.setItem(CAPTIONS_KEY, next ? "1" : "0");
+    } catch {
+      // Ignore.
+    }
+  }
+
+  // Plain file download (to the device's Downloads folder) — different
+  // from Save Offline, which keeps the video inside the app. The
+  // stream URL serves the whole file on a plain GET; the download
+  // attribute names it after the lesson title.
+  function handleDownload() {
+    if (!isOnline && !isSavedOffline) return;
+    const name = `${title.replace(/[\\/:*?"<>|]/g, "").replace(/\s+/g, " ").trim() || lessonId}.mp4`;
+    const a = document.createElement("a");
+    a.href = src;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
   // 95% watch rule: track which seconds of the video were actually seen
   // (unique coverage — seeking past content doesn't count it, re-watching
   // the same seconds doesn't count twice). Coverage persists per lesson in
@@ -156,6 +348,10 @@ export function VideoPlayer({ lessonId, title, onWatchCoverage, onLessonQualifie
   onWatchCoverageRef.current = onWatchCoverage;
   const onLessonQualifiedRef = useRef(onLessonQualified);
   onLessonQualifiedRef.current = onLessonQualified;
+  const onEndedRef = useRef(onEnded);
+  onEndedRef.current = onEnded;
+  const onPlayStateChangeRef = useRef(onPlayStateChange);
+  onPlayStateChangeRef.current = onPlayStateChange;
 
   function coverageKey(id: string) {
     return `lp_coverage_${id}`;
@@ -241,6 +437,10 @@ export function VideoPlayer({ lessonId, title, onWatchCoverage, onLessonQualifie
       durationRef.current = video.duration;
       setDuration(video.duration);
     }
+    // The file's real resolution — what the Quality menu shows.
+    if (video && video.videoHeight > 0) {
+      setDetectedQuality(`${video.videoHeight}p`);
+    }
     reportCoverage(true);
   }
 
@@ -270,8 +470,14 @@ export function VideoPlayer({ lessonId, title, onWatchCoverage, onLessonQualifie
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-    const onPlay = () => setPaused(false);
-    const onPause = () => setPaused(true);
+    const onPlay = () => {
+      setPaused(false);
+      onPlayStateChangeRef.current?.(true);
+    };
+    const onPause = () => {
+      setPaused(true);
+      onPlayStateChangeRef.current?.(false);
+    };
     video.addEventListener("play", onPlay);
     video.addEventListener("pause", onPause);
     const onFs = () => setIsFullscreen(Boolean(document.fullscreenElement));
@@ -286,6 +492,7 @@ export function VideoPlayer({ lessonId, title, onWatchCoverage, onLessonQualifie
   function handleEnded() {
     persistWatched(lessonId);
     reportCoverage(true);
+    onPlayStateChangeRef.current?.(false);
     // If the duration was never readable, ending the video is the only
     // signal we have — qualify on the seconds actually covered.
     if (
@@ -296,6 +503,8 @@ export function VideoPlayer({ lessonId, title, onWatchCoverage, onLessonQualifie
       qualifiedThisSessionRef.current = true;
       onLessonQualifiedRef.current?.(watchedRef.current.size);
     }
+    // The page advances the playlist when autoplay is on.
+    onEndedRef.current?.();
   }
 
   useEffect(() => {
@@ -318,6 +527,9 @@ export function VideoPlayer({ lessonId, title, onWatchCoverage, onLessonQualifie
     setCurrentTime(0);
     setDuration(0);
     setPaused(true);
+    setDetectedQuality(null);
+    setShowControls(true);
+    onPlayStateChangeRef.current?.(false);
     lastTimeRef.current = 0;
     lastReportedCoverageRef.current = -1;
     sessionNewBucketsRef.current = 0;
@@ -427,7 +639,14 @@ export function VideoPlayer({ lessonId, title, onWatchCoverage, onLessonQualifie
     <div className="rounded-xl border border-neutral-800 bg-neutral-950 overflow-hidden">
       <div
         ref={playerRef}
-        className="aspect-video w-full bg-black flex items-center justify-center relative"
+        onMouseMove={handlePointerActivity}
+        onMouseEnter={handlePointerActivity}
+        onMouseLeave={() => {
+          clearHideTimer();
+          if (!paused && !settingsOpen) setShowControls(false);
+        }}
+        onTouchStart={handlePointerActivity}
+        className={`aspect-video w-full bg-black flex items-center justify-center relative${showControls ? "" : " cursor-none"}`}
       >
         <video
           ref={videoRef}
@@ -435,17 +654,104 @@ export function VideoPlayer({ lessonId, title, onWatchCoverage, onLessonQualifie
           src={src}
           playsInline
           preload="metadata"
+          autoPlay={autoplay}
           onClick={togglePlay}
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
           onPause={() => persistWatched(lessonId)}
           onEnded={handleEnded}
           className="h-full w-full bg-black"
-        />
+        >
+          {captionsAvailable && (
+            <track
+              ref={trackRef}
+              kind="captions"
+              label="English"
+              srcLang="en"
+              src={`/captions/${videoId}.en.vtt`}
+            />
+          )}
+        </video>
+
+        {/* Settings menu backdrop — clicking anywhere else closes it. */}
+        {settingsOpen && (
+          <div
+            className="absolute inset-0 z-10"
+            onClick={() => setSettingsOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+
+        {/* Settings menu (autoplay, speed + quality), anchored above
+            the bar and capped to the video area so it never clips off
+            the top. */}
+        {settingsOpen && (
+          <div className="absolute right-3 bottom-[6.5rem] z-20 max-h-[calc(100%-8rem)] w-60 overflow-y-auto rounded-xl border border-neutral-700 bg-neutral-900 text-white shadow-2xl">
+            <button
+              type="button"
+              onClick={() => onAutoplayChange?.(!autoplay)}
+              title={autoplay ? "Autoplay on — the next lesson plays automatically" : "Autoplay off"}
+              aria-label="Autoplay next lesson"
+              aria-pressed={autoplay}
+              className="flex w-full items-center justify-between px-3 py-2 text-left text-[13px] hover:bg-white/10"
+            >
+              <span>Autoplay</span>
+              <span className={`relative h-4 w-7 shrink-0 rounded-full transition ${autoplay ? "bg-white" : "bg-neutral-700"}`}>
+                <span className={`absolute top-0.5 h-3 w-3 rounded-full transition-all ${autoplay ? "left-3.5 bg-black" : "left-0.5 bg-neutral-300"}`} />
+              </span>
+            </button>
+            <div className="my-1 border-t border-neutral-800" />
+            <p className="px-3 pt-2.5 pb-1 text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+              Playback speed
+            </p>
+            {PLAYBACK_RATES.map((rate) => (
+              <button
+                key={rate}
+                type="button"
+                onClick={() => selectPlaybackRate(rate)}
+                className="flex w-full items-center justify-between px-3 py-1 text-left text-[13px] hover:bg-white/10"
+              >
+                <span>{rate === 1 ? "Normal" : `${rate}×`}</span>
+                {playbackRate === rate && <Check className="h-4 w-4" />}
+              </button>
+            ))}
+            <div className="my-1 border-t border-neutral-800" />
+            <p className="px-3 pt-1 pb-1 text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+              Quality
+            </p>
+            <button
+              type="button"
+              onClick={() => selectQuality("auto")}
+              className="flex w-full items-center justify-between px-3 py-1 text-left text-[13px] hover:bg-white/10"
+            >
+              <span>Auto</span>
+              {quality === "auto" && <Check className="h-4 w-4" />}
+            </button>
+            {detectedQuality && (
+              <button
+                type="button"
+                onClick={() => selectQuality(detectedQuality)}
+                className="flex w-full items-center justify-between px-3 py-1 text-left text-[13px] hover:bg-white/10"
+              >
+                <span>
+                  {detectedQuality} <span className="text-neutral-400">(original)</span>
+                </span>
+                {quality === detectedQuality && <Check className="h-4 w-4" />}
+              </button>
+            )}
+            <p className="px-3 py-2 text-[11px] leading-snug text-neutral-500">
+              MEGA serves one quality per video — the file above is the only stream.
+            </p>
+          </div>
+        )}
 
         {/* One control bar for both sliders: seek on top, and the
-            volume slider slides out when you hover the speaker. */}
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent px-3 pb-2.5 pt-10 text-white">
+            volume slider slides out when you hover the speaker. The
+            bar fades out 2.5s after the last mouse move while the
+            video plays, and comes back on any movement. */}
+        <div
+          className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent px-3 pb-2.5 pt-10 text-white transition-opacity duration-300 ${showControls ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        >
           <ElasticSlider
             value={currentTime}
             maxValue={duration > 0 ? duration : 1}
@@ -497,10 +803,42 @@ export function VideoPlayer({ lessonId, title, onWatchCoverage, onLessonQualifie
                 />
               </div>
             </div>
-            <span className="shrink-0 text-xs tabular-nums text-neutral-200">
+            <span className="hidden shrink-0 text-xs tabular-nums text-neutral-200 sm:inline">
               {formatTime(currentTime)} / {formatTime(duration)}
             </span>
             <div className="flex-1" />
+            {captionsAvailable && (
+              <button
+                type="button"
+                onClick={toggleCaptions}
+                title={captionsOn ? "Hide English captions" : "Show English captions"}
+                aria-label="English captions"
+                aria-pressed={captionsOn}
+                className={`shrink-0 rounded-lg p-1.5 transition hover:bg-white/10 ${captionsOn ? "bg-white text-black hover:bg-white" : "text-white"}`}
+              >
+                <Captions className="h-5 w-5" />
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={handleDownload}
+              disabled={!isOnline && !isSavedOffline}
+              title="Download video"
+              aria-label="Download video"
+              className="shrink-0 rounded-lg p-1.5 text-white transition hover:bg-white/10 disabled:opacity-40"
+            >
+              <Download className="h-5 w-5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setSettingsOpen((v) => !v)}
+              title="Settings — speed and quality"
+              aria-label="Settings — speed and quality"
+              aria-expanded={settingsOpen}
+              className={`shrink-0 rounded-lg p-1.5 transition hover:bg-white/10 ${settingsOpen ? "bg-white/15 text-white" : "text-white"}`}
+            >
+              <Settings className="h-5 w-5" />
+            </button>
             <button
               type="button"
               onClick={toggleFullscreen}

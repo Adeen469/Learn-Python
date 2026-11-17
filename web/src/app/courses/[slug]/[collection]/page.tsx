@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type CSSProperties } from "react";
-import { ArrowLeft, CheckCircle2, Circle, Play } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Circle, Pause, Play } from "lucide-react";
 import { fetchSessionUser } from "@/lib/auth-client";
 import { AppNavbar } from "@/components/AppNavbar";
 import { VideoPlayer } from "@/components/VideoPlayer";
@@ -94,6 +94,14 @@ export default function CoursePlayerPage({
     loadProgress((key) => (typeof localStorage === "undefined" ? null : localStorage.getItem(key)))
   );
   const [activeCoverage, setActiveCoverage] = useState({ fraction: 0, seconds: 0 });
+  const [isPlaying, setIsPlaying] = useState(false);
+  // Autoplay the next lesson when one ends (on by default; the toggle
+  // lives in the player's control bar and survives reloads).
+  const [autoplay, setAutoplay] = useState<boolean>(() =>
+    typeof localStorage === "undefined"
+      ? true
+      : localStorage.getItem("lp_autoplay") !== "0",
+  );
   const [theme, setTheme] = useState<Theme>("dark");
 
   // The lessons list follows the app theme (same pattern as the editor).
@@ -189,6 +197,28 @@ export default function CoursePlayerPage({
     qualifyVideo(completionId(activeVideo), coveredSeconds);
   }
 
+  function handleAutoplayChange(next: boolean) {
+    setAutoplay(next);
+    try {
+      localStorage.setItem("lp_autoplay", next ? "1" : "0");
+    } catch {
+      // The toggle just won't survive a reload.
+    }
+  }
+
+  // The player calls this when the active video ends: with autoplay on,
+  // move to the next lesson (it starts playing on its own); otherwise
+  // stay on the ended video.
+  function handleVideoEnded() {
+    setIsPlaying(false);
+    if (!autoplay) return;
+    const nextIndex = activeIndex + 1;
+    if (nextIndex < videos.length) {
+      setActiveIndex(nextIndex);
+      setActiveCoverage({ fraction: 0, seconds: 0 });
+    }
+  }
+
   const goalPct = progressPercent(progress);
   const isDone = completedIds.includes(completionId(activeVideo));
   // YouTube videos can't report watch coverage, so their Mark Complete
@@ -231,16 +261,49 @@ export default function CoursePlayerPage({
     </button>
   );
 
+  // How much of a video was watched in earlier sessions: the player
+  // persists the covered second-indices under lp_coverage_<lessonId>.
+  // The active video's live coverage (from the player) wins when it is
+  // higher, so the row is right even before the player reports.
+  function storedCoveragePct(video: CourseVideo): number {
+    if (typeof localStorage === "undefined") return 0;
+    try {
+      const raw = localStorage.getItem(`lp_coverage_${completionId(video)}`);
+      if (!raw) return 0;
+      const parsed: unknown = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return 0;
+      const seconds = parsed.filter((n) => typeof n === "number").length;
+      const total = video.durationSeconds ?? 0;
+      return total > 0 ? Math.min(100, Math.round((seconds / total) * 100)) : 0;
+    } catch {
+      return 0;
+    }
+  }
+
   // The video list, as React Bits AnimatedList entries — same rows as
   // before (Play icon, title, duration, status), now springing into
-  // view with a gliding selection ring.
-  const listItems: AnimatedListEntry[] = videos.map((video) => {
+  // view with a gliding selection ring. The status tells the truth
+  // about the video: the one that is playing says "Playing" (not
+  // "Not started"), a partly watched one shows its %, a finished one
+  // says "Completed".
+  const listItems: AnimatedListEntry[] = videos.map((video, index) => {
     const done = completedIds.includes(completionId(video));
+    const pct = Math.max(
+      index === activeIndex ? Math.round(activeCoverage.fraction * 100) : 0,
+      storedCoveragePct(video),
+    );
+    const playing = index === activeIndex && isPlaying;
     return {
       id: completionId(video),
-      icon: <Play className="h-4 w-4" />,
+      icon: playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />,
       title: video.title,
-      description: done ? "Completed" : "Not started",
+      description: playing
+        ? "Playing"
+        : done
+          ? "Completed"
+          : pct > 0
+            ? `Watched ${pct}%`
+            : "Not started",
       meta: formatDuration(video.durationSeconds),
     };
   });
@@ -267,11 +330,16 @@ export default function CoursePlayerPage({
             {activeVideo.megaLessonId ? (
               <VideoPlayer
                 lessonId={activeVideo.megaLessonId}
+                videoId={activeVideo.videoId}
                 title={activeVideo.title}
+                autoplay={autoplay}
+                onAutoplayChange={handleAutoplayChange}
                 onWatchCoverage={(fraction, seconds) =>
                   setActiveCoverage({ fraction, seconds })
                 }
                 onLessonQualified={handleVideoQualified}
+                onEnded={handleVideoEnded}
+                onPlayStateChange={setIsPlaying}
                 completionButton={completionButton}
               />
             ) : (
@@ -284,7 +352,7 @@ export default function CoursePlayerPage({
               <div className="overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950">
                 <div className="aspect-video w-full bg-black">
                   <iframe
-                    src={`https://www.youtube-nocookie.com/embed/${activeVideo.videoId}`}
+                    src={`https://www.youtube-nocookie.com/embed/${activeVideo.videoId}?autoplay=${autoplay ? 1 : 0}`}
                     title={activeVideo.title}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
@@ -347,8 +415,10 @@ export default function CoursePlayerPage({
                 <AnimatedList
                   items={listItems}
                   initialSelectedIndex={activeIndex}
+                  selectedIndex={activeIndex}
                   onItemSelect={(_item, index) => {
                     setActiveIndex(index);
+                    setIsPlaying(false);
                     setActiveCoverage({ fraction: 0, seconds: 0 });
                   }}
                   frame={false}
