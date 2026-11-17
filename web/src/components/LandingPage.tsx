@@ -79,26 +79,28 @@ export function LandingPage() {
             from your first print() to real projects. Watch, code, and build
             the streak.
           </p>
-          <StarBorder
-            as="a"
-            href="/auth/email"
-            color="#ffffff"
-            trailColor="#ffffff"
-            duration={4}
-            direction="clockwise"
-            stars={1}
-            trailLength={0.3}
-            thickness={1}
-            radius={12}
-            glow={0.6}
-            hover="lap"
-            sparkle={false}
-            clickPulse
-            theme="dark"
-            className="mt-8 text-sm font-semibold"
-          >
-            Get started <ArrowRight className="h-4 w-4" />
-          </StarBorder>
+          <div className="mt-12">
+            <StarBorder
+              as="a"
+              href="/auth/email"
+              color="#ffffff"
+              trailColor="#ffffff"
+              duration={4}
+              direction="clockwise"
+              stars={1}
+              trailLength={0.3}
+              thickness={1}
+              radius={12}
+              glow={0.6}
+              hover="lap"
+              sparkle={false}
+              clickPulse
+              theme="dark"
+              className="text-sm font-semibold"
+            >
+              Get started <ArrowRight className="h-4 w-4" />
+            </StarBorder>
+          </div>
           <p className="mt-3 text-xs text-neutral-500">
             Free • Sign in with email or Google • Your progress stays on this device
           </p>
