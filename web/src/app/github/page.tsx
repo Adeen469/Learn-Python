@@ -19,6 +19,36 @@ import {
   Unlock,
 } from "lucide-react";
 
+// Every classic PAT scope GitHub offers, so the token link below opens
+// GitHub with all of them pre-checked (Maalik's word, 2026-11-18 —
+// "sare add krna h, sab prechecked hone chahiye"). A token with these
+// scopes can do anything on the account — delete repos, control orgs
+// and billing included — so it must stay in this browser only
+// (localStorage) and never be shared.
+const GITHUB_TOKEN_SCOPES = [
+  "repo", "repo:status", "repo_deployment", "public_repo", "repo:invite", "security_events",
+  "workflow",
+  "write:packages", "read:packages", "delete:packages",
+  "admin:org", "write:org", "read:org", "manage_runners:org",
+  "admin:public_key", "write:public_key", "read:public_key",
+  "admin:repo_hook", "write:repo_hook", "read:repo_hook",
+  "admin:org_hook",
+  "gist",
+  "notifications",
+  "user", "read:user", "user:email", "user:follow",
+  "delete_repo",
+  "write:discussion", "read:discussion",
+  "admin:enterprise", "manage_runners:enterprise", "manage_billing:enterprise", "read:enterprise", "scim:enterprise",
+  "audit_log", "read:audit_log",
+  "codespace", "codespace:secrets",
+  "copilot", "manage_billing:copilot",
+  "write:network_configurations", "read:network_configurations",
+  "project", "read:project",
+  "admin:gpg_key", "write:gpg_key", "read:gpg_key",
+  "admin:ssh_signing_key", "write:ssh_signing_key", "read:ssh_signing_key",
+].join(",");
+const GITHUB_TOKEN_URL = `https://github.com/settings/tokens/new?scopes=${GITHUB_TOKEN_SCOPES}&description=LP+Educational+Platform`;
+
 interface RepoItem {
   id: number;
   name: string;
@@ -227,7 +257,7 @@ export default function GitHubPage() {
             <Github className="h-5 w-5" /> GitHub Integration
           </h1>
           <p className="mt-1 text-xs text-neutral-400">
-            Connect your GitHub account using a Personal Access Token (PAT) with <code className="text-neutral-200">repo</code> scope to create repositories and commit code directly from LP.
+            Connect your GitHub account using a Personal Access Token (PAT) to create repositories and commit code directly from LP. The token link below opens GitHub with every scope pre-checked, so the token has full access to your account.
           </p>
         </div>
 
@@ -252,14 +282,14 @@ export default function GitHubPage() {
             <p className="mt-1 text-xs text-neutral-400 leading-relaxed">
               Create a token on{" "}
               <a
-                href="https://github.com/settings/tokens/new?scopes=repo&description=LP+Educational+Platform"
+                href={GITHUB_TOKEN_URL}
                 target="_blank"
                 rel="noreferrer"
                 className="underline text-white font-medium"
               >
                 github.com/settings/tokens
               </a>{" "}
-              with the <span className="font-mono bg-neutral-800 px-1 py-0.5 rounded text-white">repo</span> scope, then paste it below. Your token lives only in this browser (localStorage). It is sent to the LP server only to call GitHub on your behalf, is never stored on the server, and Disconnect removes it from this browser.
+              with every scope pre-checked — the token has full access to your account, including deleting repos and managing orgs, so keep it private. Then paste it below. Your token lives only in this browser (localStorage). It is sent to the LP server only to call GitHub on your behalf, is never stored on the server, and Disconnect removes it from this browser.
             </p>
 
             <form onSubmit={handleSaveToken} className="mt-4 flex gap-2">

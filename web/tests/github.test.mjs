@@ -39,8 +39,23 @@ test("both create-repo options are checked by default and the user can uncheck t
   assert.ok(!p.includes("autoInit: true"), "the README must not be hardcoded on");
 });
 
-test("the token instructions still ask for the repo scope only", () => {
+test("the token link opens GitHub with every scope pre-checked", () => {
   const p = page();
-  assert.ok(p.includes("scopes=repo"), "the token link must pre-check the repo scope");
-  assert.ok(p.includes("with <code"), "the page must name the repo scope in its intro");
+  // Every top-level scope GitHub lists must be in the link, so the
+  // token page opens with all of them checked.
+  for (const scope of [
+    "repo", "workflow",
+    "write:packages", "read:packages", "delete:packages",
+    "admin:org", "admin:public_key", "admin:repo_hook", "admin:org_hook",
+    "gist", "notifications", "user", "delete_repo",
+    "write:discussion", "read:discussion", "admin:enterprise",
+    "audit_log", "codespace", "copilot",
+    "write:network_configurations", "project",
+    "admin:gpg_key", "admin:ssh_signing_key",
+  ]) {
+    assert.ok(p.includes(scope), `the token link must pre-check ${scope}`);
+  }
+  assert.ok(p.includes("GITHUB_TOKEN_URL"), "the link must be built from the scopes list");
+  assert.ok(p.includes("full access to your account"), "the page must say the token has full access");
+  assert.ok(p.includes("keep it private"), "the page must warn the token must stay private");
 });
