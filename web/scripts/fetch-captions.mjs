@@ -30,8 +30,10 @@ const outDir = join(root, "public/captions");
 mkdirSync(outDir, { recursive: true });
 
 const args = process.argv.slice(2);
-const limit = Number(args[args.indexOf("--limit") + 1] ?? "0") || 0;
-const only = args[args.indexOf("--only") + 1] ?? null;
+const limitIdx = args.indexOf("--limit");
+const limit = (limitIdx >= 0 ? Number(args[limitIdx + 1]) : 0) || 0;
+const onlyIdx = args.indexOf("--only");
+const only = onlyIdx >= 0 ? args[onlyIdx + 1] : null;
 
 // One-line catalog entries: { title, videoId, durationSeconds, megaLessonId }.
 // Only videos with a MEGA link use the <video> player (the rest play in
