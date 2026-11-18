@@ -38,7 +38,6 @@ import {
 } from "react";
 import { en } from "./en";
 import { hiRoman } from "./hi-roman";
-import { urRoman } from "./ur-roman";
 import { fr } from "./fr";
 import { ja } from "./ja";
 import { ko } from "./ko";
@@ -50,7 +49,6 @@ import { ar } from "./ar";
 import { zh } from "./zh";
 import { titles as titlesEn } from "./titles/en";
 import { titles as titlesHiRoman } from "./titles/hi-roman";
-import { titles as titlesUrRoman } from "./titles/ur-roman";
 import { titles as titlesFr } from "./titles/fr";
 import { titles as titlesJa } from "./titles/ja";
 import { titles as titlesKo } from "./titles/ko";
@@ -62,7 +60,6 @@ import { titles as titlesAr } from "./titles/ar";
 import { titles as titlesZh } from "./titles/zh";
 import { roadmapBlurbs as blurbsEn } from "./blurbs/en";
 import { roadmapBlurbs as blurbsHiRoman } from "./blurbs/hi-roman";
-import { roadmapBlurbs as blurbsUrRoman } from "./blurbs/ur-roman";
 import { roadmapBlurbs as blurbsFr } from "./blurbs/fr";
 import { roadmapBlurbs as blurbsJa } from "./blurbs/ja";
 import { roadmapBlurbs as blurbsKo } from "./blurbs/ko";
@@ -80,7 +77,6 @@ import {
 export type LanguageCode =
   | "en"
   | "hi-roman"
-  | "ur-roman"
   | "fr"
   | "ja"
   | "ko"
@@ -102,7 +98,6 @@ export interface LanguageInfo {
 export const LANGUAGES: LanguageInfo[] = [
   { code: "en", label: "English", englishName: "English" },
   { code: "hi-roman", label: "Hinglish (Roman)", englishName: "Roman Hindi (Hinglish)" },
-  { code: "ur-roman", label: "Urdu (Roman)", englishName: "Roman Urdu" },
   { code: "fr", label: "Français", englishName: "French" },
   { code: "ja", label: "日本語", englishName: "Japanese" },
   { code: "ko", label: "한국어", englishName: "Korean" },
@@ -639,7 +634,6 @@ export type WebTitlesMaps = {
 const STRINGS: Record<LanguageCode, Strings> = {
   en,
   "hi-roman": hiRoman,
-  "ur-roman": urRoman,
   fr,
   ja,
   ko,
@@ -654,7 +648,6 @@ const STRINGS: Record<LanguageCode, Strings> = {
 const TITLES: Record<LanguageCode, WebTitlesMaps> = {
   en: titlesEn,
   "hi-roman": titlesHiRoman,
-  "ur-roman": titlesUrRoman,
   fr: titlesFr,
   ja: titlesJa,
   ko: titlesKo,
@@ -669,7 +662,6 @@ const TITLES: Record<LanguageCode, WebTitlesMaps> = {
 const BLURBS: Record<LanguageCode, Record<string, string>> = {
   en: blurbsEn,
   "hi-roman": blurbsHiRoman,
-  "ur-roman": blurbsUrRoman,
   fr: blurbsFr,
   ja: blurbsJa,
   ko: blurbsKo,
@@ -692,7 +684,6 @@ function defaultLanguage(): LanguageCode {
   try {
     const base = (navigator.language || "en").split("-")[0].toLowerCase();
     if (base === "hi") return "hi-roman";
-    if (base === "ur") return "ur-roman";
     if (isLanguageCode(base)) return base;
   } catch {
     // Locale unavailable — fall through to English.
@@ -700,10 +691,9 @@ function defaultLanguage(): LanguageCode {
   return "en";
 }
 
-/** BCP 47 tag for <html lang>: hi-roman/ur-roman are app codes, not tags. */
+/** BCP 47 tag for <html lang>: hi-roman is an app code, not a tag. */
 function htmlLang(code: LanguageCode): string {
   if (code === "hi-roman") return "hi";
-  if (code === "ur-roman") return "ur";
   return code;
 }
 

@@ -38,7 +38,7 @@ roadmapBlurb("Python Lists")         // roadmap topic blurb, English fallback
 
 Language is stored in `localStorage` under `lp_language` and defaults
 to the browser locale (`navigator.language` base code: `hi` →
-`hi-roman`, `ur` → `ur-roman`, else the matching code, else `en`).
+`hi-roman`, else the matching code, else `en`).
 `document.documentElement.lang` is set on change. Arabic is strings
 only — no RTL layout flipping.
 

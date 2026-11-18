@@ -28,14 +28,6 @@ import { TRANSLATIONS as hi_roman_tutorials_ml_databases_dsa } from "./hi-roman/
 import { TRANSLATIONS as hi_roman_references_modules } from "./hi-roman/references-modules";
 import { TRANSLATIONS as hi_roman_references_others } from "./hi-roman/references-others";
 
-import { TRANSLATIONS as ur_roman_tutorials_basics_1 } from "./ur-roman/tutorials-basics-1";
-import { TRANSLATIONS as ur_roman_tutorials_basics_2 } from "./ur-roman/tutorials-basics-2";
-import { TRANSLATIONS as ur_roman_tutorials_functions_matplotlib } from "./ur-roman/tutorials-functions-matplotlib";
-import { TRANSLATIONS as ur_roman_tutorials_classes_filemodules } from "./ur-roman/tutorials-classes-filemodules";
-import { TRANSLATIONS as ur_roman_tutorials_ml_databases_dsa } from "./ur-roman/tutorials-ml-databases-dsa";
-import { TRANSLATIONS as ur_roman_references_modules } from "./ur-roman/references-modules";
-import { TRANSLATIONS as ur_roman_references_others } from "./ur-roman/references-others";
-
 import { TRANSLATIONS as fr_tutorials_basics_1 } from "./fr/tutorials-basics-1";
 import { TRANSLATIONS as fr_tutorials_basics_2 } from "./fr/tutorials-basics-2";
 import { TRANSLATIONS as fr_tutorials_functions_matplotlib } from "./fr/tutorials-functions-matplotlib";
@@ -110,7 +102,6 @@ import { TRANSLATIONS as zh_references_others } from "./zh/references-others";
 
 type Lang =
   | "hi-roman"
-  | "ur-roman"
   | "fr"
   | "ja"
   | "ko"
@@ -124,7 +115,6 @@ type Lang =
 
 const TUTORIALS: Record<Exclude<Lang, "en">, TutorialTranslations> = {
   "hi-roman": { ...hi_roman_tutorials_basics_1, ...hi_roman_tutorials_basics_2, ...hi_roman_tutorials_functions_matplotlib, ...hi_roman_tutorials_classes_filemodules, ...hi_roman_tutorials_ml_databases_dsa },
-  "ur-roman": { ...ur_roman_tutorials_basics_1, ...ur_roman_tutorials_basics_2, ...ur_roman_tutorials_functions_matplotlib, ...ur_roman_tutorials_classes_filemodules, ...ur_roman_tutorials_ml_databases_dsa },
   "fr": { ...fr_tutorials_basics_1, ...fr_tutorials_basics_2, ...fr_tutorials_functions_matplotlib, ...fr_tutorials_classes_filemodules, ...fr_tutorials_ml_databases_dsa },
   "ja": { ...ja_tutorials_basics_1, ...ja_tutorials_basics_2, ...ja_tutorials_functions_matplotlib, ...ja_tutorials_classes_filemodules, ...ja_tutorials_ml_databases_dsa },
   "ko": { ...ko_tutorials_basics_1, ...ko_tutorials_basics_2, ...ko_tutorials_functions_matplotlib, ...ko_tutorials_classes_filemodules, ...ko_tutorials_ml_databases_dsa },
@@ -138,7 +128,6 @@ const TUTORIALS: Record<Exclude<Lang, "en">, TutorialTranslations> = {
 
 const REFERENCES: Record<Exclude<Lang, "en">, ReferenceTranslations> = {
   "hi-roman": { ...hi_roman_references_modules, ...hi_roman_references_others },
-  "ur-roman": { ...ur_roman_references_modules, ...ur_roman_references_others },
   "fr": { ...fr_references_modules, ...fr_references_others },
   "ja": { ...ja_references_modules, ...ja_references_others },
   "ko": { ...ko_references_modules, ...ko_references_others },
