@@ -1,0 +1,670 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:00.000 --> 00:00:02.575
+I gave you all exercise no 11
+
+00:00:02.575 --> 00:00:06.000
+and firstly today I'll explain to you the solution to exercise 11
+
+00:00:06.000 --> 00:00:08.688
+according to my way of solving the exercise
+
+00:00:08.688 --> 00:00:12.081
+and then after that, I'm very excited to have a look at your way of solving that
+
+00:00:12.081 --> 00:00:14.495
+along with that, I'm ready to give you a shoutout
+
+00:00:14.495 --> 00:00:16.839
+let's go to the computer screen and get started
+
+00:00:26.139 --> 00:00:29.519
+so guys to solve this, our exercise 11
+
+00:00:29.519 --> 00:00:31.133
+wherein I have to get the notification
+
+00:00:31.133 --> 00:00:34.650
+I will show you a natural process over here
+
+00:00:34.650 --> 00:00:38.051
+because I am on mac and I know many of you people will be on windows or linux
+
+00:00:38.051 --> 00:00:40.728
+so for your operating system you have to type mac
+
+00:00:40.728 --> 00:00:42.728
+just like how I wrote over here, MAC
+
+00:00:42.728 --> 00:00:45.903
+and here I will write display notification
+
+00:00:45.903 --> 00:00:49.076
+now you people look for display notification
+
+00:00:49.076 --> 00:00:51.790
+where I got a page
+
+00:00:51.790 --> 00:00:54.217
+and got the code of it
+
+00:00:54.217 --> 00:00:57.308
+lets see if this works or not
+
+00:00:57.308 --> 00:01:00.274
+now its says that, from this code
+
+00:01:00.274 --> 00:01:03.705
+notification will show, but only if you apply this one
+
+00:01:03.705 --> 00:01:07.474
+and here they have provided with lots of variations for this
+
+00:01:07.474 --> 00:01:11.243
+so I will look for 'execute after long running programme'
+
+00:01:11.243 --> 00:01:13.150
+so I will copy it along
+
+00:01:13.150 --> 00:01:15.169
+and will paste it over here
+
+00:01:15.169 --> 00:01:20.130
+so as soon as I paste the code here i have been given a display alert
+
+00:01:20.130 --> 00:01:23.437
+so I will do display alert
+
+00:01:24.548 --> 00:01:25.437
+drink water
+
+00:01:27.212 --> 00:01:29.098
+and here I will write, Hey harry drink water
+
+00:01:31.421 --> 00:01:34.167
+and here also will do the same process
+
+00:01:34.855 --> 00:01:38.025
+I will say, 'Hey harry drink'
+
+00:01:39.398 --> 00:01:40.007
+water
+
+00:01:41.685 --> 00:01:43.095
+"Hey Harry, drink water"
+
+00:01:43.095 --> 00:01:46.316
+so now it shows what I wanted
+
+00:01:46.316 --> 00:01:49.097
+so all I want is that, drink water notification
+
+00:01:50.004 --> 00:01:51.502
+that it reminds me
+
+00:01:51.502 --> 00:01:54.984
+so how will I do it now, many of you must be thinking how to do it?
+
+00:01:54.984 --> 00:01:57.214
+here I will make a scheme
+
+00:01:57.214 --> 00:01:59.490
+infact I will make a program,
+
+00:01:59.490 --> 00:02:01.870
+so here
+
+00:02:01.870 --> 00:02:04.896
+here i will write 'import OS'
+
+00:02:04.896 --> 00:02:07.945
+and here i will write OS.system
+
+00:02:07.945 --> 00:02:09.711
+Now i will have to run this thing, simple!
+
+00:02:09.711 --> 00:02:12.057
+i will remove sleep 2
+
+00:02:12.057 --> 00:02:13.586
+and
+
+00:02:13.586 --> 00:02:15.906
+It says, invalid syntax
+
+00:02:15.906 --> 00:02:18.713
+it says like that because of
+
+00:02:18.713 --> 00:02:20.967
+what did I do over here is that
+
+00:02:22.292 --> 00:02:24.511
+the double quotes
+
+00:02:24.511 --> 00:02:26.604
+have to be excaped here so i will do one thing
+
+00:02:26.604 --> 00:02:28.519
+i will remove it
+
+00:02:28.519 --> 00:02:30.811
+i will write command
+
+00:02:30.811 --> 00:02:32.828
+is equal to
+
+00:02:32.828 --> 00:02:36.358
+and whatever my command would be , will do one thing
+
+00:02:36.358 --> 00:02:39.718
+i will use tripple quote and then will use it
+
+00:02:39.718 --> 00:02:41.829
+now it is perfect
+
+00:02:41.829 --> 00:02:43.707
+can I make it f-string,
+
+00:02:43.707 --> 00:02:45.069
+yes i guess I can make it
+
+00:02:45.069 --> 00:02:46.876
+but let me check
+
+00:02:46.876 --> 00:02:48.624
+I will write here Say
+
+00:02:48.624 --> 00:02:50.339
+or else we can do something
+
+00:02:50.339 --> 00:02:51.977
+we don't need to remove the string
+
+00:02:51.977 --> 00:02:54.955
+we will write os.system(command) over here
+
+00:02:54.955 --> 00:02:57.581
+lets see if this program works or not
+
+00:02:57.581 --> 00:03:00.606
+here i will write python 3
+
+00:03:00.606 --> 00:03:03.175
+here I will paste it,
+
+00:03:03.175 --> 00:03:05.419
+it says interminated string literal
+
+00:03:05.419 --> 00:03:06.767
+now what's the problem
+
+00:03:06.767 --> 00:03:09.646
+i copied it
+
+00:03:11.161 --> 00:03:13.552
+when I will paste it here
+
+00:03:13.552 --> 00:03:15.529
+so it says interminated string literal
+
+00:03:15.529 --> 00:03:20.199
+let me see whats wrong
+
+00:03:20.199 --> 00:03:22.484
+i think there's and extra
+
+00:03:22.484 --> 00:03:24.011
+if i am not wrong
+
+00:03:24.011 --> 00:03:27.656
+i'll see whats going on here
+
+00:03:30.485 --> 00:03:32.477
+i'll paste and see this time
+
+00:03:32.477 --> 00:03:35.777
+It says you are looking for file matching A
+
+00:03:35.777 --> 00:03:38.717
+so guys I am having a little trouble while running this
+
+00:03:38.717 --> 00:03:42.657
+lets try again to let it run
+
+00:03:42.657 --> 00:03:45.711
+i've written display, alert, hello world
+
+00:03:45.711 --> 00:03:47.711
+i will close it with single quote
+
+00:03:48.488 --> 00:03:50.806
+display alert hello world
+
+00:03:50.806 --> 00:03:52.371
+i'll do one thing that now
+
+00:03:53.691 --> 00:03:56.094
+here I will
+
+00:03:57.080 --> 00:03:58.447
+will do ctrl c
+
+00:03:59.535 --> 00:04:02.345
+will run exit and then
+
+00:04:02.345 --> 00:04:03.678
+this was my program
+
+00:04:03.678 --> 00:04:04.606
+OS currupt one,
+
+00:04:04.606 --> 00:04:08.833
+here i will copy it and then paste it again
+
+00:04:08.833 --> 00:04:10.817
+this was my program
+
+00:04:10.817 --> 00:04:13.381
+so now i have to run this here
+
+00:04:13.381 --> 00:04:14.822
+I will do one thing is
+
+00:04:14.822 --> 00:04:17.333
+i will escape them by using backslash
+
+00:04:17.333 --> 00:04:26.230
+will keep putting backslash
+
+00:04:26.230 --> 00:04:29.642
+and now i'll put double quote
+
+00:04:29.642 --> 00:04:31.019
+now this should be fine
+
+00:04:31.019 --> 00:04:33.747
+so i will copy this and
+
+00:04:33.747 --> 00:04:35.690
+and one more attempt of mine
+
+00:04:35.690 --> 00:04:39.218
+to execute with the help of python
+
+00:04:39.218 --> 00:04:41.788
+command =, is working
+
+00:04:41.788 --> 00:04:43.788
+awesome, guys now its working
+
+00:04:43.788 --> 00:04:45.751
+so now what did I do
+
+00:04:45.751 --> 00:04:48.071
+i used escape sequence characters and escaped it
+
+00:04:48.071 --> 00:04:49.886
+now what do I need to do simply is
+
+00:04:49.886 --> 00:04:52.576
+will have to put import time
+
+00:04:52.576 --> 00:04:54.028
+anyhow you can use scheduler
+
+00:04:54.028 --> 00:04:55.733
+in windows it has task scheduler
+
+00:04:55.733 --> 00:04:56.999
+you can watch them
+
+00:04:56.999 --> 00:04:59.893
+windows task scheduler
+
+00:04:59.893 --> 00:05:01.526
+many of the people are in windows thats the reason i'm telling
+
+00:05:01.526 --> 00:05:04.315
+so this automated schedule can be made through task scheduler
+
+00:05:04.315 --> 00:05:05.458
+every hour you can run it
+
+00:05:05.458 --> 00:05:08.646
+you can see how it is done here by create task
+
+00:05:08.646 --> 00:05:10.311
+when do you have to repeat
+
+00:05:10.311 --> 00:05:12.126
+when is the trigger, daily, weekly, monthly
+
+00:05:12.126 --> 00:05:13.182
+one time
+
+00:05:13.182 --> 00:05:17.903
+you can do all these thing by showing your python program
+
+00:05:17.903 --> 00:05:20.244
+but for now, what are we gonna do
+
+00:05:20.244 --> 00:05:22.690
+will use an approach, which will
+
+00:05:22.690 --> 00:05:25.037
+under while 2
+
+00:05:26.061 --> 00:05:28.434
+i will run it and then
+
+00:05:28.434 --> 00:05:30.305
+will do time.sleep
+
+00:05:30.305 --> 00:05:32.387
+for 1 hour
+
+00:05:32.387 --> 00:05:35.606
+how many seconds are there in 1 hour 3600 seconds
+
+00:05:35.606 --> 00:05:37.368
+1 hr = 3600 seconds
+
+00:05:37.368 --> 00:05:39.526
+1 minute = 60 secs
+
+00:05:39.526 --> 00:05:41.094
+now what will I do is
+
+00:05:41.094 --> 00:05:43.572
+that in every 10 secs
+
+00:05:44.536 --> 00:05:46.075
+it will run
+
+00:05:46.075 --> 00:05:47.325
+so here
+
+00:05:48.754 --> 00:05:50.047
+here i will write
+
+00:05:50.047 --> 00:05:51.830
+repeat
+
+00:05:51.830 --> 00:05:54.170
+interval =
+
+00:05:54.170 --> 00:05:56.855
+here i will write 10
+
+00:05:56.855 --> 00:06:00.826
+repeat frequency
+
+00:06:00.826 --> 00:06:02.504
+in seconds
+
+00:06:02.504 --> 00:06:04.149
+so here see
+
+00:06:04.149 --> 00:06:06.086
+will write in such a way
+
+00:06:07.006 --> 00:06:08.644
+while 2 time.sleep
+
+00:06:08.644 --> 00:06:09.908
+and will write
+
+00:06:11.295 --> 00:06:12.478
+repeat interval
+
+00:06:12.478 --> 00:06:16.696
+now if i copy the program and run it
+
+00:06:18.061 --> 00:06:20.375
+now as i enter here
+
+00:06:20.375 --> 00:06:22.289
+shift enter
+
+00:06:22.289 --> 00:06:25.468
+it says hey harry drink water, and i did ok
+
+00:06:25.468 --> 00:06:26.948
+now what will it do
+
+00:06:28.716 --> 00:06:30.306
+it will say the same thing again in 10 secs
+
+00:06:34.187 --> 00:06:35.656
+10 secs are over
+
+00:06:35.656 --> 00:06:36.831
+it said it again
+
+00:06:36.831 --> 00:06:39.266
+obviously I won't ask it to repeat in every 10 seconds
+
+00:06:39.266 --> 00:06:41.623
+I just wanted to show a demo until I finish this program
+
+00:06:42.209 --> 00:06:44.869
+i did control C and will close it now and terminate
+
+00:06:44.869 --> 00:06:47.325
+now what will it do, in every 10 seconds
+
+00:06:47.325 --> 00:06:50.256
+now I will convert it into 3600 secs so that
+
+00:06:51.171 --> 00:06:52.921
+it reminds me every 1 hour
+
+00:06:52.921 --> 00:06:54.589
+but I'm reminding it to you
+
+00:06:54.589 --> 00:06:55.966
+do not use while true
+
+00:06:56.867 --> 00:06:58.238
+use cron jobs
+
+00:06:58.238 --> 00:06:59.934
+or use task scheduler
+
+00:06:59.934 --> 00:07:01.588
+in windows
+
+00:07:01.588 --> 00:07:02.837
+now what will we do
+
+00:07:03.523 --> 00:07:04.285
+will see that
+
+00:07:04.285 --> 00:07:05.843
+who has
+
+00:07:05.843 --> 00:07:07.283
+solved this
+
+00:07:07.283 --> 00:07:09.890
+so  i'm here in the exercise 11
+
+00:07:09.890 --> 00:07:11.984
+cover page
+
+00:07:11.984 --> 00:07:14.134
+and many people have solved it
+
+00:07:14.134 --> 00:07:17.521
+I'm gonna give a shoutout to all of them
+
+00:07:18.691 --> 00:07:23.023
+I'm just scrolling through it and 135 people have solved
+
+00:07:23.023 --> 00:07:25.625
+I'll try to give shoutout to everyone, Mfaizan3 has a big shoutout
+
+00:07:25.625 --> 00:07:28.148
+suryansh kumar, M rehan has a shoutout
+
+00:07:28.148 --> 00:07:29.870
+m zohan, dheeraj kumar with the shoutout
+
+00:07:29.870 --> 00:07:32.710
+shoutout to Mumtaaz99
+
+00:07:32.710 --> 00:07:35.110
+along with that shoutout to Himanshu Kumar
+
+00:07:35.110 --> 00:07:36.571
+and code with prawar
+
+00:07:36.571 --> 00:07:37.746
+and
+
+00:07:37.746 --> 00:07:39.823
+shoutout to Iswatikmishra
+
+00:07:39.823 --> 00:07:43.279
+shrishridmulti, shaurya coder
+
+00:07:43.279 --> 00:07:47.286
+i will see everyones rapel do not worry about that
+
+00:07:47.286 --> 00:07:50.736
+just grow like this because this was the last exercise of this course
+
+00:07:50.736 --> 00:07:53.195
+after this there won't be any exercise of python
+
+00:07:53.195 --> 00:07:57.919
+in this 100 days of course
+
+00:07:57.919 --> 00:08:00.282
+and now i'm feeling that this is the last exercise
+
+00:08:00.282 --> 00:08:01.572
+last exercise
+
+00:08:01.572 --> 00:08:03.407
+but again guys its okay
+
+00:08:03.407 --> 00:08:07.049
+i'm feeling good too that we're continuously
+
+00:08:07.049 --> 00:08:09.337
+completed it
+
+00:08:09.337 --> 00:08:11.807
+here if I show you that
+
+00:08:11.807 --> 00:08:13.595
+Mfaizan's rappel
+
+00:08:13.595 --> 00:08:15.187
+so you can see here
+
+00:08:15.187 --> 00:08:17.444
+he detailed it
+
+00:08:17.444 --> 00:08:20.905
+he used GI.rapo
+
+00:08:20.905 --> 00:08:22.863
+and created it for windows
+
+00:08:22.863 --> 00:08:24.802
+no no its for kali linux
+
+00:08:24.802 --> 00:08:27.114
+he said it will only work for kali linux
+
+00:08:27.114 --> 00:08:28.852
+wow Mfaizan bro
+
+00:08:28.852 --> 00:08:31.914
+i don't have kali linux for now but if someone has it
+
+00:08:31.914 --> 00:08:33.994
+check and give it to Mr.Fizan
+
+00:08:33.994 --> 00:08:35.917
+about the feedback
+
+00:08:35.917 --> 00:08:37.955
+after that rappel of suryansh kumar
+
+00:08:37.955 --> 00:08:42.148
+he created it for run in windows only
+
+00:08:42.148 --> 00:08:44.474
+this is windows only
+
+00:08:44.474 --> 00:08:49.000
+but i can't see it i don't know why
+
+00:08:49.000 --> 00:08:50.655
+its taking time to load
+
+00:08:50.655 --> 00:08:53.794
+but a shoutout to suryansh Kumar, by the mean time
+
+00:08:53.794 --> 00:08:56.915
+i'll give shoutout to others and will also look at the rappels
+
+00:08:56.915 --> 00:09:00.680
+once more we'll see the rappel of suryansh kumar and end this video here
+
+00:09:00.680 --> 00:09:03.705
+if till now you people haven't accessed the playlist
+
+00:09:03.705 --> 00:09:07.084
+of this course, then definitely do access it
+
+00:09:07.084 --> 00:09:09.793
+and please do give the feedback in the first video about the course
+
+00:09:10.817 --> 00:09:12.440
+so it says set the hours after which you want to drink the water
+
+00:09:12.440 --> 00:09:13.761
+if I do 1
+
+00:09:13.761 --> 00:09:15.406
+that I wanna drink water after an hour
+
+00:09:15.406 --> 00:09:18.157
+so here most probably it has been schedule
+
+00:09:18.874 --> 00:09:21.426
+and to see this code maybe i'd have to folk
+
+00:09:21.426 --> 00:09:26.516
+and here can I look at the code without doing the folk, yes I can
+
+00:09:26.516 --> 00:09:29.468
+see here he did from plyar import notification
+
+00:09:29.468 --> 00:09:31.368
+even I did use plyar many a times
+
+00:09:31.368 --> 00:09:33.212
+in my windows to give notification
+
+00:09:33.212 --> 00:09:35.096
+very nice
+
+00:09:35.096 --> 00:09:37.021
+it gives the result
+
+00:09:37.021 --> 00:09:39.732
+so I hope that you all are enjoying in this course
+
+00:09:39.732 --> 00:09:41.754
+for now this much in the video \thank you so much guys for watching this video
+
+00:09:41.754 --> 00:09:46.770
+and I will see you next time
+

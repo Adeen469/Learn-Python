@@ -1,0 +1,757 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:00.008 --> 00:00:03.849
+Hi ! Guys before introducing Python to
+you I would like to show you something
+
+00:00:03.882 --> 00:00:06.769
+These things will not
+only motivate you to learn
+
+00:00:06.793 --> 00:00:10.234
+Python but will also tell
+you that what you cannot do with Python
+
+00:00:10.342 --> 00:00:14.517
+Let's jump into our computer screen and
+let's see what you can do with Python
+
+00:00:15.609 --> 00:00:18.633
+Music
+
+00:00:19.228 --> 00:00:22.449
+So now we are in our computer
+and I will tell you what you can
+
+00:00:22.473 --> 00:00:24.755
+do with the help of Python
+
+00:00:25.066 --> 00:00:26.614
+I'll will start with my favourite
+example which is
+
+00:00:26.639 --> 00:00:29.678
+Flappy bird game which I have
+made with the help of Pygame
+
+00:00:30.002 --> 00:00:31.208
+using Python programming
+
+00:00:31.446 --> 00:00:33.978
+So if I run this flappy.py
+so as you can see it is
+
+00:00:34.003 --> 00:00:38.452
+running, if I show you by
+running it you see I'm playing
+
+00:00:38.477 --> 00:00:42.457
+and in this Flappy bird we have written
+the logic in Python
+
+00:00:42.492 --> 00:00:45.021
+and I will also not waste time by playing
+this game and now I'll move to another
+
+00:00:45.046 --> 00:00:47.763
+example which is a
+website. So, Guys this is not
+
+00:00:47.787 --> 00:00:50.503
+an another website this
+is codwithharry's website
+
+00:00:50.562 --> 00:00:53.008
+So what I will do here
+is I will run command prompt
+
+00:00:53.033 --> 00:00:57.354
+I will teach you these things and you just
+allow me to run this website
+
+00:00:57.604 --> 00:00:59.993
+and don't worry about this as to how I did it
+
+00:01:00.017 --> 00:01:04.370
+I like to run my programms using an IDE
+So I have opened Pycharm IDE
+
+00:01:04.499 --> 00:01:09.063
+IDE is nothing but it is a way to
+see the code properly and edit fastly
+
+00:01:09.087 --> 00:01:11.297
+and organising stuffs altogether
+
+00:01:11.530 --> 00:01:15.157
+I will open my website codewithharry.com
+as an pycharm project and as soon as I
+
+00:01:15.182 --> 00:01:18.029
+run it by right clicking
+on it and will show
+
+00:01:18.053 --> 00:01:20.900
+you how you will open
+this website in browser
+
+00:01:21.080 --> 00:01:23.072
+so this is a website which
+I have made using Flask
+
+00:01:23.113 --> 00:01:25.878
+and I have opened this
+website as an pycharm project
+
+00:01:25.903 --> 00:01:28.307
+you don't have to worry about how I
+have opened this
+
+00:01:28.332 --> 00:01:32.198
+you just see I will run it and as soon as
+I will run it, it will make a server
+
+00:01:32.223 --> 00:01:34.338
+see this it has given me the server
+address here
+
+00:01:34.440 --> 00:01:38.497
+now I will click on it and it will show me
+running it in chrome browser
+
+00:01:39.097 --> 00:01:42.089
+so you see I have made this website using
+Python Flask
+
+00:01:42.114 --> 00:01:45.814
+and the whole backend is written in
+Python and I have hosted this website
+
+00:01:45.838 --> 00:01:48.462
+on codewithharry.com you can also see it
+
+00:01:48.487 --> 00:01:51.868
+and I have do so many things here, comments
+
+00:01:51.893 --> 00:01:57.782
+I have made these things like login,
+sign up and everything is here
+
+00:01:58.119 --> 00:02:00.440
+So you do consider visiting this website
+at sometime
+
+00:02:00.546 --> 00:02:03.339
+but for the time being
+I am moving to another
+
+00:02:03.363 --> 00:02:06.093
+example which is have
+made using Python
+
+00:02:06.317 --> 00:02:09.777
+So, guys let's move on to our another
+example which is a snake game
+
+00:02:09.876 --> 00:02:13.433
+so I will run this game by right clicking
+on it and you it is running
+
+00:02:13.574 --> 00:02:15.908
+you all might have played this snake game
+
+00:02:15.933 --> 00:02:17.429
+we used to play this in out
+mobile phone during our childhood
+
+00:02:17.490 --> 00:02:19.826
+but I have
+made this using Python
+
+00:02:19.955 --> 00:02:24.417
+I have started now, I have put music in it
+and this snake game is running
+
+00:02:24.442 --> 00:02:26.850
+and it also has highscore functionality
+
+00:02:26.884 --> 00:02:29.051
+and as soon as you hits the wall, game
+is over
+
+00:02:29.712 --> 00:02:33.396
+and with that I have taught to make
+a blog using Python
+
+00:02:33.421 --> 00:02:36.771
+and I have hosted it on
+thecodingthunder.com
+
+00:02:36.796 --> 00:02:39.166
+you can go to
+thecodingthunder.com or I will
+
+00:02:39.190 --> 00:02:41.892
+tell you another way, I
+have hosted it on GitHub
+
+00:02:41.917 --> 00:02:44.504
+I will give you the link of GitHub also in
+the description
+
+00:02:44.550 --> 00:02:47.240
+but right now our focus is to learn the
+basics of Python
+
+00:02:47.282 --> 00:02:49.472
+so let's go and learn Python
+
+00:02:49.497 --> 00:02:53.644
+so mainly we focus on Python this was
+only for motivation
+
+00:02:53.669 --> 00:02:57.981
+here we will start Python from absolute
+zero with installation
+
+00:02:58.022 --> 00:03:00.244
+and will return to these things very soon
+
+00:03:00.382 --> 00:03:03.429
+So guys this was everything which I made
+with the help of Python
+
+00:03:03.463 --> 00:03:06.909
+and now you also know that you can make
+it these things using Python programming
+
+00:03:07.075 --> 00:03:10.837
+after watching this full video series you
+will also be knowing to make it
+
+00:03:10.878 --> 00:03:13.825
+and If not then pathway will be known to
+you as to how to make it
+
+00:03:13.850 --> 00:03:16.750
+so now if you subscribe this
+channel and if you watch the
+
+00:03:16.775 --> 00:03:20.965
+whole series in which I have made
+game using Python, taught machine learning
+
+00:03:20.990 --> 00:03:24.810
+or I have made blog using Python Flask
+then you'll easily be able to follow it
+
+00:03:24.835 --> 00:03:27.487
+but learning Python basics is really very
+important
+
+00:03:27.653 --> 00:03:32.225
+because now most of you people who will
+be programming for the first time
+
+00:03:32.250 --> 00:03:35.847
+means Python is their first language and
+I can well understand this thing
+
+00:03:36.231 --> 00:03:40.209
+how it feels when you are learning your
+first programming language and even you
+
+00:03:40.241 --> 00:03:41.559
+dont't know what is programming
+
+00:03:42.021 --> 00:03:44.442
+and now I'll tell you a little bit of what
+is programming
+
+00:03:44.467 --> 00:03:46.613
+now see you are also a human and
+I'm also a human
+
+00:03:46.954 --> 00:03:51.220
+I want to tell you something or want
+to share my feeling, I will use a language
+
+00:03:51.244 --> 00:03:52.117
+whose name is Hindi
+
+00:03:52.312 --> 00:03:54.748
+this language could have been English
+or any other
+
+00:03:55.314 --> 00:03:59.344
+So likewise if you want to talk to a
+computer the you'll have to communicate
+
+00:03:59.369 --> 00:04:01.798
+in the language which it understands
+
+00:04:02.116 --> 00:04:04.672
+now computer doesn't understands
+English, Hindi
+
+00:04:04.697 --> 00:04:09.137
+computer understands Python, C,
+C++, Java, etc.
+
+00:04:09.347 --> 00:04:11.415
+now most of you people
+will say that why I shouldn't
+
+00:04:11.439 --> 00:04:13.303
+talk in my natural
+language with the computer
+
+00:04:13.328 --> 00:04:16.612
+why should I write in Python, why should
+I write in C, why should I write in C++
+
+00:04:16.778 --> 00:04:21.051
+So the answer is that you have to write
+in it because right now our technology
+
+00:04:21.076 --> 00:04:23.909
+hasn't grown up so much technology has
+not gone so far
+
+00:04:23.934 --> 00:04:28.465
+so that without doing this things you
+share those things
+
+00:04:28.490 --> 00:04:31.401
+which you do by programming language
+
+00:04:31.436 --> 00:04:34.635
+that's why there is a field named natural
+language processing which is working
+
+00:04:34.660 --> 00:04:38.046
+on as to how computer can be made to
+understand natural language
+
+00:04:38.129 --> 00:04:41.148
+if somehow computer understands the
+natural language and if you do something
+
+00:04:41.173 --> 00:04:44.666
+by which we can directly contact with 
+the hardware in natural language
+
+00:04:44.769 --> 00:04:46.511
+then nothing will be better than that
+
+00:04:46.552 --> 00:04:49.209
+but it is not going to happen in the near
+future
+
+00:04:49.234 --> 00:04:51.456
+so we will have to learn Python
+programming or
+
+00:04:51.480 --> 00:04:53.584
+any other kind of programming language
+
+00:04:53.814 --> 00:04:56.500
+let's come back to Python and let's talk
+
+00:04:56.525 --> 00:04:58.559
+about why we should learn programming
+language
+
+00:04:58.605 --> 00:05:00.764
+Now what is this programming ?
+
+00:05:00.789 --> 00:05:03.503
+now what stuff is programming and
+why we do it ?
+
+00:05:03.643 --> 00:05:06.964
+I'll take an example of a calculator. Let
+us assume we have a calculator
+
+00:05:06.989 --> 00:05:10.864
+and it adds, subtracts, multiples 
+and divides for you
+
+00:05:11.169 --> 00:05:14.947
+that calculator is a computer and it is 
+programmed in a programming language
+
+00:05:14.975 --> 00:05:17.955
+so that we can communicate with the 
+hardware so that tell it as to what
+
+00:05:17.980 --> 00:05:21.309
+we want to do it. Understand the input
+of the user
+
+00:05:21.762 --> 00:05:24.611
+you pressed one, you pressed plus,
+pressed two and pressed equals to
+
+00:05:24.637 --> 00:05:26.471
+so it showed you three
+
+00:05:26.496 --> 00:05:30.339
+to convey this thing to computer we 
+use programming
+
+00:05:30.364 --> 00:05:32.622
+this job can be done by a human also.
+You just understand
+
+00:05:32.647 --> 00:05:34.043
+the example of the calculator
+
+00:05:34.068 --> 00:05:36.626
+this things takes a lot of time for a human
+to do
+
+00:05:36.651 --> 00:05:40.897
+let us assume, I want to add or multiply
+a five digit number with a five digit
+
+00:05:40.922 --> 00:05:44.280
+number, then computer will do it very
+fastly
+
+00:05:44.305 --> 00:05:46.246
+and the human will keep doing it
+
+00:05:46.333 --> 00:05:50.026
+and somethings are also impossible 
+for human it will years to complete it
+
+00:05:50.051 --> 00:05:52.679
+and the computer will do it in minutes
+
+00:05:52.908 --> 00:05:56.384
+let us assume that you manage an office,
+you manage a bussiness
+
+00:05:56.409 --> 00:06:01.573
+and in that bussiness you have to print
+different receipts for different clients
+
+00:06:01.598 --> 00:06:06.314
+and in that receipt there is only their 
+name, phone number, their address changes
+
+00:06:06.339 --> 00:06:09.586
+you prepare a template and you can 
+write a Python program
+
+00:06:09.611 --> 00:06:13.401
+with which you'll only write their name,
+address and any other thing like
+
+00:06:13.552 --> 00:06:18.112
+phone number etc. And as soon as you will
+press enter the customer's receipt
+
+00:06:18.137 --> 00:06:22.269
+will be out. So you prepared the 2-3 page
+template once but using that you
+
+00:06:22.294 --> 00:06:27.275
+printed the receipts of millions of your
+customer in minutes and not even in
+
+00:06:27.300 --> 00:06:31.049
+minutes but in seconds. So this is the 
+power of programming
+
+00:06:31.074 --> 00:06:35.522
+So see guys any task or job which we 
+want to get from a computer
+
+00:06:35.547 --> 00:06:40.250
+can of these types. It can be easy for
+computer but tough for humans
+
+00:06:40.282 --> 00:06:44.438
+another can be a task which is easy for
+human but tough for computer
+
+00:06:44.463 --> 00:06:47.424
+like decucting an object from someone's
+photo
+
+00:06:47.449 --> 00:06:50.190
+and these things are tough for computer
+at present days because
+
+00:06:50.215 --> 00:06:53.313
+human also have their 
+own capability otherwise if computer
+
+00:06:53.345 --> 00:06:55.957
+becomes better than humans then 
+computer will replace human
+
+00:06:55.982 --> 00:06:58.966
+so human is good in its place and
+computer is good in its place
+
+00:06:58.991 --> 00:07:03.178
+what we want as humans, we have made
+computer and we want to use those
+
+00:07:03.203 --> 00:07:07.817
+stuffs of computer which computer can do
+better
+
+00:07:08.217 --> 00:07:10.776
+that's why we'll use Python programming
+and
+
+00:07:10.801 --> 00:07:13.993
+we are going to use Python in doing these
+stuffs
+
+00:07:14.018 --> 00:07:16.348
+that's why bigger companies
+which worth millions,
+
+00:07:16.373 --> 00:07:21.305
+billions or even trillions dollars 
+are standing, use Python
+
+00:07:21.353 --> 00:07:25.828
+like in Instagram they use Python in
+backend, similarly Google and facebook
+
+00:07:25.853 --> 00:07:27.471
+uses Python in backend
+
+00:07:27.496 --> 00:07:30.672
+and YouTube uses in writing custom 
+scripts
+
+00:07:30.697 --> 00:07:35.467
+like assume, it someday wants to get the
+list of millions of subscribers
+
+00:07:35.492 --> 00:07:39.091
+it will write a custom script and it run it
+on a server and it will get that
+
+00:07:39.379 --> 00:07:43.042
+these of small tasks are easy to write
+in Python
+
+00:07:43.075 --> 00:07:44.426
+and also runs very fast
+
+00:07:44.451 --> 00:07:50.061
+likewise, Intel, IBM, NASA, JPMorgan
+Chase and many other companies
+
+00:07:50.086 --> 00:07:54.405
+uses Python, infact the question is not
+this as to who uses Python
+
+00:07:54.430 --> 00:07:57.370
+Question is, who doesn't uses Python ?
+
+00:07:57.395 --> 00:08:00.944
+So now you know what is programming
+and why we use Python
+
+00:08:01.130 --> 00:08:04.672
+and I'll praise Python as to why I have
+chosen Python
+
+00:08:04.697 --> 00:08:07.919
+and why I tell people to chose Python as 
+their first Progrmming language
+
+00:08:07.962 --> 00:08:09.542
+number one Python is easy
+
+00:08:09.567 --> 00:08:12.901
+number two stuffs like AI ML is easy to
+do in Python
+
+00:08:13.074 --> 00:08:16.638
+number three this language is complete 
+in every aspect
+
+00:08:16.663 --> 00:08:21.200
+and number four which is favourite 
+of most of us it has very high salaries
+
+00:08:21.225 --> 00:08:23.276
+because guys work in very much
+
+00:08:23.483 --> 00:08:25.594
+work is done very easily with the help of
+Python
+
+00:08:25.619 --> 00:08:27.597
+and companies prefer it too much these
+days
+
+00:08:27.633 --> 00:08:32.530
+and it is not going anywhere during this
+5-10 years, so you can safely learn this
+
+00:08:32.627 --> 00:08:36.627
+and yeah I will not bore you by telling
+that 28 years ago a man named
+
+00:08:36.652 --> 00:08:40.911
+Guido Van Rossum in 1991, released it's
+first version
+
+00:08:40.936 --> 00:08:42.817
+I will not bore you by telling this. Even I
+will not tell you that It was made as a
+
+00:08:42.842 --> 00:08:50.237
+successor of ABC language and on 16th
+october 2000, Python 2 was released
+
+00:08:50.262 --> 00:08:57.026
+so keeping in mind the disadvantages of
+Python 2, on 3rd December 2008
+
+00:08:57.075 --> 00:09:01.388
+Python 3 was released. Also I am not
+going to bore you by telling that
+
+00:09:01.413 --> 00:09:04.341
+our brother Guido Van Rossum was
+watching
+
+00:09:04.366 --> 00:09:06.968
+a circus show named Monty Python
+
+00:09:06.993 --> 00:09:10.502
+and while watching that show, when it
+came to choose a name for a language
+
+00:09:10.544 --> 00:09:14.363
+so he thought to keep such a name which
+leave people in mystry
+
+00:09:14.431 --> 00:09:16.994
+will leave people thinking as to why this
+name was kept ?
+
+00:09:17.167 --> 00:09:20.175
+so he kept its name Python
+by inspiring from that show
+
+00:09:20.200 --> 00:09:23.360
+because its name was Monty Python's
+Flying Circus
+
+00:09:23.385 --> 00:09:27.270
+and he used that word Python
+very clever man was Guido Van Rossum
+
+00:09:27.295 --> 00:09:29.987
+now guys it was about Programming,
+about Python
+
+00:09:30.012 --> 00:09:34.489
+in the next video we will go in computer
+and will install Python
+
+00:09:34.514 --> 00:09:38.432
+and we will see everything step by step
+as to what we need in the initial stages
+
+00:09:38.457 --> 00:09:39.949
+if you are a beginner of Python
+
+00:09:39.974 --> 00:09:44.193
+I'll you the best practises which 
+ you should take during learning Python
+
+00:09:44.218 --> 00:09:47.685
+my 8 years of experience which I learned
+through trial and error
+
+00:09:47.717 --> 00:09:51.452
+and through different things and what is
+relevant at present date
+
+00:09:51.477 --> 00:09:56.939
+how you will do programming, which IDE
+you will use and what else
+
+00:09:57.157 --> 00:09:58.951
+you need to put in your computer
+
+00:09:58.976 --> 00:10:01.931
+and what should be your mindset while
+you are running Python
+
+00:10:02.146 --> 00:10:04.821
+so watch the next video
+very carefully because
+
+00:10:04.846 --> 00:10:07.507
+from there this tutorial is really 
+going to start
+
+00:10:07.532 --> 00:10:09.377
+till now I have only told you about
+programming
+
+00:10:09.402 --> 00:10:12.291
+and among you there will be people who
+will say that whatever has been told
+
+00:10:12.316 --> 00:10:13.599
+in this video things is already 
+known to us
+
+00:10:13.624 --> 00:10:18.682
+so guys I had promised I'll take you from
+zero to such a level
+
+00:10:18.707 --> 00:10:21.303
+that you'll feel proud on yourself
+
+00:10:21.456 --> 00:10:23.544
+so you guys just be with me here
+
+00:10:23.569 --> 00:10:27.136
+and I'll teach you each and everything
+step by step
+
+00:10:27.305 --> 00:10:32.852
+so if you guys like this video anyhow, do 
+like it and do maximum likes so that
+
+00:10:32.877 --> 00:10:34.249
+I can upload videos faster
+
+00:10:34.274 --> 00:10:36.632
+and the support which you have given
+because of this I'm uploading these
+
+00:10:36.657 --> 00:10:40.638
+every videos faster and I'll not stop, I'll
+keep uploading more videos
+
+00:10:41.024 --> 00:10:43.545
+so subscribe this channel and hit the bell
+icon
+
+00:10:43.570 --> 00:10:47.315
+Thank You so much guy for watching this 
+video and I'll see you next time
+
+00:10:47.342 --> 00:11:05.722
+Music
+

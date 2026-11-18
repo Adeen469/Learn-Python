@@ -1,0 +1,1396 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:00.000 --> 00:00:01.805
+In today's video I will tell you
+
+00:00:01.805 --> 00:00:04.407
+that how to do multithreading
+
+00:00:04.407 --> 00:00:07.687
+using multithreading module inside python programming
+
+00:00:07.687 --> 00:00:08.875
+Let's go to the computer screen
+
+00:00:08.875 --> 00:00:11.409
+and look at Python's multithreading today
+
+00:00:11.409 --> 00:00:12.414
+Let's get started
+
+00:00:21.720 --> 00:00:24.589
+So, guys, before telling you multithreading
+
+00:00:24.589 --> 00:00:25.694
+I want to tell you
+
+00:00:25.694 --> 00:00:28.136
+that what you can achieve with multithreading
+
+00:00:28.136 --> 00:00:30.194
+and why would you use multithreading
+
+00:00:30.194 --> 00:00:32.072
+The first one is the use case of multithreading
+
+00:00:32.072 --> 00:00:34.674
+that is when you want to download resources parallelly
+
+00:00:34.674 --> 00:00:35.780
+from the internet.
+
+00:00:35.780 --> 00:00:38.641
+Means suppose I have 10 servers
+
+00:00:38.641 --> 00:00:41.087
+and I want different data from those 10 servers
+
+00:00:41.087 --> 00:00:43.331
+if I download the data one by one
+
+00:00:43.331 --> 00:00:45.588
+Like suppose I have to download 10 files from internet
+
+00:00:45.588 --> 00:00:46.617
+now wherever it may be
+
+00:00:46.617 --> 00:00:48.515
+10 files of 10 are of 10-10 Gb
+
+00:00:48.515 --> 00:00:50.773
+And I have fast internet, fast computer
+
+00:00:50.773 --> 00:00:54.057
+but if I put one by one in my python program
+
+00:00:54.057 --> 00:00:55.887
+so, it will download one by one.
+
+00:00:55.887 --> 00:00:57.463
+And if it will be downloaded one by one
+
+00:00:57.463 --> 00:00:58.487
+then I am wasting time
+
+00:00:58.487 --> 00:01:00.717
+because maybe I can download them parallelly also
+
+00:01:00.717 --> 00:01:02.853
+Let's see how to download the parallelly of the same thing
+
+00:01:02.853 --> 00:01:03.996
+because I have the resource,
+
+00:01:03.996 --> 00:01:05.407
+my computer is fast,
+
+00:01:05.407 --> 00:01:07.600
+I have internet speed
+
+00:01:07.600 --> 00:01:10.607
+even there I am not getting beat anywhere
+
+00:01:10.607 --> 00:01:13.533
+the third thing is I just have to use it
+
+00:01:13.533 --> 00:01:16.609
+and use multithreading module
+
+00:01:16.609 --> 00:01:17.393
+So come on
+
+00:01:17.393 --> 00:01:18.481
+let's quickly open up the repl
+
+00:01:18.481 --> 00:01:21.042
+and I'll show you how these things are done, ok
+
+00:01:21.042 --> 00:01:24.850
+And I'll show you directly over here how to do that, ok?
+
+00:01:24.850 --> 00:01:25.777
+What will happen to it
+
+00:01:25.777 --> 00:01:27.219
+that when I tell you how to do it directly
+
+00:01:27.219 --> 00:01:29.006
+So, you will get a good feeling
+
+00:01:29.006 --> 00:01:32.088
+and you will also say yes, now I understand how to do it
+
+00:01:32.088 --> 00:01:33.578
+So first of all, let me tell you
+
+00:01:33.578 --> 00:01:37.583
+that there is a module by threading in python, ok
+
+00:01:37.583 --> 00:01:39.130
+We've done the 'import threading'
+
+00:01:39.130 --> 00:01:41.229
+now let's say I have a function
+
+00:01:41.229 --> 00:01:42.819
+and it's doing something, ok?
+
+00:01:42.819 --> 00:01:48.189
+And I will create a function by 'import time'
+
+00:01:48.189 --> 00:01:50.867
+and what will it do that
+
+00:01:50.867 --> 00:01:55.213
+all the 'seconds' I have written here
+
+00:01:55.213 --> 00:01:56.837
+It will sleep for the same number of seconds
+
+00:01:56.837 --> 00:02:01.663
+meaning this is a function that here
+
+00:02:01.663 --> 00:02:06.016
+Indicates some task being done
+
+00:02:06.016 --> 00:02:08.632
+What does it mean that whatever work you will do
+
+00:02:08.632 --> 00:02:09.603
+in Python programming
+
+00:02:09.603 --> 00:02:11.770
+then it took time, right?
+
+00:02:11.770 --> 00:02:14.644
+This is indicating that some work is being done, ok
+
+00:02:14.644 --> 00:02:16.918
+You understand that what is mean to say here
+
+00:02:16.918 --> 00:02:18.733
+So here I wrote 'def func'
+
+00:02:18.733 --> 00:02:19.554
+and here do this
+
+00:02:19.554 --> 00:02:23.524
+but let's say I run 'func(4)' here
+
+00:02:23.524 --> 00:02:24.485
+and I do a thing
+
+00:02:24.485 --> 00:02:25.951
+I'll also print here
+
+00:02:25.951 --> 00:02:29.939
+And I will say Sleeping for
+
+00:02:29.939 --> 00:02:31.777
+and I will write here
+
+00:02:31.777 --> 00:02:34.549
+(seconds) seconds
+
+00:02:34.549 --> 00:02:36.963
+Means if sleep is being done for 4 seconds
+
+00:02:36.963 --> 00:02:39.223
+then 'Sleeping for 4 seconds' will come by writing
+
+00:02:39.223 --> 00:02:41.851
+otherwise, 'Sleeping for 1 second' will come by writing
+
+00:02:41.851 --> 00:02:43.035
+and so on, ok
+
+00:02:43.035 --> 00:02:44.458
+So now if I run this
+
+00:02:44.458 --> 00:02:45.745
+show you how to run this
+
+00:02:45.745 --> 00:02:46.801
+I did 'func(4)'
+
+00:02:46.801 --> 00:02:50.235
+and let's say I want to create a more function over here.
+
+00:02:50.235 --> 00:02:52.803
+I did 'func(4), func(2), func(1)'
+
+00:02:52.803 --> 00:02:53.895
+Let's say this is a function
+
+00:02:53.895 --> 00:02:56.107
+it's doing some work, right
+
+00:02:56.107 --> 00:02:57.872
+and whatever it's doing
+
+00:02:57.872 --> 00:02:59.001
+it's going to take time
+
+00:02:59.001 --> 00:02:59.962
+that's the obvious thing.
+
+00:02:59.962 --> 00:03:03.919
+So, the 'func(4), func(2), func(1)' will execute one by one, ok
+
+00:03:03.919 --> 00:03:05.891
+so, if I run it and show you
+
+00:03:05.891 --> 00:03:08.258
+then you see, 'Sleeping for 4 seconds'
+
+00:03:08.258 --> 00:03:09.891
+it's going to pause for 4 seconds.
+
+00:03:09.891 --> 00:03:12.024
+That is, it will not work until 4 seconds have passed
+
+00:03:12.024 --> 00:03:13.770
+and the one below it will not work until 2 seconds have passed.
+
+00:03:13.770 --> 00:03:16.276
+So, all three of these three will work one by one
+
+00:03:16.276 --> 00:03:17.437
+we all know this
+
+00:03:17.437 --> 00:03:18.846
+you will say that I knew that
+
+00:03:18.846 --> 00:03:20.067
+what are you saying this?
+
+00:03:20.067 --> 00:03:22.095
+But now I will tell you such a thing
+
+00:03:22.095 --> 00:03:25.059
+that we can start all these three parallelly
+
+00:03:25.059 --> 00:03:28.033
+now here suppose that this function is something like this
+
+00:03:28.033 --> 00:03:29.599
+Like suppose you go to a restaurant
+
+00:03:29.599 --> 00:03:30.750
+Ok
+
+00:03:30.750 --> 00:03:34.660
+now suppose you said I want to eat 'paneer butter masala'
+
+00:03:34.660 --> 00:03:36.573
+I want to eat 'the vegetable of ladyfinger'
+
+00:03:36.573 --> 00:03:38.118
+and I want to eat 'Roti'
+
+00:03:38.118 --> 00:03:38.870
+Ok
+
+00:03:38.870 --> 00:03:40.419
+Now if there is only one person there
+
+00:03:40.419 --> 00:03:41.933
+then he will make all three things one by one
+
+00:03:41.933 --> 00:03:45.940
+so, suppose he makes all three dishes in 5 minutes
+
+00:03:45.940 --> 00:03:48.125
+So, it will take 15 minutes for your food to arrive
+
+00:03:48.125 --> 00:03:49.164
+will it take or not?
+
+00:03:49.164 --> 00:03:51.081
+Hope everyone has understood this.
+
+00:03:51.081 --> 00:03:53.543
+It is taking 5-5 minutes for a dish
+
+00:03:53.543 --> 00:03:55.460
+so, 5*3 is 15
+
+00:03:55.460 --> 00:03:59.131
+now suppose 3 people are working at the same time
+
+00:03:59.131 --> 00:04:02.874
+So, there is no point in the second person stopping
+
+00:04:02.874 --> 00:04:05.699
+waiting for the first person to finish
+
+00:04:05.699 --> 00:04:07.371
+Means suppose a person is making bhindi
+
+00:04:07.371 --> 00:04:07.871
+he should keep stop
+
+00:04:07.871 --> 00:04:10.560
+I will make roti when ladyfinger is ready
+
+00:04:10.560 --> 00:04:11.756
+Then he is making roti
+
+00:04:11.756 --> 00:04:12.917
+and the third person will say
+
+00:04:12.917 --> 00:04:15.129
+that I will make paneer butter masala when this roti is done.
+
+00:04:15.129 --> 00:04:16.356
+So, there is no point in that
+
+00:04:16.356 --> 00:04:20.631
+so, we want to start all three together.
+
+00:04:20.631 --> 00:04:21.226
+Ok
+
+00:04:21.226 --> 00:04:23.328
+But the design of python is like this
+
+00:04:23.328 --> 00:04:25.652
+The design of the Python programming language is such that
+
+00:04:25.652 --> 00:04:30.266
+that it executes one by one while waiting, ok
+
+00:04:30.266 --> 00:04:32.511
+So, we want to make it concurrent
+
+00:04:32.511 --> 00:04:34.683
+We can make that with the help of threading
+
+00:04:34.683 --> 00:04:39.638
+we can say that different threads handle all the three functions.
+
+00:04:39.638 --> 00:04:42.084
+So, we'll use thread syntax
+
+00:04:42.084 --> 00:04:44.123
+we'll say here threading.thread
+
+00:04:44.123 --> 00:04:49.935
+we'll say here, t1 = threading.thread
+
+00:04:49.935 --> 00:04:52.250
+and a thread will be created.
+
+00:04:52.250 --> 00:04:53.997
+And we'll say look, it is like this
+
+00:04:53.997 --> 00:04:57.597
+we have to call 'func' over here
+
+00:04:57.597 --> 00:04:59.398
+and what should be the arguments
+
+00:04:59.398 --> 00:05:01.888
+let's say 4, ok
+
+00:05:01.888 --> 00:05:04.445
+So, I created a thread over here with the name of 't1'
+
+00:05:04.445 --> 00:05:07.303
+and I'm going to create 't2' and t3' like this, ok
+
+00:05:07.303 --> 00:05:09.242
+so, what I was doing above
+
+00:05:09.242 --> 00:05:11.240
+I am doing the same thing very efficiently here.
+
+00:05:11.240 --> 00:05:12.724
+So, I don't need to do this
+
+00:05:12.724 --> 00:05:14.529
+I'm converting this
+
+00:05:14.529 --> 00:05:16.345
+I do a thing over here
+
+00:05:16.345 --> 00:05:18.127
+I write 'Normal Code'
+
+00:05:18.127 --> 00:05:21.520
+and I write over here 'Code using threads'
+
+00:05:21.520 --> 00:05:25.059
+And I write here 'Same code using threads'
+
+00:05:25.059 --> 00:05:25.559
+Ok
+
+00:05:25.559 --> 00:05:29.380
+when I will do a same code using thread
+
+00:05:29.380 --> 00:05:31.074
+then see the arguments are 4,2 and 1
+
+00:05:31.074 --> 00:05:33.923
+So, this is argument 4, this is argument 2, and this is 1
+
+00:05:33.923 --> 00:05:34.622
+Now what do I do
+
+00:05:34.622 --> 00:05:36.680
+now I have to manually tell Python
+
+00:05:36.680 --> 00:05:38.798
+that I want to start it, ok
+
+00:05:38.798 --> 00:05:40.318
+Understand that the vehicles are parked
+
+00:05:40.318 --> 00:05:41.166
+they have to be started
+
+00:05:41.166 --> 00:05:43.425
+so first of all, let's start the first vehicle.
+
+00:05:43.425 --> 00:05:44.822
+Means like suppose there is a person
+
+00:05:44.822 --> 00:05:46.351
+he is standing to make ladyfinger
+
+00:05:46.351 --> 00:05:49.233
+then he has to be told that you start making ladyfinger, ok
+
+00:05:49.233 --> 00:05:54.068
+I will say, t1.start, ok
+
+00:05:54.068 --> 00:05:56.553
+and along with that I will do t2.start
+
+00:05:56.553 --> 00:05:58.548
+and will do t3.start, ok
+
+00:05:58.548 --> 00:06:01.173
+Now what will happen here is that all three will start together
+
+00:06:01.173 --> 00:06:01.732
+Ok
+
+00:06:01.732 --> 00:06:03.000
+all three of them will start together
+
+00:06:03.000 --> 00:06:04.109
+so, I'll show you
+
+00:06:04.109 --> 00:06:07.494
+Where our work was being done in 7 seconds
+
+00:06:07.494 --> 00:06:08.685
+now in what time the work will be done
+
+00:06:08.685 --> 00:06:09.459
+so, I will show you
+
+00:06:09.459 --> 00:06:10.155
+I will run it
+
+00:06:10.155 --> 00:06:11.956
+See, all three started together
+
+00:06:11.956 --> 00:06:13.650
+and then finished after that, ok
+
+00:06:13.650 --> 00:06:14.815
+now I do one thing
+
+00:06:14.815 --> 00:06:18.625
+that here I show you how much time it is taking
+
+00:06:18.625 --> 00:06:22.555
+So that was our normal code
+
+00:06:22.555 --> 00:06:23.603
+I do one thing here
+
+00:06:23.603 --> 00:06:31.506
+I write here t1 = time.perf_counter( ), ok
+
+00:06:31.506 --> 00:06:32.403
+what happens with this
+
+00:06:32.403 --> 00:06:35.308
+This is used for performance counting
+
+00:06:35.308 --> 00:06:36.779
+So, I write here t1
+
+00:06:36.779 --> 00:06:39.298
+Sorry, I will not write t1, because my t1 is a thread
+
+00:06:39.298 --> 00:06:40.705
+I write time1
+
+00:06:40.705 --> 00:06:43.686
+I write time1 = this
+
+00:06:43.686 --> 00:06:44.522
+and
+
+00:06:44.522 --> 00:06:47.370
+now I will say here, time2 =
+
+00:06:47.370 --> 00:06:47.893
+this
+
+00:06:47.893 --> 00:06:51.461
+then I will print here time2 - time1
+
+00:06:51.461 --> 00:06:53.911
+time2 - time1
+
+00:06:53.911 --> 00:06:54.624
+So,
+
+00:06:54.624 --> 00:06:57.556
+I'll show you how long it's running, which was my full code
+
+00:06:57.556 --> 00:06:59.627
+how long it's running
+
+00:06:59.627 --> 00:07:03.027
+So, see here 'Sleeping for 4 seconds'
+
+00:07:03.027 --> 00:07:06.254
+'Sleeping for 2 seconds'
+
+00:07:06.254 --> 00:07:08.457
+Means it is running quietly while waiting for one
+
+00:07:08.457 --> 00:07:10.529
+and finally, its saying 't1 is not defind'
+
+00:07:10.529 --> 00:07:12.157
+what happened this
+
+00:07:12.157 --> 00:07:13.437
+where did I use t1
+
+00:07:13.437 --> 00:07:14.570
+Oops, I did not comment it out
+
+00:07:14.570 --> 00:07:15.801
+it will also have to be commented out
+
+00:07:15.801 --> 00:07:19.049
+so, I can see all these three when
+
+00:07:19.049 --> 00:07:20.887
+4 seconds, 2 seconds, 1 second
+
+00:07:20.887 --> 00:07:23.934
+have wasted 7 seconds of  your life
+
+00:07:23.934 --> 00:07:27.857
+I'll show you how long it's taking, 7 seconds, ok.
+
+00:07:27.857 --> 00:07:28.680
+That means I will tell
+
+00:07:28.680 --> 00:07:30.996
+that by wasting 7 seconds, 7 seconds are being wasted, ok
+
+00:07:30.996 --> 00:07:32.169
+So, what am I doing now
+
+00:07:32.169 --> 00:07:33.249
+that was my normal code
+
+00:07:33.249 --> 00:07:36.002
+now I will run a same code using thread here
+
+00:07:36.002 --> 00:07:37.061
+But there is a cache here
+
+00:07:37.061 --> 00:07:38.201
+before running it
+
+00:07:38.201 --> 00:07:40.308
+but I will tell you that thing only after running it
+
+00:07:40.308 --> 00:07:41.897
+because you will understand better.
+
+00:07:41.897 --> 00:07:43.059
+So, I take this as well
+
+00:07:43.059 --> 00:07:44.846
+and I do it like this
+
+00:07:44.846 --> 00:07:47.203
+now I comment out the normal code
+
+00:07:47.203 --> 00:07:49.432
+And I'll obviously put the time here in the very last
+
+00:07:49.432 --> 00:07:50.505
+when everything is in running position
+
+00:07:50.505 --> 00:07:52.950
+then I'll
+
+00:07:52.950 --> 00:07:55.809
+Calculating Time, ok
+
+00:07:55.809 --> 00:07:56.625
+Now I did this
+
+00:07:56.625 --> 00:07:58.431
+same code using threads
+
+00:07:58.431 --> 00:08:00.270
+Now what I'll do is run this
+
+00:08:00.270 --> 00:08:01.925
+and you guys will be shocked to see
+
+00:08:01.925 --> 00:08:03.850
+that it's taking almost 0 seconds
+
+00:08:03.850 --> 00:08:05.558
+Now you will say why it is taking 0 seconds
+
+00:08:05.558 --> 00:08:06.653
+it would have taken at least 1 second
+
+00:08:06.653 --> 00:08:08.940
+now see when all three are starting together
+
+00:08:08.940 --> 00:08:11.857
+So, which is the slowest process among all three
+
+00:08:11.857 --> 00:08:17.198
+This one's taking 4 seconds
+
+00:08:17.198 --> 00:08:20.967
+so, this whole should have taken 4 seconds to complete
+
+00:08:20.967 --> 00:08:23.387
+If suppose the one who is making paneer
+
+00:08:23.387 --> 00:08:26.013
+is making it in 4 seconds, is making it in 4 minutes
+
+00:08:26.013 --> 00:08:28.125
+or the one who is making roti is making it in 1 minute
+
+00:08:28.125 --> 00:08:30.812
+And the one who is cooking ladyfinger is cooking it in 2 minutes
+
+00:08:30.812 --> 00:08:31.712
+so how long will the food take
+
+00:08:31.712 --> 00:08:33.471
+it will come in 4 minutes?
+
+00:08:33.471 --> 00:08:35.603
+If you have studied Chemical Kinetics
+
+00:08:35.603 --> 00:08:37.206
+have given JEE exam etc.
+
+00:08:37.206 --> 00:08:40.654
+then we read in it 'Slowest step is the rate limiting step', ok
+
+00:08:40.654 --> 00:08:42.142
+Well, I will not come into all those things
+
+00:08:42.142 --> 00:08:45.112
+I just want to tell you here why it was 0
+
+00:08:45.112 --> 00:08:45.956
+you guys will be shocked
+
+00:08:45.956 --> 00:08:47.349
+you will say it should have been 4
+
+00:08:47.349 --> 00:08:48.277
+Now what happens is that
+
+00:08:48.277 --> 00:08:50.055
+when we do 't1.start'
+
+00:08:50.055 --> 00:08:51.862
+then, it starts it in the background
+
+00:08:51.862 --> 00:08:53.787
+and says your thread is started
+
+00:08:53.787 --> 00:08:54.641
+now go ahead
+
+00:08:54.641 --> 00:08:57.214
+'t2.start' means start the thread
+
+00:08:57.214 --> 00:08:58.816
+and move forward in the script
+
+00:08:58.816 --> 00:09:01.058
+'t3.start' also says start the thread
+
+00:09:01.058 --> 00:09:02.601
+and move forward in the script
+
+00:09:02.601 --> 00:09:05.422
+Means, it's not over yet, it's just started
+
+00:09:05.422 --> 00:09:06.914
+we didn't even wait for it
+
+00:09:06.914 --> 00:09:08.791
+we just threw it in the background
+
+00:09:08.791 --> 00:09:11.349
+We said it's going to happen, throw it to the side, ok
+
+00:09:11.349 --> 00:09:13.667
+So, this 't1.start' means start the thread1
+
+00:09:13.667 --> 00:09:14.446
+and throw it to the side
+
+00:09:14.446 --> 00:09:15.373
+that doesn't make any sense.
+
+00:09:15.373 --> 00:09:17.614
+It will end itself after being executed, ok
+
+00:09:17.614 --> 00:09:19.415
+And this below script will continue to run
+
+00:09:19.415 --> 00:09:21.674
+but you will say that I want to wait here
+
+00:09:21.674 --> 00:09:24.244
+for t1, t2 and t3 to finish
+
+00:09:24.244 --> 00:09:26.577
+So, you can say here
+
+00:09:26.577 --> 00:09:28.162
+t1.join()
+
+00:09:28.162 --> 00:09:29.543
+t2.join()
+
+00:09:29.543 --> 00:09:30.733
+and t3.join()
+
+00:09:30.733 --> 00:09:32.151
+that is, I
+
+00:09:32.151 --> 00:09:33.485
+'t1.join()' means
+
+00:09:33.485 --> 00:09:36.050
+I want to wait until t1 is over
+
+00:09:36.050 --> 00:09:37.365
+'t2.join()' means
+
+00:09:37.365 --> 00:09:40.323
+I want to wait until t2 is over
+
+00:09:40.323 --> 00:09:41.436
+and 't3.join()' means
+
+00:09:41.436 --> 00:09:43.760
+I want to wait until t3 is over
+
+00:09:43.760 --> 00:09:44.807
+So, if I run this
+
+00:09:44.807 --> 00:09:47.718
+then look, it will run until all three are gone
+
+00:09:47.718 --> 00:09:49.388
+and it will give me around 4 seconds
+
+00:09:49.388 --> 00:09:50.878
+as you can see.
+
+00:09:50.878 --> 00:09:53.251
+So, threads are quite useful
+
+00:09:53.251 --> 00:09:55.894
+when you want to download anything from the internet
+
+00:09:55.894 --> 00:09:59.303
+that is, your task is I/O bound, its not CPU bound
+
+00:09:59.303 --> 00:10:02.060
+Now let's say I'm downloading something from the internet
+
+00:10:02.060 --> 00:10:04.593
+so, there's no point in waiting
+
+00:10:04.593 --> 00:10:06.249
+let's say there are 10 files
+
+00:10:06.249 --> 00:10:08.828
+10 files of 10 are taking one minute each to download
+
+00:10:08.828 --> 00:10:10.618
+so, can I do that in 10 minutes, no
+
+00:10:10.618 --> 00:10:12.966
+I can do that in 1 minute using threads
+
+00:10:12.966 --> 00:10:15.304
+I will put 10 files of 10 on download together
+
+00:10:15.304 --> 00:10:18.917
+understand that if I give you 50 things to download
+
+00:10:18.917 --> 00:10:20.286
+or 5 things to download
+
+00:10:20.286 --> 00:10:21.598
+So, you will put all the five files
+
+00:10:21.598 --> 00:10:24.449
+you can say that I have put all the five files on download
+
+00:10:24.449 --> 00:10:26.623
+or will you put them on download one by one, no
+
+00:10:26.623 --> 00:10:28.761
+you will put all the five files together on the download
+
+00:10:28.761 --> 00:10:30.190
+now the question of many people is
+
+00:10:30.190 --> 00:10:33.826
+that when we put all the five files together for download
+
+00:10:33.826 --> 00:10:35.799
+but our internet speed is the same
+
+00:10:35.799 --> 00:10:38.094
+Why doesn't it get all that internet speed on the first file
+
+00:10:38.094 --> 00:10:39.616
+Because there are 2 things
+
+00:10:39.616 --> 00:10:41.304
+you understand
+
+00:10:41.304 --> 00:10:42.371
+one is internet speed
+
+00:10:42.371 --> 00:10:44.178
+and one is the speed of the server
+
+00:10:44.178 --> 00:10:47.270
+the power of the server is called server speed, ok
+
+00:10:47.270 --> 00:10:49.528
+Now if the server is not giving
+
+00:10:49.528 --> 00:10:51.345
+as fast as you are taking
+
+00:10:51.345 --> 00:10:53.112
+then there is no point for that
+
+00:10:53.112 --> 00:10:57.409
+Now suppose server is giving you speed of 100 Mbps
+
+00:10:57.409 --> 00:10:59.726
+You have installed 2 Gbps internet
+
+00:10:59.726 --> 00:11:01.961
+so, your 2 Gbps internet is of no use
+
+00:11:01.961 --> 00:11:03.387
+you will get 100 Mbps speed
+
+00:11:03.387 --> 00:11:05.225
+So, I hope you have understood that
+
+00:11:05.225 --> 00:11:07.081
+that the server also has its speed
+
+00:11:07.081 --> 00:11:09.699
+and because every server has its own speed
+
+00:11:09.699 --> 00:11:11.982
+It's better to hits servers parallelly
+
+00:11:11.982 --> 00:11:15.930
+You will hit 5 of 5 servers or 10 of 10 servers parallelly
+
+00:11:15.930 --> 00:11:17.886
+so that your entire internet speed is on it
+
+00:11:17.886 --> 00:11:20.288
+and load on those servers, ok
+
+00:11:20.288 --> 00:11:22.463
+You put parallelly load on five servers
+
+00:11:22.463 --> 00:11:24.330
+if you put on five different servers
+
+00:11:24.330 --> 00:11:26.094
+then the speed you are going to get will be the same.
+
+00:11:26.094 --> 00:11:27.295
+And your internet will also be used
+
+00:11:27.295 --> 00:11:31.032
+so you will be benefited by doing this, ok
+
+00:11:31.032 --> 00:11:33.280
+so, I hope everyone has understood this thing.
+
+00:11:33.280 --> 00:11:35.108
+Now let's go a little miscellaneous
+
+00:11:35.108 --> 00:11:37.173
+maybe some of you will also feel bad about this
+
+00:11:37.173 --> 00:11:38.759
+that why did you make it so difficult
+
+00:11:38.759 --> 00:11:39.958
+it was going so well
+
+00:11:39.958 --> 00:11:40.871
+See,
+
+00:11:40.871 --> 00:11:43.014
+I'm going to have to tough it out a bit
+
+00:11:43.014 --> 00:11:44.479
+because I'm here to teach you
+
+00:11:44.479 --> 00:11:45.812
+how to be a good Python developer
+
+00:11:45.812 --> 00:11:49.172
+And you didn't come here to be a low-key Python developer, ok
+
+00:11:49.172 --> 00:11:50.533
+let me tell you first
+
+00:11:50.533 --> 00:11:52.093
+you're in the wrong place if you are.
+
+00:11:52.093 --> 00:11:53.122
+I am here to tell you about concurrent.futures
+
+00:11:53.122 --> 00:11:57.017
+to become a good python developer
+
+00:11:57.017 --> 00:11:59.666
+concurrent.futures is a
+
+00:11:59.666 --> 00:12:02.222
+it is telling me that I am a robot, I am a human
+
+00:12:02.222 --> 00:12:04.890
+concurrent.futures is a module
+
+00:12:04.890 --> 00:12:08.571
+what you guys can do is that it has a ThreadPoolExecutor
+
+00:12:08.571 --> 00:12:12.942
+you can submit functions to it with the help of
+
+00:12:12.942 --> 00:12:14.555
+And after that what can you do
+
+00:12:14.555 --> 00:12:16.792
+that you can get the result that from this
+
+00:12:16.792 --> 00:12:18.892
+so, I will tell you how easy it is to use
+
+00:12:18.892 --> 00:12:20.010
+Let's see what happens
+
+00:12:20.010 --> 00:12:20.779
+that
+
+00:12:20.779 --> 00:12:21.789
+I do one thing
+
+00:12:21.789 --> 00:12:23.765
+I put this inside a function
+
+00:12:23.765 --> 00:12:29.018
+I put this 'def func()' inside a 'def main()', ok
+
+00:12:29.018 --> 00:12:30.788
+And I'm not going to call main, ok
+
+00:12:30.788 --> 00:12:33.109
+let's put this inside a function called main
+
+00:12:33.109 --> 00:12:39.194
+now over here I create a function called 'def poolingDemo()'
+
+00:12:39.194 --> 00:12:42.613
+And obviously I'll also call this poolingDemo
+
+00:12:42.613 --> 00:12:43.883
+well, something like this
+
+00:12:43.883 --> 00:12:45.259
+you guys see what I'm doing here
+
+00:12:45.259 --> 00:12:46.851
+I'm using a thread pool executor
+
+00:12:46.851 --> 00:12:49.382
+Now from where will I import this ThreadPoolExecutor
+
+00:12:49.382 --> 00:12:51.740
+I will import it from concurrent.futures
+
+00:12:51.740 --> 00:12:52.246
+Ok
+
+00:12:52.246 --> 00:12:54.950
+So, I will say from concurrent.futures
+
+00:12:54.950 --> 00:13:01.699
+from concurrent.futures import ThreadPoolExecutor, ok
+
+00:13:01.699 --> 00:13:03.262
+So, what ThreadPoolExecutor does is
+
+00:13:03.262 --> 00:13:08.822
+is help you when you want to schedule a lot of tasks in bulk.
+
+00:13:08.822 --> 00:13:11.422
+Now see here they have said that executor.submit
+
+00:13:11.422 --> 00:13:16.173
+now suppose I want to use this function named func
+
+00:13:16.173 --> 00:13:18.605
+So, let's say I want to use the func
+
+00:13:18.605 --> 00:13:20.956
+once I want to sleep for 3 seconds
+
+00:13:20.956 --> 00:13:24.000
+and once I want to sleep let's say for 4 seconds, ok
+
+00:13:24.000 --> 00:13:27.197
+So, I do a thing here that I do 3, 2 and 1 here
+
+00:13:27.197 --> 00:13:30.509
+or I do 3, 2 and 5 here
+
+00:13:30.509 --> 00:13:31.420
+Ok
+
+00:13:31.420 --> 00:13:33.066
+make it 4, that's fine
+
+00:13:33.066 --> 00:13:34.416
+Now what am I doing here
+
+00:13:34.416 --> 00:13:35.290
+what is it returning now
+
+00:13:35.290 --> 00:13:36.776
+it's not returning anything
+
+00:13:36.776 --> 00:13:38.102
+it's just printing, but okay
+
+00:13:38.102 --> 00:13:39.400
+I do one thing, run it
+
+00:13:39.400 --> 00:13:41.297
+then see it happened sleeping for 3 seconds
+
+00:13:41.297 --> 00:13:43.950
+and after that it happened sleeping for 2 seconds
+
+00:13:43.950 --> 00:13:46.069
+and then it happened sleeping for 4 seconds, ok
+
+00:13:46.069 --> 00:13:47.421
+So, what I did here
+
+00:13:47.421 --> 00:13:49.399
+when I am doing future.result
+
+00:13:49.399 --> 00:13:51.236
+I said future = executor.submit
+
+00:13:51.236 --> 00:13:53.007
+I submitted to the executor
+
+00:13:53.007 --> 00:13:57.000
+now let's say I do future1, future2 or future3 here
+
+00:13:57.000 --> 00:14:01.593
+and also do 1, 2 and 3 here.
+
+00:14:01.593 --> 00:14:06.233
+And I'll see the results of these later on here
+
+00:14:06.233 --> 00:14:08.642
+so, you can see if I run this if
+
+00:14:08.642 --> 00:14:11.853
+so first of all, 3 seconds
+
+00:14:11.853 --> 00:14:14.513
+All of these happened together in 4 seconds, ok
+
+00:14:14.513 --> 00:14:17.794
+and after that I got the results of these together, ok
+
+00:14:17.794 --> 00:14:20.418
+So, in this way you can use ThreadPoolExecutor
+
+00:14:20.418 --> 00:14:23.650
+now another syntax of using ThreadPoolExecutor is
+
+00:14:23.650 --> 00:14:24.782
+which is the map function
+
+00:14:24.782 --> 00:14:26.753
+it's a very cool syntax
+
+00:14:26.753 --> 00:14:30.333
+and I can tell you, I think it's pretty cool
+
+00:14:30.333 --> 00:14:36.337
+Its reason is that you people can schedule things very well
+
+00:14:36.337 --> 00:14:40.098
+in that I see that if they have an example
+
+00:14:40.098 --> 00:14:40.783
+it is good to have fun.
+
+00:14:40.783 --> 00:14:43.106
+Now see here executor.map
+
+00:14:43.106 --> 00:14:44.140
+and give function here
+
+00:14:44.140 --> 00:14:47.789
+and here what you do is give list of iterable
+
+00:14:47.789 --> 00:14:49.636
+Let me show you what I mean
+
+00:14:49.636 --> 00:14:51.612
+let's say I have a list of numbers
+
+00:14:51.612 --> 00:14:57.300
+l = 3, 5, 6, 2, ok
+
+00:14:57.300 --> 00:14:59.436
+let's make it 3, 5, 1 and 2, ok
+
+00:14:59.436 --> 00:15:02.580
+Now in most of the cases you will have a list like this
+
+00:15:02.580 --> 00:15:06.136
+because whenever you want to download something
+
+00:15:06.136 --> 00:15:06.817
+from a URL
+
+00:15:06.817 --> 00:15:08.745
+So, you guys don't have
+
+00:15:08.745 --> 00:15:11.395
+that you will keep writing this one by one
+
+00:15:11.395 --> 00:15:12.283
+if there are thousand URLs
+
+00:15:12.283 --> 00:15:14.103
+then you will have a list of thousand URLs
+
+00:15:14.103 --> 00:15:17.807
+Not that you will write URL1, URL2, URL3 to URL100 one by one
+
+00:15:17.807 --> 00:15:19.568
+you will not make such a big code
+
+00:15:19.568 --> 00:15:20.646
+so, what can you do here
+
+00:15:20.646 --> 00:15:26.009
+you can say results = executor.map
+
+00:15:26.009 --> 00:15:31.209
+And you can say that I want to put the func function in 'l'
+
+00:15:31.209 --> 00:15:31.882
+Ok
+
+00:15:31.882 --> 00:15:34.489
+And after that when I do this thing
+
+00:15:34.489 --> 00:15:36.435
+Now its saying 'Result is assigned but never used'
+
+00:15:36.435 --> 00:15:39.681
+Now I can say, 'for result in results'
+
+00:15:39.681 --> 00:15:41.259
+and what I can do here is
+
+00:15:41.259 --> 00:15:43.848
+I can print result, ok
+
+00:15:43.848 --> 00:15:45.225
+So, I show you here
+
+00:15:45.225 --> 00:15:46.918
+if I'm also returning something
+
+00:15:46.918 --> 00:15:50.113
+like let's say I'm returning from seconds
+
+00:15:50.113 --> 00:15:51.549
+So that return value will also be available to me
+
+00:15:51.549 --> 00:15:53.097
+so, see I will run as soon as
+
+00:15:53.097 --> 00:15:58.183
+you see here it started running all this in 5 seconds
+
+00:15:58.183 --> 00:15:59.479
+Means they made the schedules together
+
+00:15:59.479 --> 00:16:01.203
+and after that as their results kept coming,
+
+00:16:01.203 --> 00:16:03.549
+it is giving me the same print, ok
+
+00:16:03.549 --> 00:16:07.469
+So, this module is very important for parallel execution
+
+00:16:07.469 --> 00:16:09.571
+if you use concurrent.futures
+
+00:16:09.571 --> 00:16:10.751
+then it becomes a little easier.
+
+00:16:10.751 --> 00:16:11.488
+But
+
+00:16:11.488 --> 00:16:13.038
+Which are our basics of threading
+
+00:16:13.038 --> 00:16:15.530
+I have covered here with threading modules
+
+00:16:15.530 --> 00:16:18.624
+but if you guys want to use this thing in real world
+
+00:16:18.624 --> 00:16:23.490
+So, I told you how you can use concurrent.futures modules
+
+00:16:23.490 --> 00:16:25.864
+because it is most important for you guys.
+
+00:16:25.864 --> 00:16:27.843
+You guys can make real life projects
+
+00:16:27.843 --> 00:16:30.094
+not that I told you something,
+
+00:16:30.094 --> 00:16:32.942
+you saw it, you clapped, you enjoyed it, okay? no
+
+00:16:32.942 --> 00:16:33.904
+Not only this,
+
+00:16:33.904 --> 00:16:38.926
+if you need to download in real world from 50 URLs at once,
+
+00:16:38.926 --> 00:16:40.359
+from 500 URLs at once
+
+00:16:40.359 --> 00:16:43.361
+Part of one of your projects is to download 50 URLs,
+
+00:16:43.361 --> 00:16:45.138
+download 500 URLs
+
+00:16:45.138 --> 00:16:47.695
+then you can basically do it, it's like, ok
+
+00:16:47.695 --> 00:16:49.757
+So, I hope you got it all
+
+00:16:49.757 --> 00:16:52.671
+if you haven't accessed the playlist yet, do so now.
+
+00:16:52.671 --> 00:16:55.959
+Along with that if you want to see it from Learn page of replit
+
+00:16:55.959 --> 00:16:58.657
+then you can also see it from Learn page of replit
+
+00:16:58.657 --> 00:17:00.933
+I just want to let you know about that
+
+00:17:00.933 --> 00:17:03.895
+Here's 100 Days of Code Hindi
+
+00:17:03.895 --> 00:17:04.793
+here you click
+
+00:17:04.793 --> 00:17:07.037
+you'll reach 100 Days of Code Hindi
+
+00:17:07.037 --> 00:17:08.138
+And here's what it looks like
+
+00:17:08.138 --> 00:17:10.718
+it's a great interface they've made
+
+00:17:10.718 --> 00:17:12.700
+So, this is the link
+
+00:17:12.700 --> 00:17:15.529
+you will get it on Learn 100 Days of Code
+
+00:17:15.529 --> 00:17:18.950
+I hope you are enjoying the 100 Days of Code Python series
+
+00:17:18.950 --> 00:17:21.346
+and we are almost at the end of this course
+
+00:17:21.346 --> 00:17:23.552
+the excitement is building up
+
+00:17:23.552 --> 00:17:25.277
+That's all guys in this video for now
+
+00:17:25.277 --> 00:17:27.486
+Thankyou so much guys for watching this video
+
+00:17:27.486 --> 00:17:30.413
+And I will see you next time.
+

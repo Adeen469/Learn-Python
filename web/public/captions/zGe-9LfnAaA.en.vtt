@@ -1,0 +1,1285 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:00.000 --> 00:00:02.000
+Today I will tell you that with the help of python programing
+
+00:00:02.000 --> 00:00:05.158
+how can we do multiprocessing
+
+00:00:05.158 --> 00:00:07.289
+Let's enter into the computer screen and get started
+
+00:00:16.199 --> 00:00:20.107
+Guys it happens many a times that when we want to run multiple processes
+
+00:00:20.107 --> 00:00:21.968
+with the use of only one program
+
+00:00:21.968 --> 00:00:26.542
+which means the python program will sporn multiple child processes
+
+00:00:26.542 --> 00:00:28.542
+sporn is a term which means
+
+00:00:28.542 --> 00:00:30.045
+starting a process
+
+00:00:30.045 --> 00:00:32.969
+now you people will wonder, what is the need of it for me
+
+00:00:32.969 --> 00:00:35.675
+I am already using multi threading and I'm happy with that
+
+00:00:35.675 --> 00:00:39.227
+now I would like to tell you that multi threading and multiprocessing
+
+00:00:39.227 --> 00:00:40.911
+they both are different in there own selves
+
+00:00:40.911 --> 00:00:43.209
+now processors and thread have difference
+
+00:00:43.209 --> 00:00:47.967
+if you have multiple cpu's, then you can use processors and then use it
+
+00:00:47.967 --> 00:00:53.286
+if you have threads then sporining the threads if comparatively easier
+
+00:00:53.286 --> 00:00:54.325
+it happens in less time
+
+00:00:54.325 --> 00:00:58.321
+now threading vs processing is a huge topic of an operating system
+
+00:00:58.321 --> 00:01:01.054
+but you can understand that threads are light weight
+
+00:01:01.054 --> 00:01:02.923
+threads are into a process
+
+00:01:02.923 --> 00:01:04.559
+but the processes
+
+00:01:04.559 --> 00:01:09.863
+if you imply it parallelly in different CPU's
+
+00:01:09.863 --> 00:01:11.863
+then you can use process
+
+00:01:11.863 --> 00:01:15.576
+in todays video we'll see that how is multiprocessing done
+
+00:01:15.576 --> 00:01:17.374
+with the help of python
+
+00:01:17.374 --> 00:01:20.263
+and how it is very similar with the threading
+
+00:01:20.263 --> 00:01:22.696
+you'll laugh at it and say "i knew this"
+
+00:01:22.696 --> 00:01:23.762
+i know this
+
+00:01:23.762 --> 00:01:27.412
+So you know this but i just need to tell it to you people that you know it
+
+00:01:27.412 --> 00:01:29.136
+now we'll write code of it
+
+00:01:29.136 --> 00:01:33.265
+here the first thing I wanna tell you all is that,
+
+00:01:33.265 --> 00:01:35.778
+it is to be imported in this way,
+
+00:01:35.778 --> 00:01:39.089
+after importing it what will i do is
+
+00:01:39.089 --> 00:01:42.380
+will create a sleep function, no leave lets not make a sleep function this tim
+
+00:01:42.380 --> 00:01:44.635
+we're not creating emo function, this time
+
+00:01:44.635 --> 00:01:46.994
+we'll create a download file function
+
+00:01:46.994 --> 00:01:49.614
+which will download a file from URL
+
+00:01:49.614 --> 00:01:53.971
+now this is amazing because when we'll do something in actual then we'll have fun
+
+00:01:53.971 --> 00:01:57.076
+so I'll do something here
+
+00:01:57.076 --> 00:02:02.219
+in 100 days of code in my previous rappel
+
+00:02:02.219 --> 00:02:04.997
+In which i told you about async.io
+
+00:02:04.997 --> 00:02:08.163
+wrote a function with the help of request model
+
+00:02:08.163 --> 00:02:11.818
+in which we downloaded files of request model from internet
+
+00:02:11.818 --> 00:02:14.285
+so now i wanna tell that
+
+00:02:14.285 --> 00:02:16.316
+how to download it parallelly
+
+00:02:17.710 --> 00:02:21.075
+now I am opening this rappel
+
+00:02:21.075 --> 00:02:22.457
+along with that here I will write pass
+
+00:02:22.457 --> 00:02:25.445
+and here I will create a list of URLs
+
+00:02:25.445 --> 00:02:27.834
+because I wanna give you a real feeling
+
+00:02:27.834 --> 00:02:29.591
+with real fun
+
+00:02:29.591 --> 00:02:32.752
+now here will create images
+
+00:02:32.752 --> 00:02:34.473
+url demo
+
+00:02:34.473 --> 00:02:37.854
+list of images, atleast give something to me
+
+00:02:37.854 --> 00:02:40.828
+here webp image gallery
+
+00:02:40.828 --> 00:02:42.203
+will find something
+
+00:02:42.203 --> 00:02:44.808
+Open link in new tab
+
+00:02:44.808 --> 00:02:46.473
+side by side compression
+
+00:02:46.473 --> 00:02:50.332
+reproducing the image, files pillow
+
+00:02:50.332 --> 00:02:52.263
+lets do one thing
+
+00:02:52.263 --> 00:02:55.379
+here maybe I'll get something, a random image
+
+00:02:55.379 --> 00:02:57.759
+now its fine, random image appears
+
+00:02:57.759 --> 00:02:59.696
+this is a good thing,
+
+00:02:59.696 --> 00:03:01.977
+it gives us the random image, great...great...great
+
+00:03:01.977 --> 00:03:05.719
+so here as you can see what are we doing
+
+00:03:07.719 --> 00:03:08.524
+I'll do one thing
+
+00:03:08.524 --> 00:03:10.434
+get a specific image by adding
+
+00:03:10.434 --> 00:03:12.795
+slash ID slash image to the start of the
+
+00:03:12.795 --> 00:03:15.988
+url, you can find the list of images over here
+
+00:03:18.472 --> 00:03:21.013
+so what do I have to do, that all these images
+
+00:03:21.013 --> 00:03:23.220
+suppose I wanna download them all
+
+00:03:23.220 --> 00:03:26.618
+now this is a URL of an image
+
+00:03:27.469 --> 00:03:29.821
+but what do i want is
+
+00:03:29.821 --> 00:03:31.406
+that I,
+
+00:03:31.406 --> 00:03:34.086
+will I get these image again and again, NO!
+
+00:03:35.258 --> 00:03:36.992
+I want a list of images
+
+00:03:36.992 --> 00:03:39.135
+where i get N number of images
+
+00:03:39.135 --> 00:03:40.787
+so what I will do is take random numbers
+
+00:03:40.787 --> 00:03:43.405
+and the 200x300
+
+00:03:43.405 --> 00:03:46.165
+I'll change it to 2000x3000
+
+00:03:46.165 --> 00:03:48.800
+to get the square image, just at the size
+
+00:03:48.800 --> 00:03:50.283
+I'll do one thing
+
+00:03:50.283 --> 00:03:53.225
+firstly I have to get the function at this point which
+
+00:03:53.225 --> 00:03:54.910
+is downloading
+
+00:03:54.910 --> 00:03:57.321
+and secondly,
+
+00:03:57.321 --> 00:03:59.161
+I'll have to apply it on my program
+
+00:03:59.161 --> 00:04:00.591
+so we have a lot of work
+
+00:04:00.591 --> 00:04:03.393
+so I'll write in URL
+
+00:04:03.393 --> 00:04:05.552
+will write it from list comprehension
+
+00:04:05.552 --> 00:04:07.469
+and will write over here
+
+00:04:07.469 --> 00:04:10.740
+or else I don't have the need to write from URL
+
+00:04:10.740 --> 00:04:15.843
+we just need to write URL and it will provide use with different images every time
+
+00:04:17.620 --> 00:04:18.987
+now what will I do is
+
+00:04:18.987 --> 00:04:21.676
+download file and URL
+
+00:04:21.676 --> 00:04:24.621
+and will name it
+
+00:04:26.421 --> 00:04:29.337
+now the code to download it, oops
+
+00:04:29.337 --> 00:04:31.022
+we have to do CTRL c
+
+00:04:31.022 --> 00:04:32.833
+not CTRL x
+
+00:04:32.833 --> 00:04:35.234
+that's what I have done now
+
+00:04:36.133 --> 00:04:38.075
+and will do import request
+
+00:04:39.775 --> 00:04:42.939
+and here I'll do URL and name
+
+00:04:42.939 --> 00:04:45.000
+will be
+
+00:04:45.000 --> 00:04:47.022
+Name
+
+00:04:49.427 --> 00:04:51.136
+It gives me JPEG image
+
+00:04:51.136 --> 00:04:53.961
+no worries and i'll name again
+
+00:04:53.961 --> 00:04:58.006
+name.jpeg, will create an F string and will get it corrected
+
+00:04:58.006 --> 00:04:59.244
+great
+
+00:04:59.244 --> 00:05:01.369
+now its perfect
+
+00:05:01.369 --> 00:05:02.867
+why does it give red in colour
+
+00:05:02.867 --> 00:05:06.673
+contains server response to an HTTP request
+
+00:05:06.673 --> 00:05:08.608
+unmatched )
+
+00:05:08.608 --> 00:05:10.232
+what happened, oh
+
+00:05:10.232 --> 00:05:12.634
+now its good
+
+00:05:12.634 --> 00:05:14.610
+so now I said URL = this
+
+00:05:14.610 --> 00:05:16.810
+assume that if I wanna download one by one
+
+00:05:16.810 --> 00:05:18.369
+so here I will write
+
+00:05:18.369 --> 00:05:19.798
+for underscore
+
+00:05:19.798 --> 00:05:21.109
+n range
+
+00:05:21.109 --> 00:05:23.130
+now you will ask what is underscore
+
+00:05:23.130 --> 00:05:24.201
+this is a throwaway variable
+
+00:05:24.201 --> 00:05:26.430
+I didn't want a value of 'I'
+
+00:05:26.430 --> 00:05:29.243
+therefore used underscore, now what will i do is
+
+00:05:29.243 --> 00:05:31.504
+i'll download file
+
+00:05:31.504 --> 00:05:33.391
+and after that
+
+00:05:33.391 --> 00:05:34.965
+firstly there will be URL
+
+00:05:34.965 --> 00:05:36.700
+and the other will NIM
+
+00:05:36.700 --> 00:05:39.181
+I will convert it into I
+
+00:05:39.181 --> 00:05:40.901
+and in name i'll put I
+
+00:05:42.790 --> 00:05:45.546
+in a way where it shows 1.jpeg, 2.jpeg
+
+00:05:46.843 --> 00:05:48.928
+so if I run this please look at it
+
+00:05:49.716 --> 00:05:52.536
+i'll show you, see all these files are downloaded
+
+00:05:52.536 --> 00:05:55.963
+now if i increase its resolution
+
+00:05:55.963 --> 00:05:57.481
+it will cause a problem
+
+00:05:57.481 --> 00:05:58.867
+lets do something
+
+00:05:58.867 --> 00:06:02.646
+i'll rename it as file
+
+00:06:02.646 --> 00:06:04.507
+and if I run it now
+
+00:06:04.507 --> 00:06:05.761
+see,
+
+00:06:05.761 --> 00:06:09.781
+so slowly all these files are being created
+
+00:06:09.781 --> 00:06:12.235
+till now only file zero is created
+
+00:06:12.235 --> 00:06:16.489
+now these are being created slowly
+
+00:06:17.359 --> 00:06:22.004
+so now it is running slowly because I've  increased the resolution
+
+00:06:22.004 --> 00:06:24.355
+what is the used of doing all these
+
+00:06:24.355 --> 00:06:26.248
+if you deal with big files
+
+00:06:26.248 --> 00:06:28.301
+there is a benefit
+
+00:06:28.301 --> 00:06:32.301
+lets run a cleaning scheme, and delete all the trash
+
+00:06:32.301 --> 00:06:37.833
+after deleting I'll show you
+
+00:06:37.833 --> 00:06:39.621
+will do something
+
+00:06:39.621 --> 00:06:41.568
+will create file Name
+
+00:06:41.568 --> 00:06:43.194
+folder
+
+00:06:45.142 --> 00:06:48.066
+I'll create a folder named file and the delete it
+
+00:06:50.340 --> 00:06:51.691
+now I will run it
+
+00:06:51.691 --> 00:06:55.075
+now this folder named file will get overpopulated
+
+00:06:55.712 --> 00:06:56.874
+see over here now
+
+00:06:56.874 --> 00:06:59.392
+files, folder is being populated
+
+00:06:59.392 --> 00:07:02.128
+2,3 in this the files are being downloaded
+
+00:07:02.128 --> 00:07:04.519
+its downloading one by one
+
+00:07:04.519 --> 00:07:07.164
+now how to parallel
+
+00:07:07.164 --> 00:07:09.643
+multiprocessing is very similar to
+
+00:07:09.643 --> 00:07:11.483
+multithread
+
+00:07:11.483 --> 00:07:13.542
+what you have to do here is,
+
+00:07:13.542 --> 00:07:16.378
+p =
+
+00:07:16.378 --> 00:07:19.629
+i don't wanna do download file and URL
+
+00:07:21.016 --> 00:07:24.595
+i wanna do is multiprocessing
+
+00:07:24.595 --> 00:07:26.085
+.process
+
+00:07:26.085 --> 00:07:27.668
+i wanna run the process
+
+00:07:27.668 --> 00:07:29.289
+what would be my target
+
+00:07:29.289 --> 00:07:31.258
+my target
+
+00:07:31.258 --> 00:07:33.183
+will be download file
+
+00:07:33.183 --> 00:07:35.735
+what would be my aags
+
+00:07:35.735 --> 00:07:37.458
+one would be URL
+
+00:07:37.458 --> 00:07:39.191
+and other would be I
+
+00:07:39.191 --> 00:07:41.902
+sot it would be URl and I
+
+00:07:41.902 --> 00:07:45.727
+here it says undefined name, did i forgot to rename F
+
+00:07:45.727 --> 00:07:48.784
+now i've fixed it
+
+00:07:48.784 --> 00:07:52.478
+i will delete files folder and create files 2
+
+00:07:52.478 --> 00:07:56.465
+first I'll put all these in files folder and then delete the whole folder
+
+00:07:56.465 --> 00:07:57.772
+its dirty here
+
+00:07:57.772 --> 00:07:59.797
+oops,
+
+00:07:59.797 --> 00:08:01.999
+i'll put them i files
+
+00:08:01.999 --> 00:08:04.633
+yes overwrite these files
+
+00:08:09.458 --> 00:08:12.212
+i'll bring main.py here
+
+00:08:12.212 --> 00:08:14.708
+and if i run this now
+
+00:08:14.708 --> 00:08:17.427
+i'll delete the files and and recreate it
+
+00:08:20.033 --> 00:08:22.867
+as I run this
+
+00:08:22.867 --> 00:08:25.386
+for now I haven't written program
+
+00:08:25.386 --> 00:08:27.681
+here i created a process
+
+00:08:27.681 --> 00:08:31.361
+now I will enter p.start
+
+00:08:31.361 --> 00:08:34.600
+would i wanna join it? No
+
+00:08:34.600 --> 00:08:35.548
+lets start
+
+00:08:35.548 --> 00:08:38.049
+and what will i do at the end
+
+00:08:38.049 --> 00:08:42.061
+i wanna join it together,
+
+00:08:42.061 --> 00:08:45.848
+pros=, which means process is equal to
+
+00:08:45.848 --> 00:08:49.131
+now i will insert pros.apendp
+
+00:08:49.131 --> 00:08:50.481
+so what will I have
+
+00:08:50.481 --> 00:08:53.734
+now I will do for p in pros
+
+00:08:53.734 --> 00:08:55.365
+and p.join
+
+00:08:55.365 --> 00:08:58.388
+And at the end i'll join
+
+00:08:58.388 --> 00:09:01.134
+why are you blowing things in the air
+
+00:09:01.134 --> 00:09:02.879
+so here I created a process
+
+00:09:04.521 --> 00:09:05.709
+and then started it
+
+00:09:05.709 --> 00:09:07.064
+after that
+
+00:09:07.064 --> 00:09:10.248
+did pros.apend or process.apend in the list
+
+00:09:10.248 --> 00:09:12.169
+at the end when this loop started running
+
+00:09:12.169 --> 00:09:15.548
+and at that time I will have all the processes
+
+00:09:15.548 --> 00:09:16.931
+and then I can join them
+
+00:09:16.931 --> 00:09:18.389
+by iterate
+
+00:09:18.389 --> 00:09:20.543
+I can join them by iterating
+
+00:09:20.543 --> 00:09:22.394
+after joining
+
+00:09:22.394 --> 00:09:25.003
+after joining
+
+00:09:25.003 --> 00:09:26.207
+I
+
+00:09:26.207 --> 00:09:28.735
+will expect the files folder
+
+00:09:28.735 --> 00:09:30.537
+to populate
+
+00:09:30.537 --> 00:09:33.194
+and that too very fast, parallally
+
+00:09:33.194 --> 00:09:34.624
+lets do something
+
+00:09:34.624 --> 00:09:37.332
+where I will write print
+
+00:09:38.546 --> 00:09:39.557
+finished
+
+00:09:39.557 --> 00:09:40.783
+downloading
+
+00:09:41.740 --> 00:09:43.303
+and here
+
+00:09:43.303 --> 00:09:45.550
+write the name of the variable
+
+00:09:45.550 --> 00:09:47.328
+name
+
+00:09:47.328 --> 00:09:48.716
+and insert an F string
+
+00:09:48.716 --> 00:09:51.871
+and before that I will write started downloading
+
+00:09:54.413 --> 00:09:57.212
+started downloading name, finish downloading name
+
+00:09:57.212 --> 00:10:01.371
+as soon as I will run it, It will start everything altogether
+
+00:10:01.371 --> 00:10:04.313
+1,2,0,4 and now it says, files to
+
+00:10:04.313 --> 00:10:06.512
+oops, why did I do as files 2
+
+00:10:06.512 --> 00:10:08.542
+files 2 folder didn't even exist
+
+00:10:08.542 --> 00:10:11.466
+no worries we'll run it again
+
+00:10:11.466 --> 00:10:14.358
+here all of them started downloading at  the same moment
+
+00:10:14.358 --> 00:10:16.397
+now as it is getting downloaded
+
+00:10:16.397 --> 00:10:18.681
+see the speed
+
+00:10:18.681 --> 00:10:23.118
+where we thought of so much of time consuming, now I will show you something
+
+00:10:23.118 --> 00:10:25.566
+DO NOT TRY THIS AT HOME
+
+00:10:25.566 --> 00:10:28.360
+just do it, I'm kidding
+
+00:10:28.360 --> 00:10:32.353
+i'm downloading 50 files now do not try it with 5000 files
+
+00:10:32.353 --> 00:10:34.095
+maybe your rappel would hang
+
+00:10:34.095 --> 00:10:36.364
+it will download a lot of data in your system
+
+00:10:36.364 --> 00:10:38.230
+that it will get filled up
+
+00:10:38.230 --> 00:10:41.022
+I'm downloading these heavy resolution pictures just 50
+
+00:10:41.022 --> 00:10:44.221
+now you see that it throws all the 50 together
+
+00:10:44.221 --> 00:10:46.482
+altogether it'll start and push
+
+00:10:46.482 --> 00:10:51.313
+it got started and now one by one its getting downloaded, and look at the speed
+
+00:10:51.313 --> 00:10:53.523
+what should I say
+
+00:10:53.523 --> 00:10:57.001
+now its called proper usage of multiprocessing
+
+00:10:57.001 --> 00:11:00.148
+now it is getting downloaded in various different order
+
+00:11:00.148 --> 00:11:02.805
+so as soon as it gets download the other hand its getting printed
+
+00:11:02.805 --> 00:11:05.651
+amazing
+
+00:11:05.651 --> 00:11:09.433
+if you will open your activity monitor in MAC which only a few people might have
+
+00:11:09.433 --> 00:11:11.259
+many of the people are in windows
+
+00:11:11.259 --> 00:11:13.583
+now it says that
+
+00:11:13.583 --> 00:11:16.014
+how does it open
+
+00:11:16.014 --> 00:11:18.275
+okay this is activity monitor
+
+00:11:19.290 --> 00:11:21.317
+now if you see the cpu
+
+00:11:21.317 --> 00:11:24.694
+in this it shows too many processes
+
+00:11:26.208 --> 00:11:30.446
+here you can see that which processor is using the highest network
+
+00:11:30.446 --> 00:11:32.422
+why isn't it showing me the network
+
+00:11:32.422 --> 00:11:34.505
+here it shows which network
+
+00:11:34.505 --> 00:11:38.403
+if I run it again
+
+00:11:38.403 --> 00:11:41.075
+and show you the activity monitor
+
+00:11:43.435 --> 00:11:47.826
+here it will show many processors
+
+00:11:47.826 --> 00:11:49.531
+i am such a dumb
+
+00:11:49.531 --> 00:11:52.570
+I'm looking it over here whereas our program is running in rappel
+
+00:11:52.570 --> 00:11:55.666
+so to look over here what do I need to do
+
+00:11:55.666 --> 00:11:58.089
+and please I am not deleting this part
+
+00:11:58.089 --> 00:12:00.845
+I just want to show you that at any moment of time anyone's brain can stop working
+
+00:12:00.845 --> 00:12:04.233
+I' started searching in the activity monitor
+
+00:12:04.233 --> 00:12:07.177
+no worries, I will write Python 3
+
+00:12:07.177 --> 00:12:09.647
+and will paste this script
+
+00:12:09.647 --> 00:12:11.569
+now it say it cant get to be reviewed
+
+00:12:11.569 --> 00:12:14.159
+i'll do one this
+
+00:12:14.159 --> 00:12:16.323
+i'll write it in Vs code
+
+00:12:16.323 --> 00:12:21.172
+i'll do ctrl n, and paste and the ctrl s
+
+00:12:21.172 --> 00:12:23.729
+what will I do over here is
+
+00:12:23.729 --> 00:12:25.793
+where do I save it,
+
+00:12:27.093 --> 00:12:28.824
+i'll save it in
+
+00:12:28.824 --> 00:12:32.911
+as a name testp.cy
+
+00:12:32.911 --> 00:12:36.258
+i'll save it in the folder named harry
+
+00:12:36.258 --> 00:12:38.181
+saved it
+
+00:12:38.181 --> 00:12:40.642
+now I'll run it
+
+00:12:40.642 --> 00:12:44.476
+but there won't be a folder named files that's the problem
+
+00:12:44.476 --> 00:12:46.351
+no worries
+
+00:12:47.313 --> 00:12:50.225
+see in the harry folder, I
+
+00:12:50.225 --> 00:12:51.696
+inserted a test script
+
+00:12:51.696 --> 00:12:54.847
+i will
+
+00:12:54.847 --> 00:12:58.434
+name as test.dele
+
+00:12:58.434 --> 00:13:00.705
+i will delete it after testing
+
+00:13:00.705 --> 00:13:01.924
+i won't keep it in my computer
+
+00:13:01.924 --> 00:13:02.931
+will right click
+
+00:13:02.931 --> 00:13:04.722
+and here i will say
+
+00:13:04.722 --> 00:13:07.797
+new terminal add folder
+
+00:13:07.911 --> 00:13:11.409
+in this terminal, ,MKDIR
+
+00:13:11.409 --> 00:13:13.762
+will create a directory of files
+
+00:13:13.762 --> 00:13:15.759
+and now with the python 3
+
+00:13:15.759 --> 00:13:18.552
+will run testscript.py
+
+00:13:18.552 --> 00:13:20.283
+here it says no module name request
+
+00:13:20.283 --> 00:13:22.315
+what kind of joke is this
+
+00:13:22.315 --> 00:13:24.619
+its not a joke but it says do this process
+
+00:13:24.619 --> 00:13:27.657
+nothing else
+
+00:13:30.610 --> 00:13:33.799
+so here you see now, oh what's happening
+
+00:13:36.579 --> 00:13:39.434
+so to prevent from this problem
+
+00:13:39.434 --> 00:13:44.908
+you have to insert main==, i told you about this in the previous rappels or lessons
+
+00:13:44.908 --> 00:13:48.216
+now we will run and observe in the activity monitor
+
+00:13:48.216 --> 00:13:53.725
+i have started over here, now will go in the network and will show you, i should see many processes
+
+00:13:53.725 --> 00:13:56.603
+related to python, but i can't see any
+
+00:13:57.730 --> 00:14:02.850
+now you can see many files related to python...
+
+00:14:02.850 --> 00:14:07.186
+now we can see many python processes and are being completed
+
+00:14:07.186 --> 00:14:09.416
+see the video by reversing it
+
+00:14:09.416 --> 00:14:13.260
+many of the python processes here ran but these were completed very quickly
+
+00:14:13.260 --> 00:14:17.350
+that we weren't able to see them
+
+00:14:17.350 --> 00:14:19.555
+the received bytes
+
+00:14:19.555 --> 00:14:23.706
+see so many of them ran together
+
+00:14:23.706 --> 00:14:26.203
+and after running
+
+00:14:26.203 --> 00:14:28.828
+it will finish quickly
+
+00:14:28.828 --> 00:14:32.093
+it downloaded so much data parallelly
+
+00:14:32.093 --> 00:14:34.244
+it has given us all the images
+
+00:14:34.244 --> 00:14:36.033
+now you can watch it and rest
+
+00:14:36.033 --> 00:14:37.985
+and be happy
+
+00:14:37.985 --> 00:14:40.295
+now I'll do something for now
+
+00:14:40.295 --> 00:14:43.153
+i get happy in this thing
+
+00:14:43.153 --> 00:14:44.960
+in CTRL backspace
+
+00:14:44.960 --> 00:14:47.411
+its a shortcut of delete in MAC
+
+00:14:47.411 --> 00:14:49.253
+just wanted to show you these processes
+
+00:14:49.253 --> 00:14:51.319
+i'll close this
+
+00:14:51.319 --> 00:14:54.305
+and return back to rappelet and after
+
+00:14:54.305 --> 00:14:57.155
+and after coming back from rappelet
+
+00:14:57.155 --> 00:14:59.730
+will close this
+
+00:14:59.730 --> 00:15:02.156
+and i hope you people have understood this thing
+
+00:15:02.156 --> 00:15:06.964
+and you people please don't do it with 5000 files your rappel will hang
+
+00:15:06.964 --> 00:15:10.261
+then don't complaint to me
+
+00:15:10.261 --> 00:15:13.773
+because there is so much data and maybe they have a limit to upload data
+
+00:15:13.773 --> 00:15:16.443
+i hope that you might have understood the multiprocessing
+
+00:15:16.443 --> 00:15:19.216
+and now you'll say like how we used concurrent feature
+
+00:15:19.216 --> 00:15:23.222
+can we use something like that over here
+
+00:15:23.222 --> 00:15:24.706
+so the answer is yes
+
+00:15:26.161 --> 00:15:28.801
+just like we have threadpool executor likewise we
+
+00:15:28.801 --> 00:15:30.489
+have process pool executor
+
+00:15:30.489 --> 00:15:32.597
+and the other steps are very similar
+
+00:15:32.597 --> 00:15:35.190
+so guys lets do this too
+
+00:15:35.190 --> 00:15:37.856
+i'll close this
+
+00:15:37.856 --> 00:15:39.140
+and come in this rappel
+
+00:15:39.140 --> 00:15:40.888
+and instead of doing this
+
+00:15:40.888 --> 00:15:43.463
+where i apply for loop and apend and stuff
+
+00:15:43.463 --> 00:15:46.464
+I will say that
+
+00:15:46.464 --> 00:15:48.109
+you become copy paster
+
+00:15:50.683 --> 00:15:52.358
+become a copy paster
+
+00:15:52.358 --> 00:15:54.052
+what are you teaching
+
+00:15:54.052 --> 00:15:57.859
+these days its beneficial to become a copy paster
+
+00:15:57.859 --> 00:15:59.775
+as you can see
+
+00:15:59.775 --> 00:16:04.910
+you just invest your brain in it
+
+00:16:04.910 --> 00:16:08.304
+other things which are already done, don't invest in that
+
+00:16:08.304 --> 00:16:10.262
+this forloop
+
+00:16:10.262 --> 00:16:13.874
+with concurrent.futures
+
+00:16:13.874 --> 00:16:18.718
+here I will import concurrent.
+
+00:16:18.718 --> 00:16:19.826
+futures
+
+00:16:19.826 --> 00:16:23.113
+what you have to do is that
+
+00:16:23.113 --> 00:16:24.881
+looping this
+
+00:16:24.881 --> 00:16:27.286
+executer.map
+
+00:16:27.286 --> 00:16:33.764
+i will do executer.map in my way, where results =
+
+00:16:34.487 --> 00:16:38.606
+results=executer.map
+
+00:16:38.606 --> 00:16:40.708
+and here
+
+00:16:40.708 --> 00:16:42.507
+download
+
+00:16:42.507 --> 00:16:44.261
+file and after that
+
+00:16:44.261 --> 00:16:46.099
+my URL
+
+00:16:46.099 --> 00:16:47.334
+is the first argument
+
+00:16:47.334 --> 00:16:49.060
+then I is my 2nd arguement
+
+00:16:49.060 --> 00:16:50.517
+now after this i'll say
+
+00:16:53.446 --> 00:16:57.384
+i'll do...
+
+00:16:57.384 --> 00:17:01.296
+maybe i'll have to put random.ranit
+
+00:17:01.296 --> 00:17:02.851
+or i'll do something
+
+00:17:04.237 --> 00:17:05.716
+what i'll do is
+
+00:17:06.438 --> 00:17:07.734
+l,
+
+00:17:07.734 --> 00:17:08.802
+i'll have to create the list
+
+00:17:08.802 --> 00:17:11.664
+this is my iterator, where L=
+
+00:17:11.664 --> 00:17:14.352
+i for i in range
+
+00:17:14.352 --> 00:17:16.504
+60
+
+00:17:16.504 --> 00:17:19.230
+now i will write here, for
+
+00:17:19.230 --> 00:17:22.622
+r in results
+
+00:17:22.622 --> 00:17:26.097
+now what can I do over here
+
+00:17:26.097 --> 00:17:27.923
+see that
+
+00:17:27.923 --> 00:17:31.915
+the map will come under executer.results, i'll do print r
+
+00:17:31.915 --> 00:17:34.264
+print R
+
+00:17:34.264 --> 00:17:39.163
+as soon as i will run it, it should start printing
+
+00:17:39.163 --> 00:17:41.956
+no ski was supplied
+
+00:17:41.956 --> 00:17:43.771
+so as you can see here
+
+00:17:43.771 --> 00:17:46.723
+here i created L1 where i had all the urls
+
+00:17:46.723 --> 00:17:49.616
+and L2 where
+
+00:17:49.616 --> 00:17:51.076
+we had all the I's
+
+00:17:51.076 --> 00:17:54.910
+now see it has downloaded all the files for me
+
+00:17:54.910 --> 00:17:59.426
+all the 49, it should give me 59
+
+00:17:59.426 --> 00:18:02.160
+maybe its still going
+
+00:18:02.160 --> 00:18:05.066
+and now its downloading
+
+00:18:05.066 --> 00:18:07.800
+till 56, 58
+
+00:18:07.800 --> 00:18:11.352
+and one by one its downloading all the files parallelly
+
+00:18:11.352 --> 00:18:15.923
+and as you can see all the files have been given to me
+
+00:18:15.923 --> 00:18:19.463
+and this is how you can use concurrent.futures
+
+00:18:19.463 --> 00:18:22.286
+remember that whenever there are multiple arguments
+
+00:18:22.286 --> 00:18:23.859
+all you have to do is
+
+00:18:23.859 --> 00:18:27.113
+1st arguments list2nd argument list
+
+00:18:27.113 --> 00:18:32.638
+as if first argument is url then so be it or 2nd names then so be it
+
+00:18:32.638 --> 00:18:34.271
+like as i have given here
+
+00:18:34.271 --> 00:18:38.566
+so I hope how to use multiprocessing in the python
+
+00:18:38.566 --> 00:18:43.459
+see if any topic is deep
+
+00:18:43.459 --> 00:18:45.434
+maybe siri heard something
+
+00:18:45.434 --> 00:18:47.243
+i'll close it
+
+00:18:47.243 --> 00:18:50.082
+so if you have to for any topic
+
+00:18:50.082 --> 00:18:52.203
+have to deep dive so
+
+00:18:52.203 --> 00:18:52.820
+you can do it from here
+
+00:18:52.820 --> 00:18:55.244
+and you might find more things over here
+
+00:18:55.244 --> 00:18:57.686
+you'll get more functions so explore it
+
+00:18:57.686 --> 00:19:00.040
+this is how a persons knowledge is deep
+
+00:19:00.040 --> 00:19:04.356
+i won't claim anything while sitting here the as many things in the python
+
+00:19:04.356 --> 00:19:07.191
+that i have it by heart
+
+00:19:07.191 --> 00:19:09.451
+even i encounter many new things
+
+00:19:09.451 --> 00:19:09.978
+in my life
+
+00:19:09.978 --> 00:19:12.372
+and this is learning and thats how we all grow
+
+00:19:12.372 --> 00:19:14.663
+so this is what i wanted to tell you
+
+00:19:14.663 --> 00:19:17.708
+so that is it in this video and if you haven't written review in this video
+
+00:19:17.708 --> 00:19:19.780
+just go there right now
+
+00:19:19.780 --> 00:19:21.198
+and i don't know
+
+00:19:21.198 --> 00:19:23.349
+open this first video right now
+
+00:19:23.349 --> 00:19:24.722
+and write the video
+
+00:19:24.722 --> 00:19:28.801
+so if any new person is going to start this course
+
+00:19:28.801 --> 00:19:32.177
+so how is this course for them
+
+00:19:32.177 --> 00:19:33.868
+you have no other choice
+
+00:19:33.868 --> 00:19:35.921
+open and write here
+
+00:19:35.921 --> 00:19:38.249
+please write a review here
+
+00:19:38.249 --> 00:19:39.838
+all these in this video
+
+00:19:39.838 --> 00:19:41.817
+thank you so much guys for watching this video and I will see you
+
+00:19:41.817 --> 00:19:44.757
+next time
+

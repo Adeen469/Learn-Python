@@ -1,0 +1,1576 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:00.000 --> 00:00:01.550 align:start position:0%
+ 
+In <00:00:00.287><c>the </c><00:00:00.574><c>previous </c><00:00:00.861><c>video, </c><00:00:01.148><c>we </c><00:00:01.435><c>saw</c>
+
+00:00:01.550 --> 00:00:01.560 align:start position:0%
+In the previous video, we saw
+ 
+
+00:00:01.560 --> 00:00:03.350 align:start position:0%
+In the previous video, we saw
+everything <00:00:01.883><c>about </c><00:00:02.206><c>the </c><00:00:02.529><c>dictionary. </c><00:00:02.852><c>We </c><00:00:03.175><c>saw</c>
+
+00:00:03.350 --> 00:00:03.360 align:start position:0%
+everything about the dictionary. We saw
+ 
+
+00:00:03.360 --> 00:00:05.090 align:start position:0%
+everything about the dictionary. We saw
+how <00:00:03.600><c>to </c><00:00:03.840><c>create </c><00:00:04.080><c>a </c><00:00:04.320><c>dictionary </c><00:00:04.560><c>and</c>
+
+00:00:05.090 --> 00:00:05.100 align:start position:0%
+how to create a dictionary and
+ 
+
+00:00:05.100 --> 00:00:07.490 align:start position:0%
+how to create a dictionary and
+what <00:00:05.310><c>is </c><00:00:05.520><c>the </c><00:00:05.730><c>importance </c><00:00:05.940><c>of </c><00:00:06.150><c>a </c><00:00:06.360><c>dictionary </c><00:00:06.570><c>in </c><00:00:06.780><c>the </c><00:00:06.990><c>Python </c><00:00:07.200><c>programming</c>
+
+00:00:07.490 --> 00:00:07.500 align:start position:0%
+what is the importance of a dictionary in the Python programming
+ 
+
+00:00:07.500 --> 00:00:08.990 align:start position:0%
+what is the importance of a dictionary in the Python programming
+language. <00:00:07.730><c>In </c><00:00:07.960><c>today's </c><00:00:08.190><c>video, </c><00:00:08.420><c>I'd </c><00:00:08.650><c>like </c><00:00:08.880><c>to</c>
+
+00:00:08.990 --> 00:00:10.610 align:start position:0%
+language. In today's video, I'd like to
+ 
+
+00:00:10.610 --> 00:00:10.620 align:start position:0%
+ 
+ 
+
+00:00:10.620 --> 00:00:12.410 align:start position:0%
+ 
+talk <00:00:10.750><c>to </c><00:00:10.880><c>you </c><00:00:11.010><c>about </c><00:00:11.140><c>the </c><00:00:11.270><c>dictionary </c><00:00:11.400><c>methods. </c><00:00:11.530><c>Let's </c><00:00:11.660><c>go </c><00:00:11.790><c>to </c><00:00:11.920><c>the </c><00:00:12.050><c>computer</c>
+
+00:00:12.410 --> 00:00:12.420 align:start position:0%
+talk to you about the dictionary methods. Let's go to the computer
+ 
+
+00:00:12.420 --> 00:00:15.320 align:start position:0%
+talk to you about the dictionary methods. Let's go to the computer
+screen. <00:00:12.920><c>Let's </c><00:00:13.420><c>get </c><00:00:13.920><c>started.</c>
+
+00:00:15.320 --> 00:00:15.330 align:start position:0%
+screen. Let's get started.
+ 
+
+00:00:15.330 --> 00:00:23.510 align:start position:0%
+screen. Let's get started.
+[Music]
+
+00:00:23.510 --> 00:00:23.520 align:start position:0%
+[Music]
+ 
+
+00:00:23.520 --> 00:00:25.730 align:start position:0%
+[Music]
+These <00:00:24.044><c>methods </c><00:00:24.568><c>are </c><00:00:25.092><c>very </c><00:00:25.616><c>useful,</c>
+
+00:00:25.730 --> 00:00:25.740 align:start position:0%
+These methods are very useful,
+ 
+
+00:00:25.740 --> 00:00:29.810 align:start position:0%
+These methods are very useful,
+and <00:00:26.179><c>one </c><00:00:26.618><c>of </c><00:00:27.057><c>them </c><00:00:27.496><c>is </c><00:00:27.935><c>update, </c><00:00:28.374><c>which </c><00:00:28.813><c>is </c><00:00:29.252><c>used </c><00:00:29.691><c>to</c>
+
+00:00:29.810 --> 00:00:29.820 align:start position:0%
+and one of them is update, which is used to
+ 
+
+00:00:29.820 --> 00:00:32.990 align:start position:0%
+and one of them is update, which is used to
+update <00:00:31.350><c>the </c><00:00:32.880><c>dictionary.</c>
+
+00:00:32.990 --> 00:00:33.000 align:start position:0%
+update the dictionary.
+ 
+
+00:00:33.000 --> 00:00:35.450 align:start position:0%
+update the dictionary.
+I <00:00:33.585><c>have </c><00:00:34.170><c>some </c><00:00:34.755><c>employee </c><00:00:35.340><c>IDs</c>
+
+00:00:35.450 --> 00:00:35.460 align:start position:0%
+I have some employee IDs
+ 
+
+00:00:35.460 --> 00:00:38.209 align:start position:0%
+I have some employee IDs
+and <00:00:35.940><c>their </c><00:00:36.420><c>performance. </c><00:00:36.900><c>So, </c><00:00:37.380><c>I'll</c>
+
+00:00:38.209 --> 00:00:38.219 align:start position:0%
+and their performance. So, I'll
+ 
+
+00:00:38.219 --> 00:00:40.549 align:start position:0%
+and their performance. So, I'll
+write <00:00:38.415><c>'employee' </c><00:00:38.611><c>here </c><00:00:38.807><c>and </c><00:00:39.003><c>create </c><00:00:39.199><c>a </c><00:00:39.395><c>very </c><00:00:39.591><c>simple </c><00:00:39.787><c>dictionary </c><00:00:39.983><c>named </c><00:00:40.179><c>'api'. </c><00:00:40.375><c>Now,</c>
+
+00:00:40.549 --> 00:00:43.310 align:start position:0%
+write 'employee' here and create a very simple dictionary named 'api'. Now,
+ 
+
+00:00:43.310 --> 00:00:43.320 align:start position:0%
+ 
+ 
+
+00:00:43.320 --> 00:00:45.290 align:start position:0%
+ 
+I <00:00:43.470><c>have </c><00:00:43.620><c>some </c><00:00:43.770><c>employee </c><00:00:43.920><c>IDs </c><00:00:44.070><c>and </c><00:00:44.220><c>their </c><00:00:44.370><c>performance. </c><00:00:44.520><c>I'll </c><00:00:44.670><c>create </c><00:00:44.820><c>it </c><00:00:44.970><c>by </c><00:00:45.120><c>name.</c>
+
+00:00:45.290 --> 00:00:45.300 align:start position:0%
+I have some employee IDs and their performance. I'll create it by name.
+ 
+
+00:00:45.300 --> 00:00:46.369 align:start position:0%
+I have some employee IDs and their performance. I'll create it by name.
+I'll <00:00:45.437><c>create </c><00:00:45.574><c>it </c><00:00:45.711><c>by </c><00:00:45.848><c>employee </c><00:00:45.985><c>ID. </c><00:00:46.122><c>Let's </c><00:00:46.259><c>say</c>
+
+00:00:46.369 --> 00:00:46.379 align:start position:0%
+I'll create it by employee ID. Let's say
+ 
+
+00:00:46.379 --> 00:00:48.650 align:start position:0%
+I'll create it by employee ID. Let's say
+1, <00:00:46.904><c>2, </c><00:00:47.429><c>2, </c><00:00:47.954><c>and </c><00:00:48.479><c>their</c>
+
+00:00:48.650 --> 00:00:48.660 align:start position:0%
+1, 2, 2, and their
+ 
+
+00:00:48.660 --> 00:00:51.229 align:start position:0%
+1, 2, 2, and their
+performance <00:00:48.979><c>is </c><00:00:49.298><c>45 </c><00:00:49.617><c>out </c><00:00:49.936><c>of </c><00:00:50.255><c>100. </c><00:00:50.574><c>And</c>
+
+00:00:51.229 --> 00:00:51.239 align:start position:0%
+performance is 45 out of 100. And
+ 
+
+00:00:51.239 --> 00:00:55.250 align:start position:0%
+performance is 45 out of 100. And
+123, <00:00:51.770><c>their </c><00:00:52.301><c>performance </c><00:00:52.832><c>is </c><00:00:53.363><c>89 </c><00:00:53.894><c>out </c><00:00:54.425><c>of </c><00:00:54.956><c>100.</c>
+
+00:00:55.250 --> 00:00:55.260 align:start position:0%
+123, their performance is 89 out of 100.
+ 
+
+00:00:55.260 --> 00:00:56.110 align:start position:0%
+123, their performance is 89 out of 100.
+
+
+00:00:56.110 --> 00:00:56.120 align:start position:0%
+ 
+ 
+
+00:00:56.120 --> 00:00:59.630 align:start position:0%
+ 
+Their <00:00:56.925><c>performance </c><00:00:57.730><c>is </c><00:00:58.535><c>69 </c><00:00:59.340><c>out</c>
+
+00:00:59.630 --> 00:00:59.640 align:start position:0%
+Their performance is 69 out
+ 
+
+00:00:59.640 --> 00:01:03.830 align:start position:0%
+Their performance is 69 out
+of <00:01:00.075><c>100. </c><00:01:00.510><c>And </c><00:01:00.945><c>there's </c><00:01:01.380><c>another </c><00:01:01.815><c>employee </c><00:01:02.250><c>ID </c><00:01:02.685><c>of </c><00:01:03.120><c>670,</c>
+
+00:01:03.830 --> 00:01:03.840 align:start position:0%
+of 100. And there's another employee ID of 670,
+ 
+
+00:01:03.840 --> 00:01:06.170 align:start position:0%
+of 100. And there's another employee ID of 670,
+whose <00:01:04.139><c>performance </c><00:01:04.438><c>is </c><00:01:04.737><c>also </c><00:01:05.036><c>69 </c><00:01:05.335><c>out </c><00:01:05.634><c>of </c><00:01:05.933><c>100.</c>
+
+00:01:06.170 --> 00:01:06.180 align:start position:0%
+whose performance is also 69 out of 100.
+ 
+
+00:01:06.180 --> 00:01:08.630 align:start position:0%
+whose performance is also 69 out of 100.
+So <00:01:06.624><c>what's </c><00:01:07.068><c>happening </c><00:01:07.512><c>is </c><00:01:07.956><c>that </c><00:01:08.400><c>we've</c>
+
+00:01:08.630 --> 00:01:08.640 align:start position:0%
+So what's happening is that we've
+ 
+
+00:01:08.640 --> 00:01:10.730 align:start position:0%
+So what's happening is that we've
+stored <00:01:08.887><c>the </c><00:01:09.134><c>performance </c><00:01:09.381><c>of </c><00:01:09.628><c>a </c><00:01:09.875><c>lot </c><00:01:10.122><c>of </c><00:01:10.369><c>people </c><00:01:10.616><c>in</c>
+
+00:01:10.730 --> 00:01:10.740 align:start position:0%
+stored the performance of a lot of people in
+ 
+
+00:01:10.740 --> 00:01:13.730 align:start position:0%
+stored the performance of a lot of people in
+a <00:01:11.244><c>variable. </c><00:01:11.748><c>Now, </c><00:01:12.252><c>let's </c><00:01:12.756><c>say </c><00:01:13.260><c>another</c>
+
+00:01:13.730 --> 00:01:13.740 align:start position:0%
+a variable. Now, let's say another
+ 
+
+00:01:13.740 --> 00:01:15.710 align:start position:0%
+a variable. Now, let's say another
+person <00:01:13.968><c>comes, </c><00:01:14.196><c>he's </c><00:01:14.424><c>also </c><00:01:14.652><c>a </c><00:01:14.880><c>manager.</c>
+
+00:01:15.710 --> 00:01:15.720 align:start position:0%
+person comes, he's also a manager.
+ 
+
+00:01:15.720 --> 00:01:18.350 align:start position:0%
+person comes, he's also a manager.
+He's <00:01:15.933><c>ready. </c><00:01:16.146><c>According </c><00:01:16.359><c>to </c><00:01:16.572><c>my </c><00:01:16.785><c>database, </c><00:01:16.998><c>I </c><00:01:17.211><c>have </c><00:01:17.424><c>the </c><00:01:17.637><c>employee</c>
+
+00:01:18.350 --> 00:01:18.360 align:start position:0%
+He's ready. According to my database, I have the employee
+ 
+
+00:01:18.360 --> 00:01:20.330 align:start position:0%
+He's ready. According to my database, I have the employee
+IDs <00:01:18.625><c>of </c><00:01:18.890><c>a </c><00:01:19.155><c>few </c><00:01:19.420><c>other </c><00:01:19.685><c>people, </c><00:01:19.950><c>like </c><00:01:20.215><c>the</c>
+
+00:01:20.330 --> 00:01:20.340 align:start position:0%
+IDs of a few other people, like the
+ 
+
+00:01:20.340 --> 00:01:23.270 align:start position:0%
+IDs of a few other people, like the
+performance <00:01:20.655><c>of </c><00:01:20.970><c>your </c><00:01:21.285><c>employee </c><00:01:21.600><c>ID </c><00:01:21.915><c>is </c><00:01:22.230><c>67, </c><00:01:22.545><c>the </c><00:01:22.860><c>performance</c>
+
+00:01:23.270 --> 00:01:23.280 align:start position:0%
+performance of your employee ID is 67, the performance
+ 
+
+00:01:23.280 --> 00:01:26.929 align:start position:0%
+performance of your employee ID is 67, the performance
+of <00:01:23.870><c>your </c><00:01:24.460><c>employee </c><00:01:25.050><c>ID </c><00:01:25.640><c>is </c><00:01:26.230><c>56. </c><00:01:26.820><c>So,</c>
+
+00:01:26.929 --> 00:01:26.939 align:start position:0%
+of your employee ID is 56. So,
+ 
+
+00:01:26.939 --> 00:01:29.450 align:start position:0%
+of your employee ID is 56. So,
+both <00:01:27.264><c>of </c><00:01:27.589><c>them </c><00:01:27.914><c>decide, </c><00:01:28.239><c>let's </c><00:01:28.564><c>do </c><00:01:28.889><c>this </c><00:01:29.214><c>thing</c>
+
+00:01:29.450 --> 00:01:29.460 align:start position:0%
+both of them decide, let's do this thing
+ 
+
+00:01:29.460 --> 00:01:31.490 align:start position:0%
+both of them decide, let's do this thing
+because <00:01:30.080><c>he's </c><00:01:30.700><c>a </c><00:01:31.320><c>senior</c>
+
+00:01:31.490 --> 00:01:31.500 align:start position:0%
+because he's a senior
+ 
+
+00:01:31.500 --> 00:01:33.590 align:start position:0%
+because he's a senior
+manager. <00:01:31.872><c>Okay, </c><00:01:32.244><c>ep1 </c><00:01:32.616><c>is </c><00:01:32.988><c>a </c><00:01:33.360><c>senior</c>
+
+00:01:33.590 --> 00:01:33.600 align:start position:0%
+manager. Okay, ep1 is a senior
+ 
+
+00:01:33.600 --> 00:01:35.990 align:start position:0%
+manager. Okay, ep1 is a senior
+manager. <00:01:34.008><c>He </c><00:01:34.416><c>says, </c><00:01:34.824><c>"Look, </c><00:01:35.232><c>e2, </c><00:01:35.640><c>you're</c>
+
+00:01:35.990 --> 00:01:36.000 align:start position:0%
+manager. He says, "Look, e2, you're
+ 
+
+00:01:36.000 --> 00:01:37.910 align:start position:0%
+manager. He says, "Look, e2, you're
+junior <00:01:36.205><c>to </c><00:01:36.410><c>me. </c><00:01:36.615><c>Give </c><00:01:36.820><c>me </c><00:01:37.025><c>all </c><00:01:37.230><c>your </c><00:01:37.435><c>ratings</c>
+
+00:01:37.910 --> 00:01:37.920 align:start position:0%
+junior to me. Give me all your ratings
+ 
+
+00:01:37.920 --> 00:01:39.770 align:start position:0%
+junior to me. Give me all your ratings
+and <00:01:38.160><c>I'll </c><00:01:38.400><c>store </c><00:01:38.640><c>them </c><00:01:38.880><c>in </c><00:01:39.120><c>my </c><00:01:39.360><c>database." </c><00:01:39.600><c>So,</c>
+
+00:01:39.770 --> 00:01:39.780 align:start position:0%
+and I'll store them in my database." So,
+ 
+
+00:01:39.780 --> 00:01:42.770 align:start position:0%
+and I'll store them in my database." So,
+ep1 <00:01:40.409><c>says, </c><00:01:41.038><c>"Okay, </c><00:01:41.667><c>sir, </c><00:01:42.296><c>no</c>
+
+00:01:42.770 --> 00:01:42.780 align:start position:0%
+ep1 says, "Okay, sir, no
+ 
+
+00:01:42.780 --> 00:01:46.249 align:start position:0%
+ep1 says, "Okay, sir, no
+problem, <00:01:43.320><c>you're </c><00:01:43.860><c>sorry, </c><00:01:44.400><c>no, </c><00:01:44.940><c>DP, </c><00:01:45.480><c>I'm </c><00:01:46.020><c>your</c>
+
+00:01:46.249 --> 00:01:46.259 align:start position:0%
+problem, you're sorry, no, DP, I'm your
+ 
+
+00:01:46.259 --> 00:01:48.890 align:start position:0%
+problem, you're sorry, no, DP, I'm your
+senior. <00:01:46.609><c>I </c><00:01:46.959><c>forget, </c><00:01:47.309><c>I'm </c><00:01:47.659><c>also </c><00:01:48.009><c>yours." </c><00:01:48.359><c>Now,</c>
+
+00:01:48.890 --> 00:01:48.900 align:start position:0%
+senior. I forget, I'm also yours." Now,
+ 
+
+00:01:48.900 --> 00:01:51.830 align:start position:0%
+senior. I forget, I'm also yours." Now,
+you <00:01:49.340><c>say, </c><00:01:49.780><c>"Sir, </c><00:01:50.220><c>you </c><00:01:50.660><c>take </c><00:01:51.100><c>all </c><00:01:51.540><c>my</c>
+
+00:01:51.830 --> 00:01:51.840 align:start position:0%
+you say, "Sir, you take all my
+ 
+
+00:01:51.840 --> 00:01:54.710 align:start position:0%
+you say, "Sir, you take all my
+ratings." <00:01:52.117><c>Okay, </c><00:01:52.394><c>so </c><00:01:52.671><c>what </c><00:01:52.948><c>ep1 </c><00:01:53.225><c>will </c><00:01:53.502><c>do </c><00:01:53.779><c>is, </c><00:01:54.056><c>the</c>
+
+00:01:54.710 --> 00:01:54.720 align:start position:0%
+ratings." Okay, so what ep1 will do is, the
+ 
+
+00:01:54.720 --> 00:01:56.929 align:start position:0%
+ratings." Okay, so what ep1 will do is, the
+ep1 <00:01:55.140><c>will </c><00:01:55.560><c>update </c><00:01:55.980><c>itself </c><00:01:56.400><c>with </c><00:01:56.820><c>the</c>
+
+00:01:56.929 --> 00:01:56.939 align:start position:0%
+ep1 will update itself with the
+ 
+
+00:01:56.939 --> 00:02:00.170 align:start position:0%
+ep1 will update itself with the
+values ​​<00:01:57.224><c>and </c><00:01:57.509><c>the </c><00:01:57.794><c>key </c><00:01:58.079><c>values ​​</c><00:01:58.364><c>of </c><00:01:58.649><c>the </c><00:01:58.934><c>players' </c><00:01:59.219><c>items.</c>
+
+00:02:00.170 --> 00:02:00.180 align:start position:0%
+values ​​and the key values ​​of the players' items.
+ 
+
+00:02:00.180 --> 00:02:03.289 align:start position:0%
+values ​​and the key values ​​of the players' items.
+I <00:02:00.767><c>should </c><00:02:01.354><c>say, </c><00:02:01.941><c>"OK, </c><00:02:02.528><c>so </c><00:02:03.115><c>if</c>
+
+00:02:03.289 --> 00:02:03.299 align:start position:0%
+I should say, "OK, so if
+ 
+
+00:02:03.299 --> 00:02:05.090 align:start position:0%
+I should say, "OK, so if
+I <00:02:03.569><c>run </c><00:02:03.839><c>this </c><00:02:04.109><c>method </c><00:02:04.379><c>once, </c><00:02:04.649><c>I </c><00:02:04.919><c>just</c>
+
+00:02:05.090 --> 00:02:05.100 align:start position:0%
+I run this method once, I just
+ 
+
+00:02:05.100 --> 00:02:07.490 align:start position:0%
+I run this method once, I just
+need <00:02:05.544><c>to </c><00:02:05.988><c>run </c><00:02:06.432><c>it </c><00:02:06.876><c>once </c><00:02:07.320><c>more."</c>
+
+00:02:07.490 --> 00:02:07.500 align:start position:0%
+need to run it once more."
+ 
+
+00:02:07.500 --> 00:02:10.190 align:start position:0%
+need to run it once more."
+If <00:02:07.890><c>I </c><00:02:08.280><c>print </c><00:02:08.670><c>eb1, </c><00:02:09.060><c>I </c><00:02:09.450><c>will </c><00:02:09.840><c>see</c>
+
+00:02:10.190 --> 00:02:10.200 align:start position:0%
+If I print eb1, I will see
+ 
+
+00:02:10.200 --> 00:02:13.250 align:start position:0%
+If I print eb1, I will see
+that <00:02:10.533><c>both </c><00:02:10.866><c>these </c><00:02:11.199><c>expressions </c><00:02:11.532><c>have </c><00:02:11.865><c>also </c><00:02:12.198><c>been </c><00:02:12.531><c>added </c><00:02:12.864><c>inside </c><00:02:13.197><c>it,</c>
+
+00:02:13.250 --> 00:02:13.260 align:start position:0%
+that both these expressions have also been added inside it,
+ 
+
+00:02:13.260 --> 00:02:16.729 align:start position:0%
+that both these expressions have also been added inside it,
+you <00:02:13.596><c>can </c><00:02:13.932><c>see </c><00:02:14.268><c>that </c><00:02:14.604><c>267 </c><00:02:14.940><c>56 </c><00:02:15.276><c>90 </c><00:02:15.612><c>have </c><00:02:15.948><c>also </c><00:02:16.284><c>been </c><00:02:16.620><c>added.</c>
+
+00:02:16.729 --> 00:02:16.739 align:start position:0%
+you can see that 267 56 90 have also been added.
+ 
+
+00:02:16.739 --> 00:02:19.970 align:start position:0%
+you can see that 267 56 90 have also been added.
+Now, <00:02:17.179><c>the </c><00:02:17.619><c>set </c><00:02:18.059><c>is </c><00:02:18.499><c>unordered </c><00:02:18.939><c>in </c><00:02:19.379><c>Python,</c>
+
+00:02:19.970 --> 00:02:19.980 align:start position:0%
+Now, the set is unordered in Python,
+ 
+
+00:02:19.980 --> 00:02:22.010 align:start position:0%
+Now, the set is unordered in Python,
+you <00:02:20.237><c>must </c><00:02:20.494><c>be </c><00:02:20.751><c>aware </c><00:02:21.008><c>of </c><00:02:21.265><c>this, </c><00:02:21.522><c>but </c><00:02:21.779><c>the</c>
+
+00:02:22.010 --> 00:02:22.020 align:start position:0%
+you must be aware of this, but the
+ 
+
+00:02:22.020 --> 00:02:25.610 align:start position:0%
+you must be aware of this, but the
+dictionary <00:02:22.405><c>is </c><00:02:22.790><c>ordered </c><00:02:23.175><c>in </c><00:02:23.560><c>Python </c><00:02:23.945><c>3.7 </c><00:02:24.330><c>onwards. </c><00:02:24.715><c>So,</c>
+
+00:02:25.610 --> 00:02:25.620 align:start position:0%
+dictionary is ordered in Python 3.7 onwards. So,
+ 
+
+00:02:25.620 --> 00:02:27.890 align:start position:0%
+dictionary is ordered in Python 3.7 onwards. So,
+set <00:02:26.340><c>unorder </c><00:02:27.060><c>is </c><00:02:27.780><c>the</c>
+
+00:02:27.890 --> 00:02:27.900 align:start position:0%
+set unorder is the
+ 
+
+00:02:27.900 --> 00:02:29.750 align:start position:0%
+set unorder is the
+dictionary <00:02:28.148><c>order </c><00:02:28.396><c>of </c><00:02:28.644><c>Python. </c><00:02:28.892><c>In </c><00:02:29.140><c>this </c><00:02:29.388><c>way, </c><00:02:29.636><c>we</c>
+
+00:02:29.750 --> 00:02:29.760 align:start position:0%
+dictionary order of Python. In this way, we
+ 
+
+00:02:29.760 --> 00:02:31.910 align:start position:0%
+dictionary order of Python. In this way, we
+can <00:02:30.060><c>use </c><00:02:30.360><c>the </c><00:02:30.660><c>get </c><00:02:30.960><c>method. </c><00:02:31.260><c>Now, </c><00:02:31.560><c>we</c>
+
+00:02:31.910 --> 00:02:31.920 align:start position:0%
+can use the get method. Now, we
+ 
+
+00:02:31.920 --> 00:02:33.949 align:start position:0%
+can use the get method. Now, we
+can <00:02:32.196><c>use </c><00:02:32.472><c>the </c><00:02:32.748><c>clear </c><00:02:33.024><c>method </c><00:02:33.300><c>to</c>
+
+00:02:33.949 --> 00:02:33.959 align:start position:0%
+can use the clear method to
+ 
+
+00:02:33.959 --> 00:02:35.330 align:start position:0%
+can use the clear method to
+clear <00:02:34.211><c>all </c><00:02:34.463><c>the </c><00:02:34.715><c>dictionaries. </c><00:02:34.967><c>So, </c><00:02:35.219><c>if</c>
+
+00:02:35.330 --> 00:02:35.340 align:start position:0%
+clear all the dictionaries. So, if
+ 
+
+00:02:35.340 --> 00:02:38.530 align:start position:0%
+clear all the dictionaries. So, if
+I <00:02:35.707><c>do </c><00:02:36.074><c>not </c><00:02:36.441><c>do </c><00:02:36.808><c>ep1 </c><00:02:37.175><c>here, </c><00:02:37.542><c>if </c><00:02:37.909><c>I </c><00:02:38.276><c>do</c>
+
+00:02:38.530 --> 00:02:38.540 align:start position:0%
+I do not do ep1 here, if I do
+ 
+
+00:02:38.540 --> 00:02:42.229 align:start position:0%
+I do not do ep1 here, if I do
+ep1 <00:02:38.911><c>clear, </c><00:02:39.282><c>then </c><00:02:39.653><c>what </c><00:02:40.024><c>will </c><00:02:40.395><c>happen </c><00:02:40.766><c>is </c><00:02:41.137><c>that </c><00:02:41.508><c>ep1 </c><00:02:41.879><c>will</c>
+
+00:02:42.229 --> 00:02:42.239 align:start position:0%
+ep1 clear, then what will happen is that ep1 will
+ 
+
+00:02:42.239 --> 00:02:44.089 align:start position:0%
+ep1 clear, then what will happen is that ep1 will
+become <00:02:42.375><c>a </c><00:02:42.511><c>completely </c><00:02:42.647><c>empty </c><00:02:42.783><c>dictionary </c><00:02:42.919><c>and </c><00:02:43.055><c>we </c><00:02:43.191><c>will </c><00:02:43.327><c>get </c><00:02:43.463><c>an </c><00:02:43.599><c>empty </c><00:02:43.735><c>dictionary</c>
+
+00:02:44.089 --> 00:02:44.099 align:start position:0%
+become a completely empty dictionary and we will get an empty dictionary
+ 
+
+00:02:44.099 --> 00:02:45.410 align:start position:0%
+become a completely empty dictionary and we will get an empty dictionary
+printed <00:02:45.239><c>here.</c>
+
+00:02:45.410 --> 00:02:45.420 align:start position:0%
+printed here.
+ 
+
+00:02:45.420 --> 00:02:47.990 align:start position:0%
+printed here.
+Okay, <00:02:45.727><c>how </c><00:02:46.034><c>do </c><00:02:46.341><c>we </c><00:02:46.648><c>create </c><00:02:46.955><c>a </c><00:02:47.262><c>mat </c><00:02:47.569><c>dictionary? </c><00:02:47.876><c>We</c>
+
+00:02:47.990 --> 00:02:48.000 align:start position:0%
+Okay, how do we create a mat dictionary? We
+ 
+
+00:02:48.000 --> 00:02:51.670 align:start position:0%
+Okay, how do we create a mat dictionary? We
+create <00:02:48.257><c>it </c><00:02:48.514><c>exactly </c><00:02:48.771><c>like </c><00:02:49.028><c>this. </c><00:02:49.285><c>If </c><00:02:49.542><c>I </c><00:02:49.799><c>make </c><00:02:50.056><c>a</c>
+
+00:02:51.670 --> 00:02:51.680 align:start position:0%
+create it exactly like this. If I make a
+ 
+
+00:02:51.680 --> 00:02:55.369 align:start position:0%
+create it exactly like this. If I make a
+pt <00:02:51.958><c>equal </c><00:02:52.236><c>to </c><00:02:52.514><c>this </c><00:02:52.792><c>and </c><00:02:53.070><c>do </c><00:02:53.348><c>this, </c><00:02:53.626><c>then </c><00:02:53.904><c>this </c><00:02:54.182><c>will </c><00:02:54.460><c>become </c><00:02:54.738><c>a </c><00:02:55.016><c>mat</c>
+
+00:02:55.369 --> 00:02:55.379 align:start position:0%
+pt equal to this and do this, then this will become a mat
+ 
+
+00:02:55.379 --> 00:02:57.470 align:start position:0%
+pt equal to this and do this, then this will become a mat
+dictionary. <00:02:56.039><c>So, </c><00:02:56.699><c>if </c><00:02:57.359><c>I</c>
+
+00:02:57.470 --> 00:02:57.480 align:start position:0%
+dictionary. So, if I
+ 
+
+00:02:57.480 --> 00:02:59.030 align:start position:0%
+dictionary. So, if I
+print <00:02:57.652><c>this </c><00:02:57.824><c>mpt, </c><00:02:57.996><c>then </c><00:02:58.168><c>an </c><00:02:58.340><c>empty </c><00:02:58.512><c>dictionary </c><00:02:58.684><c>will </c><00:02:58.856><c>be</c>
+
+00:02:59.030 --> 00:02:59.040 align:start position:0%
+print this mpt, then an empty dictionary will be
+ 
+
+00:02:59.040 --> 00:03:01.910 align:start position:0%
+print this mpt, then an empty dictionary will be
+printed. <00:02:59.592><c>Okay, </c><00:03:00.144><c>similarly, </c><00:03:00.696><c>we </c><00:03:01.248><c>have </c><00:03:01.800><c>a</c>
+
+00:03:01.910 --> 00:03:01.920 align:start position:0%
+printed. Okay, similarly, we have a
+ 
+
+00:03:01.920 --> 00:03:05.030 align:start position:0%
+printed. Okay, similarly, we have a
+pop <00:03:02.420><c>method </c><00:03:02.920><c>which </c><00:03:03.420><c>returns </c><00:03:03.920><c>a </c><00:03:04.420><c>value. </c><00:03:04.920><c>So,</c>
+
+00:03:05.030 --> 00:03:05.040 align:start position:0%
+pop method which returns a value. So,
+ 
+
+00:03:05.040 --> 00:03:07.910 align:start position:0%
+pop method which returns a value. So,
+if <00:03:05.377><c>I </c><00:03:05.714><c>tell </c><00:03:06.051><c>you </c><00:03:06.388><c>guys  </c><00:03:06.725><c>I </c><00:03:07.062><c>will </c><00:03:07.399><c>show </c><00:03:07.736><c>here,</c>
+
+00:03:07.910 --> 00:03:12.070 align:start position:0%
+if I tell you guys  I will show here,
+ 
+
+00:03:12.070 --> 00:03:12.080 align:start position:0%
+ 
+ 
+
+00:03:12.080 --> 00:03:15.589 align:start position:0%
+ 
+what <00:03:12.372><c>I </c><00:03:12.664><c>will </c><00:03:12.956><c>do </c><00:03:13.248><c>is </c><00:03:13.540><c>remove </c><00:03:13.832><c>the </c><00:03:14.124><c>key </c><00:03:14.416><c>value </c><00:03:14.708><c>of </c><00:03:15.000><c>this </c><00:03:15.292><c>one,</c>
+
+00:03:15.589 --> 00:03:15.599 align:start position:0%
+what I will do is remove the key value of this one,
+ 
+
+00:03:15.599 --> 00:03:21.910 align:start position:0%
+what I will do is remove the key value of this one,
+so <00:03:16.045><c>look, </c><00:03:16.491><c>there </c><00:03:16.937><c>was </c><00:03:17.383><c>a </c><00:03:17.829><c>method </c><00:03:18.275><c>123, </c><00:03:18.721><c>567, </c><00:03:19.167><c>and </c><00:03:19.613><c>670,</c>
+
+00:03:21.910 --> 00:03:21.920 align:start position:0%
+so look, there was a method 123, 567, and 670,
+ 
+
+00:03:21.920 --> 00:03:24.229 align:start position:0%
+so look, there was a method 123, 567, and 670,
+I <00:03:22.425><c>commented </c><00:03:22.930><c>it </c><00:03:23.435><c>out, </c><00:03:23.940><c>so</c>
+
+00:03:24.229 --> 00:03:24.239 align:start position:0%
+I commented it out, so
+ 
+
+00:03:24.239 --> 00:03:25.610 align:start position:0%
+I commented it out, so
+you <00:03:24.554><c>can't </c><00:03:24.869><c>see </c><00:03:25.184><c>these </c><00:03:25.499><c>values,</c>
+
+00:03:25.610 --> 00:03:25.620 align:start position:0%
+you can't see these values,
+ 
+
+00:03:25.620 --> 00:03:29.270 align:start position:0%
+you can't see these values,
+okay, <00:03:27.359><c>so </c><00:03:29.098><c>I</c>
+
+00:03:29.270 --> 00:03:29.280 align:start position:0%
+okay, so I
+ 
+
+00:03:29.280 --> 00:03:31.369 align:start position:0%
+okay, so I
+can <00:03:29.444><c>remove </c><00:03:29.608><c>just </c><00:03:29.772><c>one </c><00:03:29.936><c>value </c><00:03:30.100><c>by </c><00:03:30.264><c>popping </c><00:03:30.428><c>it, </c><00:03:30.592><c>okay,</c>
+
+00:03:31.369 --> 00:03:31.379 align:start position:0%
+can remove just one value by popping it, okay,
+ 
+
+00:03:31.379 --> 00:03:34.250 align:start position:0%
+can remove just one value by popping it, okay,
+what <00:03:31.643><c>pop </c><00:03:31.907><c>item </c><00:03:32.171><c>does </c><00:03:32.435><c>is </c><00:03:32.699><c>it </c><00:03:32.963><c>removes </c><00:03:33.227><c>the </c><00:03:33.491><c>last </c><00:03:33.755><c>key </c><00:03:34.019><c>value</c>
+
+00:03:34.250 --> 00:03:34.260 align:start position:0%
+what pop item does is it removes the last key value
+ 
+
+00:03:34.260 --> 00:03:36.050 align:start position:0%
+what pop item does is it removes the last key value
+from <00:03:34.860><c>the </c><00:03:35.460><c>dictionary, </c><00:03:36.060><c>okay,</c>
+
+00:03:36.050 --> 00:03:36.060 align:start position:0%
+from the dictionary, okay,
+ 
+
+00:03:36.060 --> 00:03:38.330 align:start position:0%
+from the dictionary, okay,
+so <00:03:36.300><c>you </c><00:03:36.540><c>simply </c><00:03:36.780><c>have </c><00:03:37.020><c>to </c><00:03:37.260><c>do </c><00:03:37.500><c>is, </c><00:03:37.740><c>if </c><00:03:37.980><c>you </c><00:03:38.220><c>want</c>
+
+00:03:38.330 --> 00:03:41.890 align:start position:0%
+so you simply have to do is, if you want
+ 
+
+00:03:41.890 --> 00:03:41.900 align:start position:0%
+ 
+ 
+
+00:03:41.900 --> 00:03:44.509 align:start position:0%
+ 
+this <00:03:42.205><c>entry </c><00:03:42.510><c>6769 </c><00:03:42.815><c>to </c><00:03:43.120><c>be </c><00:03:43.425><c>removed </c><00:03:43.730><c>from </c><00:03:44.035><c>ep1, </c><00:03:44.340><c>then</c>
+
+00:03:44.509 --> 00:03:44.519 align:start position:0%
+this entry 6769 to be removed from ep1, then
+ 
+
+00:03:44.519 --> 00:03:46.850 align:start position:0%
+this entry 6769 to be removed from ep1, then
+what <00:03:44.735><c>you </c><00:03:44.951><c>will </c><00:03:45.167><c>do </c><00:03:45.383><c>is </c><00:03:45.599><c>you </c><00:03:45.815><c>will </c><00:03:46.031><c>use </c><00:03:46.247><c>pop </c><00:03:46.463><c>item </c><00:03:46.679><c>here</c>
+
+00:03:46.850 --> 00:03:46.860 align:start position:0%
+what you will do is you will use pop item here
+ 
+
+00:03:46.860 --> 00:03:50.210 align:start position:0%
+what you will do is you will use pop item here
+and <00:03:47.474><c>write </c><00:03:48.088><c>670 </c><00:03:48.702><c>here, </c><00:03:49.316><c>okay,</c>
+
+00:03:50.210 --> 00:03:50.220 align:start position:0%
+and write 670 here, okay,
+ 
+
+00:03:50.220 --> 00:03:52.610 align:start position:0%
+and write 670 here, okay,
+what <00:03:50.429><c>will </c><00:03:50.638><c>happen </c><00:03:50.847><c>by </c><00:03:51.056><c>writing </c><00:03:51.265><c>670 </c><00:03:51.474><c>is </c><00:03:51.683><c>that </c><00:03:51.892><c>your </c><00:03:52.101><c>pop </c><00:03:52.310><c>item</c>
+
+00:03:52.610 --> 00:03:52.620 align:start position:0%
+what will happen by writing 670 is that your pop item
+ 
+
+00:03:52.620 --> 00:03:55.130 align:start position:0%
+what will happen by writing 670 is that your pop item
+method <00:03:53.009><c>will </c><00:03:53.398><c>do </c><00:03:53.787><c>this, </c><00:03:54.176><c>sorry, </c><00:03:54.565><c>I </c><00:03:54.954><c>do</c>
+
+00:03:55.130 --> 00:03:55.140 align:start position:0%
+method will do this, sorry, I do
+ 
+
+00:03:55.140 --> 00:03:57.170 align:start position:0%
+method will do this, sorry, I do
+n't <00:03:55.313><c>need </c><00:03:55.486><c>to </c><00:03:55.659><c>write </c><00:03:55.832><c>670, </c><00:03:56.005><c>I </c><00:03:56.178><c>will </c><00:03:56.351><c>just </c><00:03:56.524><c>write </c><00:03:56.697><c>pop </c><00:03:56.870><c>item,</c>
+
+00:03:57.170 --> 00:03:57.180 align:start position:0%
+n't need to write 670, I will just write pop item,
+ 
+
+00:03:57.180 --> 00:03:59.330 align:start position:0%
+n't need to write 670, I will just write pop item,
+and <00:03:57.386><c>automatically </c><00:03:57.592><c>670 </c><00:03:57.798><c>will </c><00:03:58.004><c>be </c><00:03:58.210><c>added </c><00:03:58.416><c>from </c><00:03:58.622><c>here, </c><00:03:58.828><c>okay, </c><00:03:59.034><c>so</c>
+
+00:03:59.330 --> 00:03:59.340 align:start position:0%
+and automatically 670 will be added from here, okay, so
+ 
+
+00:03:59.340 --> 00:04:01.250 align:start position:0%
+and automatically 670 will be added from here, okay, so
+you <00:03:59.557><c>can </c><00:03:59.774><c>see </c><00:03:59.991><c>here </c><00:04:00.208><c>that </c><00:04:00.425><c>the </c><00:04:00.642><c>value </c><00:04:00.859><c>that </c><00:04:01.076><c>is</c>
+
+00:04:01.250 --> 00:04:01.260 align:start position:0%
+you can see here that the value that is
+ 
+
+00:04:01.260 --> 00:04:03.649 align:start position:0%
+you can see here that the value that is
+printed <00:04:01.785><c>is </c><00:04:02.310><c>still </c><00:04:02.835><c>missing </c><00:04:03.360><c>670,</c>
+
+00:04:03.649 --> 00:04:03.659 align:start position:0%
+printed is still missing 670,
+ 
+
+00:04:03.659 --> 00:04:05.869 align:start position:0%
+printed is still missing 670,
+okay, <00:04:03.959><c>so </c><00:04:04.259><c>I </c><00:04:04.559><c>just </c><00:04:04.859><c>need </c><00:04:05.159><c>to </c><00:04:05.459><c>write </c><00:04:05.759><c>item,</c>
+
+00:04:05.869 --> 00:04:05.879 align:start position:0%
+okay, so I just need to write item,
+ 
+
+00:04:05.879 --> 00:04:08.210 align:start position:0%
+okay, so I just need to write item,
+and <00:04:06.112><c>the </c><00:04:06.345><c>last </c><00:04:06.578><c>key </c><00:04:06.811><c>value </c><00:04:07.044><c>of </c><00:04:07.277><c>mine </c><00:04:07.510><c>will </c><00:04:07.743><c>be </c><00:04:07.976><c>added.</c>
+
+00:04:08.210 --> 00:04:10.610 align:start position:0%
+and the last key value of mine will be added.
+ 
+
+00:04:10.610 --> 00:04:10.620 align:start position:0%
+ 
+ 
+
+00:04:10.620 --> 00:04:12.710 align:start position:0%
+ 
+Again <00:04:10.799><c>from </c><00:04:10.978><c>the </c><00:04:11.157><c>dictionary </c><00:04:11.336><c>there </c><00:04:11.515><c>is </c><00:04:11.694><c>this </c><00:04:11.873><c>undel </c><00:04:12.052><c>key </c><00:04:12.231><c>word </c><00:04:12.410><c>which </c><00:04:12.589><c>we</c>
+
+00:04:12.710 --> 00:04:12.720 align:start position:0%
+Again from the dictionary there is this undel key word which we
+ 
+
+00:04:12.720 --> 00:04:14.990 align:start position:0%
+Again from the dictionary there is this undel key word which we
+saw <00:04:12.968><c>in </c><00:04:13.216><c>the </c><00:04:13.464><c>set, </c><00:04:13.712><c>if </c><00:04:13.960><c>you </c><00:04:14.208><c>remember, </c><00:04:14.456><c>what</c>
+
+00:04:14.990 --> 00:04:15.000 align:start position:0%
+saw in the set, if you remember, what
+ 
+
+00:04:15.000 --> 00:04:17.569 align:start position:0%
+saw in the set, if you remember, what
+this <00:04:15.390><c>liquid </c><00:04:15.780><c>does </c><00:04:16.170><c>is </c><00:04:16.560><c>it </c><00:04:16.950><c>deletes </c><00:04:17.340><c>the</c>
+
+00:04:17.569 --> 00:04:17.579 align:start position:0%
+this liquid does is it deletes the
+ 
+
+00:04:17.579 --> 00:04:19.909 align:start position:0%
+this liquid does is it deletes the
+entire <00:04:17.819><c>dictionary, </c><00:04:18.059><c>so </c><00:04:18.299><c>if </c><00:04:18.539><c>you </c><00:04:18.779><c>press </c><00:04:19.019><c>the </c><00:04:19.259><c>key </c><00:04:19.499><c>here, </c><00:04:19.739><c>I</c>
+
+00:04:19.909 --> 00:04:19.919 align:start position:0%
+entire dictionary, so if you press the key here, I
+ 
+
+00:04:19.919 --> 00:04:21.229 align:start position:0%
+entire dictionary, so if you press the key here, I
+know <00:04:20.339><c>I </c><00:04:20.759><c>have </c><00:04:21.179><c>typed</c>
+
+00:04:21.229 --> 00:04:21.239 align:start position:0%
+know I have typed
+ 
+
+00:04:21.239 --> 00:04:23.930 align:start position:0%
+know I have typed
+Delhi <00:04:21.491><c>P </c><00:04:21.743><c>van </c><00:04:21.995><c>here, </c><00:04:22.247><c>then </c><00:04:22.499><c>I </c><00:04:22.751><c>will </c><00:04:23.003><c>get </c><00:04:23.255><c>what </c><00:04:23.507><c>is </c><00:04:23.759><c>it</c>
+
+00:04:23.930 --> 00:04:23.940 align:start position:0%
+Delhi P van here, then I will get what is it
+ 
+
+00:04:23.940 --> 00:04:26.030 align:start position:0%
+Delhi P van here, then I will get what is it
+brother, <00:04:24.269><c>now </c><00:04:24.598><c>line </c><00:04:24.927><c>number </c><00:04:25.256><c>nine </c><00:04:25.585><c>will </c><00:04:25.914><c>say</c>
+
+00:04:26.030 --> 00:04:26.040 align:start position:0%
+brother, now line number nine will say
+ 
+
+00:04:26.040 --> 00:04:27.710 align:start position:0%
+brother, now line number nine will say
+brother <00:04:26.183><c>what </c><00:04:26.326><c>is </c><00:04:26.469><c>IP </c><00:04:26.612><c>van </c><00:04:26.755><c>and </c><00:04:26.898><c>what </c><00:04:27.041><c>will </c><00:04:27.184><c>it </c><00:04:27.327><c>say </c><00:04:27.470><c>to</c>
+
+00:04:27.710 --> 00:04:27.720 align:start position:0%
+brother what is IP van and what will it say to
+ 
+
+00:04:27.720 --> 00:04:31.730 align:start position:0%
+brother what is IP van and what will it say to
+me, <00:04:28.360><c>van </c><00:04:29.000><c>is </c><00:04:29.640><c>not </c><00:04:30.280><c>defined, </c><00:04:30.920><c>okay, </c><00:04:31.560><c>so</c>
+
+00:04:31.730 --> 00:04:31.740 align:start position:0%
+me, van is not defined, okay, so
+ 
+
+00:04:31.740 --> 00:04:33.350 align:start position:0%
+me, van is not defined, okay, so
+we <00:04:31.881><c>can </c><00:04:32.022><c>do </c><00:04:32.163><c>this </c><00:04:32.304><c>kind </c><00:04:32.445><c>of </c><00:04:32.586><c>thing </c><00:04:32.727><c>from </c><00:04:32.868><c>the </c><00:04:33.009><c>dictionary, </c><00:04:33.150><c>okay, </c><00:04:33.291><c>so</c>
+
+00:04:33.350 --> 00:04:33.360 align:start position:0%
+we can do this kind of thing from the dictionary, okay, so
+ 
+
+00:04:33.360 --> 00:04:35.090 align:start position:0%
+we can do this kind of thing from the dictionary, okay, so
+I <00:04:33.650><c>will </c><00:04:33.940><c>comment </c><00:04:34.230><c>it </c><00:04:34.520><c>out </c><00:04:34.810><c>a </c><00:04:35.100><c>little</c>
+
+00:04:35.090 --> 00:04:35.100 align:start position:0%
+I will comment it out a little
+ 
+
+00:04:35.100 --> 00:04:37.790 align:start position:0%
+I will comment it out a little
+so <00:04:35.960><c>that </c><00:04:36.820><c>we </c><00:04:37.680><c>do</c>
+
+00:04:37.790 --> 00:04:37.800 align:start position:0%
+so that we do
+ 
+
+00:04:37.800 --> 00:04:40.129 align:start position:0%
+so that we do
+not <00:04:38.001><c>see </c><00:04:38.202><c>this </c><00:04:38.403><c>van </c><00:04:38.604><c>is </c><00:04:38.805><c>not </c><00:04:39.006><c>defined </c><00:04:39.207><c>iron, </c><00:04:39.408><c>if </c><00:04:39.609><c>it </c><00:04:39.810><c>is </c><00:04:40.011><c>not</c>
+
+00:04:40.129 --> 00:04:40.139 align:start position:0%
+not see this van is not defined iron, if it is not
+ 
+
+00:04:40.139 --> 00:04:41.870 align:start position:0%
+not see this van is not defined iron, if it is not
+provided <00:04:40.344><c>in </c><00:04:40.549><c>the </c><00:04:40.754><c>deal </c><00:04:40.959><c>keyboard, </c><00:04:41.164><c>it </c><00:04:41.369><c>will </c><00:04:41.574><c>delete</c>
+
+00:04:41.870 --> 00:04:41.880 align:start position:0%
+provided in the deal keyboard, it will delete
+ 
+
+00:04:41.880 --> 00:04:44.390 align:start position:0%
+provided in the deal keyboard, it will delete
+the <00:04:42.205><c>dictionary </c><00:04:42.530><c>and </c><00:04:42.855><c>delete, </c><00:04:43.180><c>okay, </c><00:04:43.505><c>if </c><00:04:43.830><c>you </c><00:04:44.155><c>do</c>
+
+00:04:44.390 --> 00:04:44.400 align:start position:0%
+the dictionary and delete, okay, if you do
+ 
+
+00:04:44.400 --> 00:04:47.330 align:start position:0%
+the dictionary and delete, okay, if you do
+not <00:04:44.850><c>delete </c><00:04:45.300><c>like </c><00:04:45.750><c>this, </c><00:04:46.200><c>then </c><00:04:46.650><c>the </c><00:04:47.100><c>entire</c>
+
+00:04:47.330 --> 00:04:47.340 align:start position:0%
+not delete like this, then the entire
+ 
+
+00:04:47.340 --> 00:04:49.129 align:start position:0%
+not delete like this, then the entire
+dictionary <00:04:47.652><c>will </c><00:04:47.964><c>be </c><00:04:48.276><c>deleted </c><00:04:48.588><c>like </c><00:04:48.900><c>we</c>
+
+00:04:49.129 --> 00:04:49.139 align:start position:0%
+dictionary will be deleted like we
+ 
+
+00:04:49.139 --> 00:04:51.409 align:start position:0%
+dictionary will be deleted like we
+did <00:04:49.447><c>here, </c><00:04:49.755><c>but </c><00:04:50.063><c>if </c><00:04:50.371><c>you </c><00:04:50.679><c>press </c><00:04:50.987><c>one </c><00:04:51.295><c>key,</c>
+
+00:04:51.409 --> 00:04:51.419 align:start position:0%
+did here, but if you press one key,
+ 
+
+00:04:51.419 --> 00:04:53.930 align:start position:0%
+did here, but if you press one key,
+you <00:04:51.637><c>say </c><00:04:51.855><c>that </c><00:04:52.073><c>brother </c><00:04:52.291><c>I </c><00:04:52.509><c>want </c><00:04:52.727><c>to </c><00:04:52.945><c>delete </c><00:04:53.163><c>1 </c><00:04:53.381><c>2 </c><00:04:53.599><c>2, </c><00:04:53.817><c>then</c>
+
+00:04:53.930 --> 00:04:53.940 align:start position:0%
+you say that brother I want to delete 1 2 2, then
+ 
+
+00:04:53.940 --> 00:04:56.090 align:start position:0%
+you say that brother I want to delete 1 2 2, then
+sorry <00:04:54.187><c>122 </c><00:04:54.434><c>is </c><00:04:54.681><c>not </c><00:04:54.928><c>an </c><00:04:55.175><c>un </c><00:04:55.422><c>string </c><00:04:55.669><c>after </c><00:04:55.916><c>that</c>
+
+00:04:56.090 --> 00:04:56.100 align:start position:0%
+sorry 122 is not an un string after that
+ 
+
+00:04:56.100 --> 00:04:58.129 align:start position:0%
+sorry 122 is not an un string after that
+because <00:04:56.280><c>1 </c><00:04:56.460><c>2 </c><00:04:56.640><c>2 </c><00:04:56.820><c>is </c><00:04:57.000><c>an </c><00:04:57.180><c>end </c><00:04:57.360><c>wait, </c><00:04:57.540><c>so </c><00:04:57.720><c>I </c><00:04:57.900><c>will</c>
+
+00:04:58.129 --> 00:04:58.139 align:start position:0%
+because 1 2 2 is an end wait, so I will
+ 
+
+00:04:58.139 --> 00:05:01.730 align:start position:0%
+because 1 2 2 is an end wait, so I will
+write <00:04:58.452><c>1 </c><00:04:58.765><c>2 </c><00:04:59.078><c>2 </c><00:04:59.391><c>like </c><00:04:59.704><c>this, </c><00:05:00.017><c>okay, </c><00:05:00.330><c>so </c><00:05:00.643><c>122 </c><00:05:00.956><c>colon</c>
+
+00:05:01.730 --> 00:05:01.740 align:start position:0%
+write 1 2 2 like this, okay, so 122 colon
+ 
+
+00:05:01.740 --> 00:05:03.830 align:start position:0%
+write 1 2 2 like this, okay, so 122 colon
+45  <00:05:02.190><c>The </c><00:05:02.640><c>entry </c><00:05:03.090><c>will </c><00:05:03.540><c>go</c>
+
+00:05:03.830 --> 00:05:03.840 align:start position:0%
+45  The entry will go
+ 
+
+00:05:03.840 --> 00:05:06.110 align:start position:0%
+45  The entry will go
+from <00:05:04.020><c>my </c><00:05:04.200><c>dictionary, </c><00:05:04.380><c>what </c><00:05:04.560><c>is </c><00:05:04.740><c>this, </c><00:05:04.920><c>if </c><00:05:05.100><c>I </c><00:05:05.280><c>write </c><00:05:05.460><c>it </c><00:05:05.640><c>like </c><00:05:05.820><c>this </c><00:05:06.000><c>and</c>
+
+00:05:06.110 --> 00:05:07.270 align:start position:0%
+from my dictionary, what is this, if I write it like this and
+ 
+
+00:05:07.270 --> 00:05:07.280 align:start position:0%
+ 
+ 
+
+00:05:07.280 --> 00:05:10.670 align:start position:0%
+ 
+say <00:05:07.624><c>that </c><00:05:07.968><c>brother, </c><00:05:08.312><c>remove </c><00:05:08.656><c>122, </c><00:05:09.000><c>then </c><00:05:09.344><c>I </c><00:05:09.688><c>will </c><00:05:10.032><c>get </c><00:05:10.376><c>an</c>
+
+00:05:10.670 --> 00:05:10.680 align:start position:0%
+say that brother, remove 122, then I will get an
+ 
+
+00:05:10.680 --> 00:05:12.830 align:start position:0%
+say that brother, remove 122, then I will get an
+error, <00:05:11.340><c>many </c><00:05:12.000><c>people </c><00:05:12.660><c>get</c>
+
+00:05:12.830 --> 00:05:12.840 align:start position:0%
+error, many people get
+ 
+
+00:05:12.840 --> 00:05:14.450 align:start position:0%
+error, many people get
+confused <00:05:13.128><c>in </c><00:05:13.416><c>this </c><00:05:13.704><c>thing </c><00:05:13.992><c>that </c><00:05:14.280><c>friend,</c>
+
+00:05:14.450 --> 00:05:14.460 align:start position:0%
+confused in this thing that friend,
+ 
+
+00:05:14.460 --> 00:05:17.390 align:start position:0%
+confused in this thing that friend,
+122 <00:05:14.900><c>was </c><00:05:15.340><c>there </c><00:05:15.780><c>in </c><00:05:16.220><c>the </c><00:05:16.660><c>entire </c><00:05:17.100><c>history,</c>
+
+00:05:17.390 --> 00:05:17.400 align:start position:0%
+122 was there in the entire history,
+ 
+
+00:05:17.400 --> 00:05:19.070 align:start position:0%
+122 was there in the entire history,
+why <00:05:17.526><c>am </c><00:05:17.652><c>I </c><00:05:17.778><c>getting </c><00:05:17.904><c>this </c><00:05:18.030><c>error, </c><00:05:18.156><c>friend, </c><00:05:18.282><c>you </c><00:05:18.408><c>are </c><00:05:18.534><c>getting </c><00:05:18.660><c>it</c>
+
+00:05:19.070 --> 00:05:19.080 align:start position:0%
+why am I getting this error, friend, you are getting it
+ 
+
+00:05:19.080 --> 00:05:22.370 align:start position:0%
+why am I getting this error, friend, you are getting it
+because <00:05:19.517><c>you </c><00:05:19.954><c>are </c><00:05:20.391><c>seeing </c><00:05:20.828><c>van </c><00:05:21.265><c>you, </c><00:05:21.702><c>today's </c><00:05:22.139><c>un</c>
+
+00:05:22.370 --> 00:05:22.380 align:start position:0%
+because you are seeing van you, today's un
+ 
+
+00:05:22.380 --> 00:05:24.290 align:start position:0%
+because you are seeing van you, today's un
+string <00:05:22.740><c>and </c><00:05:23.100><c>further </c><00:05:23.460><c>ahead </c><00:05:23.820><c>there</c>
+
+00:05:24.290 --> 00:05:24.300 align:start position:0%
+string and further ahead there
+ 
+
+00:05:24.300 --> 00:05:27.230 align:start position:0%
+string and further ahead there
+is <00:05:24.566><c>your </c><00:05:24.832><c>end </c><00:05:25.098><c>wait, </c><00:05:25.364><c>which </c><00:05:25.630><c>is </c><00:05:25.896><c>in </c><00:05:26.162><c>ep1, </c><00:05:26.428><c>that </c><00:05:26.694><c>is</c>
+
+00:05:27.230 --> 00:05:27.240 align:start position:0%
+is your end wait, which is in ep1, that is
+ 
+
+00:05:27.240 --> 00:05:29.450 align:start position:0%
+is your end wait, which is in ep1, that is
+today's <00:05:27.438><c>un </c><00:05:27.636><c>wait, </c><00:05:27.834><c>okay, </c><00:05:28.032><c>so </c><00:05:28.230><c>you </c><00:05:28.428><c>should </c><00:05:28.626><c>know </c><00:05:28.824><c>this </c><00:05:29.022><c>thing, </c><00:05:29.220><c>so</c>
+
+00:05:29.450 --> 00:05:29.460 align:start position:0%
+today's un wait, okay, so you should know this thing, so
+ 
+
+00:05:29.460 --> 00:05:31.129 align:start position:0%
+today's un wait, okay, so you should know this thing, so
+I <00:05:29.674><c>will </c><00:05:29.888><c>do </c><00:05:30.102><c>it </c><00:05:30.316><c>like </c><00:05:30.530><c>this </c><00:05:30.744><c>here </c><00:05:30.958><c>also</c>
+
+00:05:31.129 --> 00:05:31.139 align:start position:0%
+I will do it like this here also
+ 
+
+00:05:31.139 --> 00:05:32.810 align:start position:0%
+I will do it like this here also
+so <00:05:31.305><c>that </c><00:05:31.471><c>this </c><00:05:31.637><c>error </c><00:05:31.803><c>does </c><00:05:31.969><c>not </c><00:05:32.135><c>come, </c><00:05:32.301><c>friend, </c><00:05:32.467><c>I </c><00:05:32.633><c>hope</c>
+
+00:05:32.810 --> 00:05:32.820 align:start position:0%
+so that this error does not come, friend, I hope
+ 
+
+00:05:32.820 --> 00:05:34.909 align:start position:0%
+so that this error does not come, friend, I hope
+you <00:05:33.330><c>people </c><00:05:33.840><c>understood </c><00:05:34.350><c>this </c><00:05:34.860><c>thing,</c>
+
+00:05:34.909 --> 00:05:34.919 align:start position:0%
+you people understood this thing,
+ 
+
+00:05:34.919 --> 00:05:37.790 align:start position:0%
+you people understood this thing,
+so <00:05:35.389><c>it </c><00:05:35.859><c>is </c><00:05:36.329><c>exactly </c><00:05:36.799><c>the </c><00:05:37.269><c>same </c><00:05:37.739><c>thing</c>
+
+00:05:37.790 --> 00:05:37.800 align:start position:0%
+so it is exactly the same thing
+ 
+
+00:05:37.800 --> 00:05:40.010 align:start position:0%
+so it is exactly the same thing
+which <00:05:38.340><c>we </c><00:05:38.880><c>saw </c><00:05:39.420><c>for </c><00:05:39.960><c>list,</c>
+
+00:05:40.010 --> 00:05:40.020 align:start position:0%
+which we saw for list,
+ 
+
+00:05:40.020 --> 00:05:41.749 align:start position:0%
+which we saw for list,
+see <00:05:40.299><c>for </c><00:05:40.578><c>tuple, </c><00:05:40.857><c>see </c><00:05:41.136><c>for </c><00:05:41.415><c>set, </c><00:05:41.694><c>the</c>
+
+00:05:41.749 --> 00:05:41.759 align:start position:0%
+see for tuple, see for set, the
+ 
+
+00:05:41.759 --> 00:05:44.689 align:start position:0%
+see for tuple, see for set, the
+same <00:05:41.943><c>thing </c><00:05:42.127><c>is </c><00:05:42.311><c>for </c><00:05:42.495><c>dictionary </c><00:05:42.679><c>also, </c><00:05:42.863><c>there </c><00:05:43.047><c>are </c><00:05:43.231><c>some </c><00:05:43.415><c>methods, </c><00:05:43.599><c>it </c><00:05:43.783><c>is </c><00:05:43.967><c>a </c><00:05:44.151><c>data</c>
+
+00:05:44.689 --> 00:05:44.699 align:start position:0%
+same thing is for dictionary also, there are some methods, it is a data
+ 
+
+00:05:44.699 --> 00:05:47.930 align:start position:0%
+same thing is for dictionary also, there are some methods, it is a data
+type, <00:05:45.081><c>it </c><00:05:45.463><c>has </c><00:05:45.845><c>some </c><00:05:46.227><c>uses, </c><00:05:46.609><c>whenever </c><00:05:46.991><c>you </c><00:05:47.373><c>want </c><00:05:47.755><c>to</c>
+
+00:05:47.930 --> 00:05:47.940 align:start position:0%
+type, it has some uses, whenever you want to
+ 
+
+00:05:47.940 --> 00:05:49.850 align:start position:0%
+type, it has some uses, whenever you want to
+create <00:05:48.188><c>a </c><00:05:48.436><c>mapping, </c><00:05:48.684><c>you </c><00:05:48.932><c>should </c><00:05:49.180><c>press </c><00:05:49.428><c>the </c><00:05:49.676><c>value,</c>
+
+00:05:49.850 --> 00:05:49.860 align:start position:0%
+create a mapping, you should press the value,
+ 
+
+00:05:49.860 --> 00:05:52.010 align:start position:0%
+create a mapping, you should press the value,
+many <00:05:50.073><c>times </c><00:05:50.286><c>when </c><00:05:50.499><c>you </c><00:05:50.712><c>work </c><00:05:50.925><c>with </c><00:05:51.138><c>database, </c><00:05:51.351><c>you </c><00:05:51.564><c>might </c><00:05:51.777><c>have</c>
+
+00:05:52.010 --> 00:05:52.020 align:start position:0%
+many times when you work with database, you might have
+ 
+
+00:05:52.020 --> 00:05:54.950 align:start position:0%
+many times when you work with database, you might have
+found <00:05:52.560><c>with </c><00:05:53.100><c>Mango </c><00:05:53.640><c>DB, </c><00:05:54.180><c>then </c><00:05:54.720><c>the</c>
+
+00:05:54.950 --> 00:05:54.960 align:start position:0%
+found with Mango DB, then the
+ 
+
+00:05:54.960 --> 00:05:56.629 align:start position:0%
+found with Mango DB, then the
+dictionary <00:05:55.165><c>will </c><00:05:55.370><c>come </c><00:05:55.575><c>very </c><00:05:55.780><c>rarely </c><00:05:55.985><c>because </c><00:05:56.190><c>in </c><00:05:56.395><c>that</c>
+
+00:05:56.629 --> 00:05:56.639 align:start position:0%
+dictionary will come very rarely because in that
+ 
+
+00:05:56.639 --> 00:05:59.090 align:start position:0%
+dictionary will come very rarely because in that
+Almost <00:05:57.095><c>everything </c><00:05:57.551><c>is </c><00:05:58.007><c>like </c><00:05:58.463><c>a </c><00:05:58.919><c>dictionary.</c>
+
+00:05:59.090 --> 00:05:59.100 align:start position:0%
+Almost everything is like a dictionary.
+ 
+
+00:05:59.100 --> 00:06:01.490 align:start position:0%
+Almost everything is like a dictionary.
+Okay, <00:05:59.334><c>you'll </c><00:05:59.568><c>have </c><00:05:59.802><c>to </c><00:06:00.036><c>use </c><00:06:00.270><c>a </c><00:06:00.504><c>lot </c><00:06:00.738><c>of </c><00:06:00.972><c>dictionary </c><00:06:01.206><c>methods </c><00:06:01.440><c>there.</c>
+
+00:06:01.490 --> 00:06:01.500 align:start position:0%
+Okay, you'll have to use a lot of dictionary methods there.
+ 
+
+00:06:01.500 --> 00:06:03.830 align:start position:0%
+Okay, you'll have to use a lot of dictionary methods there.
+When <00:06:02.580><c>you </c><00:06:03.660><c>actually</c>
+
+00:06:03.830 --> 00:06:03.840 align:start position:0%
+When you actually
+ 
+
+00:06:03.840 --> 00:06:05.330 align:start position:0%
+When you actually
+solve <00:06:04.116><c>problems </c><00:06:04.392><c>in </c><00:06:04.668><c>the </c><00:06:04.944><c>real </c><00:06:05.220><c>world,</c>
+
+00:06:05.330 --> 00:06:05.340 align:start position:0%
+solve problems in the real world,
+ 
+
+00:06:05.340 --> 00:06:10.150 align:start position:0%
+solve problems in the real world,
+
+
+00:06:10.150 --> 00:06:10.160 align:start position:0%
+ 
+ 
+
+00:06:10.160 --> 00:06:13.010 align:start position:0%
+ 
+you'll <00:06:10.551><c>actually </c><00:06:10.942><c>discover </c><00:06:11.333><c>the </c><00:06:11.724><c>uses </c><00:06:12.115><c>of </c><00:06:12.506><c>these </c><00:06:12.897><c>things.</c>
+
+00:06:13.010 --> 00:06:13.020 align:start position:0%
+you'll actually discover the uses of these things.
+ 
+
+00:06:13.020 --> 00:06:15.110 align:start position:0%
+you'll actually discover the uses of these things.
+And <00:06:13.252><c>right </c><00:06:13.484><c>now, </c><00:06:13.716><c>you </c><00:06:13.948><c>might </c><00:06:14.180><c>find </c><00:06:14.412><c>some </c><00:06:14.644><c>theory </c><00:06:14.876><c>useful.</c>
+
+00:06:15.110 --> 00:06:15.120 align:start position:0%
+And right now, you might find some theory useful.
+ 
+
+00:06:15.120 --> 00:06:18.590 align:start position:0%
+And right now, you might find some theory useful.
+You <00:06:15.360><c>should </c><00:06:15.600><c>always </c><00:06:15.840><c>keep </c><00:06:16.080><c>doing </c><00:06:16.320><c>things</c>
+
+00:06:18.590 --> 00:06:18.600 align:start position:0%
+You should always keep doing things
+ 
+
+00:06:18.600 --> 00:06:20.689 align:start position:0%
+You should always keep doing things
+like <00:06:19.380><c>this: </c><00:06:20.160><c>Python</c>
+
+00:06:20.689 --> 00:06:20.699 align:start position:0%
+like this: Python
+ 
+
+00:06:20.699 --> 00:06:22.150 align:start position:0%
+like this: Python
+dictionary
+
+00:06:22.150 --> 00:06:22.160 align:start position:0%
+dictionary
+ 
+
+00:06:22.160 --> 00:06:24.529 align:start position:0%
+dictionary
+documentation. <00:06:22.391><c>Okay, </c><00:06:22.622><c>if </c><00:06:22.853><c>you </c><00:06:23.084><c>do </c><00:06:23.315><c>things </c><00:06:23.546><c>like </c><00:06:23.777><c>this, </c><00:06:24.008><c>then </c><00:06:24.239><c>keep </c><00:06:24.470><c>going</c>
+
+00:06:24.529 --> 00:06:27.529 align:start position:0%
+documentation. Okay, if you do things like this, then keep going
+ 
+
+00:06:27.529 --> 00:06:27.539 align:start position:0%
+ 
+ 
+
+00:06:27.539 --> 00:06:29.510 align:start position:0%
+ 
+through <00:06:27.712><c>the </c><00:06:27.885><c>latest </c><00:06:28.058><c>documentation. </c><00:06:28.231><c>Look </c><00:06:28.404><c>here, </c><00:06:28.577><c>all </c><00:06:28.750><c>the </c><00:06:28.923><c>methods </c><00:06:29.096><c>are</c>
+
+00:06:29.510 --> 00:06:29.520 align:start position:0%
+through the latest documentation. Look here, all the methods are
+ 
+
+00:06:29.520 --> 00:06:31.249 align:start position:0%
+through the latest documentation. Look here, all the methods are
+written. <00:06:29.657><c>You </c><00:06:29.794><c>can </c><00:06:29.931><c>see </c><00:06:30.068><c>here, </c><00:06:30.205><c>these </c><00:06:30.342><c>are </c><00:06:30.479><c>the</c>
+
+00:06:31.249 --> 00:06:31.259 align:start position:0%
+written. You can see here, these are the
+ 
+
+00:06:31.259 --> 00:06:33.350 align:start position:0%
+written. You can see here, these are the
+list <00:06:31.619><c>of </c><00:06:31.979><c>dictionary </c><00:06:32.339><c>methods. </c><00:06:32.699><c>Okay, </c><00:06:33.059><c>so</c>
+
+00:06:33.350 --> 00:06:33.360 align:start position:0%
+list of dictionary methods. Okay, so
+ 
+
+00:06:33.360 --> 00:06:35.629 align:start position:0%
+list of dictionary methods. Okay, so
+you <00:06:34.040><c>can </c><00:06:34.720><c>see </c><00:06:35.400><c>here,</c>
+
+00:06:35.629 --> 00:06:35.639 align:start position:0%
+you can see here,
+ 
+
+00:06:35.639 --> 00:06:37.070 align:start position:0%
+you can see here,
+you'll <00:06:35.849><c>also </c><00:06:36.059><c>find </c><00:06:36.269><c>some </c><00:06:36.479><c>dictionary </c><00:06:36.689><c>methods </c><00:06:36.899><c>that</c>
+
+00:06:37.070 --> 00:06:37.080 align:start position:0%
+you'll also find some dictionary methods that
+ 
+
+00:06:37.080 --> 00:06:39.770 align:start position:0%
+you'll also find some dictionary methods that
+I <00:06:37.899><c>probably </c><00:06:38.718><c>didn't </c><00:06:39.537><c>mention.</c>
+
+00:06:39.770 --> 00:06:39.780 align:start position:0%
+I probably didn't mention.
+ 
+
+00:06:39.780 --> 00:06:42.469 align:start position:0%
+I probably didn't mention.
+Okay, <00:06:40.365><c>so </c><00:06:40.950><c>here, </c><00:06:41.535><c>they </c><00:06:42.120><c>actually</c>
+
+00:06:42.469 --> 00:06:42.479 align:start position:0%
+Okay, so here, they actually
+ 
+
+00:06:42.479 --> 00:06:44.870 align:start position:0%
+Okay, so here, they actually
+close <00:06:43.259><c>the </c><00:06:44.039><c>dictionary </c><00:06:44.819><c>references.</c>
+
+00:06:44.870 --> 00:06:44.880 align:start position:0%
+close the dictionary references.
+ 
+
+00:06:44.880 --> 00:06:47.270 align:start position:0%
+close the dictionary references.
+Now, <00:06:45.216><c>we'd </c><00:06:45.552><c>like </c><00:06:45.888><c>to </c><00:06:46.224><c>look </c><00:06:46.560><c>here</c>
+
+00:06:47.270 --> 00:06:47.280 align:start position:0%
+Now, we'd like to look here
+ 
+
+00:06:47.280 --> 00:06:49.129 align:start position:0%
+Now, we'd like to look here
+about <00:06:47.570><c>the </c><00:06:47.860><c>dictionary. </c><00:06:48.150><c>So, </c><00:06:48.440><c>I'll </c><00:06:48.730><c>click </c><00:06:49.020><c>here,</c>
+
+00:06:49.129 --> 00:06:49.139 align:start position:0%
+about the dictionary. So, I'll click here,
+ 
+
+00:06:49.139 --> 00:06:51.770 align:start position:0%
+about the dictionary. So, I'll click here,
+and <00:06:49.309><c>you </c><00:06:49.479><c>can </c><00:06:49.649><c>read </c><00:06:49.819><c>it. </c><00:06:49.989><c>Like, </c><00:06:50.159><c>this </c><00:06:50.329><c>is </c><00:06:50.499><c>the </c><00:06:50.669><c>source. </c><00:06:50.839><c>This </c><00:06:51.009><c>is </c><00:06:51.179><c>the</c>
+
+00:06:51.770 --> 00:06:51.780 align:start position:0%
+and you can read it. Like, this is the source. This is the
+ 
+
+00:06:51.780 --> 00:06:55.670 align:start position:0%
+and you can read it. Like, this is the source. This is the
+documentation. <00:06:53.250><c>This </c><00:06:54.720><c>is</c>
+
+00:06:55.670 --> 00:06:55.680 align:start position:0%
+documentation. This is
+ 
+
+00:06:55.680 --> 00:06:58.270 align:start position:0%
+documentation. This is
+released <00:06:56.294><c>when </c><00:06:56.908><c>Python </c><00:06:57.522><c>is </c><00:06:58.136><c>built.</c>
+
+00:06:58.270 --> 00:06:58.280 align:start position:0%
+released when Python is built.
+ 
+
+00:06:58.280 --> 00:07:00.770 align:start position:0%
+released when Python is built.
+Anything <00:06:58.611><c>you </c><00:06:58.942><c>see </c><00:06:59.273><c>anywhere </c><00:06:59.604><c>comes </c><00:06:59.935><c>from </c><00:07:00.266><c>here.  </c><00:07:00.597><c>Yes,</c>
+
+00:07:00.770 --> 00:07:00.780 align:start position:0%
+Anything you see anywhere comes from here.  Yes,
+ 
+
+00:07:00.780 --> 00:07:03.710 align:start position:0%
+Anything you see anywhere comes from here.  Yes,
+about <00:07:01.296><c>reading </c><00:07:01.812><c>this </c><00:07:02.328><c>and </c><00:07:02.844><c>at </c><00:07:03.360><c>least</c>
+
+00:07:03.710 --> 00:07:03.720 align:start position:0%
+about reading this and at least
+ 
+
+00:07:03.720 --> 00:07:05.870 align:start position:0%
+about reading this and at least
+trying <00:07:03.946><c>to </c><00:07:04.172><c>read </c><00:07:04.398><c>this, </c><00:07:04.624><c>you </c><00:07:04.850><c>can </c><00:07:05.076><c>try </c><00:07:05.302><c>it, </c><00:07:05.528><c>right? </c><00:07:05.754><c>So</c>
+
+00:07:05.870 --> 00:07:05.880 align:start position:0%
+trying to read this, you can try it, right? So
+ 
+
+00:07:05.880 --> 00:07:07.790 align:start position:0%
+trying to read this, you can try it, right? So
+look <00:07:06.720><c>here, </c><00:07:07.560><c>you</c>
+
+00:07:07.790 --> 00:07:07.800 align:start position:0%
+look here, you
+ 
+
+00:07:07.800 --> 00:07:09.409 align:start position:0%
+look here, you
+can <00:07:07.906><c>try </c><00:07:08.012><c>it. </c><00:07:08.118><c>Now </c><00:07:08.224><c>it's </c><00:07:08.330><c>not </c><00:07:08.436><c>like </c><00:07:08.542><c>that, </c><00:07:08.648><c>go </c><00:07:08.754><c>to </c><00:07:08.860><c>the </c><00:07:08.966><c>book, </c><00:07:09.072><c>from </c><00:07:09.178><c>the</c>
+
+00:07:09.409 --> 00:07:09.419 align:start position:0%
+can try it. Now it's not like that, go to the book, from the
+ 
+
+00:07:09.419 --> 00:07:11.090 align:start position:0%
+can try it. Now it's not like that, go to the book, from the
+beginning, <00:07:09.641><c>you </c><00:07:09.863><c>can </c><00:07:10.085><c>also </c><00:07:10.307><c>read </c><00:07:10.529><c>from </c><00:07:10.751><c>the </c><00:07:10.973><c>middle.</c>
+
+00:07:11.090 --> 00:07:11.100 align:start position:0%
+beginning, you can also read from the middle.
+ 
+
+00:07:11.100 --> 00:07:12.490 align:start position:0%
+beginning, you can also read from the middle.
+You <00:07:11.352><c>can </c><00:07:11.604><c>scroll </c><00:07:11.856><c>through </c><00:07:12.108><c>here </c><00:07:12.360><c>and</c>
+
+00:07:12.490 --> 00:07:12.500 align:start position:0%
+You can scroll through here and
+ 
+
+00:07:12.500 --> 00:07:15.350 align:start position:0%
+You can scroll through here and
+see <00:07:13.060><c>if </c><00:07:13.620><c>there's </c><00:07:14.180><c>a </c><00:07:14.740><c>method </c><00:07:15.300><c>that</c>
+
+00:07:15.350 --> 00:07:15.360 align:start position:0%
+see if there's a method that
+ 
+
+00:07:15.360 --> 00:07:17.150 align:start position:0%
+see if there's a method that
+I <00:07:15.574><c>don't </c><00:07:15.788><c>know, </c><00:07:16.002><c>is </c><00:07:16.216><c>there </c><00:07:16.430><c>a </c><00:07:16.644><c>method </c><00:07:16.858><c>here</c>
+
+00:07:17.150 --> 00:07:17.160 align:start position:0%
+I don't know, is there a method here
+ 
+
+00:07:17.160 --> 00:07:19.070 align:start position:0%
+I don't know, is there a method here
+that <00:07:17.740><c>I </c><00:07:18.320><c>don't </c><00:07:18.900><c>know,</c>
+
+00:07:19.070 --> 00:07:19.080 align:start position:0%
+that I don't know,
+ 
+
+00:07:19.080 --> 00:07:21.350 align:start position:0%
+that I don't know,
+so <00:07:19.305><c>try </c><00:07:19.530><c>it, </c><00:07:19.755><c>man, </c><00:07:19.980><c>see </c><00:07:20.205><c>what </c><00:07:20.430><c>that </c><00:07:20.655><c>thing </c><00:07:20.880><c>is,</c>
+
+00:07:21.350 --> 00:07:21.360 align:start position:0%
+so try it, man, see what that thing is,
+ 
+
+00:07:21.360 --> 00:07:23.990 align:start position:0%
+so try it, man, see what that thing is,
+okay, <00:07:21.675><c>no, </c><00:07:21.990><c>read </c><00:07:22.305><c>about </c><00:07:22.620><c>it, </c><00:07:22.935><c>once </c><00:07:23.250><c>you </c><00:07:23.565><c>understand </c><00:07:23.880><c>the</c>
+
+00:07:23.990 --> 00:07:24.000 align:start position:0%
+okay, no, read about it, once you understand the
+ 
+
+00:07:24.000 --> 00:07:27.650 align:start position:0%
+okay, no, read about it, once you understand the
+basics, <00:07:24.299><c>then </c><00:07:24.598><c>read </c><00:07:24.897><c>it, </c><00:07:25.196><c>your </c><00:07:25.495><c>knowledge </c><00:07:25.794><c>will </c><00:07:26.093><c>keep </c><00:07:26.392><c>increasing, </c><00:07:26.691><c>the</c>
+
+00:07:27.650 --> 00:07:27.660 align:start position:0%
+basics, then read it, your knowledge will keep increasing, the
+ 
+
+00:07:27.660 --> 00:07:29.749 align:start position:0%
+basics, then read it, your knowledge will keep increasing, the
+more <00:07:28.590><c>you </c><00:07:29.520><c>know</c>
+
+00:07:29.749 --> 00:07:29.759 align:start position:0%
+more you know
+ 
+
+00:07:29.759 --> 00:07:32.029 align:start position:0%
+more you know
+about <00:07:29.999><c>the </c><00:07:30.239><c>dictionary, </c><00:07:30.479><c>your </c><00:07:30.719><c>knowledge </c><00:07:30.959><c>will </c><00:07:31.199><c>keep </c><00:07:31.439><c>increasing, </c><00:07:31.679><c>man,</c>
+
+00:07:32.029 --> 00:07:32.039 align:start position:0%
+about the dictionary, your knowledge will keep increasing, man,
+ 
+
+00:07:32.039 --> 00:07:33.650 align:start position:0%
+about the dictionary, your knowledge will keep increasing, man,
+okay, <00:07:32.369><c>overall, </c><00:07:32.699><c>if </c><00:07:33.029><c>you </c><00:07:33.359><c>have</c>
+
+00:07:33.650 --> 00:07:33.660 align:start position:0%
+okay, overall, if you have
+ 
+
+00:07:33.660 --> 00:07:35.150 align:start position:0%
+okay, overall, if you have
+n't <00:07:33.857><c>done </c><00:07:34.054><c>the </c><00:07:34.251><c>playlist </c><00:07:34.448><c>yet, </c><00:07:34.645><c>then </c><00:07:34.842><c>you </c><00:07:35.039><c>should</c>
+
+00:07:35.150 --> 00:07:35.160 align:start position:0%
+n't done the playlist yet, then you should
+ 
+
+00:07:35.160 --> 00:07:36.529 align:start position:0%
+n't done the playlist yet, then you should
+definitely <00:07:35.474><c>access </c><00:07:35.788><c>it. </c><00:07:36.102><c>You </c><00:07:36.416><c>can</c>
+
+00:07:36.529 --> 00:07:36.539 align:start position:0%
+definitely access it. You can
+ 
+
+00:07:36.539 --> 00:07:38.450 align:start position:0%
+definitely access it. You can
+bookmark <00:07:36.701><c>it </c><00:07:36.863><c>by </c><00:07:37.025><c>clicking </c><00:07:37.187><c>here </c><00:07:37.349><c>and </c><00:07:37.511><c>do </c><00:07:37.673><c>it </c><00:07:37.835><c>by </c><00:07:37.997><c>clicking </c><00:07:38.159><c>here.</c>
+
+00:07:38.450 --> 00:07:38.460 align:start position:0%
+bookmark it by clicking here and do it by clicking here.
+ 
+
+00:07:38.460 --> 00:07:41.870 align:start position:0%
+bookmark it by clicking here and do it by clicking here.
+If <00:07:40.079><c>you </c><00:07:41.698><c>have</c>
+
+00:07:41.870 --> 00:07:41.880 align:start position:0%
+If you have
+ 
+
+00:07:41.880 --> 00:07:43.969 align:start position:0%
+If you have
+watched <00:07:41.977><c>the </c><00:07:42.074><c>course </c><00:07:42.171><c>continuously </c><00:07:42.268><c>for </c><00:07:42.365><c>34 </c><00:07:42.462><c>days </c><00:07:42.559><c>till </c><00:07:42.656><c>here, </c><00:07:42.753><c>then </c><00:07:42.850><c>I </c><00:07:42.947><c>want </c><00:07:43.044><c>to </c><00:07:43.141><c>make </c><00:07:43.238><c>a </c><00:07:43.335><c>request </c><00:07:43.432><c>to </c><00:07:43.529><c>you, </c><00:07:43.626><c>that </c><00:07:43.723><c>is,</c>
+
+00:07:43.969 --> 00:07:46.129 align:start position:0%
+watched the course continuously for 34 days till here, then I want to make a request to you, that is,
+ 
+
+00:07:46.129 --> 00:07:46.139 align:start position:0%
+ 
+ 
+
+00:07:46.139 --> 00:07:47.629 align:start position:0%
+ 
+go <00:07:46.391><c>to </c><00:07:46.643><c>the </c><00:07:46.895><c>first </c><00:07:47.147><c>video </c><00:07:47.399><c>and</c>
+
+00:07:47.629 --> 00:07:47.639 align:start position:0%
+go to the first video and
+ 
+
+00:07:47.639 --> 00:07:49.790 align:start position:0%
+go to the first video and
+leave <00:07:47.886><c>a </c><00:07:48.133><c>review </c><00:07:48.380><c>comment. </c><00:07:48.627><c>Out </c><00:07:48.874><c>of </c><00:07:49.121><c>five, </c><00:07:49.368><c>tell </c><00:07:49.615><c>me</c>
+
+00:07:49.790 --> 00:07:49.800 align:start position:0%
+leave a review comment. Out of five, tell me
+ 
+
+00:07:49.800 --> 00:07:52.189 align:start position:0%
+leave a review comment. Out of five, tell me
+how <00:07:49.944><c>many </c><00:07:50.088><c>stars </c><00:07:50.232><c>you </c><00:07:50.376><c>would </c><00:07:50.520><c>like </c><00:07:50.664><c>to </c><00:07:50.808><c>give </c><00:07:50.952><c>to </c><00:07:51.096><c>the </c><00:07:51.240><c>score </c><00:07:51.384><c>and </c><00:07:51.528><c>honestly,</c>
+
+00:07:52.189 --> 00:07:52.199 align:start position:0%
+how many stars you would like to give to the score and honestly,
+ 
+
+00:07:52.199 --> 00:07:53.870 align:start position:0%
+how many stars you would like to give to the score and honestly,
+you <00:07:52.329><c>should </c><00:07:52.459><c>do </c><00:07:52.589><c>it </c><00:07:52.719><c>so </c><00:07:52.849><c>that </c><00:07:52.979><c>those </c><00:07:53.109><c>people </c><00:07:53.239><c>can </c><00:07:53.369><c>be </c><00:07:53.499><c>helped </c><00:07:53.629><c>in</c>
+
+00:07:53.870 --> 00:07:53.880 align:start position:0%
+you should do it so that those people can be helped in
+ 
+
+00:07:53.880 --> 00:07:56.150 align:start position:0%
+you should do it so that those people can be helped in
+this.  <00:07:54.106><c>I </c><00:07:54.332><c>am </c><00:07:54.558><c>about </c><00:07:54.784><c>to </c><00:07:55.010><c>start </c><00:07:55.236><c>the </c><00:07:55.462><c>course. </c><00:07:55.688><c>If </c><00:07:55.914><c>you</c>
+
+00:07:56.150 --> 00:07:56.160 align:start position:0%
+this.  I am about to start the course. If you
+ 
+
+00:07:56.160 --> 00:07:57.830 align:start position:0%
+this.  I am about to start the course. If you
+do <00:07:56.261><c>this, </c><00:07:56.362><c>I </c><00:07:56.463><c>will </c><00:07:56.564><c>be </c><00:07:56.665><c>very </c><00:07:56.766><c>happy </c><00:07:56.867><c>from </c><00:07:56.968><c>the </c><00:07:57.069><c>bottom </c><00:07:57.170><c>of </c><00:07:57.271><c>my </c><00:07:57.372><c>heart. </c><00:07:57.473><c>Many</c>
+
+00:07:57.830 --> 00:07:57.840 align:start position:0%
+do this, I will be very happy from the bottom of my heart. Many
+ 
+
+00:07:57.840 --> 00:07:59.450 align:start position:0%
+do this, I will be very happy from the bottom of my heart. Many
+people <00:07:58.128><c>have </c><00:07:58.416><c>left </c><00:07:58.704><c>their </c><00:07:58.992><c>comments, </c><00:07:59.280><c>so</c>
+
+00:07:59.450 --> 00:07:59.460 align:start position:0%
+people have left their comments, so
+ 
+
+00:07:59.460 --> 00:08:02.270 align:start position:0%
+people have left their comments, so
+I <00:07:59.805><c>want </c><00:08:00.150><c>to </c><00:08:00.495><c>thank </c><00:08:00.840><c>them. </c><00:08:01.185><c>That's </c><00:08:01.530><c>all </c><00:08:01.875><c>for </c><00:08:02.220><c>this</c>
+
+00:08:02.270 --> 00:08:02.280 align:start position:0%
+I want to thank them. That's all for this
+ 
+
+00:08:02.280 --> 00:08:04.249 align:start position:0%
+I want to thank them. That's all for this
+video. <00:08:02.616><c>Thank </c><00:08:02.952><c>you </c><00:08:03.288><c>so </c><00:08:03.624><c>much </c><00:08:03.960><c>for</c>
+
+00:08:04.249 --> 00:08:04.259 align:start position:0%
+video. Thank you so much for
+ 
+
+00:08:04.259 --> 00:08:06.589 align:start position:0%
+video. Thank you so much for
+watching <00:08:04.559><c>this </c><00:08:04.859><c>video </c><00:08:05.159><c>and </c><00:08:05.459><c>I </c><00:08:05.759><c>will </c><00:08:06.059><c>see </c><00:08:06.359><c>you</c>
+
+00:08:06.589 --> 00:08:06.599 align:start position:0%
+watching this video and I will see you
+ 
+
+00:08:06.599 --> 00:08:08.600 align:start position:0%
+watching this video and I will see you
+next <00:08:07.440><c>time.</c>
+
+00:08:08.600 --> 00:08:08.610 align:start position:0%
+next time.
+ 
+
+00:08:08.610 --> 00:08:09.210 align:start position:0%
+next time.
+[Appreciation]
+
+00:08:09.210 --> 00:08:09.220 align:start position:0%
+[Appreciation]
+ 
+
+00:08:09.220 --> 00:08:28.699 align:start position:0%
+[Appreciation]
+[Music]
+

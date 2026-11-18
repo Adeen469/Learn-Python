@@ -1,0 +1,636 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:00.013 --> 00:00:04.127
+We all have dictionaries at our home
+in which we search for meanings of words
+
+00:00:04.152 --> 00:00:06.890
+In today's video we'll discuss about the
+'Dictionary' of Python
+
+00:00:06.915 --> 00:00:09.267
+Python's 'Dictionary' is also quite
+similar to the real one
+
+00:00:09.292 --> 00:00:13.164
+You can look for some values corresponding to keys
+
+00:00:13.211 --> 00:00:18.112
+In simple words in Oxford dictionary 'Keys' are
+the words whose meaning we have to find
+
+00:00:18.137 --> 00:00:20.110
+And 'Value' is the actual meaning
+
+00:00:20.140 --> 00:00:23.747
+We can create such a personal 'Dictionary'
+with the help of Python programming
+
+00:00:23.780 --> 00:00:26.473
+It'll be quite fun when we'll have a
+look on it's methods
+
+00:00:26.498 --> 00:00:29.497
+And we'll learn where &amp; how we can use it
+
+00:00:29.537 --> 00:00:34.215
+Basically the access of this 'Dictionary' is quite
+fast, because it has personal index
+
+00:00:34.262 --> 00:00:39.521
+If your dictionary have a lot of elements and you
+want to find a value corresponding to a key
+
+00:00:39.546 --> 00:00:42.841
+So there's no need for you to scan
+the whole dictionary
+
+00:00:42.890 --> 00:00:46.263
+You can directly find out the values
+through it's index
+
+00:00:46.591 --> 00:00:50.565
+Let's move to the computer screen and let's see how
+we can do this and the methods of 'Dictionary'
+
+00:00:50.565 --> 00:00:51.554
+Let's get started
+
+00:00:51.596 --> 00:00:51.751
+[
+
+00:00:51.752 --> 00:00:51.907
+[S
+
+00:00:51.908 --> 00:00:52.063
+[ST
+
+00:00:52.064 --> 00:00:52.219
+[STA
+
+00:00:52.220 --> 00:00:52.375
+[STAR
+
+00:00:52.376 --> 00:00:52.530
+[START
+
+00:00:52.531 --> 00:00:52.686
+[STARTI
+
+00:00:52.687 --> 00:00:52.842
+[STARTIN
+
+00:00:52.843 --> 00:00:52.998
+[STARTING
+
+00:00:52.999 --> 00:00:53.154
+[STARTING
+
+00:00:53.155 --> 00:00:53.310
+[STARTING T
+
+00:00:53.311 --> 00:00:53.465
+[STARTING TH
+
+00:00:53.466 --> 00:00:53.621
+[STARTING THE
+
+00:00:53.622 --> 00:00:53.777
+[STARTING THEM
+
+00:00:53.778 --> 00:00:53.933
+[STARTING THEME
+
+00:00:53.934 --> 00:00:55.375
+[STARTING THEME]
+
+00:01:00.936 --> 00:01:05.231
+As we have dictionary at our home in which
+we look for words &amp; their meanings
+
+00:01:05.396 --> 00:01:09.088
+To cut a long story short,
+the same dictionary exist in Python
+
+00:01:09.319 --> 00:01:13.982
+And if I show you a very basic 'Dictionary'
+
+00:01:14.831 --> 00:01:16.537
+And let's suppose
+
+00:01:18.865 --> 00:01:20.192
+Suppose if I write like this...
+
+00:01:20.596 --> 00:01:24.166
+Let's suppose if I write "Spoon"
+
+00:01:25.219 --> 00:01:27.546
+And if I write here "Object"
+
+00:01:28.225 --> 00:01:30.658
+Let's if I add mapping in this way....
+
+00:01:31.084 --> 00:01:33.237
+And finally if I print(dict)
+
+00:01:34.110 --> 00:01:36.290
+And then "Harry"
+
+00:01:36.568 --> 00:01:39.028
+So I can access "Human being"
+
+00:01:39.383 --> 00:01:42.596
+To cut a long story short,
+These are called Key-Value pairs
+
+00:01:42.964 --> 00:01:46.618
+It is saying
+" 'type' object is not subscriptable "
+
+00:01:46.665 --> 00:01:49.639
+What's this man! OK!
+I made it with name " dic "
+
+00:01:50.069 --> 00:01:52.562
+I didn't make it with name " dict "
+
+00:01:52.843 --> 00:01:55.390
+As you can see " Human Being "
+has been printed here
+
+00:01:55.893 --> 00:01:59.153
+'Dictionary' is quite simple
+"Combination of key-value pairs"
+
+00:01:59.479 --> 00:02:03.973
+You can use it to store marks of a
+particular class's student
+
+00:02:04.249 --> 00:02:11.416
+You can use it to store grades of
+students roll number wise
+
+00:02:11.815 --> 00:02:15.208
+You can map employee's ID
+to employee's name
+
+00:02:15.603 --> 00:02:16.963
+Basically you can create a mapping
+
+00:02:16.998 --> 00:02:21.630
+Let's suppose if I want to
+use an 'Integer'
+
+00:02:21.697 --> 00:02:26.230
+Assume " 344 " is the employee ID of "Harry"
+
+00:02:26.557 --> 00:02:32.035
+" 56 " is the employee ID of "Shubham"
+
+00:02:32.284 --> 00:02:37.445
+And " 678 " is the employee ID of "Zakir"
+
+00:02:37.593 --> 00:02:41.467
+And " 567 " is the employee ID of "Neha"
+
+00:02:41.659 --> 00:02:44.559
+So if I write " 567 " here...
+
+00:02:44.945 --> 00:02:48.577
+Will I get "Neha" as output?
+Definitely, why not?
+
+00:02:48.619 --> 00:02:53.207
+I will get "Neha" as output because in the 'Dictionary'
+"Neha" is corresponding to " 567 "
+
+00:02:53.580 --> 00:02:55.633
+This is how we can work with 'Dictionaries'
+
+00:02:55.658 --> 00:02:56.417
+Now look,
+
+00:02:56.561 --> 00:02:58.834
+Dictionaries are ordered collection
+of data items.
+
+00:02:58.875 --> 00:03:01.381
+They store multiple items in
+a single variable.
+
+00:03:01.582 --> 00:03:08.483
+Dictionary items are key-value pairs that are separated
+by commas and enclosed within curly brackets
+
+00:03:08.522 --> 00:03:14.302
+What happens is, Python 3.7 onwards
+'Dictionaries' are ordered collection
+
+00:03:14.337 --> 00:03:16.604
+Earlier dictionaries used to be unordered
+
+00:03:16.865 --> 00:03:22.616
+You have to keep this mind, your 'Dict' is ordered or
+unordered depends on which Python version you're using
+
+00:03:22.972 --> 00:03:24.612
+What does Ordered &amp; Unordered mean?
+
+00:03:24.637 --> 00:03:28.979
+It means whenever I'll print it's keys
+I'll get them in same order
+
+00:03:29.207 --> 00:03:31.830
+How can we print keys?
+I'll tell you
+
+00:03:31.855 --> 00:03:33.564
+What's key?
+" 344 " is key
+
+00:03:33.856 --> 00:03:34.856
+"Harry" is the value
+
+00:03:35.282 --> 00:03:37.416
+" 567 " is the key &amp; "Neha" is value
+
+00:03:37.441 --> 00:03:43.058
+If I add 'Dict' name and it's key here
+so I'll get the value
+
+00:03:43.354 --> 00:03:44.407
+Which is "Neha"
+
+00:03:45.039 --> 00:03:47.005
+How can you access the 'Dict' items?
+
+00:03:47.030 --> 00:03:50.519
+Absolutely as shown in the example
+
+00:03:50.602 --> 00:03:53.389
+" info = {'name': 'Karan', 'age' : 19, 'eligible' : True} "
+
+00:03:53.646 --> 00:03:56.372
+You'll get this whole 'Dict' printed
+
+00:03:56.549 --> 00:04:01.076
+But if you want to print a particular value
+so you can do that in this way
+
+00:04:02.121 --> 00:04:06.035
+You can command it that you want the value
+corresponding to "Name" key from "Info"
+
+00:04:06.060 --> 00:04:06.862
+That's 'Karan'
+
+00:04:07.058 --> 00:04:13.575
+And from info you can also check what's
+corresponding to 'eligible'
+
+00:04:13.625 --> 00:04:16.551
+Now there are 2 ways to access it
+
+00:04:16.656 --> 00:04:20.925
+You can either access it with "info.[ 'name' ]"
+or "info.get('name')"
+
+00:04:20.952 --> 00:04:22.872
+Let me do one thing,
+I'll change this back to 'Name'
+
+00:04:23.199 --> 00:04:29.537
+So that you'll know, this &amp; this is exactly the same in a way
+but there's a difference which I'll tell you
+
+00:04:29.790 --> 00:04:32.150
+If I change this to "name2" and this too
+
+00:04:32.183 --> 00:04:33.149
+If I run it....
+
+00:04:33.311 --> 00:04:37.226
+Look this line is throwing an error
+
+00:04:37.257 --> 00:04:42.633
+It is saying " there's no key with 'name2'
+in your 'info' how can you access it?"
+
+00:04:42.973 --> 00:04:46.061
+But if I use ".get " so I'll get
+"None" as output
+
+00:04:46.086 --> 00:04:47.921
+Now look, "None" will be printed
+
+00:04:48.118 --> 00:04:50.625
+If you want your program to throw error
+
+00:04:51.031 --> 00:04:53.224
+In case when the key doesn't
+exist in your program
+
+00:04:53.965 --> 00:04:57.647
+You'll use this type of syntax here
+
+00:04:57.713 --> 00:04:59.813
+It'll throw error if the key doesn't
+exist in your program
+
+00:05:00.026 --> 00:05:02.979
+And it'll print "None" if the key doesn't
+exist in your program
+
+00:05:03.067 --> 00:05:06.173
+Depending upon the use case
+you can do this
+
+00:05:06.493 --> 00:05:09.940
+But if the name exist then these two
+will print the same thing
+
+00:05:10.407 --> 00:05:12.200
+I hope you understood this
+
+00:05:12.642 --> 00:05:14.642
+Now how can we access the multiple values?
+
+00:05:15.428 --> 00:05:20.044
+If you want to access all the keys or all
+the value at the same time
+
+00:05:20.260 --> 00:05:22.780
+You can do something like this
+
+00:05:22.830 --> 00:05:24.690
+You can ask for all the keys
+
+00:05:25.263 --> 00:05:29.250
+And you'll get all the keys like
+"Name" "Age" "eligible"
+
+00:05:29.288 --> 00:05:32.628
+These are the keys you can access
+
+00:05:32.805 --> 00:05:37.898
+You can do one more thing, you can write
+" for key in info.keys(): "
+
+00:05:38.172 --> 00:05:41.492
+And by doing this you can iterate
+their keys one-by-one
+
+00:05:41.769 --> 00:05:46.424
+And you can write " print(info[key] ) "
+
+00:05:46.552 --> 00:05:48.112
+And you'll get all the values
+
+00:05:48.418 --> 00:05:52.125
+What's corresponding to "Name" , "Age" &amp; "eligible"
+
+00:05:52.200 --> 00:05:54.133
+You got 'Karan' , 19 &amp; True
+
+00:05:54.679 --> 00:05:57.059
+I hope you understood this
+
+00:05:57.234 --> 00:06:00.995
+Now because the 'Dictionary' is ordered
+so you'll get this in a proper order
+
+00:06:01.308 --> 00:06:03.782
+You'll get all the keys with " .keys "
+
+00:06:04.156 --> 00:06:07.923
+You'll get all the values with " .values "
+
+00:06:08.173 --> 00:06:10.886
+If I write here " print(info.values()) "
+
+00:06:11.099 --> 00:06:14.392
+And you'll get all the values printed
+which are " 'Karan' , 19 &amp; True "
+
+00:06:15.538 --> 00:06:16.885
+" 'Karan' , 19 &amp; True " are values
+
+00:06:17.246 --> 00:06:23.711
+If you want values in same order so you can either
+do it like this or this by iterating keys
+
+00:06:24.086 --> 00:06:27.156
+I'll use this method....
+
+00:06:27.543 --> 00:06:29.770
+Let's suppose if I use an ' f"string" ' here
+
+00:06:30.254 --> 00:06:33.837
+And obviously I'll cover this with curly bracket
+
+00:06:33.944 --> 00:06:42.657
+And I'll write "The value corresponding
+to the key {key} is {info[key]}" ) "
+
+00:06:42.948 --> 00:06:44.461
+What will be my output?
+
+00:06:44.696 --> 00:06:46.936
+" The value corresponding
+to the key 'Name' : 'Karan' "
+
+00:06:47.002 --> 00:06:49.682
+" The value corresponding
+to the key 'Age' : 19 "
+
+00:06:49.759 --> 00:06:52.374
+" The value corresponding
+to the key 'Eligible' : True "
+
+00:06:52.456 --> 00:06:56.229
+I'm iterating all the keys one-by-one
+and printing their values
+
+00:06:56.662 --> 00:06:58.021
+Using this syntax
+
+00:06:58.046 --> 00:07:02.487
+If you write 'Dict' syntax then 'Dict' name
+and then 'Key' in square-brackets[]
+
+00:07:02.512 --> 00:07:04.221
+You'll get this value
+
+00:07:04.553 --> 00:07:06.513
+Which are corresponding to the dictionary
+
+00:07:06.538 --> 00:07:10.255
+As I've written here "We can access
+the keys by using syntax "
+
+00:07:10.504 --> 00:07:14.538
+And we can access key-value pairs by using item syntax
+
+00:07:14.570 --> 00:07:15.853
+Let me tell you that
+
+00:07:16.088 --> 00:07:18.048
+I'll comment out everything till here
+
+00:07:18.393 --> 00:07:20.954
+In-fact let me erase it because it
+is already written here
+
+00:07:21.620 --> 00:07:24.159
+Or leave it as it is, there's no point in erasing it
+
+00:07:24.481 --> 00:07:30.446
+If I write here "print(info.items()) "
+
+00:07:30.471 --> 00:07:32.215
+It'll give me key-value pairs
+
+00:07:32.563 --> 00:07:37.283
+It's item will give me key-value pairs
+" "name" : 'Karan' , "age" : " 19 &amp; "eligible" : True "
+
+00:07:37.549 --> 00:07:44.836
+I can iterate it...
+I can write " for key, value in info.item(): "
+
+00:07:45.182 --> 00:07:47.035
+And this 'Tuple' will be unpacked
+
+00:07:47.060 --> 00:07:50.759
+And I'll get 'key' in 'keys' and 'value' in 'Values'
+
+00:07:51.071 --> 00:07:54.358
+If I.... Let me copy this from here
+
+00:07:54.383 --> 00:07:56.786
+Why do hard work every-time
+
+00:07:57.445 --> 00:08:01.898
+" print(f "The value corresponding to the key {key} is {info}" ) "
+
+00:08:02.328 --> 00:08:05.415
+In-fact I'll change this to " {value} "
+
+00:08:06.069 --> 00:08:08.716
+It'll work obviously because it is
+the value of the same 'Dict'
+
+00:08:09.070 --> 00:08:13.197
+It'll work too, because  'key' contains 'keys'
+and 'value' contains 'Values'
+
+00:08:13.447 --> 00:08:18.137
+If you print your item so you'll get this...
+
+00:08:18.508 --> 00:08:20.893
+'Dict' is used to create a mapping
+
+00:08:20.994 --> 00:08:22.946
+For eg. To store the marks of all
+students of a class
+
+00:08:23.093 --> 00:08:26.106
+"Employee code of employees of a company"
+
+00:08:26.294 --> 00:08:31.279
+Their performance rating out of 100
+
+00:08:31.319 --> 00:08:37.556
+Or MRP of all items for a retail shop
+
+00:08:37.689 --> 00:08:39.869
+For eg. Let's suppose you own a grocery store
+
+00:08:40.157 --> 00:08:41.284
+In that case you can make a dictionary
+
+00:08:41.410 --> 00:08:44.623
+"item code" : "Price"
+
+00:08:44.882 --> 00:08:48.642
+Whenever you need to know the price of an item,
+you can access that dictionary
+
+00:08:49.571 --> 00:08:54.000
+This is quite helpful when you store
+it in your database
+
+00:08:54.250 --> 00:08:57.063
+This was all about the basics of 'Dictionary'
+
+00:08:57.247 --> 00:08:58.427
+I hope you got them
+
+00:08:58.580 --> 00:09:01.346
+And tell me the in the comments below
+how this course is going
+
+00:09:01.630 --> 00:09:07.880
+And if you have completed Day #33 so you
+almost have covered 30% of the course
+
+00:09:08.121 --> 00:09:10.155
+I want you to visit the first video
+
+00:09:10.365 --> 00:09:11.719
+And share your experience with others
+
+00:09:11.971 --> 00:09:14.265
+"I'm on Day #33" And "Whatever you feel"
+
+00:09:14.515 --> 00:09:16.809
+I want all of you to comment
+
+00:09:17.189 --> 00:09:21.835
+Go to video Day #1 and leave a
+review with "Review: ..... "
+
+00:09:22.256 --> 00:09:28.448
+You feel bad or good or want to leave a feedback
+just post it there in comments
+
+00:09:28.643 --> 00:09:35.646
+Because I want new viewers to know what
+value this course is adding in their lives
+
+00:09:35.684 --> 00:09:37.284
+Or if it really adding some values or not
+
+00:09:37.636 --> 00:09:39.403
+What this course contains &amp; not
+
+00:09:39.696 --> 00:09:41.469
+I'll feel good from the bottom of
+my heart if you do this
+
+00:09:41.717 --> 00:09:45.071
+Go to the first video and leave a
+comment with " Review : .... "
+
+00:09:45.290 --> 00:09:50.182
+Give your ratings out of 5 and
+leave a feedback
+
+00:09:50.606 --> 00:09:52.538
+Please tell me in the comments
+
+00:09:52.665 --> 00:09:54.652
+Not in this video but in first video's
+comment section
+
+00:09:55.013 --> 00:09:56.413
+That's it for this video guys
+
+00:09:56.644 --> 00:09:58.445
+Thank you so much guys for watching this video :)
+
+00:09:58.472 --> 00:10:01.172
+And I'll see you next time
+

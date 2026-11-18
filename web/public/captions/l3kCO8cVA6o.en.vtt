@@ -1,0 +1,406 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:00.000 --> 00:00:03.495
+If you guys have studied Sets, you must've read Set Theory
+
+00:00:03.495 --> 00:00:07.099
+which says "Set is a collection of well-defined objects."
+
+00:00:07.099 --> 00:00:09.889
+Now, everything in python is an object, and if you all
+
+00:00:09.889 --> 00:00:14.211
+want a data entry in python with no repeated entries
+
+00:00:14.211 --> 00:00:17.587
+you can make a set, let me give you a good example
+
+00:00:17.587 --> 00:00:23.428
+Imagine you need to collect a list of people whose names start with an 'S'
+
+00:00:23.428 --> 00:00:25.679
+and you go to different people and ask their names,
+
+00:00:25.679 --> 00:00:29.713
+some say 'Shruti', some 'Samarth', and some 'Shubham'
+
+00:00:29.713 --> 00:00:32.479
+maybe one of your friends repeats the name 'Shubham'
+
+00:00:32.479 --> 00:00:35.197
+and you may not want to add this to the list because
+
+00:00:35.197 --> 00:00:38.357
+if 100 people say 'Shubham', there'll be 100 Shubham in the list.
+
+00:00:38.357 --> 00:00:43.743
+And if you want the list that you're making to have no repetitions,
+
+00:00:43.743 --> 00:00:44.989
+We can make 'SETS' for this.
+
+00:00:44.989 --> 00:00:48.485
+Let's see the methods of sets and why it's used.
+
+00:00:48.485 --> 00:00:49.671
+So hop onto the computer screen and
+
+00:00:49.671 --> 00:00:50.726
+LET'S GET STARTED!!
+
+00:01:00.144 --> 00:01:02.060
+Many of you may have learned in maths that
+
+00:01:02.060 --> 00:01:04.933
+Set is a collection of well-defined objects.
+
+00:01:04.933 --> 00:01:07.340
+Well, sets in python are the same too.
+
+00:01:07.340 --> 00:01:10.931
+Now what's the meaning of set, why is it in python
+
+00:01:10.931 --> 00:01:16.329
+Sometimes we collect certain values which we don't want to get repeated.
+
+00:01:16.329 --> 00:01:20.626
+Imagine I ask you, the employee IDs of those
+
+00:01:20.626 --> 00:01:23.105
+who have already received a gift
+
+00:01:23.308 --> 00:01:28.000
+Now you're asked to report who has received a gift
+
+00:01:28.000 --> 00:01:32.000
+Imagine there's a company that wants to give a thanksgiving gift once,
+
+00:01:32.000 --> 00:01:35.794
+and you need to insure that no one receives a gift more than once.
+
+00:01:35.794 --> 00:01:40.498
+So every employee with gifts is asked to submit their IDs.
+
+00:01:40.498 --> 00:01:44.077
+Now, if we solve this problem through a list, it will be very big
+
+00:01:44.077 --> 00:01:45.550
+and it will have repeated values
+
+00:01:45.550 --> 00:01:48.698
+One employee may take the name of 5 other employees,
+
+00:01:48.698 --> 00:01:51.169
+and the other employee repeats the same exact 5 names.
+
+00:01:51.169 --> 00:01:54.060
+Or takes 3 out of the 5 names
+
+00:01:54.060 --> 00:01:56.742
+This will increase the size of the list
+
+00:01:56.742 --> 00:01:58.969
+and more memory will be used, which we don't want
+
+00:01:58.969 --> 00:02:01.651
+That's why there's Set data type inside python.
+
+00:02:02.084 --> 00:02:03.902
+So how do we make Set?
+
+00:02:03.902 --> 00:02:11.262
+So, If I write s={2,4,2,6} and print it.
+
+00:02:11.645 --> 00:02:15.097
+In 's' you'll see 2 is being repeated twice but
+
+00:02:15.491 --> 00:02:17.236
+the set will take it only once.
+
+00:02:17.236 --> 00:02:22.120
+So, {2,4,2,6} will be {2,4,6} as you can see., okay.
+
+00:02:22.275 --> 00:02:25.029
+This shows Set doesn't take repeated values.
+
+00:02:25.029 --> 00:02:28.058
+So this is a Set of well-defined objects as we know
+
+00:02:28.058 --> 00:02:30.298
+Set is a collection of well-defined objects, right.
+
+00:02:30.298 --> 00:02:33.674
+And if I talk about Set here
+
+00:02:33.871 --> 00:02:36.852
+There are many methods to it, you can add values
+
+00:02:37.354 --> 00:02:41.066
+You can do everything that you can do with a list, in a very similar fashion
+
+00:02:41.066 --> 00:02:44.382
+except for the fact that there's no value repetition, okay.
+
+00:02:44.382 --> 00:02:47.208
+So, sets are unordered collections of data items.
+
+00:02:47.208 --> 00:02:49.627
+Here the word 'unordered' is very important, because
+
+00:02:49.627 --> 00:02:51.196
+it does not maintain order.
+
+00:02:51.196 --> 00:02:55.613
+You can't hope that if 2 comes first then 4, 6 would come next.
+
+00:02:55.613 --> 00:02:58.534
+There's no guarantee of maintaining this order.
+
+00:02:58.534 --> 00:03:00.259
+This is something you all need to remember.
+
+00:03:00.259 --> 00:03:04.066
+Set items are separated by commas and enclosed within curly brackets {}.
+
+00:03:04.066 --> 00:03:07.370
+As I have done here, values are separated by commas and
+
+00:03:07.388 --> 00:03:11.781
+instead of the square brackets that we use in our lists,
+
+00:03:11.781 --> 00:03:14.942
+or parentheses (), that we use in Tuple,
+
+00:03:14.942 --> 00:03:17.827
+here we use curly brackets, kind of like this.
+
+00:03:17.840 --> 00:03:21.324
+Through this python interpreter understands that we're talking about sets.
+
+00:03:21.755 --> 00:03:25.154
+Sets are unchangeable meaning you can't change items of a set
+
+00:03:25.154 --> 00:03:26.113
+once they are created.
+
+00:03:26.113 --> 00:03:29.405
+And sets don't contain duplicate items.
+
+00:03:29.405 --> 00:03:30.792
+Now let's understand this,
+
+00:03:30.792 --> 00:03:32.924
+'Sets are unchangeable' which means
+
+00:03:32.924 --> 00:03:36.623
+that I can't put 8 in place of 2.
+
+00:03:37.174 --> 00:03:41.591
+Once 2 go in the set; consider this a very big bag
+
+00:03:41.591 --> 00:03:46.151
+which has many pearls in it, if you put one more, it gets mixed.
+
+00:03:46.151 --> 00:03:49.779
+you can't find it and replace it anymore.
+
+00:03:49.779 --> 00:03:51.145
+Understand it kind of like that.
+
+00:03:51.145 --> 00:03:59.152
+Just as lists have different kinds of data entries, Sets can have them too
+
+00:03:59.152 --> 00:04:02.396
+Now see, 'Carla', 19, false, 5,9, 19
+
+00:04:02.396 --> 00:04:04.300
+since 19 is repeated it'll come once.
+
+00:04:04.300 --> 00:04:07.209
+Now 19 can come at the start or at the end.
+
+00:04:07.209 --> 00:04:10.000
+Python doesn't guarantee maintained order.
+
+00:04:10.000 --> 00:04:13.543
+This you should know. Now as you can see, this is the output.
+
+00:04:13.543 --> 00:04:16.703
+But in my case, this is the output. Hence no guarantee for order.
+
+00:04:16.703 --> 00:04:21.108
+Now, as you can see, when I ran the code, this was the output.
+
+00:04:21.279 --> 00:04:25.014
+But now, this is the output, okay.
+
+00:04:25.014 --> 00:04:29.527
+Hence no guarantee for order, anything can be put anywhere.
+
+00:04:29.562 --> 00:04:33.584
+You can't say that you'll get a maintained order.
+
+00:04:33.584 --> 00:04:35.201
+There's no guarantee, okay.
+
+00:04:35.871 --> 00:04:39.069
+Here we see that items of the set occur in random order.
+
+00:04:39.069 --> 00:04:41.524
+And hence, they can't be accessed using index numbers.
+
+00:04:41.524 --> 00:04:44.457
+You can't do that, info 0, info 1, or info 2. No.
+
+00:04:45.307 --> 00:04:47.785
+They don't maintain order, okay.
+
+00:04:48.239 --> 00:04:52.955
+Also, sets don't allow duplicate values, which we already saw.
+
+00:04:52.955 --> 00:04:55.542
+Now the quick quiz may blow your mind.
+
+00:04:55.542 --> 00:04:56.657
+Some of you maybe or all.
+
+00:04:56.657 --> 00:05:00.535
+Try to create an empty set, and check using the type function.
+
+00:05:00.535 --> 00:05:03.384
+Whether the type of your variable is a set or not.
+
+00:05:03.384 --> 00:05:07.071
+Imagine I make a set named 'Harry' &amp; how you'll have to see.
+
+00:05:07.071 --> 00:05:09.657
+After that, it should be an empty set
+
+00:05:09.795 --> 00:05:13.722
+After this, I'll print 'type of harry', okay.
+
+00:05:14.104 --> 00:05:17.923
+Now, if you'll print type of harry, you must get a set.
+
+00:05:17.923 --> 00:05:20.060
+A lot of you people will do this.
+
+00:05:20.370 --> 00:05:24.153
+Or pause the video &amp; tell me in the comment section what code you wrote.
+
+00:05:24.153 --> 00:05:26.632
+Now, if you wrote this code, it's absolutely wrong.
+
+00:05:26.632 --> 00:05:30.451
+Because you'll see when you do this,
+
+00:05:30.451 --> 00:05:32.822
+even you'll get shocked, that why did it become a dictionary.
+
+00:05:32.822 --> 00:05:36.342
+I tried making a set. So always remember in your life,
+
+00:05:36.342 --> 00:05:43.739
+that the syntax for set and dictionary bot start and end with a curly bracket.
+
+00:05:43.739 --> 00:05:46.756
+That's why doing this gives you an empty dictionary not set.
+
+00:05:47.546 --> 00:05:51.388
+That's why to make an empty set, we need set like this
+
+00:05:52.249 --> 00:05:56.917
+This is how we make an empty set and now our type will be set.
+
+00:05:57.025 --> 00:05:58.774
+Here you can see, class set.
+
+00:05:58.798 --> 00:06:02.904
+You should know this. A lot get confused but let me tell you,
+
+00:06:02.904 --> 00:06:07.285
+If you need to make an empty set, this is how you do it.
+
+00:06:07.608 --> 00:06:10.852
+Now let me tell you how to access set items.
+
+00:06:10.918 --> 00:06:13.815
+One way through For loop, I can say
+
+00:06:13.815 --> 00:06:16.318
+For value in 'info'
+
+00:06:16.700 --> 00:06:19.023
+Print value and that's it.
+
+00:06:19.023 --> 00:06:22.303
+You can use For in-loop and running this will
+
+00:06:22.303 --> 00:06:25.033
+Carla, 19, etc in any order
+
+00:06:25.047 --> 00:06:29.500
+Why did I say any order? Because Set doesn't maintain order.
+
+00:06:29.500 --> 00:06:33.510
+Set's work is, putting value in a bag, with no repetitions.
+
+00:06:33.510 --> 00:06:37.712
+Imagine you put 2 iPhones in a bag, and it'll become 1 iPhone.
+
+00:06:37.907 --> 00:06:43.461
+You lost 1 iPhone. That's why, whenever you add values to a set
+
+00:06:43.519 --> 00:06:47.445
+You'll never see repetitions.
+
+00:06:47.687 --> 00:06:49.160
+You should know this.
+
+00:06:49.160 --> 00:06:52.000
+Now you can see, my output is different, here output is different,
+
+00:06:52.000 --> 00:06:53.581
+and maybe different output when you run it.
+
+00:06:53.581 --> 00:07:00.726
+This is because python doesn't give us maintained order in set.
+
+00:07:00.843 --> 00:07:02.543
+This is something you should know.
+
+00:07:02.608 --> 00:07:06.000
+Now, if you haven't accessed this playlist, sure do.
+
+00:07:06.000 --> 00:07:09.878
+because in the next video I'll tell you about more Set facts
+
+00:07:09.878 --> 00:07:13.374
+In sets I'll tell you what are the methods
+
+00:07:13.374 --> 00:07:16.989
+How union intersection is found, if you have studied set theory,
+
+00:07:16.989 --> 00:07:18.546
+You'll understand what I'm talking about.
+
+00:07:18.546 --> 00:07:20.677
+And if you haven't studied, meet me in the next video.
+
+00:07:20.677 --> 00:07:24.280
+What is a union or intersection, I'll clear it in the next video.
+
+00:07:24.879 --> 00:07:26.101
+That's all for this video, guys.
+
+00:07:26.101 --> 00:07:28.663
+If you haven't accessed the playlist, bookmark and save it.
+
+00:07:28.663 --> 00:07:30.663
+Thank you so much guys, for watching this video.
+
+00:07:30.663 --> 00:07:33.704
+AND I WILL SEE YOU NEXT TIME!!
+

@@ -1,0 +1,844 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:00.040 --> 00:00:03.092
+Everyone's tempo is quite high in
+100 Days Of Code
+
+00:00:03.117 --> 00:00:06.217
+And today's topic is
+"How to do string slicing"
+
+00:00:06.244 --> 00:00:09.492
+Do you remember we studied about 'Strings'
+And we learned how good 'Data Type' it is
+
+00:00:09.517 --> 00:00:11.040
+How useful this 'Data Type' is
+
+00:00:11.074 --> 00:00:16.434
+And whatever the project you'll create,
+You'll find yourself using 'String' in that project
+
+00:00:16.459 --> 00:00:18.852
+Today I'll tell you about 'String Slicing'
+
+00:00:18.877 --> 00:00:21.587
+And I'll tell you some more interesting
+things about 'Strings'
+
+00:00:21.609 --> 00:00:24.972
+Which will make you play better with 'strings'
+
+00:00:24.997 --> 00:00:27.962
+Let's move to the computer screen.
+And let's get started.
+
+00:00:27.994 --> 00:00:28.153
+[
+
+00:00:28.154 --> 00:00:28.312
+[S
+
+00:00:28.313 --> 00:00:28.471
+[ST
+
+00:00:28.472 --> 00:00:28.630
+[STA
+
+00:00:28.631 --> 00:00:28.789
+[STAR
+
+00:00:28.790 --> 00:00:28.948
+[START
+
+00:00:28.949 --> 00:00:29.108
+[STARTI
+
+00:00:29.109 --> 00:00:29.267
+[STARTIN
+
+00:00:29.268 --> 00:00:29.426
+[STARTING
+
+00:00:29.427 --> 00:00:29.585
+[STARTING 
+
+00:00:29.586 --> 00:00:29.744
+[STARTING T
+
+00:00:29.745 --> 00:00:29.903
+[STARTING TH
+
+00:00:29.904 --> 00:00:30.063
+[STARTING THE
+
+00:00:30.064 --> 00:00:30.222
+[STARTING THEM
+
+00:00:30.223 --> 00:00:30.381
+[STARTING THEME
+
+00:00:30.382 --> 00:00:31.767
+[STARTING THEME]
+
+00:00:37.334 --> 00:00:42.286
+So today we're back on our topic 'Strings'
+
+00:00:42.292 --> 00:00:45.820
+So firstly I'll open my Repl
+
+00:00:45.854 --> 00:00:47.607
+And today we're going to...
+
+00:00:47.915 --> 00:00:50.052
+...Learn "How to do slicing in 'Strings' "
+
+00:00:50.077 --> 00:00:52.472
+Let's suppose we have 'String'
+with name 'Harry'
+
+00:00:52.665 --> 00:00:56.572
+And this string is made up of 5 characters
+[H] [A] [R] [R] [Y]
+
+00:00:56.877 --> 00:01:00.225
+And let's suppose you only want
+to access [R] [R] [Y]
+
+00:01:00.303 --> 00:01:02.223
+Or if you didn't find this example helpful
+
+00:01:02.445 --> 00:01:05.531
+So let's suppose I gave you a string
+which contains 5 names
+
+00:01:05.626 --> 00:01:09.663
+So let me quickly open my Repl and
+I'll explain what am I talking about
+
+00:01:09.770 --> 00:01:11.297
+Suppose I have a name
+
+00:01:11.333 --> 00:01:16.054
+Here I'll write (name = "Harry, Shubh")
+
+00:01:16.079 --> 00:01:18.185
+In-fact I'll change this to 'names'
+
+00:01:18.496 --> 00:01:20.356
+Suppose I have names separated by comma(,)
+
+00:01:20.381 --> 00:01:22.603
+But I want to slice "Harry" from that string
+
+00:01:22.833 --> 00:01:24.238
+So I can do something like...
+
+00:01:24.281 --> 00:01:25.807
+" print(names[]) "
+
+00:01:26.109 --> 00:01:29.737
+And I want to slice starting 5 characters
+
+00:01:29.921 --> 00:01:31.488
+5 characters from starting
+
+00:01:31.513 --> 00:01:32.269
+So how can I do that?
+
+00:01:32.343 --> 00:01:35.823
+So for that I'll firstly specify the starting index
+
+00:01:36.111 --> 00:01:38.544
+And then I'll specify the ending index
+
+00:01:38.569 --> 00:01:41.161
+I'll write... Starting index....
+
+00:01:41.439 --> 00:01:43.506
+BTW counting of index starts with [0]
+
+00:01:43.534 --> 00:01:46.614
+Whenever we count something
+we start with [1]
+
+00:01:46.849 --> 00:01:50.482
+When we count our fingers, we count like,
+[1] [2] [3] [4] [5]
+
+00:01:50.786 --> 00:01:53.792
+Whatever we count, we start it with [1]
+
+00:01:54.182 --> 00:01:58.382
+But in programming whatever
+you count, start it with [0]
+
+00:01:58.701 --> 00:02:02.311
+Don't start with [1], because in most of the
+programming languages, counting starts with [0]
+
+00:02:02.662 --> 00:02:03.956
+This is clear, isn't it?
+
+00:02:04.379 --> 00:02:06.059
+Now I've started counting from [0]
+
+00:02:06.234 --> 00:02:08.782
+And here I'll write [0:6]
+
+00:02:08.807 --> 00:02:11.296
+Now you'll ask, why have I written [6]
+when I want starting 5 characters
+
+00:02:11.632 --> 00:02:12.512
+So why have I written [6]
+
+00:02:13.296 --> 00:02:14.383
+So I'll write [5]
+
+00:02:14.408 --> 00:02:16.314
+And I'll get 5 characters
+
+00:02:16.517 --> 00:02:19.077
+So I'll get characters starting from 0 to 4
+
+00:02:19.241 --> 00:02:22.267
+Now if you hover on it
+
+00:02:22.867 --> 00:02:25.660
+So Replit displays a lot of information
+
+00:02:26.606 --> 00:02:29.866
+But leaving this, I'll tell you how this works
+
+00:02:30.504 --> 00:02:34.011
+This displays value from 0 to (n-1)
+
+00:02:34.248 --> 00:02:36.254
+And it prints the indexes
+
+00:02:36.483 --> 00:02:39.819
+Just like it prints [0] [1] [2] [3] [4]
+
+00:02:39.890 --> 00:02:41.986
+But it didn't print [5]
+This is the point to be noted
+
+00:02:42.340 --> 00:02:45.447
+Now I've written a quite interesting
+tutorial for you here
+
+00:02:45.746 --> 00:02:49.239
+Length of a String: We can find the length
+of a string using len() function.
+
+00:02:49.689 --> 00:02:52.622
+But before this I'd like to tell you
+
+00:02:53.039 --> 00:02:55.806
+That if you want to find the length
+of any 'String'
+
+00:02:56.183 --> 00:02:59.209
+For eg. If I want the length of string 'name'
+
+00:02:59.562 --> 00:03:02.281
+So I'll use the len() function
+" len(name) "
+
+00:03:02.306 --> 00:03:03.619
+The output is 13, you can re-check it
+
+00:03:03.992 --> 00:03:08.738
+[2]+[2]+[2]+[2]+[2]+[2]+[1]=13
+
+00:03:08.858 --> 00:03:10.951
+There are 13 characters in it
+
+00:03:12.174 --> 00:03:14.794
+So this is how you can find the length of a string
+
+00:03:14.909 --> 00:03:17.823
+I've also given an example here
+we can try it out
+
+00:03:18.099 --> 00:03:22.314
+"Mango is a 5 letter word"
+
+00:03:22.961 --> 00:03:24.327
+So mango is made up of 5 letters
+
+00:03:24.389 --> 00:03:27.468
+So "Mango is a 5 letter word"
+has been printed here
+
+00:03:27.902 --> 00:03:29.935
+Now basically string is like an array
+
+00:03:30.103 --> 00:03:32.823
+"String is a sequence of character"
+we learned this in preceding video
+
+00:03:32.984 --> 00:03:35.438
+We can access any element we want to
+
+00:03:35.722 --> 00:03:37.694
+Now let me explain you 'Slicing'
+
+00:03:37.719 --> 00:03:39.384
+Leave this topic for now and just pay
+attention on my words
+
+00:03:40.082 --> 00:03:42.262
+I've (fruit = "Mango")
+
+00:03:43.597 --> 00:03:46.709
+And I've printed 'len1' here
+
+00:03:47.364 --> 00:03:48.478
+Or 'mangoLen'
+
+00:03:48.964 --> 00:03:51.757
+I can give it any name
+
+00:03:52.514 --> 00:03:56.173
+I've named it 'mangoLen'
+so I'll get '5' printed here
+
+00:03:56.546 --> 00:03:59.159
+Now if I want to print the starting
+2 letter of 'fruit'
+
+00:03:59.332 --> 00:04:02.252
+So I'll write "fruit" and then I'll write...
+
+00:04:02.798 --> 00:04:03.464
+..print(fruit)
+
+00:04:03.851 --> 00:04:05.469
+And I'll add this 'square bracket notation'
+
+00:04:05.494 --> 00:04:07.642
+Make sure you don't use parenthesis
+
+00:04:07.735 --> 00:04:09.628
+We use parenthesis for 'functions'
+
+00:04:09.941 --> 00:04:12.160
+And for slicing we use ' Square Brackets[ ] '
+
+00:04:12.185 --> 00:04:16.033
+On your keyboard 'Square Brackets' are
+on the right of letter 'P'
+
+00:04:16.252 --> 00:04:17.679
+Look for them on your keyboard
+
+00:04:17.947 --> 00:04:21.846
+And let's suppose if I write
+" print(fruits[0:4]) "
+
+00:04:21.871 --> 00:04:24.048
+So I'll get the first 4 characters
+
+00:04:24.082 --> 00:04:31.320
+Basically from this line of code I want to
+specify that give me Index[0] [1] [2] [3]
+
+00:04:31.497 --> 00:04:34.244
+You won't get the 4th index
+
+00:04:34.536 --> 00:04:37.868
+You'll only get index from [0] to [3]
+
+00:04:37.893 --> 00:04:39.870
+[0] [1] [2] [3], you'll only get these 4 characters
+
+00:04:39.895 --> 00:04:43.517
+I'll run this, and the output will
+be [M] [A] [N] [G]
+
+00:04:44.135 --> 00:04:45.968
+What if I don't add this [0]
+
+00:04:46.419 --> 00:04:47.665
+I can skip this [0]
+
+00:04:47.690 --> 00:04:50.898
+If I don't add this [0]
+so what Python will do is...
+
+00:04:51.167 --> 00:04:54.454
+It'll automatically consider it as [0]
+if I skip this [0]
+
+00:04:54.624 --> 00:04:56.190
+So this is the advantage of Python
+
+00:04:56.512 --> 00:05:00.340
+Now what if I want index from [1] ?
+
+00:05:00.365 --> 00:05:02.828
+So I'll write [1:4]
+
+00:05:02.870 --> 00:05:05.424
+So I'll get [A] [N] [G]
+
+00:05:05.474 --> 00:05:07.047
+Look I got [A] [N] &amp; [G]
+
+00:05:07.671 --> 00:05:12.679
+But if I write it like " print(fruit[:4]) "
+
+00:05:12.842 --> 00:05:15.419
+So Python is smart enough
+
+00:05:15.914 --> 00:05:17.427
+That it'll automatically consider
+this blank as [0]
+
+00:05:17.831 --> 00:05:20.444
+And you'll get [M] [A] [N] [G] as output
+
+00:05:21.021 --> 00:05:24.233
+And if I remove this [4] from here
+so what Python will do?
+
+00:05:24.497 --> 00:05:27.097
+It'll automatically add the
+'Length of Fruit'
+
+00:05:27.122 --> 00:05:28.786
+What is the 'Length of fruit'?
+It's 5
+
+00:05:29.045 --> 00:05:29.998
+So it'll add [5]
+
+00:05:30.023 --> 00:05:31.992
+Look if I don't add [5] here
+
+00:05:32.979 --> 00:05:36.466
+Even then the output is 'Mango'
+and if I add [5] so I'll get 'Mango'
+
+00:05:37.298 --> 00:05:39.278
+So this is how slicing works
+
+00:05:39.604 --> 00:05:41.903
+Now I want to tell you one more
+thing about 'Slicing'
+
+00:05:41.928 --> 00:05:43.231
+'Negative Slicing'
+
+00:05:43.385 --> 00:05:44.991
+If I change this to [-1]
+
+00:05:45.016 --> 00:05:49.699
+And I'll change this to [0] because if I don't write
+anything even then it'll be considered as [0]
+
+00:05:49.975 --> 00:05:51.995
+And what if I write [-3] here
+
+00:05:52.512 --> 00:05:54.032
+So look, what the output will be
+
+00:05:54.340 --> 00:05:56.174
+And I'll tell you why the output is this
+
+00:05:56.220 --> 00:05:57.546
+The output is "Ma"
+
+00:05:57.584 --> 00:05:58.830
+Why's that?
+
+00:06:00.245 --> 00:06:02.379
+So firstly let's understand how
+Python interprets it
+
+00:06:02.691 --> 00:06:03.851
+This [-3]...
+
+00:06:04.135 --> 00:06:05.432
+Python interpreter automatically...
+
+00:06:07.933 --> 00:06:10.959
+...Adds the 'Length of fruit'
+
+00:06:11.369 --> 00:06:14.208
+What is the 'Length of Fruit'?
+It's 5
+
+00:06:14.233 --> 00:06:15.989
+We're already familiar, it is 5
+
+00:06:16.430 --> 00:06:17.590
+'Length of Fruit' is 5
+
+00:06:17.914 --> 00:06:19.634
+And (5-3) is 2
+
+00:06:19.802 --> 00:06:25.954
+And [0:2] means [0]M  [1]A
+
+00:06:26.150 --> 00:06:29.283
+So it's 'M' on Index[0] and 'A' on Index[1]
+
+00:06:29.387 --> 00:06:30.567
+So "Ma" is being printed
+
+00:06:30.869 --> 00:06:32.589
+The output of this, will also be "Ma"
+
+00:06:33.284 --> 00:06:35.984
+Let me tell you for your clarity,
+if I write this...
+
+00:06:36.944 --> 00:06:38.557
+Or this...
+The output will be the same
+
+00:06:38.645 --> 00:06:40.199
+The output will be "Ma" both the times
+
+00:06:40.565 --> 00:06:42.958
+Because Python automatically considered
+this as 'Length of Fruit'
+
+00:06:43.286 --> 00:06:45.186
+What about 'Negative Slicing' here
+
+00:06:45.241 --> 00:06:47.921
+What will be printed if I write [-1] here
+
+00:06:48.907 --> 00:06:52.407
+1 sec, let me write this in a new line
+so that you won't be confused
+
+00:06:53.066 --> 00:06:55.789
+If I write nothing here so this &amp;
+this are equivalent
+
+00:06:55.814 --> 00:06:59.976
+Because for 'Negative Slicing' Python automatically 
+consider this as 'Length of Fruit'
+
+00:07:00.522 --> 00:07:02.702
+And what if I change this to [-1]
+
+00:07:03.583 --> 00:07:04.598
+So look.....
+
+00:07:04.927 --> 00:07:10.129
+Let me comment this out so you'll know
+what exactly is printing here
+
+00:07:10.461 --> 00:07:12.867
+If I tweak it like this, if I change this to [-1]
+
+00:07:12.869 --> 00:07:15.455
+So look, 5 has been printed here
+and nothing was printed here
+
+00:07:15.480 --> 00:07:17.319
+Now let's understand what's this
+
+00:07:17.679 --> 00:07:19.592
+So I've written
+" print(fruit[-1:len(fruit)-3]) "
+
+00:07:19.629 --> 00:07:22.443
+And here I only have written -1
+
+00:07:22.804 --> 00:07:26.364
+So Python interpreter automatically
+adds the 'Length of Fruit'
+
+00:07:27.023 --> 00:07:30.296
+So python interpreter will interprets this
+in such a way that "It'll say...
+
+00:07:30.546 --> 00:07:32.913
+...'Length of Fruit' is 5 so (5-1) is 4"
+
+00:07:33.341 --> 00:07:35.167
+And (5-3) is 2
+
+00:07:35.205 --> 00:07:37.872
+So there's no sense in [4:2]
+
+00:07:38.386 --> 00:07:41.833
+However if I reverse this, which means if
+I change this [-1] with [-3]
+
+00:07:42.694 --> 00:07:44.901
+And if I change this [-3] with [-1]
+
+00:07:45.282 --> 00:07:47.969
+So what will happen?
+And there's no need for me to add 'Length of Fruit'
+
+00:07:48.384 --> 00:07:51.804
+I was just telling you that Python
+automatically adds 'Length of Fruit'
+
+00:07:52.316 --> 00:07:53.342
+If I run this...
+
+00:07:54.158 --> 00:07:57.971
+So you'll see the output is "ng"
+Now let's decode, why?
+
+00:07:58.339 --> 00:08:01.592
+Firstly Python interprets it as
+(Length of Fruit -3)
+
+00:08:01.924 --> 00:08:03.424
+Which is (5-3)=2
+
+00:08:03.611 --> 00:08:04.917
+So here the value will be [2]
+
+00:08:05.310 --> 00:08:07.904
+And here the value will be [4]
+
+00:08:08.289 --> 00:08:10.483
+So it'll start from the index[2]
+to the index[3]
+
+00:08:11.039 --> 00:08:14.539
+Do you remember that Python starts
+from here and ends here
+
+00:08:14.881 --> 00:08:17.474
+So [0] [1] [2] which means the
+output will be " n "
+
+00:08:17.664 --> 00:08:19.318
+And then index[3] will be printed i.e. " g "
+
+00:08:19.684 --> 00:08:22.639
+The output will be " ng " and
+index[4] will be ignored
+
+00:08:22.664 --> 00:08:23.630
+I already have told you
+
+00:08:23.883 --> 00:08:26.643
+Including this but not including this
+
+00:08:26.927 --> 00:08:28.194
+Now I want to write this down
+
+00:08:28.522 --> 00:08:29.835
+I'd like to write this
+
+00:08:30.161 --> 00:08:30.542
+That....
+
+00:08:31.588 --> 00:08:34.881
+"Including 0 but not 4"
+
+00:08:35.551 --> 00:08:40.750
+In-fact I'll write this here too so that you won't be
+confused "if there's a special case with [0]"
+
+00:08:41.130 --> 00:08:43.803
+No man! There's no special case with 'zero'
+I was just....
+
+00:08:44.313 --> 00:08:47.040
+If I paste this here so the behaviour
+will be same for [1]
+
+00:08:47.464 --> 00:08:51.024
+As you can see when I wrote [0:4]
+so it includes 0 but not 4
+
+00:08:51.274 --> 00:08:53.794
+Including 1 but not 4, i.e. from 1 to 3
+
+00:08:53.871 --> 00:08:55.151
+And this is the index
+
+00:08:55.364 --> 00:08:57.543
+Which means it's the number to
+start counting from [0]
+
+00:08:57.568 --> 00:08:58.970
+If you start counting from [0]
+
+00:08:59.261 --> 00:09:00.827
+Which means in place of [0], it's ' m '
+
+00:09:01.236 --> 00:09:03.368
+In place of [1], it's ' a '
+In place of [2], it's ' n '
+
+00:09:03.449 --> 00:09:06.441
+In place of [3], it's ' g '
+And in place of [4], it's ' o '
+
+00:09:07.328 --> 00:09:09.134
+So this is how you can do 'String Slicing'
+
+00:09:09.159 --> 00:09:10.743
+I've given all the examples
+
+00:09:10.963 --> 00:09:15.653
+Now many people defines 'Negative Slicing'
+in such a different way
+
+00:09:15.971 --> 00:09:19.377
+But in my opinion, the best opinion is....
+Just write " len(fruit) "
+
+00:09:19.965 --> 00:09:22.285
+And that's about it, you're all done
+
+00:09:23.295 --> 00:09:25.855
+Now we also have learned how you can
+start a 'Loop' in 'String'
+
+00:09:26.072 --> 00:09:30.159
+And you tried this in the preceding video
+
+00:09:30.252 --> 00:09:33.667
+And in the upcoming videos we'll
+learn the method for 'String'
+
+00:09:33.692 --> 00:09:36.601
+But I want you to solve a quick quiz for me
+
+00:09:36.905 --> 00:09:39.098
+And don't answer this in comment
+section this time
+
+00:09:39.502 --> 00:09:43.056
+Just tag me on Instagram by
+solving this quiz
+
+00:09:43.400 --> 00:09:44.620
+So let's solve this exercise
+
+00:09:45.349 --> 00:09:47.155
+What you have to do is....
+
+00:09:48.590 --> 00:09:50.703
+You have to explain the output
+of this program
+
+00:09:50.894 --> 00:09:52.620
+I'm writing a very simple program
+
+00:09:52.975 --> 00:09:55.382
+So you have to...
+Why have I written "Quick Quick:"
+
+00:09:56.383 --> 00:09:57.097
+It's "Quick Quiz"
+
+00:09:57.452 --> 00:09:58.658
+What you have to do is...
+
+00:09:58.905 --> 00:10:00.405
+And don't cheat, OK?
+
+00:10:01.495 --> 00:10:03.402
+Don't cheat, you don't display the output
+
+00:10:03.690 --> 00:10:05.130
+' nm = "Harry" '
+
+00:10:05.400 --> 00:10:08.388
+So if print(nm)
+
+00:10:08.726 --> 00:10:10.940
+And let's suppose I'm writing....
+
+00:10:11.363 --> 00:10:17.040
+If I do " print(nm[-4:-2]) "
+
+00:10:17.466 --> 00:10:19.693
+So you've to tell what will be the output
+
+00:10:20.463 --> 00:10:23.637
+Can you solve this? You've to solve this
+
+00:10:23.900 --> 00:10:26.373
+What will be the output of
+" print(nm[-4:-2]) "
+
+00:10:26.790 --> 00:10:30.730
+And I challenge you that when you'll tag
+me on Instagram from your phone
+
+00:10:31.145 --> 00:10:33.078
+You won't tag me on Insta
+showing the solution
+
+00:10:33.103 --> 00:10:39.794
+Don't try to run this program, let me comment this out so you
+won't say that " we ran it and the output was displayed"
+
+00:10:40.245 --> 00:10:42.719
+There won't be any output if this is
+marked as comment
+
+00:10:43.867 --> 00:10:46.427
+And then you have to do exactly 
+what I told you
+
+00:10:46.697 --> 00:10:51.837
+And I won't explain you again about the length of
+string or anything, you can rewind the video
+
+00:10:52.558 --> 00:10:53.918
+I want correct answers
+
+00:10:54.195 --> 00:10:56.821
+Try to achieve the "Correct answer" goal
+
+00:10:57.178 --> 00:10:59.305
+And if you explain it...
+Explanation is optional
+
+00:10:59.784 --> 00:11:02.584
+Just give me the answer and
+explanation is optional
+
+00:11:03.072 --> 00:11:06.172
+You can share a quick explanation
+if you want to, It'll amaze me
+
+00:11:06.509 --> 00:11:08.722
+If you haven’t accessed the play-list yet...
+
+00:11:09.037 --> 00:11:10.977
+So make sure to access it
+
+00:11:11.163 --> 00:11:14.803
+And my Instagram handle is "@CodeWithHarry "
+I'd also like to tell you this
+
+00:11:15.139 --> 00:11:18.273
+So you can find me on Instagram with
+@CodeWithHarry
+
+00:11:18.635 --> 00:11:22.179
+Make sure to access the play-list, bookmark it by
+clicking here &amp; save it by clicking here
+
+00:11:22.204 --> 00:11:23.754
+That's it for this video guys
+
+00:11:23.982 --> 00:11:26.069
+Thank you so much guys for watching this video :)
+
+00:11:26.284 --> 00:11:29.310
+And I'll see you next time
+
