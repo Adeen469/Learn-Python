@@ -7,6 +7,7 @@ import Editor from "@monaco-editor/react";
 import { AppNavbar } from "@/components/AppNavbar";
 import { ModulesPanel } from "@/components/ModulesPanel";
 import { fetchSessionUser } from "@/lib/auth-client";
+import { useLanguage } from "@/lib/i18n";
 import {
   THEME_CHANGED_EVENT,
   getStoredTheme,
@@ -125,6 +126,7 @@ export default function CodeEditorPage() {
     return () => window.removeEventListener(THEME_CHANGED_EVENT, sync);
   }, []);
   const router = useRouter();
+  const { t } = useLanguage();
   const [items, setItems] = useState<WorkspaceItem[]>(DEFAULT_WORKSPACE);
   const [activeFilePath, setActiveFilePath] = useState<string>("main.py");
 
@@ -180,7 +182,7 @@ export default function CodeEditorPage() {
     if (!activeFile || aiLoading) return;
     const code = activeFile.content ?? "";
     if (!code.trim()) {
-      setAiError("This file is empty — write some code first.");
+      setAiError(t.editorPage.emptyFileError);
       setAiMode(mode);
       setAiAnswer(null);
       return;
@@ -207,21 +209,21 @@ export default function CodeEditorPage() {
         return;
       }
       if (res.status === 401) {
-        setAiError("Your session expired — please sign in again.");
+        setAiError(t.tutor.errorSessionExpired);
         return;
       }
       if (!res.ok || typeof data !== "object" || data === null) {
-        setAiError("Something went wrong — please try again.");
+        setAiError(t.common.genericError);
         return;
       }
       const reply = (data as { reply?: unknown }).reply;
       if (typeof reply !== "string" || !reply.trim()) {
-        setAiError("The AI returned an empty reply — please try again.");
+        setAiError(t.editorPage.aiEmptyReplyError);
         return;
       }
       setAiAnswer(reply.trim());
     } catch {
-      setAiError("Could not reach the AI — check your connection and try again.");
+      setAiError(t.tutor.errorGeneric);
     } finally {
       setAiLoading(false);
     }
@@ -323,16 +325,16 @@ export default function CodeEditorPage() {
         }
       } catch {}
       // micropip's wheel download has no timeout either — cap it.
-      emitStage("Loading micropip…");
+      emitStage(t.modulesPage.stageLoadingMicropip);
       await withTimeout(
         pyodide.loadPackage("micropip"),
         60_000,
-        "Loading micropip timed out after 1 minute — check your connection and retry."
+        t.editorPage.micropipTimeoutError
       );
       pyodideRef.current = pyodide;
       setPyodideReady(true);
       setPyodideError(null);
-      emitStage("Python runtime ready");
+      emitStage(t.modulesPage.stageRuntimeReady);
       setOutput((prev) => prev + "✓ Python runtime (Pyodide 0.27.2) loaded successfully.\n");
 
       // Saved packages are restored in the BACKGROUND, not awaited
@@ -455,7 +457,7 @@ export default function CodeEditorPage() {
     if (!clean) return;
     const normalized = clean.endsWith(".py") ? clean : `${clean}.py`;
     if (items.some((i) => i.path === normalized)) {
-      alert("A file with this path already exists");
+      alert(t.editorPage.fileExistsError);
       return;
     }
     const newFile: WorkspaceItem = {
@@ -479,7 +481,7 @@ export default function CodeEditorPage() {
     const clean = newFolderInput.trim().replace(/\/+$/, "");
     if (!clean) return;
     if (items.some((i) => i.path === clean)) {
-      alert("A folder with this name already exists");
+      alert(t.editorPage.folderExistsError);
       return;
     }
     const newFolder: WorkspaceItem = {
@@ -498,7 +500,7 @@ export default function CodeEditorPage() {
 
   function handleDeleteItem(item: WorkspaceItem) {
     if (items.filter((i) => i.type === "file").length <= 1 && item.type === "file") {
-      alert("You must keep at least one file in the workspace.");
+      alert(t.editorPage.keepOneFileError);
       return;
     }
     const next = items.filter((i) => i.path !== item.path && !i.path.startsWith(item.path + "/"));
@@ -544,7 +546,7 @@ export default function CodeEditorPage() {
     if (newPath === sourceItem.path) return;
 
     if (items.some((i) => i.path === newPath)) {
-      alert(`An item named '${itemName}' already exists in that location.`);
+      alert(t.editorPage.itemExistsInLocationError(itemName));
       return;
     }
 
@@ -691,7 +693,7 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
         // Event for a stage-listener function — see the guard above.
         onLoad={() => initPyodide()}
         onError={() => {
-          const msg = "Pyodide script failed to load from cdn.jsdelivr.net — check your connection and reload the page.";
+          const msg = t.editorPage.pyodideLoadError;
           setPyodideError(msg);
           setOutput((prev) => prev + `✗ ${msg}\n`);
         }}
@@ -708,7 +710,7 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
               editorTab === "files" ? "bg-white text-black" : "text-neutral-400 hover:text-white"
             }`}
           >
-            <Code2 className="h-3.5 w-3.5" /> Files
+            <Code2 className="h-3.5 w-3.5" /> {t.editorPage.filesTab}
           </button>
           <button
             type="button"
@@ -717,7 +719,7 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
               editorTab === "modules" ? "bg-white text-black" : "text-neutral-400 hover:text-white"
             }`}
           >
-            <Package className="h-3.5 w-3.5" /> Modules
+            <Package className="h-3.5 w-3.5" /> {t.editorPage.modulesTab}
           </button>
         </div>
 
@@ -728,9 +730,9 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
           <div className="flex items-center gap-3">
             <span className="text-xs uppercase tracking-wider text-neutral-500 font-semibold flex items-center gap-1.5 min-w-0">
               <FileCode className="h-4 w-4 text-white shrink-0" />
-              Active: <span className="text-white font-mono truncate">{activeFile?.path ?? "None"}</span>
+              {t.editorPage.activeLabel} <span className="text-white font-mono truncate">{activeFile?.path ?? t.editorPage.noActiveFile}</span>
               {activeFile && !activeFile.isSaved && (
-                <span className="text-amber-400 font-sans text-xs ml-1">(unsaved*)</span>
+                <span className="text-amber-400 font-sans text-xs ml-1">{t.editorPage.unsavedBadge}</span>
               )}
             </span>
           </div>
@@ -748,11 +750,11 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
             >
               {activeFile?.isSaved ? (
                 <>
-                  <Check className="h-3.5 w-3.5 text-white" /> Saved
+                  <Check className="h-3.5 w-3.5 text-white" /> {t.editorPage.saved}
                 </>
               ) : (
                 <>
-                  <Save className="h-3.5 w-3.5" /> Save File (Required)
+                  <Save className="h-3.5 w-3.5" /> {t.editorPage.saveFileRequired}
                 </>
               )}
             </button>
@@ -761,20 +763,20 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
               type="button"
               onClick={() => askEditorAi("explain")}
               disabled={aiLoading || !activeFile}
-              title="Ask the AI to explain this file"
+              title={t.editorPage.explainCodeHint}
               className="flex items-center gap-1.5 rounded-lg border border-neutral-700 bg-neutral-900 px-3.5 py-1.5 text-xs font-medium text-white hover:bg-neutral-800 transition disabled:opacity-50"
             >
-              <Sparkles className="h-3.5 w-3.5" /> Explain this code
+              <Sparkles className="h-3.5 w-3.5" /> {t.editorPage.explainCode}
             </button>
 
             <button
               type="button"
               onClick={() => askEditorAi("debug")}
               disabled={aiLoading || !activeFile}
-              title="Ask the AI to find the bug in this file"
+              title={t.editorPage.findBugHint}
               className="flex items-center gap-1.5 rounded-lg border border-neutral-700 bg-neutral-900 px-3.5 py-1.5 text-xs font-medium text-white hover:bg-neutral-800 transition disabled:opacity-50"
             >
-              <Bug className="h-3.5 w-3.5" /> Find the bug
+              <Bug className="h-3.5 w-3.5" /> {t.editorPage.findBug}
             </button>
 
             {isRunning && (
@@ -784,12 +786,12 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
                 disabled={!interruptBufferRef.current}
                 title={
                   interruptBufferRef.current
-                    ? "Interrupt the running code"
-                    : "Stop needs SharedArrayBuffer, which this browser setup does not provide — reload the page to stop a stuck run."
+                    ? t.editorPage.stopHint
+                    : t.editorPage.stopUnavailableHint
                 }
                 className="flex items-center gap-1.5 rounded-lg border border-red-500/50 bg-red-500/10 px-3.5 py-1.5 text-xs font-medium text-red-200 hover:bg-red-500/20 transition disabled:opacity-50"
               >
-                <Square className="h-3.5 w-3.5 fill-current" /> Stop
+                <Square className="h-3.5 w-3.5 fill-current" /> {t.editorPage.stop}
               </button>
             )}
 
@@ -801,15 +803,15 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
             >
               {isRunning ? (
                 <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> Compiling...
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> {t.editorPage.compiling}
                 </>
               ) : loadingEngine ? (
                 <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading Engine
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> {t.editorPage.loadingEngine}
                 </>
               ) : (
                 <>
-                  <Play className="h-3.5 w-3.5 fill-black" /> Compile & Run
+                  <Play className="h-3.5 w-3.5 fill-black" /> {t.editorPage.compileAndRun}
                 </>
               )}
             </button>
@@ -827,7 +829,7 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
               }}
               className="underline font-semibold hover:text-white ml-3"
             >
-              Retry
+              {t.common.retry}
             </button>
           </div>
         )}
@@ -844,7 +846,7 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
               onClick={saveCurrentFile}
               className="underline font-semibold hover:text-white ml-3"
             >
-              Save Now
+              {t.editorPage.saveNow}
             </button>
           </div>
         )}
@@ -867,13 +869,13 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
           >
             <div className="flex items-center justify-between border-b border-neutral-800 px-3 py-2 bg-black/60">
               <span className="text-xs uppercase tracking-wider text-neutral-400 font-semibold flex items-center gap-1.5">
-                <Folder className="h-3.5 w-3.5 text-neutral-300" /> Explorer
+                <Folder className="h-3.5 w-3.5 text-neutral-300" /> {t.editorPage.explorer}
               </span>
               <div className="flex items-center gap-1">
                 <button
                   type="button"
                   onClick={() => setShowNewFile(!showNewFile)}
-                  title="New File"
+                  title={t.editorPage.newFile}
                   className="rounded p-1 hover:bg-neutral-800 text-neutral-400 hover:text-white"
                 >
                   <Plus className="h-3.5 w-3.5" />
@@ -881,7 +883,7 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
                 <button
                   type="button"
                   onClick={() => setShowNewFolder(!showNewFolder)}
-                  title="New Folder"
+                  title={t.editorPage.newFolder}
                   className="rounded p-1 hover:bg-neutral-800 text-neutral-400 hover:text-white"
                 >
                   <FolderPlus className="h-3.5 w-3.5" />
@@ -895,7 +897,7 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
                 <input
                   type="text"
                   autoFocus
-                  placeholder="e.g. script.py or utils/helper.py"
+                  placeholder={t.editorPage.newFilePlaceholder}
                   value={newFileInput}
                   onChange={(e) => setNewFileInput(e.target.value)}
                   className="w-full rounded border border-neutral-800 bg-neutral-950 px-2 py-1 text-xs font-mono text-white placeholder-neutral-600 focus:border-white focus:outline-none"
@@ -908,7 +910,7 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
                 <input
                   type="text"
                   autoFocus
-                  placeholder="folder name, e.g. tests"
+                  placeholder={t.editorPage.newFolderPlaceholder}
                   value={newFolderInput}
                   onChange={(e) => setNewFolderInput(e.target.value)}
                   className="w-full rounded border border-neutral-800 bg-neutral-950 px-2 py-1 text-xs font-mono text-white placeholder-neutral-600 focus:border-white focus:outline-none"
@@ -927,7 +929,7 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
                   : "text-neutral-600"
               }`}
             >
-              Workspace Root (drop here to move out)
+              {t.editorPage.workspaceRootDropHint}
             </div>
 
             {/* Tree Items */}
@@ -989,7 +991,7 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
                         )}
                         <span className="truncate">{item.name}</span>
                         {!isFolder && !item.isSaved && (
-                          <span className="h-1.5 w-1.5 rounded-full bg-amber-400 shrink-0" title="Unsaved" />
+                          <span className="h-1.5 w-1.5 rounded-full bg-amber-400 shrink-0" title={t.editorPage.unsavedTooltip} />
                         )}
                       </button>
                     </div>
@@ -998,7 +1000,7 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
                       type="button"
                       onClick={() => handleDeleteItem(item)}
                       className="opacity-100 md:opacity-0 md:group-hover:opacity-100 hover:text-red-400 p-0.5 ml-1"
-                      title="Delete"
+                      title={t.common.delete}
                     >
                       <Trash2 className="h-3 w-3" />
                     </button>
@@ -1010,7 +1012,7 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
             {/* Drag & Drop Hint */}
             <div className="border-t border-neutral-900 p-2.5 text-center text-[10px] text-neutral-500 flex items-center justify-center gap-1.5">
               <UploadCloud className="h-3.5 w-3.5" />
-              <span>Drag files here from your computer</span>
+              <span>{t.editorPage.dragFilesHint}</span>
             </div>
           </div>
 
@@ -1019,7 +1021,7 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
             <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-2 bg-black/60">
               <span className="text-xs font-mono text-neutral-300 flex items-center gap-2 min-w-0">
                 <FileCode className="h-3.5 w-3.5 text-white shrink-0" />
-                <span className="truncate">{activeFile?.path} {!activeFile?.isSaved && "(unsaved*)"}</span>
+                <span className="truncate">{activeFile?.path} {!activeFile?.isSaved && t.editorPage.unsavedBadge}</span>
               </span>
               <span className="hidden text-[11px] text-neutral-500 font-mono sm:inline shrink-0 ml-2">
                 Python 3.12 (WASM) • Monaco Editor
@@ -1096,14 +1098,14 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
           <div className="min-h-[180px] md:col-span-3 md:min-h-0 rounded-xl border border-neutral-800 bg-neutral-950 flex flex-col overflow-hidden">
             <div className="flex items-center justify-between border-b border-neutral-800 px-3.5 py-2 bg-black/60">
               <span className="text-xs font-mono text-neutral-400 flex items-center gap-1.5">
-                <Terminal className="h-3.5 w-3.5 text-white" /> Terminal Logs
+                <Terminal className="h-3.5 w-3.5 text-white" /> {t.editorPage.terminalLogs}
               </span>
               <button
                 type="button"
                 onClick={() => setOutput("")}
                 className="text-[11px] text-neutral-500 hover:text-white transition"
               >
-                Clear
+                {t.common.clear}
               </button>
             </div>
             <pre className="flex-1 w-full bg-black p-3.5 font-mono text-xs text-neutral-300 overflow-auto whitespace-pre-wrap selection:bg-neutral-800">
@@ -1111,12 +1113,12 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
             </pre>
             <div className="border-t border-neutral-800 bg-black/60 px-3.5 py-2">
               <label className="text-[11px] font-mono text-neutral-500">
-                Program input — one line per input() call
+                {t.editorPage.programInputLabel}
               </label>
               <textarea
                 value={programInput}
                 onChange={(e) => setProgramInput(e.target.value)}
-                placeholder={"e.g.\nAdeen\n21"}
+                placeholder={t.editorPage.programInputPlaceholder}
                 rows={2}
                 className="mt-1 w-full resize-y rounded border border-neutral-800 bg-neutral-950 px-2 py-1 font-mono text-xs text-white placeholder-neutral-600 focus:border-white focus:outline-none"
               />
@@ -1131,15 +1133,15 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
               <span className="flex items-center gap-2 text-sm font-semibold text-white">
                 {aiMode === "explain" ? (
                   <>
-                    <Sparkles className="h-4 w-4" /> AI explanation
+                    <Sparkles className="h-4 w-4" /> {t.editorPage.aiExplanation}
                   </>
                 ) : aiMode === "debug" ? (
                   <>
-                    <Bug className="h-4 w-4" /> AI bug check
+                    <Bug className="h-4 w-4" /> {t.editorPage.aiBugCheck}
                   </>
                 ) : (
                   <>
-                    <Sparkles className="h-4 w-4" /> AI code help
+                    <Sparkles className="h-4 w-4" /> {t.editorPage.aiCodeHelp}
                   </>
                 )}
               </span>
@@ -1150,7 +1152,7 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
                   setAiAnswer(null);
                   setAiError(null);
                 }}
-                aria-label="Close AI answer"
+                aria-label={t.editorPage.closeAiAnswer}
                 className="rounded-lg border border-neutral-800 bg-black p-1.5 text-neutral-400 hover:text-white"
               >
                 <X className="h-4 w-4" />
@@ -1158,12 +1160,11 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
             </div>
             {aiUnavailable ? (
               <p className="mt-3 rounded-lg border border-neutral-800 bg-black px-4 py-3 text-xs leading-relaxed text-neutral-300">
-                AI is not available right now — the API keys are not configured yet.
-                The editor and the rest of the course work normally.
+                {t.editorPage.aiUnavailableMessage}
               </p>
             ) : aiLoading ? (
               <p className="mt-3 flex items-center gap-2 text-xs text-neutral-400">
-                <Loader2 className="h-3.5 w-3.5 animate-spin" /> AI is reading your code…
+                <Loader2 className="h-3.5 w-3.5 animate-spin" /> {t.editorPage.aiReadingCode}
               </p>
             ) : aiError ? (
               <p className="mt-3 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs text-red-200">
@@ -1173,8 +1174,7 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
               <>
                 {aiTruncated && (
                   <p className="mt-3 text-xs text-neutral-500">
-                    Note: the file was longer than the AI limit, so only the first
-                    8000 characters were sent.
+                    {t.editorPage.aiTruncatedNote}
                   </p>
                 )}
                 <HighlightedMarkdown text={aiAnswer} />

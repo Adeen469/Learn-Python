@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/lib/i18n";
 
 export function SplashScreen() {
+  const { t } = useLanguage();
   const [phase, setPhase] = useState<"visible" | "fading" | "gone">("visible");
 
   useEffect(() => {
@@ -46,7 +48,7 @@ export function SplashScreen() {
             LP
           </span>
           <span className="mt-1 text-xs uppercase tracking-[0.18em] text-neutral-500">
-            Learn • Practice • Offline
+            {t.landing.splashTagline}
           </span>
 
           {/* Smooth monochrome loading sweep */}

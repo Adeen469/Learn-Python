@@ -1,0 +1,600 @@
+// Japanese strings — UI chrome only (see en.ts for scope).
+// Keys shared with the app are copied VERBATIM from the app's ja.ts;
+// website-only keys are translated fresh, following the app's
+// conventions (polite です/ます form, 「してください」 for instructions).
+//
+// Scope: UI chrome ONLY. Content stays in English and is never passed
+// through here: lesson/video titles (use the titles maps in ./titles),
+// course/creator names, notes text, AI tutor answers, tutorial prose
+// (see ../learn/i18n), roadmap blurbs (see ./blurbs).
+// "Learn Python" is the product name and stays identical in most
+// languages (translators may transliterate it only if natural).
+
+import type { Strings } from "./index";
+
+export const ja: Strings = {
+  common: {
+    appName: "Learn Python",
+    signIn: "サインイン",
+    signOut: "サインアウト",
+    email: "メールアドレス",
+    password: "パスワード",
+    genericError: "問題が発生しました。もう一度お試しください。",
+    backToSignIn: "サインインに戻る",
+    retry: "再試行",
+    completed: "完了",
+    watchedPct: (pct: number) => `視聴済み ${pct}%`,
+    notStarted: "未開始",
+    duration: (totalSeconds: number) => {
+      const s = Math.max(0, Math.round(totalSeconds));
+      const h = Math.floor(s / 3600);
+      const m = Math.floor((s % 3600) / 60);
+      const sec = s % 60;
+      const mm = String(m).padStart(2, "0");
+      const ss = String(sec).padStart(2, "0");
+      return h > 0 ? `${h}:${mm}:${ss}` : `${m}:${ss}`;
+    },
+    durationTotal: (totalSeconds: number) => {
+      const totalMinutes = Math.floor(totalSeconds / 60);
+      const h = Math.floor(totalMinutes / 60);
+      const m = totalMinutes % 60;
+      return h > 0 ? `${h}時間${m}分` : `${m}分`;
+    },
+    sixDigitCodeLabel: "6桁のコード",
+    roadmap: "ロードマップ",
+    settings: "設定",
+    aiTutor: "AIチューター",
+    close: "閉じる",
+    all: "すべて",
+    delete: "削除",
+    clear: "クリア",
+    back: "戻る",
+    or: "または",
+    emailAddress: "メールアドレス",
+    loading: "読み込み中…",
+    pleaseWait: "少々お待ちください。",
+    errorPageDetail:
+      "このページで予期しないエラーが発生しました。もう一度お試しください。またはダッシュボードに戻ってください。",
+    backToDashboard: "ダッシュボードに戻る",
+    pageNotFound: "ページが見つかりません",
+    pageNotFoundDetail:
+      "お探しのレッスンまたはページは存在しません。",
+  },
+  tabs: {
+    learn: "学習",
+    courses: "コース",
+  },
+  learn: {
+    streakChip: (n: number) => `連続 ${n} 日`,
+  },
+  courses: {
+    intro: "Pythonの動画コース — クリエイターを選んで視聴を始めましょう。",
+    countVideos: (n: number) => `${n}本の動画`,
+  },
+  editor: {
+    title: "コードエディタ",
+  },
+  profile: {
+    statStreakLabel: "日連続",
+  },
+  lesson: {
+    markComplete: "完了にする",
+    askTutor: "AIチューターに質問",
+    saveOffline: "オフライン保存",
+    savedOffline: "オフライン保存済み",
+    nextLesson: "次へ →",
+  },
+  course: {
+    markAsComplete: "完了にする",
+    oneShotsHeading: "ワンショット動画",
+    fullCourseLabel: "フルコース",
+    totalLabel: "合計",
+    playingLabel: "再生中",
+  },
+  roadmap: {
+    topicsComplete: (done: number, total: number) =>
+      `${done}/${total}トピック完了`,
+    topicMeta: (difficulty: string, minutes: number) =>
+      `${difficulty} · ${minutes}分`,
+    topicDone: "✓ 完了",
+  },
+  tutor: {
+    errorSessionExpired: "セッションの有効期限が切れました。もう一度サインインしてチャットを続けてください。",
+    errorGeneric:
+      "チューターが今は答えられません。接続を確認して、もう一度お試しください。",
+    errorEmptyReply: "AIからの返信が空でした。もう一度お試しください。",
+    youLabel: "あなた",
+    groundedFootnote:
+      "✓ このレッスンの動画からの引用です — タイムスタンプは動画内の該当箇所を示しています。",
+    notGroundedFootnote:
+      "一般的な回答です — このレッスンの動画の文字起こしは利用できませんでした。",
+    thinking: "AIが考えています…",
+    askButton: "質問する",
+  },
+  auth: {
+    continueWithGoogle: "Googleで続ける",
+    forgotPassword: "パスワードをお忘れですか？",
+    createAccount: "アカウントを作成",
+    namePlaceholder: "お名前",
+    otpSubtitle: (email: string, purpose: "signup" | "signin") =>
+      `6桁のコードを${email || "あなたのメールアドレス"}に送信しました。${
+        purpose === "signup" ? "アカウントを確認するには" : "サインインするには"
+      }、下に入力してください。`,
+    forgotSubtitle:
+      "登録したメールアドレスを入力すると、リセットリンクをお送りします。",
+    sendResetLink: "リセットリンクを送信",
+    twoFactorTitle: "二要素認証",
+    verifyAndSignIn: "確認してサインイン",
+    couldNotSendCode: "コードを送信できませんでした。もう一度お試しください。",
+    codeSentToWithExpiry: (email: string) => `コードを${email}に送信しました。有効期限は10分です。`,
+    couldNotSignIn: "サインインできませんでした。もう一度お試しください。",
+    couldNotCreateAccount: "アカウントを作成できませんでした。もう一度お試しください。",
+    codeIncorrectOrExpired: "コードが正しくないか、有効期限が切れています。",
+    enterCodeTitle: "コードを入力",
+    signInWithEmail: "メールアドレスでサインイン",
+    signInEmailSubtitle: "メールアドレスとパスワード、またはコードを使ってサインインします。",
+    signUpEmailSubtitle: "アカウントを作成します — まずメールアドレスを確認します。",
+    signInOrCreateAccount: "サインインまたはアカウント作成",
+    signingIn: "サインイン中…",
+    continueWithEmailCode: "代わりにメールアドレスのコードで続ける",
+    passwordWithMinPlaceholder: "パスワード（8文字以上）",
+    creatingAccount: "アカウントを作成中…",
+    verifying: "確認中…",
+    verifyAndContinue: "確認して続ける",
+    resendCodeIn: (cooldown: number) => `${cooldown}秒後にコードを再送信できます`,
+    resendCode: "コードを再送信",
+    sending: "送信中…",
+    couldNotSendEmail: "メールを送信できませんでした。もう一度お試しください。",
+    resetLinkSentWithExpiry: (email: string) => `${email}のアカウントが存在する場合、パスワードリセットリンクを送信しました。有効期限は1時間です。`,
+    passwordsDontMatch: "パスワードが一致しません。",
+    couldNotResetPassword: "パスワードをリセットできませんでした。もう一度お試しください。",
+    resetPassword: "パスワードをリセット",
+    checkingResetLink: "リセットリンクを確認中…",
+    resetLinkExpiredTitle: "リセットリンクの有効期限が切れました",
+    resetLinkExpiredSubtitle:
+      "このリセットリンクは無効か、有効期限が切れています。リセットリンクは1回限りで、有効期限は1時間です。",
+    requestNewResetLink: "新しいリセットリンクをリクエスト",
+    setNewPasswordTitle: "新しいパスワードを設定",
+    setNewPasswordSubtitle: "アカウントの新しいパスワードを選択してください。",
+    passwordUpdated: "パスワードを更新しました。新しいパスワードでサインインしてください。",
+    newPasswordPlaceholder: "新しいパスワード（8文字以上）",
+    confirmNewPasswordPlaceholder: "新しいパスワードを確認",
+    resetting: "リセット中…",
+    codeSentToYourEmailWithExpiry:
+      "コードをメールアドレスに送信しました。有効期限は10分です。",
+    checkingSignInStep: "サインインの手順を確認中…",
+    signInStepExpiredTitle: "サインインの手順の有効期限が切れました",
+    signInStepExpiredSubtitle:
+      "この二要素認証の手順は10分間のみ有効です。もう一度サインインして続けてください。",
+    twoFactorEnterCodeSubtitle:
+      "サインインを完了するには、認証アプリのコードを入力してください。",
+    secondFactorMethodLabel: "第二要素の方法",
+    methodAuthenticator: "認証アプリ",
+    methodEmailCode: "メールアドレスのコード",
+    methodBackupCode: "バックアップコード",
+    emailCodeWillBeSent:
+      "アカウントに登録されたメールアドレスに6桁のコードをお送りします。",
+    sendEmailCode: "メールアドレスにコードを送信",
+    backupCodesWorkOnce:
+      "バックアップコードは1回限り有効です。二要素認証をオンにしたときに保存した場所で確認してください。",
+  },
+  settings: {
+    dailyGoal: "1日の目標",
+    streak: "連続記録",
+    appearance: "外観",
+    theme: "テーマ",
+    themeDark: "ダーク",
+    themeLight: "ライト",
+    language: "言語",
+    languageHint: "アプリ全体にすぐに適用されます。",
+    goalMinutes: (minutes: number) => `${minutes}分`,
+    couldNotStartTwoFactorSetup: "設定を開始できませんでした。もう一度お試しください。",
+    twoFactorCodeIncorrect: "コードが正しくありません。もう一度お試しください。",
+    couldNotDisableTwoFactor: "二要素認証を無効にできませんでした。",
+    twoFactorOff: "二要素認証はオフです。",
+    couldNotGenerateBackupCodes: "新しいバックアップコードを生成できませんでした。",
+    twoFactorSignInRequired:
+      "アカウントの二要素認証を管理するにはサインインしてください。",
+    twoFactorGoogleManaged:
+      "Googleでサインインしています — 二要素認証はこのアプリではなく、Googleアカウントで管理されています。",
+    twoFactorIntro:
+      "Google Authenticatorまたはメールアドレスのコードによるサインインの2番目の手順を追加します。パスワードだけでは不十分になります。",
+    twoFactorStarting: "開始中…",
+    setUpTwoFactor: "二要素認証を設定",
+    twoFactorScanQr:
+      "Google Authenticator（または任意の認証アプリ）でこのQRコードをスキャンし、表示される6桁のコードを入力してください。",
+    twoFactorQrAlt: "二要素認証設定用のQRコード",
+    cantScanEnterSecret: "スキャンできませんか？ このシークレットを手動で入力してください： ",
+    turnOnTwoFactor: "二要素認証をオンにする",
+    twoFactorOn: "二要素認証はオンです。",
+    twoFactorOnExplainer:
+      "サインイン時に、パスワードの後に認証アプリのコード（またはメールアドレスのコード）を求められます。",
+    newBackupCodes: "新しいバックアップコード",
+    disable: "無効にする",
+    disableTwoFactorPrompt:
+      "二要素認証をオフにするには、パスワードを入力してください。",
+    disablingTwoFactor: "無効にしています…",
+    disableTwoFactor: "二要素認証を無効にする",
+    backupCodesTitle: "バックアップコード",
+    backupCodesWarning:
+      "安全な場所に保存してください — 各コードは1回限り有効で、表示されるのは今回だけです。",
+    savedBackupCodes: "これらのコードを保存しました",
+    backupCodesSaved: "バックアップコードを保存しました。安全な場所に保管してください。",
+  },
+  update: {
+    tryAgain: "もう一度試す",
+  },
+  landing: {
+    heroTitle: "Pythonプログラミングを学ぼう、",
+    heroWordOnline: "オンラインで",
+    heroWordOffline: "オフラインでも",
+    heroSubtitle:
+      "トピックごとのチュートリアル、動画コース、本物のコードエディタ — 初めてのprint()から実際のプロジェクトまで。見て、コードを書いて、連続記録を伸ばしましょう。",
+    getStarted: "はじめる",
+    heroNote: "無料 • メールアドレスまたはGoogleでサインイン • 進捗はこのデバイスに保存されます",
+    statTopics: "トピック",
+    statVideos: "動画",
+    statStages: "ステージ",
+    featuresHeading: "最後までやり切るために必要なものがすべてここに",
+    featureVideosTitle: "動画はオンラインでもオフラインでも",
+    featureVideosText:
+      "インターネットがあってもなくても動画レッスンを視聴できます — デバイスに保存して、接続が切れても視聴を続けられます。",
+    featureTutorialsTitle: "チュートリアルもオフラインで",
+    featureTutorialsText:
+      "トピックごとのチュートリアルとリファレンス — インターネットがなくても、どこでも読めます。",
+    featureEditorText:
+      "ブラウザで本物のPythonを書いて実行できます — MonacoエディタとPyodide、マルチファイルのワークスペース、インストール不要です。",
+    featureTutorText:
+      "概念やエラーで困ったら、AIチューターに何でも聞いてください — 今いるレッスンをもとに、例や修正方法とともに答えます。",
+    featureGithubTitle: "GitHubを内蔵",
+    featureGithubText:
+      "GitHubアカウントを接続して、リポジトリを作成し、エディタから直接コードをプッシュできます — 初日からバージョン管理された自分の作品になります。",
+    featureGoalsTitle: "毎日の目標と連続記録",
+    featureGoalsText:
+      "毎日の視聴目標を設定し、連続記録を維持して、今日の本当の進捗を一目で確認できます。",
+    splashTagline: "学ぶ • 練習する • オフラインで",
+  },
+  navbar: {
+    continue: "続きから",
+    profileMenu: "プロフィールメニュー",
+    mainNavLabel: "メイン",
+    openMenu: "メニューを開く",
+    closeMenu: "メニューを閉じる",
+  },
+  learnPage: {
+    example: "例",
+    copy: "コピー",
+    copied: "コピーしました",
+    output: "出力",
+    noteLabel: "注： ",
+    tipLabel: "ヒント： ",
+    topicNotFound: "トピックが見つかりません",
+    topicNotFoundHint:
+      "サイドバーからトピックを選んでください — すべてのPythonトピックがそこにあります。",
+    tryInEditor: "エディタで試す",
+    summary: "まとめ",
+    practice: "練習",
+    practiceHint:
+      "各課題はコードエディタで試してください — 読むだけでは不十分で、自分で入力することこそが身につく方法です。",
+    tutorialBeingPrepared:
+      "このトピックの解説チュートリアルは準備中です。今はサイドバーから別のトピックを選んでください — 準備ができたらここに表示されます。",
+    previous: "前へ",
+    backToPythonHome: (title: string) => `${title}に戻る`,
+  },
+  sidebar: {
+    searchTopics: "トピックを検索",
+    noTopicsMatch: (query: string) => `「${query}」に一致するトピックがありません。`,
+    closeTopics: "トピックを閉じる",
+    sectionPythonTutorial: "Pythonチュートリアル",
+    sectionPythonClasses: "Pythonクラス",
+    sectionFileHandling: "ファイル操作",
+    sectionPythonModules: "Pythonモジュール",
+    sectionPythonMatplotlib: "Python Matplotlib",
+    sectionMachineLearning: "機械学習",
+    sectionPythonDsa: "Pythonのデータ構造とアルゴリズム",
+    sectionPythonMysql: "PythonとMySQL",
+    sectionPythonMongodb: "PythonとMongoDB",
+    sectionPythonCert: "Python認定",
+    sectionPythonHowTo: "Pythonハウツー",
+    sectionPythonExamples: "Pythonの例",
+    sectionPythonReference: "Pythonリファレンス",
+    sectionModuleReference: "モジュールリファレンス",
+    groupPythonArrays: "Pythonの配列",
+    groupPythonCasting: "Pythonのキャスト",
+    groupPythonClassMethods: "Pythonのクラスメソッド",
+    groupPythonClassProperties: "Pythonのクラスのプロパティ",
+    groupPythonDates: "Pythonの日付",
+    groupPythonEncapsulation: "Pythonのカプセル化",
+    groupPythonInheritance: "Pythonの継承",
+    groupPythonIterators: "Pythonのイテレータ",
+    groupPythonJson: "PythonのJSON",
+    groupPythonMagicMethods: "Pythonのマジックメソッド",
+    groupPythonMath: "Pythonの数学",
+    groupPythonNone: "PythonのNone",
+    groupPythonPolymorphism: "Pythonのポリモーフィズム",
+    groupPythonRange: "Pythonのrange",
+    groupPythonRegex: "Pythonの正規表現",
+    groupPythonStringFormatting: "Pythonの文字列フォーマット",
+    groupPythonTryExcept: "Pythonのtry...except",
+    groupPythonInitMethod: "Pythonの__init__メソッド",
+    groupPythonSelfParameter: "Pythonのselfパラメータ",
+  },
+  quiz: {
+    testLabel: "テスト",
+    passRequirement: (pct: number) => `テストに合格するには${pct}%以上のスコアが必要です。`,
+    closeTest: "テストを閉じる",
+    correctAnswer: (answer: string) => `正解：${answer}`,
+    correct: "正解",
+    submitTest: "テストを送信",
+    passedScore: (score: number, total: number) => `合格 — ${score}/${total}問正解`,
+    passedMessage: "このレッスンのテストに合格しました。",
+    notPassedScore: (score: number, total: number) => `不合格 — ${score}/${total}問正解`,
+    notPassedMessage: (pct: number) => `合格には${pct}%が必要です。上の回答を確認して、もう一度挑戦してください。`,
+  },
+  roadmapModal: {
+    title: "あなたのPythonロードマップ",
+    subtitle: (totalTopics: number, totalMinutes: string) => `${totalTopics}トピック • 約${totalMinutes} • 上から順に進めましょう`,
+    close: "ロードマップを閉じる",
+    dialogLabel: "Pythonロードマップ",
+    savedDialogLabel: "ロードマップを保存しました",
+    savedTitle: "ロードマップを後で見るために保存しました",
+    savedBody:
+      "次回からはプロフィールのメニューからロードマップをプレビューできます。",
+    gotIt: "了解しました",
+  },
+  coursesPage: {
+    videoCourses: "動画コース",
+    heroTitle: "動画でPythonを学ぼう。",
+    emptyState: "コース動画を追加中です — しばらくしてからまたご確認ください。",
+    allTeachers: "すべての講師",
+    channelPictureAlt: (name: string) => `${name}のチャンネル画像`,
+    countCourses: (n: number) => `${n}コース`,
+    videoSourceNote: "MEGAとDrive、YouTubeは当面の間",
+    taglineCodeWithHarry:
+      "ヒンディー語の完全なPythonコース — ステップバイステップで、ノート付き。",
+    taglineMosh:
+      "英語による定番のPythonコース — フルコースとトピック別動画。",
+    taglineApnaCollege:
+      "ヒンディー語の完全なPythonコース、ノートと練習問題付き。",
+  },
+  editorPage: {
+    emptyFileError: "このファイルは空です — まずコードを書いてください。",
+    aiEmptyReplyError: "AIからの返信が空でした。もう一度お試しください。",
+    micropipTimeoutError:
+      "micropipの読み込みが1分でタイムアウトしました — 接続を確認して、もう一度お試しください。",
+    pyodideLoadError:
+      "Pyodideのスクリプトをcdn.jsdelivr.netから読み込めませんでした — 接続を確認して、ページを再読み込みしてください。",
+    fileExistsError: "このパスのファイルはすでに存在します",
+    folderExistsError: "この名前のフォルダはすでに存在します",
+    keepOneFileError: "ワークスペースには少なくとも1つのファイルを残す必要があります。",
+    itemExistsInLocationError: (itemName: string) => `「${itemName}」という名前のアイテムがその場所にすでに存在します。`,
+    filesTab: "ファイル",
+    modulesTab: "モジュール",
+    activeLabel: "アクティブ：",
+    noActiveFile: "なし",
+    unsavedBadge: "（未保存*）",
+    saved: "保存済み",
+    saveFileRequired: "ファイルを保存（必須）",
+    explainCodeHint: "AIにこのファイルを説明してもらう",
+    explainCode: "このコードを説明する",
+    findBugHint: "AIにこのファイルのバグを見つけてもらう",
+    findBug: "バグを見つける",
+    stop: "停止",
+    stopHint: "実行中のコードを中断する",
+    stopUnavailableHint:
+      "停止にはSharedArrayBufferが必要ですが、このブラウザ設定では提供されていません — 実行が止まった場合はページを再読み込みしてください。",
+    compiling: "コンパイル中…",
+    loadingEngine: "エンジンを読み込み中",
+    compileAndRun: "コンパイルと実行",
+    saveNow: "今すぐ保存",
+    explorer: "エクスプローラー",
+    newFile: "新しいファイル",
+    newFolder: "新しいフォルダ",
+    newFilePlaceholder: "例： script.py または utils/helper.py",
+    newFolderPlaceholder: "フォルダ名（例： tests）",
+    workspaceRootDropHint: "ワークスペースのルート（ここにドロップすると外に移動します）",
+    unsavedTooltip: "未保存",
+    dragFilesHint: "コンピュータからファイルをここにドラッグしてください",
+    terminalLogs: "ターミナルログ",
+    programInputLabel: "プログラムの入力 — input()呼び出しごとに1行",
+    programInputPlaceholder: "例：\nAdeen\n21",
+    aiExplanation: "AIによる説明",
+    aiBugCheck: "AIによるバグチェック",
+    aiCodeHelp: "AIによるコードのヘルプ",
+    closeAiAnswer: "AIの回答を閉じる",
+    aiUnavailableMessage:
+      "AIは現在ご利用いただけません — APIキーがまだ設定されていません。エディタとコースの他の部分は通常通り動作します。",
+    aiReadingCode: "AIがコードを読んでいます…",
+    aiTruncatedNote:
+      "注：ファイルがAIの制限を超えていたため、最初の8000文字のみが送信されました。",
+  },
+  modulesPage: {
+    openingInEditor: "コードエディタでモジュールを開いています…",
+    title: "Pythonモジュール＆パッケージマネージャー",
+    subtitle:
+      "Pythonの公式標準ライブラリをすべて閲覧し、PyPIとPyodideの外部パッケージをすべて検索・インストールしてワークスペースで使えます。",
+    tabStdlib: (count: number) => `組み込み標準ライブラリ（${count}）`,
+    tabExternal: (count: number) => `外部パッケージ（${count}）`,
+    tabSearch: "ライブPyPI検索とインストール",
+    filterStdlibPlaceholder: "組み込みモジュールを絞り込む…",
+    builtInReady: "組み込み（常に使用可能）",
+    docs: "ドキュメント",
+    externalIntro: (pyodideCount: number, micropipCount: number) => `${pyodideCount}個のPyodideビルドパッケージ（CDNから高速インストール）＋${micropipCount}個の人気の純Python PyPIパッケージ（micropip経由でインストール）。`,
+    installedInWorkspace: (n: number) => `このワークスペースに${n}個インストール済み。`,
+    externalOutro:
+      "PyPIのその他のパッケージは、「ライブPyPI検索」タブで正確な名前を指定してインストールできます。",
+    searchPackagesPlaceholder:
+      "すべてのパッケージを検索 — 例： numpy、flask、seaborn、opencv…",
+    installByNamePlaceholder: "名前を指定して任意のパッケージをインストール — 例： tabulate",
+    install: "インストール",
+    showingCount: (shown: number, total: number) => `${total}個中${shown}個を表示しています。`,
+    noMatch:
+      "一致するものがありません — 正確なパッケージ名は「ライブPyPI検索」タブでお試しください。",
+    installed: "インストール済み",
+    remove: "削除",
+    installing: "インストール中…",
+    installPackage: "パッケージをインストール",
+    searchHeading: "Pythonパッケージインデックス（PyPI）の公式検索",
+    searchPyPiPlaceholder: "例： rich、requests、sympy、tabulate、httpx、textstat",
+    searchPyPi: "PyPIを検索",
+    installedInWorkspaceLabel: "ワークスペースにインストール済み",
+    installPackageNamed: (name: string) => `${name}をインストール`,
+    licenseLabel: "ライセンス：",
+    authorLabel: "作者：",
+    projectHomepage: "プロジェクトのホームページ",
+    logsHeading: "パッケージエンジンのターミナルログ",
+    logsEmpty:
+      "Python環境の準備ができました。パッケージをインストールするとワークスペースに読み込まれます。",
+    stageStartingRuntime: "Pythonランタイムを起動中…",
+    logStartingRuntime:
+      "Pythonランタイムを起動中 — 初回ダウンロード（約15 MB）です。お待ちください…",
+    stageRuntimeReady: "Pythonランタイムの準備ができました",
+    logRuntimeReady: "Pythonランタイムの準備ができました。",
+    errorEnvStartWithDetail: (error: string) => `Python環境を開始できませんでした：${error}`,
+    errorEnvStartNoLoad:
+      "Python環境を開始できませんでした（Pyodideのスクリプトが読み込まれませんでした）。接続を確認して、もう一度お試しください — 「インストール」ボタンで再試行できます。",
+    stageDownloading: (pkg: string) => `「${pkg}」をダウンロード中…`,
+    logInstalling: (pkg: string) => `「${pkg}」をインストール中…`,
+    stageInstalled: (pkg: string) => `「${pkg}」をインストールしました ✓`,
+    logInstalled: (pkg: string, method: string, importName: string) => `✓ 「${pkg}」を${method}経由でインストールしました（import ${importName}が使えます）。ワークスペースのストレージに保存しました。`,
+    logInstallFailed: (pkg: string, error: string) => `✗ 「${pkg}」のインストールに失敗しました：${error}`,
+    logUninstalled: (pkg: string) => `「${pkg}」をアンインストールし、ワークスペースから削除しました。`,
+    errorPackageNotFound: "PyPIにパッケージが見つかりません",
+    errorQueryPyPi: "PyPIへの問い合わせでエラーが発生しました",
+    defaultPyodideDesc:
+      "Pyodideビルドのパッケージ — CDNから高速にインストールでき、すぐにインポートできます。",
+    stageLoadingMicropip: "micropipを読み込み中…",
+  },
+  player: {
+    errorOfflineCacheUnsupported:
+      "このブラウザではオフラインキャッシュはサポートされていません。",
+    errorDownloadFailed: (status: number) => `ダウンロードに失敗しました（${status}）`,
+    errorSaveOffline: "動画をオフライン保存できませんでした。",
+    ariaLabel:
+      "動画プレーヤー — スペースキーで再生／一時停止、左右の矢印キーで10秒シーク",
+    autoplayOnHint: "自動再生オン — 次のレッスンが自動的に再生されます",
+    autoplayOffHint: "自動再生オフ",
+    autoplay: "自動再生",
+    playbackSpeed: "再生速度",
+    speedNormal: "標準",
+    quality: "画質",
+    qualityAuto: "自動",
+    original: "（オリジナル）",
+    qualityNote:
+      "MEGAでは動画ごとに1つの画質のみ提供されます — 上のファイルが唯一のストリームです。",
+    seekLabel: "シーク",
+    play: "再生",
+    pause: "一時停止",
+    mute: "ミュート",
+    unmute: "ミュート解除",
+    volumeLabel: "音量",
+    hideCaptions: "英語字幕を非表示",
+    showCaptions: "英語字幕を表示",
+    captionsLabel: "英語字幕",
+    downloadVideo: "動画をダウンロード",
+    settingsLabel: "設定 — 速度と画質",
+    exitFullscreen: "フルスクリーンを終了",
+    fullscreen: "フルスクリーン",
+    playingOffline: "アプリ内のオフラインストレージから再生中",
+    streamingOnline: "オンラインでストリーミング中",
+    offlineNotSaved: "オフライン（未保存）",
+    keyboardHint:
+      "スペース — 再生／一時停止 · ← → — 10秒シーク · スピーカーをタップして音量調整",
+    removeOfflineCopy: "オフラインコピーを削除",
+    savingPct: (pct: number) => `保存中 ${pct}%`,
+    saving: "保存中…",
+    sliderLabel: "スライダー",
+    youtubeFallbackNote: "YouTubeから再生中 — MEGAリンクは近日公開予定",
+    todayProgress: "今日の進捗",
+    progressSummary: (minutesWatched: number, goalMinutes: number) => `目標${goalMinutes}分のうち${minutesWatched}分視聴しました`,
+    dailyTargetLabel: "目標（分／日）",
+    courseLessonsHeading: "コースのレッスン",
+  },
+  settingsPage: {
+    subtitle: "あなたの進捗とアプリの見た目について。",
+    todaySection: "今日",
+    goalProgress: (minutes: number, goal: number) => `${minutes}/${goal}分`,
+    streakRestored: "連続記録を復旧しました — おかえりなさい。",
+    streakBroken: "連続記録が途切れました",
+    streakBrokenRestore: (
+      brokenStreak: number,
+      restoresUsed: number,
+      max: number
+    ) =>
+      `${brokenStreak}日間の連続記録が途切れました。タイマーが切れる前に復旧してください — 今月は${max}回中${restoresUsed}回使用済みです。`,
+    countdownHrs: "時間",
+    countdownMin: "分",
+    countdownSec: "秒",
+    restoreStreakButton: (brokenStreak: number) => `${brokenStreak}日間の連続記録を復旧`,
+    streakBrokenExpired: (brokenStreak: number) => `${brokenStreak}日間の連続記録が途切れ、24時間の復旧期間が過ぎました。レッスンを視聴して新しい連続記録を始めてください。`,
+    noRestoresLeft: "復旧回数が残っていません",
+    noRestoresLeftBody: (
+      max: number,
+      brokenStreak: number
+    ) =>
+      `今月の復旧回数を${max}回すべて使いました。${brokenStreak}日間の連続記録は途切れました — レッスンを視聴して新しい連続記録を始めてください。復旧回数は来月リセットされます。`,
+    accountSecurity: "アカウントのセキュリティ",
+  },
+  tutorPage: {
+    heading: "このレッスンについてAIに質問",
+    intro:
+      "疑問、説明、例 — ヒンディー語でも英語でもどうぞ。回答はこのレッスンの実際の動画をもとに、タイムスタンプ付きで届きます。動画で扱われていない内容は一般知識として明記されます。チャットはどこにも保存されません。",
+    unavailable:
+      "AIは現在ご利用いただけません — APIキーがまだ設定されていません。コースの他の部分は通常通り動作します。",
+    askPlaceholder: (lessonTitle: string) => {
+      const display =
+        lessonTitle.length > 40
+          ? `${lessonTitle.slice(0, 40)}…`
+          : lessonTitle;
+      return `「${display}」について質問する`;
+    },
+  },
+  githubPage: {
+    repoNameTooLong: "リポジトリ名は100文字以内にしてください。",
+    repoNameInvalidChars:
+      "リポジトリ名にスペースや特殊文字は使えません — 文字、数字、- _ . のみ使用できます。",
+    tokenSaved: "トークンはこのブラウザにのみ保存されました。",
+    tokenRemoved: "GitHubトークンの接続を解除しました。",
+    loadReposFailed: "リポジトリを読み込めませんでした",
+    createRepoFailed: "リポジトリを作成できませんでした",
+    repoCreated: (fullName: string) => `✓ リポジトリを作成しました：${fullName}`,
+    pushFailed: "ファイルのプッシュに失敗しました",
+    pushed: (filePath: string, fullName: string) => `✓ 「${filePath}」を${fullName}にプッシュしました！`,
+    title: "GitHub連携",
+    intro:
+      "Personal Access Token（PAT）を使ってGitHubアカウントを接続し、LPから直接リポジトリを作成してコードをコミットできます。下のトークンリンクは、GitHubをすべてのスコープが事前にチェックされた状態で開きます。そのため、トークンはアカウントへのフルアクセスを持ちます。",
+    connectHeading: "GitHub Personal Access Tokenを接続",
+    tokenExplainer:
+      "github.com/settings/tokensで、すべてのスコープが事前にチェックされた状態のトークンを作成してください — そのトークンは、リポジトリの削除や組織の管理を含むアカウントへのフルアクセスを持つため、非公開に保管してください。次に、下に貼り付けてください。トークンはこのブラウザ（localStorage）にのみ保存されます。GitHubへの呼び出しのため、LPサーバーに送信される場合がありますが、サーバーに保存されることはありません。「接続解除」するとこのブラウザから削除されます。",
+    connectToken: "トークンを接続",
+    connected: (tokenPrefix: string) => `GitHubに接続済み • ${tokenPrefix}...`,
+    refresh: "更新",
+    disconnect: "接続解除",
+    createHeading: "新しいGitHubリポジトリを作成",
+    repoNameLabel: "リポジトリ名 *",
+    descriptionLabel: "説明（任意）",
+    descriptionPlaceholder: "LPでの練習問題の解答とノート",
+    publicRepo: "公開リポジトリ",
+    privateRepo: "非公開リポジトリ",
+    initReadme: "READMEで初期化",
+    createButton: "GitHubにリポジトリを作成",
+    commitHeading: "ワークスペースからコードをプッシュ／コミット",
+    targetRepoLabel: "対象リポジトリ *",
+    visibilityPrivate: (fullName: string) => `${fullName}（非公開）`,
+    visibilityPublic: (fullName: string) => `${fullName}（公開）`,
+    visibilityPrivateShort: "非公開",
+    visibilityPublicShort: "公開",
+    filePathLabel: "リポジトリ内のファイルパス *",
+    filePathPlaceholder: "例： main.py",
+    commitMessageLabel: "コミットメッセージ *",
+    commitMessagePlaceholder: "コミットメッセージ",
+    fileContentLabel: "ファイルの内容",
+    commitButton: (repoName: string) => `${repoName}にコミット＆プッシュ`,
+    repoFallback: "リポジトリ",
+    yourRepos: (count: number) => `あなたのリポジトリ（${count}）`,
+    fetchingRepos: "リポジトリを取得中…",
+    noRepos: "リポジトリが見つからないか、アクセスが制限されています。",
+    noDescription: "説明なし",
+    openOnGitHub: "GitHubで開く",
+  },
+};

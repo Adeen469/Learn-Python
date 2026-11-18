@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLanguage } from "@/lib/i18n";
 import {
   AuthError,
   AuthNote,
@@ -13,6 +14,7 @@ import {
 // reset link is sent (valid 1 hour, one-time use). The answer never
 // reveals whether the email belongs to an account.
 export default function ForgotPasswordPage() {
+  const { t } = useLanguage();
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
@@ -33,7 +35,7 @@ export default function ForgotPasswordPage() {
         setError(
           typeof (data as Record<string, unknown> | null)?.error === "string"
             ? ((data as Record<string, unknown>).error as string)
-            : "Could not send the email. Please try again."
+            : t.auth.couldNotSendEmail
         );
         return;
       }
@@ -45,20 +47,20 @@ export default function ForgotPasswordPage() {
 
   return (
     <AuthShell
-      title="Forgot password?"
-      subtitle="Enter the email you signed up with and we'll send you a reset link."
+      title={t.auth.forgotPassword}
+      subtitle={t.auth.forgotSubtitle}
     >
       <AuthError message={error} />
       {sent ? (
         <>
           <AuthNote
-            message={`If an account exists with ${email}, we've sent a password reset link. It expires in 1 hour.`}
+            message={t.auth.resetLinkSentWithExpiry(email)}
           />
           <a
             href="/auth/email"
             className="block text-center text-xs text-neutral-400 underline hover:text-white"
           >
-            Back to sign in
+            {t.common.backToSignIn}
           </a>
         </>
       ) : (
@@ -66,18 +68,18 @@ export default function ForgotPasswordPage() {
           <input
             type="email"
             required
-            placeholder="Email address"
+            placeholder={t.common.emailAddress}
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className={INPUT_CLASS}
           />
           <button type="submit" disabled={loading} className={BUTTON_CLASS}>
-            {loading ? "Sending…" : "Send reset link"}
+            {loading ? t.auth.sending : t.auth.sendResetLink}
           </button>
           <p className="text-center text-xs text-neutral-500">
             <a href="/auth/email" className="underline hover:text-white">
-              Back to sign in
+              {t.common.backToSignIn}
             </a>
           </p>
         </form>

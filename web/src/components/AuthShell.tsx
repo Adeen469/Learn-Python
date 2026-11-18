@@ -1,3 +1,7 @@
+"use client";
+
+import { useLanguage } from "@/lib/i18n";
+
 // Shared shell for the public auth pages (/auth/*): the same slim
 // header as the landing page, a centred card, and nothing else.
 // Guests only — no app navigation, no AppNavbar.
@@ -11,6 +15,7 @@ export function AuthShell({
   subtitle?: string;
   children: React.ReactNode;
 }) {
+  const { t } = useLanguage();
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
       <header className="border-b border-neutral-800">
@@ -26,7 +31,7 @@ export function AuthShell({
             <span className="text-sm font-semibold tracking-tight">
               LP{" "}
               <span className="text-xs font-normal text-neutral-500">
-                Learn Python
+                {t.common.appName}
               </span>
             </span>
           </a>

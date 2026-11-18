@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CheckCircle2, X, XCircle } from "lucide-react";
 import type { Lesson } from "@/lib/catalog";
+import { useLanguage } from "@/lib/i18n";
 
 // Pass mark for a lesson test. Passing earns a "Test passed" badge — it
 // never gates anything (all lessons are open). A test pass does NOT credit
@@ -16,6 +17,7 @@ interface QuizModalProps {
 }
 
 export function QuizModal({ lesson, onClose, onPass }: QuizModalProps) {
+  const { t, lessonTitle } = useLanguage();
   const questions = lesson.quiz ?? [];
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [submitted, setSubmitted] = useState(false);
@@ -39,16 +41,16 @@ export function QuizModal({ lesson, onClose, onPass }: QuizModalProps) {
       <div className="max-h-[85dvh] w-full max-w-lg overflow-y-auto rounded-xl border border-neutral-800 bg-neutral-950 p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-xs uppercase tracking-wider text-neutral-500">Test</p>
-            <h2 className="mt-1 text-base font-semibold text-white">{lesson.title}</h2>
+            <p className="text-xs uppercase tracking-wider text-neutral-500">{t.quiz.testLabel}</p>
+            <h2 className="mt-1 text-base font-semibold text-white">{lessonTitle(lesson.id, lesson.title)}</h2>
             <p className="mt-1 text-xs text-neutral-400">
-              Score {Math.round(QUIZ_PASS_FRACTION * 100)}% or more to pass the test.
+              {t.quiz.passRequirement(Math.round(QUIZ_PASS_FRACTION * 100))}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close test"
+            aria-label={t.quiz.closeTest}
             className="shrink-0 rounded-lg border border-neutral-800 bg-black p-1.5 text-neutral-400 hover:text-white"
           >
             <X className="h-4 w-4" />
@@ -100,11 +102,11 @@ export function QuizModal({ lesson, onClose, onPass }: QuizModalProps) {
                 </div>
                 {isWrong && (
                   <p className="mt-1.5 text-xs text-red-400">
-                    Correct answer: {q.options[q.answer]}
+                    {t.quiz.correctAnswer(q.options[q.answer])}
                   </p>
                 )}
                 {isCorrect && (
-                  <p className="mt-1.5 text-xs text-green-400">Correct</p>
+                  <p className="mt-1.5 text-xs text-green-400">{t.quiz.correct}</p>
                 )}
               </div>
             );
@@ -118,15 +120,15 @@ export function QuizModal({ lesson, onClose, onPass }: QuizModalProps) {
             disabled={!allAnswered}
             className="mt-5 w-full rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-black hover:bg-neutral-200 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Submit test
+            {t.quiz.submitTest}
           </button>
         ) : passed ? (
           <div className="mt-5 rounded-lg border border-green-500/40 bg-green-500/10 p-4 text-center">
             <p className="text-sm font-semibold text-green-400">
-              Passed — {score}/{questions.length} correct
+              {t.quiz.passedScore(score, questions.length)}
             </p>
             <p className="mt-1 text-xs text-neutral-300">
-              You passed the test for this lesson.
+              {t.quiz.passedMessage}
             </p>
             <button
               type="button"
@@ -136,17 +138,16 @@ export function QuizModal({ lesson, onClose, onPass }: QuizModalProps) {
               }}
               className="mt-3 w-full rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-black hover:bg-neutral-200"
             >
-              Done
+              {t.roadmap.topicDone}
             </button>
           </div>
         ) : (
           <div className="mt-5 rounded-lg border border-red-500/40 bg-red-500/10 p-4 text-center">
             <p className="text-sm font-semibold text-red-400">
-              Not passed — {score}/{questions.length} correct
+              {t.quiz.notPassedScore(score, questions.length)}
             </p>
             <p className="mt-1 text-xs text-neutral-300">
-              You need {Math.round(QUIZ_PASS_FRACTION * 100)}% to pass. Review the
-              answers above and try again.
+              {t.quiz.notPassedMessage(Math.round(QUIZ_PASS_FRACTION * 100))}
             </p>
             <div className="mt-3 flex gap-2">
               <button
@@ -154,14 +155,14 @@ export function QuizModal({ lesson, onClose, onPass }: QuizModalProps) {
                 onClick={handleRetry}
                 className="flex-1 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-black hover:bg-neutral-200"
               >
-                Try again
+                {t.update.tryAgain}
               </button>
               <button
                 type="button"
                 onClick={onClose}
                 className="flex-1 rounded-lg border border-neutral-700 bg-black px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-900"
               >
-                Close
+                {t.common.close}
               </button>
             </div>
           </div>

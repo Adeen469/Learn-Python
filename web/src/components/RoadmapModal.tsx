@@ -4,16 +4,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CheckCircle2, ChevronRight, Map, X } from "lucide-react";
 import { ROADMAP_STAGES, roadmapTopicHref, type RoadmapTopic } from "@/lib/roadmap";
+import { useLanguage } from "@/lib/i18n";
 
 // Same key the /learn pages use for completed tutorials.
 const LEARN_COMPLETED_KEY = "lp_learn_completed";
-
-function formatTotalMinutes(totalMinutes: number): string {
-  const h = Math.floor(totalMinutes / 60);
-  const m = totalMinutes % 60;
-  if (h === 0) return `${m}m`;
-  return m === 0 ? `${h}h` : `${h}h ${m}m`;
-}
 
 function TopicRow({
   topic,
@@ -24,6 +18,7 @@ function TopicRow({
   isDone: boolean;
   onNavigate: () => void;
 }) {
+  const { t, roadmapName, roadmapBlurb } = useLanguage();
   return (
     <li className="relative pl-9">
       <span
@@ -41,14 +36,14 @@ function TopicRow({
             {isDone ? (
               <CheckCircle2 className="h-4 w-4 shrink-0 text-white" />
             ) : null}
-            <span className="truncate text-sm font-medium text-white">{topic.title}</span>
+            <span className="truncate text-sm font-medium text-white">{roadmapName(topic.title)}</span>
           </span>
           <span className="mt-0.5 block truncate text-xs text-neutral-500">
-            {topic.blurb}
+            {roadmapBlurb(topic.title)}
           </span>
           <span className="mt-1 block text-[11px] text-neutral-500">
-            {topic.difficulty} • {topic.estimatedMinutes} min
-            {topic.learnSlug ? "" : " • Video Courses"}
+            {t.roadmap.topicMeta(roadmapName(topic.difficulty), topic.estimatedMinutes)}
+            {topic.learnSlug ? "" : ` • ${t.tabs.courses}`}
           </span>
         </span>
         <ChevronRight className="h-4 w-4 shrink-0 text-neutral-600 transition group-hover:text-white" />
@@ -74,6 +69,7 @@ export function RoadmapModal({
   onClose: () => void;
   onNavigate: () => void;
 }) {
+  const { t, roadmapName } = useLanguage();
   const [completedSlugs, setCompletedSlugs] = useState<string[]>([]);
 
   useEffect(() => {
@@ -112,24 +108,23 @@ export function RoadmapModal({
       className="fixed inset-0 z-50 flex items-end justify-center bg-black/85 p-0 backdrop-blur-sm sm:items-center sm:p-4"
       role="dialog"
       aria-modal="true"
-      aria-label="Python roadmap"
+      aria-label={t.roadmapModal.dialogLabel}
     >
       <div className="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-2xl border border-neutral-800 bg-neutral-950 sm:rounded-2xl">
         <div className="flex items-start justify-between gap-3 border-b border-neutral-800 px-5 py-4">
           <div className="min-w-0">
             <h2 className="flex items-center gap-2 text-base font-semibold text-white">
               <Map className="h-5 w-5 shrink-0 text-white" />
-              Your Python Roadmap
+              {t.roadmapModal.title}
             </h2>
             <p className="mt-1 text-xs text-neutral-400">
-              {totalTopics} topics • about {formatTotalMinutes(totalMinutes)} • follow it
-              top to bottom
+              {t.roadmapModal.subtitle(totalTopics, t.common.durationTotal(totalMinutes * 60))}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close roadmap"
+            aria-label={t.roadmapModal.close}
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-neutral-800 bg-neutral-900 text-neutral-300 transition hover:bg-neutral-800 hover:text-white"
           >
             <X className="h-4 w-4" />
@@ -139,7 +134,7 @@ export function RoadmapModal({
         <div className="border-b border-neutral-800 px-5 py-3">
           <div className="flex items-center justify-between text-xs text-neutral-400">
             <span>
-              {doneCount} of {totalTopics} done
+              {t.roadmap.topicsComplete(doneCount, totalTopics)}
             </span>
             <span>{pct}%</span>
           </div>
@@ -155,7 +150,7 @@ export function RoadmapModal({
           {ROADMAP_STAGES.map((stage) => (
             <section key={stage.id} className="mb-6 last:mb-0">
               <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-500">
-                {stage.title}
+                {roadmapName(stage.title)}
               </h3>
               <ul className="relative space-y-2 before:absolute before:bottom-2 before:left-[11px] before:top-2 before:w-px before:bg-neutral-800">
                 {stage.topics.map((topic) => (
@@ -181,6 +176,7 @@ export function RoadmapModal({
  * the roadmap too, and it never appears again.
  */
 export function RoadmapHint({ onGotIt }: { onGotIt: () => void }) {
+  const { t } = useLanguage();
   // Escape dismisses the hint (and with it, the roadmap behind it).
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -195,15 +191,15 @@ export function RoadmapHint({ onGotIt }: { onGotIt: () => void }) {
       className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
-      aria-label="Roadmap saved"
+      aria-label={t.roadmapModal.savedDialogLabel}
     >
       <div className="w-full max-w-sm rounded-2xl border border-neutral-800 bg-neutral-950 p-5">
         <h3 className="flex items-center gap-2 text-base font-semibold text-white">
           <Map className="h-5 w-5 shrink-0 text-white" />
-          Roadmap saved for later
+          {t.roadmapModal.savedTitle}
         </h3>
         <p className="mt-2 text-sm leading-relaxed text-neutral-400">
-          Next time you can preview the roadmap from the profile dropdown.
+          {t.roadmapModal.savedBody}
         </p>
         <div className="mt-4 flex justify-end">
           <button
@@ -211,7 +207,7 @@ export function RoadmapHint({ onGotIt }: { onGotIt: () => void }) {
             onClick={onGotIt}
             className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black transition hover:bg-neutral-200"
           >
-            Got it
+            {t.roadmapModal.gotIt}
           </button>
         </div>
       </div>

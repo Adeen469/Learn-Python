@@ -6,6 +6,7 @@ import { useEffect, useState, type CSSProperties } from "react";
 import { ArrowLeft, CheckCircle2, Circle, Pause, Play } from "lucide-react";
 import { fetchSessionUser } from "@/lib/auth-client";
 import { AppNavbar } from "@/components/AppNavbar";
+import { useLanguage } from "@/lib/i18n";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import AnimatedList, { type AnimatedListEntry } from "@/components/AnimatedList";
 import {
@@ -30,18 +31,6 @@ import {
   playlistListId,
   type CourseVideo,
 } from "@/lib/courses/data";
-
-function formatDuration(totalSeconds?: number): string {
-  if (totalSeconds === undefined) return "";
-  const h = Math.floor(totalSeconds / 3600);
-  const m = Math.floor((totalSeconds % 3600) / 60);
-  const s = Math.round(totalSeconds % 60);
-  // Video lengths read h:m:s once they pass an hour (6:14:07, not
-  // 374:07); shorter ones stay m:ss (11:50). Totals elsewhere read
-  // "nh nm" (17h 57m).
-  if (h > 0) return `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-  return `${m}:${String(s).padStart(2, "0")}`;
-}
 
 /**
  * The key a watched video is completed under. A video with a MEGA
@@ -86,6 +75,7 @@ export default function CoursePlayerPage({
   params: Promise<{ slug: string; collection: string }>;
 }) {
   const router = useRouter();
+  const { t, videoTitle } = useLanguage();
   const [checked, setChecked] = useState(false);
   const [route, setRoute] = useState<{ slug: string; collection: string } | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -245,17 +235,17 @@ export default function CoursePlayerPage({
     >
       {isDone ? (
         <>
-          <CheckCircle2 className="h-4 w-4 text-white" /> Completed
+          <CheckCircle2 className="h-4 w-4 text-white" /> {t.common.completed}
         </>
       ) : isYouTube ||
         activeCoverage.fraction >= WATCH_QUALIFY_FRACTION ? (
         <>
-          <Circle className="h-4 w-4 text-neutral-400" /> Mark Complete
+          <Circle className="h-4 w-4 text-neutral-400" /> {t.lesson.markComplete}
         </>
       ) : (
         <>
-          <Circle className="h-4 w-4 text-neutral-400" /> Watched{" "}
-          {Math.round(activeCoverage.fraction * 100)}%
+          <Circle className="h-4 w-4 text-neutral-400" />{" "}
+          {t.common.watchedPct(Math.round(activeCoverage.fraction * 100))}
         </>
       )}
     </button>
@@ -296,15 +286,18 @@ export default function CoursePlayerPage({
     return {
       id: completionId(video),
       icon: playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />,
-      title: video.title,
+      title: videoTitle(video.videoId, video.title),
       description: playing
-        ? "Playing"
+        ? t.course.playingLabel
         : done
-          ? "Completed"
+          ? t.common.completed
           : pct > 0
-            ? `Watched ${pct}%`
-            : "Not started",
-      meta: formatDuration(video.durationSeconds),
+            ? t.common.watchedPct(pct)
+            : t.common.notStarted,
+      meta:
+        video.durationSeconds === undefined
+          ? ""
+          : t.common.duration(video.durationSeconds),
     };
   });
 
@@ -331,7 +324,7 @@ export default function CoursePlayerPage({
               <VideoPlayer
                 lessonId={activeVideo.megaLessonId}
                 videoId={activeVideo.videoId}
-                title={activeVideo.title}
+                title={videoTitle(activeVideo.videoId, activeVideo.title)}
                 autoplay={autoplay}
                 onAutoplayChange={handleAutoplayChange}
                 onWatchCoverage={(fraction, seconds) =>
@@ -353,7 +346,7 @@ export default function CoursePlayerPage({
                 <div className="aspect-video w-full bg-black">
                   <iframe
                     src={`https://www.youtube-nocookie.com/embed/${activeVideo.videoId}?autoplay=${autoplay ? 1 : 0}`}
-                    title={activeVideo.title}
+                    title={videoTitle(activeVideo.videoId, activeVideo.title)}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
                     className="h-full w-full"
@@ -362,10 +355,10 @@ export default function CoursePlayerPage({
                 <div className="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-800 px-4 py-3">
                   <div className="min-w-0">
                     <h2 className="truncate text-sm font-medium text-white">
-                      {activeVideo.title}
+                      {videoTitle(activeVideo.videoId, activeVideo.title)}
                     </h2>
                     <p className="mt-0.5 text-xs text-neutral-400">
-                      Playing from YouTube — MEGA link coming soon
+                      {t.player.youtubeFallbackNote}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">{completionButton}</div>
@@ -378,7 +371,7 @@ export default function CoursePlayerPage({
           <aside className="space-y-4">
             <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-4">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-medium text-neutral-300">Today&apos;s Progress</span>
+                <span className="font-medium text-neutral-300">{t.player.todayProgress}</span>
                 <span className="font-semibold text-white">{goalPct}%</span>
               </div>
               <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-neutral-800">
@@ -388,10 +381,13 @@ export default function CoursePlayerPage({
                 />
               </div>
               <p className="mt-2 text-xs text-neutral-400">
-                {wholeMinutes(progress.seconds)} min watched of {progress.goalMinutes} min goal
+                {t.player.progressSummary(
+                  wholeMinutes(progress.seconds),
+                  progress.goalMinutes
+                )}
               </p>
               <div className="mt-3 flex items-center justify-between text-xs text-neutral-400">
-                <span>Target (min/day)</span>
+                <span>{t.player.dailyTargetLabel}</span>
                 <select
                   value={progress.goalMinutes}
                   onChange={(e) =>
@@ -399,17 +395,17 @@ export default function CoursePlayerPage({
                   }
                   className="rounded border border-neutral-800 bg-black px-2 py-1 text-xs text-white"
                 >
-                  <option value={15}>15 min</option>
-                  <option value={30}>30 min</option>
-                  <option value={45}>45 min</option>
-                  <option value={60}>60 min</option>
+                  <option value={15}>{t.settings.goalMinutes(15)}</option>
+                  <option value={30}>{t.settings.goalMinutes(30)}</option>
+                  <option value={45}>{t.settings.goalMinutes(45)}</option>
+                  <option value={60}>{t.settings.goalMinutes(60)}</option>
                 </select>
               </div>
             </div>
 
             <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-4">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
-                Course Lessons
+                {t.player.courseLessonsHeading}
               </h3>
               <div className="mt-3">
                 <AnimatedList

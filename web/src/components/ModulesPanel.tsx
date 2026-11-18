@@ -8,6 +8,7 @@ import {
   PYODIDE_DESCRIPTIONS,
 } from "@/lib/external-packages";
 import { installPackageInto } from "@/lib/pyodide-install";
+import { useLanguage } from "@/lib/i18n";
 import {
   getStoredInstalledPackages,
   removeStoredInstalledPackage,
@@ -49,9 +50,7 @@ interface ExternalEntry {
 const ALL_EXTERNAL: ExternalEntry[] = [
   ...PYODIDE_PACKAGES.map((name): ExternalEntry => ({
     name,
-    desc:
-      PYODIDE_DESCRIPTIONS[name] ??
-      "Pyodide-built package — installs fast from the CDN, ready to import.",
+    desc: PYODIDE_DESCRIPTIONS[name] ?? "",
     category: "Pyodide",
     source: "pyodide",
   })),
@@ -73,8 +72,9 @@ interface ModulesPanelProps {
 }
 
 export function ModulesPanel({ pyodideRef, ensurePyodide }: ModulesPanelProps) {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<"stdlib" | "external" | "search">("stdlib");
-  const [categoryFilter, setCategoryFilter] = useState<string>("All");
+  const [categoryFilter, setCategoryFilter] = useState<string>(t.common.all);
   const [searchQuery, setSearchQuery] = useState("");
   const [installedList, setInstalledList] = useState<string[]>([]);
   const [installingMap, setInstallingMap] = useState<Record<string, boolean>>({});
@@ -152,9 +152,9 @@ export function ModulesPanel({ pyodideRef, ensurePyodide }: ModulesPanelProps) {
     if (!pyodideRef.current) {
       setInstallProgress((prev) => ({
         ...prev,
-        [clean]: { stage: "Starting Python runtime…", pct: 10 },
+        [clean]: { stage: t.modulesPage.stageStartingRuntime, pct: 10 },
       }));
-      addLog("Starting Python runtime — one-time download (~15 MB), please wait…");
+      addLog(t.modulesPage.logStartingRuntime);
       // The init reports each step (which CDN, timeouts, success) so
       // the bar shows WHERE a slow load is stuck instead of a frozen
       // "Starting Python runtime…" at 10%. Never let ensurePyodide
@@ -169,9 +169,9 @@ export function ModulesPanel({ pyodideRef, ensurePyodide }: ModulesPanelProps) {
             ? 15
             : stage.includes("timed out") || stage.includes("trying the next CDN")
               ? 20
-              : stage === "Loading micropip…"
+              : stage === t.modulesPage.stageLoadingMicropip
                 ? 25
-                : stage === "Python runtime ready" || stage.startsWith("Runtime loaded")
+                : stage === t.modulesPage.stageRuntimeReady || stage.startsWith("Runtime loaded")
                   ? 30
                   : 10;
           setInstallProgress((prev) => ({
@@ -191,8 +191,8 @@ export function ModulesPanel({ pyodideRef, ensurePyodide }: ModulesPanelProps) {
       }
       if (!ready) {
         const msg = ensureError
-          ? `Python environment could not start: ${ensureError}`
-          : "Python environment could not start (the Pyodide script did not load). Check your connection and try again — the Install button will retry.";
+          ? t.modulesPage.errorEnvStartWithDetail(ensureError)
+          : t.modulesPage.errorEnvStartNoLoad;
         addLog(msg);
         setLastError(msg);
         setInstallProgress((prev) => {
@@ -210,16 +210,16 @@ export function ModulesPanel({ pyodideRef, ensurePyodide }: ModulesPanelProps) {
       }
       setInstallProgress((prev) => ({
         ...prev,
-        [clean]: { stage: "Python runtime ready", pct: 30 },
+        [clean]: { stage: t.modulesPage.stageRuntimeReady, pct: 30 },
       }));
-      addLog("Python runtime ready.");
+      addLog(t.modulesPage.logRuntimeReady);
     }
 
     setInstallProgress((prev) => ({
       ...prev,
-      [clean]: { stage: `Downloading '${clean}'…`, pct: 55 },
+      [clean]: { stage: t.modulesPage.stageDownloading(clean), pct: 55 },
     }));
-    addLog(`Installing '${clean}'…`);
+    addLog(t.modulesPage.logInstalling(clean));
 
     const result = await installPackageInto(pyodideRef.current, clean);
     if (result.ok) {
@@ -227,10 +227,10 @@ export function ModulesPanel({ pyodideRef, ensurePyodide }: ModulesPanelProps) {
       setInstalledList(updated);
       setInstallProgress((prev) => ({
         ...prev,
-        [clean]: { stage: `Installed '${clean}' ✓`, pct: 100 },
+        [clean]: { stage: t.modulesPage.stageInstalled(clean), pct: 100 },
       }));
       addLog(
-        `✓ Installed '${clean}' via ${result.method} (import ${result.importName} works). Saved in workspace storage.`
+        t.modulesPage.logInstalled(clean, result.method, result.importName)
       );
     } else {
       setInstallProgress((prev) => {
@@ -238,7 +238,7 @@ export function ModulesPanel({ pyodideRef, ensurePyodide }: ModulesPanelProps) {
         delete next[clean];
         return next;
       });
-      addLog(`✗ Failed to install '${clean}': ${result.error}`);
+      addLog(t.modulesPage.logInstallFailed(clean, result.error));
       setLastError(result.error);
     }
     setInstallingMap((prev) => ({ ...prev, [clean]: false }));
@@ -261,7 +261,7 @@ if '${pkgName}' in sys.modules:
     }
     const updated = removeStoredInstalledPackage(pkgName);
     setInstalledList(updated);
-    addLog(`Uninstalled and removed '${pkgName}' from workspace.`);
+    addLog(t.modulesPage.logUninstalled(pkgName));
   }
 
   async function handlePyPiSearch(e: React.FormEvent) {
@@ -275,19 +275,19 @@ if '${pkgName}' in sys.modules:
     try {
       const res = await fetch(`/api/pypi?name=${encodeURIComponent(clean)}`);
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Package not found on PyPI");
+      if (!res.ok) throw new Error(data.error || t.modulesPage.errorPackageNotFound);
       setPypiResult(data);
     } catch (err: unknown) {
-      setPypiError(err instanceof Error ? err.message : "Error querying PyPI");
+      setPypiError(err instanceof Error ? err.message : t.modulesPage.errorQueryPyPi);
     } finally {
       setPypiSearching(false);
     }
   }
 
-  const categories = ["All", ...Array.from(new Set(PYTHON_STDLIB_MODULES.map((m) => m.category)))];
+  const categories = [t.common.all, ...Array.from(new Set(PYTHON_STDLIB_MODULES.map((m) => m.category)))];
 
   const filteredStdlib = PYTHON_STDLIB_MODULES.filter((m) => {
-    if (categoryFilter !== "All" && m.category !== categoryFilter) return false;
+    if (categoryFilter !== t.common.all && m.category !== categoryFilter) return false;
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       return m.name.toLowerCase().includes(q) || m.summary.toLowerCase().includes(q);
@@ -312,10 +312,10 @@ if '${pkgName}' in sys.modules:
     <div className="flex flex-col gap-5">
       <div>
         <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-          <Package className="h-5 w-5" /> Python Modules & Packages Manager
+          <Package className="h-5 w-5" /> {t.modulesPage.title}
         </h1>
         <p className="mt-1 text-xs text-neutral-400">
-          Browse Python&apos;s complete official standard library and search/install all PyPI & Pyodide external packages in your workspace.
+          {t.modulesPage.subtitle}
         </p>
       </div>
 
@@ -328,7 +328,7 @@ if '${pkgName}' in sys.modules:
               activeTab === "stdlib" ? "bg-white text-black" : "text-neutral-400 hover:text-white"
             }`}
           >
-            Built-in Standard Library ({PYTHON_STDLIB_MODULES.length})
+            {t.modulesPage.tabStdlib(PYTHON_STDLIB_MODULES.length)}
           </button>
           <button
             onClick={() => setActiveTab("external")}
@@ -336,7 +336,7 @@ if '${pkgName}' in sys.modules:
               activeTab === "external" ? "bg-white text-black" : "text-neutral-400 hover:text-white"
             }`}
           >
-            External Packages ({ALL_EXTERNAL.length})
+            {t.modulesPage.tabExternal(ALL_EXTERNAL.length)}
           </button>
           <button
             onClick={() => setActiveTab("search")}
@@ -344,7 +344,7 @@ if '${pkgName}' in sys.modules:
               activeTab === "search" ? "bg-white text-black" : "text-neutral-400 hover:text-white"
             }`}
           >
-            Live PyPI Search & Install
+            {t.modulesPage.tabSearch}
           </button>
         </div>
 
@@ -353,7 +353,7 @@ if '${pkgName}' in sys.modules:
             <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-neutral-500" />
             <input
               type="text"
-              placeholder="Filter built-in modules..."
+              placeholder={t.modulesPage.filterStdlibPlaceholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full rounded-lg border border-neutral-800 bg-neutral-950 pl-8 pr-3 py-1.5 text-xs text-white placeholder-neutral-600 focus:border-white focus:outline-none sm:w-56"
@@ -411,7 +411,7 @@ if '${pkgName}' in sys.modules:
 
                 <div className="mt-4 pt-3 border-t border-neutral-900 flex items-center justify-between">
                   <span className="inline-flex items-center gap-1 text-[11px] text-neutral-400 font-medium">
-                    <Check className="h-3.5 w-3.5 text-white" /> Built-in (Always ready)
+                    <Check className="h-3.5 w-3.5 text-white" /> {t.modulesPage.builtInReady}
                   </span>
                   <a
                     href={mod.docUrl}
@@ -419,7 +419,7 @@ if '${pkgName}' in sys.modules:
                     rel="noreferrer"
                     className="text-neutral-400 hover:text-white text-xs inline-flex items-center gap-1"
                   >
-                    Docs <ExternalLink className="h-3 w-3" />
+                    {t.modulesPage.docs} <ExternalLink className="h-3 w-3" />
                   </a>
                 </div>
               </div>
@@ -432,12 +432,11 @@ if '${pkgName}' in sys.modules:
       {activeTab === "external" && (
         <div className="space-y-4">
           <p className="text-xs leading-relaxed text-neutral-400">
-            {PYODIDE_PACKAGES.length} Pyodide-built packages (install fast from the CDN) +{" "}
-            {MICROPIP_PACKAGES.length} popular pure-Python PyPI packages (install via micropip).{" "}
+            {t.modulesPage.externalIntro(PYODIDE_PACKAGES.length, MICROPIP_PACKAGES.length)}{" "}
             {installedList.length > 0 && (
-              <span className="text-white font-medium">{installedList.length} installed in this workspace.</span>
+              <span className="text-white font-medium">{t.modulesPage.installedInWorkspace(installedList.length)}</span>
             )}{" "}
-            Anything else on PyPI can still be installed by exact name in the Live PyPI Search tab.
+            {t.modulesPage.externalOutro}
           </p>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -445,7 +444,7 @@ if '${pkgName}' in sys.modules:
               <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-neutral-500" />
               <input
                 type="text"
-                placeholder="Search all packages — e.g. numpy, flask, seaborn, opencv…"
+                placeholder={t.modulesPage.searchPackagesPlaceholder}
                 value={externalQuery}
                 onChange={(e) => setExternalQuery(e.target.value)}
                 className="w-full rounded-lg border border-neutral-800 bg-neutral-950 pl-8 pr-3 py-2 text-xs text-white placeholder-neutral-600 focus:border-white focus:outline-none"
@@ -461,7 +460,7 @@ if '${pkgName}' in sys.modules:
                     sourceFilter === src ? "bg-white text-black" : "text-neutral-400 hover:text-white"
                   }`}
                 >
-                  {src === "all" ? "All" : src === "pyodide" ? "Pyodide" : "PyPI (micropip)"}
+                  {src === "all" ? t.common.all : src === "pyodide" ? "Pyodide" : "PyPI (micropip)"}
                 </button>
               ))}
             </div>
@@ -477,7 +476,7 @@ if '${pkgName}' in sys.modules:
           >
             <input
               type="text"
-              placeholder="Install any package by name — e.g. tabulate"
+              placeholder={t.modulesPage.installByNamePlaceholder}
               value={installByName}
               onChange={(e) => setInstallByName(e.target.value)}
               className="min-w-0 flex-1 rounded-lg border border-neutral-800 bg-black px-3 py-2 text-xs text-white placeholder-neutral-600 focus:border-white focus:outline-none"
@@ -487,13 +486,13 @@ if '${pkgName}' in sys.modules:
               disabled={!installByName.trim()}
               className="shrink-0 whitespace-nowrap rounded-lg bg-white px-4 py-2 text-xs font-semibold text-black hover:bg-neutral-200 transition disabled:opacity-50"
             >
-              Install
+              {t.modulesPage.install}
             </button>
           </form>
 
           <p className="text-[11px] text-neutral-500">
-            Showing {filteredExternal.length} of {ALL_EXTERNAL.length} packages.
-            {filteredExternal.length === 0 && " No match — try the Live PyPI Search tab for an exact package name."}
+            {t.modulesPage.showingCount(filteredExternal.length, ALL_EXTERNAL.length)}
+            {filteredExternal.length === 0 && <> {t.modulesPage.noMatch}</>}
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -515,7 +514,7 @@ if '${pkgName}' in sys.modules:
                       </span>
                     </div>
                     <p className="mt-2 text-xs text-neutral-400 leading-relaxed">
-                      {pkg.desc}
+                      {pkg.desc || t.modulesPage.defaultPyodideDesc}
                     </p>
                   </div>
 
@@ -523,14 +522,14 @@ if '${pkgName}' in sys.modules:
                     {isInstalled ? (
                       <div className="flex items-center justify-between w-full">
                         <span className="inline-flex items-center gap-1 text-[11px] text-white font-medium">
-                          <Check className="h-3.5 w-3.5" /> Installed
+                          <Check className="h-3.5 w-3.5" /> {t.modulesPage.installed}
                         </span>
                         <button
                           type="button"
                           onClick={() => uninstallPackage(pkg.name)}
                           className="inline-flex items-center gap-1 rounded border border-neutral-800 bg-black px-2 py-1 text-[10px] text-neutral-400 hover:text-red-400 hover:border-red-900 transition"
                         >
-                          <Trash2 className="h-3 w-3" /> Remove
+                          <Trash2 className="h-3 w-3" /> {t.modulesPage.remove}
                         </button>
                       </div>
                     ) : (
@@ -542,11 +541,11 @@ if '${pkgName}' in sys.modules:
                       >
                         {isInstalling ? (
                           <>
-                            <Loader2 className="h-3 w-3 animate-spin" /> Installing...
+                            <Loader2 className="h-3 w-3 animate-spin" /> {t.modulesPage.installing}
                           </>
                         ) : (
                           <>
-                            <Download className="h-3 w-3" /> Install Package
+                            <Download className="h-3 w-3" /> {t.modulesPage.installPackage}
                           </>
                         )}
                       </button>
@@ -564,12 +563,12 @@ if '${pkgName}' in sys.modules:
         <div className="space-y-4">
           <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-5">
             <h2 className="text-sm font-semibold text-white flex items-center gap-2 mb-2">
-              <Search className="h-4 w-4" /> Search the Official Python Package Index (PyPI)
+              <Search className="h-4 w-4" /> {t.modulesPage.searchHeading}
             </h2>
             <form onSubmit={handlePyPiSearch} className="flex gap-2">
               <input
                 type="text"
-                placeholder="e.g. rich, requests, sympy, tabulate, httpx, textstat"
+                placeholder={t.modulesPage.searchPyPiPlaceholder}
                 value={pypiQuery}
                 onChange={(e) => setPypiQuery(e.target.value)}
                 className="min-w-0 flex-1 rounded-lg border border-neutral-800 bg-black px-3 py-2 text-xs text-white placeholder-neutral-600 focus:border-white focus:outline-none"
@@ -580,7 +579,7 @@ if '${pkgName}' in sys.modules:
                 className="shrink-0 whitespace-nowrap rounded-lg bg-white px-4 py-2 text-xs font-semibold text-black hover:bg-neutral-200 transition disabled:opacity-50 flex items-center gap-1.5"
               >
                 {pypiSearching ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Search className="h-3.5 w-3.5" />}
-                Search PyPI
+                {t.modulesPage.searchPyPi}
               </button>
             </form>
 
@@ -601,7 +600,7 @@ if '${pkgName}' in sys.modules:
                   </div>
                   {installedList.includes(pypiResult.name.toLowerCase()) ? (
                     <span className="inline-flex items-center gap-1 text-xs text-emerald-400 font-medium">
-                      <Check className="h-4 w-4" /> Installed in Workspace
+                      <Check className="h-4 w-4" /> {t.modulesPage.installedInWorkspaceLabel}
                     </span>
                   ) : (
                     <button
@@ -612,11 +611,11 @@ if '${pkgName}' in sys.modules:
                     >
                       {installingMap[pypiResult.name.toLowerCase()] ? (
                         <>
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" /> Installing...
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" /> {t.modulesPage.installing}
                         </>
                       ) : (
                         <>
-                          <Download className="h-3.5 w-3.5" /> Install {pypiResult.name}
+                          <Download className="h-3.5 w-3.5" /> {t.modulesPage.installPackageNamed(pypiResult.name)}
                         </>
                       )}
                     </button>
@@ -628,15 +627,15 @@ if '${pkgName}' in sys.modules:
                 </p>
 
                 <div className="mt-3 flex flex-wrap gap-4 text-[11px] text-neutral-400 border-t border-neutral-900 pt-3">
-                  <span>License: <strong className="text-neutral-200">{pypiResult.license}</strong></span>
-                  <span>Author: <strong className="text-neutral-200">{pypiResult.author}</strong></span>
+                  <span>{t.modulesPage.licenseLabel} <strong className="text-neutral-200">{pypiResult.license}</strong></span>
+                  <span>{t.modulesPage.authorLabel} <strong className="text-neutral-200">{pypiResult.author}</strong></span>
                   <a
                     href={pypiResult.home_page}
                     target="_blank"
                     rel="noreferrer"
                     className="text-white underline inline-flex items-center gap-1"
                   >
-                    Project Homepage <ExternalLink className="h-3 w-3" />
+                    {t.modulesPage.projectHomepage} <ExternalLink className="h-3 w-3" />
                   </a>
                 </div>
               </div>
@@ -648,7 +647,7 @@ if '${pkgName}' in sys.modules:
       {/* Live Activity Logs */}
       <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-4">
         <span className="text-xs font-mono text-neutral-400 flex items-center gap-1.5 mb-2">
-          <Info className="h-3.5 w-3.5" /> Package Engine Terminal Logs
+          <Info className="h-3.5 w-3.5" /> {t.modulesPage.logsHeading}
         </span>
         {Object.entries(installProgress).map(([pkg, progress]) => (
           <div className="mb-3" key={pkg}>
@@ -672,7 +671,7 @@ if '${pkgName}' in sys.modules:
           </div>
         ))}
         <pre className="max-h-36 overflow-auto bg-black p-3 rounded-lg font-mono text-[11px] text-neutral-400 whitespace-pre-wrap">
-          {logs.length > 0 ? logs.join("\n") : "Python environment ready. Install any package to load it into your workspace."}
+          {logs.length > 0 ? logs.join("\n") : t.modulesPage.logsEmpty}
         </pre>
       </div>
     </div>

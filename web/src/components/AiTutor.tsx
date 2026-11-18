@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { Loader2, Send, Sparkles } from "lucide-react";
 import type { Lesson } from "@/lib/catalog";
+import { useLanguage } from "@/lib/i18n";
 
 // AI tutor chat tied to one lesson. History lives only in this
 // component's state (never stored server-side); the route caps it at
@@ -21,6 +22,7 @@ interface AiTutorProps {
 }
 
 export function AiTutor({ lesson }: AiTutorProps) {
+  const { t } = useLanguage();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -57,20 +59,20 @@ export function AiTutor({ lesson }: AiTutorProps) {
         return;
       }
       if (res.status === 401) {
-        setError("Your session expired — please sign in again.");
+        setError(t.tutor.errorSessionExpired);
         setMessages((prev) => prev.slice(0, -1));
         setInput(question);
         return;
       }
       if (!res.ok || typeof data !== "object" || data === null) {
-        setError("Something went wrong — please try again.");
+        setError(t.common.genericError);
         setMessages((prev) => prev.slice(0, -1));
         setInput(question);
         return;
       }
       const reply = (data as { reply?: unknown }).reply;
       if (typeof reply !== "string" || !reply.trim()) {
-        setError("The AI returned an empty reply — please try again.");
+        setError(t.tutor.errorEmptyReply);
         setMessages((prev) => prev.slice(0, -1));
         setInput(question);
         return;
@@ -84,7 +86,7 @@ export function AiTutor({ lesson }: AiTutorProps) {
         listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
       });
     } catch {
-      setError("Could not reach the AI — check your connection and try again.");
+      setError(t.tutor.errorGeneric);
       setMessages((prev) => prev.slice(0, -1));
       setInput(question);
     } finally {
@@ -96,19 +98,15 @@ export function AiTutor({ lesson }: AiTutorProps) {
     <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-4">
       <div className="flex items-center gap-2">
         <Sparkles className="h-4 w-4 text-white" />
-        <h2 className="text-sm font-semibold text-white">Ask AI about this lesson</h2>
+        <h2 className="text-sm font-semibold text-white">{t.tutorPage.heading}</h2>
       </div>
       <p className="mt-1 text-xs leading-relaxed text-neutral-400">
-        Doubts, explanations, examples — in Hindi or English. Answers
-        come from this lesson&apos;s actual video, with timestamps, and
-        anything the video doesn&apos;t cover is marked as general
-        knowledge. Chats are not stored anywhere.
+        {t.tutorPage.intro}
       </p>
 
       {unavailable ? (
         <div className="mt-3 rounded-lg border border-neutral-800 bg-black px-4 py-3 text-xs leading-relaxed text-neutral-300">
-          AI is not available right now — the API keys are not configured yet.
-          The rest of the course works normally.
+          {t.tutorPage.unavailable}
         </div>
       ) : (
         <>
@@ -127,21 +125,21 @@ export function AiTutor({ lesson }: AiTutorProps) {
                   }`}
                 >
                   <p className="mb-0.5 text-[10px] font-semibold uppercase tracking-wider opacity-60">
-                    {m.role === "user" ? "You" : "AI Tutor"}
+                    {m.role === "user" ? t.tutor.youLabel : t.common.aiTutor}
                   </p>
                   <p className="whitespace-pre-wrap">{m.text}</p>
                   {m.role === "assistant" && (
                     <p className="mt-1.5 text-[10px] leading-relaxed text-neutral-500">
                       {m.grounded
-                        ? "✓ From this lesson's video — timestamps point to the moment in the video."
-                        : "General answer — this lesson's video transcript was not available."}
+                        ? t.tutor.groundedFootnote
+                        : t.tutor.notGroundedFootnote}
                     </p>
                   )}
                 </div>
               ))}
               {sending && (
                 <p className="flex items-center gap-2 text-xs text-neutral-400">
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> AI is thinking…
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> {t.tutor.thinking}
                 </p>
               )}
             </div>
@@ -158,7 +156,7 @@ export function AiTutor({ lesson }: AiTutorProps) {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={`Ask about "${lesson.title.slice(0, 40)}${lesson.title.length > 40 ? "…" : ""}"`}
+              placeholder={t.tutorPage.askPlaceholder(lesson.title)}
               disabled={sending}
               className="min-w-0 flex-1 rounded-lg border border-neutral-800 bg-black px-3 py-2 text-sm text-white placeholder-neutral-600 focus:border-white focus:outline-none disabled:opacity-50"
             />
@@ -167,7 +165,7 @@ export function AiTutor({ lesson }: AiTutorProps) {
               disabled={sending || !input.trim()}
               className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-neutral-200 transition disabled:opacity-50"
             >
-              <Send className="h-3.5 w-3.5" /> Ask
+              <Send className="h-3.5 w-3.5" /> {t.tutor.askButton}
             </button>
           </form>
         </>

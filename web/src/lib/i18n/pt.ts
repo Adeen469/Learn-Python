@@ -1,0 +1,608 @@
+// Portuguese strings (pt-BR) — UI chrome only.
+// Shared keys are copied VERBATIM from the app's pt.ts; website-only
+// keys are translated fresh following the app's conventions.
+
+import type { Strings } from "./index";
+
+export const pt: Strings = {
+  common: {
+    appName: "Learn Python",
+    signIn: "Entrar",
+    signOut: "Sair",
+    email: "E-mail",
+    password: "Senha",
+    genericError: "Algo deu errado. Tente novamente.",
+    backToSignIn: "Voltar para o login",
+    retry: "Tentar novamente",
+    completed: "Concluído",
+    watchedPct: (pct: number) => `Assistido ${pct}%`,
+    notStarted: "Não iniciado",
+    duration: (totalSeconds: number) => {
+      const s = Math.max(0, Math.round(totalSeconds));
+      const h = Math.floor(s / 3600);
+      const m = Math.floor((s % 3600) / 60);
+      const sec = s % 60;
+      const mm = String(m).padStart(2, "0");
+      const ss = String(sec).padStart(2, "0");
+      return h > 0 ? `${h}:${mm}:${ss}` : `${m}:${ss}`;
+    },
+    durationTotal: (totalSeconds: number) => {
+      const totalMinutes = Math.floor(totalSeconds / 60);
+      const h = Math.floor(totalMinutes / 60);
+      const m = totalMinutes % 60;
+      return h > 0 ? `${h}h ${m}min` : `${m}min`;
+    },
+    sixDigitCodeLabel: "Código de 6 dígitos",
+    roadmap: "Roteiro",
+    settings: "Configurações",
+    aiTutor: "Tutor de IA",
+    close: "Fechar",
+    all: "Todos",
+    delete: "Excluir",
+    clear: "Limpar",
+    back: "Voltar",
+    or: "ou",
+    emailAddress: "Endereço de e-mail",
+    loading: "Carregando…",
+    pleaseWait: "Aguarde um momento.",
+    errorPageDetail:
+      "Esta página encontrou um erro inesperado. Tente novamente ou volte ao painel.",
+    backToDashboard: "Voltar ao painel",
+    pageNotFound: "Página não encontrada",
+    pageNotFoundDetail:
+      "A aula ou página que você procura não existe.",
+  },
+  tabs: {
+    learn: "Aprender",
+    courses: "Cursos",
+  },
+  learn: {
+    streakChip: (n: number) =>
+      n === 1 ? `Sequência: ${n} dia` : `Sequência: ${n} dias`,
+  },
+  courses: {
+    intro: "Cursos completos de Python em vídeo — escolha um criador para começar a assistir.",
+    countVideos: (n: number) => (n === 1 ? `${n} vídeo` : `${n} vídeos`),
+  },
+  editor: {
+    title: "Editor de código",
+  },
+  profile: {
+    statStreakLabel: "dias de sequência",
+  },
+  lesson: {
+    markComplete: "Marcar como concluída",
+    askTutor: "Perguntar ao tutor de IA",
+    saveOffline: "Salvar offline",
+    savedOffline: "Salvo offline",
+    nextLesson: "Próxima →",
+  },
+  course: {
+    markAsComplete: "Marcar como concluído",
+    oneShotsHeading: "Vídeos únicos",
+    fullCourseLabel: "Curso completo",
+    totalLabel: "total",
+    playingLabel: "Reproduzindo",
+  },
+  roadmap: {
+    topicsComplete: (done: number, total: number) =>
+      `${done} de ${total} tópicos concluídos`,
+    topicMeta: (difficulty: string, minutes: number) =>
+      `${difficulty} · ${minutes} min`,
+    topicDone: "✓ Feito",
+  },
+  tutor: {
+    errorSessionExpired: "Sua sessão expirou. Entre novamente para continuar conversando.",
+    errorGeneric:
+      "O tutor não conseguiu responder agora. Verifique sua conexão e tente novamente.",
+    errorEmptyReply: "A IA retornou uma resposta vazia — tente novamente.",
+    youLabel: "Você",
+    groundedFootnote:
+      "✓ Do vídeo desta aula — os timestamps apontam para o momento no vídeo.",
+    notGroundedFootnote:
+      "Resposta geral — a transcrição do vídeo desta aula não estava disponível.",
+    thinking: "A IA está pensando…",
+    askButton: "Perguntar",
+  },
+  auth: {
+    continueWithGoogle: "Continuar com o Google",
+    forgotPassword: "Esqueceu a senha?",
+    createAccount: "Criar conta",
+    namePlaceholder: "Seu nome",
+    otpSubtitle: (email: string, purpose: "signup" | "signin") =>
+      `Enviamos um código de 6 dígitos para ${email || "seu e-mail"}. Digite-o abaixo para ${
+        purpose === "signup" ? "verificar sua conta" : "entrar"
+      }.`,
+    forgotSubtitle:
+      "Digite o e-mail com o qual você se cadastrou e enviaremos um link de redefinição.",
+    sendResetLink: "Enviar link de redefinição",
+    twoFactorTitle: "Autenticação em dois fatores",
+    verifyAndSignIn: "Verificar e entrar",
+    couldNotSendCode: "Não foi possível enviar o código. Tente novamente.",
+    codeSentToWithExpiry: (email: string) =>
+      `Código enviado para ${email}. Ele expira em 10 minutos.`,
+    couldNotSignIn: "Não foi possível entrar. Tente novamente.",
+    couldNotCreateAccount: "Não foi possível criar a conta. Tente novamente.",
+    codeIncorrectOrExpired: "O código está incorreto ou expirou.",
+    enterCodeTitle: "Digite o código",
+    signInWithEmail: "Entrar com e-mail",
+    signInEmailSubtitle: "Use seu e-mail e senha, ou um código.",
+    signUpEmailSubtitle: "Crie sua conta — primeiro verificaremos seu e-mail.",
+    signInOrCreateAccount: "Entrar ou criar conta",
+    signingIn: "Entrando…",
+    continueWithEmailCode: "Continuar com um código por e-mail",
+    passwordWithMinPlaceholder: "Senha (pelo menos 8 caracteres)",
+    creatingAccount: "Criando conta…",
+    verifying: "Verificando…",
+    verifyAndContinue: "Verificar e continuar",
+    resendCodeIn: (cooldown: number) => `Reenviar código em ${cooldown}s`,
+    resendCode: "Reenviar código",
+    sending: "Enviando…",
+    couldNotSendEmail: "Não foi possível enviar o e-mail. Tente novamente.",
+    resetLinkSentWithExpiry: (email: string) =>
+      `Se existir uma conta para ${email}, enviamos um link de redefinição de senha. Ele expira em 1 hora.`,
+    passwordsDontMatch: "As senhas não coincidem.",
+    couldNotResetPassword: "Não foi possível redefinir a senha. Tente novamente.",
+    resetPassword: "Redefinir senha",
+    checkingResetLink: "Verificando seu link de redefinição…",
+    resetLinkExpiredTitle: "Link de redefinição expirado",
+    resetLinkExpiredSubtitle:
+      "Este link de redefinição é inválido ou expirou. Os links de redefinição funcionam uma vez e duram 1 hora.",
+    requestNewResetLink: "Solicitar um novo link de redefinição",
+    setNewPasswordTitle: "Definir uma nova senha",
+    setNewPasswordSubtitle: "Escolha uma nova senha para sua conta.",
+    passwordUpdated: "Senha atualizada. Entre com sua nova senha.",
+    newPasswordPlaceholder: "Nova senha (pelo menos 8 caracteres)",
+    confirmNewPasswordPlaceholder: "Confirmar nova senha",
+    resetting: "Redefinindo…",
+    codeSentToYourEmailWithExpiry:
+      "Código enviado para seu e-mail. Ele expira em 10 minutos.",
+    checkingSignInStep: "Verificando sua etapa de login…",
+    signInStepExpiredTitle: "Etapa de login expirada",
+    signInStepExpiredSubtitle:
+      "Esta etapa de dois fatores dura apenas 10 minutos. Entre novamente para continuar.",
+    twoFactorEnterCodeSubtitle:
+      "Digite o código do seu app autenticador para terminar de entrar.",
+    secondFactorMethodLabel: "Método de segundo fator",
+    methodAuthenticator: "Autenticador",
+    methodEmailCode: "Código por e-mail",
+    methodBackupCode: "Código de backup",
+    emailCodeWillBeSent:
+      "Enviaremos um código de 6 dígitos para o endereço da sua conta.",
+    sendEmailCode: "Enviar código por e-mail",
+    backupCodesWorkOnce:
+      "Os códigos de backup funcionam uma vez. Encontre-os onde você os salvou quando ativou a autenticação em dois fatores.",
+  },
+  settings: {
+    dailyGoal: "Meta diária",
+    streak: "Sequência",
+    appearance: "Aparência",
+    theme: "Tema",
+    themeDark: "Escuro",
+    themeLight: "Claro",
+    language: "Idioma",
+    languageHint: "Aplica-se a todo o app imediatamente.",
+    goalMinutes: (minutes: number) => `${minutes} min`,
+    couldNotStartTwoFactorSetup: "Não foi possível iniciar a configuração. Tente novamente.",
+    twoFactorCodeIncorrect: "O código está incorreto. Tente novamente.",
+    couldNotDisableTwoFactor: "Não foi possível desativar a autenticação em dois fatores.",
+    twoFactorOff: "A autenticação em dois fatores está desativada.",
+    couldNotGenerateBackupCodes: "Não foi possível gerar novos códigos de backup.",
+    twoFactorSignInRequired:
+      "Entre para gerenciar a autenticação em dois fatores da sua conta.",
+    twoFactorGoogleManaged:
+      "Você entrou com o Google — a autenticação em dois fatores é gerenciada pela sua conta do Google, não aqui.",
+    twoFactorIntro:
+      "Adicione uma segunda etapa ao login com o Google Authenticator ou um código por e-mail. Só a senha não será mais suficiente.",
+    twoFactorStarting: "Iniciando…",
+    setUpTwoFactor: "Configurar a autenticação em dois fatores",
+    twoFactorScanQr:
+      "Escaneie este código QR com o Google Authenticator (ou qualquer app autenticador) e digite o código de 6 dígitos que ele mostrar.",
+    twoFactorQrAlt: "Código QR de configuração de dois fatores",
+    cantScanEnterSecret: "Não consegue escanear? Digite este segredo manualmente: ",
+    turnOnTwoFactor: "Ativar a autenticação em dois fatores",
+    twoFactorOn: "A autenticação em dois fatores está ativada.",
+    twoFactorOnExplainer:
+      "O login pede seu código do autenticador (ou um código por e-mail) após a senha.",
+    newBackupCodes: "Novos códigos de backup",
+    disable: "Desativar",
+    disableTwoFactorPrompt:
+      "Digite sua senha para desativar a autenticação em dois fatores.",
+    disablingTwoFactor: "Desativando…",
+    disableTwoFactor: "Desativar a autenticação em dois fatores",
+    backupCodesTitle: "Códigos de backup",
+    backupCodesWarning:
+      "Guarde-os em um lugar seguro — cada código funciona uma vez, e esta é a única vez que eles são mostrados.",
+    savedBackupCodes: "Salvei estes códigos",
+    backupCodesSaved: "Códigos de backup salvos. Guarde-os em um lugar seguro.",
+  },
+  update: {
+    tryAgain: "Tentar novamente",
+  },
+  landing: {
+    heroTitle: "Aprenda programação Python,",
+    heroWordOnline: "online",
+    heroWordOffline: "offline",
+    heroSubtitle:
+      "Tutoriais por tópico, cursos em vídeo e um editor de código de verdade — do seu primeiro print() a projetos reais. Assista, programe e construa a sequência.",
+    getStarted: "Começar",
+    heroNote: "Grátis • Entre com e-mail ou Google • Seu progresso fica neste dispositivo",
+    statTopics: "tópicos",
+    statVideos: "vídeos",
+    statStages: "etapas",
+    featuresHeading: "Tudo o que você precisa para realmente terminar",
+    featureVideosTitle: "Vídeos, online e offline",
+    featureVideosText:
+      "Assista às videoaulas com ou sem internet — salve-as no seu dispositivo e continue assistindo quando a conexão cair.",
+    featureTutorialsTitle: "Tutoriais, offline também",
+    featureTutorialsText:
+      "Tutoriais por tópico e entradas de referência — leia em qualquer lugar, mesmo sem internet.",
+    featureEditorText:
+      "Escreva e execute Python de verdade no navegador — editor Monaco com Pyodide, workspace com vários arquivos, sem instalar nada.",
+    featureTutorText:
+      "Travou em um conceito ou erro? Pergunte qualquer coisa ao tutor de IA — ele responde a partir da aula em que você está, com exemplos e correções.",
+    featureGithubTitle: "GitHub integrado",
+    featureGithubText:
+      "Conecte sua conta do GitHub, crie repositórios e envie seu código direto do editor — seu trabalho, versionado desde o primeiro dia.",
+    featureGoalsTitle: "Metas diárias e sequências",
+    featureGoalsText:
+      "Defina uma meta diária de estudo, mantenha a sequência e veja o progresso real de hoje de relance.",
+    splashTagline: "Aprender • Praticar • Offline",
+  },
+  navbar: {
+    continue: "Continuar",
+    profileMenu: "Menu do perfil",
+    mainNavLabel: "Principal",
+    openMenu: "Abrir menu",
+    closeMenu: "Fechar menu",
+  },
+  learnPage: {
+    example: "Exemplo",
+    copy: "Copiar",
+    copied: "Copiado",
+    output: "Saída",
+    noteLabel: "Nota: ",
+    tipLabel: "Dica: ",
+    topicNotFound: "Tópico não encontrado",
+    topicNotFoundHint:
+      "Escolha um tópico na barra lateral — todos os tópicos de Python estão lá.",
+    tryInEditor: "Testar no editor",
+    summary: "Resumo",
+    practice: "Prática",
+    practiceHint:
+      "Tente cada tarefa no Editor de código — ler não basta; digitar você mesmo é o que faz fixar.",
+    tutorialBeingPrepared:
+      "O tutorial escrito deste tópico está sendo preparado. Escolha outro tópico na barra lateral por enquanto — este aparecerá aqui quando estiver pronto.",
+    previous: "Anterior",
+    backToPythonHome: (title: string) => `Voltar para ${title}`,
+  },
+  sidebar: {
+    searchTopics: "Pesquisar tópicos",
+    noTopicsMatch: (query: string) => `Nenhum tópico corresponde a “${query}”.`,
+    closeTopics: "Fechar tópicos",
+    sectionPythonTutorial: "Tutorial de Python",
+    sectionPythonClasses: "Classes em Python",
+    sectionFileHandling: "Manipulação de arquivos em Python",
+    sectionPythonModules: "Módulos em Python",
+    sectionPythonMatplotlib: "Matplotlib em Python",
+    sectionMachineLearning: "Aprendizado de máquina",
+    sectionPythonDsa: "DSA em Python",
+    sectionPythonMysql: "MySQL em Python",
+    sectionPythonMongodb: "MongoDB em Python",
+    sectionPythonCert: "Certificação em Python",
+    sectionPythonHowTo: "Como fazer em Python",
+    sectionPythonExamples: "Exemplos em Python",
+    sectionPythonReference: "Referência de Python",
+    sectionModuleReference: "Referência de módulos",
+    groupPythonArrays: "Arrays em Python",
+    groupPythonCasting: "Conversão de tipos em Python",
+    groupPythonClassMethods: "Métodos de classe em Python",
+    groupPythonClassProperties: "Propriedades de classe em Python",
+    groupPythonDates: "Datas em Python",
+    groupPythonEncapsulation: "Encapsulamento em Python",
+    groupPythonInheritance: "Herança em Python",
+    groupPythonIterators: "Iteradores em Python",
+    groupPythonJson: "JSON em Python",
+    groupPythonMagicMethods: "Métodos mágicos em Python",
+    groupPythonMath: "Matemática em Python",
+    groupPythonNone: "None em Python",
+    groupPythonPolymorphism: "Polimorfismo em Python",
+    groupPythonRange: "Range em Python",
+    groupPythonRegex: "RegEx em Python",
+    groupPythonStringFormatting: "Formatação de strings em Python",
+    groupPythonTryExcept: "Try...Except em Python",
+    groupPythonInitMethod: "Método __init__ em Python",
+    groupPythonSelfParameter: "Parâmetro self em Python",
+  },
+  quiz: {
+    testLabel: "Teste",
+    passRequirement: (pct: number) =>
+      `Marque ${pct}% ou mais para passar no teste.`,
+    closeTest: "Fechar teste",
+    correctAnswer: (answer: string) => `Resposta correta: ${answer}`,
+    correct: "Correta",
+    submitTest: "Enviar teste",
+    passedScore: (score: number, total: number) =>
+      `Aprovado — ${score}/${total} corretas`,
+    passedMessage: "Você passou no teste desta aula.",
+    notPassedScore: (score: number, total: number) =>
+      `Não aprovado — ${score}/${total} corretas`,
+    notPassedMessage: (pct: number) =>
+      `Você precisa de ${pct}% para passar. Revise as respostas acima e tente novamente.`,
+  },
+  roadmapModal: {
+    title: "Seu roteiro de Python",
+    subtitle: (totalTopics: number, totalMinutes: string) =>
+      `${totalTopics} tópicos • cerca de ${totalMinutes} • siga de cima para baixo`,
+    close: "Fechar roteiro",
+    dialogLabel: "Roteiro de Python",
+    savedDialogLabel: "Roteiro salvo",
+    savedTitle: "Roteiro salvo para depois",
+    savedBody:
+      "Da próxima vez, você pode ver o roteiro no menu do perfil.",
+    gotIt: "Entendi",
+  },
+  coursesPage: {
+    videoCourses: "Cursos em vídeo",
+    heroTitle: "Aprenda Python assistindo.",
+    emptyState: "Os vídeos do curso estão sendo adicionados — volte em breve.",
+    allTeachers: "Todos os professores",
+    channelPictureAlt: (name: string) => `Foto do canal de ${name}`,
+    countCourses: (n: number) => (n === 1 ? `${n} curso` : `${n} cursos`),
+    videoSourceNote: "MEGA e Drive, YouTube por enquanto",
+    taglineCodeWithHarry:
+      "Cursos completos de Python em hindi — passo a passo, com notas.",
+    taglineMosh:
+      "O clássico curso de Python em inglês — curso completo e vídeos por tópico.",
+    taglineApnaCollege:
+      "Cursos completos de Python em hindi, com notas e questões de prática.",
+  },
+  editorPage: {
+    emptyFileError: "Este arquivo está vazio — escreva algum código primeiro.",
+    aiEmptyReplyError: "A IA retornou uma resposta vazia — tente novamente.",
+    micropipTimeoutError:
+      "O carregamento do micropip expirou após 1 minuto — verifique sua conexão e tente novamente.",
+    pyodideLoadError:
+      "Falha ao carregar o script do Pyodide de cdn.jsdelivr.net — verifique sua conexão e recarregue a página.",
+    fileExistsError: "Já existe um arquivo com este caminho",
+    folderExistsError: "Já existe uma pasta com este nome",
+    keepOneFileError: "Você precisa manter pelo menos um arquivo no workspace.",
+    itemExistsInLocationError: (itemName: string) =>
+      `Já existe um item chamado '${itemName}' nesse local.`,
+    filesTab: "Arquivos",
+    modulesTab: "Módulos",
+    activeLabel: "Ativo:",
+    noActiveFile: "Nenhum",
+    unsavedBadge: "(não salvo*)",
+    saved: "Salvo",
+    saveFileRequired: "Salvar arquivo (obrigatório)",
+    explainCodeHint: "Peça à IA para explicar este arquivo",
+    explainCode: "Explicar este código",
+    findBugHint: "Peça à IA para encontrar o bug neste arquivo",
+    findBug: "Encontrar o bug",
+    stop: "Parar",
+    stopHint: "Interromper o código em execução",
+    stopUnavailableHint:
+      "Parar precisa de SharedArrayBuffer, que esta configuração de navegador não oferece — recarregue a página para parar uma execução travada.",
+    compiling: "Compilando...",
+    loadingEngine: "Carregando mecanismo",
+    compileAndRun: "Compilar e executar",
+    saveNow: "Salvar agora",
+    explorer: "Explorador",
+    newFile: "Novo arquivo",
+    newFolder: "Nova pasta",
+    newFilePlaceholder: "ex.: script.py ou utils/helper.py",
+    newFolderPlaceholder: "nome da pasta, ex.: tests",
+    workspaceRootDropHint: "Raiz do workspace (solte aqui para mover para fora)",
+    unsavedTooltip: "Não salvo",
+    dragFilesHint: "Arraste arquivos do seu computador para cá",
+    terminalLogs: "Logs do terminal",
+    programInputLabel: "Entrada do programa — uma linha por chamada de input()",
+    programInputPlaceholder: "ex.\nAdeen\n21",
+    aiExplanation: "Explicação da IA",
+    aiBugCheck: "Verificação de bugs por IA",
+    aiCodeHelp: "Ajuda de código por IA",
+    closeAiAnswer: "Fechar resposta da IA",
+    aiUnavailableMessage:
+      "A IA não está disponível no momento — as chaves de API ainda não foram configuradas. O editor e o restante do curso funcionam normalmente.",
+    aiReadingCode: "A IA está lendo seu código…",
+    aiTruncatedNote:
+      "Observação: o arquivo era maior que o limite da IA, então apenas os primeiros 8000 caracteres foram enviados.",
+  },
+  modulesPage: {
+    openingInEditor: "Abrindo Módulos no Editor de código…",
+    title: "Gerenciador de módulos e pacotes Python",
+    subtitle:
+      "Navegue pela biblioteca padrão oficial completa do Python e pesquise/instale todos os pacotes externos do PyPI e do Pyodide no seu workspace.",
+    tabStdlib: (count: number) => `Biblioteca padrão integrada (${count})`,
+    tabExternal: (count: number) => `Pacotes externos (${count})`,
+    tabSearch: "Busca ao vivo no PyPI e instalação",
+    filterStdlibPlaceholder: "Filtrar módulos integrados...",
+    builtInReady: "Integrado (sempre pronto)",
+    docs: "Documentação",
+    externalIntro: (pyodideCount: number, micropipCount: number) =>
+      `${pyodideCount} pacotes do Pyodide (instalação rápida pela CDN) + ${micropipCount} pacotes populares em Python puro do PyPI (instalação via micropip).`,
+    installedInWorkspace: (n: number) => `${n} instalados neste workspace.`,
+    externalOutro:
+      "Qualquer outra coisa no PyPI ainda pode ser instalada pelo nome exato na aba Busca ao vivo no PyPI.",
+    searchPackagesPlaceholder:
+      "Pesquisar todos os pacotes — ex.: numpy, flask, seaborn, opencv…",
+    installByNamePlaceholder: "Instalar qualquer pacote pelo nome — ex.: tabulate",
+    install: "Instalar",
+    showingCount: (shown: number, total: number) =>
+      `Mostrando ${shown} de ${total} pacotes.`,
+    noMatch:
+      "Sem resultados — tente a aba Busca ao vivo no PyPI com o nome exato do pacote.",
+    installed: "Instalado",
+    remove: "Remover",
+    installing: "Instalando...",
+    installPackage: "Instalar pacote",
+    searchHeading: "Pesquisar no Índice Oficial de Pacotes Python (PyPI)",
+    searchPyPiPlaceholder: "ex.: rich, requests, sympy, tabulate, httpx, textstat",
+    searchPyPi: "Pesquisar no PyPI",
+    installedInWorkspaceLabel: "Instalados no workspace",
+    installPackageNamed: (name: string) => `Instalar ${name}`,
+    licenseLabel: "Licença:",
+    authorLabel: "Autor:",
+    projectHomepage: "Página do projeto",
+    logsHeading: "Logs do terminal do mecanismo de pacotes",
+    logsEmpty:
+      "Ambiente Python pronto. Instale qualquer pacote para carregá-lo no seu workspace.",
+    stageStartingRuntime: "Iniciando o ambiente Python…",
+    logStartingRuntime:
+      "Iniciando o ambiente Python — download único (~15 MB), aguarde…",
+    stageRuntimeReady: "Ambiente Python pronto",
+    logRuntimeReady: "Ambiente Python pronto.",
+    errorEnvStartWithDetail: (error: string) =>
+      `O ambiente Python não pôde iniciar: ${error}`,
+    errorEnvStartNoLoad:
+      "O ambiente Python não pôde iniciar (o script do Pyodide não carregou). Verifique sua conexão e tente novamente — o botão Instalar tentará de novo.",
+    stageDownloading: (pkg: string) => `Baixando '${pkg}'…`,
+    logInstalling: (pkg: string) => `Instalando '${pkg}'…`,
+    stageInstalled: (pkg: string) => `'${pkg}' instalado ✓`,
+    logInstalled: (pkg: string, method: string, importName: string) =>
+      `✓ '${pkg}' instalado via ${method} (import ${importName} funciona). Salvo no armazenamento do workspace.`,
+    logInstallFailed: (pkg: string, error: string) =>
+      `✗ Falha ao instalar '${pkg}': ${error}`,
+    logUninstalled: (pkg: string) =>
+      `'${pkg}' desinstalado e removido do workspace.`,
+    errorPackageNotFound: "Pacote não encontrado no PyPI",
+    errorQueryPyPi: "Erro ao consultar o PyPI",
+    defaultPyodideDesc:
+      "Pacote do Pyodide — instala rápido pela CDN, pronto para importar.",
+    stageLoadingMicropip: "Carregando micropip…",
+  },
+  player: {
+    errorOfflineCacheUnsupported:
+      "O cache offline não é compatível com este navegador.",
+    errorDownloadFailed: (status: number) => `Falha no download (${status})`,
+    errorSaveOffline: "Não foi possível salvar o vídeo offline.",
+    ariaLabel:
+      "Player de vídeo — Espaço reproduz ou pausa, setas para esquerda e direita avançam ou voltam 10 segundos",
+    autoplayOnHint: "Reprodução automática ligada — a próxima aula toca automaticamente",
+    autoplayOffHint: "Reprodução automática desligada",
+    autoplay: "Reprodução automática",
+    playbackSpeed: "Velocidade de reprodução",
+    speedNormal: "Normal",
+    quality: "Qualidade",
+    qualityAuto: "Automática",
+    original: "(original)",
+    qualityNote:
+      "O MEGA oferece uma qualidade por vídeo — o arquivo acima é o único stream.",
+    seekLabel: "Buscar",
+    play: "Reproduzir",
+    pause: "Pausar",
+    mute: "Silenciar",
+    unmute: "Ativar som",
+    volumeLabel: "Volume",
+    hideCaptions: "Ocultar legendas em inglês",
+    showCaptions: "Mostrar legendas em inglês",
+    captionsLabel: "Legendas em inglês",
+    downloadVideo: "Baixar vídeo",
+    settingsLabel: "Configurações — velocidade e qualidade",
+    exitFullscreen: "Sair da tela cheia",
+    fullscreen: "Tela cheia",
+    playingOffline: "Reproduzindo do armazenamento offline do app",
+    streamingOnline: "Transmitindo online",
+    offlineNotSaved: "Offline (não salvo)",
+    keyboardHint:
+      "Espaço — reproduzir / pausar · ← → — avançar ou voltar 10 segundos · toque no alto-falante para o volume",
+    removeOfflineCopy: "Remover cópia offline",
+    savingPct: (pct: number) => `Salvando ${pct}%`,
+    saving: "Salvando…",
+    sliderLabel: "Controle deslizante",
+    youtubeFallbackNote: "Reproduzindo do YouTube — link do MEGA em breve",
+    todayProgress: "Progresso de hoje",
+    progressSummary: (minutesWatched: number, goalMinutes: number) =>
+      `${minutesWatched} min assistidos da meta de ${goalMinutes} min`,
+    dailyTargetLabel: "Meta (min/dia)",
+    courseLessonsHeading: "Aulas do curso",
+  },
+  settingsPage: {
+    subtitle: "Seu progresso e a aparência do app.",
+    todaySection: "Hoje",
+    goalProgress: (minutes: number, goal: number) => `${minutes}/${goal} min`,
+    streakRestored: "Sequência restaurada — bem-vindo de volta.",
+    streakBroken: "Sequência quebrada",
+    streakBrokenRestore: (
+      brokenStreak: number,
+      restoresUsed: number,
+      max: number
+    ) =>
+      `Sua sequência de ${brokenStreak} dias quebrou. Restaure-a antes que o tempo acabe — ${restoresUsed} de ${max} restaurações usadas neste mês.`,
+    countdownHrs: "h",
+    countdownMin: "min",
+    countdownSec: "s",
+    restoreStreakButton: (brokenStreak: number) =>
+      `Restaurar sequência de ${brokenStreak} dias`,
+    streakBrokenExpired: (brokenStreak: number) =>
+      `Sua sequência de ${brokenStreak} dias quebrou e a janela de restauração de 24 horas passou. Assista a uma aula para começar uma nova sequência.`,
+    noRestoresLeft: "Sem restaurações restantes",
+    noRestoresLeftBody: (max: number, brokenStreak: number) =>
+      `Você usou todas as ${max} restaurações deste mês. Sua sequência de ${brokenStreak} dias quebrou — assista a uma aula para começar uma nova sequência. As restaurações zeram no próximo mês.`,
+    accountSecurity: "Segurança da conta",
+  },
+  tutorPage: {
+    heading: "Pergunte à IA sobre esta aula",
+    intro:
+      "Dúvidas, explicações, exemplos — em hindi ou inglês. As respostas vêm do vídeo real desta aula, com timestamps, e tudo o que o vídeo não cobre é marcado como conhecimento geral. As conversas não são armazenadas em lugar nenhum.",
+    unavailable:
+      "A IA não está disponível no momento — as chaves de API ainda não foram configuradas. O restante do curso funciona normalmente.",
+    askPlaceholder: (lessonTitle: string) => {
+      const display =
+        lessonTitle.length > 40
+          ? `${lessonTitle.slice(0, 40)}…`
+          : lessonTitle;
+      return `Perguntar sobre "${display}"`;
+    },
+  },
+  githubPage: {
+    repoNameTooLong: "O nome do repositório deve ter no máximo 100 caracteres.",
+    repoNameInvalidChars:
+      "Nomes de repositório não podem conter espaços ou caracteres especiais — apenas letras, números, - _ . são permitidos.",
+    tokenSaved: "Token salvo apenas neste navegador.",
+    tokenRemoved: "Token do GitHub desconectado.",
+    loadReposFailed: "Falha ao carregar os repositórios",
+    createRepoFailed: "Falha ao criar o repositório",
+    repoCreated: (fullName: string) => `✓ Repositório criado com sucesso: ${fullName}`,
+    pushFailed: "Falha ao enviar o arquivo",
+    pushed: (filePath: string, fullName: string) =>
+      `✓ '${filePath}' enviado para ${fullName}!`,
+    title: "Integração com o GitHub",
+    intro:
+      "Conecte sua conta do GitHub usando um Personal Access Token (PAT) para criar repositórios e fazer commit de código diretamente do LP. O link do token abaixo abre o GitHub com todos os escopos pré-marcados, para que o token tenha acesso total à sua conta.",
+    connectHeading: "Conectar token pessoal do GitHub",
+    tokenExplainer:
+      "Crie um token em github.com/settings/tokens com todos os escopos pré-marcados — o token tem acesso total à sua conta, incluindo excluir repositórios e gerenciar organizações, então mantenha-o privado. Depois cole-o abaixo. Seu token fica apenas neste navegador (localStorage). Ele é enviado ao servidor do LP apenas para chamar o GitHub em seu nome, nunca é armazenado no servidor, e Desconectar o remove deste navegador.",
+    connectToken: "Conectar token",
+    connected: (tokenPrefix: string) => `Conectado ao GitHub • ${tokenPrefix}...`,
+    refresh: "Atualizar",
+    disconnect: "Desconectar",
+    createHeading: "Criar novo repositório no GitHub",
+    repoNameLabel: "Nome do repositório *",
+    descriptionLabel: "Descrição (opcional)",
+    descriptionPlaceholder: "Soluções de prática e notas do LP",
+    publicRepo: "Repositório público",
+    privateRepo: "Repositório privado",
+    initReadme: "Inicializar com README",
+    createButton: "Criar repositório no GitHub",
+    commitHeading: "Enviar / Fazer commit de código do workspace",
+    targetRepoLabel: "Repositório de destino *",
+    visibilityPrivate: (fullName: string) => `${fullName} (Privado)`,
+    visibilityPublic: (fullName: string) => `${fullName} (Público)`,
+    visibilityPrivateShort: "privado",
+    visibilityPublicShort: "público",
+    filePathLabel: "Caminho do arquivo no repositório *",
+    filePathPlaceholder: "ex.: main.py",
+    commitMessageLabel: "Mensagem do commit *",
+    commitMessagePlaceholder: "Mensagem do commit",
+    fileContentLabel: "Conteúdo do arquivo",
+    commitButton: (repoName: string) => `Commit e push para ${repoName}`,
+    repoFallback: "Repositório",
+    yourRepos: (count: number) => `Seus repositórios (${count})`,
+    fetchingRepos: "Buscando seus repositórios...",
+    noRepos: "Nenhum repositório encontrado ou acesso restrito.",
+    noDescription: "Sem descrição",
+    openOnGitHub: "Abrir no GitHub",
+  },
+};

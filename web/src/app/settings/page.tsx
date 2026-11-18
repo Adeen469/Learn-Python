@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Flame, Moon, Settings, Sun, Target } from "lucide-react";
+import { Check, Flame, Languages, Moon, Settings, Sun, Target } from "lucide-react";
 import { AppNavbar } from "@/components/AppNavbar";
 import Counter from "@/components/Counter";
+import { LANGUAGES, useLanguage } from "@/lib/i18n";
 import {
   PROGRESS_KEY,
   PROGRESS_UPDATED_EVENT,
@@ -65,6 +66,7 @@ function initialRestores(): string[] {
 }
 
 export default function SettingsPage() {
+  const { lang, setLang, t } = useLanguage();
   const [progress, setProgress] = useState<ProgressState>(initialProgress);
   const [theme, setTheme] = useState<Theme>("dark");
   const [restores, setRestores] = useState<string[]>(initialRestores);
@@ -151,24 +153,24 @@ export default function SettingsPage() {
         <div className="mb-6">
           <h1 className="flex items-center gap-2 text-xl font-semibold text-white">
             <Settings className="h-5 w-5 shrink-0 text-white" />
-            Settings
+            {t.common.settings}
           </h1>
           <p className="mt-1 text-sm text-neutral-400">
-            Your progress and how the app looks.
+            {t.settingsPage.subtitle}
           </p>
         </div>
 
         <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-500">
-          Today
+          {t.settingsPage.todaySection}
         </h2>
         <div className="rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3">
           <div className="flex items-center justify-between gap-3">
             <span className="flex items-center gap-2 text-sm text-neutral-300">
               <Target className="h-4 w-4 text-neutral-400" />
-              Today&apos;s goal
+              {t.settings.dailyGoal}
             </span>
             <span className="text-sm font-medium text-white">
-              {minutes}/{goal}m
+              {t.settingsPage.goalProgress(minutes, goal)}
             </span>
           </div>
           <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-neutral-800">
@@ -181,73 +183,74 @@ export default function SettingsPage() {
         <div className="mt-2 rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-4">
           <span className="flex items-center gap-2 text-sm text-neutral-300">
             <Flame className="h-4 w-4 text-white" />
-            Streak
+            {t.settings.streak}
           </span>
           <div className="mt-1 flex items-end gap-2 text-white">
             <Counter value={streak} fontSize={56} fontWeight={600} />
-            <span className="pb-2 text-sm text-neutral-400">day streak</span>
+            <span className="pb-2 text-sm text-neutral-400">{t.profile.statStreakLabel}</span>
           </div>
           {restoredNote && (
-            <p className="mt-2 text-sm text-white">Streak restored — welcome back.</p>
+            <p className="mt-2 text-sm text-white">{t.settingsPage.streakRestored}</p>
           )}
         </div>
 
         {restoreState.status === "available" && countdown && (
           <div className="mt-2 rounded-xl border border-neutral-700 bg-neutral-950 px-4 py-4">
-            <p className="text-sm font-medium text-white">Streak broken</p>
+            <p className="text-sm font-medium text-white">{t.settingsPage.streakBroken}</p>
             <p className="mt-1 text-sm text-neutral-400">
-              Your {restoreState.brokenStreak}-day streak broke. Restore it
-              before the timer runs out — {restoreState.restoresUsed} of{" "}
-              {MAX_RESTORES_PER_MONTH} restores used this month.
+              {t.settingsPage.streakBrokenRestore(
+                restoreState.brokenStreak,
+                restoreState.restoresUsed,
+                MAX_RESTORES_PER_MONTH
+              )}
             </p>
             <div className="mt-3 flex items-start gap-1.5 text-white">
-              <CountdownUnit value={countdown.hours} label="hrs" />
+              <CountdownUnit value={countdown.hours} label={t.settingsPage.countdownHrs} />
               <span className="pt-0.5 text-2xl font-semibold leading-none">:</span>
-              <CountdownUnit value={countdown.minutes} label="min" />
+              <CountdownUnit value={countdown.minutes} label={t.settingsPage.countdownMin} />
               <span className="pt-0.5 text-2xl font-semibold leading-none">:</span>
-              <CountdownUnit value={countdown.seconds} label="sec" />
+              <CountdownUnit value={countdown.seconds} label={t.settingsPage.countdownSec} />
             </div>
             <button
               type="button"
               onClick={handleRestore}
               className="mt-4 rounded-lg bg-white px-4 py-2 text-sm font-medium text-black transition hover:bg-neutral-200"
             >
-              Restore {restoreState.brokenStreak}-day streak
+              {t.settingsPage.restoreStreakButton(restoreState.brokenStreak)}
             </button>
           </div>
         )}
 
         {restoreState.status === "expired" && (
           <div className="mt-2 rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-4">
-            <p className="text-sm font-medium text-white">Streak broken</p>
+            <p className="text-sm font-medium text-white">{t.settingsPage.streakBroken}</p>
             <p className="mt-1 text-sm text-neutral-400">
-              Your {restoreState.brokenStreak}-day streak broke and the
-              24-hour restore window has passed. Watch a lesson to start a
-              new streak.
+              {t.settingsPage.streakBrokenExpired(restoreState.brokenStreak)}
             </p>
           </div>
         )}
 
         {restoreState.status === "limit" && (
           <div className="mt-2 rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-4">
-            <p className="text-sm font-medium text-white">No restores left</p>
+            <p className="text-sm font-medium text-white">{t.settingsPage.noRestoresLeft}</p>
             <p className="mt-1 text-sm text-neutral-400">
-              You used all {MAX_RESTORES_PER_MONTH} restores this month. Your{" "}
-              {restoreState.brokenStreak}-day streak broke — watch a lesson
-              to start a new streak. Restores reset next month.
+              {t.settingsPage.noRestoresLeftBody(
+                MAX_RESTORES_PER_MONTH,
+                restoreState.brokenStreak
+              )}
             </p>
           </div>
         )}
 
         <h2 className="mb-3 mt-8 text-xs font-semibold uppercase tracking-wider text-neutral-500">
-          Appearance
+          {t.settings.appearance}
         </h2>
         <div className="flex items-center justify-between gap-3 rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3">
-          <span className="text-sm text-neutral-300">Theme</span>
+          <span className="text-sm text-neutral-300">{t.settings.theme}</span>
           <div
             className="flex rounded-lg border border-neutral-800 bg-black p-0.5"
             role="group"
-            aria-label="Theme"
+            aria-label={t.settings.theme}
           >
             <button
               type="button"
@@ -260,7 +263,7 @@ export default function SettingsPage() {
               }`}
             >
               <Moon className="h-3.5 w-3.5" />
-              Dark
+              {t.settings.themeDark}
             </button>
             <button
               type="button"
@@ -273,13 +276,47 @@ export default function SettingsPage() {
               }`}
             >
               <Sun className="h-3.5 w-3.5" />
-              Light
+              {t.settings.themeLight}
             </button>
           </div>
         </div>
 
         <h2 className="mb-3 mt-8 text-xs font-semibold uppercase tracking-wider text-neutral-500">
-          Account security
+          {t.settings.language}
+        </h2>
+        <div className="rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3">
+          <span className="flex items-center gap-2 text-sm text-neutral-300">
+            <Languages className="h-4 w-4 text-neutral-400" />
+            {t.settings.language}
+          </span>
+          <p className="mt-1 text-sm text-neutral-400">
+            {t.settings.languageHint}
+          </p>
+          <div className="mt-3 divide-y divide-neutral-800">
+            {LANGUAGES.map((l) => (
+              <button
+                key={l.code}
+                type="button"
+                onClick={() => setLang(l.code)}
+                aria-pressed={lang === l.code}
+                className="flex w-full items-center justify-between gap-3 py-2 text-left"
+              >
+                <span>
+                  <span className="block text-sm text-white">{l.label}</span>
+                  <span className="block text-xs text-neutral-400">
+                    {l.englishName}
+                  </span>
+                </span>
+                {lang === l.code && (
+                  <Check className="h-4 w-4 shrink-0 text-white" />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <h2 className="mb-3 mt-8 text-xs font-semibold uppercase tracking-wider text-neutral-500">
+          {t.settingsPage.accountSecurity}
         </h2>
         <TwoFactorSettings />
       </main>

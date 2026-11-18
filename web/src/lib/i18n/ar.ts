@@ -1,0 +1,611 @@
+// Arabic strings — standard, common UI Arabic.
+// Typed as `Strings` so TypeScript errors if any key is missing.
+// No RTL layout changes here — strings only.
+// Shared keys are copied VERBATIM from the app's ar.ts; website-only
+// keys are fresh translations following the app's conventions
+// (Python → «بايثون», Arabic percent ٪, standard MSA UI Arabic).
+
+import type { Strings } from "./index";
+
+export const ar: Strings = {
+  common: {
+    appName: "Learn Python",
+    signIn: "تسجيل الدخول",
+    signOut: "تسجيل الخروج",
+    email: "البريد الإلكتروني",
+    password: "كلمة المرور",
+    genericError: "حدث خطأ ما. يُرجى المحاولة مرة أخرى.",
+    backToSignIn: "العودة إلى تسجيل الدخول",
+    retry: "إعادة المحاولة",
+    completed: "مكتمل",
+    watchedPct: (pct: number) => `شاهدت ${pct}٪`,
+    notStarted: "لم يبدأ بعد",
+    duration: (totalSeconds: number) => {
+      const s = Math.max(0, Math.round(totalSeconds));
+      const h = Math.floor(s / 3600);
+      const m = Math.floor((s % 3600) / 60);
+      const sec = s % 60;
+      const mm = String(m).padStart(2, "0");
+      const ss = String(sec).padStart(2, "0");
+      return h > 0 ? `${h}:${mm}:${ss}` : `${m}:${ss}`;
+    },
+    durationTotal: (totalSeconds: number) => {
+      const totalMinutes = Math.floor(totalSeconds / 60);
+      const h = Math.floor(totalMinutes / 60);
+      const m = totalMinutes % 60;
+      return h > 0 ? `${h} س ${m} د` : `${m} د`;
+    },
+    sixDigitCodeLabel: "رمز من 6 أرقام",
+    roadmap: "خارطة الطريق",
+    settings: "الإعدادات",
+    aiTutor: "المعلم الذكي",
+    close: "إغلاق",
+    all: "الكل",
+    delete: "حذف",
+    clear: "مسح",
+    back: "رجوع",
+    or: "أو",
+    emailAddress: "عنوان البريد الإلكتروني",
+    loading: "جارٍ التحميل…",
+    pleaseWait: "يُرجى الانتظار لحظة.",
+    errorPageDetail:
+      "حدث خطأ غير متوقع في هذه الصفحة. حاول مرة أخرى، أو عُد إلى لوحة التحكم.",
+    backToDashboard: "العودة إلى لوحة التحكم",
+    pageNotFound: "الصفحة غير موجودة",
+    pageNotFoundDetail:
+      "الدرس أو الصفحة التي تبحث عنها غير موجودة.",
+  },
+  tabs: {
+    learn: "تعلّم",
+    courses: "الدورات",
+  },
+  learn: {
+    streakChip: (n: number) =>
+      n === 1 ? `السلسلة: يوم واحد` : `السلسلة: ${n} أيام`,
+  },
+  courses: {
+    intro: "دورات فيديو كاملة في بايثون — اختر معلّماً لتبدأ المشاهدة.",
+    countVideos: (n: number) => (n === 1 ? `فيديو واحد` : `${n} مقاطع فيديو`),
+  },
+  editor: {
+    title: "محرر الأكواد",
+  },
+  profile: {
+    statStreakLabel: "يوم متتالٍ",
+  },
+  lesson: {
+    markComplete: "وضع علامة مكتمل",
+    askTutor: "اسأل المعلم الذكي",
+    saveOffline: "حفظ دون اتصال",
+    savedOffline: "تم الحفظ دون اتصال",
+    nextLesson: "التالي →",
+  },
+  course: {
+    markAsComplete: "وضع علامة مكتمل",
+    oneShotsHeading: "فيديوهات منفردة",
+    fullCourseLabel: "الدورة الكاملة",
+    totalLabel: "المجموع",
+    playingLabel: "يُشغَّل الآن",
+  },
+  roadmap: {
+    topicsComplete: (done: number, total: number) =>
+      `${done} من ${total} مواضيع مكتملة`,
+    topicMeta: (difficulty: string, minutes: number) =>
+      `${difficulty} · ${minutes} دقيقة`,
+    topicDone: "✓ تم",
+  },
+  tutor: {
+    errorSessionExpired: "انتهت جلستك. سجّل الدخول مرة أخرى لمتابعة المحادثة.",
+    errorGeneric:
+      "تعذّر على المعلم الإجابة الآن. تحقق من اتصالك وحاول مرة أخرى.",
+    errorEmptyReply: "أعاد الذكاء الاصطناعي رداً فارغاً — يُرجى المحاولة مرة أخرى.",
+    youLabel: "أنت",
+    groundedFootnote:
+      "✓ من فيديو هذا الدرس — تشير الطوابع الزمنية إلى اللحظة في الفيديو.",
+    notGroundedFootnote:
+      "إجابة عامة — نص فيديو هذا الدرس غير متوفر.",
+    thinking: "الذكاء الاصطناعي يفكّر…",
+    askButton: "اسأل",
+  },
+  auth: {
+    continueWithGoogle: "المتابعة عبر Google",
+    forgotPassword: "نسيت كلمة المرور؟",
+    createAccount: "إنشاء حساب",
+    namePlaceholder: "اسمك",
+    otpSubtitle: (email: string, purpose: "signup" | "signin") =>
+      `أرسلنا رمزاً من 6 أرقام إلى ${email || "بريدك الإلكتروني"}. أدخله أدناه ${
+        purpose === "signup" ? "لتأكيد حسابك" : "لتسجيل الدخول"
+      }.`,
+    forgotSubtitle:
+      "أدخل البريد الإلكتروني الذي سجّلت به وسنرسل لك رابط إعادة التعيين.",
+    sendResetLink: "إرسال رابط إعادة التعيين",
+    twoFactorTitle: "المصادقة الثنائية",
+    verifyAndSignIn: "تأكيد وتسجيل الدخول",
+    couldNotSendCode: "تعذّر إرسال الرمز. يُرجى المحاولة مرة أخرى.",
+    codeSentToWithExpiry: (email: string) =>
+      `تم إرسال الرمز إلى ${email}. تنتهي صلاحيته خلال 10 دقائق.`,
+    couldNotSignIn: "تعذّر تسجيل الدخول. يُرجى المحاولة مرة أخرى.",
+    couldNotCreateAccount: "تعذّر إنشاء الحساب. يُرجى المحاولة مرة أخرى.",
+    codeIncorrectOrExpired: "الرمز غير صحيح أو انتهت صلاحيته.",
+    enterCodeTitle: "أدخل الرمز",
+    signInWithEmail: "تسجيل الدخول بالبريد الإلكتروني",
+    signInEmailSubtitle: "استخدم بريدك الإلكتروني وكلمة المرور، أو رمزاً بدلاً من ذلك.",
+    signUpEmailSubtitle: "أنشئ حسابك — سنتحقق من بريدك الإلكتروني أولاً.",
+    signInOrCreateAccount: "سجّل الدخول أو أنشئ حساباً",
+    signingIn: "جارٍ تسجيل الدخول…",
+    continueWithEmailCode: "المتابعة برمز البريد الإلكتروني بدلاً من ذلك",
+    passwordWithMinPlaceholder: "كلمة المرور (8 أحرف على الأقل)",
+    creatingAccount: "جارٍ إنشاء الحساب…",
+    verifying: "جارٍ التحقق…",
+    verifyAndContinue: "تحقق ومتابعة",
+    resendCodeIn: (cooldown: number) => `إعادة إرسال الرمز خلال ${cooldown} ث`,
+    resendCode: "إعادة إرسال الرمز",
+    sending: "جارٍ الإرسال…",
+    couldNotSendEmail: "تعذّر إرسال البريد الإلكتروني. يُرجى المحاولة مرة أخرى.",
+    resetLinkSentWithExpiry: (email: string) =>
+      `إذا كان هناك حساب لـ ${email}، فقد أرسلنا رابط إعادة تعيين كلمة المرور. تنتهي صلاحيته خلال ساعة واحدة.`,
+    passwordsDontMatch: "كلمتا المرور غير متطابقتين.",
+    couldNotResetPassword: "تعذّر إعادة تعيين كلمة المرور. يُرجى المحاولة مرة أخرى.",
+    resetPassword: "إعادة تعيين كلمة المرور",
+    checkingResetLink: "جارٍ التحقق من رابط إعادة التعيين…",
+    resetLinkExpiredTitle: "انتهت صلاحية رابط إعادة التعيين",
+    resetLinkExpiredSubtitle:
+      "رابط إعادة التعيين هذا غير صالح أو انتهت صلاحيته. روابط إعادة التعيين تعمل مرة واحدة وتدوم ساعة واحدة.",
+    requestNewResetLink: "طلب رابط إعادة تعيين جديد",
+    setNewPasswordTitle: "تعيين كلمة مرور جديدة",
+    setNewPasswordSubtitle: "اختر كلمة مرور جديدة لحسابك.",
+    passwordUpdated: "تم تحديث كلمة المرور. سجّل الدخول بكلمة مرورك الجديدة.",
+    newPasswordPlaceholder: "كلمة مرور جديدة (8 أحرف على الأقل)",
+    confirmNewPasswordPlaceholder: "تأكيد كلمة المرور الجديدة",
+    resetting: "جارٍ إعادة التعيين…",
+    codeSentToYourEmailWithExpiry:
+      "تم إرسال الرمز إلى بريدك الإلكتروني. تنتهي صلاحيته خلال 10 دقائق.",
+    checkingSignInStep: "جارٍ التحقق من خطوة تسجيل الدخول…",
+    signInStepExpiredTitle: "انتهت صلاحية خطوة تسجيل الدخول",
+    signInStepExpiredSubtitle:
+      "خطوة المصادقة الثنائية هذه تدوم 10 دقائق فقط. سجّل الدخول مرة أخرى للمتابعة.",
+    twoFactorEnterCodeSubtitle:
+      "أدخل الرمز من تطبيق المصادقة لإتمام تسجيل الدخول.",
+    secondFactorMethodLabel: "طريقة العامل الثاني",
+    methodAuthenticator: "تطبيق المصادقة",
+    methodEmailCode: "رمز البريد الإلكتروني",
+    methodBackupCode: "رمز احتياطي",
+    emailCodeWillBeSent:
+      "سنرسل رمزاً من 6 أرقام إلى العنوان المسجّل في حسابك.",
+    sendEmailCode: "إرسال رمز البريد الإلكتروني",
+    backupCodesWorkOnce:
+      "الرموز الاحتياطية تعمل مرة واحدة. ابحث عنها حيث حفظتها عندما فعّلت المصادقة الثنائية.",
+  },
+  settings: {
+    dailyGoal: "الهدف اليومي",
+    streak: "السلسلة",
+    appearance: "المظهر",
+    theme: "السمة",
+    themeDark: "داكن",
+    themeLight: "فاتح",
+    language: "اللغة",
+    languageHint: "تُطبَّق على التطبيق كله فوراً.",
+    goalMinutes: (minutes: number) => `${minutes} دقيقة`,
+    couldNotStartTwoFactorSetup: "تعذّر بدء الإعداد. يُرجى المحاولة مرة أخرى.",
+    twoFactorCodeIncorrect: "الرمز غير صحيح. حاول مرة أخرى.",
+    couldNotDisableTwoFactor: "تعذّر تعطيل المصادقة الثنائية.",
+    twoFactorOff: "المصادقة الثنائية متوقفة.",
+    couldNotGenerateBackupCodes: "تعذّر إنشاء رموز احتياطية جديدة.",
+    twoFactorSignInRequired:
+      "سجّل الدخول لإدارة المصادقة الثنائية لحسابك.",
+    twoFactorGoogleManaged:
+      "لقد سجّلت الدخول عبر Google — المصادقة الثنائية تُدار من حسابك في Google، وليس من هنا.",
+    twoFactorIntro:
+      "أضف خطوة ثانية لتسجيل الدخول باستخدام Google Authenticator أو رمز البريد الإلكتروني. لن تكفي كلمة المرور وحدها بعد الآن.",
+    twoFactorStarting: "جارٍ البدء…",
+    setUpTwoFactor: "إعداد المصادقة الثنائية",
+    twoFactorScanQr:
+      "امسح رمز QR هذا باستخدام Google Authenticator (أو أي تطبيق مصادقة)، ثم أدخل الرمز المكوّن من 6 أرقام الذي يعرضه.",
+    twoFactorQrAlt: "رمز QR لإعداد المصادقة الثنائية",
+    cantScanEnterSecret: "لا يمكنك المسح؟ أدخل هذا السر يدوياً: ",
+    turnOnTwoFactor: "تشغيل المصادقة الثنائية",
+    twoFactorOn: "المصادقة الثنائية مفعّلة.",
+    twoFactorOnExplainer:
+      "يطلب تسجيل الدخول رمز المصادقة الخاص بك (أو رمز البريد الإلكتروني) بعد كلمة المرور.",
+    newBackupCodes: "رموز احتياطية جديدة",
+    disable: "تعطيل",
+    disableTwoFactorPrompt:
+      "أدخل كلمة المرور لتعطيل المصادقة الثنائية.",
+    disablingTwoFactor: "جارٍ التعطيل…",
+    disableTwoFactor: "تعطيل المصادقة الثنائية",
+    backupCodesTitle: "الرموز الاحتياطية",
+    backupCodesWarning:
+      "احفظها في مكان آمن — كل رمز يعمل مرة واحدة، وهذه هي المرة الوحيدة التي تُعرض فيها.",
+    savedBackupCodes: "لقد حفظت هذه الرموز",
+    backupCodesSaved: "تم حفظ الرموز الاحتياطية. احتفظ بها في مكان آمن.",
+  },
+  update: {
+    tryAgain: "إعادة المحاولة",
+  },
+  landing: {
+    heroTitle: "تعلّم برمجة بايثون،",
+    heroWordOnline: "أونلاين",
+    heroWordOffline: "أوفلاين",
+    heroSubtitle:
+      "دروس مرتبة حسب الموضوع، ودورات فيديو، ومحرر أكواد حقيقي — من أول print() إلى مشاريع حقيقية. شاهد، واكتب الأكواد، وحافظ على سلسلتك.",
+    getStarted: "ابدأ الآن",
+    heroNote: "مجاني • سجّل الدخول بالبريد الإلكتروني أو Google • يبقى تقدمك على هذا الجهاز",
+    statTopics: "مواضيع",
+    statVideos: "مقاطع فيديو",
+    statStages: "مراحل",
+    featuresHeading: "كل ما تحتاجه لتُكمل فعلاً",
+    featureVideosTitle: "فيديوهات، أونلاين وأوفلاين",
+    featureVideosText:
+      "شاهد دروس الفيديو مع الإنترنت أو بدونه — احفظها على جهازك وتابع المشاهدة عند انقطاع الاتصال.",
+    featureTutorialsTitle: "دروس، أوفلاين أيضاً",
+    featureTutorialsText:
+      "دروس مرتبة حسب الموضوع ومداخل مرجعية — اقرأها في أي مكان، حتى دون إنترنت.",
+    featureEditorText:
+      "اكتب وشغّل بايثون حقيقياً في المتصفح — محرر Monaco مع Pyodide، ومساحة عمل متعددة الملفات، دون الحاجة إلى تثبيت.",
+    featureTutorText:
+      "تعثّرت في مفهوم أو خطأ؟ اسأل المعلم الذكي عن أي شيء — يجيب من الدرس الذي أنت فيه، مع أمثلة وحلول.",
+    featureGithubTitle: "GitHub، مدمج",
+    featureGithubText:
+      "اربط حسابك في GitHub، وأنشئ مستودعات، وادفع أكوادك مباشرة من المحرر — عملك محفوظ بالإصدارات منذ اليوم الأول.",
+    featureGoalsTitle: "أهداف يومية وسلاسل",
+    featureGoalsText:
+      "حدّد هدف مشاهدة يومياً، وحافظ على سلسلتك، وشاهد تقدمك الحقيقي اليوم في لمحة.",
+    splashTagline: "تعلّم • تدرّب • أوفلاين",
+  },
+  navbar: {
+    continue: "متابعة",
+    profileMenu: "قائمة الملف الشخصي",
+    mainNavLabel: "التنقل الرئيسي",
+    openMenu: "فتح القائمة",
+    closeMenu: "إغلاق القائمة",
+  },
+  learnPage: {
+    example: "مثال",
+    copy: "نسخ",
+    copied: "تم النسخ",
+    output: "المخرجات",
+    noteLabel: "ملاحظة: ",
+    tipLabel: "تلميح: ",
+    topicNotFound: "الموضوع غير موجود",
+    topicNotFoundHint:
+      "اختر موضوعاً من الشريط الجانبي — كل مواضيع بايثون موجودة هناك.",
+    tryInEditor: "جرّبه في المحرر",
+    summary: "الملخص",
+    practice: "التدريب",
+    practiceHint:
+      "جرّب كل مهمة في محرر الأكواد — القراءة وحدها لا تكفي، الكتابة بنفسك هي ما يجعلها تثبت.",
+    tutorialBeingPrepared:
+      "الدرس المكتوب لهذا الموضوع قيد الإعداد. اختر موضوعاً آخر من الشريط الجانبي الآن — سيظهر هنا فور جاهزيته.",
+    previous: "السابق",
+    backToPythonHome: (title: string) => `العودة إلى ${title}`,
+  },
+  sidebar: {
+    searchTopics: "ابحث في المواضيع",
+    noTopicsMatch: (query: string) => `لا توجد مواضيع تطابق «${query}».`,
+    closeTopics: "إغلاق المواضيع",
+    sectionPythonTutorial: "دروس بايثون",
+    sectionPythonClasses: "أصناف بايثون",
+    sectionFileHandling: "التعامل مع الملفات",
+    sectionPythonModules: "وحدات بايثون",
+    sectionPythonMatplotlib: "Matplotlib في بايثون",
+    sectionMachineLearning: "تعلم الآلة",
+    sectionPythonDsa: "هياكل البيانات والخوارزميات",
+    sectionPythonMysql: "MySQL في بايثون",
+    sectionPythonMongodb: "MongoDB في بايثون",
+    sectionPythonCert: "شهادة بايثون",
+    sectionPythonHowTo: "دليل عملي في بايثون",
+    sectionPythonExamples: "أمثلة بايثون",
+    sectionPythonReference: "مرجع بايثون",
+    sectionModuleReference: "مرجع الوحدات",
+    groupPythonArrays: "مصفوفات بايثون",
+    groupPythonCasting: "تحويل الأنواع في بايثون",
+    groupPythonClassMethods: "طرق الأصناف في بايثون",
+    groupPythonClassProperties: "خصائص الأصناف في بايثون",
+    groupPythonDates: "التواريخ في بايثون",
+    groupPythonEncapsulation: "التغليف في بايثون",
+    groupPythonInheritance: "الوراثة في بايثون",
+    groupPythonIterators: "المكرِّرات في بايثون",
+    groupPythonJson: "JSON في بايثون",
+    groupPythonMagicMethods: "الطرق السحرية في بايثون",
+    groupPythonMath: "الرياضيات في بايثون",
+    groupPythonNone: "None في بايثون",
+    groupPythonPolymorphism: "تعدد الأشكال في بايثون",
+    groupPythonRange: "range في بايثون",
+    groupPythonRegex: "التعبيرات النمطية في بايثون",
+    groupPythonStringFormatting: "تنسيق السلاسل النصية في بايثون",
+    groupPythonTryExcept: "Try...Except في بايثون",
+    groupPythonInitMethod: "طريقة __init__ في بايثون",
+    groupPythonSelfParameter: "المعامل self في بايثون",
+  },
+  quiz: {
+    testLabel: "الاختبار",
+    passRequirement: (pct: number) =>
+      `احصل على ${pct}٪ أو أكثر لاجتياز الاختبار.`,
+    closeTest: "إغلاق الاختبار",
+    correctAnswer: (answer: string) => `الإجابة الصحيحة: ${answer}`,
+    correct: "صحيح",
+    submitTest: "إرسال الاختبار",
+    passedScore: (score: number, total: number) =>
+      `نجحت — ${score}/${total} صحيحة`,
+    passedMessage: "لقد نجحت في اختبار هذا الدرس.",
+    notPassedScore: (score: number, total: number) =>
+      `لم تنجح — ${score}/${total} صحيحة`,
+    notPassedMessage: (pct: number) =>
+      `تحتاج إلى ${pct}٪ للنجاح. راجع الإجابات أعلاه وحاول مرة أخرى.`,
+  },
+  roadmapModal: {
+    title: "خارطة طريق بايثون الخاصة بك",
+    subtitle: (totalTopics: number, totalMinutes: string) =>
+      `${totalTopics} مواضيع • حوالي ${totalMinutes} • اتبعها من الأعلى إلى الأسفل`,
+    close: "إغلاق خارطة الطريق",
+    dialogLabel: "خارطة طريق بايثون",
+    savedDialogLabel: "تم حفظ خارطة الطريق",
+    savedTitle: "تم حفظ خارطة الطريق لاحقاً",
+    savedBody:
+      "في المرة القادمة يمكنك معاينة خارطة الطريق من قائمة الملف الشخصي.",
+    gotIt: "فهمت",
+  },
+  coursesPage: {
+    videoCourses: "دورات الفيديو",
+    heroTitle: "تعلّم بايثون بالمشاهدة.",
+    emptyState: "تُضاف فيديوهات الدورات — عُد قريباً.",
+    allTeachers: "كل المعلمين",
+    channelPictureAlt: (name: string) => `صورة قناة ${name}`,
+    countCourses: (n: number) => (n === 1 ? `دورة واحدة` : `${n} دورات`),
+    videoSourceNote: "MEGA وDrive، وYouTube مؤقتاً",
+    taglineCodeWithHarry:
+      "دورات بايثون كاملة بالهندية — خطوة بخطوة، مع ملاحظات.",
+    taglineMosh:
+      "دورة بايثون الكلاسيكية بالإنجليزية — الدورة الكاملة بالإضافة إلى فيديوهات مواضيع.",
+    taglineApnaCollege:
+      "دورات بايثون كاملة بالهندية، مع ملاحظات وأسئلة تدريب.",
+  },
+  editorPage: {
+    emptyFileError: "هذا الملف فارغ — اكتب بعض الأكواد أولاً.",
+    aiEmptyReplyError: "أعاد الذكاء الاصطناعي رداً فارغاً — يُرجى المحاولة مرة أخرى.",
+    micropipTimeoutError:
+      "انتهت مهلة تحميل micropip بعد دقيقة واحدة — تحقق من اتصالك وأعد المحاولة.",
+    pyodideLoadError:
+      "تعذّر تحميل سكربت Pyodide من cdn.jsdelivr.net — تحقق من اتصالك وأعد تحميل الصفحة.",
+    fileExistsError: "يوجد ملف بهذا المسار بالفعل",
+    folderExistsError: "يوجد مجلد بهذا الاسم بالفعل",
+    keepOneFileError: "يجب أن تحتفظ بملف واحد على الأقل في مساحة العمل.",
+    itemExistsInLocationError: (itemName: string) =>
+      `يوجد عنصر باسم '${itemName}' في ذلك الموقع بالفعل.`,
+    filesTab: "الملفات",
+    modulesTab: "الوحدات",
+    activeLabel: "النشط:",
+    noActiveFile: "لا شيء",
+    unsavedBadge: "(غير محفوظ*)",
+    saved: "تم الحفظ",
+    saveFileRequired: "حفظ الملف (مطلوب)",
+    explainCodeHint: "اطلب من الذكاء الاصطناعي شرح هذا الملف",
+    explainCode: "اشرح هذا الكود",
+    findBugHint: "اطلب من الذكاء الاصطناعي إيجاد الخطأ في هذا الملف",
+    findBug: "ابحث عن الخطأ",
+    stop: "إيقاف",
+    stopHint: "قاطع الكود الجاري تنفيذه",
+    stopUnavailableHint:
+      "الإيقاف يحتاج SharedArrayBuffer، وهو ما لا يوفره إعداد هذا المتصفح — أعد تحميل الصفحة لإيقاف تشغيل عالق.",
+    compiling: "جارٍ التجميع...",
+    loadingEngine: "جارٍ تحميل المحرك",
+    compileAndRun: "تجميع وتشغيل",
+    saveNow: "احفظ الآن",
+    explorer: "المستكشف",
+    newFile: "ملف جديد",
+    newFolder: "مجلد جديد",
+    newFilePlaceholder: "مثال: script.py أو utils/helper.py",
+    newFolderPlaceholder: "اسم المجلد، مثال: tests",
+    workspaceRootDropHint: "جذر مساحة العمل (أسقط هنا للنقل إلى الخارج)",
+    unsavedTooltip: "غير محفوظ",
+    dragFilesHint: "اسحب الملفات هنا من جهاز الكمبيوتر",
+    terminalLogs: "سجلات الطرفية",
+    programInputLabel: "مدخلات البرنامج — سطر واحد لكل استدعاء input()",
+    programInputPlaceholder: "مثال:\nAdeen\n21",
+    aiExplanation: "شرح الذكاء الاصطناعي",
+    aiBugCheck: "فحص أخطاء الذكاء الاصطناعي",
+    aiCodeHelp: "مساعدة الذكاء الاصطناعي في الأكواد",
+    closeAiAnswer: "إغلاق إجابة الذكاء الاصطناعي",
+    aiUnavailableMessage:
+      "الذكاء الاصطناعي غير متوفر الآن — مفاتيح API غير مهيأة بعد. المحرر وباقي الدورة يعملان بشكل طبيعي.",
+    aiReadingCode: "الذكاء الاصطناعي يقرأ أكوادك…",
+    aiTruncatedNote:
+      "ملاحظة: كان الملف أطول من حد الذكاء الاصطناعي، لذا أُرسلت أول 8000 حرف فقط.",
+  },
+  modulesPage: {
+    openingInEditor: "جارٍ فتح الوحدات في محرر الأكواد…",
+    title: "مدير وحدات وحزم بايثون",
+    subtitle:
+      "تصفح المكتبة القياسية الرسمية الكاملة في بايثون وابحث عن جميع حزم PyPI وPyodide الخارجية وثبّتها في مساحة عملك.",
+    tabStdlib: (count: number) => `المكتبة القياسية المدمجة (${count})`,
+    tabExternal: (count: number) => `الحزم الخارجية (${count})`,
+    tabSearch: "بحث PyPI المباشر والتثبيت",
+    filterStdlibPlaceholder: "صفِّ الوحدات المدمجة...",
+    builtInReady: "مدمج (جاهز دائماً)",
+    docs: "الوثائق",
+    externalIntro: (pyodideCount: number, micropipCount: number) =>
+      `${pyodideCount} حزم مبنية على Pyodide (تُثبَّت بسرعة من CDN) + ${micropipCount} حزم PyPI شائعة من بايثون النقي (تُثبَّت عبر micropip).`,
+    installedInWorkspace: (n: number) => `${n} مثبَّتة في مساحة العمل هذه.`,
+    externalOutro:
+      "يمكن تثبيت أي شيء آخر على PyPI بالاسم الدقيق في تبويب بحث PyPI المباشر.",
+    searchPackagesPlaceholder:
+      "ابحث في كل الحزم — مثال: numpy, flask, seaborn, opencv…",
+    installByNamePlaceholder: "ثبّت أي حزمة بالاسم — مثال: tabulate",
+    install: "تثبيت",
+    showingCount: (shown: number, total: number) =>
+      `عرض ${shown} من ${total} حزم.`,
+    noMatch:
+      "لا توجد نتيجة — جرّب تبويب بحث PyPI المباشر للبحث بالاسم الدقيق.",
+    installed: "مثبَّتة",
+    remove: "إزالة",
+    installing: "جارٍ التثبيت...",
+    installPackage: "تثبيت حزمة",
+    searchHeading: "ابحث في فهرس حزم بايثون الرسمي (PyPI)",
+    searchPyPiPlaceholder: "مثال: rich, requests, sympy, tabulate, httpx, textstat",
+    searchPyPi: "بحث في PyPI",
+    installedInWorkspaceLabel: "مثبَّتة في مساحة العمل",
+    installPackageNamed: (name: string) => `تثبيت ${name}`,
+    licenseLabel: "الترخيص:",
+    authorLabel: "المؤلف:",
+    projectHomepage: "الصفحة الرئيسية للمشروع",
+    logsHeading: "سجلات طرفية محرك الحزم",
+    logsEmpty:
+      "بيئة بايثون جاهزة. ثبّت أي حزمة لتحميلها في مساحة عملك.",
+    stageStartingRuntime: "جارٍ بدء بيئة بايثون…",
+    logStartingRuntime:
+      "جارٍ بدء بيئة بايثون — تنزيل لمرة واحدة (حوالي 15 MB)، يُرجى الانتظار…",
+    stageRuntimeReady: "بيئة بايثون جاهزة",
+    logRuntimeReady: "بيئة بايثون جاهزة.",
+    errorEnvStartWithDetail: (error: string) =>
+      `تعذّرت بداية بيئة بايثون: ${error}`,
+    errorEnvStartNoLoad:
+      "تعذّرت بداية بيئة بايثون (لم يُحمَّل سكربت Pyodide). تحقق من اتصالك وحاول مرة أخرى — زر التثبيت سيعيد المحاولة.",
+    stageDownloading: (pkg: string) => `جارٍ تنزيل '${pkg}'…`,
+    logInstalling: (pkg: string) => `جارٍ تثبيت '${pkg}'…`,
+    stageInstalled: (pkg: string) => `تم تثبيت '${pkg}' ✓`,
+    logInstalled: (pkg: string, method: string, importName: string) =>
+      `✓ تم تثبيت '${pkg}' عبر ${method} (الاستيراد ${importName} يعمل). تم الحفظ في تخزين مساحة العمل.`,
+    logInstallFailed: (pkg: string, error: string) =>
+      `✗ فشل تثبيت '${pkg}': ${error}`,
+    logUninstalled: (pkg: string) =>
+      `تم إلغاء تثبيت '${pkg}' وإزالتها من مساحة العمل.`,
+    errorPackageNotFound: "الحزمة غير موجودة على PyPI",
+    errorQueryPyPi: "خطأ في الاستعلام عن PyPI",
+    defaultPyodideDesc:
+      "حزمة مبنية على Pyodide — تُثبَّت بسرعة من CDN، وجاهزة للاستيراد.",
+    stageLoadingMicropip: "جارٍ تحميل micropip…",
+  },
+  player: {
+    errorOfflineCacheUnsupported:
+      "التخزين المؤقت دون اتصال غير مدعوم في هذا المتصفح.",
+    errorDownloadFailed: (status: number) => `فشل التنزيل (${status})`,
+    errorSaveOffline: "تعذّر حفظ الفيديو دون اتصال.",
+    ariaLabel:
+      "مشغّل الفيديو — مفتاح المسافة للتشغيل أو الإيقاف، والسهمان الأيمن والأيسر للتقديم 10 ثوانٍ",
+    autoplayOnHint: "التشغيل التلقائي مفعّل — يُشغَّل الدرس التالي تلقائياً",
+    autoplayOffHint: "التشغيل التلقائي متوقف",
+    autoplay: "التشغيل التلقائي",
+    playbackSpeed: "سرعة التشغيل",
+    speedNormal: "عادية",
+    quality: "الجودة",
+    qualityAuto: "تلقائي",
+    original: "(الأصلية)",
+    qualityNote:
+      "توفر MEGA جودة واحدة لكل فيديو — الملف أعلاه هو البث الوحيد.",
+    seekLabel: "تقديم",
+    play: "تشغيل",
+    pause: "إيقاف مؤقت",
+    mute: "كتم الصوت",
+    unmute: "إلغاء كتم الصوت",
+    volumeLabel: "مستوى الصوت",
+    hideCaptions: "إخفاء التسميات التوضيحية الإنجليزية",
+    showCaptions: "إظهار التسميات التوضيحية الإنجليزية",
+    captionsLabel: "التسميات التوضيحية الإنجليزية",
+    downloadVideo: "تنزيل الفيديو",
+    settingsLabel: "الإعدادات — السرعة والجودة",
+    exitFullscreen: "الخروج من ملء الشاشة",
+    fullscreen: "ملء الشاشة",
+    playingOffline: "يُشغَّل من التخزين دون اتصال داخل التطبيق",
+    streamingOnline: "بث مباشر أونلاين",
+    offlineNotSaved: "دون اتصال (غير محفوظ)",
+    keyboardHint:
+      "مفتاح المسافة — تشغيل / إيقاف · ← → — تقديم 10 ثوانٍ · انقر على السماعة للصوت",
+    removeOfflineCopy: "إزالة النسخة دون اتصال",
+    savingPct: (pct: number) => `جارٍ الحفظ ${pct}٪`,
+    saving: "جارٍ الحفظ…",
+    sliderLabel: "المنزلق",
+    youtubeFallbackNote: "يُشغَّل من YouTube — رابط MEGA قادم قريباً",
+    todayProgress: "تقدم اليوم",
+    progressSummary: (minutesWatched: number, goalMinutes: number) =>
+      `${minutesWatched} دقيقة مشاهَدة من هدف ${goalMinutes} دقيقة`,
+    dailyTargetLabel: "الهدف (دقيقة/يوم)",
+    courseLessonsHeading: "دروس الدورة",
+  },
+  settingsPage: {
+    subtitle: "تقدمك وكيف يبدو التطبيق.",
+    todaySection: "اليوم",
+    goalProgress: (minutes: number, goal: number) => `${minutes}/${goal} د`,
+    streakRestored: "تمت استعادة السلسلة — مرحباً بعودتك.",
+    streakBroken: "انقطعت السلسلة",
+    streakBrokenRestore: (
+      brokenStreak: number,
+      restoresUsed: number,
+      max: number
+    ) =>
+      `انقطعت سلسلتك التي دامت ${brokenStreak} أيام. استعدها قبل انتهاء المؤقت — استخدمت ${restoresUsed} من ${max} عمليات استعادة هذا الشهر.`,
+    countdownHrs: "س",
+    countdownMin: "د",
+    countdownSec: "ث",
+    restoreStreakButton: (brokenStreak: number) =>
+      `استعادة سلسلة الـ ${brokenStreak} أيام`,
+    streakBrokenExpired: (brokenStreak: number) =>
+      `انقطعت سلسلتك التي دامت ${brokenStreak} أيام وانتهت نافذة الاستعادة البالغة 24 ساعة. شاهد درساً لبدء سلسلة جديدة.`,
+    noRestoresLeft: "لا توجد عمليات استعادة متبقية",
+    noRestoresLeftBody: (max: number, brokenStreak: number) =>
+      `استخدمت جميع عمليات الاستعادة الـ ${max} هذا الشهر. انقطعت سلسلتك التي دامت ${brokenStreak} أيام — شاهد درساً لبدء سلسلة جديدة. تُعاد عمليات الاستعادة الشهر القادم.`,
+    accountSecurity: "أمان الحساب",
+  },
+  tutorPage: {
+    heading: "اسأل الذكاء الاصطناعي عن هذا الدرس",
+    intro:
+      "شكوك، شروحات، أمثلة — بالهندية أو الإنجليزية. تأتي الإجابات من فيديو هذا الدرس الفعلي، مع طوابع زمنية، وأي شيء لا يغطيه الفيديو يُعلَّم كمعرفة عامة. المحادثات لا تُحفظ في أي مكان.",
+    unavailable:
+      "الذكاء الاصطناعي غير متوفر الآن — مفاتيح API غير مهيأة بعد. باقي الدورة يعمل بشكل طبيعي.",
+    askPlaceholder: (lessonTitle: string) => {
+      const display =
+        lessonTitle.length > 40
+          ? `${lessonTitle.slice(0, 40)}…`
+          : lessonTitle;
+      return `اسأل عن "${display}"`;
+    },
+  },
+  githubPage: {
+    repoNameTooLong: "يجب أن يكون اسم المستودع 100 حرف أو أقل.",
+    repoNameInvalidChars:
+      "لا يمكن أن تحتوي أسماء المستودعات على مسافات أو أحرف خاصة — يُسمح فقط بالأحرف والأرقام و - _ .",
+    tokenSaved: "تم حفظ الرمز في هذا المتصفح فقط.",
+    tokenRemoved: "تم قطع اتصال رمز GitHub.",
+    loadReposFailed: "تعذّر تحميل المستودعات",
+    createRepoFailed: "تعذّر إنشاء المستودع",
+    repoCreated: (fullName: string) => `✓ تم إنشاء المستودع بنجاح: ${fullName}`,
+    pushFailed: "تعذّر دفع الملف",
+    pushed: (filePath: string, fullName: string) =>
+      `✓ تم دفع '${filePath}' إلى ${fullName}!`,
+    title: "تكامل GitHub",
+    intro:
+      "اربط حسابك في GitHub باستخدام رمز وصول شخصي (PAT) لإنشاء مستودعات وتثبيت الأكواد مباشرة من LP. يفتح رابط الرمز أدناه GitHub مع تحديد كل النطاقات مسبقاً، ليكون للرمز وصول كامل إلى حسابك.",
+    connectHeading: "ربط رمز الوصول الشخصي في GitHub",
+    tokenExplainer:
+      "أنشئ رمزاً على github.com/settings/tokens مع تحديد كل النطاقات مسبقاً — للرمز وصول كامل إلى حسابك، بما في ذلك حذف المستودعات وإدارة المنظمات، لذا احتفظ به خاصاً. ثم الصقه أدناه. يعيش رمزك في هذا المتصفح فقط (localStorage). يُرسل إلى خادم LP فقط لاستدعاء GitHub نيابة عنك، ولا يُحفظ أبداً على الخادم، وقطع الاتصال يزيله من هذا المتصفح.",
+    connectToken: "ربط الرمز",
+    connected: (tokenPrefix: string) => `متصل بـ GitHub • ${tokenPrefix}...`,
+    refresh: "تحديث",
+    disconnect: "قطع الاتصال",
+    createHeading: "إنشاء مستودع GitHub جديد",
+    repoNameLabel: "اسم المستودع *",
+    descriptionLabel: "الوصف (اختياري)",
+    descriptionPlaceholder: "حلول تدريب وملاحظات من LP",
+    publicRepo: "مستودع عام",
+    privateRepo: "مستودع خاص",
+    initReadme: "التهيئة مع README",
+    createButton: "إنشاء مستودع على GitHub",
+    commitHeading: "دفع / تثبيت الأكواد من مساحة العمل",
+    targetRepoLabel: "المستودع الهدف *",
+    visibilityPrivate: (fullName: string) => `${fullName} (خاص)`,
+    visibilityPublic: (fullName: string) => `${fullName} (عام)`,
+    visibilityPrivateShort: "خاص",
+    visibilityPublicShort: "عام",
+    filePathLabel: "مسار الملف في المستودع *",
+    filePathPlaceholder: "مثال: main.py",
+    commitMessageLabel: "رسالة التثبيت *",
+    commitMessagePlaceholder: "رسالة التثبيت",
+    fileContentLabel: "محتوى الملف",
+    commitButton: (repoName: string) => `تثبيت ودفع إلى ${repoName}`,
+    repoFallback: "مستودع",
+    yourRepos: (count: number) => `مستودعاتك (${count})`,
+    fetchingRepos: "جارٍ جلب مستودعاتك...",
+    noRepos: "لم يتم العثور على مستودعات أو الوصول مقيد.",
+    noDescription: "لا يوجد وصف",
+    openOnGitHub: "فتح على GitHub",
+  },
+};

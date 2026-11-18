@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppNavbar } from "@/components/AppNavbar";
 import { fetchSessionUser } from "@/lib/auth-client";
+import { useLanguage } from "@/lib/i18n";
+import type { Strings } from "@/lib/i18n";
 import {
   Check,
   Code2,
@@ -64,16 +66,17 @@ interface RepoItem {
 // hyphen, underscore and dot only — no spaces. The form checks it live
 // so a bad name is caught here, not by the server's generic 400.
 const REPO_NAME_RE = /^[a-zA-Z0-9_.-]+$/;
-function repoNameError(name: string): string | null {
+function repoNameError(name: string, t: Strings): string | null {
   const clean = name.trim();
   if (!clean) return null; // an empty name is covered by `required`
-  if (clean.length > 100) return "Repo name must be 100 characters or fewer.";
+  if (clean.length > 100) return t.githubPage.repoNameTooLong;
   if (!REPO_NAME_RE.test(clean))
-    return "Repo names can't contain spaces or special characters — only letters, numbers, - _ . are allowed.";
+    return t.githubPage.repoNameInvalidChars;
   return null;
 }
 
 export default function GitHubPage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const [token, setToken] = useState("");
 
@@ -141,7 +144,7 @@ export default function GitHubPage() {
     localStorage.setItem("lp_github_token", clean);
     setSavedToken(clean);
     setToken("");
-    setSuccessMsg("Token saved in this browser only.");
+    setSuccessMsg(t.githubPage.tokenSaved);
     fetchRepos(clean);
   }
 
@@ -150,7 +153,7 @@ export default function GitHubPage() {
     setSavedToken("");
     setRepos([]);
     setSelectedRepo(null);
-    setSuccessMsg("Disconnected GitHub token.");
+    setSuccessMsg(t.githubPage.tokenRemoved);
   }
 
   async function fetchRepos(tok: string) {
@@ -161,7 +164,7 @@ export default function GitHubPage() {
         headers: { Authorization: `Bearer ${tok}` },
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to load repositories");
+      if (!res.ok) throw new Error(data.error || t.githubPage.loadReposFailed);
       setRepos(data.repos || []);
       if (data.repos?.length > 0 && !selectedRepo) {
         setSelectedRepo(data.repos[0]);
@@ -176,7 +179,7 @@ export default function GitHubPage() {
   async function handleCreateRepo(e: React.FormEvent) {
     e.preventDefault();
     if (!newRepoName.trim() || !savedToken) return;
-    if (repoNameError(newRepoName)) return;
+    if (repoNameError(newRepoName, t)) return;
     setCreating(true);
     setErrorMsg(null);
     setSuccessMsg(null);
@@ -196,9 +199,9 @@ export default function GitHubPage() {
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to create repository");
+      if (!res.ok) throw new Error(data.error || t.githubPage.createRepoFailed);
 
-      setSuccessMsg(`✓ Successfully created repo: ${data.repo.full_name}`);
+      setSuccessMsg(t.githubPage.repoCreated(data.repo.full_name));
       setNewRepoName("");
       setNewRepoDesc("");
       fetchRepos(savedToken);
@@ -234,14 +237,25 @@ export default function GitHubPage() {
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to push file");
-      setSuccessMsg(`✓ Pushed '${commitFilePath}' to ${selectedRepo.full_name}!`);
+      if (!res.ok) throw new Error(data.error || t.githubPage.pushFailed);
+      setSuccessMsg(t.githubPage.pushed(commitFilePath, selectedRepo.full_name));
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : String(err));
     } finally {
       setCommitting(false);
     }
   }
+
+  // The translated `tokenExplainer` contains the literal link text
+  // "github.com/settings/tokens" (kept untranslated in every language),
+  // and `connected` embeds the masked token prefix — split on those
+  // literals so the link stays clickable and the prefix stays monospaced.
+  // If a translation ever moves/drops the literal, fall back to the
+  // plain translated string.
+  const tokenExplainerParts =
+    t.githubPage.tokenExplainer.split("github.com/settings/tokens");
+  const tokenPrefix = savedToken.slice(0, 7);
+  const connectedParts = t.githubPage.connected(tokenPrefix).split(tokenPrefix);
 
   // Guests never see this page — the gate effect above redirects to /.
   if (!enteredChecked) return null;
@@ -254,10 +268,10 @@ export default function GitHubPage() {
       <main className="flex-1 max-w-6xl w-full mx-auto p-4 flex flex-col gap-5">
         <div>
           <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-            <Github className="h-5 w-5" /> GitHub Integration
+            <Github className="h-5 w-5" /> {t.githubPage.title}
           </h1>
           <p className="mt-1 text-xs text-neutral-400">
-            Connect your GitHub account using a Personal Access Token (PAT) to create repositories and commit code directly from LP. The token link below opens GitHub with every scope pre-checked, so the token has full access to your account.
+            {t.githubPage.intro}
           </p>
         </div>
 
@@ -277,19 +291,25 @@ export default function GitHubPage() {
         {!savedToken ? (
           <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-5">
             <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-              <KeyRound className="h-4 w-4 text-white" /> Connect GitHub Personal Access Token
+              <KeyRound className="h-4 w-4 text-white" /> {t.githubPage.connectHeading}
             </h2>
             <p className="mt-1 text-xs text-neutral-400 leading-relaxed">
-              Create a token on{" "}
-              <a
-                href={GITHUB_TOKEN_URL}
-                target="_blank"
-                rel="noreferrer"
-                className="underline text-white font-medium"
-              >
-                github.com/settings/tokens
-              </a>{" "}
-              with every scope pre-checked — the token has full access to your account, including deleting repos and managing orgs, so keep it private. Then paste it below. Your token lives only in this browser (localStorage). It is sent to the LP server only to call GitHub on your behalf, is never stored on the server, and Disconnect removes it from this browser.
+              {tokenExplainerParts.length === 2 ? (
+                <>
+                  {tokenExplainerParts[0]}
+                  <a
+                    href={GITHUB_TOKEN_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline text-white font-medium"
+                  >
+                    github.com/settings/tokens
+                  </a>
+                  {tokenExplainerParts[1]}
+                </>
+              ) : (
+                t.githubPage.tokenExplainer
+              )}
             </p>
 
             <form onSubmit={handleSaveToken} className="mt-4 flex gap-2">
@@ -304,7 +324,7 @@ export default function GitHubPage() {
                 type="submit"
                 className="shrink-0 whitespace-nowrap rounded-lg bg-white px-4 py-2 text-xs font-semibold text-black hover:bg-neutral-200 transition"
               >
-                Connect Token
+                {t.githubPage.connectToken}
               </button>
             </form>
           </div>
@@ -313,7 +333,17 @@ export default function GitHubPage() {
             <div className="flex min-w-0 items-center gap-2 text-xs">
               <Check className="h-4 w-4 shrink-0 text-emerald-400" />
               <span className="truncate text-neutral-300">
-                Connected to GitHub • <span className="font-mono text-neutral-400">{savedToken.slice(0, 7)}...</span>
+                {connectedParts.length === 2 ? (
+                  <>
+                    {connectedParts[0]}
+                    <span className="font-mono text-neutral-400">
+                      {tokenPrefix}...
+                    </span>
+                    {connectedParts[1].replace(/^\.\.\./, "")}
+                  </>
+                ) : (
+                  t.githubPage.connected(tokenPrefix)
+                )}
               </span>
             </div>
             <div className="flex shrink-0 items-center gap-2">
@@ -323,14 +353,14 @@ export default function GitHubPage() {
                 disabled={loading}
                 className="inline-flex items-center gap-1 rounded-lg border border-neutral-800 bg-black px-2.5 py-1 text-xs text-neutral-300 hover:text-white"
               >
-                <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} /> Refresh
+                <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} /> {t.githubPage.refresh}
               </button>
               <button
                 type="button"
                 onClick={handleRemoveToken}
                 className="rounded-lg border border-neutral-800 bg-black px-2.5 py-1 text-xs text-neutral-400 hover:text-red-400 transition"
               >
-                Disconnect
+                {t.githubPage.disconnect}
               </button>
             </div>
           </div>
@@ -342,30 +372,30 @@ export default function GitHubPage() {
             {/* Create Repository */}
             <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-5">
               <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-                <Plus className="h-4 w-4" /> Create New GitHub Repository
+                <Plus className="h-4 w-4" /> {t.githubPage.createHeading}
               </h2>
               <form onSubmit={handleCreateRepo} className="mt-4 space-y-3">
                 <div>
-                  <label className="text-xs text-neutral-400 block mb-1">Repository Name *</label>
+                  <label className="text-xs text-neutral-400 block mb-1">{t.githubPage.repoNameLabel}</label>
                   <input
                     type="text"
                     required
                     placeholder="my-python-learning"
                     value={newRepoName}
                     onChange={(e) => setNewRepoName(e.target.value)}
-                    aria-invalid={!!repoNameError(newRepoName)}
-                    className={`w-full rounded-lg border bg-black px-3 py-2 text-xs text-white placeholder-neutral-600 focus:outline-none ${repoNameError(newRepoName) ? "border-red-500 focus:border-red-400" : "border-neutral-800 focus:border-white"}`}
+                    aria-invalid={!!repoNameError(newRepoName, t)}
+                    className={`w-full rounded-lg border bg-black px-3 py-2 text-xs text-white placeholder-neutral-600 focus:outline-none ${repoNameError(newRepoName, t) ? "border-red-500 focus:border-red-400" : "border-neutral-800 focus:border-white"}`}
                   />
-                  {repoNameError(newRepoName) && (
-                    <p className="mt-1 text-[11px] text-red-400">{repoNameError(newRepoName)}</p>
+                  {repoNameError(newRepoName, t) && (
+                    <p className="mt-1 text-[11px] text-red-400">{repoNameError(newRepoName, t)}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="text-xs text-neutral-400 block mb-1">Description (optional)</label>
+                  <label className="text-xs text-neutral-400 block mb-1">{t.githubPage.descriptionLabel}</label>
                   <input
                     type="text"
-                    placeholder="Practice solutions and notes from LP"
+                    placeholder={t.githubPage.descriptionPlaceholder}
                     value={newRepoDesc}
                     onChange={(e) => setNewRepoDesc(e.target.value)}
                     className="w-full rounded-lg border border-neutral-800 bg-black px-3 py-2 text-xs text-white placeholder-neutral-600 focus:border-white focus:outline-none"
@@ -382,7 +412,7 @@ export default function GitHubPage() {
                   />
                   <label htmlFor="isPublic" className="text-xs text-neutral-300 flex items-center gap-1 cursor-pointer">
                     {isPublic ? <Unlock className="h-3.5 w-3.5 text-neutral-400" /> : <Lock className="h-3.5 w-3.5" />}
-                    {isPublic ? "Public repository" : "Private repository"}
+                    {isPublic ? t.githubPage.publicRepo : t.githubPage.privateRepo}
                   </label>
                 </div>
 
@@ -395,17 +425,17 @@ export default function GitHubPage() {
                     className="rounded border-neutral-800 bg-black"
                   />
                   <label htmlFor="autoInit" className="text-xs text-neutral-300 cursor-pointer">
-                    Initialize with README
+                    {t.githubPage.initReadme}
                   </label>
                 </div>
 
                 <button
                   type="submit"
-                  disabled={creating || !!repoNameError(newRepoName)}
+                  disabled={creating || !!repoNameError(newRepoName, t)}
                   className="w-full mt-2 rounded-lg bg-white px-4 py-2 text-xs font-semibold text-black hover:bg-neutral-200 transition disabled:opacity-50 flex items-center justify-center gap-1.5"
                 >
                   {creating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
-                  Create Repository on GitHub
+                  {t.githubPage.createButton}
                 </button>
               </form>
             </div>
@@ -413,11 +443,11 @@ export default function GitHubPage() {
             {/* Commit / Alter Repository */}
             <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-5">
               <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-                <Send className="h-4 w-4" /> Push / Commit Code from Workspace
+                <Send className="h-4 w-4" /> {t.githubPage.commitHeading}
               </h2>
               <form onSubmit={handleCommitFile} className="mt-4 space-y-3">
                 <div>
-                  <label className="text-xs text-neutral-400 block mb-1">Target Repository *</label>
+                  <label className="text-xs text-neutral-400 block mb-1">{t.githubPage.targetRepoLabel}</label>
                   <select
                     value={selectedRepo?.full_name ?? ""}
                     onChange={(e) => {
@@ -428,7 +458,9 @@ export default function GitHubPage() {
                   >
                     {repos.map((r) => (
                       <option key={r.id} value={r.full_name}>
-                        {r.full_name} ({r.private ? "Private" : "Public"})
+                        {r.private
+                          ? t.githubPage.visibilityPrivate(r.full_name)
+                          : t.githubPage.visibilityPublic(r.full_name)}
                       </option>
                     ))}
                   </select>
@@ -436,22 +468,22 @@ export default function GitHubPage() {
 
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   <div>
-                    <label className="text-xs text-neutral-400 block mb-1">File Path in Repo *</label>
+                    <label className="text-xs text-neutral-400 block mb-1">{t.githubPage.filePathLabel}</label>
                     <input
                       type="text"
                       required
-                      placeholder="e.g. main.py"
+                      placeholder={t.githubPage.filePathPlaceholder}
                       value={commitFilePath}
                       onChange={(e) => setCommitFilePath(e.target.value)}
                       className="w-full rounded-lg border border-neutral-800 bg-black px-3 py-2 text-xs font-mono text-white placeholder-neutral-600 focus:border-white focus:outline-none"
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-neutral-400 block mb-1">Commit Message *</label>
+                    <label className="text-xs text-neutral-400 block mb-1">{t.githubPage.commitMessageLabel}</label>
                     <input
                       type="text"
                       required
-                      placeholder="Commit message"
+                      placeholder={t.githubPage.commitMessagePlaceholder}
                       value={commitMessage}
                       onChange={(e) => setCommitMessage(e.target.value)}
                       className="w-full rounded-lg border border-neutral-800 bg-black px-3 py-2 text-xs text-white placeholder-neutral-600 focus:border-white focus:outline-none"
@@ -460,7 +492,7 @@ export default function GitHubPage() {
                 </div>
 
                 <div>
-                  <label className="text-xs text-neutral-400 block mb-1">File Content</label>
+                  <label className="text-xs text-neutral-400 block mb-1">{t.githubPage.fileContentLabel}</label>
                   <textarea
                     rows={6}
                     value={commitContent}
@@ -476,7 +508,7 @@ export default function GitHubPage() {
                   className="w-full rounded-lg bg-white px-4 py-2 text-xs font-semibold text-black hover:bg-neutral-200 transition disabled:opacity-50 flex items-center justify-center gap-1.5"
                 >
                   {committing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <GitBranch className="h-3.5 w-3.5" />}
-                  Commit & Push to {selectedRepo?.name ?? "Repo"}
+                  {t.githubPage.commitButton(selectedRepo?.name ?? t.githubPage.repoFallback)}
                 </button>
               </form>
             </div>
@@ -487,14 +519,14 @@ export default function GitHubPage() {
         {savedToken && (
           <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-5">
             <h2 className="text-sm font-semibold text-white flex items-center gap-2 mb-3">
-              <GitBranch className="h-4 w-4" /> Your Repositories ({repos.length})
+              <GitBranch className="h-4 w-4" /> {t.githubPage.yourRepos(repos.length)}
             </h2>
             {loading ? (
               <div className="flex items-center gap-2 text-xs text-neutral-400 py-4">
-                <Loader2 className="h-4 w-4 animate-spin" /> Fetching your repositories...
+                <Loader2 className="h-4 w-4 animate-spin" /> {t.githubPage.fetchingRepos}
               </div>
             ) : repos.length === 0 ? (
-              <p className="text-xs text-neutral-500 py-3">No repositories found or access restricted.</p>
+              <p className="text-xs text-neutral-500 py-3">{t.githubPage.noRepos}</p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
                 {repos.map((r) => (
@@ -506,11 +538,11 @@ export default function GitHubPage() {
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-white truncate">{r.name}</span>
                         <span className="text-[10px] px-1.5 py-0.5 rounded border border-neutral-800 text-neutral-400">
-                          {r.private ? "private" : "public"}
+                          {r.private ? t.githubPage.visibilityPrivateShort : t.githubPage.visibilityPublicShort}
                         </span>
                       </div>
                       <p className="text-neutral-500 text-[11px] truncate mt-0.5">
-                        {r.description || "No description"}
+                        {r.description || t.githubPage.noDescription}
                       </p>
                     </div>
                     <a
@@ -518,7 +550,7 @@ export default function GitHubPage() {
                       target="_blank"
                       rel="noreferrer"
                       className="text-neutral-400 hover:text-white shrink-0 p-1"
-                      title="Open on GitHub"
+                      title={t.githubPage.openOnGitHub}
                     >
                       <ExternalLink className="h-3.5 w-3.5" />
                     </a>

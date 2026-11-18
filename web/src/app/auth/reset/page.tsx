@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/lib/i18n";
 import {
   AuthError,
   AuthNote,
@@ -14,6 +15,7 @@ import {
 // the form. A successful reset signs nobody in — the user signs in
 // fresh with the new password.
 export default function ResetPasswordPage() {
+  const { t } = useLanguage();
   const [token, setToken] = useState("");
   const [valid, setValid] = useState<boolean | null>(null);
   const [password, setPassword] = useState("");
@@ -45,7 +47,7 @@ export default function ResetPasswordPage() {
     e.preventDefault();
     setError(null);
     if (password !== confirm) {
-      setError("The passwords don't match.");
+      setError(t.auth.passwordsDontMatch);
       return;
     }
     setLoading(true);
@@ -60,7 +62,7 @@ export default function ResetPasswordPage() {
         setError(
           typeof (data as Record<string, unknown> | null)?.error === "string"
             ? ((data as Record<string, unknown>).error as string)
-            : "Could not reset the password. Please try again."
+            : t.auth.couldNotResetPassword
         );
         return;
       }
@@ -72,9 +74,9 @@ export default function ResetPasswordPage() {
 
   if (valid === null) {
     return (
-      <AuthShell title="Reset password" subtitle="Checking your reset link…">
+      <AuthShell title={t.auth.resetPassword} subtitle={t.auth.checkingResetLink}>
         <p className="text-center text-sm text-neutral-400">
-          Please wait a moment.
+          {t.common.pleaseWait}
         </p>
       </AuthShell>
     );
@@ -83,14 +85,14 @@ export default function ResetPasswordPage() {
   if (valid === false) {
     return (
       <AuthShell
-        title="Reset link expired"
-        subtitle="This reset link is invalid or has expired. Reset links work once and last 1 hour."
+        title={t.auth.resetLinkExpiredTitle}
+        subtitle={t.auth.resetLinkExpiredSubtitle}
       >
         <a
           href="/auth/forgot"
           className="block text-center text-xs text-neutral-400 underline hover:text-white"
         >
-          Request a new reset link
+          {t.auth.requestNewResetLink}
         </a>
       </AuthShell>
     );
@@ -98,18 +100,18 @@ export default function ResetPasswordPage() {
 
   return (
     <AuthShell
-      title="Set a new password"
-      subtitle="Choose a new password for your account."
+      title={t.auth.setNewPasswordTitle}
+      subtitle={t.auth.setNewPasswordSubtitle}
     >
       <AuthError message={error} />
       {done ? (
         <>
-          <AuthNote message="Password updated. Sign in with your new password." />
+          <AuthNote message={t.auth.passwordUpdated} />
           <a
             href="/auth/email"
             className="block text-center text-xs text-neutral-400 underline hover:text-white"
           >
-            Back to sign in
+            {t.common.backToSignIn}
           </a>
         </>
       ) : (
@@ -118,7 +120,7 @@ export default function ResetPasswordPage() {
             type="password"
             required
             minLength={8}
-            placeholder="New password (at least 8 characters)"
+            placeholder={t.auth.newPasswordPlaceholder}
             autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -128,14 +130,14 @@ export default function ResetPasswordPage() {
             type="password"
             required
             minLength={8}
-            placeholder="Confirm new password"
+            placeholder={t.auth.confirmNewPasswordPlaceholder}
             autoComplete="new-password"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
             className={INPUT_CLASS}
           />
           <button type="submit" disabled={loading} className={BUTTON_CLASS}>
-            {loading ? "Resetting…" : "Reset password"}
+            {loading ? t.auth.resetting : t.auth.resetPassword}
           </button>
         </form>
       )}

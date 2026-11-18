@@ -6,18 +6,31 @@ import { useEffect, useState } from "react";
 import { ChevronRight, MonitorPlay } from "lucide-react";
 import { fetchSessionUser } from "@/lib/auth-client";
 import { AppNavbar } from "@/components/AppNavbar";
+import { useLanguage, type Strings } from "@/lib/i18n";
 import { COURSE_CREATORS, totalCourseVideos, type CourseCreator } from "@/lib/courses/data";
 
-/** Total video hours for one creator, e.g. "52h 26m". */
-function creatorHours(creator: CourseCreator): string {
-  const seconds =
+/** Total video seconds for one creator (durations render via t.common.durationTotal). */
+function creatorTotalSeconds(creator: CourseCreator): number {
+  return (
     creator.playlists.reduce(
       (n, p) => n + p.videos.reduce((m, v) => m + (v.durationSeconds ?? 0), 0),
       0
-    ) + creator.oneShots.reduce((n, v) => n + (v.durationSeconds ?? 0), 0);
-  const h = Math.floor(seconds / 3600);
-  const m = Math.round((seconds % 3600) / 60);
-  return m === 0 ? `${h}h` : `${h}h ${m}m`;
+    ) + creator.oneShots.reduce((n, v) => n + (v.durationSeconds ?? 0), 0)
+  );
+}
+
+/** Creator tagline, translated via the coursesPage keys (data.ts keeps the English copy). */
+function creatorTagline(creator: CourseCreator, t: Strings): string {
+  switch (creator.slug) {
+    case "codewithharry":
+      return t.coursesPage.taglineCodeWithHarry;
+    case "code-with-mosh":
+      return t.coursesPage.taglineMosh;
+    case "apna-college":
+      return t.coursesPage.taglineApnaCollege;
+    default:
+      return creator.tagline;
+  }
 }
 
 function creatorVideoCount(creator: CourseCreator): number {
@@ -28,6 +41,7 @@ function creatorVideoCount(creator: CourseCreator): number {
 }
 
 function CreatorCard({ creator }: { creator: CourseCreator }) {
+  const { t } = useLanguage();
   return (
     <Link
       href={`/courses/${creator.slug}`}
@@ -37,7 +51,7 @@ function CreatorCard({ creator }: { creator: CourseCreator }) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={creator.avatarUrl}
-          alt={`${creator.name} channel picture`}
+          alt={t.coursesPage.channelPictureAlt(creator.name)}
           width={64}
           height={64}
           className="h-16 w-16 shrink-0 rounded-full object-cover ring-1 ring-neutral-800"
@@ -54,18 +68,16 @@ function CreatorCard({ creator }: { creator: CourseCreator }) {
         </p>
       </div>
       <p className="mt-4 text-sm leading-relaxed text-neutral-400">
-        {creator.tagline}
+        {creatorTagline(creator, t)}
       </p>
       <p className="mt-4 border-t border-neutral-800/70 pt-3 text-xs text-neutral-500">
         {creator.playlists.length === 0 ? (
-          <>One-shot videos • </>
+          <>{t.course.oneShotsHeading} • </>
         ) : (
-          <>
-            {creator.playlists.length}{" "}
-            {creator.playlists.length === 1 ? "course" : "courses"} •{" "}
-          </>
+          <>{t.coursesPage.countCourses(creator.playlists.length)} • </>
         )}
-        {creatorVideoCount(creator)} videos • {creatorHours(creator)}
+        {t.courses.countVideos(creatorVideoCount(creator))} •{" "}
+        {t.common.durationTotal(creatorTotalSeconds(creator))}
       </p>
     </Link>
   );
@@ -79,6 +91,7 @@ function CreatorCard({ creator }: { creator: CourseCreator }) {
  */
 export default function CoursesPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [checked, setChecked] = useState(false);
 
   useEffect(() => {
@@ -105,25 +118,25 @@ export default function CoursesPage() {
         <header>
           <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-neutral-500">
             <MonitorPlay className="h-4 w-4 text-neutral-400" />
-            Video courses
+            {t.coursesPage.videoCourses}
           </p>
           <h1 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-            Learn Python by watching<span className="text-[#d9a05b]">.</span>
+            {/* heroTitle ends in "." in every language; the dot stays in its own orange span. */}
+            {t.coursesPage.heroTitle.slice(0, -1)}
+            <span className="text-[#d9a05b]">.</span>
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-neutral-400 sm:text-base">
-            Full Python courses from three teachers — topic by topic, plus
-            one-shot videos when you want it all in one sitting. Pick a
-            teacher, then a course, and work down. The written tutorials
-            live on the Learn page.
+            {t.courses.intro}
           </p>
           <p className="mt-2 text-xs text-neutral-500">
-            {totalCourseVideos()} videos • MEGA &amp; Drive, YouTube for now
+            {t.courses.countVideos(totalCourseVideos())} •{" "}
+            {t.coursesPage.videoSourceNote}
           </p>
         </header>
 
         {COURSE_CREATORS.length === 0 ? (
           <p className="mt-10 rounded-2xl border border-neutral-800 bg-neutral-950 p-5 text-sm text-neutral-400">
-            Course videos are being added — check back shortly.
+            {t.coursesPage.emptyState}
           </p>
         ) : (
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, ChevronRight, Clock, Play } from "lucide-react";
 import { fetchSessionUser } from "@/lib/auth-client";
 import { AppNavbar } from "@/components/AppNavbar";
+import { useLanguage, type Strings } from "@/lib/i18n";
 import {
   COURSE_CREATORS,
   playlistListId,
@@ -13,10 +14,18 @@ import {
   type CoursePlaylist,
 } from "@/lib/courses/data";
 
-function formatHours(totalSeconds: number): string {
-  const h = Math.floor(totalSeconds / 3600);
-  const m = Math.round((totalSeconds % 3600) / 60);
-  return m === 0 ? `${h}h` : `${h}h ${m}m`;
+/** Creator tagline, translated via the coursesPage keys (data.ts keeps the English copy). */
+function creatorTagline(creator: CourseCreator, t: Strings): string {
+  switch (creator.slug) {
+    case "codewithharry":
+      return t.coursesPage.taglineCodeWithHarry;
+    case "code-with-mosh":
+      return t.coursesPage.taglineMosh;
+    case "apna-college":
+      return t.coursesPage.taglineApnaCollege;
+    default:
+      return creator.tagline;
+  }
 }
 
 function playlistSeconds(p: CoursePlaylist): number {
@@ -40,6 +49,7 @@ function CollectionCard({
   seconds: number;
   label: string;
 }) {
+  const { t } = useLanguage();
   return (
     <Link
       href={href}
@@ -62,7 +72,7 @@ function CollectionCard({
           </div>
         )}
         <span className="absolute bottom-2 right-2 rounded-md bg-black/80 px-2 py-0.5 text-xs font-medium text-white">
-          {count} {count === 1 ? "video" : "videos"}
+          {t.courses.countVideos(count)}
         </span>
       </div>
       <div className="p-4">
@@ -74,7 +84,7 @@ function CollectionCard({
         </h2>
         <p className="mt-2 flex items-center gap-1.5 text-xs text-neutral-400">
           <Clock className="h-3.5 w-3.5" />
-          {formatHours(seconds)} total
+          {t.common.durationTotal(seconds)} {t.course.totalLabel}
           <ChevronRight className="ml-auto h-4 w-4 text-neutral-600 transition group-hover:text-white" />
         </p>
       </div>
@@ -89,6 +99,7 @@ function CollectionCard({
  */
 export default function CreatorPage({ params }: { params: Promise<{ slug: string }> }) {
   const router = useRouter();
+  const { t } = useLanguage();
   const [checked, setChecked] = useState(false);
   const [slug, setSlug] = useState<string | null>(null);
 
@@ -131,14 +142,14 @@ export default function CreatorPage({ params }: { params: Promise<{ slug: string
           href="/courses"
           className="inline-flex items-center gap-1.5 text-sm text-neutral-400 transition hover:text-white"
         >
-          <ArrowLeft className="h-4 w-4" /> All teachers
+          <ArrowLeft className="h-4 w-4" /> {t.coursesPage.allTeachers}
         </Link>
 
         <header className="mt-5 flex items-start gap-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={creator.avatarUrl}
-            alt={`${creator.name} channel picture`}
+            alt={t.coursesPage.channelPictureAlt(creator.name)}
             width={80}
             height={80}
             className="h-20 w-20 shrink-0 rounded-full object-cover ring-1 ring-neutral-800"
@@ -152,7 +163,7 @@ export default function CreatorPage({ params }: { params: Promise<{ slug: string
               {creator.subscribers} • {creator.language}
             </p>
             <p className="mt-2 text-sm leading-relaxed text-neutral-400">
-              {creator.tagline}
+              {creatorTagline(creator, t)}
             </p>
           </div>
         </header>
@@ -167,7 +178,7 @@ export default function CreatorPage({ params }: { params: Promise<{ slug: string
               title={playlist.title}
               count={playlist.videos.length}
               seconds={playlistSeconds(playlist)}
-              label="Full course"
+              label={t.course.fullCourseLabel}
             />
           ))}
           {creator.oneShots.length > 0 && (
@@ -175,10 +186,10 @@ export default function CreatorPage({ params }: { params: Promise<{ slug: string
               creator={creator}
               href={`/courses/${creator.slug}/one-shots`}
               thumbVideoId={creator.oneShots[0]?.videoId}
-              title="One-shot videos on Python"
+              title={t.course.oneShotsHeading}
               count={creator.oneShots.length}
               seconds={oneShotSeconds}
-              label="One-shot videos"
+              label={t.course.oneShotsHeading}
             />
           )}
         </div>

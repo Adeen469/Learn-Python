@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/lib/i18n";
 import {
   AuthError,
   AuthNote,
@@ -15,6 +16,7 @@ import {
 //    then verify the emailed code before the account can sign in.
 // Google sign-in stays available on both tabs.
 export default function EmailAuthPage() {
+  const { t } = useLanguage();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [step, setStep] = useState<"form" | "code">("form");
   const [email, setEmail] = useState("");
@@ -73,11 +75,11 @@ export default function EmailAuthPage() {
       setError(
         typeof data.error === "string"
           ? data.error
-          : "Could not send the code. Please try again."
+          : t.auth.couldNotSendCode
       );
       return false;
     }
-    setNote(`Code sent to ${targetEmail}. It expires in 10 minutes.`);
+    setNote(t.auth.codeSentToWithExpiry(targetEmail));
     setCooldown(60);
     return true;
   }
@@ -104,7 +106,7 @@ export default function EmailAuthPage() {
         setError(
           typeof data.error === "string"
             ? data.error
-            : "Could not sign in. Please try again."
+            : t.auth.couldNotSignIn
         );
         return;
       }
@@ -133,13 +135,13 @@ export default function EmailAuthPage() {
         setError(
           typeof data.error === "string"
             ? data.error
-            : "Could not create the account. Please try again."
+            : t.auth.couldNotCreateAccount
         );
         return;
       }
       setOtpPurpose("signup");
       setStep("code");
-      setNote(`Code sent to ${email}. It expires in 10 minutes.`);
+      setNote(t.auth.codeSentToWithExpiry(email));
       setCooldown(60);
     } finally {
       setLoading(false);
@@ -161,7 +163,7 @@ export default function EmailAuthPage() {
         setError(
           typeof data.error === "string"
             ? data.error
-            : "The code is incorrect or has expired."
+            : t.auth.codeIncorrectOrExpired
         );
         return;
       }
@@ -182,13 +184,13 @@ export default function EmailAuthPage() {
 
   return (
     <AuthShell
-      title={step === "code" ? "Enter the code" : "Sign in with email"}
+      title={step === "code" ? t.auth.enterCodeTitle : t.auth.signInWithEmail}
       subtitle={
         step === "code"
-          ? `We sent a 6-digit code to ${email || "your email"}.`
+          ? t.auth.otpSubtitle(email, otpPurpose)
           : mode === "signin"
-            ? "Use your email and password, or a code instead."
-            : "Create your account — we'll verify your email first."
+            ? t.auth.signInEmailSubtitle
+            : t.auth.signUpEmailSubtitle
       }
     >
       <AuthError message={error} />
@@ -199,7 +201,7 @@ export default function EmailAuthPage() {
           <div
             className="mb-4 flex rounded-lg border border-neutral-800 bg-black p-0.5"
             role="group"
-            aria-label="Sign in or create account"
+            aria-label={t.auth.signInOrCreateAccount}
           >
             <button
               type="button"
@@ -207,7 +209,7 @@ export default function EmailAuthPage() {
               aria-pressed={mode === "signin"}
               className={tabClass(mode === "signin")}
             >
-              Sign in
+              {t.common.signIn}
             </button>
             <button
               type="button"
@@ -215,7 +217,7 @@ export default function EmailAuthPage() {
               aria-pressed={mode === "signup"}
               className={tabClass(mode === "signup")}
             >
-              Create account
+              {t.auth.createAccount}
             </button>
           </div>
 
@@ -224,7 +226,7 @@ export default function EmailAuthPage() {
               <input
                 type="email"
                 required
-                placeholder="Email address"
+                placeholder={t.common.emailAddress}
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -233,14 +235,14 @@ export default function EmailAuthPage() {
               <input
                 type="password"
                 required
-                placeholder="Password"
+                placeholder={t.common.password}
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className={INPUT_CLASS}
               />
               <button type="submit" disabled={loading} className={BUTTON_CLASS}>
-                {loading ? "Signing in…" : "Sign in"}
+                {loading ? t.auth.signingIn : t.common.signIn}
               </button>
               <p className="text-center text-xs text-neutral-500">
                 <button
@@ -252,11 +254,11 @@ export default function EmailAuthPage() {
                   }}
                   className="underline hover:text-white"
                 >
-                  Continue with an email code instead
+                  {t.auth.continueWithEmailCode}
                 </button>
                 {" · "}
                 <a href="/auth/forgot" className="underline hover:text-white">
-                  Forgot password?
+                  {t.auth.forgotPassword}
                 </a>
               </p>
             </form>
@@ -265,7 +267,7 @@ export default function EmailAuthPage() {
               <input
                 type="text"
                 required
-                placeholder="Your name"
+                placeholder={t.auth.namePlaceholder}
                 autoComplete="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -274,7 +276,7 @@ export default function EmailAuthPage() {
               <input
                 type="email"
                 required
-                placeholder="Email address"
+                placeholder={t.common.emailAddress}
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -284,14 +286,14 @@ export default function EmailAuthPage() {
                 type="password"
                 required
                 minLength={8}
-                placeholder="Password (at least 8 characters)"
+                placeholder={t.auth.passwordWithMinPlaceholder}
                 autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className={INPUT_CLASS}
               />
               <button type="submit" disabled={loading} className={BUTTON_CLASS}>
-                {loading ? "Creating account…" : "Create account"}
+                {loading ? t.auth.creatingAccount : t.auth.createAccount}
               </button>
             </form>
           )}
@@ -299,7 +301,7 @@ export default function EmailAuthPage() {
           <div className="mt-4 flex items-center gap-3">
             <span className="h-px flex-1 bg-neutral-800" />
             <span className="text-[11px] uppercase tracking-wider text-neutral-600">
-              or
+              {t.common.or}
             </span>
             <span className="h-px flex-1 bg-neutral-800" />
           </div>
@@ -307,7 +309,7 @@ export default function EmailAuthPage() {
             href="/api/auth/google"
             className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-neutral-800 bg-black px-4 py-2.5 text-sm font-medium text-white transition hover:border-neutral-600"
           >
-            Continue with Google
+            {t.auth.continueWithGoogle}
           </a>
         </>
       ) : (
@@ -317,25 +319,25 @@ export default function EmailAuthPage() {
             required
             inputMode="numeric"
             autoComplete="one-time-code"
-            placeholder="6-digit code"
+            placeholder={t.common.sixDigitCodeLabel}
             maxLength={6}
             value={code}
             onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
             className={`${INPUT_CLASS} text-center text-lg tracking-[0.4em]`}
           />
           <button type="submit" disabled={loading} className={BUTTON_CLASS}>
-            {loading ? "Verifying…" : "Verify and continue"}
+            {loading ? t.auth.verifying : t.auth.verifyAndContinue}
           </button>
           <p className="text-center text-xs text-neutral-500">
             {cooldown > 0 ? (
-              <>Resend code in {cooldown}s</>
+              <>{t.auth.resendCodeIn(cooldown)}</>
             ) : (
               <button
                 type="button"
                 onClick={() => void handleSendCode(email, otpPurpose)}
                 className="underline hover:text-white"
               >
-                Resend code
+                {t.auth.resendCode}
               </button>
             )}
             {" · "}
@@ -349,7 +351,7 @@ export default function EmailAuthPage() {
               }}
               className="underline hover:text-white"
             >
-              Back
+              {t.common.back}
             </button>
           </p>
         </form>

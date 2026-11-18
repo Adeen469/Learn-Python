@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/lib/i18n";
 import { KeyRound, ShieldCheck, ShieldOff } from "lucide-react";
 
 // Two-factor authentication management (Settings page).
@@ -35,6 +36,7 @@ function errorMessage(data: Record<string, unknown>, fallback: string): string {
 }
 
 export default function TwoFactorSettings() {
+  const { t } = useLanguage();
   const [status, setStatus] = useState<Status | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
@@ -76,7 +78,7 @@ export default function TwoFactorSettings() {
     try {
       const { res, data } = await postJson("/api/auth/2fa/setup");
       if (!res.ok) {
-        setError(errorMessage(data, "Could not start setup. Please try again."));
+        setError(errorMessage(data, t.settings.couldNotStartTwoFactorSetup));
         return;
       }
       setQr(typeof data.qrDataUrl === "string" ? data.qrDataUrl : null);
@@ -96,7 +98,7 @@ export default function TwoFactorSettings() {
         code: setupCode,
       });
       if (!res.ok) {
-        setError(errorMessage(data, "The code is incorrect. Try again."));
+        setError(errorMessage(data, t.settings.twoFactorCodeIncorrect));
         return;
       }
       const codes = data.backupCodes;
@@ -123,12 +125,12 @@ export default function TwoFactorSettings() {
         password: disablePassword,
       });
       if (!res.ok) {
-        setError(errorMessage(data, "Could not disable two-factor authentication."));
+        setError(errorMessage(data, t.settings.couldNotDisableTwoFactor));
         return;
       }
       setShowDisable(false);
       setDisablePassword("");
-      setNote("Two-factor authentication is off.");
+      setNote(t.settings.twoFactorOff);
       await refresh();
     } finally {
       setLoading(false);
@@ -142,7 +144,7 @@ export default function TwoFactorSettings() {
     try {
       const { res, data } = await postJson("/api/auth/2fa/backup-codes");
       if (!res.ok) {
-        setError(errorMessage(data, "Could not generate new backup codes."));
+        setError(errorMessage(data, t.settings.couldNotGenerateBackupCodes));
         return;
       }
       const codes = data.backupCodes;
@@ -162,7 +164,7 @@ export default function TwoFactorSettings() {
     <div className="rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-4">
       <span className="flex items-center gap-2 text-sm text-neutral-300">
         <ShieldCheck className="h-4 w-4 text-white" />
-        Two-factor authentication
+        {t.auth.twoFactorTitle}
       </span>
 
       {error && (
@@ -177,27 +179,26 @@ export default function TwoFactorSettings() {
       )}
 
       {status === null && (
-        <p className="mt-2 text-sm text-neutral-400">Loading…</p>
+        <p className="mt-2 text-sm text-neutral-400">{t.common.loading}</p>
       )}
 
       {status !== null && !status.signedIn && (
         <>
           <p className="mt-2 text-sm text-neutral-400">
-            Sign in to manage two-factor authentication for your account.
+            {t.settings.twoFactorSignInRequired}
           </p>
           <a
             href="/auth/email"
             className="mt-3 inline-block rounded-lg bg-white px-4 py-2 text-sm font-medium text-black transition hover:bg-neutral-200"
           >
-            Sign in
+            {t.common.signIn}
           </a>
         </>
       )}
 
       {status !== null && status.signedIn && status.auth === "google" && (
         <p className="mt-2 text-sm text-neutral-400">
-          You signed in with Google — two-factor authentication is managed
-          by your Google account, not here.
+          {t.settings.twoFactorGoogleManaged}
         </p>
       )}
 
@@ -208,8 +209,7 @@ export default function TwoFactorSettings() {
         backupCodes === null && (
           <>
             <p className="mt-2 text-sm text-neutral-400">
-              Add a second step to sign-in with Google Authenticator or an
-              email code. Your password alone will no longer be enough.
+              {t.settings.twoFactorIntro}
             </p>
             {qr === null ? (
               <button
@@ -218,19 +218,18 @@ export default function TwoFactorSettings() {
                 disabled={loading}
                 className={`mt-3 ${buttonClass}`}
               >
-                {loading ? "Starting…" : "Set up two-factor authentication"}
+                {loading ? t.settings.twoFactorStarting : t.settings.setUpTwoFactor}
               </button>
             ) : (
               <form onSubmit={(e) => void handleEnable(e)} className="mt-4 space-y-3">
                 <p className="text-xs leading-relaxed text-neutral-400">
-                  Scan this QR code with Google Authenticator (or any
-                  authenticator app), then enter the 6-digit code it shows.
+                  {t.settings.twoFactorScanQr}
                 </p>
                 {qr && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={qr}
-                    alt="Two-factor setup QR code"
+                    alt={t.settings.twoFactorQrAlt}
                     width={220}
                     height={220}
                     className="rounded-lg border border-neutral-800 bg-white p-2"
@@ -238,7 +237,7 @@ export default function TwoFactorSettings() {
                 )}
                 {secret && (
                   <p className="text-xs text-neutral-400">
-                    Can&apos;t scan? Enter this secret manually:{" "}
+                    {t.settings.cantScanEnterSecret}
                     <span className="select-all font-mono text-white">
                       {secret}
                     </span>
@@ -248,7 +247,7 @@ export default function TwoFactorSettings() {
                   type="text"
                   required
                   inputMode="numeric"
-                  placeholder="6-digit code"
+                  placeholder={t.common.sixDigitCodeLabel}
                   maxLength={6}
                   value={setupCode}
                   onChange={(e) =>
@@ -257,7 +256,7 @@ export default function TwoFactorSettings() {
                   className={`${inputClass} text-center tracking-[0.4em]`}
                 />
                 <button type="submit" disabled={loading} className={buttonClass}>
-                  {loading ? "Verifying…" : "Turn on two-factor authentication"}
+                  {loading ? t.auth.verifying : t.settings.turnOnTwoFactor}
                 </button>
               </form>
             )}
@@ -272,11 +271,10 @@ export default function TwoFactorSettings() {
           <>
             <p className="mt-2 flex items-center gap-2 text-sm text-white">
               <ShieldCheck className="h-4 w-4 text-emerald-400" />
-              Two-factor authentication is on.
+              {t.settings.twoFactorOn}
             </p>
             <p className="mt-1 text-sm text-neutral-400">
-              Sign-in asks for your authenticator code (or an email code)
-              after your password.
+              {t.settings.twoFactorOnExplainer}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               <button
@@ -286,7 +284,7 @@ export default function TwoFactorSettings() {
                 className="rounded-lg border border-neutral-800 bg-black px-3 py-2 text-xs text-neutral-300 transition hover:text-white"
               >
                 <KeyRound className="mr-1 inline h-3.5 w-3.5" />
-                New backup codes
+                {t.settings.newBackupCodes}
               </button>
               <button
                 type="button"
@@ -294,7 +292,7 @@ export default function TwoFactorSettings() {
                 className="rounded-lg border border-neutral-800 bg-black px-3 py-2 text-xs text-neutral-400 transition hover:text-red-400"
               >
                 <ShieldOff className="mr-1 inline h-3.5 w-3.5" />
-                Disable
+                {t.settings.disable}
               </button>
             </div>
             {showDisable && (
@@ -303,19 +301,19 @@ export default function TwoFactorSettings() {
                 className="mt-3 space-y-2"
               >
                 <p className="text-xs text-neutral-400">
-                  Enter your password to turn two-factor authentication off.
+                  {t.settings.disableTwoFactorPrompt}
                 </p>
                 <input
                   type="password"
                   required
-                  placeholder="Password"
+                  placeholder={t.common.password}
                   autoComplete="current-password"
                   value={disablePassword}
                   onChange={(e) => setDisablePassword(e.target.value)}
                   className={inputClass}
                 />
                 <button type="submit" disabled={loading} className={buttonClass}>
-                  {loading ? "Disabling…" : "Disable two-factor authentication"}
+                  {loading ? t.settings.disablingTwoFactor : t.settings.disableTwoFactor}
                 </button>
               </form>
             )}
@@ -324,10 +322,9 @@ export default function TwoFactorSettings() {
 
       {backupCodes !== null && (
         <div className="mt-3 rounded-lg border border-neutral-700 bg-black p-4">
-          <p className="text-sm font-medium text-white">Backup codes</p>
+          <p className="text-sm font-medium text-white">{t.settings.backupCodesTitle}</p>
           <p className="mt-1 text-xs leading-relaxed text-neutral-400">
-            Save these somewhere safe — each code works once, and this is
-            the only time they are shown.
+            {t.settings.backupCodesWarning}
           </p>
           <div className="mt-3 grid grid-cols-2 gap-1.5">
             {backupCodes.map((c) => (
@@ -344,12 +341,12 @@ export default function TwoFactorSettings() {
             onClick={() => {
               setBackupCodes(null);
               setCodesSaved(true);
-              setNote("Backup codes saved. Keep them somewhere safe.");
+              setNote(t.settings.backupCodesSaved);
             }}
             disabled={codesSaved}
             className={`mt-3 ${buttonClass}`}
           >
-            I&apos;ve saved these codes
+            {t.settings.savedBackupCodes}
           </button>
         </div>
       )}

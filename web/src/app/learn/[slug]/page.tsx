@@ -21,6 +21,13 @@ import {
   getLearnTutorial,
   type TutorialBlock,
 } from "@/lib/learn/index";
+import {
+  getReferenceTranslations,
+  getTutorialTranslations,
+  localizeReference,
+  localizeTutorial,
+} from "@/lib/learn/i18n";
+import { useLanguage, type Strings } from "@/lib/i18n";
 
 const COMPLETED_KEY = "lp_learn_completed";
 
@@ -33,7 +40,44 @@ function readCompleted(): string[] {
   }
 }
 
+// Section titles live in `sidebar.section*` (keyed by section id).
+function sectionTitle(t: Strings, sectionId: string, fallback: string): string {
+  switch (sectionId) {
+    case "python-tutorial":
+      return t.sidebar.sectionPythonTutorial;
+    case "python-classes":
+      return t.sidebar.sectionPythonClasses;
+    case "file-handling":
+      return t.sidebar.sectionFileHandling;
+    case "python-modules":
+      return t.sidebar.sectionPythonModules;
+    case "python-matplotlib":
+      return t.sidebar.sectionPythonMatplotlib;
+    case "machine-learning":
+      return t.sidebar.sectionMachineLearning;
+    case "python-dsa":
+      return t.sidebar.sectionPythonDsa;
+    case "python-mysql":
+      return t.sidebar.sectionPythonMysql;
+    case "python-mongodb":
+      return t.sidebar.sectionPythonMongodb;
+    case "python-cert":
+      return t.sidebar.sectionPythonCert;
+    case "python-how-to":
+      return t.sidebar.sectionPythonHowTo;
+    case "python-examples":
+      return t.sidebar.sectionPythonExamples;
+    case "python-reference":
+      return t.sidebar.sectionPythonReference;
+    case "module-reference":
+      return t.sidebar.sectionModuleReference;
+    default:
+      return fallback;
+  }
+}
+
 function CodeBlock({ code, output, title }: { code: string; output?: string; title?: string }) {
+  const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
   async function copy() {
     try {
@@ -48,7 +92,7 @@ function CodeBlock({ code, output, title }: { code: string; output?: string; tit
     <figure className="overflow-hidden rounded-xl border border-neutral-800 bg-black">
       <figcaption className="flex items-center justify-between gap-2 border-b border-neutral-800/70 bg-neutral-950 px-4 py-2">
         <span className="min-w-0 truncate text-xs font-medium text-neutral-400">
-          {title ?? "Example"}
+          {title ?? t.learnPage.example}
         </span>
         <button
           type="button"
@@ -56,7 +100,7 @@ function CodeBlock({ code, output, title }: { code: string; output?: string; tit
           className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-neutral-800 px-2.5 py-1 text-[11px] font-medium text-neutral-300 transition hover:border-neutral-600 hover:text-white"
         >
           {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-          {copied ? "Copied" : "Copy"}
+          {copied ? t.learnPage.copied : t.learnPage.copy}
         </button>
       </figcaption>
       <pre className="overflow-x-auto p-4 font-mono text-[13px] leading-relaxed text-neutral-100">
@@ -65,7 +109,7 @@ function CodeBlock({ code, output, title }: { code: string; output?: string; tit
       {output !== undefined && (
         <div className="border-t border-neutral-800/70 bg-neutral-950 px-4 py-3">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
-            Output
+            {t.learnPage.output}
           </p>
           <pre className="mt-1 overflow-x-auto font-mono text-[13px] leading-relaxed text-emerald-300/90">
             <code>{output}</code>
@@ -76,7 +120,7 @@ function CodeBlock({ code, output, title }: { code: string; output?: string; tit
   );
 }
 
-function renderBlock(block: TutorialBlock, index: number) {
+function renderBlock(block: TutorialBlock, index: number, t: Strings) {
   switch (block.type) {
     case "heading":
       return (
@@ -112,7 +156,7 @@ function renderBlock(block: TutorialBlock, index: number) {
         <aside key={index} className="mt-4 flex gap-3 rounded-xl border border-amber-500/25 bg-amber-500/5 px-4 py-3">
           <StickyNote className="mt-0.5 h-4 w-4 shrink-0 text-amber-300/90" />
           <p className="text-sm leading-relaxed text-neutral-200">
-            <span className="font-semibold text-amber-200">Note: </span>
+            <span className="font-semibold text-amber-200">{t.learnPage.noteLabel}</span>
             {block.text}
           </p>
         </aside>
@@ -122,7 +166,7 @@ function renderBlock(block: TutorialBlock, index: number) {
         <aside key={index} className="mt-4 flex gap-3 rounded-xl border border-sky-500/25 bg-sky-500/5 px-4 py-3">
           <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-sky-300/90" />
           <p className="text-sm leading-relaxed text-neutral-200">
-            <span className="font-semibold text-sky-200">Tip: </span>
+            <span className="font-semibold text-sky-200">{t.learnPage.tipLabel}</span>
             {block.text}
           </p>
         </aside>
@@ -138,6 +182,7 @@ function renderBlock(block: TutorialBlock, index: number) {
 export default function LearnTopicPage() {
   const params = useParams();
   const slug = String(params.slug ?? "");
+  const { lang, t, tutorialTitle, referenceTitle, roadmapName } = useLanguage();
   const [completedSlugs, setCompletedSlugs] = useState<string[]>([]);
 
   useEffect(() => {
@@ -145,22 +190,28 @@ export default function LearnTopicPage() {
   }, []);
 
   const topic = getLearnTopic(slug);
-  const tutorial = getLearnTutorial(slug);
-  const reference = !tutorial ? getLearnReference(slug) : null;
+  const rawTutorial = getLearnTutorial(slug);
+  const tutorial = rawTutorial
+    ? localizeTutorial(rawTutorial, getTutorialTranslations(lang)[rawTutorial.slug])
+    : null;
+  const rawReference = !rawTutorial ? getLearnReference(slug) : null;
+  const reference = rawReference
+    ? localizeReference(rawReference, getReferenceTranslations(lang)[rawReference.slug])
+    : null;
   const isDone = completedSlugs.includes(slug);
 
   if (!topic) {
     return (
       <div className="mx-auto max-w-2xl py-16 text-center">
-        <p className="text-lg font-semibold text-white">Topic not found</p>
+        <p className="text-lg font-semibold text-white">{t.learnPage.topicNotFound}</p>
         <p className="mt-2 text-sm text-neutral-400">
-          Pick a topic from the sidebar — every Python topic lives there.
+          {t.learnPage.topicNotFoundHint}
         </p>
         <Link
           href="/learn/python-home"
           className="mt-6 inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-black transition hover:bg-neutral-200"
         >
-          <ArrowLeft className="h-4 w-4" /> Python HOME
+          <ArrowLeft className="h-4 w-4" /> {roadmapName("Python HOME")}
         </Link>
       </div>
     );
@@ -186,14 +237,14 @@ export default function LearnTopicPage() {
   return (
     <article className="mx-auto max-w-3xl">
       <nav className="flex items-center gap-1.5 text-xs text-neutral-500">
-        <span>{topic.sectionTitle}</span>
+        <span>{sectionTitle(t, topic.sectionId, topic.sectionTitle)}</span>
         <ChevronRight className="h-3.5 w-3.5" />
-        <span className="text-neutral-300">{topic.title}</span>
+        <span className="text-neutral-300">{tutorial?.title ?? reference?.title ?? tutorialTitle(slug, topic.title)}</span>
       </nav>
 
       <header className="mt-4">
         <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-          {tutorial?.title ?? reference?.title ?? topic.title}
+          {tutorial?.title ?? reference?.title ?? tutorialTitle(slug, topic.title)}
         </h1>
         {tutorial && (
           <p className="mt-3 text-[15px] leading-relaxed text-neutral-400 sm:text-base">
@@ -212,11 +263,11 @@ export default function LearnTopicPage() {
           >
             {isDone ? (
               <>
-                <CheckCircle2 className="h-4 w-4" /> Completed
+                <CheckCircle2 className="h-4 w-4" /> {t.common.completed}
               </>
             ) : (
               <>
-                <Check className="h-4 w-4" /> Mark as complete
+                <Check className="h-4 w-4" /> {t.course.markAsComplete}
               </>
             )}
           </button>
@@ -224,7 +275,7 @@ export default function LearnTopicPage() {
             href="/editor"
             className="inline-flex items-center gap-2 rounded-xl border border-neutral-800 bg-neutral-950 px-3.5 py-2 text-sm font-medium text-neutral-200 transition hover:border-neutral-600 hover:text-white"
           >
-            <Code2 className="h-4 w-4" /> Try it in the editor
+            <Code2 className="h-4 w-4" /> {t.learnPage.tryInEditor}
           </Link>
         </div>
       </header>
@@ -232,10 +283,10 @@ export default function LearnTopicPage() {
       {tutorial ? (
         <>
           <div className="mt-8">
-            {tutorial.blocks.map((block, i) => renderBlock(block, i))}
+            {tutorial.blocks.map((block, i) => renderBlock(block, i, t))}
           </div>
           <section className="mt-10 rounded-2xl border border-neutral-800 bg-neutral-950 p-5">
-            <h2 className="text-base font-bold text-white">Summary</h2>
+            <h2 className="text-base font-bold text-white">{t.learnPage.summary}</h2>
             <ul className="mt-3 space-y-2">
               {tutorial.summary.map((line, i) => (
                 <li key={i} className="flex gap-2.5 text-sm leading-relaxed text-neutral-300">
@@ -244,7 +295,7 @@ export default function LearnTopicPage() {
                 </li>
               ))}
             </ul>
-            <h3 className="mt-6 text-base font-bold text-white">Practice</h3>
+            <h3 className="mt-6 text-base font-bold text-white">{t.learnPage.practice}</h3>
             <ol className="mt-3 space-y-2">
               {tutorial.practice.map((task, i) => (
                 <li key={i} className="flex gap-2.5 text-sm leading-relaxed text-neutral-300">
@@ -256,8 +307,7 @@ export default function LearnTopicPage() {
               ))}
             </ol>
             <p className="mt-4 text-xs text-neutral-500">
-              Try each task in the Code Editor — reading is not enough, typing
-              it yourself is what makes it stick.
+              {t.learnPage.practiceHint}
             </p>
           </section>
         </>
@@ -275,15 +325,13 @@ export default function LearnTopicPage() {
             <CodeBlock
               code={reference.exampleCode}
               output={reference.exampleOutput}
-              title="Example"
+              title={t.learnPage.example}
             />
           </div>
         </div>
       ) : (
         <p className="mt-8 rounded-xl border border-neutral-800 bg-neutral-950 p-4 text-sm leading-relaxed text-neutral-400">
-          The written tutorial for this topic is being prepared. Pick
-          another topic from the sidebar for now — this one will appear
-          here once it is ready.
+          {t.learnPage.tutorialBeingPrepared}
         </p>
       )}
 
@@ -295,10 +343,10 @@ export default function LearnTopicPage() {
           >
             <span className="flex items-center gap-1 text-xs font-medium text-neutral-500">
               <ChevronLeft className="h-3.5 w-3.5 transition group-hover:-translate-x-0.5" />
-              Previous
+              {t.learnPage.previous}
             </span>
             <span className="mt-1.5 block text-sm font-semibold text-white">
-              {prevTopic.title}
+              {tutorialTitle(prevTopic.slug, referenceTitle(prevTopic.slug, prevTopic.title))}
             </span>
           </Link>
         ) : (
@@ -310,11 +358,10 @@ export default function LearnTopicPage() {
             className="group rounded-2xl border border-neutral-800 bg-neutral-950 p-4 text-right transition hover:border-neutral-600"
           >
             <span className="flex items-center justify-end gap-1 text-xs font-medium text-neutral-500">
-              Next
-              <ChevronRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
+              {t.lesson.nextLesson}
             </span>
             <span className="mt-1.5 block text-sm font-semibold text-white">
-              {nextTopic.title}
+              {tutorialTitle(nextTopic.slug, referenceTitle(nextTopic.slug, nextTopic.title))}
             </span>
           </Link>
         ) : (
@@ -324,7 +371,7 @@ export default function LearnTopicPage() {
 
       <p className="mt-8 flex items-center justify-center gap-2 text-center text-xs text-neutral-600">
         <Link href="/learn/python-home" className="transition hover:text-neutral-300">
-          Back to Python HOME
+          {t.learnPage.backToPythonHome(roadmapName("Python HOME"))}
         </Link>
         <ArrowRight className="h-3.5 w-3.5" />
       </p>

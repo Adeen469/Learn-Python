@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/lib/i18n";
 import {
   AuthError,
   AuthNote,
@@ -15,6 +16,7 @@ import {
 type Method = "totp" | "email" | "backup";
 
 export default function TwoFactorPage() {
+  const { t } = useLanguage();
   const [pending, setPending] = useState<boolean | null>(null);
   const [method, setMethod] = useState<Method>("totp");
   const [code, setCode] = useState("");
@@ -55,12 +57,12 @@ export default function TwoFactorPage() {
         setError(
           typeof (data as Record<string, unknown> | null)?.error === "string"
             ? ((data as Record<string, unknown>).error as string)
-            : "Could not send the code. Please try again."
+            : t.auth.couldNotSendCode
         );
         return;
       }
       setEmailSent(true);
-      setNote("Code sent to your email. It expires in 10 minutes.");
+      setNote(t.auth.codeSentToYourEmailWithExpiry);
       setCooldown(60);
     } finally {
       setLoading(false);
@@ -83,7 +85,7 @@ export default function TwoFactorPage() {
         setError(
           typeof (data as Record<string, unknown> | null)?.error === "string"
             ? ((data as Record<string, unknown>).error as string)
-            : "The code is incorrect or has expired."
+            : t.auth.codeIncorrectOrExpired
         );
         return;
       }
@@ -95,9 +97,9 @@ export default function TwoFactorPage() {
 
   if (pending === null) {
     return (
-      <AuthShell title="Two-factor authentication" subtitle="Checking your sign-in step…">
+      <AuthShell title={t.auth.twoFactorTitle} subtitle={t.auth.checkingSignInStep}>
         <p className="text-center text-sm text-neutral-400">
-          Please wait a moment.
+          {t.common.pleaseWait}
         </p>
       </AuthShell>
     );
@@ -106,14 +108,14 @@ export default function TwoFactorPage() {
   if (pending === false) {
     return (
       <AuthShell
-        title="Sign-in step expired"
-        subtitle="This two-factor step only lasts 10 minutes. Sign in again to continue."
+        title={t.auth.signInStepExpiredTitle}
+        subtitle={t.auth.signInStepExpiredSubtitle}
       >
         <a
           href="/auth/email"
           className="block text-center text-xs text-neutral-400 underline hover:text-white"
         >
-          Back to sign in
+          {t.common.backToSignIn}
         </a>
       </AuthShell>
     );
@@ -126,8 +128,8 @@ export default function TwoFactorPage() {
 
   return (
     <AuthShell
-      title="Two-factor authentication"
-      subtitle="Enter the code from your authenticator app to finish signing in."
+      title={t.auth.twoFactorTitle}
+      subtitle={t.auth.twoFactorEnterCodeSubtitle}
     >
       <AuthError message={error} />
       <AuthNote message={note} />
@@ -135,7 +137,7 @@ export default function TwoFactorPage() {
       <div
         className="mb-4 flex rounded-lg border border-neutral-800 bg-black p-0.5"
         role="group"
-        aria-label="Second-factor method"
+        aria-label={t.auth.secondFactorMethodLabel}
       >
         <button
           type="button"
@@ -148,7 +150,7 @@ export default function TwoFactorPage() {
           aria-pressed={method === "totp"}
           className={tabClass(method === "totp")}
         >
-          Authenticator
+          {t.auth.methodAuthenticator}
         </button>
         <button
           type="button"
@@ -161,7 +163,7 @@ export default function TwoFactorPage() {
           aria-pressed={method === "email"}
           className={tabClass(method === "email")}
         >
-          Email code
+          {t.auth.methodEmailCode}
         </button>
         <button
           type="button"
@@ -174,14 +176,14 @@ export default function TwoFactorPage() {
           aria-pressed={method === "backup"}
           className={tabClass(method === "backup")}
         >
-          Backup code
+          {t.auth.methodBackupCode}
         </button>
       </div>
 
       {method === "email" && !emailSent ? (
         <div className="space-y-3">
           <p className="text-xs leading-relaxed text-neutral-400">
-            We&apos;ll email a 6-digit code to the address on your account.
+            {t.auth.emailCodeWillBeSent}
           </p>
           <button
             type="button"
@@ -189,7 +191,7 @@ export default function TwoFactorPage() {
             disabled={loading}
             className={BUTTON_CLASS}
           >
-            {loading ? "Sending…" : "Send email code"}
+            {loading ? t.auth.sending : t.auth.sendEmailCode}
           </button>
         </div>
       ) : (
@@ -200,7 +202,7 @@ export default function TwoFactorPage() {
             inputMode={method === "backup" ? "text" : "numeric"}
             autoComplete="one-time-code"
             placeholder={
-              method === "backup" ? "XXXX-XXXX" : "6-digit code"
+              method === "backup" ? "XXXX-XXXX" : t.common.sixDigitCodeLabel
             }
             maxLength={method === "backup" ? 9 : 6}
             value={code}
@@ -214,27 +216,26 @@ export default function TwoFactorPage() {
             className={`${INPUT_CLASS} text-center text-lg tracking-[0.4em]`}
           />
           <button type="submit" disabled={loading} className={BUTTON_CLASS}>
-            {loading ? "Verifying…" : "Verify and sign in"}
+            {loading ? t.auth.verifying : t.auth.verifyAndSignIn}
           </button>
           {method === "email" && (
             <p className="text-center text-xs text-neutral-500">
               {cooldown > 0 ? (
-                <>Resend code in {cooldown}s</>
+                <>{t.auth.resendCodeIn(cooldown)}</>
               ) : (
                 <button
                   type="button"
                   onClick={() => void handleSendEmailCode()}
                   className="underline hover:text-white"
                 >
-                  Resend code
+                  {t.auth.resendCode}
                 </button>
               )}
             </p>
           )}
           {method === "backup" && (
             <p className="text-center text-xs leading-relaxed text-neutral-500">
-              Backup codes work once. Find them where you saved them when
-              you turned on two-factor authentication.
+              {t.auth.backupCodesWorkOnce}
             </p>
           )}
         </form>

@@ -21,14 +21,7 @@ import {
 } from "@/lib/progress";
 import { LEARN_SECTIONS } from "@/lib/learn/sidebar";
 import PillNav from "@/components/PillNav";
-
-// Three items, everywhere: Learn (the W3Schools-style main page),
-// Video Courses (Harry / Apna College / Mosh), Code Editor.
-const navLinks = [
-  { href: "/learn/python-home", label: "Learn", icon: BookOpenText, match: "/learn" },
-  { href: "/courses", label: "Video Courses", icon: MonitorPlay, match: "/courses" },
-  { href: "/editor", label: "Code Editor", icon: Code2, match: "/editor" },
-];
+import { useLanguage } from "@/lib/i18n";
 
 // Reads the same localStorage stores the pages themselves use, so the
 // numbers are real, not hardcoded.
@@ -54,6 +47,7 @@ function ProfileMenuItems({
   onRoadmap: () => void;
   onClose: () => void;
 }) {
+  const { t } = useLanguage();
   return (
     <div data-profile-menu className="p-1.5">
       {user ? (
@@ -83,7 +77,7 @@ function ProfileMenuItems({
           href="/api/auth/google"
           className="mb-1 flex w-full items-center gap-2.5 rounded-lg bg-white px-3 py-2 text-left text-sm font-semibold text-black hover:bg-neutral-200 transition"
         >
-          Sign in with Google
+          {t.auth.continueWithGoogle}
         </a>
       )}
       <Link
@@ -98,7 +92,7 @@ function ProfileMenuItems({
         onClick={onClose}
         className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-neutral-200 hover:bg-neutral-900 hover:text-white transition"
       >
-        <Settings className="h-4 w-4 text-neutral-400" /> Settings
+        <Settings className="h-4 w-4 text-neutral-400" /> {t.common.settings}
       </Link>
       {user && (
         <button
@@ -109,7 +103,7 @@ function ProfileMenuItems({
           }}
           className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-neutral-200 hover:bg-neutral-900 hover:text-white transition"
         >
-          <Map className="h-4 w-4 text-neutral-400" /> Roadmap
+          <Map className="h-4 w-4 text-neutral-400" /> {t.common.roadmap}
         </button>
       )}
       {user && (
@@ -118,7 +112,7 @@ function ProfileMenuItems({
           onClick={onSignOut}
           className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-neutral-200 hover:bg-neutral-900 hover:text-white transition"
         >
-          <LogOut className="h-4 w-4 text-neutral-400" /> Sign out
+          <LogOut className="h-4 w-4 text-neutral-400" /> {t.common.signOut}
         </button>
       )}
     </div>
@@ -126,6 +120,7 @@ function ProfileMenuItems({
 }
 
 export function AppNavbar() {
+  const { t } = useLanguage();
   const pathname = usePathname();
   const [progress, setProgress] = useState<ProgressState>(() => emptyProgress(todayKey()));
   const [completedTopics, setCompletedTopics] = useState<string[]>([]);
@@ -133,6 +128,15 @@ export function AppNavbar() {
   const [user, setUser] = useState<SessionUser | null>(null);
   const [roadmapOpen, setRoadmapOpen] = useState(false);
   const [roadmapHintOpen, setRoadmapHintOpen] = useState(false);
+
+  // Three items, everywhere: Learn (the W3Schools-style main page),
+  // Courses (Harry / Apna College / Mosh), Code Editor. Defined here
+  // (not module-level) so the labels can come from `t`.
+  const navLinks = [
+    { href: "/learn/python-home", label: t.tabs.learn, icon: BookOpenText, match: "/learn" },
+    { href: "/courses", label: t.tabs.courses, icon: MonitorPlay, match: "/courses" },
+    { href: "/editor", label: t.editor.title, icon: Code2, match: "/editor" },
+  ];
 
   useEffect(() => {
     let cancelled = false;
@@ -305,7 +309,7 @@ export function AppNavbar() {
             <div className="flex items-center gap-2 md:hidden">
               <Link
                 href="/settings"
-                aria-label={`Streak: ${streak} days`}
+                aria-label={t.learn.streakChip(streak)}
                 className="flex shrink-0 items-center gap-1 rounded-full border border-neutral-800 bg-neutral-950 px-2.5 py-1.5 text-xs font-semibold text-white"
               >
                 <Flame className="h-3.5 w-3.5" /> {streak}
@@ -314,7 +318,7 @@ export function AppNavbar() {
                 href={`/learn/${nextSlug}`}
                 className="flex shrink-0 items-center gap-1 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-black hover:bg-neutral-200 transition"
               >
-                Continue <ArrowRight className="h-3.5 w-3.5" />
+                {t.navbar.continue} <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
             {/* Profile dropdown (top-right). Shows the signed-in Google
@@ -325,7 +329,7 @@ export function AppNavbar() {
                 type="button"
                 data-profile-trigger
                 onClick={() => setProfileOpen((v) => !v)}
-                aria-label="Profile menu"
+                aria-label={t.navbar.profileMenu}
                 aria-expanded={profileOpen}
                 className={`${profileTriggerClass} h-8 w-8 overflow-hidden`}
               >
@@ -387,7 +391,7 @@ export function AppNavbar() {
             type="button"
             data-profile-trigger
             onClick={() => setProfileOpen((v) => !v)}
-            aria-label="Profile menu"
+            aria-label={t.navbar.profileMenu}
             aria-expanded={profileOpen}
             className={`${profileTriggerClass} h-11 w-11 overflow-hidden`}
           >
