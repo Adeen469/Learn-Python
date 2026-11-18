@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
+  APP_EXCHANGE_KIND,
+  APP_EXCHANGE_MAX_AGE_SECONDS,
+  APP_STATE_KIND,
+  buildAppAuthReturnUrl,
   buildSessionPayload,
   clearCookieOptions,
   getGoogleConfig,
@@ -19,6 +23,8 @@ import {
   SESSION_COOKIE,
   sessionCookieOptions,
   signSession,
+  signToken,
+  verifyToken,
 } from "@/lib/auth";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
@@ -105,7 +111,33 @@ export async function GET(req: NextRequest) {
 
   const code = params.get("code");
   const state = params.get("state");
-  if (!isValidCode(code) || !isValidState(state)) {
+
+  // App mode: the state is a signed token (v1p.) carrying the PKCE
+  // verifier. It arrives here from Chrome, where the state/verifier
+  // cookies set at /api/auth/google never landed — so there is no
+  // cookie to compare against. Verify the signature instead; a v1p.
+  // token of any other kind (e.g. a 2FA pending token) is rejected.
+  // Browser mode keeps the cookie check below, untouched.
+  let appVerifier: string | null = null;
+  if (state && state.startsWith("v1p.")) {
+    const verified = await verifyToken(secret, state);
+    if (
+      !verified.ok ||
+      verified.payload.kind !== APP_STATE_KIND ||
+      typeof verified.payload.verifier !== "string"
+    ) {
+      console.log(
+        JSON.stringify({ event: "auth_state_mismatch", endpoint: "callback" })
+      );
+      return NextResponse.json(
+        { error: "Invalid sign-in response." },
+        { status: 400 }
+      );
+    }
+    appVerifier = verified.payload.verifier;
+  }
+
+  if (!isValidCode(code) || (!appVerifier && !isValidState(state))) {
     console.log(
       JSON.stringify({ event: "auth_bad_params", endpoint: "callback" })
     );
@@ -118,10 +150,11 @@ export async function GET(req: NextRequest) {
   // State must match the cookie exactly (constant-time compare inside
   // subtle.verify is not needed here — both values are random and the
   // comparison is a plain equality on secret strings; a mismatch only
-  // ever yields a 400, never a session).
+  // ever yields a 400, never a session). Skipped in app mode: the
+  // signed state above IS the validation there.
   const stateCookie = req.cookies.get(OAUTH_STATE_COOKIE)?.value;
-  const verifier = req.cookies.get(OAUTH_VERIFIER_COOKIE)?.value;
-  if (!stateCookie || stateCookie !== state || !verifier) {
+  const verifier = appVerifier ?? req.cookies.get(OAUTH_VERIFIER_COOKIE)?.value;
+  if (!verifier || (!appVerifier && (!stateCookie || stateCookie !== state))) {
     console.log(
       JSON.stringify({ event: "auth_state_mismatch", endpoint: "callback" })
     );
@@ -250,6 +283,29 @@ export async function GET(req: NextRequest) {
       ? profile.name
       : email.split("@")[0];
   const picture = sanitizePictureUrl(profile.picture);
+
+  if (appVerifier) {
+    // App mode: a session cookie set here would land in Chrome's jar,
+    // not the app's WebView. Hand the app a short-lived signed
+    // exchange code instead; the app swaps it for a session inside its
+    // own WebView at /api/auth/app-exchange. The code carries only the
+    // profile, never the signed session itself.
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    const exchangeCode = await signToken(secret, {
+      kind: APP_EXCHANGE_KIND,
+      email,
+      name,
+      picture,
+      auth: "google",
+      mfa: false,
+      iat: nowSeconds,
+      exp: nowSeconds + APP_EXCHANGE_MAX_AGE_SECONDS,
+    });
+    console.log(
+      JSON.stringify({ event: "auth_login_app", endpoint: "callback", email })
+    );
+    return NextResponse.redirect(buildAppAuthReturnUrl(exchangeCode));
+  }
 
   const token = await signSession(
     secret,

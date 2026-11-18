@@ -241,6 +241,20 @@ function buildGoogleAuthUrl({ clientId, redirectUri, state, codeChallenge }) {
   return url.toString();
 }
 
+// Mirrors the Android-app sign-in helpers in auth.ts: the app's WebView
+// appends "LearnPythonApp/" to its user agent, and the callback returns
+// to the app through the learnpython://auth deep link.
+const APP_USER_AGENT_MARKER = "LearnPythonApp/";
+const APP_AUTH_SCHEME = "learnpython";
+
+function isAppRequest(userAgent) {
+  return !!userAgent && userAgent.includes(APP_USER_AGENT_MARKER);
+}
+
+function buildAppAuthReturnUrl(code) {
+  return `${APP_AUTH_SCHEME}://auth?code=${encodeURIComponent(code)}`;
+}
+
 function sessionCookieOptions(isSecure) {
   return {
     httpOnly: true,
@@ -550,4 +564,85 @@ test("random state/verifier values are unique and URL-safe", () => {
   assert.notEqual(a, b);
   assert.match(a, /^[A-Za-z0-9_-]+$/);
   assert.equal(randomBase64url(64).length > 80, true);
+});
+
+test("the app user-agent marker is detected, a plain browser is not", () => {
+  const appUa =
+    "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/131.0.0.0 Mobile Safari/537.36 LearnPythonApp/1.0";
+  const browserUa =
+    "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36";
+  assert.equal(isAppRequest(appUa), true);
+  assert.equal(isAppRequest(browserUa), false);
+  assert.equal(isAppRequest(null), false);
+  assert.equal(isAppRequest(""), false);
+});
+
+test("the app deep-link return URL carries the code on the learnpython scheme", () => {
+  const url = buildAppAuthReturnUrl("v1p.abc.def");
+  assert.equal(url.startsWith("learnpython://auth?code="), true);
+  assert.equal(new URL(url).searchParams.get("code"), "v1p.abc.def");
+});
+
+test("an app-state token round-trips and carries the PKCE verifier", async () => {
+  const verifier = randomBase64url(64);
+  const state = await signToken(SECRET, {
+    kind: "app-state",
+    nonce: randomBase64url(16),
+    verifier,
+    iat: 1_700_000_000,
+    exp: 1_700_000_000 + 600,
+  });
+  const checked = await verifyToken(SECRET, state, 1_700_000_100);
+  assert.equal(checked.ok, true);
+  assert.equal(checked.payload.kind, "app-state");
+  assert.equal(checked.payload.verifier, verifier);
+  // Expired state is rejected.
+  assert.equal(
+    (await verifyToken(SECRET, state, 1_700_000_000 + 601)).ok,
+    false
+  );
+  // A token of another kind (2FA pending) is NOT an app state.
+  const pending = await signToken(SECRET, {
+    kind: "2fa",
+    email: USER.email,
+    iat: 1_700_000_000,
+    exp: 1_700_000_000 + 600,
+  });
+  const asState = await verifyToken(SECRET, pending, 1_700_000_100);
+  assert.equal(asState.ok, true);
+  assert.notEqual(asState.payload.kind, "app-state");
+});
+
+test("an app-state token is not a valid browser state (it has dots)", () => {
+  // Documents why the callback must branch on the v1p. prefix BEFORE
+  // the isValidState gate — otherwise every app sign-in would 400.
+  const state = "v1p.abc.def";
+  assert.equal(isValidState(state), false);
+  assert.equal(isValidState(randomBase64url(32)), true);
+});
+
+test("an app-exchange code round-trips and expires in 5 minutes", async () => {
+  const code = await signToken(SECRET, {
+    kind: "app-exchange",
+    email: USER.email,
+    name: USER.name,
+    picture: null,
+    auth: "google",
+    mfa: false,
+    iat: 1_700_000_000,
+    exp: 1_700_000_000 + 300,
+  });
+  const checked = await verifyToken(SECRET, code, 1_700_000_100);
+  assert.equal(checked.ok, true);
+  assert.equal(checked.payload.kind, "app-exchange");
+  assert.equal(checked.payload.email, USER.email);
+  // Tampered or expired codes are rejected.
+  const tampered = code.slice(0, -2) + "AA";
+  assert.equal((await verifyToken(SECRET, tampered, 1_700_000_100)).ok, false);
+  assert.equal(
+    (await verifyToken(SECRET, code, 1_700_000_000 + 301)).ok,
+    false
+  );
+  // The exchange code never verifies as a session.
+  assert.equal((await verifySession(SECRET, code, 1_700_000_100)).ok, false);
 });

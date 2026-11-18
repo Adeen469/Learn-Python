@@ -1,16 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
+  APP_STATE_KIND,
+  APP_STATE_MAX_AGE_SECONDS,
   buildGoogleAuthUrl,
   getGoogleConfig,
   getRedirectUri,
   getRequestOrigin,
   getSessionSecret,
+  isAppRequest,
   isSecureOrigin,
   oauthCookieOptions,
   OAUTH_STATE_COOKIE,
   OAUTH_VERIFIER_COOKIE,
   pkceChallenge,
   randomBase64url,
+  signToken,
 } from "@/lib/auth";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
@@ -60,6 +64,31 @@ export async function GET(req: NextRequest) {
   const googleConfig = getGoogleConfig();
   if (!googleConfig) return SERVICE_UNAVAILABLE();
   const { clientId } = googleConfig;
+
+  // App mode (Android WebView wrapper): the sign-in continues in a
+  // Chrome Custom Tab and the callback runs there, in a different
+  // cookie jar from the app's WebView — so state/verifier cookies set
+  // here would never reach the callback. Instead the SIGNED state
+  // carries the nonce + PKCE verifier through Google itself. No
+  // cookies are set in this branch.
+  if (isAppRequest(req.headers.get("user-agent"))) {
+    const secret = getSessionSecret();
+    if (!secret) return SERVICE_UNAVAILABLE();
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    const verifier = randomBase64url(64);
+    const challenge = await pkceChallenge(verifier);
+    const state = await signToken(secret, {
+      kind: APP_STATE_KIND,
+      nonce: randomBase64url(16),
+      verifier,
+      iat: nowSeconds,
+      exp: nowSeconds + APP_STATE_MAX_AGE_SECONDS,
+    });
+    console.log(JSON.stringify({ event: "auth_start_app", endpoint: "google" }));
+    return NextResponse.redirect(
+      buildGoogleAuthUrl({ clientId, redirectUri, state, codeChallenge: challenge })
+    );
+  }
 
   const state = randomBase64url(32);
   const verifier = randomBase64url(64);

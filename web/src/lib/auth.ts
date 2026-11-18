@@ -42,6 +42,52 @@ export const GOOGLE_USERINFO_URL =
 export const GOOGLE_SCOPE = "openid email profile";
 
 // ---------------------------------------------------------------------------
+// Android app sign-in (deep-link return).
+//
+// The app is a WebView wrapper. Google sign-in starts in the WebView but
+// Google itself opens in a Chrome Custom Tab, and the callback therefore
+// runs in Chrome — a different cookie jar from the WebView. The state +
+// PKCE verifier cookies set at /api/auth/google never reach the callback
+// there, so the plain flow always fails in the app with
+// "Invalid sign-in response" (auth_state_mismatch).
+//
+// App mode fixes this by carrying everything through Google in the
+// signed `state` itself, and by returning to the app through a deep
+// link instead of a cookie:
+//   1. /api/auth/google sees the app's user-agent marker and issues a
+//      SIGNED state (v1p. token) holding the nonce + PKCE verifier.
+//      No state/verifier cookies are set — they could never arrive.
+//   2. The callback verifies the signed state (no cookie needed),
+//      exchanges the code with Google, and redirects to
+//      learnpython://auth?code=<exchange-code>.
+//   3. The app opens that deep link and loads /api/auth/app-exchange
+//      in its own WebView, which sets the session cookie THERE and
+//      redirects home.
+// The exchange code carries only the profile, never the signed session
+// itself; it is HMAC-signed and expires in 5 minutes. The state token
+// carries the PKCE verifier — it is single-use in practice (one code
+// per flow) and expires in 10 minutes; it appears in the Custom Tab's
+// URL, so it must never be logged.
+// ---------------------------------------------------------------------------
+
+/** Suffix the Android app appends to its WebView user agent. */
+export const APP_USER_AGENT_MARKER = "LearnPythonApp/";
+/** Custom scheme the app listens on for the sign-in return. */
+export const APP_AUTH_SCHEME = "learnpython";
+export const APP_STATE_KIND = "app-state";
+export const APP_EXCHANGE_KIND = "app-exchange";
+export const APP_STATE_MAX_AGE_SECONDS = 10 * 60; // 10 minutes
+export const APP_EXCHANGE_MAX_AGE_SECONDS = 5 * 60; // 5 minutes
+
+export function isAppRequest(userAgent: string | null): boolean {
+  return !!userAgent && userAgent.includes(APP_USER_AGENT_MARKER);
+}
+
+export function buildAppAuthReturnUrl(code: string): string {
+  return `${APP_AUTH_SCHEME}://auth?code=${encodeURIComponent(code)}`;
+}
+
+// ---------------------------------------------------------------------------
 // base64url (Buffer-based; server runtime is Node)
 // ---------------------------------------------------------------------------
 
