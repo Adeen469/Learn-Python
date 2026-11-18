@@ -78,16 +78,33 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL("/auth/email", origin));
   }
 
+  const user = {
+    email: p.email as string,
+    name: p.name as string,
+    picture: p.picture as string | null,
+    auth: "google" as const,
+    mfa: false,
+  };
   const token = await signSession(
     secret,
-    buildSessionPayload({
-      email: p.email as string,
-      name: p.name as string,
-      picture: p.picture as string | null,
-      auth: "google",
-      mfa: false,
-    })
+    buildSessionPayload(user)
   );
+  // Native clients (React Native) ask for ?format=json: they fetch
+  // this endpoint instead of loading it in a WebView, so a redirect
+  // would swallow the Set-Cookie header. Answer JSON with the cookie
+  // set; the client captures the cookie and calls /api/auth/me.
+  if (req.nextUrl.searchParams.get("format") === "json") {
+    const res = NextResponse.json({ user });
+    res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions(isSecure));
+    console.log(
+      JSON.stringify({
+        event: "auth_login_app_exchange",
+        endpoint: "app-exchange",
+        email: p.email,
+      })
+    );
+    return res;
+  }
   const res = NextResponse.redirect(new URL("/", origin));
   res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions(isSecure));
   console.log(

@@ -65,13 +65,19 @@ export async function GET(req: NextRequest) {
   if (!googleConfig) return SERVICE_UNAVAILABLE();
   const { clientId } = googleConfig;
 
-  // App mode (Android WebView wrapper): the sign-in continues in a
-  // Chrome Custom Tab and the callback runs there, in a different
-  // cookie jar from the app's WebView — so state/verifier cookies set
-  // here would never reach the callback. Instead the SIGNED state
-  // carries the nonce + PKCE verifier through Google itself. No
-  // cookies are set in this branch.
-  if (isAppRequest(req.headers.get("user-agent"))) {
+  // App mode (Android WebView wrapper, or the React Native app):
+  // the sign-in continues in a Chrome Custom Tab / system browser
+  // and the callback runs there, in a different cookie jar from the
+  // app's WebView — so state/verifier cookies set here would never
+  // reach the callback. Instead the SIGNED state carries the nonce +
+  // PKCE verifier through Google itself. No cookies are set in this
+  // branch. Triggered by the app's user-agent marker (LPapp WebView)
+  // or by ?app=1 (React Native app, which opens the URL in the
+  // system browser and has no app user-agent marker).
+  if (
+    req.nextUrl.searchParams.get("app") === "1" ||
+    isAppRequest(req.headers.get("user-agent"))
+  ) {
     const secret = getSessionSecret();
     if (!secret) return SERVICE_UNAVAILABLE();
     const nowSeconds = Math.floor(Date.now() / 1000);
