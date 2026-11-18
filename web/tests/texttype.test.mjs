@@ -29,7 +29,7 @@ describe("text type install", () => {
     const landing = read("src/components/LandingPage.tsx");
     assert.ok(landing.includes('from "@/components/TextType"'), "landing must import TextType");
     assert.ok(landing.includes("<TextType"), "the headline must render TextType");
-    assert.ok(landing.includes('text={["online", "offline"]}'), "the typed words must be online then offline");
+    assert.ok(landing.includes("text={[t.landing.heroWordOnline, t.landing.heroWordOffline]}"), "the typed words must be online then offline");
     assert.ok(landing.includes('cursorStyle="bar"'), "the cursor must be a bar");
     assert.ok(landing.includes("mistakes={0}"), "the typed word must never make a typo");
     assert.ok(!landing.includes("mistakes={0.2}"), "no typo rate may remain");

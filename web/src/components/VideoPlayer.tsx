@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { Captions, Check, Download, HardDrive, Loader2, Maximize, Minimize, Pause, Play, Settings, Trash2, Volume2, VolumeX, Wifi, WifiOff } from "lucide-react";
 import ElasticSlider from "@/components/ElasticSlider";
 import { WATCH_QUALIFY_FRACTION } from "@/lib/progress";
@@ -123,6 +123,14 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
   // (persisted per browser, like everything else).
   const [volume, setVolume] = useState(storedVolume);
   const [muted, setMuted] = useState(storedMuted);
+
+  // The slider opens on hover (desktop) or on a tap of the speaker
+  // (touch has no hover, so hover-only could never show on a phone).
+  // First tap opens it, a tap while open mutes; an outside tap closes.
+  const [volumeOpen, setVolumeOpen] = useState(false);
+  const [volumeHovered, setVolumeHovered] = useState(false);
+  const volumeGroupRef = useRef<HTMLDivElement | null>(null);
+  const volumeExpanded = volumeOpen || volumeHovered;
 
   // Playback speed + quality (both in the gear menu, persisted per
   // browser). Quality: MEGA serves one file per lesson, so the menu
@@ -283,6 +291,25 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
     const video = videoRef.current;
     if (video) video.muted = next;
   }
+
+  function handleSpeakerClick() {
+    // First tap opens the slider (no mute yet); a tap while it is
+    // open toggles mute. Desktop hover opens it without a click.
+    if (volumeExpanded) toggleMute();
+    else setVolumeOpen(true);
+  }
+
+  // An outside tap closes the tap-opened slider.
+  useEffect(() => {
+    if (!volumeOpen) return;
+    const onPointerDown = (e: PointerEvent) => {
+      if (volumeGroupRef.current && !volumeGroupRef.current.contains(e.target as Node)) {
+        setVolumeOpen(false);
+      }
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [volumeOpen]);
 
   function selectPlaybackRate(next: number) {
     setPlaybackRate(next);
@@ -458,6 +485,28 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
     if (!video || !(duration > 0)) return;
     video.currentTime = Math.min(duration, Math.max(0, next));
     setCurrentTime(video.currentTime);
+  }
+
+  function seekBy(seconds: number) {
+    const video = videoRef.current;
+    if (!video) return;
+    handleSeek(video.currentTime + seconds);
+  }
+
+  function handlePlayerKeyDown(e: KeyboardEvent<HTMLDivElement>) {
+    // Keys act only when the player itself has focus — never steal
+    // them from a button or field inside it.
+    if (e.target !== e.currentTarget) return;
+    if (e.key === " ") {
+      e.preventDefault();
+      togglePlay();
+    } else if (e.key === "ArrowRight") {
+      e.preventDefault();
+      seekBy(10);
+    } else if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      seekBy(-10);
+    }
   }
 
   function toggleFullscreen() {
@@ -641,6 +690,8 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
     <div className="rounded-xl border border-neutral-800 bg-neutral-950 overflow-hidden">
       <div
         ref={playerRef}
+        tabIndex={0}
+        onKeyDown={handlePlayerKeyDown}
         aria-label={t.player.ariaLabel}
         onMouseMove={handlePointerActivity}
         onMouseEnter={handlePointerActivity}
@@ -780,10 +831,15 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
                 <Pause className="h-5 w-5" />
               )}
             </button>
-            <div className="group/vol flex items-center">
+            <div
+              ref={volumeGroupRef}
+              onMouseEnter={() => setVolumeHovered(true)}
+              onMouseLeave={() => setVolumeHovered(false)}
+              className="flex items-center"
+            >
               <button
                 type="button"
-                onClick={toggleMute}
+                onClick={handleSpeakerClick}
                 title={muted ? t.player.unmute : t.player.mute}
                 aria-label={muted ? t.player.unmute : t.player.mute}
                 className="shrink-0 rounded-lg p-1.5 text-white transition hover:bg-white/10"
@@ -794,7 +850,7 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
                   <Volume2 className="h-5 w-5" />
                 )}
               </button>
-              <div className="w-0 overflow-hidden opacity-0 transition-all duration-300 group-hover/vol:w-48 group-hover/vol:opacity-100">
+              <div className={`w-0 overflow-hidden opacity-0 transition-all duration-300 ${volumeExpanded ? "w-28 opacity-100 md:w-48" : ""}`}>
                 <ElasticSlider
                   value={volume}
                   onChange={handleVolumeChange}
@@ -877,6 +933,7 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
               </span>
             )}
           </div>
+          <p className="mt-1 text-xs text-neutral-500">{t.player.keyboardHint}</p>
         </div>
 
         <div className="flex items-center gap-2">

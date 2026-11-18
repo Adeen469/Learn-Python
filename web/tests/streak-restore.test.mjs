@@ -147,11 +147,11 @@ describe("streak restore — settings page wiring", () => {
     assert.ok(page.includes("splitCountdown"), "page must split the countdown");
     assert.ok(page.includes("handleRestore"), "page must offer a restore action");
     assert.ok(page.includes("markActive"), "restore must mark the missed day active");
-    assert.ok(page.includes("Streak broken"), "page must name the broken streak");
-    assert.ok(page.includes("restores used this month"), "page must show the monthly restore count");
+    assert.ok(page.includes("t.settingsPage.streakBroken"), "page must name the broken streak");
+    assert.ok(page.includes("t.settingsPage.streakBrokenRestore"), "page must show the monthly restore count");
     assert.ok(page.includes("MAX_RESTORES_PER_MONTH"), "page must show the 3-per-month cap");
-    assert.ok(page.includes("24-hour restore window"), "page must explain the expired window");
-    assert.ok(page.includes("No restores left"), "page must cover the monthly limit");
+    assert.ok(page.includes("t.settingsPage.streakBrokenExpired"), "page must explain the expired window");
+    assert.ok(page.includes("t.settingsPage.noRestoresLeft"), "page must cover the monthly limit");
   });
 
   test("countdown is three odometer Counters (hrs/min/sec), zero-padded", () => {
@@ -159,11 +159,11 @@ describe("streak restore — settings page wiring", () => {
     assert.ok(page.includes("CountdownUnit"), "page must render countdown units");
     assert.ok(page.includes("minDigits={2}"), "countdown digits must be zero-padded like a clock");
     assert.ok(page.includes("intro={false}"), "countdown must skip the intro spin so it reads at a glance");
-    assert.ok(page.includes('label="hrs"'), "countdown must label hours");
-    assert.ok(page.includes('label="min"'), "countdown must label minutes");
-    assert.ok(page.includes('label="sec"'), "countdown must label seconds");
+    assert.ok(page.includes("label={t.settingsPage.countdownHrs}"), "countdown must label hours");
+    assert.ok(page.includes("label={t.settingsPage.countdownMin}"), "countdown must label minutes");
+    assert.ok(page.includes("label={t.settingsPage.countdownSec}"), "countdown must label seconds");
     assert.ok(page.includes("setInterval"), "countdown must tick every second");
-    assert.ok(page.includes("Streak restored"), "page must confirm a restore");
+    assert.ok(page.includes("t.settingsPage.streakRestored"), "page must confirm a restore");
     assert.ok(page.includes("initialProgress"), "streak must load in the initial state, not only in an effect");
   });
 });

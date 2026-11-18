@@ -42,20 +42,32 @@ function creatorVideoCount(creator: CourseCreator): number {
 
 function CreatorCard({ creator }: { creator: CourseCreator }) {
   const { t } = useLanguage();
+  // A dead avatar URL shows the initial letter, never a broken-image icon.
+  const [avatarFailed, setAvatarFailed] = useState(false);
   return (
     <Link
       href={`/courses/${creator.slug}`}
       className="group block rounded-2xl border border-neutral-800 bg-neutral-950 p-5 transition hover:border-neutral-600 hover:bg-neutral-900/60 sm:p-6"
     >
       <div className="flex items-start justify-between gap-4">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={creator.avatarUrl}
-          alt={t.coursesPage.channelPictureAlt(creator.name)}
-          width={64}
-          height={64}
-          className="h-16 w-16 shrink-0 rounded-full object-cover ring-1 ring-neutral-800"
-        />
+        {avatarFailed ? (
+          <div
+            className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-neutral-900 text-xl font-bold text-white ring-1 ring-neutral-800"
+            aria-label={t.coursesPage.channelPictureAlt(creator.name)}
+          >
+            {creator.name.charAt(0)}
+          </div>
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={creator.avatarUrl}
+            alt={t.coursesPage.channelPictureAlt(creator.name)}
+            width={64}
+            height={64}
+            onError={() => setAvatarFailed(true)}
+            className="h-16 w-16 shrink-0 rounded-full object-cover ring-1 ring-neutral-800"
+          />
+        )}
         <ChevronRight className="h-5 w-5 shrink-0 self-center text-neutral-600 transition group-hover:text-white" />
       </div>
       <div className="mt-4 min-w-0">

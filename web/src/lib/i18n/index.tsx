@@ -16,7 +16,7 @@
 // Scope: UI chrome ONLY. Content translations live in ./titles/<lang>.ts
 // as partial maps with graceful fallback:
 //   lessonTitles — keyed by day-lesson id (python-day-001 …)
-//   videoTitles  — keyed by YouTube videoId (259 course videos)
+//   videoTitles  — keyed by YouTube videoId (268 course videos)
 //   roadmapNames — keyed by the English stage/topic/difficulty name
 // A missing title falls back to the original English text, so a titles
 // map may be partial. The main `Strings` object must stay complete.

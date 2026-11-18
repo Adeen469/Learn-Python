@@ -359,6 +359,21 @@ export const COURSE_CREATORS: CourseCreator[] = [
     language: "Hindi",
     tagline: "Full Python courses in Hindi, with notes and practice questions.",
     playlists: [
+      {
+        title: "Python Full Course",
+        url: "https://www.youtube.com/playlist?list=PL0--sAWljl5LEzNyN5Z4zlorThiIUYEV_",
+        videos: [
+          { title: "Python Full Course❤️ | Variables & Data Types | Lecture 1", videoId: "t2_Q2BRzeEE" , durationSeconds: 4939},
+          { title: "Lecture 2 : Strings & Conditional Statements | Python Full Course", videoId: "lIId8IDP6TU" , durationSeconds: 3341},
+          { title: "Lecture 3 : List & Tuple in Python | Python Full Course", videoId: "qVyvmzFxF_o" , durationSeconds: 2506},
+          { title: "Lecture 4 : Dictionary & Set in Python | Python Full Course", videoId: "078tYSD7K8E" , durationSeconds: 3272},
+          { title: "Lecture 5 : Loops in Python | While & For Loops | Python Full Course", videoId: "S73thl0AyFU" , durationSeconds: 3831},
+          { title: "Lecture 6 : Functions & Recursion in Python | Python Full Course", videoId: "OvTH-7ESoRA" , durationSeconds: 3708},
+          { title: "Lecture 7 : File Input/Output in Python", videoId: "jU0cndZziO0" , durationSeconds: 3048},
+          { title: "Lecture 8 : OOPS in Python | Object Oriented Programming | Classes & Objects | Python Full Course", videoId: "HeW-D6KpDwY" , durationSeconds: 3400},
+          { title: "Lecture 9 : OOPS Part 2 | Object Oriented Programming | Python Full Course", videoId: "bAwmZVJeO5s" , durationSeconds: 4146},
+        ],
+      },
     ],
     oneShots: [
       { title: "Python Tutorial for Beginners - Full Course (with Notes & Practice Questions)", videoId: "ERCMXc8x7mc" , durationSeconds: 37491},

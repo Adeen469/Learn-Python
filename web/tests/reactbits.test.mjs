@@ -56,7 +56,7 @@ describe("counter — streaks", () => {
     assert.ok(page.includes("<Counter value={streak}"), "streak must render through Counter");
     assert.ok(page.includes("fontSize={56}"), "counter must be large and prominent like the demo, not row-sized");
     assert.ok(page.includes("fontWeight={600}"), "counter must be semibold like the demo");
-    assert.ok(page.includes("day streak"), "counter must carry a day-streak label");
+    assert.ok(page.includes("t.profile.statStreakLabel"), "counter must carry a day-streak label");
     assert.ok(!page.includes("fontSize={14}"), "the old small inline counter must be gone");
     assert.ok(!page.includes("{streak}d streak"), "plain streak text must be gone");
   });
@@ -81,11 +81,11 @@ describe("animated list — video list", () => {
     assert.ok(page.includes("listItems"), "player must map videos to list entries");
     // The status is richer now: Playing for the video that is playing,
     // Watched % for a partly watched one, Completed, else Not started.
-    assert.ok(page.includes('"Playing"'), "entries must show the playing video");
-    assert.ok(page.includes('"Completed"'), "entries must show completion status");
-    assert.ok(page.includes("`Watched ${pct}%`"), "entries must show partial watch progress");
-    assert.ok(page.includes('"Not started"'), "entries must show the untouched state");
-    assert.ok(page.includes("meta: formatDuration(video.durationSeconds)"), "entries must show the duration");
+    assert.ok(page.includes("t.course.playingLabel"), "entries must show the playing video");
+    assert.ok(page.includes("t.common.completed"), "entries must show completion status");
+    assert.ok(page.includes("t.common.watchedPct(pct)"), "entries must show partial watch progress");
+    assert.ok(page.includes("t.common.notStarted"), "entries must show the untouched state");
+    assert.ok(page.includes("t.common.duration(video.durationSeconds)"), "entries must show the duration");
   });
 
   test("list follows the app theme and stays in the app palette", () => {
@@ -111,8 +111,8 @@ describe("elastic slider — one video control bar", () => {
 
   test("seek bar and volume slider live in the same bar", () => {
     const player = read("src/components/VideoPlayer.tsx");
-    assert.ok(player.includes('ariaLabel="Seek"'), "bar must have a seek slider");
-    assert.ok(player.includes('ariaLabel="Volume"'), "bar must have a volume slider");
+    assert.ok(player.includes("ariaLabel={t.player.seekLabel}"), "bar must have a seek slider");
+    assert.ok(player.includes("ariaLabel={t.player.volumeLabel}"), "bar must have a volume slider");
     assert.ok(player.includes("value={currentTime}"), "seek must follow playback");
     assert.ok(player.includes("maxValue={duration"), "seek must span the duration");
     assert.ok(player.includes("onChange={handleSeek}"), "seek must move the video");
@@ -120,13 +120,12 @@ describe("elastic slider — one video control bar", () => {
     assert.ok(player.includes("onChange={handleVolumeChange}"), "volume slider must drive the volume");
   });
 
-  test("volume slider is hover-only, sliding out from the speaker icon", () => {
+  test("volume slider opens on hover or on a tap of the speaker", () => {
     const player = read("src/components/VideoPlayer.tsx");
-    assert.ok(player.includes("group/vol"), "volume group must exist for hover");
-    assert.ok(
-      player.includes("group-hover/vol:w-48"),
-      "volume slider must expand to full width on hover"
-    );
+    assert.ok(player.includes("volumeExpanded"), "the slider width must follow hover or tap, not CSS hover alone");
+    assert.ok(player.includes("setVolumeHovered(true)"), "hovering the speaker must open the slider");
+    assert.ok(player.includes("handleSpeakerClick"), "tapping the speaker must open the slider on touch");
+    assert.ok(!player.includes("group-hover/vol"), "the slider must not be hover-only — hover does not exist on touch");
     assert.ok(
       player.includes("w-0 overflow-hidden opacity-0"),
       "volume slider must start collapsed and invisible"
@@ -156,16 +155,16 @@ describe("player page — no title card, button in the player footer, short scro
   test("the Mark Complete / Watched button moved into the player's footer row", () => {
     const page = read("src/app/courses/[slug]/[collection]/page.tsx");
     assert.ok(page.includes("const completionButton = ("), "the button must be one shared element");
-    assert.ok(page.includes("Watched"), "the button must still show the watched %");
+    assert.ok(page.includes("t.common.watchedPct"), "the button must still show the watched %");
     assert.ok(page.includes("Math.round(activeCoverage.fraction * 100)"), "the watched % must come from coverage");
-    assert.ok(page.includes("Mark Complete"), "the button must still offer Mark Complete");
+    assert.ok(page.includes("t.lesson.markComplete"), "the button must still offer Mark Complete");
     assert.ok(page.includes("completionButton={completionButton}"), "MEGA videos must get the button in the player footer");
     assert.ok(page.includes("{completionButton}</div>"), "YouTube videos must get the button in their footer row");
     const player = read("src/components/VideoPlayer.tsx");
     assert.ok(player.includes("completionButton?: ReactNode"), "VideoPlayer must accept the button as a slot");
     const slotAt = player.indexOf("{completionButton}");
     assert.ok(
-      slotAt > 0 && player.indexOf("Save Offline", slotAt) > slotAt,
+      slotAt > 0 && player.indexOf("t.lesson.saveOffline", slotAt) > slotAt,
       "the button must sit in the footer before Save Offline"
     );
   });

@@ -31,8 +31,8 @@ test("a partly watched video shows Watched X% instead of Not started", () => {
   const page = playerPage();
   assert.ok(page.includes("storedCoveragePct"), "the page must read stored coverage for the list");
   assert.ok(page.includes("lp_coverage_"), "stored coverage must come from the player's lp_coverage_ keys");
-  assert.ok(page.includes("`Watched ${pct}%`"), "a partly watched row must show its %");
-  assert.ok(page.includes('"Not started"'), "an untouched video must still say Not started");
+  assert.ok(page.includes("t.common.watchedPct(pct)"), "a partly watched row must show its %");
+  assert.ok(page.includes("t.common.notStarted"), "an untouched video must still say Not started");
 });
 
 test("the list ring follows the playing video and returns to it on mouse leave", () => {
@@ -57,17 +57,17 @@ test("the control bar has speed and quality in a settings menu", () => {
     assert.ok(vp.includes(rate), `speed ${rate}x must be offered`);
   }
   assert.ok(vp.includes("video.playbackRate = playbackRate"), "the chosen speed must reach the video element");
-  assert.ok(vp.includes("Playback speed"), "the settings menu must have a speed section");
-  assert.ok(vp.includes("Quality"), "the settings menu must have a quality section");
+  assert.ok(vp.includes("t.player.playbackSpeed"), "the settings menu must have a speed section");
+  assert.ok(vp.includes("t.player.quality"), "the settings menu must have a quality section");
   assert.ok(vp.includes("video.videoHeight"), "the quality must come from the file's real resolution");
-  assert.ok(vp.includes("MEGA serves one quality per video"), "the menu must say there is only one stream");
-  assert.ok(vp.includes('title="Settings — speed and quality"'), "the gear button must name what it holds");
+  assert.ok(vp.includes("t.player.qualityNote"), "the menu must say there is only one stream");
+  assert.ok(vp.includes("t.player.settingsLabel"), "the gear button must name what it holds");
 });
 
 test("the control bar has a download button", () => {
   const vp = player();
   assert.ok(vp.includes("handleDownload"), "the player must have a download action");
-  assert.ok(vp.includes('title="Download video"'), "the bar must carry a Download button");
+  assert.ok(vp.includes("t.player.downloadVideo"), "the bar must carry a Download button");
   assert.ok(vp.includes("a.download = name"), "the download must name the file after the lesson");
   assert.ok(vp.includes('.mp4'), "the downloaded file must be an .mp4");
   assert.ok(vp.includes("!isOnline && !isSavedOffline"), "download must be disabled when offline with nothing saved");
@@ -123,8 +123,32 @@ test("English captions: the CC button only shows when a .vtt file exists", () =>
     "the script that fetches the .vtt files must exist",
   );
   const script = read("scripts/fetch-captions.mjs");
-  assert.ok(script.includes("megaLessonId"), "the script must cover the MEGA-streamed videos");
+  assert.ok(!script.includes("megaLessonId"), "the script must collect every video, not just the MEGA ones");
+  assert.ok(script.includes("videoId:"), "the script must collect every videoId in the catalog");
   assert.ok(script.includes("--write-auto-subs"), "the script must fetch auto-generated subs too");
   assert.ok(script.includes('"en"'), "the script must fetch the English track");
   assert.ok(script.includes("public/captions"), "the script must save into public/captions");
+});
+
+test("Volume slider: opens on tap, not just on hover", () => {
+  const vp = player();
+  assert.ok(vp.includes("volumeOpen"), "the slider must have a tap-open state");
+  assert.ok(vp.includes("handleSpeakerClick"), "tapping the speaker must open the slider before muting");
+  assert.ok(vp.includes("volumeExpanded"), "the slider width must follow hover or tap, not CSS hover alone");
+  assert.ok(!vp.includes("group-hover/vol"), "the slider must not be hover-only — hover does not exist on touch");
+  assert.ok(vp.includes("volumeGroupRef"), "an outside tap must close the slider");
+  assert.ok(vp.includes("pointerdown"), "the outside-tap close must listen for pointerdown");
+});
+
+test("Keyboard shortcuts: Space plays/pauses, arrows seek 10 seconds", () => {
+  const vp = player();
+  assert.ok(vp.includes("tabIndex={0}"), "the player must be focusable for keyboard shortcuts");
+  assert.ok(vp.includes("onKeyDown={handlePlayerKeyDown}"), "the player must handle keys");
+  assert.ok(vp.includes('e.key === " "'), "Space must toggle play/pause");
+  assert.ok(vp.includes('e.key === "ArrowRight"'), "right arrow must seek forward");
+  assert.ok(vp.includes('e.key === "ArrowLeft"'), "left arrow must seek backward");
+  assert.ok(vp.includes("seekBy(10)"), "right arrow must seek 10 seconds forward");
+  assert.ok(vp.includes("seekBy(-10)"), "left arrow must seek 10 seconds back");
+  assert.ok(vp.includes("e.target !== e.currentTarget"), "keys must only act when the player itself has focus, not a button inside it");
+  assert.ok(vp.includes("t.player.keyboardHint"), "the player must hint the shortcuts under the video");
 });

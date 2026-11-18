@@ -10,14 +10,25 @@ const read = (rel) => readFileSync(join(webDir, rel), "utf8");
 describe("settings page (/settings)", () => {
   test("page shows today's goal, streak, and a theme toggle", () => {
     const page = read("src/app/settings/page.tsx");
+    const en = read("src/lib/i18n/en.ts");
     assert.ok(page.includes("Settings"), "page must be titled Settings");
-    assert.ok(page.includes("Today&apos;s goal"), "page must show today's goal");
-    assert.ok(page.includes("Streak"), "page must show the streak");
+    // The section labels moved to i18n (en.ts settings/settingsPage);
+    // the page must render the keys and the English values must read
+    // what the user actually sees.
+    assert.ok(page.includes("t.settingsPage.todaySection"), "page must render the today section");
+    assert.ok(page.includes("t.settings.dailyGoal"), "page must show today's goal");
+    assert.ok(en.includes('todaySection: "Today"'), "the today section must read Today");
+    assert.ok(en.includes('dailyGoal: "Daily goal"'), "the goal label must read Daily goal");
+    assert.ok(page.includes("t.settings.streak"), "page must render the streak label");
+    assert.ok(en.includes('streak: "Streak"'), "page must show the streak");
     assert.ok(page.includes("wholeMinutes"), "goal must come from progress");
     assert.ok(page.includes("computeStreak"), "streak must come from progress");
-    assert.ok(page.includes("Theme"), "page must have a theme section");
-    assert.ok(page.includes("Dark"), "theme toggle must offer Dark");
-    assert.ok(page.includes("Light"), "theme toggle must offer Light");
+    assert.ok(page.includes("t.settings.theme"), "page must render the theme label");
+    assert.ok(en.includes('theme: "Theme"'), "page must have a theme section");
+    assert.ok(page.includes("t.settings.themeDark"), "theme toggle must offer Dark");
+    assert.ok(en.includes('themeDark: "Dark"'), "the dark option must read Dark");
+    assert.ok(page.includes("t.settings.themeLight"), "theme toggle must offer Light");
+    assert.ok(en.includes('themeLight: "Light"'), "the light option must read Light");
     assert.ok(page.includes("aria-pressed"), "toggle must mark the active theme");
     assert.ok(page.includes("AppNavbar"), "page must render the navbar");
     assert.ok(page.includes("applyTheme"), "toggle must apply the theme");

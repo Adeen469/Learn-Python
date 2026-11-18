@@ -56,7 +56,7 @@ test("no channel link anywhere: no channelUrl in data or courses pages", () => {
 
 test("playlist list ids are unique and do not collide with one-shots", () => {
   const ids = [...data.matchAll(/playlist\?list=([A-Za-z0-9_-]+)/g)].map((m) => m[1]);
-  assert.equal(ids.length, 3, `expected 3 playlists, got ${ids.length}`);
+  assert.equal(ids.length, 4, `expected 4 playlists, got ${ids.length}`);
   assert.equal(new Set(ids).size, ids.length, "playlist ids must be unique");
   assert.ok(!ids.includes("one-shots"), "one-shots route must not collide");
 });
@@ -77,10 +77,10 @@ test("no other video carries a MEGA lesson id", () => {
   assert.equal(all.length, 100, `only the 100-day course may map to MEGA, got ${all.length}`);
 });
 
-test("total video count is 259", () => {
+test("total video count is 268", () => {
   // One `videoId:` per video object, plus one in the interface.
   const count = (data.match(/videoId:/g) || []).length - 1;
-  assert.equal(count, 259);
+  assert.equal(count, 268);
 });
 
 test("creator and player routes exist and use the MEGA player", () => {
@@ -97,18 +97,45 @@ test("creator and player routes exist and use the MEGA player", () => {
     "player must embed YouTube for videos with no MEGA link yet"
   );
   assert.ok(
-    player.includes("Playing from YouTube"),
+    player.includes("t.player.youtubeFallbackNote"),
     "player must label the YouTube fallback"
   );
-  assert.ok(player.includes("Today&apos;s Progress"), "player must keep Today's Progress");
-  assert.ok(player.includes("Course Lessons"), "player must keep the lessons list");
+  assert.ok(player.includes("t.player.todayProgress"), "player must keep Today's Progress");
+  assert.ok(player.includes("t.player.courseLessonsHeading"), "player must keep the lessons list");
+});
+
+test("a dead thumbnail or avatar never shows a broken-image icon", () => {
+  const creator = read(creatorPath);
+  assert.ok(creator.includes("thumbFailed"), "the playlist card must track a failed thumbnail");
+  assert.ok(
+    creator.includes("onError={() => setThumbFailed(true)}"),
+    "a failed thumbnail must fall back to the Play placeholder"
+  );
+  assert.ok(creator.includes("avatarFailed"), "the channel picture must track a failed avatar");
+  assert.ok(
+    creator.includes("onError={() => setAvatarFailed(true)}"),
+    "a failed avatar must fall back to the initial letter"
+  );
+  const hub = read(hubPath);
+  assert.ok(hub.includes("avatarFailed"), "the hub card must track a failed avatar too");
+  assert.ok(
+    hub.includes("onError={() => setAvatarFailed(true)}"),
+    "the hub avatar must fall back to the initial letter too"
+  );
 });
 
 test("video lengths read h:m:s once past an hour, m:ss below", () => {
-  const player = read(playerPath);
+  // Durations now come from the shared i18n formatter, not a local
+  // formatDuration in the player page.
+  const i18n = read("src/lib/i18n/en.ts");
   assert.ok(
-    player.includes('if (h > 0) return `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`'),
-    "formatDuration must use h:m:s for videos >= 1h (not 374:07)"
+    i18n.includes('return h > 0 ? `${h}:${mm}:${ss}` : `${m}:${ss}`'),
+    "the shared duration must use h:m:s for videos >= 1h (not 374:07)"
+  );
+  const page = read(playerPath);
+  assert.ok(
+    page.includes("t.common.duration(video.durationSeconds)"),
+    "the list must show durations through the shared formatter"
   );
 });
 

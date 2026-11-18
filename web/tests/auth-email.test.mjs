@@ -553,8 +553,13 @@ test("the email-auth lib fails closed without credentials", () => {
 
 test("the settings page mounts the two-factor section", () => {
   const settings = read("src/app/settings/page.tsx");
+  const en = read("src/lib/i18n/en.ts");
   assert.ok(settings.includes("TwoFactorSettings"));
-  assert.ok(settings.includes("Account security"));
+  // The section heading moved to i18n (en.ts settingsPage.accountSecurity);
+  // the page must render that key and the English value must read
+  // "Account security".
+  assert.ok(settings.includes("t.settingsPage.accountSecurity"), "settings must render the Account security heading");
+  assert.ok(en.includes('accountSecurity: "Account security"'), "the heading must read Account security");
   const section = read("src/components/TwoFactorSettings.tsx");
   assert.ok(section.includes("/api/auth/2fa/status"));
   assert.ok(section.includes("/api/auth/2fa/setup"));

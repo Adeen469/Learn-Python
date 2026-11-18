@@ -124,7 +124,7 @@ export function LandingPage() {
           <div className="mt-10 grid w-full max-w-lg grid-cols-3 gap-3">
             {[
               { value: "812", label: t.landing.statTopics },
-              { value: "259", label: t.landing.statVideos },
+              { value: "268", label: t.landing.statVideos },
               { value: "6", label: t.landing.statStages },
             ].map((s) => (
               <div

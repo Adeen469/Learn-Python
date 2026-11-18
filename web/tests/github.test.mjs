@@ -11,6 +11,7 @@ const webDir = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (rel) => readFileSync(join(webDir, rel), "utf8");
 const page = () => read("src/app/github/page.tsx");
 const route = () => read("src/app/api/github/repos/route.ts");
+const en = () => read("src/lib/i18n/en.ts");
 
 test("the form and the server reject the same repo names", () => {
   const serverRegex = route().match(/name: z\.string\(\)\.min\(1\)\.max\(100\)\.regex\((\/[^/]+\/)\)/);
@@ -21,11 +22,15 @@ test("the form and the server reject the same repo names", () => {
 test("a bad name is caught on the form with a message that names the problem", () => {
   const p = page();
   assert.ok(p.includes("repoNameError"), "the form must validate the name live");
-  assert.ok(p.includes("can't contain spaces or special characters"), "the error must say spaces and special characters are not allowed");
-  assert.ok(p.includes("only letters, numbers, - _ . are allowed"), "the error must say what IS allowed");
-  assert.ok(p.includes("aria-invalid={!!repoNameError(newRepoName)}"), "the input must be marked invalid");
-  assert.ok(p.includes("disabled={creating || !!repoNameError(newRepoName)}"), "Create must stay disabled while the name is invalid");
-  assert.ok(p.includes("if (repoNameError(newRepoName)) return;"), "the submit handler must refuse a bad name even if the button is forced");
+  // The message text moved to i18n (en.ts githubPage.repoNameInvalidChars);
+  // the form must render that key, and the English value must say both
+  // what is banned and what is allowed.
+  assert.ok(p.includes("t.githubPage.repoNameInvalidChars"), "the form must show the invalid-name message");
+  assert.ok(en().includes("can't contain spaces or special characters"), "the error must say spaces and special characters are not allowed");
+  assert.ok(en().includes("only letters, numbers, - _ . are allowed"), "the error must say what IS allowed");
+  assert.ok(p.includes("aria-invalid={!!repoNameError(newRepoName, t)}"), "the input must be marked invalid");
+  assert.ok(p.includes("disabled={creating || !!repoNameError(newRepoName, t)}"), "Create must stay disabled while the name is invalid");
+  assert.ok(p.includes("if (repoNameError(newRepoName, t)) return;"), "the submit handler must refuse a bad name even if the button is forced");
 });
 
 test("both create-repo options are checked by default and the user can uncheck them", () => {
@@ -56,6 +61,10 @@ test("the token link opens GitHub with every scope pre-checked", () => {
     assert.ok(p.includes(scope), `the token link must pre-check ${scope}`);
   }
   assert.ok(p.includes("GITHUB_TOKEN_URL"), "the link must be built from the scopes list");
-  assert.ok(p.includes("full access to your account"), "the page must say the token has full access");
-  assert.ok(p.includes("keep it private"), "the page must warn the token must stay private");
+  // The warning text moved to i18n (en.ts githubPage.tokenExplainer);
+  // the page must render that key, and the English value must say the
+  // token has full access and must stay private.
+  assert.ok(p.includes("t.githubPage.tokenExplainer"), "the page must show the token explainer");
+  assert.ok(en().includes("full access to your account"), "the page must say the token has full access");
+  assert.ok(en().includes("keep it private"), "the page must warn the token must stay private");
 });

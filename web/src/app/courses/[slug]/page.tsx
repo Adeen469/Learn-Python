@@ -50,13 +50,16 @@ function CollectionCard({
   label: string;
 }) {
   const { t } = useLanguage();
+  // A dead thumbnail (deleted video, blocked domain) must never show
+  // a broken-image icon — fall back to the Play placeholder instead.
+  const [thumbFailed, setThumbFailed] = useState(false);
   return (
     <Link
       href={href}
       className="group block overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950 transition hover:border-neutral-600 hover:bg-neutral-900/60"
     >
       <div className="relative aspect-video w-full bg-neutral-900">
-        {thumbVideoId ? (
+        {thumbVideoId && !thumbFailed ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={`https://i.ytimg.com/vi/${thumbVideoId}/hqdefault.jpg`}
@@ -64,6 +67,7 @@ function CollectionCard({
             width={480}
             height={270}
             loading="lazy"
+            onError={() => setThumbFailed(true)}
             className="h-full w-full object-cover"
           />
         ) : (
@@ -89,6 +93,37 @@ function CollectionCard({
         </p>
       </div>
     </Link>
+  );
+}
+
+/** Creator channel picture — a dead avatar URL shows the initial letter, never a broken-image icon. */
+function CreatorAvatar({ creator, size }: { creator: CourseCreator; size: "lg" | "md" }) {
+  const { t } = useLanguage();
+  const [avatarFailed, setAvatarFailed] = useState(false);
+  const cls =
+    size === "lg"
+      ? "h-20 w-20 text-2xl"
+      : "h-16 w-16 text-xl";
+  if (avatarFailed) {
+    return (
+      <div
+        className={`flex ${cls} shrink-0 items-center justify-center rounded-full bg-neutral-900 font-bold text-white ring-1 ring-neutral-800`}
+        aria-label={t.coursesPage.channelPictureAlt(creator.name)}
+      >
+        {creator.name.charAt(0)}
+      </div>
+    );
+  }
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={creator.avatarUrl}
+      alt={t.coursesPage.channelPictureAlt(creator.name)}
+      width={size === "lg" ? 80 : 64}
+      height={size === "lg" ? 80 : 64}
+      onError={() => setAvatarFailed(true)}
+      className={`${cls} shrink-0 rounded-full object-cover ring-1 ring-neutral-800`}
+    />
   );
 }
 
@@ -146,14 +181,7 @@ export default function CreatorPage({ params }: { params: Promise<{ slug: string
         </Link>
 
         <header className="mt-5 flex items-start gap-4">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={creator.avatarUrl}
-            alt={t.coursesPage.channelPictureAlt(creator.name)}
-            width={80}
-            height={80}
-            className="h-20 w-20 shrink-0 rounded-full object-cover ring-1 ring-neutral-800"
-          />
+          <CreatorAvatar creator={creator} size="lg" />
           <div className="min-w-0">
             <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
               {creator.name}

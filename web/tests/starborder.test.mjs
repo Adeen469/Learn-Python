@@ -25,11 +25,14 @@ describe("star border install", () => {
 
   test("the landing page's Get started button is a StarBorder link to /auth/email", () => {
     const landing = read("src/components/LandingPage.tsx");
+    const en = read("src/lib/i18n/en.ts");
     assert.ok(landing.includes('from "@/components/StarBorder"'), "landing must import StarBorder");
     assert.ok(landing.includes("<StarBorder"), "Get started must render StarBorder");
     assert.ok(landing.includes('as="a"'), "StarBorder must render as a link");
     assert.ok(landing.includes('href="/auth/email"'), "Get started must link to the login/register page");
-    assert.ok(landing.includes("Get started"), "the button must still say Get started");
+    // The button label moved to i18n (en.ts landing.getStarted).
+    assert.ok(landing.includes("t.landing.getStarted"), "the button must render the Get started key");
+    assert.ok(en.includes('getStarted: "Get started"'), "the button must still say Get started");
     assert.ok(landing.includes('<div className="mt-12">'), "Get started must sit lower with clean breathing room above it");
     assert.ok(!landing.includes("rounded-xl bg-white px-6 py-3"), "the old plain white hero button must be gone");
   });

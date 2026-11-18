@@ -76,19 +76,31 @@ describe("roadmap data (LP-RM topics, timeline rail)", () => {
 describe("roadmap modal + hint", () => {
   test("modal shows the path, progress, and done states from /learn", () => {
     const modal = read("src/components/RoadmapModal.tsx");
-    assert.ok(modal.includes("Your Python Roadmap"), "modal must be titled Your Python Roadmap");
-    assert.ok(modal.includes('aria-label="Close roadmap"'), "modal must have a Close button");
+    const en = read("src/lib/i18n/en.ts");
+    // The modal title moved to i18n (en.ts roadmapModal.title); the
+    // modal must render that key and the English value must read
+    // "Your Python Roadmap". The close label moved the same way.
+    assert.ok(modal.includes("t.roadmapModal.title"), "modal must render its title key");
+    assert.ok(en.includes('title: "Your Python Roadmap"'), "modal must be titled Your Python Roadmap");
+    assert.ok(modal.includes("aria-label={t.roadmapModal.close}"), "modal must have a Close button");
+    assert.ok(en.includes('close: "Close roadmap"'), "the close button must read Close roadmap");
     assert.ok(modal.includes("lp_learn_completed"), "modal must read /learn completion");
     assert.ok(modal.includes("roadmapTopicHref"), "topics must link through roadmapTopicHref");
   });
 
   test("closing shows where to find the roadmap again", () => {
     const modal = read("src/components/RoadmapModal.tsx");
+    const en = read("src/lib/i18n/en.ts");
+    // The hint text moved to i18n (en.ts roadmapModal.savedBody/gotIt);
+    // the modal must render those keys and the English values must
+    // point at the profile dropdown.
+    assert.ok(modal.includes("t.roadmapModal.savedBody"), "hint must render its body key");
     assert.ok(
-      modal.includes("Next time you can preview the roadmap from the profile dropdown"),
+      en.includes("Next time you can preview the roadmap from the profile dropdown"),
       "hint must point at the profile dropdown"
     );
-    assert.ok(modal.includes("Got it"), "hint must have a Got it button");
+    assert.ok(modal.includes("t.roadmapModal.gotIt"), "hint must render its Got it key");
+    assert.ok(en.includes('gotIt: "Got it"'), "hint must have a Got it button");
     // The hint sits above the still-open roadmap (z-60 over z-50),
     // and Escape on it dismisses both.
     assert.ok(modal.includes("z-[60]"), "hint must overlay the roadmap modal");
