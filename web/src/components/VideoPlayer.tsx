@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Captions, Check, Download, HardDrive, Loader2, Maximize, Minimize, Pause, Play, Settings, Trash2, Volume2, VolumeX, Wifi, WifiOff } from "lucide-react";
 import ElasticSlider from "@/components/ElasticSlider";
 import { WATCH_QUALIFY_FRACTION } from "@/lib/progress";
+import { useLanguage } from "@/lib/i18n";
 
 const CACHE_NAME = "lp-offline-videos-v1";
 const VOLUME_KEY = "lp_volume";
@@ -100,6 +101,7 @@ interface VideoPlayerProps {
 }
 
 export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutoplayChange, onWatchCoverage, onLessonQualified, onEnded, onPlayStateChange, completionButton }: VideoPlayerProps) {
+  const { t, videoTitle } = useLanguage();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [src, setSrc] = useState<string>(`/api/video/${lessonId}`);
   const [isSavedOffline, setIsSavedOffline] = useState(false);
@@ -573,7 +575,7 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
 
   async function handleSaveOffline() {
     if (!("caches" in window)) {
-      setErrorMsg("Offline cache is not supported in this browser.");
+      setErrorMsg(t.player.errorOfflineCacheUnsupported);
       return;
     }
 
@@ -585,7 +587,7 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
       const streamUrl = `/api/video/${lessonId}`;
       const res = await fetch(streamUrl);
       if (!res.ok || !res.body) {
-        throw new Error(`Download failed (${res.status})`);
+        throw new Error(t.player.errorDownloadFailed(res.status));
       }
 
       const contentLength = Number(res.headers.get("Content-Length") ?? "0");
@@ -620,7 +622,7 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
       setSrc(objectUrl);
       setIsSavedOffline(true);
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : "Could not save video offline.");
+      setErrorMsg(err instanceof Error ? err.message : t.player.errorSaveOffline);
     } finally {
       setIsDownloading(false);
     }
@@ -639,6 +641,7 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
     <div className="rounded-xl border border-neutral-800 bg-neutral-950 overflow-hidden">
       <div
         ref={playerRef}
+        aria-label={t.player.ariaLabel}
         onMouseMove={handlePointerActivity}
         onMouseEnter={handlePointerActivity}
         onMouseLeave={() => {
@@ -690,19 +693,19 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
             <button
               type="button"
               onClick={() => onAutoplayChange?.(!autoplay)}
-              title={autoplay ? "Autoplay on — the next lesson plays automatically" : "Autoplay off"}
-              aria-label="Autoplay next lesson"
+              title={autoplay ? t.player.autoplayOnHint : t.player.autoplayOffHint}
+              aria-label={t.player.autoplay}
               aria-pressed={autoplay}
               className="flex w-full items-center justify-between px-3 py-2 text-left text-[13px] hover:bg-white/10"
             >
-              <span>Autoplay</span>
+              <span>{t.player.autoplay}</span>
               <span className={`relative h-4 w-7 shrink-0 rounded-full transition ${autoplay ? "bg-white" : "bg-neutral-700"}`}>
                 <span className={`absolute top-0.5 h-3 w-3 rounded-full transition-all ${autoplay ? "left-3.5 bg-black" : "left-0.5 bg-neutral-300"}`} />
               </span>
             </button>
             <div className="my-1 border-t border-neutral-800" />
             <p className="px-3 pt-2.5 pb-1 text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
-              Playback speed
+              {t.player.playbackSpeed}
             </p>
             {PLAYBACK_RATES.map((rate) => (
               <button
@@ -711,20 +714,20 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
                 onClick={() => selectPlaybackRate(rate)}
                 className="flex w-full items-center justify-between px-3 py-1 text-left text-[13px] hover:bg-white/10"
               >
-                <span>{rate === 1 ? "Normal" : `${rate}×`}</span>
+                <span>{rate === 1 ? t.player.speedNormal : `${rate}×`}</span>
                 {playbackRate === rate && <Check className="h-4 w-4" />}
               </button>
             ))}
             <div className="my-1 border-t border-neutral-800" />
             <p className="px-3 pt-1 pb-1 text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
-              Quality
+              {t.player.quality}
             </p>
             <button
               type="button"
               onClick={() => selectQuality("auto")}
               className="flex w-full items-center justify-between px-3 py-1 text-left text-[13px] hover:bg-white/10"
             >
-              <span>Auto</span>
+              <span>{t.player.qualityAuto}</span>
               {quality === "auto" && <Check className="h-4 w-4" />}
             </button>
             {detectedQuality && (
@@ -734,13 +737,13 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
                 className="flex w-full items-center justify-between px-3 py-1 text-left text-[13px] hover:bg-white/10"
               >
                 <span>
-                  {detectedQuality} <span className="text-neutral-400">(original)</span>
+                  {detectedQuality} <span className="text-neutral-400">{t.player.original}</span>
                 </span>
                 {quality === detectedQuality && <Check className="h-4 w-4" />}
               </button>
             )}
             <p className="px-3 py-2 text-[11px] leading-snug text-neutral-500">
-              MEGA serves one quality per video — the file above is the only stream.
+              {t.player.qualityNote}
             </p>
           </div>
         )}
@@ -761,14 +764,14 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
             leftIcon={null}
             rightIcon={null}
             disabled={duration <= 0}
-            ariaLabel="Seek"
+            ariaLabel={t.player.seekLabel}
           />
           <div className="mt-1 flex items-center gap-2">
             <button
               type="button"
               onClick={togglePlay}
-              title={paused ? "Play" : "Pause"}
-              aria-label={paused ? "Play" : "Pause"}
+              title={paused ? t.player.play : t.player.pause}
+              aria-label={paused ? t.player.play : t.player.pause}
               className="shrink-0 rounded-lg p-1.5 text-white transition hover:bg-white/10"
             >
               {paused ? (
@@ -781,8 +784,8 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
               <button
                 type="button"
                 onClick={toggleMute}
-                title={muted ? "Unmute" : "Mute"}
-                aria-label={muted ? "Unmute" : "Mute"}
+                title={muted ? t.player.unmute : t.player.mute}
+                aria-label={muted ? t.player.unmute : t.player.mute}
                 className="shrink-0 rounded-lg p-1.5 text-white transition hover:bg-white/10"
               >
                 {muted || volume === 0 ? (
@@ -799,7 +802,7 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
                   thumb
                   leftIcon={null}
                   rightIcon={null}
-                  ariaLabel="Volume"
+                  ariaLabel={t.player.volumeLabel}
                 />
               </div>
             </div>
@@ -811,8 +814,8 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
               <button
                 type="button"
                 onClick={toggleCaptions}
-                title={captionsOn ? "Hide English captions" : "Show English captions"}
-                aria-label="English captions"
+                title={captionsOn ? t.player.hideCaptions : t.player.showCaptions}
+                aria-label={t.player.captionsLabel}
                 aria-pressed={captionsOn}
                 className={`shrink-0 rounded-lg p-1.5 transition hover:bg-white/10 ${captionsOn ? "bg-white text-black hover:bg-white" : "text-white"}`}
               >
@@ -823,8 +826,8 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
               type="button"
               onClick={handleDownload}
               disabled={!isOnline && !isSavedOffline}
-              title="Download video"
-              aria-label="Download video"
+              title={t.player.downloadVideo}
+              aria-label={t.player.downloadVideo}
               className="shrink-0 rounded-lg p-1.5 text-white transition hover:bg-white/10 disabled:opacity-40"
             >
               <Download className="h-5 w-5" />
@@ -832,8 +835,8 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
             <button
               type="button"
               onClick={() => setSettingsOpen((v) => !v)}
-              title="Settings — speed and quality"
-              aria-label="Settings — speed and quality"
+              title={t.player.settingsLabel}
+              aria-label={t.player.settingsLabel}
               aria-expanded={settingsOpen}
               className={`shrink-0 rounded-lg p-1.5 transition hover:bg-white/10 ${settingsOpen ? "bg-white/15 text-white" : "text-white"}`}
             >
@@ -842,8 +845,8 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
             <button
               type="button"
               onClick={toggleFullscreen}
-              title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
-              aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+              title={isFullscreen ? t.player.exitFullscreen : t.player.fullscreen}
+              aria-label={isFullscreen ? t.player.exitFullscreen : t.player.fullscreen}
               className="shrink-0 rounded-lg p-1.5 text-white transition hover:bg-white/10"
             >
               {isFullscreen ? (
@@ -858,19 +861,19 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-800 px-4 py-3 bg-neutral-950">
         <div className="min-w-0">
-          <h2 className="truncate text-sm font-medium text-white">{title}</h2>
+          <h2 className="truncate text-sm font-medium text-white">{videoTitle(videoId, title)}</h2>
           <div className="mt-0.5 flex items-center gap-2 text-xs text-neutral-400">
             {isSavedOffline ? (
               <span className="inline-flex items-center gap-1 text-neutral-200">
-                <HardDrive className="h-3.5 w-3.5" /> Playing from in-app offline storage
+                <HardDrive className="h-3.5 w-3.5" /> {t.player.playingOffline}
               </span>
             ) : isOnline ? (
               <span className="inline-flex items-center gap-1">
-                <Wifi className="h-3.5 w-3.5" /> Streaming online
+                <Wifi className="h-3.5 w-3.5" /> {t.player.streamingOnline}
               </span>
             ) : (
               <span className="inline-flex items-center gap-1 text-neutral-500">
-                <WifiOff className="h-3.5 w-3.5" /> Offline (not saved)
+                <WifiOff className="h-3.5 w-3.5" /> {t.player.offlineNotSaved}
               </span>
             )}
           </div>
@@ -881,12 +884,12 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
           {isSavedOffline ? (
             <>
               <span className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white">
-                <Check className="h-3.5 w-3.5" /> Saved Offline
+                <Check className="h-3.5 w-3.5" /> {t.lesson.savedOffline}
               </span>
               <button
                 type="button"
                 onClick={handleRemoveOffline}
-                title="Remove offline copy"
+                title={t.player.removeOfflineCopy}
                 className="inline-flex items-center gap-1 rounded-lg border border-neutral-800 bg-black px-2.5 py-1.5 text-xs text-neutral-400 hover:border-neutral-600 hover:text-white transition"
               >
                 <Trash2 className="h-3.5 w-3.5" />
@@ -902,12 +905,12 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
               {isDownloading ? (
                 <>
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  Saving {downloadProgress > 0 ? `${downloadProgress}%` : "..."}
+                  {downloadProgress > 0 ? t.player.savingPct(downloadProgress) : t.player.saving}
                 </>
               ) : (
                 <>
                   <Download className="h-3.5 w-3.5" />
-                  Save Offline
+                  {t.lesson.saveOffline}
                 </>
               )}
             </button>
