@@ -259,13 +259,26 @@ describe("courses hub — ChromaGrid + tilt on every creator card", () => {
     assert.equal((data.match(/=s512-c-k-/g) || []).length, 3, "all three avatars must be 512px");
   });
 
-  test("the hub container is full width (no max-w cap, no shrink-wrap)", () => {
+  test("the hub page is full width but the card grid stays capped (no shrink-wrap)", () => {
     const hub = read("src/app/courses/page.tsx");
+    // The page container is full width: w-full is load-bearing (it is a
+    // flex item of a flex-col parent and mx-auto stops it stretching, so
+    // without w-full it shrink-wraps to the grid's intrinsic width and
+    // shows two cards per row instead of three), and there must be no
+    // max-w cap on the page.
     assert.ok(
       hub.includes('className="w-full px-4 py-8 sm:py-10"'),
-      "the hub container must be full width: w-full is load-bearing (it is a flex item of a flex-col parent and mx-auto stops it stretching, so without w-full it shrink-wraps to the grid's intrinsic width and shows two cards per row instead of three), and there must be no max-w cap"
+      "the hub page container must be full width with no max-w cap"
     );
-    assert.ok(!hub.includes("max-w-4xl"), "the hub container must not cap the width at max-w-4xl");
+    // But the card grid itself is capped at max-w-7xl so the cards are
+    // ~420px each — the UI/UX sweet spot: the old max-w-4xl made them
+    // ~291px (too small, Maalik 2026-11-19) and full width made them
+    // ~621px (too big). Cards capped, not the page (Maalik's order,
+    // 2026-11-19: "cards capped reh sakte h not the page").
+    assert.ok(
+      hub.includes('className="mx-auto mt-8 w-full max-w-7xl"'),
+      "the card grid must be capped at max-w-7xl so the cards are ~420px each"
+    );
   });
 });
 
