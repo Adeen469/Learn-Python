@@ -9,12 +9,14 @@ import {
   Play,
   Sparkles,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useLanguage } from "@/lib/i18n";
-import StarBorder from "@/components/StarBorder";
+import SpecularButton from "@/components/SpecularButton";
 import TextType from "@/components/TextType";
 
 export function LandingPage() {
   const { t } = useLanguage();
+  const router = useRouter();
 
   const FEATURES = [
     {
@@ -95,26 +97,26 @@ export function LandingPage() {
             {t.landing.heroSubtitle}
           </p>
           <div className="mt-12">
-            <StarBorder
-              as="a"
-              href="/auth/email"
-              color="#ffffff"
-              trailColor="#ffffff"
-              duration={4}
-              direction="clockwise"
-              stars={1}
-              trailLength={0.3}
-              thickness={1}
-              radius={12}
-              glow={0.6}
-              hover="lap"
-              sparkle={false}
-              clickPulse
-              theme="dark"
-              className="text-sm font-semibold"
+            <SpecularButton
+              size="lg"
+              radius={18}
+              tint="#ffffff"
+              tintOpacity={0}
+              textColor="#f5f5f5"
+              lineColor="#ffffff"
+              baseColor="#000000"
+              intensity={0.55}
+              idleIntensity={0}
+              shineSize={0}
+              shineFade={79}
+              thickness={0.5}
+              glow={1}
+              followMouse
+              proximity={250}
+              onClick={() => router.push("/auth/email")}
             >
               {t.landing.getStarted} <ArrowRight className="h-4 w-4" />
-            </StarBorder>
+            </SpecularButton>
           </div>
           <p className="mt-3 text-xs text-neutral-500">
             {t.landing.heroNote}

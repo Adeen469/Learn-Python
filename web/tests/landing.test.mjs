@@ -100,3 +100,36 @@ describe("landing page — no 100-days, no creator, no video source", () => {
     }
   });
 });
+
+describe("landing page — Get Started uses SpecularButton", () => {
+  test("the hero Get Started button is a SpecularButton with the specified props", () => {
+    const landing = read("src/components/LandingPage.tsx");
+    assert.ok(landing.includes('import SpecularButton from "@/components/SpecularButton";'), "LandingPage must import SpecularButton");
+    assert.ok(landing.includes("<SpecularButton"), "the Get Started button must be a SpecularButton");
+    assert.ok(!landing.includes("<StarBorder"), "StarBorder must no longer be the Get Started button");
+    for (const prop of [
+      'size="lg"',
+      "radius={18}",
+      'tint="#ffffff"',
+      "tintOpacity={0}",
+      'textColor="#f5f5f5"',
+      'lineColor="#ffffff"',
+      'baseColor="#000000"',
+      "intensity={0.55}",
+      "idleIntensity={0}",
+      "shineSize={0}",
+      "shineFade={79}",
+      "thickness={0.5}",
+      "glow={1}",
+      "followMouse",
+      "proximity={250}",
+    ]) {
+      assert.ok(landing.includes(prop), `SpecularButton must carry ${prop}`);
+    }
+    assert.ok(
+      landing.includes('onClick={() => router.push("/auth/email")}'),
+      "Get Started must still navigate to /auth/email on click"
+    );
+    assert.ok(landing.includes("{t.landing.getStarted}"), "the label must stay the i18n Get Started string");
+  });
+});

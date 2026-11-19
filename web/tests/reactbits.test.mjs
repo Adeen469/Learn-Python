@@ -267,3 +267,22 @@ describe("courses hub — ChromaGrid + tilt on every creator card", () => {
     );
   });
 });
+
+describe("SpecularButton (React Bits) — vendored as TypeScript", () => {
+  test("SpecularButton.tsx + .css exist and carry the WebGL specular light", () => {
+    assert.ok(existsSync(path.join(root, "src/components/SpecularButton.tsx")), "SpecularButton.tsx must exist");
+    assert.ok(existsSync(path.join(root, "src/components/SpecularButton.css")), "SpecularButton.css must exist");
+    const src = read("src/components/SpecularButton.tsx");
+    assert.ok(src.includes("'use client'"), "SpecularButton must be a client component");
+    assert.ok(src.includes("WebGL2RenderingContext"), "SpecularButton must be a TypeScript conversion (WebGL2 types)");
+    assert.ok(src.includes("gl_FragCoord"), "the fragment shader must be present");
+    assert.ok(src.includes("uSpot"), "the specular spot uniform must be present");
+    assert.ok(src.includes("export interface SpecularButtonProps"), "the props must be typed");
+    assert.ok(src.includes("followMouse"), "followMouse must be supported");
+    assert.ok(src.includes("prefers-reduced-motion"), "reduced motion must be respected");
+    const css = read("src/components/SpecularButton.css");
+    assert.ok(css.includes(".specular-button"), "the CSS must define .specular-button");
+    assert.ok(css.includes(".specular-button__light"), "the CSS must define the light canvas");
+    assert.ok(css.includes("specular-button--lg"), "the CSS must define the lg size");
+  });
+});

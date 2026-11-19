@@ -23,13 +23,18 @@ describe("star border install", () => {
     assert.ok(css.includes(".star-border__light"), "CSS must define the light canvas");
   });
 
-  test("the landing page's Get started button is a StarBorder link to /auth/email", () => {
+  test("the landing page's Get started button is a SpecularButton that navigates to /auth/email", () => {
+    // 2026-11-19: the hero Get Started button moved from StarBorder to
+    // the React Bits SpecularButton (Maalik's order). StarBorder stays
+    // vendored but is no longer used on the landing page.
     const landing = read("src/components/LandingPage.tsx");
     const en = read("src/lib/i18n/en.ts");
-    assert.ok(landing.includes('from "@/components/StarBorder"'), "landing must import StarBorder");
-    assert.ok(landing.includes("<StarBorder"), "Get started must render StarBorder");
-    assert.ok(landing.includes('as="a"'), "StarBorder must render as a link");
-    assert.ok(landing.includes('href="/auth/email"'), "Get started must link to the login/register page");
+    assert.ok(!landing.includes("<StarBorder"), "Get started must no longer render StarBorder");
+    assert.ok(landing.includes("<SpecularButton"), "Get started must render SpecularButton");
+    assert.ok(
+      landing.includes('onClick={() => router.push("/auth/email")}'),
+      "Get started must navigate to the login/register page on click"
+    );
     // The button label moved to i18n (en.ts landing.getStarted).
     assert.ok(landing.includes("t.landing.getStarted"), "the button must render the Get started key");
     assert.ok(en.includes('getStarted: "Get started"'), "the button must still say Get started");
