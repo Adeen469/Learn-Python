@@ -259,12 +259,13 @@ describe("courses hub — ChromaGrid + tilt on every creator card", () => {
     assert.equal((data.match(/=s512-c-k-/g) || []).length, 3, "all three avatars must be 512px");
   });
 
-  test("the hub container keeps its full max-w-4xl width (no shrink-wrap)", () => {
+  test("the hub container is full width (no max-w cap, no shrink-wrap)", () => {
     const hub = read("src/app/courses/page.tsx");
     assert.ok(
-      hub.includes("mx-auto w-full max-w-4xl"),
-      "the hub container must have w-full: it is a flex item of a flex-col parent and mx-auto stops it stretching, so without w-full it shrink-wraps to the grid's intrinsic width and shows two cards per row instead of three"
+      hub.includes('className="w-full px-4 py-8 sm:py-10"'),
+      "the hub container must be full width: w-full is load-bearing (it is a flex item of a flex-col parent and mx-auto stops it stretching, so without w-full it shrink-wraps to the grid's intrinsic width and shows two cards per row instead of three), and there must be no max-w cap"
     );
+    assert.ok(!hub.includes("max-w-4xl"), "the hub container must not cap the width at max-w-4xl");
   });
 });
 

@@ -322,7 +322,7 @@ export default function CoursePlayerPage({
     // the stacked video + cards scroll inside instead of the page.
     <div className="h-dvh bg-black text-white flex flex-col overflow-hidden pb-20 md:pb-0">
       <AppNavbar />
-      <div className="mx-auto max-w-6xl px-4 py-6 w-full flex-1 min-h-0 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="px-4 py-6 w-full flex-1 min-h-0 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <Link
           href={`/courses/${creator.slug}`}
           className="inline-flex items-center gap-1.5 text-sm text-neutral-400 transition hover:text-white"

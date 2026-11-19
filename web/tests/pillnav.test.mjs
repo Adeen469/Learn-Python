@@ -148,4 +148,16 @@ describe("pill nav install", () => {
       "the desktop header must keep its 3-zone grid",
     );
   });
+
+  test("the header bar is full width (no max-w cap)", () => {
+    // The logo and the profile dropdown must reach the screen edges —
+    // the header bar must not cap its width at max-w-6xl (Maalik's
+    // order, 2026-11-19: "still the logo and profile drop down is caped").
+    const navbar = read("src/components/AppNavbar.tsx");
+    assert.ok(!navbar.includes("max-w-6xl"), "the header bar must not cap the width at max-w-6xl");
+    assert.ok(
+      navbar.includes('className="grid w-full grid-cols-[1fr_auto]'),
+      "the header bar must be full width"
+    );
+  });
 });

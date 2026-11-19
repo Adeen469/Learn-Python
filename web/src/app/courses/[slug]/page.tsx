@@ -247,9 +247,10 @@ export default function CreatorPage({ params }: { params: Promise<{ slug: string
         w-full is load-bearing: this div is a flex item of a flex-col
         parent, and mx-auto (auto cross-axis margins) stops it stretching,
         so without an explicit width it shrink-wraps to the grid's
-        intrinsic width instead of the 896px max-w-4xl.
+        intrinsic width. w-full gives it a definite width; there is no
+        max-w cap (full width, Maalik's order 2026-11-19).
       */}
-      <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:py-10">
+      <div className="w-full px-4 py-8 sm:py-10">
         <Link
           href="/courses"
           className="inline-flex items-center gap-1.5 text-sm text-neutral-400 transition hover:text-white"

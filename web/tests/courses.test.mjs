@@ -115,6 +115,8 @@ test("creator and player routes exist and use the MEGA player", () => {
   const player = read(playerPath);
   assert.ok(player.includes("VideoPlayer"), "player must use the VideoPlayer");
   assert.ok(player.includes("megaLessonId"), "player must stream via the MEGA lesson id");
+  // The player page is full width with no max-w cap (Maalik's order 2026-11-19).
+  assert.ok(!player.includes("max-w-6xl"), "the player page must not cap the width at max-w-6xl");
   assert.ok(
     player.includes("youtube-nocookie.com/embed/"),
     "player must embed YouTube for videos with no MEGA link yet"
@@ -210,8 +212,10 @@ test("creator page redesign — header, cards and progress", () => {
   assert.ok(creator.includes("t.coursesPage.countCourses(collectionCount)"), "the header must show the course count");
   assert.ok(creator.includes("t.courses.countVideos(totalVideos)"), "the header must show the video count");
   assert.ok(creator.includes("t.common.durationTotal(totalSeconds)"), "the header must show the total watch time");
-  // Container: w-full is load-bearing (flex-col parent + mx-auto shrink-wraps it).
-  assert.ok(creator.includes("mx-auto w-full max-w-4xl"), "the creator container must keep its full max-w-4xl width");
+  // Container: w-full is load-bearing (flex-col parent + mx-auto shrink-wraps it);
+  // the container is full width with no max-w cap (Maalik's order 2026-11-19).
+  assert.ok(creator.includes('className="w-full px-4 py-8 sm:py-10"'), "the creator container must be full width");
+  assert.ok(!creator.includes("max-w-4xl"), "the creator container must not cap the width at max-w-4xl");
   // Cards: the thumbnail zooms on hover and a play button fades in,
   // so the card reads as watchable; the card lifts slightly.
   assert.ok(creator.includes("group-hover:scale-105"), "the thumbnail must zoom on hover");

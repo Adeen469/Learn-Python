@@ -276,7 +276,7 @@ export function AppNavbar() {
       {/* PC top bar: logo left, the three nav buttons centred, profile
           dropdown top-right. */}
       <header className="sticky top-0 z-30 border-b border-neutral-800 bg-black/95 backdrop-blur">
-        <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto] items-center gap-2 px-4 py-2.5 md:grid-cols-[1fr_auto_1fr]">
+        <div className="grid w-full grid-cols-[1fr_auto] items-center gap-2 px-4 py-2.5 md:grid-cols-[1fr_auto_1fr]">
           <div className="flex min-w-0 items-center justify-start">
             <Link href="/" className="flex shrink-0 items-center gap-2.5 hover:opacity-90 transition">
               <img
