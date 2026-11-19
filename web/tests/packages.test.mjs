@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+const read = (p) => readFileSync(join(root, p), "utf8");
 
 function namesFromTsList(file, constName) {
   const text = readFileSync(join(root, file), "utf8");
@@ -517,5 +518,96 @@ test("runtime load timeout is 5 minutes per CDN (slow downloads must finish)", (
   assert.ok(
     !src.includes("PYODIDE_LOAD_TIMEOUT_MS = 180_000"),
     "the old 180s timeout must be gone"
+  );
+});
+
+test("the Pyodide runtime is self-hosted on the same origin (CDNs failed for the user)", () => {
+  // 2026-11-19: BOTH public CDNs failed for the user — jsDelivr and
+  // unpkg each timed out at 300s, so the editor showed "could not
+  // load from jsDelivr or unpkg" and no code could run at all. The
+  // runtime is now served from this site, so it loads whenever the
+  // app itself loads; the CDNs stay only as fallbacks.
+  const src = read("src/lib/pyodide-install.ts");
+  assert.ok(
+    src.includes('export const PYODIDE_SCRIPT_URL = "/pyodide/pyodide.js";'),
+    "the loader script must come from the same origin"
+  );
+  assert.ok(
+    src.includes('"/pyodide/",'),
+    "the same-origin /pyodide/ base must be first in PYODIDE_CDN_BASES"
+  );
+  const bases = src.match(/export const PYODIDE_CDN_BASES = \[([\s\S]*?)\];/);
+  assert.ok(bases, "PYODIDE_CDN_BASES must be defined");
+  assert.ok(bases[1].indexOf('"/pyodide/"') < bases[1].indexOf("jsdelivr"), "same-origin must be tried before jsDelivr");
+  assert.ok(bases[1].indexOf("jsdelivr") < bases[1].indexOf("unpkg"), "jsDelivr must still be tried before unpkg as a fallback");
+  assert.ok(
+    src.includes('base.startsWith("/")'),
+    "the CDN display name must handle the same-origin base"
+  );
+  assert.ok(
+    src.includes('"this site"'),
+    "the same-origin base must display as 'this site' in the status line"
+  );
+  // The runtime files are fetched at BUILD time (not committed): the
+  // GitHub snapshot push flow only accepts UTF-8 text, so the binary
+  // .wasm/.zip/.whl files cannot be pushed. scripts/fetch-pyodide-runtime.mjs
+  // downloads them into public/pyodide/ via the `prebuild` script, and
+  // public/pyodide/ is gitignored.
+  const fetchScript = read("scripts/fetch-pyodide-runtime.mjs");
+  for (const f of ["pyodide.js", "pyodide.asm.js", "pyodide.asm.wasm", "python_stdlib.zip", "pyodide-lock.json", "micropip-0.8.0-py3-none-any.whl", "packaging-24.2-py3-none-any.whl"]) {
+    assert.ok(fetchScript.includes(`"${f}"`), `fetch script must download ${f}`);
+  }
+  assert.ok(fetchScript.includes("0.27.2"), "fetch script must pin Pyodide 0.27.2");
+  const pkg = JSON.parse(read("package.json"));
+  assert.equal(
+    pkg.scripts.prebuild,
+    "node scripts/fetch-pyodide-runtime.mjs",
+    "prebuild must fetch the Pyodide runtime before every build"
+  );
+  const gitignore = read(".gitignore");
+  assert.ok(gitignore.includes("public/pyodide/"), "the downloaded runtime must be gitignored (binary, not committed)");
+  // The runtime files themselves must be present locally (downloaded
+  // by the fetch script) so the editor can serve them.
+  for (const f of ["pyodide.js", "pyodide.asm.js", "pyodide.asm.wasm", "python_stdlib.zip", "pyodide-lock.json", "micropip-0.8.0-py3-none-any.whl", "packaging-24.2-py3-none-any.whl"]) {
+    const p = join(root, `public/pyodide/${f}`);
+    assert.ok(existsSync(p), `public/pyodide/${f} must exist locally`);
+    assert.ok(statSync(p).size > 0, `public/pyodide/${f} must not be empty`);
+  }
+  // The editor's <Script> must load the loader from the same origin.
+  const page = read("src/app/editor/page.tsx");
+  assert.ok(
+    page.includes('src="/pyodide/pyodide.js"'),
+    "the editor Script must load pyodide.js from the same origin"
+  );
+  assert.ok(
+    !page.includes("cdn.jsdelivr.net/pyodide"),
+    "the editor must not load the Pyodide script from jsDelivr anymore"
+  );
+});
+
+test("CSP allows WebAssembly instantiation for the self-hosted Pyodide runtime", () => {
+  // Without 'wasm-unsafe-eval' in script-src, the browser refuses
+  // WebAssembly.instantiateStreaming() with a CompileError and the
+  // runtime download succeeds but the engine never starts. This was
+  // hidden while the CDN download failed first; self-hosting exposed it.
+  const config = read("next.config.ts");
+  assert.ok(
+    config.includes("'wasm-unsafe-eval'"),
+    "script-src must include 'wasm-unsafe-eval' so Pyodide can instantiate its wasm module"
+  );
+  assert.ok(
+    /script-src[^"]*'wasm-unsafe-eval'/.test(config),
+    "'wasm-unsafe-eval' must be in the script-src directive (not elsewhere)"
+  );
+  // The broad 'unsafe-eval' must NOT appear as a standalone token in
+  // the script-src directive — 'wasm-unsafe-eval' is the narrow
+  // wasm-only permission. (The comment above the directive quotes the
+  // browser's "'unsafe-eval' is not an allowed source" error, so check
+  // the directive itself, not the whole file.)
+  const scriptSrc = config.match(/"script-src[^"]*"/);
+  assert.ok(scriptSrc, "a script-src directive must exist");
+  assert.ok(
+    !/(?<!wasm-)'unsafe-eval'/.test(scriptSrc[0]),
+    "the broad 'unsafe-eval' must NOT be used in script-src — 'wasm-unsafe-eval' is the narrow wasm-only permission"
   );
 });

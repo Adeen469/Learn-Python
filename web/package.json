@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "node --test tests/*.test.mjs"
+    "test": "node --test tests/*.test.mjs",
+    "prebuild": "node scripts/fetch-pyodide-runtime.mjs"
   },
   "dependencies": {
     "@hugeicons/core-free-icons": "^4.4.0",

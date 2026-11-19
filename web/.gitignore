@@ -1,0 +1,2 @@
+# Pyodide runtime binaries (downloaded at build time by scripts/fetch-pyodide-runtime.mjs; the GitHub snapshot push flow only accepts UTF-8 text)
+public/pyodide/

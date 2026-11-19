@@ -138,17 +138,23 @@ export async function installPackageInto(
   return { ok: true, method: viaPyodide ? "pyodide" : "micropip", importName };
 }
 
-/** The Pyodide loader script (same URL the editor's <Script> uses). */
-export const PYODIDE_SCRIPT_URL =
-  "https://cdn.jsdelivr.net/pyodide/v0.27.2/full/pyodide.js";
+/** The Pyodide loader script — served from this site (same origin),
+    so it loads whenever the app itself loads, no CDN needed. */
+export const PYODIDE_SCRIPT_URL = "/pyodide/pyodide.js";
 /**
- * CDN bases that host the Pyodide runtime, in try order. jsDelivr is
- * fast for most users, but it stalls for minutes on some networks —
- * the runtime download is then the whole install. unpkg hosts the
- * same files (at the package root, no /full/ subdir) and gives the
- * load a second, independent path instead of one slow CDN.
+ * Where the Pyodide runtime is loaded from, in try order. The runtime
+ * (~14 MB) is SELF-HOSTED in web/public/pyodide/ and served from the
+ * same origin as the app — because BOTH public CDNs failed for the
+ * user (2026-11-19: jsDelivr and unpkg each timed out at 300s, so the
+ * editor could never load the runtime at all and showed "could not
+ * load from jsDelivr or unpkg"). The app itself loads fine from
+ * Vercel, so the same-origin runtime loads from the same fast path.
+ * jsDelivr and unpkg stay as fallbacks if the self-hosted copy ever
+ * fails. (The /pyodide/ base is relative: loadPyodide resolves it
+ * against the page origin.)
  */
 export const PYODIDE_CDN_BASES = [
+  "/pyodide/",
   "https://cdn.jsdelivr.net/pyodide/v0.27.2/full/",
   "https://unpkg.com/pyodide@0.27.2/",
 ];
@@ -271,7 +277,11 @@ export async function loadPyodideRuntime(
   onStage?.("Waiting for Pyodide script…");
   await waitForPyodideScript(10000);
   for (const base of PYODIDE_CDN_BASES) {
-    const cdnName = base.includes("unpkg") ? "unpkg" : "jsDelivr";
+    const cdnName = base.startsWith("/")
+      ? "this site"
+      : base.includes("unpkg")
+        ? "unpkg"
+        : "jsDelivr";
     if (typeof (window as any).loadPyodide !== "function") {
       const scriptOk = await loadPyodideScript(base + "pyodide.js", 30000);
       if (!scriptOk) {
@@ -295,6 +305,6 @@ export async function loadPyodideRuntime(
     }
   }
   throw new Error(
-    "Python runtime could not load from jsDelivr or unpkg — check your connection and retry."
+    "Python runtime could not load from this site, jsDelivr or unpkg — check your connection and retry."
   );
 }

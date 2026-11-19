@@ -481,6 +481,14 @@ export default function CodeEditorPage() {
     setOutput((prev) => prev + `[Saved '${activeFile.path}']\n`);
   }
 
+  // Workspace files are synced into the Pyodide virtual filesystem so
+  // `import utils` (and any other local module) resolves when the code
+  // runs. They MUST be written to ABSOLUTE paths under /home/pyodide
+  // (Pyodide's working directory): relative paths resolved against an
+  // unexpected CWD, and the nested utils/ writes failed with
+  // ErrnoError, so `import utils` raised ModuleNotFoundError even
+  // though the runtime had loaded fine (2026-11-19).
+  const PY_WORKSPACE_ROOT = "/home/pyodide";
   function syncAllFilesToPyodide(workspaceItems: WorkspaceItem[]) {
     if (!pyodideRef.current) return;
     const py = pyodideRef.current;
@@ -488,7 +496,7 @@ export default function CodeEditorPage() {
       const folders = workspaceItems.filter((i) => i.type === "folder");
       for (const f of folders) {
         try {
-          py.FS.mkdirTree(f.path);
+          py.FS.mkdirTree(`${PY_WORKSPACE_ROOT}/${f.path}`);
         } catch {}
       }
       const files = workspaceItems.filter((i) => i.type === "file");
@@ -498,12 +506,12 @@ export default function CodeEditorPage() {
           if (parts.length > 1) {
             const dir = parts.slice(0, -1).join("/");
             try {
-              py.FS.mkdirTree(dir);
+              py.FS.mkdirTree(`${PY_WORKSPACE_ROOT}/${dir}`);
             } catch {}
           }
-          py.FS.writeFile(f.path, f.content ?? "");
+          py.FS.writeFile(`${PY_WORKSPACE_ROOT}/${f.path}`, f.content ?? "");
         } catch (e) {
-          console.warn("FS write:", e);
+          console.warn("FS write:", f.path, e);
         }
       }
     } catch (e) {
@@ -695,6 +703,15 @@ export default function CodeEditorPage() {
       const py = pyodideRef.current;
       syncAllFilesToPyodide(toRun);
 
+      // Run from the workspace root so `import utils` (and any other
+      // local module) resolves, and make sure that root is on sys.path.
+      py.runPython(`
+import sys, os
+os.chdir("/home/pyodide")
+if "/home/pyodide" not in sys.path:
+    sys.path.insert(0, "/home/pyodide")
+`);
+
       // Capture stdout/stderr and feed input() from the Program input box.
       // The originals are restored in `finally`, even when the code
       // crashes or reassigns sys.stdout itself.
@@ -808,7 +825,7 @@ _lp_term_result
     // pb-20 clears the mobile bottom nav bar (md:pb-0: PC has no bottom bar).
     <div className="min-h-screen bg-black text-white flex flex-col pb-20 md:pb-0">
       <Script
-        src="https://cdn.jsdelivr.net/pyodide/v0.27.2/full/pyodide.js"
+        src="/pyodide/pyodide.js"
         // Never pass initPyodide directly: next/script calls onLoad
         // with the DOM load Event, and initPyodide would take that
         // Event for a stage-listener function — see the guard above.

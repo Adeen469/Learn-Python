@@ -7,7 +7,16 @@ const csp = [
   // real Chromium render proved hydration is fully blocked without it
   // (28 CSP violations, no client-side rendering). A per-request nonce
   // via middleware would be the stricter alternative; out of scope here.
-  "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+  // 'wasm-unsafe-eval' is required too: Pyodide compiles/instantiates
+  // its WebAssembly module via WebAssembly.instantiateStreaming(), and
+  // without it the browser refuses with a CompileError ("violates the
+  // following Content Security policy directive because 'unsafe-eval'
+  // is not an allowed source") — the runtime download succeeds but the
+  // engine never starts. This surfaced only once the runtime was
+  // self-hosted (before that, the CDN download failed first, so the
+  // wasm step was never reached). 'wasm-unsafe-eval' is the narrow
+  // permission for wasm only; it does NOT allow arbitrary eval().
+  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.jsdelivr.net",
   // jsDelivr again: @monaco-editor/react loads Monaco's editor.main.css
   // from the CDN. Without this the stylesheet is CSP-blocked, Monaco
   // loses all layout CSS, and its hidden input textarea renders as a

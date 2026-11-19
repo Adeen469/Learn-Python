@@ -426,3 +426,36 @@ test("a stalled runtime load can be cancelled, and a stale load cannot flip stat
     assert.ok(/cancel: "[^"]+",/.test(dict), `${lang} must define common.cancel`);
   }
 });
+
+test("workspace files are written to absolute /home/pyodide paths so local imports resolve", () => {
+  // 2026-11-19: the runtime loaded but `import utils` raised
+  // ModuleNotFoundError — the nested utils/ writes used relative
+  // paths and failed with ErrnoError. Absolute paths under
+  // /home/pyodide (Pyodide's working directory) plus a chdir +
+  // sys.path insert before the run make local modules resolve.
+  const page = read("src/app/editor/page.tsx");
+  assert.ok(
+    page.includes('const PY_WORKSPACE_ROOT = "/home/pyodide";'),
+    "the workspace root must be the absolute /home/pyodide path"
+  );
+  assert.ok(
+    page.includes("py.FS.mkdirTree(`${PY_WORKSPACE_ROOT}/${f.path}`)"),
+    "folders must be created under the absolute workspace root"
+  );
+  assert.ok(
+    page.includes("py.FS.writeFile(`${PY_WORKSPACE_ROOT}/${f.path}`, f.content ?? \"\");"),
+    "files must be written under the absolute workspace root"
+  );
+  assert.ok(
+    page.includes('os.chdir("/home/pyodide")'),
+    "the run must chdir into the workspace root"
+  );
+  assert.ok(
+    page.includes('sys.path.insert(0, "/home/pyodide")'),
+    "the workspace root must be inserted into sys.path before the run"
+  );
+  assert.ok(
+    !/py\.FS\.writeFile\(f\.path,/.test(page),
+    "no relative-path FS.writeFile(f.path, ...) may remain"
+  );
+});
