@@ -13,6 +13,7 @@ export const fr: Strings = {
     genericError: "Une erreur est survenue. Veuillez réessayer.",
     backToSignIn: "Retour à la connexion",
     retry: "Réessayer",
+    cancel: "Annuler",
     completed: "Terminé",
     watchedPct: (pct: number) => `Regardé ${pct} %`,
     notStarted: "Pas commencé",

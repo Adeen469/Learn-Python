@@ -124,6 +124,7 @@ export type Strings = {
     genericError: string;
     backToSignIn: string;
     retry: string;
+    cancel: string;
     completed: string;
     watchedPct: (pct: number) => string;
     notStarted: string;

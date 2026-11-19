@@ -13,6 +13,7 @@ export const ko: Strings = {
     genericError: "문제가 발생했습니다. 다시 시도해 주세요.",
     backToSignIn: "로그인으로 돌아가기",
     retry: "다시 시도",
+    cancel: "취소",
     completed: "완료됨",
     watchedPct: (pct) => `시청 ${pct}%`,
     notStarted: "시작 전",

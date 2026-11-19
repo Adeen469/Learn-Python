@@ -15,6 +15,7 @@ export const hiRoman: Strings = {
     genericError: "Kuch galat ho gaya. Dobara try karo.",
     backToSignIn: "Sign in par wapas jao",
     retry: "Dobara try karo",
+    cancel: "Radd karein",
     completed: "Complete ho gaya",
     watchedPct: (pct) => `${pct}% dekha`,
     notStarted: "Abhi shuru nahi hua",

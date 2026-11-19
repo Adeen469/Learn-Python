@@ -15,6 +15,7 @@ export const es: Strings = {
     genericError: "Algo salió mal. Inténtalo de nuevo.",
     backToSignIn: "Volver a iniciar sesión",
     retry: "Reintentar",
+    cancel: "Cancelar",
     completed: "Completado",
     watchedPct: (pct: number) => `Visto el ${pct}%`,
     notStarted: "Sin empezar",

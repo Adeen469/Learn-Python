@@ -15,6 +15,7 @@ export const de: Strings = {
     genericError: "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
     backToSignIn: "Zurück zur Anmeldung",
     retry: "Erneut versuchen",
+    cancel: "Abbrechen",
     completed: "Abgeschlossen",
     watchedPct: (pct: number) => `${pct} % angesehen`,
     notStarted: "Nicht begonnen",

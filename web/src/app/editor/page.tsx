@@ -273,6 +273,10 @@ export default function CodeEditorPage() {
   // and an Install click) could start two Pyodide loads at once, and a
   // click before the script finished just gave up with "not ready".
   const pyodideInitPromiseRef = useRef<Promise<any> | null>(null);
+  // Generation of the in-flight runtime load: Cancel (or a fresh
+  // retry) bumps it, so a stale load finishing late cannot flip the
+  // loading state or mark its runtime ready after the user moved on.
+  const loadGenerationRef = useRef(0);
   // Stage listeners for the in-flight init: the Modules tab registers
   // one when the user clicks Install, so the progress bar can show
   // WHICH CDN is being tried and how far the load got — the old
@@ -329,8 +333,20 @@ export default function CodeEditorPage() {
       }
     }
     const emitStage = (stage: string) => {
+      // The status line reads engineStage directly, so it must update
+      // even when the load was started by a caller that passed no
+      // listener (e.g. Compile & Run calls initPyodide() bare, before
+      // the <Script> onLoad ever registers one) — otherwise the line
+      // falls back to the bare "Loading Engine" and a slow download
+      // reads as frozen. That is exactly what the user's 433s
+      // screenshot showed: the runtime was mid-download on unpkg,
+      // but the line said only "Loading Engine".
+      setEngineStage(stage);
       initStageListenersRef.current.forEach((fn) => fn(stage));
     };
+    // This attempt's generation: a Cancel (or a fresh retry) bumps
+    // loadGenerationRef, so only the latest attempt may flip state.
+    const gen = ++loadGenerationRef.current;
     const promise = (async () => {
       // Load the runtime with CDN fallback (jsDelivr, then unpkg):
       // the jsDelivr download alone used to stall for minutes on
@@ -340,6 +356,9 @@ export default function CodeEditorPage() {
       setEngineElapsed(0);
       setEngineStage(null);
       const pyodide = await loadPyodideRuntime(emitStage);
+      // A cancelled/stale attempt must not mark its runtime ready
+      // after the user moved on (or a fresh retry started).
+      if (gen !== loadGenerationRef.current) return null;
       // Stop button support, when the browser allows SharedArrayBuffer.
       try {
         if (typeof SharedArrayBuffer !== "undefined") {
@@ -386,9 +405,25 @@ export default function CodeEditorPage() {
       return null;
     } finally {
       if (onStage) initStageListenersRef.current.delete(onStage);
-      setLoadingEngine(false);
-      setEngineStage(null);
+      // Only the latest attempt may clear the loading state: a stale
+      // attempt finishing late must not hide a fresh retry's spinner.
+      if (gen === loadGenerationRef.current) {
+        setLoadingEngine(false);
+        setEngineStage(null);
+      }
     }
+  }
+
+  // Stop waiting on a stalled runtime download: invalidate the
+  // in-flight attempt (its late finish is ignored by the generation
+  // guard) and clear the loading state, so Run / retry can start a
+  // fresh load instead of staring at the spinner for up to 10 min.
+  function cancelEngineLoad() {
+    loadGenerationRef.current++;
+    pyodideInitPromiseRef.current = null;
+    setLoadingEngine(false);
+    setEngineStage(null);
+    setEngineElapsed(0);
   }
 
   // Shared by the Modules tab: loads the runtime if needed, true when ready.
@@ -915,6 +950,13 @@ _lp_term_result
               {engineStage ?? t.editorPage.loadingEngine}
             </span>
             <span className="text-neutral-500 shrink-0">· {engineElapsed}s</span>
+            <button
+              type="button"
+              onClick={cancelEngineLoad}
+              className="ml-auto shrink-0 underline font-semibold text-neutral-300 hover:text-white"
+            >
+              {t.common.cancel}
+            </button>
           </div>
         )}
 

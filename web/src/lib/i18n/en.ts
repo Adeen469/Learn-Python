@@ -27,6 +27,7 @@ export const en: Strings = {
     genericError: "Something went wrong. Please try again.",
     backToSignIn: "Back to sign in",
     retry: "Retry",
+    cancel: "Cancel",
     completed: "Completed",
     watchedPct: (pct: number) => `Watched ${pct}%`,
     notStarted: "Not started",

@@ -17,6 +17,7 @@ export const ar: Strings = {
     genericError: "حدث خطأ ما. يُرجى المحاولة مرة أخرى.",
     backToSignIn: "العودة إلى تسجيل الدخول",
     retry: "إعادة المحاولة",
+    cancel: "إلغاء",
     completed: "مكتمل",
     watchedPct: (pct: number) => `شاهدت ${pct}٪`,
     notStarted: "لم يبدأ بعد",

@@ -24,6 +24,7 @@ export const ru: Strings = {
     genericError: "Что-то пошло не так. Попробуйте ещё раз.",
     backToSignIn: "Назад ко входу",
     retry: "Повторить",
+    cancel: "Отмена",
     completed: "Завершено",
     watchedPct: (pct: number) => `Просмотрено ${pct}%`,
     notStarted: "Не начато",

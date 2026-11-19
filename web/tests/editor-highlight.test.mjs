@@ -310,8 +310,10 @@ describe("editor fixes — static checks", () => {
       "the status line must show the elapsed seconds so a slow download reads as working, not stuck"
     );
     assert.ok(
-      page.includes("setEngineStage(null);\n    }\n  }\n\n  // Shared by the Modules tab"),
-      "the stage must clear when the load finishes"
+      page.includes(
+        "if (gen === loadGenerationRef.current) {\n        setLoadingEngine(false);\n        setEngineStage(null);\n      }"
+      ),
+      "the stage must clear when the latest load finishes (guarded so a stale attempt cannot hide a fresh retry's spinner)"
     );
   });
 
@@ -374,4 +376,53 @@ describe("editor fixes — static checks", () => {
       }
     }
   });
+});
+
+test("the load status line always shows the real stage, even when the load was started bare", () => {
+  // Root cause of the user's 433s screenshot: Compile & Run calls
+  // initPyodide() with NO stage listener, and the <Script> onLoad
+  // listener is only registered when pyodide.js loads — so when the
+  // script is slow, emitStage had no listeners and the line fell back
+  // to the bare "Loading Engine" while the download was mid-flight.
+  // emitStage must update engineStage directly, not only listeners.
+  const src = read("src/app/editor/page.tsx");
+  const emit = src.match(/const emitStage = \(stage: string\) => \{[\s\S]*?\n    \};/);
+  assert.ok(emit, "emitStage must be defined in initPyodide");
+  assert.ok(
+    emit[0].includes("setEngineStage(stage)"),
+    "emitStage must call setEngineStage(stage) directly so the status line always shows the stage"
+  );
+  assert.ok(
+    emit[0].includes("initStageListenersRef.current.forEach"),
+    "emitStage must still notify the registered listeners (Modules tab)"
+  );
+});
+
+test("a stalled runtime load can be cancelled, and a stale load cannot flip state", () => {
+  const src = read("src/app/editor/page.tsx");
+  // Generation guard.
+  assert.ok(src.includes("const loadGenerationRef = useRef(0);"), "a load-generation ref must exist");
+  assert.ok(src.includes("const gen = ++loadGenerationRef.current;"), "each fresh load must claim a generation");
+  assert.ok(
+    src.includes("if (gen !== loadGenerationRef.current) return null;"),
+    "a stale load finishing late must not mark its runtime ready"
+  );
+  assert.ok(
+    src.includes("if (gen === loadGenerationRef.current) {"),
+    "only the latest attempt may clear the loading state in the finally"
+  );
+  // Cancel.
+  assert.ok(src.includes("function cancelEngineLoad()"), "a cancelEngineLoad function must exist");
+  assert.ok(src.includes("loadGenerationRef.current++;"), "cancel must invalidate the in-flight attempt");
+  assert.ok(src.includes("pyodideInitPromiseRef.current = null;"), "cancel must clear the shared init promise so a retry starts fresh");
+  // The status line carries the Cancel button.
+  assert.ok(src.includes("onClick={cancelEngineLoad}"), "the status line must have a Cancel button wired to cancelEngineLoad");
+  assert.ok(src.includes("{t.common.cancel}"), "the Cancel button must use the i18n cancel label");
+  // The cancel label exists in the type and every language.
+  const type = read("src/lib/i18n/index.tsx");
+  assert.ok(type.includes("cancel: string;"), "the Strings type must carry common.cancel");
+  for (const lang of ["en", "hi-roman", "fr", "ja", "ko", "es", "de", "pt", "ru", "ar", "zh"]) {
+    const dict = read(`src/lib/i18n/${lang}.ts`);
+    assert.ok(/cancel: "[^"]+",/.test(dict), `${lang} must define common.cancel`);
+  }
 });

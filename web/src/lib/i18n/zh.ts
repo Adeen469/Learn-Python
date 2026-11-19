@@ -14,6 +14,7 @@ export const zh: Strings = {
     genericError: "出了点问题，请重试。",
     backToSignIn: "返回登录",
     retry: "重试",
+    cancel: "取消",
     completed: "已完成",
     watchedPct: (pct: number) => `已观看 ${pct}%`,
     notStarted: "未开始",

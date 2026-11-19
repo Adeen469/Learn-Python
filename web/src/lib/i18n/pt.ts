@@ -14,6 +14,7 @@ export const pt: Strings = {
     genericError: "Algo deu errado. Tente novamente.",
     backToSignIn: "Voltar para o login",
     retry: "Tentar novamente",
+    cancel: "Cancelar",
     completed: "Concluído",
     watchedPct: (pct: number) => `Assistido ${pct}%`,
     notStarted: "Não iniciado",

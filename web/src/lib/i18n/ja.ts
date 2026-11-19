@@ -22,6 +22,7 @@ export const ja: Strings = {
     genericError: "問題が発生しました。もう一度お試しください。",
     backToSignIn: "サインインに戻る",
     retry: "再試行",
+    cancel: "キャンセル",
     completed: "完了",
     watchedPct: (pct: number) => `視聴済み ${pct}%`,
     notStarted: "未開始",
