@@ -152,7 +152,18 @@ test("Keyboard shortcuts: Space plays/pauses, arrows seek 10 seconds", () => {
   assert.ok(vp.includes("seekBy(10)"), "right arrow must seek 10 seconds forward");
   assert.ok(vp.includes("seekBy(-10)"), "left arrow must seek 10 seconds back");
   assert.ok(vp.includes("e.target !== e.currentTarget"), "keys must only act when the player itself has focus, not a button inside it");
-  assert.ok(vp.includes("t.player.keyboardHint"), "the player must hint the shortcuts under the video");
+  assert.ok(!vp.includes("t.player.keyboardHint"), "the keyboard hint line is hidden — it must not be rendered under the video");
+});
+
+test("Keyboard volume: ArrowUp raises volume, ArrowDown lowers it", () => {
+  const vp = player();
+  assert.ok(vp.includes('e.key === "ArrowUp"'), "up arrow must change volume");
+  assert.ok(vp.includes('e.key === "ArrowDown"'), "down arrow must change volume");
+  assert.ok(vp.includes("handleVolumeChange(volume + 5)"), "up arrow must raise volume by 5");
+  assert.ok(vp.includes("handleVolumeChange(volume - 5)"), "down arrow must lower volume by 5");
+  assert.ok(vp.includes("showVolumeSliderBriefly"), "volume keys must briefly show the volume slider");
+  const en = read("src/lib/i18n/en.ts");
+  assert.ok(en.includes("↑ ↓ — volume"), "the (hidden) keyboard hint text must mention the volume keys");
 });
 
 test("Loading state: a spinner + Loading text shows while the stream loads or re-buffers", () => {

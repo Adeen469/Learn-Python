@@ -492,7 +492,7 @@ export const zh: Strings = {
     streamingOnline: "在线播放中",
     offlineNotSaved: "离线（未保存）",
     keyboardHint:
-      "空格 — 播放 / 暂停 · ← → — 快进/快退 10 秒 · 点按扬声器调节音量",
+      "空格 — 播放 / 暂停 · ← → — 快进/快退 10 秒 · ↑ ↓ — 音量 · 点按扬声器调节音量",
     removeOfflineCopy: "删除离线副本",
     savingPct: (pct: number) => `保存中 ${pct}%`,
     saving: "保存中…",

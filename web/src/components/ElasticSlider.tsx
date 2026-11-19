@@ -628,7 +628,7 @@ function ElasticSlider({
   return (
     <div
       ref={rootRef}
-      className={[ROOT, className].filter(Boolean).join('')}
+      className={[ROOT, className].filter(Boolean).join(' ')}
       style={
         {
           '--elastic-slider-track': trackColor,

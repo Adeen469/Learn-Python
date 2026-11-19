@@ -520,7 +520,7 @@ export const en: Strings = {
     streamingOnline: "Streaming online",
     offlineNotSaved: "Offline (not saved)",
     keyboardHint:
-      "Space — play / pause · ← → — seek 10 seconds · tap the speaker for volume",
+      "Space — play / pause · ← → — seek 10 seconds · ↑ ↓ — volume · tap the speaker for volume",
     removeOfflineCopy: "Remove offline copy",
     savingPct: (pct: number) => `Saving ${pct}%`,
     saving: "Saving ...",

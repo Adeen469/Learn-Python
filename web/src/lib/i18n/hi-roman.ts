@@ -438,7 +438,7 @@ export const hiRoman: Strings = {
     playingOffline: "In-app offline storage se chal raha hai",
     streamingOnline: "Online stream ho raha hai",
     offlineNotSaved: "Offline (save nahi hua)",
-    keyboardHint: "Space — play / pause · ← → — 10 second aage-peeche · volume ke liye speaker par tap karo",
+    keyboardHint: "Space — play / pause · ← → — 10 second aage-peeche · ↑ ↓ — volume · volume ke liye speaker par tap karo",
     removeOfflineCopy: "Offline copy hatao",
     savingPct: (pct) => `Save ho raha hai ${pct}%`,
     saving: "Save ho raha hai…",

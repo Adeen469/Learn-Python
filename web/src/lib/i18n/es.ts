@@ -508,7 +508,7 @@ export const es: Strings = {
     streamingOnline: "Transmitiendo en línea",
     offlineNotSaved: "Sin conexión (no guardado)",
     keyboardHint:
-      "Espacio: reproducir / pausar · ← →: avanzar o retroceder 10 segundos · toca el altavoz para el volumen",
+      "Espacio: reproducir / pausar · ← →: avanzar o retroceder 10 segundos · ↑ ↓: volumen · toca el altavoz para el volumen",
     removeOfflineCopy: "Eliminar la copia sin conexión",
     savingPct: (pct: number) => `Guardando ${pct}%`,
     saving: "Guardando…",

@@ -142,6 +142,23 @@ describe("elastic slider — one video control bar", () => {
       "vendored slider root must follow its container width, not the demo's fixed w-48"
     );
   });
+
+  test("elastic slider className merge must join with a space (seek bar needs pointer-events-auto)", () => {
+    const slider = read("src/components/ElasticSlider.tsx");
+    assert.ok(
+      slider.includes("[ROOT, className].filter(Boolean).join(' ')"),
+      "the root className must join ROOT and the caller's className with a space — join('') glued them into one dead token (w-autopointer-events-auto) so the seek bar inherited pointer-events:none from the control bar and no drag or tap could seek"
+    );
+    assert.ok(
+      !slider.includes("[ROOT, className].filter(Boolean).join('')"),
+      "the empty-string join must be gone"
+    );
+    const player = read("src/components/VideoPlayer.tsx");
+    assert.ok(
+      player.includes('className="pointer-events-auto"'),
+      "the seek slider must re-enable pointer events inside the pointer-events-none control bar"
+    );
+  });
 });
 
 describe("player page — no title card, button in the player footer, short scrollable list", () => {

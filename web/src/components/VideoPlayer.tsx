@@ -564,7 +564,24 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
     } else if (e.key === "ArrowLeft") {
       e.preventDefault();
       seekBy(-10);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      handleVolumeChange(volume + 5);
+      showVolumeSliderBriefly();
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      handleVolumeChange(volume - 5);
+      showVolumeSliderBriefly();
     }
+  }
+
+  // Keyboard volume keys briefly pop the volume slider open so the
+  // new level is visible, then it closes on its own.
+  const volumeKeyTimerRef = useRef<number | null>(null);
+  function showVolumeSliderBriefly() {
+    setVolumeOpen(true);
+    if (volumeKeyTimerRef.current !== null) window.clearTimeout(volumeKeyTimerRef.current);
+    volumeKeyTimerRef.current = window.setTimeout(() => setVolumeOpen(false), 1500);
   }
 
   function toggleFullscreen() {
@@ -1041,7 +1058,6 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
               </span>
             )}
           </div>
-          <p className="mt-1 text-xs text-neutral-500">{t.player.keyboardHint}</p>
         </div>
 
         <div className="flex items-center gap-2">

@@ -510,7 +510,7 @@ export const de: Strings = {
     streamingOnline: "Online-Streaming",
     offlineNotSaved: "Offline (nicht gespeichert)",
     keyboardHint:
-      "Leertaste — Abspielen / Pausieren · ← → — 10 Sekunden spulen · Lautsprecher antippen für Lautstärke",
+      "Leertaste — Abspielen / Pausieren · ← → — 10 Sekunden spulen · ↑ ↓ — Lautstärke · Lautsprecher antippen für Lautstärke",
     removeOfflineCopy: "Offline-Kopie entfernen",
     savingPct: (pct: number) => `Wird gespeichert: ${pct} %`,
     saving: "Wird gespeichert…",

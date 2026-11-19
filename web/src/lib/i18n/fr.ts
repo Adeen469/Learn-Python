@@ -459,7 +459,7 @@ export const fr: Strings = {
     playingOffline: "Lecture depuis le stockage hors ligne de l’application",
     streamingOnline: "Diffusion en ligne",
     offlineNotSaved: "Hors ligne (non enregistré)",
-    keyboardHint: "Espace — lecture / pause · ← → — avancer ou reculer de 10 secondes · touchez le haut-parleur pour le volume",
+    keyboardHint: "Espace — lecture / pause · ← → — avancer ou reculer de 10 secondes · ↑ ↓ — volume · touchez le haut-parleur pour le volume",
     removeOfflineCopy: "Supprimer la copie hors ligne",
     savingPct: (pct: number) => `Enregistrement ${pct} %`,
     saving: "Enregistrement…",

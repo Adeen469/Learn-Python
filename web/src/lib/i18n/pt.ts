@@ -507,7 +507,7 @@ export const pt: Strings = {
     streamingOnline: "Transmitindo online",
     offlineNotSaved: "Offline (não salvo)",
     keyboardHint:
-      "Espaço — reproduzir / pausar · ← → — avançar ou voltar 10 segundos · toque no alto-falante para o volume",
+      "Espaço — reproduzir / pausar · ← → — avançar ou voltar 10 segundos · ↑ ↓ — volume · toque no alto-falante para o volume",
     removeOfflineCopy: "Remover cópia offline",
     savingPct: (pct: number) => `Salvando ${pct}%`,
     saving: "Salvando…",

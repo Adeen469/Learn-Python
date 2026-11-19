@@ -441,7 +441,7 @@ export const ko: Strings = {
     playingOffline: "앱 내 오프라인 저장소에서 재생 중",
     streamingOnline: "온라인 스트리밍 중",
     offlineNotSaved: "오프라인 (저장되지 않음)",
-    keyboardHint: "스페이스바 — 재생/일시 정지 · ← → — 10초 이동 · 볼륨은 스피커를 탭하세요",
+    keyboardHint: "스페이스바 — 재생/일시 정지 · ← → — 10초 이동 · ↑ ↓ — 볼륨 · 볼륨은 스피커를 탭하세요",
     removeOfflineCopy: "오프라인 복사본 제거",
     savingPct: (pct) => `저장 중 ${pct}%`,
     saving: "저장 중…",

@@ -500,7 +500,7 @@ export const ja: Strings = {
     streamingOnline: "オンラインでストリーミング中",
     offlineNotSaved: "オフライン（未保存）",
     keyboardHint:
-      "スペース — 再生／一時停止 · ← → — 10秒シーク · スピーカーをタップして音量調整",
+      "スペース — 再生／一時停止 · ← → — 10秒シーク · ↑ ↓ — 音量 · スピーカーをタップして音量調整",
     removeOfflineCopy: "オフラインコピーを削除",
     savingPct: (pct: number) => `保存中 ${pct}%`,
     saving: "保存中…",
