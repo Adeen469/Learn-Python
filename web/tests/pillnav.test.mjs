@@ -36,6 +36,11 @@ describe("pill nav install", () => {
       2,
       "PillNav must render twice — desktop top bar and mobile bottom dock",
     );
+    // The desktop pill uses the md size (44px tall) — the sm size (36px)
+    // felt too short next to the 48px logo, and md matches the mobile
+    // dock's height (Maalik's order, 2026-11-19: navbar height thodi si
+    // increase karo, as a UI/UX designer).
+    assert.ok(navbar.includes('size="md"'), "the desktop pill must use the md size (44px tall)");
     assert.ok(navbar.includes('itemStyle="plain"'), "the nav must use plain items");
     assert.ok(navbar.includes('hoverEffect="fill"'), "the nav must use the fill hover effect");
     assert.ok(navbar.includes('indicator="dot"'), "the nav must mark the page with a dot");

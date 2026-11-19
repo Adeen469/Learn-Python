@@ -270,14 +270,14 @@ describe("courses hub — ChromaGrid + tilt on every creator card", () => {
       hub.includes('className="w-full px-4 py-8 sm:py-10"'),
       "the hub page container must be full width with no max-w cap"
     );
-    // But the card grid itself is capped at max-w-7xl so the cards are
-    // ~420px each — the UI/UX sweet spot: the old max-w-4xl made them
-    // ~291px (too small, Maalik 2026-11-19) and full width made them
-    // ~621px (too big). Cards capped, not the page (Maalik's order,
-    // 2026-11-19: "cards capped reh sakte h not the page").
+    // But the card grid itself is capped at max-w-6xl so the cards are
+    // ~376px each — 10% smaller than the max-w-7xl ~419px (Maalik
+    // 2026-11-19: "abhi bhi thode bade lagre h. 10% kam krde"). Cards
+    // capped, not the page (Maalik's order, 2026-11-19: "cards capped
+    // reh sakte h not the page").
     assert.ok(
-      hub.includes('className="mx-auto mt-8 w-full max-w-7xl"'),
-      "the card grid must be capped at max-w-7xl so the cards are ~420px each"
+      hub.includes('className="mx-auto mt-8 w-full max-w-6xl"'),
+      "the card grid must be capped at max-w-6xl so the cards are ~376px each"
     );
   });
 });

@@ -190,3 +190,15 @@ test("lesson pages are full width (no width caps)", () => {
   assert.ok(!page.includes("<article className=\"mx-auto max-w-3xl\">"), "the lesson article must not cap the width at max-w-3xl");
   assert.ok(page.includes("<article>"), "the lesson article must render without a width cap");
 });
+
+test("the lessons route has its own loading skeleton (not the dashboard one)", () => {
+  // The lessons page must skeleton the lesson article (heading +
+  // paragraphs + code block), not the dashboard layout (video area +
+  // progress cards) from the root loading.tsx — that looked like the
+  // courses page while a lesson loaded (Maalik's order, 2026-11-19).
+  const loading = readFileSync(join(webDir, "src/app/learn/loading.tsx"), "utf8");
+  assert.ok(loading.includes("<article"), "the lessons loading skeleton must be an article");
+  assert.ok(loading.includes("animate-pulse"), "the lessons loading skeleton must pulse");
+  assert.ok(!loading.includes("aspect-video"), "the lessons skeleton must not show a video area");
+  assert.ok(!loading.includes("lg:grid-cols-3"), "the lessons skeleton must not use the dashboard 3-column layout");
+});

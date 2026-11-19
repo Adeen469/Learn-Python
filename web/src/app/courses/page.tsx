@@ -104,7 +104,7 @@ export default function CoursesPage() {
             {t.coursesPage.emptyState}
           </p>
         ) : (
-          <div className="mx-auto mt-8 w-full max-w-7xl">
+          <div className="mx-auto mt-8 w-full max-w-6xl">
             <ChromaGrid
               items={COURSE_CREATORS.map((creator) => ({
                 image: creator.avatarUrl,

@@ -302,7 +302,7 @@ export function AppNavbar() {
               itemStyle="plain"
               hoverEffect="fill"
               indicator="dot"
-              size="sm"
+              size="md"
               collapse="never"
             />
           </div>
