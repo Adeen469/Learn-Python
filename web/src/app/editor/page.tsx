@@ -166,6 +166,11 @@ export default function CodeEditorPage() {
   // Text fed to input() calls, one line per call. Without this, any
   // program using input() used to hang/fail with no way to type an answer.
   const [programInput, setProgramInput] = useState<string>("");
+  // Terminal command line: one Python statement/expression per Enter,
+  // run in the live runtime. Disabled while a command or a file run
+  // is in flight — both redirect sys.stdout, so they must not overlap.
+  const [terminalInput, setTerminalInput] = useState<string>("");
+  const [terminalBusy, setTerminalBusy] = useState(false);
   const [pyodideError, setPyodideError] = useState<string | null>(null);
 
   // AI code help (Gemini first, Groq fallback, via POST /api/ai).
@@ -258,6 +263,12 @@ export default function CodeEditorPage() {
   const pyodideRef = useRef<any>(null);
   const [pyodideReady, setPyodideReady] = useState(false);
   const [loadingEngine, setLoadingEngine] = useState(false);
+  // Live load status: which step the runtime load is on ("Downloading
+  // runtime from jsDelivr…") and how many seconds it has been going.
+  // The old bare "Loading Engine" spinner read as frozen on slow
+  // connections — this line proves the download is alive.
+  const [engineStage, setEngineStage] = useState<string | null>(null);
+  const [engineElapsed, setEngineElapsed] = useState(0);
   // Single-flight init: without this, two callers (the <Script> onLoad
   // and an Install click) could start two Pyodide loads at once, and a
   // click before the script finished just gave up with "not ready".
@@ -277,6 +288,17 @@ export default function CodeEditorPage() {
   const activeFile =
     items.find((it) => it.type === "file" && it.path === activeFilePath) ||
     items.find((it) => it.type === "file");
+
+  // Elapsed-seconds ticker while the runtime loads: the number ticking
+  // up proves the load is alive (downloading, not frozen).
+  useEffect(() => {
+    if (!loadingEngine) return;
+    const timer = window.setInterval(
+      () => setEngineElapsed((s) => s + 1),
+      1000
+    );
+    return () => window.clearInterval(timer);
+  }, [loadingEngine]);
 
   async function initPyodide(onStage?: (stage: string) => void) {
     if (pyodideRef.current) return pyodideRef.current;
@@ -313,8 +335,10 @@ export default function CodeEditorPage() {
       // Load the runtime with CDN fallback (jsDelivr, then unpkg):
       // the jsDelivr download alone used to stall for minutes on
       // some networks and hang the whole install. loadPyodideRuntime
-      // gives each CDN 60s and tries the next one on a stall.
+      // gives each CDN 5 minutes and tries the next one on a stall.
       setLoadingEngine(true);
+      setEngineElapsed(0);
+      setEngineStage(null);
       const pyodide = await loadPyodideRuntime(emitStage);
       // Stop button support, when the browser allows SharedArrayBuffer.
       try {
@@ -363,6 +387,7 @@ export default function CodeEditorPage() {
     } finally {
       if (onStage) initStageListenersRef.current.delete(onStage);
       setLoadingEngine(false);
+      setEngineStage(null);
     }
   }
 
@@ -680,6 +705,67 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
     }
   }
 
+  // Run one terminal command in the live runtime: a single Python
+  // statement or expression per Enter, REPL-style. Expressions print
+  // their repr (2 + 2 -> 4); statements run silently; print() output
+  // is captured too. 'clear' empties the terminal instead of running
+  // Python. stdout is redirected only for the duration of the call
+  // and restored in `finally`, so a crash cannot leave it captured.
+  async function runTerminalCommand() {
+    const code = terminalInput.trim();
+    if (!code || terminalBusy) return;
+    setTerminalInput("");
+    if (code === "clear") {
+      setOutput("");
+      return;
+    }
+    const py = pyodideRef.current;
+    if (!py) {
+      setOutput(
+        (prev) => prev + `>>> ${code}\n${t.editorPage.terminalNotReady}\n`
+      );
+      return;
+    }
+    setTerminalBusy(true);
+    setOutput((prev) => prev + `>>> ${code}\n`);
+    try {
+      const result = await py.runPythonAsync(`
+import sys, io
+_lp_term_out = io.StringIO()
+_lp_term_old = sys.stdout
+sys.stdout = _lp_term_out
+_lp_term_repr = ""
+try:
+    try:
+        _lp_term_val = eval(compile(${JSON.stringify(code)}, "<terminal>", "eval"))
+        if _lp_term_val is not None:
+            _lp_term_repr = repr(_lp_term_val)
+    except SyntaxError:
+        exec(compile(${JSON.stringify(code)}, "<terminal>", "exec"))
+finally:
+    sys.stdout = _lp_term_old
+_lp_term_result = _lp_term_out.getvalue()
+if _lp_term_repr != "":
+    if _lp_term_result != "" and not _lp_term_result.endswith("\\n"):
+        _lp_term_result += "\\n"
+    _lp_term_result += _lp_term_repr
+_lp_term_result
+`);
+      let text = typeof result === "string" ? result : "";
+      if (text.length > 2000) {
+        text = text.slice(0, 2000) + "\n…(output truncated)";
+      }
+      if (text) {
+        setOutput((prev) => prev + text + (text.endsWith("\n") ? "" : "\n"));
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setOutput((prev) => prev + `${msg}\n`);
+    } finally {
+      setTerminalBusy(false);
+    }
+  }
+
   // Guests never see the editor — the gate effect above redirects to /.
   if (!enteredChecked) return null;
 
@@ -691,7 +777,9 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
         // Never pass initPyodide directly: next/script calls onLoad
         // with the DOM load Event, and initPyodide would take that
         // Event for a stage-listener function — see the guard above.
-        onLoad={() => initPyodide()}
+        // The arrow passes a real stage listener instead, so the
+        // status line below can show which CDN is being tried.
+        onLoad={() => initPyodide((stage) => setEngineStage(stage))}
         onError={() => {
           const msg = t.editorPage.pyodideLoadError;
           setPyodideError(msg);
@@ -817,6 +905,18 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
             </button>
           </div>
         </div>
+
+        {/* Runtime load status: which CDN/step it is on + elapsed time,
+            so a slow download reads as "working", not "stuck". */}
+        {loadingEngine && (
+          <div className="flex items-center gap-2 rounded-lg border border-neutral-800 bg-neutral-950 px-4 py-2 text-xs text-neutral-400">
+            <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" />
+            <span className="truncate">
+              {engineStage ?? t.editorPage.loadingEngine}
+            </span>
+            <span className="text-neutral-500 shrink-0">· {engineElapsed}s</span>
+          </div>
+        )}
 
         {pyodideError && (
           <div className="flex items-center justify-between rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-xs text-red-200">
@@ -1122,6 +1222,31 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
                 rows={2}
                 className="mt-1 w-full resize-y rounded border border-neutral-800 bg-neutral-950 px-2 py-1 font-mono text-xs text-white placeholder-neutral-600 focus:border-white focus:outline-none"
               />
+            </div>
+            {/* Terminal command line: type a Python command, Enter runs
+                it in the live runtime. Disabled until the runtime is
+                ready and while a command or a file run is in flight. */}
+            <div className="border-t border-neutral-800 bg-black px-3.5 py-2">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs font-semibold text-white shrink-0">
+                  &gt;&gt;&gt;
+                </span>
+                <input
+                  type="text"
+                  value={terminalInput}
+                  onChange={(e) => setTerminalInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") runTerminalCommand();
+                  }}
+                  placeholder={
+                    pyodideReady
+                      ? t.editorPage.terminalInputPlaceholder
+                      : t.editorPage.terminalInputLoadingPlaceholder
+                  }
+                  disabled={!pyodideReady || terminalBusy || isRunning}
+                  className="w-full bg-transparent font-mono text-xs text-white placeholder-neutral-600 focus:outline-none disabled:opacity-50"
+                />
+              </div>
             </div>
           </div>
         </div>

@@ -507,3 +507,15 @@ test("creator and joiner share one successful init", async () => {
   assert.deepEqual(joiner, { ready: true });
   assert.equal(calls, 1);
 });
+
+test("runtime load timeout is 5 minutes per CDN (slow downloads must finish)", () => {
+  const src = readFileSync(join(root, "src/lib/pyodide-install.ts"), "utf8");
+  assert.ok(
+    src.includes("export const PYODIDE_LOAD_TIMEOUT_MS = 300_000;"),
+    "PYODIDE_LOAD_TIMEOUT_MS must be 300_000: at ~50-80 KB/s the 15 MB runtime needs ~190-300s, and 180s killed both CDNs mid-download leaving the editor on 'Loading Engine' with no error"
+  );
+  assert.ok(
+    !src.includes("PYODIDE_LOAD_TIMEOUT_MS = 180_000"),
+    "the old 180s timeout must be gone"
+  );
+});

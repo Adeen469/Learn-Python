@@ -454,6 +454,9 @@ export type Strings = {
     terminalLogs: string;
     programInputLabel: string;
     programInputPlaceholder: string;
+    terminalInputPlaceholder: string;
+    terminalInputLoadingPlaceholder: string;
+    terminalNotReady: string;
     aiExplanation: string;
     aiBugCheck: string;
     aiCodeHelp: string;

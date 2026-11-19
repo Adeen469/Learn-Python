@@ -158,11 +158,15 @@ export const PYODIDE_CDN_BASES = [
  * DOWNLOADING, just slowly: it hit the 60s cap and got abandoned
  * mid-download, then unpkg faced the same cap. A ~15 MB runtime at
  * ~100 KB/s needs ~150s, so 60s killed every attempt before it
- * could finish. 3 minutes per CDN gives a slow download a real
- * chance; the progress bar shows the elapsed time the whole way,
- * so a slow load reads as "working", not "stuck".
+ * could finish. Was then 180s — still too short: on the user's
+ * connection the download runs closer to ~50-80 KB/s, so 15 MB
+ * needs ~190-300s and 180s killed BOTH CDNs mid-download, leaving
+ * the editor on "Loading Engine" with no error at all. 5 minutes
+ * per CDN gives a slow-but-working download a real chance to
+ * finish; the editor now shows the live stage + elapsed seconds
+ * the whole way, so a slow load reads as "working", not "stuck".
  */
-export const PYODIDE_LOAD_TIMEOUT_MS = 180_000;
+export const PYODIDE_LOAD_TIMEOUT_MS = 300_000;
 /** How long one package's wheel download (loadPackage) may take. */
 export const PYODIDE_PACKAGE_LOAD_TIMEOUT_MS = 120_000;
 /** How long a micropip install from PyPI may take. */
@@ -250,7 +254,7 @@ export function loadPyodideScript(
  * Load the Pyodide runtime, trying each CDN base in turn. One slow
  * CDN used to doom the whole install: loadPyodide() has no timeout
  * of its own, and a stalled 15 MB download hung "Installing…"
- * for minutes with no error. Now each CDN gets 3 minutes — jsDelivr
+ * for minutes with no error. Now each CDN gets 5 minutes — jsDelivr
  * first, unpkg second — and a stalled one is abandoned for the
  * next instead of blocking the install. `onStage` reports each
  * step (which CDN is being tried, timeouts, success) so the UI can

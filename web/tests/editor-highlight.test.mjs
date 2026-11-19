@@ -238,8 +238,8 @@ describe("editor fixes — static checks", () => {
   test("next/script onLoad must not pass the load Event into initPyodide", () => {
     const page = read("src/app/editor/page.tsx");
     assert.ok(
-      page.includes("onLoad={() => initPyodide()}"),
-      "Script onLoad must call initPyodide with no arguments"
+      page.includes("onLoad={() => initPyodide((stage) => setEngineStage(stage))}"),
+      "Script onLoad must call initPyodide with a real stage-listener function, so the load status line can show which CDN is being tried"
     );
     assert.ok(!page.includes("onLoad={initPyodide}"), "bare initPyodide must not be the onLoad handler");
     assert.ok(!page.includes("TEMP-DIAG"), "no diagnostic logging may ship");
@@ -287,5 +287,91 @@ describe("editor fixes — static checks", () => {
       assert.ok(lib.includes(name), `highlight.tsx must export ${name}`);
     }
     assert.ok(!lib.includes("linear-gradient"), "no gradients in the highlight styling");
+  });
+
+  test("runtime load shows its stage and elapsed seconds while Loading Engine", () => {
+    const page = read("src/app/editor/page.tsx");
+    assert.ok(page.includes("const [engineStage, setEngineStage]"), "engineStage state must exist");
+    assert.ok(page.includes("const [engineElapsed, setEngineElapsed]"), "engineElapsed state must exist");
+    assert.ok(
+      page.includes("setInterval(\n      () => setEngineElapsed((s) => s + 1),\n      1000"),
+      "a 1s ticker must advance the elapsed seconds while loading"
+    );
+    assert.ok(
+      page.includes("{loadingEngine && ("),
+      "a status line must render only while the engine is loading"
+    );
+    assert.ok(
+      page.includes("{engineStage ?? t.editorPage.loadingEngine}"),
+      "the status line must show the live stage (which CDN/step), falling back to Loading Engine"
+    );
+    assert.ok(
+      page.includes("· {engineElapsed}s"),
+      "the status line must show the elapsed seconds so a slow download reads as working, not stuck"
+    );
+    assert.ok(
+      page.includes("setEngineStage(null);\n    }\n  }\n\n  // Shared by the Modules tab"),
+      "the stage must clear when the load finishes"
+    );
+  });
+
+  test("terminal has a command line that runs Python in the live runtime", () => {
+    const page = read("src/app/editor/page.tsx");
+    assert.ok(page.includes("const [terminalInput, setTerminalInput]"), "terminalInput state must exist");
+    assert.ok(page.includes("const [terminalBusy, setTerminalBusy]"), "terminalBusy state must exist");
+    assert.ok(page.includes("async function runTerminalCommand()"), "runTerminalCommand must exist");
+    assert.ok(
+      page.includes('if (e.key === "Enter") runTerminalCommand();'),
+      "Enter in the terminal input must run the command"
+    );
+    assert.ok(
+      page.includes("disabled={!pyodideReady || terminalBusy || isRunning}"),
+      "the terminal input must stay disabled until the runtime is ready and while a command or file run is in flight"
+    );
+    assert.ok(
+      page.includes('if (code === "clear")'),
+      "'clear' must empty the terminal instead of running Python"
+    );
+    assert.ok(
+      page.includes('eval(compile(${JSON.stringify(code)}, "<terminal>", "eval"))'),
+      "expressions must run through eval so their repr prints (2 + 2 -> 4)"
+    );
+    assert.ok(
+      page.includes('exec(compile(${JSON.stringify(code)}, "<terminal>", "exec"))'),
+      "statements must fall back to exec when eval raises SyntaxError"
+    );
+    assert.ok(
+      page.includes("_lp_term_repr = repr(_lp_term_val)"),
+      "an expression result must print its repr, not nothing"
+    );
+    assert.ok(
+      page.includes("t.editorPage.terminalInputPlaceholder"),
+      "the input must use the i18n placeholder when ready"
+    );
+    assert.ok(
+      page.includes("t.editorPage.terminalInputLoadingPlaceholder"),
+      "the input must say the runtime is still loading when it is not ready"
+    );
+    assert.ok(
+      page.includes("&gt;&gt;&gt;"),
+      "the input must carry a >>> prompt"
+    );
+  });
+
+  test("terminal input i18n keys exist in the type and every language", () => {
+    const type = read("src/lib/i18n/index.tsx");
+    for (const key of [
+      "terminalInputPlaceholder: string;",
+      "terminalInputLoadingPlaceholder: string;",
+      "terminalNotReady: string;",
+    ]) {
+      assert.ok(type.includes(key), `Strings type must declare ${key}`);
+    }
+    for (const lang of ["en", "hi-roman", "fr", "de", "es", "pt", "ru", "ja", "ko", "zh", "ar"]) {
+      const text = read(`src/lib/i18n/${lang}.ts`);
+      for (const key of ["terminalInputPlaceholder:", "terminalInputLoadingPlaceholder:", "terminalNotReady:"]) {
+        assert.ok(text.includes(key), `${lang}.ts must define ${key}`);
+      }
+    }
   });
 });
