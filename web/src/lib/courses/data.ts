@@ -49,6 +49,17 @@ export interface CourseCreator {
   oneShots: CourseVideo[];
 }
 
+/**
+ * Accent colour per creator — the ChromaGrid glow on the hub and the
+ * ring / play button / progress bar on the creator page. One source
+ * of truth so both pages always agree.
+ */
+export const CREATOR_ACCENTS: Record<string, string> = {
+  codewithharry: "#ff8a4c",
+  "code-with-mosh": "#3fb8ff",
+  "apna-college": "#ffd23f",
+};
+
 export const COURSE_CREATORS: CourseCreator[] = [
   {
     name: "CodeWithHarry",

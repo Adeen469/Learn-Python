@@ -182,3 +182,78 @@ test("video route allows the full Hobby duration for slow streams", () => {
     "video route must export maxDuration = 60 (Vercel Hobby cap)"
   );
 });
+
+test("creator accents live in data.ts and both pages import them", () => {
+  assert.ok(
+    data.includes("export const CREATOR_ACCENTS"),
+    "data.ts must export CREATOR_ACCENTS (single source of truth)"
+  );
+  const hub = read(hubPath);
+  const creator = read(creatorPath);
+  assert.ok(hub.includes("CREATOR_ACCENTS"), "the hub must import CREATOR_ACCENTS from data.ts");
+  assert.ok(!hub.includes('codewithharry: "#ff8a4c"'), "the hub must not keep its own accent copy");
+  assert.ok(creator.includes("CREATOR_ACCENTS"), "the creator page must use the same accents");
+  for (const [key, colour] of [["codewithharry", "#ff8a4c"], ['"code-with-mosh"', "#3fb8ff"], ['"apna-college"', "#ffd23f"]]) {
+    assert.ok(data.includes(`${key}: "${colour}"`), `data.ts must map ${key} to ${colour}`);
+  }
+});
+
+test("creator page redesign — header, cards and progress", () => {
+  const creator = read(creatorPath);
+  // Header: a bigger picture with the creator's own accent ring, and a
+  // stats row (collections, videos, total time) instead of one grey line.
+  assert.ok(creator.includes("h-24 w-24"), "the header avatar must be 96px, not 80px");
+  assert.ok(
+    creator.includes('style={{ backgroundColor: accent }}'),
+    "the avatar must wear a solid ring in the creator's accent colour"
+  );
+  assert.ok(creator.includes("t.coursesPage.countCourses(collectionCount)"), "the header must show the course count");
+  assert.ok(creator.includes("t.courses.countVideos(totalVideos)"), "the header must show the video count");
+  assert.ok(creator.includes("t.common.durationTotal(totalSeconds)"), "the header must show the total watch time");
+  // Container: w-full is load-bearing (flex-col parent + mx-auto shrink-wraps it).
+  assert.ok(creator.includes("mx-auto w-full max-w-4xl"), "the creator container must keep its full max-w-4xl width");
+  // Cards: the thumbnail zooms on hover and a play button fades in,
+  // so the card reads as watchable; the card lifts slightly.
+  assert.ok(creator.includes("group-hover:scale-105"), "the thumbnail must zoom on hover");
+  assert.ok(creator.includes("group-hover:opacity-100"), "a play button must fade in on hover");
+  assert.ok(creator.includes("hover:-translate-y-1"), "the card must lift on hover");
+  // Progress: each card shows how much of that collection is watched,
+  // read from the same localStorage key the player writes.
+  assert.ok(creator.includes('localStorage.getItem("lp_completed_lessons")'), "the page must read the player's completed list");
+  assert.ok(creator.includes("video.megaLessonId ?? video.videoId"), "progress must match the player's completion id");
+  assert.ok(creator.includes("doneCount"), "each card must receive its watched count");
+  assert.ok(creator.includes("t.common.watchedPct(pct)"), "the card must show the watched percentage");
+  assert.ok(creator.includes("width: `${pct}%`"), "the progress bar must fill to the watched percentage");
+});
+
+test("creator cards are black-and-white at rest and tilt, like the hub", () => {
+  const creator = read(creatorPath);
+  // The thumbnail is grayscale until the card is hovered, when the
+  // colour returns (the same reveal the hub's Chroma cards do).
+  assert.ok(
+    creator.includes("grayscale transition"),
+    "the thumbnail must be grayscale at rest"
+  );
+  assert.ok(
+    creator.includes("group-hover:grayscale-0"),
+    "the thumbnail must return to colour on hover"
+  );
+  // The whole card tilts toward the cursor, using the same Tilt
+  // component as the hub (default strength 8).
+  assert.ok(
+    creator.includes('import Tilt from "@/components/Tilt"'),
+    "the creator page must import the Tilt component"
+  );
+  assert.ok(creator.includes("<Tilt"), "each card must be wrapped in a Tilt");
+  assert.ok(creator.includes("</Tilt>"), "the Tilt wrapper must close around the card");
+  assert.ok(
+    creator.includes("className=\"h-full\""),
+    "the card link must fill the Tilt wrapper so rows stay equal height"
+  );
+  // The accent progress bar stays coloured on the grey card, so the
+  // watched fraction still reads at a glance.
+  assert.ok(
+    creator.includes("style={{ width: `${pct}%`, backgroundColor: accent }}"),
+    "the progress bar must keep the creator's accent colour"
+  );
+});

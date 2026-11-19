@@ -7,7 +7,7 @@ import { fetchSessionUser } from "@/lib/auth-client";
 import { AppNavbar } from "@/components/AppNavbar";
 import ChromaGrid from "@/components/ChromaGrid";
 import { useLanguage, type Strings } from "@/lib/i18n";
-import { COURSE_CREATORS, totalCourseVideos, type CourseCreator } from "@/lib/courses/data";
+import { COURSE_CREATORS, CREATOR_ACCENTS, totalCourseVideos, type CourseCreator } from "@/lib/courses/data";
 
 /** Total video seconds for one creator (durations render via t.common.durationTotal). */
 function creatorTotalSeconds(creator: CourseCreator): number {
@@ -39,13 +39,6 @@ function creatorVideoCount(creator: CourseCreator): number {
     creator.oneShots.length
   );
 }
-
-/** Accent glow per creator, for the ChromaGrid cards. */
-const CREATOR_ACCENTS: Record<string, string> = {
-  codewithharry: "#ff8a4c",
-  "code-with-mosh": "#3fb8ff",
-  "apna-college": "#ffd23f",
-};
 
 /**
  * Video Courses — three teachers, one card each. Tap a card to see
