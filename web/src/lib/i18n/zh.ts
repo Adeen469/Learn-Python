@@ -82,6 +82,7 @@ export const zh: Strings = {
     fullCourseLabel: "完整课程",
     totalLabel: "总计",
     playingLabel: "播放中",
+    pausedLabel: "已暂停",
   },
   roadmap: {
     topicsComplete: (done: number, total: number) =>

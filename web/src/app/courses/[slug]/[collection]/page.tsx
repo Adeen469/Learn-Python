@@ -85,6 +85,15 @@ export default function CoursePlayerPage({
   );
   const [activeCoverage, setActiveCoverage] = useState({ fraction: 0, seconds: 0 });
   const [isPlaying, setIsPlaying] = useState(false);
+  // True once the active video has actually started playing — so the
+  // list can say "Paused" (not "Not started") when it is stopped
+  // mid-way. Reset whenever a different lesson is picked.
+  const [hasPlayed, setHasPlayed] = useState(false);
+
+  function handlePlayStateChange(playing: boolean) {
+    setIsPlaying(playing);
+    if (playing) setHasPlayed(true);
+  }
   // Autoplay the next lesson when one ends (on by default; the toggle
   // lives in the player's control bar and survives reloads).
   const [autoplay, setAutoplay] = useState<boolean>(() =>
@@ -201,6 +210,7 @@ export default function CoursePlayerPage({
   // stay on the ended video.
   function handleVideoEnded() {
     setIsPlaying(false);
+    setHasPlayed(false);
     if (!autoplay) return;
     const nextIndex = activeIndex + 1;
     if (nextIndex < videos.length) {
@@ -273,9 +283,9 @@ export default function CoursePlayerPage({
   // The video list, as React Bits AnimatedList entries — same rows as
   // before (Play icon, title, duration, status), now springing into
   // view with a gliding selection ring. The status tells the truth
-  // about the video: the one that is playing says "Playing" (not
-  // "Not started"), a partly watched one shows its %, a finished one
-  // says "Completed".
+  // about the video: the one that is playing says "Playing", one
+  // stopped mid-way says "Paused" (not "Not started"), a partly
+  // watched one shows its %, a finished one says "Completed".
   const listItems: AnimatedListEntry[] = videos.map((video, index) => {
     const done = completedIds.includes(completionId(video));
     const pct = Math.max(
@@ -283,17 +293,20 @@ export default function CoursePlayerPage({
       storedCoveragePct(video),
     );
     const playing = index === activeIndex && isPlaying;
+    const paused = index === activeIndex && hasPlayed && !isPlaying;
     return {
       id: completionId(video),
       icon: playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />,
       title: videoTitle(video.videoId, video.title),
       description: playing
         ? t.course.playingLabel
-        : done
-          ? t.common.completed
-          : pct > 0
-            ? t.common.watchedPct(pct)
-            : t.common.notStarted,
+        : paused
+          ? t.course.pausedLabel
+          : done
+            ? t.common.completed
+            : pct > 0
+              ? t.common.watchedPct(pct)
+              : t.common.notStarted,
       meta:
         video.durationSeconds === undefined
           ? ""
@@ -332,7 +345,7 @@ export default function CoursePlayerPage({
                 }
                 onLessonQualified={handleVideoQualified}
                 onEnded={handleVideoEnded}
-                onPlayStateChange={setIsPlaying}
+                onPlayStateChange={handlePlayStateChange}
                 completionButton={completionButton}
               />
             ) : (
@@ -415,6 +428,7 @@ export default function CoursePlayerPage({
                   onItemSelect={(_item, index) => {
                     setActiveIndex(index);
                     setIsPlaying(false);
+                    setHasPlayed(false);
                     setActiveCoverage({ fraction: 0, seconds: 0 });
                   }}
                   frame={false}

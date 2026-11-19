@@ -179,6 +179,7 @@ export type Strings = {
     fullCourseLabel: string;
     totalLabel: string;
     playingLabel: string;
+    pausedLabel: string;
   };
   roadmap: {
     topicsComplete: (done: number, total: number) => string;

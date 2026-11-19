@@ -90,6 +90,7 @@ export const ru: Strings = {
     fullCourseLabel: "Полный курс",
     totalLabel: "всего",
     playingLabel: "Воспроизводится",
+    pausedLabel: "На паузе",
   },
   roadmap: {
     topicsComplete: (done: number, total: number) =>

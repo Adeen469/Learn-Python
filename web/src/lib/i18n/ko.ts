@@ -79,6 +79,7 @@ export const ko: Strings = {
     fullCourseLabel: "전체 강좌",
     totalLabel: "합계",
     playingLabel: "재생 중",
+    pausedLabel: "일시 정지됨",
   },
   roadmap: {
     topicsComplete: (done, total) =>

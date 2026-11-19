@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
-import { Captions, Check, Download, HardDrive, Loader2, Maximize, Minimize, Pause, Play, Settings, Trash2, Volume2, VolumeX, Wifi, WifiOff } from "lucide-react";
+import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode, type TouchEvent } from "react";
+import { Captions, Check, Download, HardDrive, Loader2, Maximize, Minimize, Pause, Play, RotateCcw, RotateCw, Settings, Trash2, Volume2, VolumeX, Wifi, WifiOff } from "lucide-react";
 import ElasticSlider from "@/components/ElasticSlider";
 import { WATCH_QUALIFY_FRACTION } from "@/lib/progress";
 import { useLanguage } from "@/lib/i18n";
@@ -485,6 +485,59 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
     else video.pause();
   }
 
+  // Double-tap to seek (touch only, YouTube-style): two quick taps on
+  // the left half rewind 10s, on the right half forward 10s. A single
+  // tap still toggles play — it just waits ~300ms to make sure a
+  // second tap isn't coming.
+  const DOUBLE_TAP_MS = 300;
+  const tapRef = useRef<{ time: number; x: number } | null>(null);
+  const tapTimerRef = useRef<number | null>(null);
+  const lastTouchRef = useRef(0);
+  const [seekFeedback, setSeekFeedback] = useState<{ dir: "back" | "forward"; id: number } | null>(null);
+  const seekFeedbackTimerRef = useRef<number | null>(null);
+
+  function handleVideoClick() {
+    // A tap handled by the touch handler below already toggled play
+    // on its timer — the synthetic click that follows it must not
+    // toggle a second time.
+    if (Date.now() - lastTouchRef.current < 500) return;
+    togglePlay();
+  }
+
+  function handleVideoTouchEnd(e: TouchEvent<HTMLVideoElement>) {
+    // Suppress the synthetic click so the tap is handled exactly once.
+    e.preventDefault();
+    lastTouchRef.current = Date.now();
+    const touch = e.changedTouches[0];
+    if (!touch) return;
+    const rect = videoRef.current?.getBoundingClientRect();
+    const x = rect ? touch.clientX - rect.left : 0;
+    const half = rect ? rect.width / 2 : 0;
+    const now = Date.now();
+    const prev = tapRef.current;
+    if (prev && now - prev.time < DOUBLE_TAP_MS && (prev.x < half) === (x < half)) {
+      // Double-tap on the same half: seek, don't toggle play.
+      if (tapTimerRef.current !== null) {
+        window.clearTimeout(tapTimerRef.current);
+        tapTimerRef.current = null;
+      }
+      tapRef.current = null;
+      const dir = x < half ? "back" : "forward";
+      seekBy(dir === "back" ? -10 : 10);
+      if (seekFeedbackTimerRef.current !== null) window.clearTimeout(seekFeedbackTimerRef.current);
+      setSeekFeedback({ dir, id: now });
+      seekFeedbackTimerRef.current = window.setTimeout(() => setSeekFeedback(null), 700);
+      return;
+    }
+    tapRef.current = { time: now, x };
+    if (tapTimerRef.current !== null) window.clearTimeout(tapTimerRef.current);
+    tapTimerRef.current = window.setTimeout(() => {
+      tapTimerRef.current = null;
+      tapRef.current = null;
+      togglePlay();
+    }, DOUBLE_TAP_MS);
+  }
+
   function handleSeek(next: number) {
     const video = videoRef.current;
     if (!video || !(duration > 0)) return;
@@ -733,7 +786,8 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
           playsInline
           preload="metadata"
           autoPlay={autoplay}
-          onClick={togglePlay}
+          onClick={handleVideoClick}
+          onTouchEnd={handleVideoTouchEnd}
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
           onPause={() => persistWatched(lessonId)}
@@ -759,6 +813,24 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
           <div className="pointer-events-none absolute inset-0 z-[5] flex flex-col items-center justify-center gap-3 bg-black/40">
             <Loader2 className="h-10 w-10 animate-spin text-white" aria-hidden="true" />
             <p className="text-sm text-neutral-300">{t.common.loading}</p>
+          </div>
+        )}
+
+        {/* Double-tap seek feedback: a brief "10s" badge on the side
+            that was double-tapped, so the seek is visible. */}
+        {seekFeedback && (
+          <div
+            key={seekFeedback.id}
+            className={`pointer-events-none absolute inset-y-0 z-[6] flex w-1/3 items-center ${seekFeedback.dir === "back" ? "left-0 justify-start pl-8" : "right-0 justify-end pr-8"}`}
+          >
+            <div className="flex flex-col items-center gap-1 rounded-full bg-black/60 px-4 py-3 text-white">
+              {seekFeedback.dir === "back" ? (
+                <RotateCcw className="h-6 w-6" aria-hidden="true" />
+              ) : (
+                <RotateCw className="h-6 w-6" aria-hidden="true" />
+              )}
+              <span className="text-xs font-semibold">10s</span>
+            </div>
           </div>
         )}
 
@@ -839,7 +911,7 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
             bar fades out 2.5s after the last mouse move while the
             video plays, and comes back on any movement. */}
         <div
-          className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent px-3 pb-2.5 pt-10 text-white transition-opacity duration-300 ${showControls ? "opacity-100" : "pointer-events-none opacity-0"}`}
+          className={`pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent px-3 pb-2.5 pt-10 text-white transition-opacity duration-300 ${showControls ? "opacity-100" : "opacity-0"}`}
         >
           <ElasticSlider
             value={currentTime}
@@ -851,8 +923,9 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
             rightIcon={null}
             disabled={duration <= 0}
             ariaLabel={t.player.seekLabel}
+            className="pointer-events-auto"
           />
-          <div className="mt-1 flex items-center gap-2">
+          <div className="pointer-events-auto mt-1 flex items-center gap-2">
             <button
               type="button"
               onClick={togglePlay}

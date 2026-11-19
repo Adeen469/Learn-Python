@@ -83,6 +83,7 @@ export const pt: Strings = {
     fullCourseLabel: "Curso completo",
     totalLabel: "total",
     playingLabel: "Reproduzindo",
+    pausedLabel: "Pausado",
   },
   roadmap: {
     topicsComplete: (done: number, total: number) =>

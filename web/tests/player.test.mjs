@@ -17,8 +17,9 @@ const animatedList = () => read("src/components/AnimatedList.tsx");
 
 test("the lesson list shows Playing for the video that is playing", () => {
   const page = playerPage();
-  assert.ok(page.includes("onPlayStateChange={setIsPlaying}"), "the page must learn the play state from the player");
+  assert.ok(page.includes("onPlayStateChange={handlePlayStateChange}"), "the page must learn the play state from the player");
   assert.ok(page.includes("const [isPlaying, setIsPlaying] = useState(false)"), "the page must track whether the video is playing");
+  assert.ok(page.includes("setIsPlaying(playing)"), "the play-state handler must update isPlaying");
   assert.ok(page.includes('description: playing'), "the list status must have a Playing branch");
   assert.ok(page.includes('"Playing"'), "the playing video must say Playing, not Not started");
   assert.ok(page.includes("const playing = index === activeIndex && isPlaying"), "Playing must mean the active video is actually playing");
@@ -79,7 +80,8 @@ test("controls auto-hide 2.5s after the last mouse move and return on movement",
   assert.ok(vp.includes("showControls"), "the bar must track its visibility");
   assert.ok(vp.includes("onMouseMove={handlePointerActivity}"), "mouse movement must bring the controls back");
   assert.ok(vp.includes("onMouseEnter={handlePointerActivity}"), "entering the player must show the controls");
-  assert.ok(vp.includes("pointer-events-none opacity-0"), "hidden controls must fade out and stop catching clicks");
+  assert.ok(vp.includes('showControls ? "opacity-100" : "opacity-0"'), "hidden controls must fade out");
+  assert.ok(vp.includes("pointer-events-none absolute inset-x-0 bottom-0"), "the control bar must never catch clicks on the video");
   assert.ok(vp.includes("cursor-none"), "the cursor must hide with the controls");
   assert.ok(vp.includes("if (paused || settingsOpen) return"), "the bar must never hide while paused or while a menu is open");
 });
@@ -164,4 +166,27 @@ test("Loading state: a spinner + Loading text shows while the stream loads or re
   assert.ok(vp.includes("t.common.loading"), "the spinner must label itself Loading in the user's language");
   assert.ok(vp.includes("animate-spin"), "the loading indicator must spin");
   assert.ok(vp.includes("pointer-events-none"), "the spinner must not block taps on the video");
+});
+
+test("Paused state: the lesson list says Paused when the video is stopped mid-way", () => {
+  const page = playerPage();
+  assert.ok(page.includes("hasPlayed"), "the page must remember whether the video has started");
+  assert.ok(page.includes("t.course.pausedLabel"), "the list must show a Paused label");
+  assert.ok(page.includes("hasPlayed && !isPlaying"), "Paused must mean started but not playing");
+  assert.ok(page.includes("setHasPlayed(false)"), "picking another lesson must reset the played state");
+  const en = read("src/lib/i18n/en.ts");
+  assert.ok(en.includes('pausedLabel: "Paused"'), "the Paused label must exist in English");
+});
+
+test("Double-tap seek: two quick taps on a video half seek 10 seconds (touch only)", () => {
+  const vp = player();
+  assert.ok(vp.includes("handleVideoTouchEnd"), "the video must handle touch end for double-tap");
+  assert.ok(vp.includes("DOUBLE_TAP_MS"), "a double-tap window must be defined");
+  assert.ok(vp.includes('seekBy(dir === "back" ? -10 : 10)'), "double-tap left rewinds, right forwards 10s");
+  assert.ok(vp.includes("seekFeedback"), "a visible 10s badge must show where the double-tap landed");
+  assert.ok(vp.includes("onClick={handleVideoClick}"), "the video click must not double-toggle after a touch tap");
+  assert.ok(vp.includes("preventDefault"), "the touch handler must suppress the synthetic click");
+  assert.ok(vp.includes("pointer-events-none absolute inset-x-0 bottom-0"), "the control bar must not block taps on the video");
+  assert.ok(vp.includes('className="pointer-events-auto"'), "the seek bar must stay tappable above the pass-through bar");
+  assert.ok(vp.includes("pointer-events-auto mt-1 flex items-center gap-2"), "the control buttons must stay tappable above the pass-through bar");
 });

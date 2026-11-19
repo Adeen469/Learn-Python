@@ -85,6 +85,7 @@ export const de: Strings = {
     fullCourseLabel: "Vollständiger Kurs",
     totalLabel: "gesamt",
     playingLabel: "Läuft",
+    pausedLabel: "Pausiert",
   },
   roadmap: {
     topicsComplete: (done: number, total: number) =>

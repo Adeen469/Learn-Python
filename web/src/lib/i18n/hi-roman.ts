@@ -81,6 +81,7 @@ export const hiRoman: Strings = {
     fullCourseLabel: "Poora course",
     totalLabel: "kul",
     playingLabel: "Chal raha hai",
+    pausedLabel: "Ruka hua hai",
   },
   roadmap: {
     topicsComplete: (done, total) => `${total} mein se ${done} topics complete`,

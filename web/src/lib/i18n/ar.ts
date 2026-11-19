@@ -86,6 +86,7 @@ export const ar: Strings = {
     fullCourseLabel: "الدورة الكاملة",
     totalLabel: "المجموع",
     playingLabel: "يُشغَّل الآن",
+    pausedLabel: "متوقف مؤقتًا",
   },
   roadmap: {
     topicsComplete: (done: number, total: number) =>

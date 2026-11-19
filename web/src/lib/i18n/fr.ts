@@ -80,6 +80,7 @@ export const fr: Strings = {
     fullCourseLabel: "Cours complet",
     totalLabel: "total",
     playingLabel: "Lecture en cours",
+    pausedLabel: "En pause",
   },
   roadmap: {
     topicsComplete: (done: number, total: number) =>

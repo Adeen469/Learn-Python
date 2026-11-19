@@ -90,6 +90,7 @@ export const ja: Strings = {
     fullCourseLabel: "フルコース",
     totalLabel: "合計",
     playingLabel: "再生中",
+    pausedLabel: "一時停止中",
   },
   roadmap: {
     topicsComplete: (done: number, total: number) =>
