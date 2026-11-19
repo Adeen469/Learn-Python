@@ -1,0 +1,2524 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:00.040 --> 00:00:02.149 align:start position:0%
+ 
+Welcome <00:00:00.346><c>back </c><00:00:00.652><c>to </c><00:00:00.958><c>100 </c><00:00:01.264><c>Days </c><00:00:01.570><c>of </c><00:00:01.876><c>Code.</c>
+
+00:00:02.149 --> 00:00:02.159 align:start position:0%
+Welcome back to 100 Days of Code.
+ 
+
+00:00:02.159 --> 00:00:03.909 align:start position:0%
+Welcome back to 100 Days of Code.
+Guys, <00:00:02.479><c>in </c><00:00:02.799><c>today's </c><00:00:03.119><c>video, </c><00:00:03.439><c>we'll </c><00:00:03.759><c>talk</c>
+
+00:00:03.909 --> 00:00:03.919 align:start position:0%
+Guys, in today's video, we'll talk
+ 
+
+00:00:03.919 --> 00:00:06.190 align:start position:0%
+Guys, in today's video, we'll talk
+about <00:00:04.335><c>modules </c><00:00:04.751><c>and </c><00:00:05.167><c>what </c><00:00:05.583><c>Pip </c><00:00:05.999><c>is.</c>
+
+00:00:06.190 --> 00:00:06.200 align:start position:0%
+about modules and what Pip is.
+ 
+
+00:00:06.200 --> 00:00:08.030 align:start position:0%
+about modules and what Pip is.
+Modules <00:00:06.900><c>are </c><00:00:07.600><c>basically</c>
+
+00:00:08.030 --> 00:00:08.040 align:start position:0%
+Modules are basically
+ 
+
+00:00:08.040 --> 00:00:09.509 align:start position:0%
+Modules are basically
+used <00:00:08.272><c>to </c><00:00:08.504><c>borrow </c><00:00:08.736><c>other </c><00:00:08.968><c>people's </c><00:00:09.200><c>code,</c>
+
+00:00:09.509 --> 00:00:09.519 align:start position:0%
+used to borrow other people's code,
+ 
+
+00:00:09.519 --> 00:00:11.629 align:start position:0%
+used to borrow other people's code,
+meaning <00:00:10.132><c>you </c><00:00:10.745><c>can </c><00:00:11.358><c>use</c>
+
+00:00:11.629 --> 00:00:11.639 align:start position:0%
+meaning you can use
+ 
+
+00:00:11.639 --> 00:00:14.669 align:start position:0%
+meaning you can use
+code <00:00:11.724><c>written </c><00:00:11.809><c>by </c><00:00:11.894><c>someone </c><00:00:11.979><c>else </c><00:00:12.064><c>to </c><00:00:12.149><c>integrate </c><00:00:12.234><c>into </c><00:00:12.319><c>your</c>
+
+00:00:14.669 --> 00:00:14.679 align:start position:0%
+ 
+ 
+
+00:00:14.679 --> 00:00:16.870 align:start position:0%
+ 
+Python. <00:00:14.934><c>There </c><00:00:15.189><c>are </c><00:00:15.444><c>two </c><00:00:15.699><c>types </c><00:00:15.954><c>of </c><00:00:16.209><c>Python </c><00:00:16.464><c>modules: </c><00:00:16.719><c>built-in</c>
+
+00:00:16.870 --> 00:00:16.880 align:start position:0%
+Python. There are two types of Python modules: built-in
+ 
+
+00:00:16.880 --> 00:00:18.390 align:start position:0%
+Python. There are two types of Python modules: built-in
+modules, <00:00:18.199><c>and</c>
+
+00:00:18.390 --> 00:00:18.400 align:start position:0%
+modules, and
+ 
+
+00:00:18.400 --> 00:00:19.910 align:start position:0%
+modules, and
+external <00:00:18.826><c>modules, </c><00:00:19.252><c>which </c><00:00:19.678><c>are</c>
+
+00:00:19.910 --> 00:00:19.920 align:start position:0%
+external modules, which are
+ 
+
+00:00:19.920 --> 00:00:21.870 align:start position:0%
+external modules, which are
+installed <00:00:20.780><c>using </c><00:00:21.640><c>Pip.</c>
+
+00:00:21.870 --> 00:00:21.880 align:start position:0%
+installed using Pip.
+ 
+
+00:00:21.880 --> 00:00:23.710 align:start position:0%
+installed using Pip.
+External <00:00:22.320><c>modules </c><00:00:22.760><c>are </c><00:00:23.200><c>code </c><00:00:23.640><c>that</c>
+
+00:00:23.710 --> 00:00:23.720 align:start position:0%
+External modules are code that
+ 
+
+00:00:23.720 --> 00:00:25.670 align:start position:0%
+External modules are code that
+people <00:00:24.140><c>have </c><00:00:24.560><c>written </c><00:00:24.980><c>and </c><00:00:25.400><c>want</c>
+
+00:00:25.670 --> 00:00:25.680 align:start position:0%
+people have written and want
+ 
+
+00:00:25.680 --> 00:00:27.550 align:start position:0%
+people have written and want
+you <00:00:25.980><c>to </c><00:00:26.280><c>use </c><00:00:26.580><c>in </c><00:00:26.880><c>your </c><00:00:27.180><c>Python </c><00:00:27.480><c>programs.</c>
+
+00:00:27.550 --> 00:00:27.560 align:start position:0%
+you to use in your Python programs.
+ 
+
+00:00:27.560 --> 00:00:29.589 align:start position:0%
+you to use in your Python programs.
+Consider <00:00:28.040><c>it </c><00:00:28.520><c>like </c><00:00:29.000><c>this: </c><00:00:29.480><c>I'm</c>
+
+00:00:29.589 --> 00:00:29.599 align:start position:0%
+Consider it like this: I'm
+ 
+
+00:00:29.599 --> 00:00:31.349 align:start position:0%
+Consider it like this: I'm
+using <00:00:29.832><c>this </c><00:00:30.065><c>phone, </c><00:00:30.298><c>and </c><00:00:30.531><c>I </c><00:00:30.764><c>don't </c><00:00:30.997><c>know</c>
+
+00:00:31.349 --> 00:00:31.359 align:start position:0%
+using this phone, and I don't know
+ 
+
+00:00:31.359 --> 00:00:33.150 align:start position:0%
+using this phone, and I don't know
+what's <00:00:31.564><c>going </c><00:00:31.769><c>on </c><00:00:31.974><c>inside </c><00:00:32.179><c>it </c><00:00:32.384><c>or </c><00:00:32.589><c>how </c><00:00:32.794><c>it's </c><00:00:32.999><c>working.</c>
+
+00:00:33.150 --> 00:00:33.160 align:start position:0%
+what's going on inside it or how it's working.
+ 
+
+00:00:33.160 --> 00:00:34.790 align:start position:0%
+what's going on inside it or how it's working.
+Despite <00:00:33.549><c>that, </c><00:00:33.938><c>I'm </c><00:00:34.327><c>able </c><00:00:34.716><c>to</c>
+
+00:00:34.790 --> 00:00:34.800 align:start position:0%
+Despite that, I'm able to
+ 
+
+00:00:34.800 --> 00:00:36.470 align:start position:0%
+Despite that, I'm able to
+use <00:00:35.053><c>it. </c><00:00:35.306><c>In </c><00:00:35.559><c>a </c><00:00:35.812><c>way, </c><00:00:36.065><c>it's </c><00:00:36.318><c>an</c>
+
+00:00:36.470 --> 00:00:36.480 align:start position:0%
+use it. In a way, it's an
+ 
+
+00:00:36.480 --> 00:00:38.310 align:start position:0%
+use it. In a way, it's an
+external <00:00:36.808><c>module </c><00:00:37.136><c>for </c><00:00:37.464><c>me. </c><00:00:37.792><c>I </c><00:00:38.120><c>do</c>
+
+00:00:38.310 --> 00:00:38.320 align:start position:0%
+external module for me. I do
+ 
+
+00:00:38.320 --> 00:00:39.830 align:start position:0%
+external module for me. I do
+n't <00:00:38.786><c>know </c><00:00:39.252><c>its </c><00:00:39.718><c>implementation,</c>
+
+00:00:39.830 --> 00:00:39.840 align:start position:0%
+n't know its implementation,
+ 
+
+00:00:39.840 --> 00:00:41.389 align:start position:0%
+n't know its implementation,
+but <00:00:40.046><c>I'm </c><00:00:40.252><c>able </c><00:00:40.458><c>to </c><00:00:40.664><c>use </c><00:00:40.870><c>it. </c><00:00:41.076><c>Built-</c>
+
+00:00:41.389 --> 00:00:41.399 align:start position:0%
+but I'm able to use it. Built-
+ 
+
+00:00:41.399 --> 00:00:43.830 align:start position:0%
+but I'm able to use it. Built-
+in <00:00:41.639><c>modules, </c><00:00:41.879><c>on </c><00:00:42.119><c>the </c><00:00:42.359><c>other </c><00:00:42.599><c>hand, </c><00:00:42.839><c>are </c><00:00:43.079><c>some </c><00:00:43.319><c>modules</c>
+
+00:00:43.830 --> 00:00:43.840 align:start position:0%
+in modules, on the other hand, are some modules
+ 
+
+00:00:43.840 --> 00:00:49.229 align:start position:0%
+in modules, on the other hand, are some modules
+that
+
+00:00:49.229 --> 00:00:49.239 align:start position:0%
+ 
+ 
+
+00:00:49.239 --> 00:00:51.270 align:start position:0%
+ 
+we <00:00:49.879><c>use </c><00:00:50.519><c>in </c><00:00:51.159><c>Python</c>
+
+00:00:51.270 --> 00:00:51.280 align:start position:0%
+we use in Python
+ 
+
+00:00:51.280 --> 00:00:53.590 align:start position:0%
+we use in Python
+because <00:00:51.830><c>every </c><00:00:52.380><c>basic  </c><00:00:52.930><c>We </c><00:00:53.480><c>would</c>
+
+00:00:53.590 --> 00:00:53.600 align:start position:0%
+because every basic  We would
+ 
+
+00:00:53.600 --> 00:00:55.709 align:start position:0%
+because every basic  We would
+n't <00:00:53.840><c>want </c><00:00:54.080><c>to </c><00:00:54.320><c>code </c><00:00:54.560><c>something </c><00:00:54.800><c>from </c><00:00:55.040><c>scratch. </c><00:00:55.280><c>If </c><00:00:55.520><c>you're</c>
+
+00:00:55.709 --> 00:00:55.719 align:start position:0%
+n't want to code something from scratch. If you're
+ 
+
+00:00:55.719 --> 00:00:57.830 align:start position:0%
+n't want to code something from scratch. If you're
+working <00:00:55.976><c>on </c><00:00:56.233><c>a </c><00:00:56.490><c>large </c><00:00:56.747><c>machine </c><00:00:57.004><c>learning </c><00:00:57.261><c>program, </c><00:00:57.518><c>or</c>
+
+00:00:57.830 --> 00:00:57.840 align:start position:0%
+working on a large machine learning program, or
+ 
+
+00:00:57.840 --> 00:00:59.590 align:start position:0%
+working on a large machine learning program, or
+you're <00:00:58.160><c>building </c><00:00:58.480><c>some </c><00:00:58.800><c>artificial </c><00:00:59.120><c>intelligence, </c><00:00:59.440><c>like</c>
+
+00:00:59.590 --> 00:00:59.600 align:start position:0%
+you're building some artificial intelligence, like
+ 
+
+00:00:59.600 --> 00:01:01.470 align:start position:0%
+you're building some artificial intelligence, like
+a <00:01:00.039><c>self-driving </c><00:01:00.478><c>car </c><00:01:00.917><c>with </c><00:01:01.356><c>lettuce,</c>
+
+00:01:01.470 --> 00:01:01.480 align:start position:0%
+a self-driving car with lettuce,
+ 
+
+00:01:01.480 --> 00:01:03.869 align:start position:0%
+a self-driving car with lettuce,
+you <00:01:01.627><c>wouldn't </c><00:01:01.774><c>want </c><00:01:01.921><c>to </c><00:01:02.068><c>write </c><00:01:02.215><c>a </c><00:01:02.362><c>program </c><00:01:02.509><c>to </c><00:01:02.656><c>find </c><00:01:02.803><c>the </c><00:01:02.950><c>average </c><00:01:03.097><c>of </c><00:01:03.244><c>10 </c><00:01:03.391><c>numbers,</c>
+
+00:01:03.869 --> 00:01:03.879 align:start position:0%
+you wouldn't want to write a program to find the average of 10 numbers,
+ 
+
+00:01:03.879 --> 00:01:05.630 align:start position:0%
+you wouldn't want to write a program to find the average of 10 numbers,
+or <00:01:05.360><c>you'd</c>
+
+00:01:05.630 --> 00:01:07.390 align:start position:0%
+or you'd
+ 
+
+00:01:07.390 --> 00:01:07.400 align:start position:0%
+ 
+ 
+
+00:01:07.400 --> 00:01:08.950 align:start position:0%
+ 
+write <00:01:07.512><c>a </c><00:01:07.624><c>program </c><00:01:07.736><c>to </c><00:01:07.848><c>find </c><00:01:07.960><c>the </c><00:01:08.072><c>geometric </c><00:01:08.184><c>mean </c><00:01:08.296><c>of </c><00:01:08.408><c>10 </c><00:01:08.520><c>numbers </c><00:01:08.632><c>again.</c>
+
+00:01:08.950 --> 00:01:08.960 align:start position:0%
+write a program to find the geometric mean of 10 numbers again.
+ 
+
+00:01:08.960 --> 00:01:11.109 align:start position:0%
+write a program to find the geometric mean of 10 numbers again.
+This <00:01:09.210><c>could </c><00:01:09.460><c>be </c><00:01:09.710><c>prone </c><00:01:09.960><c>to </c><00:01:10.210><c>human </c><00:01:10.460><c>error. </c><00:01:10.710><c>The </c><00:01:10.960><c>code</c>
+
+00:01:11.109 --> 00:01:11.119 align:start position:0%
+This could be prone to human error. The code
+ 
+
+00:01:11.119 --> 00:01:13.429 align:start position:0%
+This could be prone to human error. The code
+written <00:01:11.639><c>in </c><00:01:12.159><c>modules </c><00:01:12.679><c>is </c><00:01:13.199><c>well-</c>
+
+00:01:13.429 --> 00:01:13.439 align:start position:0%
+written in modules is well-
+ 
+
+00:01:13.439 --> 00:01:15.149 align:start position:0%
+written in modules is well-
+tested, <00:01:13.932><c>written </c><00:01:14.425><c>by </c><00:01:14.918><c>experts,</c>
+
+00:01:15.149 --> 00:01:15.159 align:start position:0%
+tested, written by experts,
+ 
+
+00:01:15.159 --> 00:01:17.149 align:start position:0%
+tested, written by experts,
+and <00:01:15.772><c>because </c><00:01:16.385><c>so </c><00:01:16.998><c>many</c>
+
+00:01:17.149 --> 00:01:17.159 align:start position:0%
+and because so many
+ 
+
+00:01:17.159 --> 00:01:18.710 align:start position:0%
+and because so many
+people <00:01:17.479><c>have </c><00:01:17.799><c>used </c><00:01:18.119><c>it, </c><00:01:18.439><c>the</c>
+
+00:01:18.710 --> 00:01:18.720 align:start position:0%
+people have used it, the
+ 
+
+00:01:18.720 --> 00:01:20.870 align:start position:0%
+people have used it, the
+chances <00:01:19.104><c>of </c><00:01:19.488><c>error </c><00:01:19.872><c>are </c><00:01:20.256><c>very </c><00:01:20.640><c>low.</c>
+
+00:01:20.870 --> 00:01:20.880 align:start position:0%
+chances of error are very low.
+ 
+
+00:01:20.880 --> 00:01:22.310 align:start position:0%
+chances of error are very low.
+Now, <00:01:21.220><c>if </c><00:01:21.560><c>you </c><00:01:21.900><c>want, </c><00:01:22.240><c>you</c>
+
+00:01:22.310 --> 00:01:22.320 align:start position:0%
+Now, if you want, you
+ 
+
+00:01:22.320 --> 00:01:23.429 align:start position:0%
+Now, if you want, you
+can <00:01:22.512><c>write </c><00:01:22.704><c>a </c><00:01:22.896><c>program </c><00:01:23.088><c>from </c><00:01:23.280><c>scratch</c>
+
+00:01:23.429 --> 00:01:23.439 align:start position:0%
+can write a program from scratch
+ 
+
+00:01:23.439 --> 00:01:25.789 align:start position:0%
+can write a program from scratch
+for <00:01:23.847><c>your </c><00:01:24.255><c>understanding, </c><00:01:24.663><c>but </c><00:01:25.071><c>if </c><00:01:25.479><c>you</c>
+
+00:01:25.789 --> 00:01:25.799 align:start position:0%
+for your understanding, but if you
+ 
+
+00:01:25.799 --> 00:01:28.069 align:start position:0%
+for your understanding, but if you
+use <00:01:26.159><c>modules, </c><00:01:26.519><c>you'll </c><00:01:26.879><c>save </c><00:01:27.239><c>time </c><00:01:27.599><c>and</c>
+
+00:01:28.069 --> 00:01:28.079 align:start position:0%
+use modules, you'll save time and
+ 
+
+00:01:28.079 --> 00:01:30.469 align:start position:0%
+use modules, you'll save time and
+effort, <00:01:28.248><c>and </c><00:01:28.417><c>you'll </c><00:01:28.586><c>be </c><00:01:28.755><c>able </c><00:01:28.924><c>to </c><00:01:29.093><c>work </c><00:01:29.262><c>on </c><00:01:29.431><c>something </c><00:01:29.600><c>bigger. </c><00:01:29.769><c>Let's </c><00:01:29.938><c>go </c><00:01:30.107><c>to </c><00:01:30.276><c>the</c>
+
+00:01:30.469 --> 00:01:30.479 align:start position:0%
+effort, and you'll be able to work on something bigger. Let's go to the
+ 
+
+00:01:30.479 --> 00:01:32.310 align:start position:0%
+effort, and you'll be able to work on something bigger. Let's go to the
+computer
+
+00:01:32.310 --> 00:01:32.320 align:start position:0%
+computer
+ 
+
+00:01:32.320 --> 00:01:33.830 align:start position:0%
+computer
+screen <00:01:32.660><c>and </c><00:01:33.000><c>we'll </c><00:01:33.340><c>install </c><00:01:33.680><c>some</c>
+
+00:01:33.830 --> 00:01:33.840 align:start position:0%
+screen and we'll install some
+ 
+
+00:01:33.840 --> 00:01:35.789 align:start position:0%
+screen and we'll install some
+modules <00:01:34.106><c>and </c><00:01:34.372><c>see </c><00:01:34.638><c>how </c><00:01:34.904><c>all </c><00:01:35.170><c>this </c><00:01:35.436><c>stuff</c>
+
+00:01:35.789 --> 00:01:35.799 align:start position:0%
+modules and see how all this stuff
+ 
+
+00:01:35.799 --> 00:01:39.340 align:start position:0%
+modules and see how all this stuff
+works. <00:01:36.559><c>Let's </c><00:01:37.319><c>get</c>
+
+00:01:39.340 --> 00:01:39.350 align:start position:0%
+works. Let's get
+ 
+
+00:01:39.350 --> 00:01:46.350 align:start position:0%
+works. Let's get
+[music]
+
+00:01:46.350 --> 00:01:46.360 align:start position:0%
+ 
+ 
+
+00:01:46.360 --> 00:01:48.590 align:start position:0%
+ 
+started. <00:01:46.706><c>So </c><00:01:47.052><c>guys, </c><00:01:47.398><c>I'm </c><00:01:47.744><c>here </c><00:01:48.090><c>in </c><00:01:48.436><c>my</c>
+
+00:01:48.590 --> 00:01:48.600 align:start position:0%
+started. So guys, I'm here in my
+ 
+
+00:01:48.600 --> 00:01:50.670 align:start position:0%
+started. So guys, I'm here in my
+computer <00:01:48.783><c>screen </c><00:01:48.966><c>and </c><00:01:49.149><c>I'm </c><00:01:49.332><c>here </c><00:01:49.515><c>in </c><00:01:49.698><c>my </c><00:01:49.881><c>computer </c><00:01:50.064><c>screen.  </c><00:01:50.247><c>Let </c><00:01:50.430><c>me</c>
+
+00:01:50.670 --> 00:01:50.680 align:start position:0%
+computer screen and I'm here in my computer screen.  Let me
+ 
+
+00:01:50.680 --> 00:01:52.950 align:start position:0%
+computer screen and I'm here in my computer screen.  Let me
+quickly <00:01:50.986><c>open </c><00:01:51.292><c>the </c><00:01:51.598><c>Day </c><00:01:51.904><c>3 </c><00:01:52.210><c>wrapper </c><00:01:52.516><c>here</c>
+
+00:01:52.950 --> 00:01:52.960 align:start position:0%
+quickly open the Day 3 wrapper here
+ 
+
+00:01:52.960 --> 00:01:55.109 align:start position:0%
+quickly open the Day 3 wrapper here
+and <00:01:53.360><c>here </c><00:01:53.760><c>you </c><00:01:54.160><c>will </c><00:01:54.560><c>see </c><00:01:54.960><c>this</c>
+
+00:01:55.109 --> 00:01:55.119 align:start position:0%
+and here you will see this
+ 
+
+00:01:55.119 --> 00:01:57.069 align:start position:0%
+and here you will see this
+video <00:01:55.365><c>which </c><00:01:55.611><c>I </c><00:01:55.857><c>am </c><00:01:56.103><c>recording </c><00:01:56.349><c>right </c><00:01:56.595><c>now</c>
+
+00:01:57.069 --> 00:01:57.079 align:start position:0%
+video which I am recording right now
+ 
+
+00:01:57.079 --> 00:01:58.870 align:start position:0%
+video which I am recording right now
+but <00:01:57.264><c>since </c><00:01:57.449><c>this </c><00:01:57.634><c>video </c><00:01:57.819><c>has </c><00:01:58.004><c>not </c><00:01:58.189><c>been </c><00:01:58.374><c>recorded </c><00:01:58.559><c>here,</c>
+
+00:01:58.870 --> 00:01:58.880 align:start position:0%
+but since this video has not been recorded here,
+ 
+
+00:01:58.880 --> 00:02:00.469 align:start position:0%
+but since this video has not been recorded here,
+so <00:01:59.126><c>I </c><00:01:59.372><c>will </c><00:01:59.618><c>keep </c><00:01:59.864><c>it </c><00:02:00.110><c>in </c><00:02:00.356><c>here,</c>
+
+00:02:00.469 --> 00:02:00.479 align:start position:0%
+so I will keep it in here,
+ 
+
+00:02:00.479 --> 00:02:01.670 align:start position:0%
+so I will keep it in here,
+you <00:02:00.616><c>will </c><00:02:00.753><c>get </c><00:02:00.890><c>to </c><00:02:01.027><c>see </c><00:02:01.164><c>the </c><00:02:01.301><c>video </c><00:02:01.438><c>here,</c>
+
+00:02:01.670 --> 00:02:01.680 align:start position:0%
+you will get to see the video here,
+ 
+
+00:02:01.680 --> 00:02:04.590 align:start position:0%
+you will get to see the video here,
+by <00:02:01.856><c>the </c><00:02:02.032><c>way </c><00:02:02.208><c>let </c><00:02:02.384><c>me </c><00:02:02.560><c>tell </c><00:02:02.736><c>you </c><00:02:02.912><c>and </c><00:02:03.088><c>along </c><00:02:03.264><c>with </c><00:02:03.440><c>that </c><00:02:03.616><c>I </c><00:02:03.792><c>will</c>
+
+00:02:04.590 --> 00:02:04.600 align:start position:0%
+by the way let me tell you and along with that I will
+ 
+
+00:02:04.600 --> 00:02:06.630 align:start position:0%
+by the way let me tell you and along with that I will
+adjust <00:02:04.862><c>it </c><00:02:05.124><c>in </c><00:02:05.386><c>such </c><00:02:05.648><c>a </c><00:02:05.910><c>way </c><00:02:06.172><c>that </c><00:02:06.434><c>you</c>
+
+00:02:06.630 --> 00:02:08.949 align:start position:0%
+adjust it in such a way that you
+ 
+
+00:02:08.949 --> 00:02:08.959 align:start position:0%
+ 
+ 
+
+00:02:08.959 --> 00:02:10.669 align:start position:0%
+ 
+can <00:02:09.079><c>adjust </c><00:02:09.199><c>it </c><00:02:09.319><c>as </c><00:02:09.439><c>per </c><00:02:09.559><c>your </c><00:02:09.679><c>requirement, </c><00:02:09.799><c>I </c><00:02:09.919><c>want </c><00:02:10.039><c>to </c><00:02:10.159><c>quickly </c><00:02:10.279><c>tell </c><00:02:10.399><c>you</c>
+
+00:02:10.669 --> 00:02:10.679 align:start position:0%
+can adjust it as per your requirement, I want to quickly tell you
+ 
+
+00:02:10.679 --> 00:02:12.949 align:start position:0%
+can adjust it as per your requirement, I want to quickly tell you
+what <00:02:11.639><c>modules </c><00:02:12.599><c>are</c>
+
+00:02:12.949 --> 00:02:12.959 align:start position:0%
+what modules are
+ 
+
+00:02:12.959 --> 00:02:16.350 align:start position:0%
+what modules are
+python <00:02:13.559><c>2, </c><00:02:14.159><c>see </c><00:02:14.759><c>whenever </c><00:02:15.359><c>you</c>
+
+00:02:16.350 --> 00:02:16.360 align:start position:0%
+python 2, see whenever you
+ 
+
+00:02:16.360 --> 00:02:18.550 align:start position:0%
+python 2, see whenever you
+write <00:02:16.706><c>any </c><00:02:17.052><c>code </c><00:02:17.398><c>in </c><00:02:17.744><c>python </c><00:02:18.090><c>2 </c><00:02:18.436><c>language,</c>
+
+00:02:18.550 --> 00:02:18.560 align:start position:0%
+write any code in python 2 language,
+ 
+
+00:02:18.560 --> 00:02:20.229 align:start position:0%
+write any code in python 2 language,
+you <00:02:18.755><c>can </c><00:02:18.950><c>write </c><00:02:19.145><c>it </c><00:02:19.340><c>in </c><00:02:19.535><c>two </c><00:02:19.730><c>ways, </c><00:02:19.925><c>either </c><00:02:20.120><c>you</c>
+
+00:02:20.229 --> 00:02:20.239 align:start position:0%
+you can write it in two ways, either you
+ 
+
+00:02:20.239 --> 00:02:22.190 align:start position:0%
+you can write it in two ways, either you
+write <00:02:20.615><c>that </c><00:02:20.991><c>code </c><00:02:21.367><c>yourself </c><00:02:21.743><c>or </c><00:02:22.119><c>you</c>
+
+00:02:22.190 --> 00:02:22.200 align:start position:0%
+write that code yourself or you
+ 
+
+00:02:22.200 --> 00:02:24.670 align:start position:0%
+write that code yourself or you
+can <00:02:22.480><c>take </c><00:02:22.760><c>help </c><00:02:23.040><c>of </c><00:02:23.320><c>modules, </c><00:02:23.600><c>if </c><00:02:23.880><c>you </c><00:02:24.160><c>have </c><00:02:24.440><c>it</c>
+
+00:02:24.670 --> 00:02:24.680 align:start position:0%
+can take help of modules, if you have it
+ 
+
+00:02:24.680 --> 00:02:30.150 align:start position:0%
+can take help of modules, if you have it
+in <00:02:24.893><c>your </c><00:02:25.106><c>computer </c><00:02:25.319><c>then</c>
+
+00:02:30.150 --> 00:02:30.160 align:start position:0%
+ 
+ 
+
+00:02:30.160 --> 00:02:31.630 align:start position:0%
+ 
+you <00:02:30.510><c>will </c><00:02:30.860><c>see </c><00:02:31.210><c>a </c><00:02:31.560><c>utility,</c>
+
+00:02:31.630 --> 00:02:31.640 align:start position:0%
+you will see a utility,
+ 
+
+00:02:31.640 --> 00:02:33.390 align:start position:0%
+you will see a utility,
+now <00:02:31.880><c>since </c><00:02:32.120><c>I </c><00:02:32.360><c>am </c><00:02:32.600><c>on </c><00:02:32.840><c>Mac, </c><00:02:33.080><c>so</c>
+
+00:02:33.390 --> 00:02:33.400 align:start position:0%
+now since I am on Mac, so
+ 
+
+00:02:33.400 --> 00:02:59.830 align:start position:0%
+now since I am on Mac, so
+Pip <00:02:33.615><c>3 </c><00:02:33.830><c>will </c><00:02:34.045><c>work </c><00:02:34.260><c>in </c><00:02:34.475><c>me, </c><00:02:34.690><c>if </c><00:02:34.905><c>you </c><00:02:35.120><c>have</c>
+
+00:02:59.830 --> 00:02:59.840 align:start position:0%
+ 
+ 
+
+00:02:59.840 --> 00:03:02.990 align:start position:0%
+ 
+Pandas <00:03:00.124><c>then </c><00:03:00.408><c>I </c><00:03:00.692><c>will </c><00:03:00.976><c>give </c><00:03:01.260><c>the </c><00:03:01.544><c>command </c><00:03:01.828><c>to </c><00:03:02.112><c>my </c><00:03:02.396><c>Pip</c>
+
+00:03:02.990 --> 00:03:03.000 align:start position:0%
+Pandas then I will give the command to my Pip
+ 
+
+00:03:03.000 --> 00:03:05.390 align:start position:0%
+Pandas then I will give the command to my Pip
+that <00:03:03.275><c>I </c><00:03:03.550><c>have </c><00:03:03.825><c>to </c><00:03:04.100><c>install </c><00:03:04.375><c>a </c><00:03:04.650><c>package </c><00:03:04.925><c>named </c><00:03:05.200><c>Pandas,</c>
+
+00:03:05.390 --> 00:03:05.400 align:start position:0%
+that I have to install a package named Pandas,
+ 
+
+00:03:05.400 --> 00:03:07.589 align:start position:0%
+that I have to install a package named Pandas,
+now <00:03:05.615><c>what </c><00:03:05.830><c>is </c><00:03:06.045><c>Pandas, </c><00:03:06.260><c>it </c><00:03:06.475><c>is </c><00:03:06.690><c>a </c><00:03:06.905><c>data </c><00:03:07.120><c>analysis</c>
+
+00:03:07.589 --> 00:03:07.599 align:start position:0%
+now what is Pandas, it is a data analysis
+ 
+
+00:03:07.599 --> 00:03:09.149 align:start position:0%
+now what is Pandas, it is a data analysis
+library <00:03:08.319><c>as </c><00:03:09.039><c>you</c>
+
+00:03:09.149 --> 00:03:09.159 align:start position:0%
+library as you
+ 
+
+00:03:09.159 --> 00:03:12.110 align:start position:0%
+library as you
+can <00:03:09.395><c>see </c><00:03:09.631><c>here, </c><00:03:09.867><c>but </c><00:03:10.103><c>let </c><00:03:10.339><c>me </c><00:03:10.575><c>tell </c><00:03:10.811><c>you </c><00:03:11.047><c>that </c><00:03:11.283><c>you </c><00:03:11.519><c>can </c><00:03:11.755><c>use</c>
+
+00:03:12.110 --> 00:03:12.120 align:start position:0%
+can see here, but let me tell you that you can use
+ 
+
+00:03:12.120 --> 00:03:14.110 align:start position:0%
+can see here, but let me tell you that you can use
+many <00:03:12.333><c>modules </c><00:03:12.546><c>in </c><00:03:12.759><c>this  </c><00:03:12.972><c>You </c><00:03:13.185><c>can </c><00:03:13.398><c>use </c><00:03:13.611><c>it </c><00:03:13.824><c>this </c><00:03:14.037><c>way.</c>
+
+00:03:14.110 --> 00:03:14.120 align:start position:0%
+many modules in this  You can use it this way.
+ 
+
+00:03:14.120 --> 00:03:15.910 align:start position:0%
+many modules in this  You can use it this way.
+Look <00:03:14.840><c>here, </c><00:03:15.560><c>I've</c>
+
+00:03:15.910 --> 00:03:15.920 align:start position:0%
+Look here, I've
+ 
+
+00:03:15.920 --> 00:03:17.990 align:start position:0%
+Look here, I've
+used <00:03:16.067><c>Pandas. </c><00:03:16.214><c>Now, </c><00:03:16.361><c>let </c><00:03:16.508><c>me </c><00:03:16.655><c>give </c><00:03:16.802><c>you </c><00:03:16.949><c>a </c><00:03:17.096><c>very </c><00:03:17.243><c>good </c><00:03:17.390><c>analogy </c><00:03:17.537><c>to </c><00:03:17.684><c>explain </c><00:03:17.831><c>built-in</c>
+
+00:03:17.990 --> 00:03:18.000 align:start position:0%
+used Pandas. Now, let me give you a very good analogy to explain built-in
+ 
+
+00:03:18.000 --> 00:03:19.830 align:start position:0%
+used Pandas. Now, let me give you a very good analogy to explain built-in
+modules <00:03:18.520><c>and </c><00:03:19.040><c>external </c><00:03:19.560><c>modules.</c>
+
+00:03:19.830 --> 00:03:21.750 align:start position:0%
+modules and external modules.
+ 
+
+00:03:21.750 --> 00:03:21.760 align:start position:0%
+ 
+ 
+
+00:03:21.760 --> 00:03:23.789 align:start position:0%
+ 
+When <00:03:22.011><c>you </c><00:03:22.262><c>were </c><00:03:22.513><c>little, </c><00:03:22.764><c>your </c><00:03:23.015><c>mom </c><00:03:23.266><c>used </c><00:03:23.517><c>to</c>
+
+00:03:23.789 --> 00:03:23.799 align:start position:0%
+When you were little, your mom used to
+ 
+
+00:03:23.799 --> 00:03:25.509 align:start position:0%
+When you were little, your mom used to
+send <00:03:23.999><c>you </c><00:03:24.199><c>out </c><00:03:24.399><c>to </c><00:03:24.599><c>buy </c><00:03:24.799><c>groceries, </c><00:03:24.999><c>and </c><00:03:25.199><c>she </c><00:03:25.399><c>would</c>
+
+00:03:25.509 --> 00:03:25.519 align:start position:0%
+send you out to buy groceries, and she would
+ 
+
+00:03:25.519 --> 00:03:27.470 align:start position:0%
+send you out to buy groceries, and she would
+tell <00:03:25.759><c>you, </c><00:03:25.999><c>"Hey, </c><00:03:26.239><c>go </c><00:03:26.479><c>get </c><00:03:26.719><c>milk, </c><00:03:26.959><c>go </c><00:03:27.199><c>get</c>
+
+00:03:27.470 --> 00:03:27.480 align:start position:0%
+tell you, "Hey, go get milk, go get
+ 
+
+00:03:27.480 --> 00:03:30.309 align:start position:0%
+tell you, "Hey, go get milk, go get
+curd, <00:03:27.834><c>or </c><00:03:28.188><c>go </c><00:03:28.542><c>get </c><00:03:28.896><c>bread, </c><00:03:29.250><c>go </c><00:03:29.604><c>get </c><00:03:29.958><c>butter."</c>
+
+00:03:30.309 --> 00:03:30.319 align:start position:0%
+curd, or go get bread, go get butter."
+ 
+
+00:03:30.319 --> 00:03:32.190 align:start position:0%
+curd, or go get bread, go get butter."
+Whatever <00:03:30.749><c>you </c><00:03:31.179><c>brought </c><00:03:31.609><c>home </c><00:03:32.039><c>was</c>
+
+00:03:32.190 --> 00:03:32.200 align:start position:0%
+Whatever you brought home was
+ 
+
+00:03:32.200 --> 00:03:33.949 align:start position:0%
+Whatever you brought home was
+available <00:03:32.519><c>at </c><00:03:32.838><c>home. </c><00:03:33.157><c>So, </c><00:03:33.476><c>you </c><00:03:33.795><c>were</c>
+
+00:03:33.949 --> 00:03:33.959 align:start position:0%
+available at home. So, you were
+ 
+
+00:03:33.959 --> 00:03:35.990 align:start position:0%
+available at home. So, you were
+basically <00:03:34.586><c>a </c><00:03:35.213><c>package </c><00:03:35.840><c>manager.</c>
+
+00:03:35.990 --> 00:03:36.000 align:start position:0%
+basically a package manager.
+ 
+
+00:03:36.000 --> 00:03:38.229 align:start position:0%
+basically a package manager.
+Whatever <00:03:36.154><c>you </c><00:03:36.308><c>needed </c><00:03:36.462><c>for </c><00:03:36.616><c>your </c><00:03:36.770><c>home, </c><00:03:36.924><c>you </c><00:03:37.078><c>would </c><00:03:37.232><c>bring </c><00:03:37.386><c>it </c><00:03:37.540><c>from </c><00:03:37.694><c>the </c><00:03:37.848><c>appropriate </c><00:03:38.002><c>place </c><00:03:38.156><c>and</c>
+
+00:03:38.229 --> 00:03:38.239 align:start position:0%
+Whatever you needed for your home, you would bring it from the appropriate place and
+ 
+
+00:03:38.239 --> 00:03:40.309 align:start position:0%
+Whatever you needed for your home, you would bring it from the appropriate place and
+keep <00:03:38.729><c>it </c><00:03:39.219><c>at </c><00:03:39.709><c>home. </c><00:03:40.199><c>Similarly,</c>
+
+00:03:40.309 --> 00:03:40.319 align:start position:0%
+keep it at home. Similarly,
+ 
+
+00:03:40.319 --> 00:03:42.830 align:start position:0%
+keep it at home. Similarly,
+Pap <00:03:40.594><c>is </c><00:03:40.869><c>a </c><00:03:41.144><c>package </c><00:03:41.419><c>manager. </c><00:03:41.694><c>It </c><00:03:41.969><c>fetches </c><00:03:42.244><c>whatever </c><00:03:42.519><c>you</c>
+
+00:03:42.830 --> 00:03:42.840 align:start position:0%
+Pap is a package manager. It fetches whatever you
+ 
+
+00:03:42.840 --> 00:03:45.070 align:start position:0%
+Pap is a package manager. It fetches whatever you
+need <00:03:43.259><c>from </c><00:03:43.678><c>the </c><00:03:44.097><c>internet </c><00:03:44.516><c>and</c>
+
+00:03:45.070 --> 00:03:45.080 align:start position:0%
+need from the internet and
+ 
+
+00:03:45.080 --> 00:03:46.869 align:start position:0%
+need from the internet and
+installs <00:03:45.423><c>it </c><00:03:45.766><c>in </c><00:03:46.109><c>your </c><00:03:46.452><c>Python </c><00:03:46.795><c>interpreter.</c>
+
+00:03:46.869 --> 00:03:46.879 align:start position:0%
+installs it in your Python interpreter.
+ 
+
+00:03:46.879 --> 00:03:48.910 align:start position:0%
+installs it in your Python interpreter.
+For <00:03:47.263><c>example, </c><00:03:47.647><c>it </c><00:03:48.031><c>installed </c><00:03:48.415><c>Pandas </c><00:03:48.799><c>here,</c>
+
+00:03:48.910 --> 00:03:48.920 align:start position:0%
+For example, it installed Pandas here,
+ 
+
+00:03:48.920 --> 00:03:50.830 align:start position:0%
+For example, it installed Pandas here,
+as <00:03:49.440><c>you </c><00:03:49.960><c>can </c><00:03:50.480><c>see.</c>
+
+00:03:50.830 --> 00:03:50.840 align:start position:0%
+as you can see.
+ 
+
+00:03:50.840 --> 00:03:52.990 align:start position:0%
+as you can see.
+Now, <00:03:51.279><c>I </c><00:03:51.718><c>can </c><00:03:52.157><c>use </c><00:03:52.596><c>Pandas,</c>
+
+00:03:52.990 --> 00:03:53.000 align:start position:0%
+Now, I can use Pandas,
+ 
+
+00:03:53.000 --> 00:03:54.910 align:start position:0%
+Now, I can use Pandas,
+but <00:03:53.240><c>does </c><00:03:53.480><c>everything </c><00:03:53.720><c>need </c><00:03:53.960><c>to </c><00:03:54.200><c>be </c><00:03:54.440><c>brought </c><00:03:54.680><c>in?</c>
+
+00:03:54.910 --> 00:03:54.920 align:start position:0%
+but does everything need to be brought in?
+ 
+
+00:03:54.920 --> 00:03:57.509 align:start position:0%
+but does everything need to be brought in?
+If <00:03:55.530><c>you </c><00:03:56.140><c>need </c><00:03:56.750><c>a </c><00:03:57.360><c>refrigerator,</c>
+
+00:03:57.509 --> 00:03:57.519 align:start position:0%
+If you need a refrigerator,
+ 
+
+00:03:57.519 --> 00:03:59.750 align:start position:0%
+If you need a refrigerator,
+almost <00:03:57.734><c>every </c><00:03:57.949><c>home </c><00:03:58.164><c>has </c><00:03:58.379><c>a </c><00:03:58.594><c>refrigerator, </c><00:03:58.809><c>and </c><00:03:59.024><c>you </c><00:03:59.239><c>do</c>
+
+00:03:59.750 --> 00:04:01.789 align:start position:0%
+almost every home has a refrigerator, and you do
+ 
+
+00:04:01.789 --> 00:04:01.799 align:start position:0%
+ 
+ 
+
+00:04:01.799 --> 00:04:04.350 align:start position:0%
+ 
+n't <00:04:01.995><c>need </c><00:04:02.191><c>to </c><00:04:02.387><c>bring </c><00:04:02.583><c>it </c><00:04:02.779><c>in </c><00:04:02.975><c>from </c><00:04:03.171><c>outside. </c><00:04:03.367><c>It's </c><00:04:03.563><c>a </c><00:04:03.759><c>built-in </c><00:04:03.955><c>module,</c>
+
+00:04:04.350 --> 00:04:04.360 align:start position:0%
+n't need to bring it in from outside. It's a built-in module,
+ 
+
+00:04:04.360 --> 00:04:07.069 align:start position:0%
+n't need to bring it in from outside. It's a built-in module,
+present <00:04:04.600><c>in </c><00:04:04.840><c>every </c><00:04:05.080><c>home.  </c><00:04:05.320><c>Every </c><00:04:05.560><c>house </c><00:04:05.800><c>has </c><00:04:06.040><c>a </c><00:04:06.280><c>needle </c><00:04:06.520><c>and </c><00:04:06.760><c>thread,</c>
+
+00:04:07.069 --> 00:04:07.079 align:start position:0%
+present in every home.  Every house has a needle and thread,
+ 
+
+00:04:07.079 --> 00:04:09.470 align:start position:0%
+present in every home.  Every house has a needle and thread,
+every <00:04:07.589><c>house </c><00:04:08.099><c>has </c><00:04:08.609><c>a </c><00:04:09.119><c>spoon,</c>
+
+00:04:09.470 --> 00:04:09.480 align:start position:0%
+every house has a spoon,
+ 
+
+00:04:09.480 --> 00:04:10.949 align:start position:0%
+every house has a spoon,
+every <00:04:09.759><c>house </c><00:04:10.038><c>has </c><00:04:10.317><c>a </c><00:04:10.596><c>plate, </c><00:04:10.875><c>so</c>
+
+00:04:10.949 --> 00:04:10.959 align:start position:0%
+every house has a plate, so
+ 
+
+00:04:10.959 --> 00:04:13.110 align:start position:0%
+every house has a plate, so
+all <00:04:11.155><c>these </c><00:04:11.351><c>are </c><00:04:11.547><c>built-in </c><00:04:11.743><c>modules, </c><00:04:11.939><c>they </c><00:04:12.135><c>are </c><00:04:12.331><c>found </c><00:04:12.527><c>in </c><00:04:12.723><c>every </c><00:04:12.919><c>house,</c>
+
+00:04:13.110 --> 00:04:13.120 align:start position:0%
+all these are built-in modules, they are found in every house,
+ 
+
+00:04:13.120 --> 00:04:14.750 align:start position:0%
+all these are built-in modules, they are found in every house,
+so <00:04:13.258><c>there </c><00:04:13.396><c>is </c><00:04:13.534><c>no </c><00:04:13.672><c>need </c><00:04:13.810><c>to </c><00:04:13.948><c>bring </c><00:04:14.086><c>them </c><00:04:14.224><c>from </c><00:04:14.362><c>outside </c><00:04:14.500><c>every </c><00:04:14.638><c>time,</c>
+
+00:04:14.750 --> 00:04:14.760 align:start position:0%
+so there is no need to bring them from outside every time,
+ 
+
+00:04:14.760 --> 00:04:16.990 align:start position:0%
+so there is no need to bring them from outside every time,
+that <00:04:15.466><c>is </c><00:04:16.172><c>how </c><00:04:16.878><c>built-in</c>
+
+00:04:16.990 --> 00:04:17.000 align:start position:0%
+that is how built-in
+ 
+
+00:04:17.000 --> 00:04:18.550 align:start position:0%
+that is how built-in
+modules <00:04:17.350><c>and </c><00:04:17.700><c>external </c><00:04:18.050><c>modules </c><00:04:18.400><c>work,</c>
+
+00:04:18.550 --> 00:04:18.560 align:start position:0%
+modules and external modules work,
+ 
+
+00:04:18.560 --> 00:04:19.990 align:start position:0%
+modules and external modules work,
+so <00:04:18.773><c>whatever </c><00:04:18.986><c>module </c><00:04:19.199><c>we </c><00:04:19.412><c>need </c><00:04:19.625><c>to </c><00:04:19.838><c>install,</c>
+
+00:04:19.990 --> 00:04:20.000 align:start position:0%
+so whatever module we need to install,
+ 
+
+00:04:20.000 --> 00:04:21.590 align:start position:0%
+so whatever module we need to install,
+we <00:04:20.184><c>can </c><00:04:20.368><c>install </c><00:04:20.552><c>it </c><00:04:20.736><c>with </c><00:04:20.920><c>the </c><00:04:21.104><c>help </c><00:04:21.288><c>of </c><00:04:21.472><c>pip,</c>
+
+00:04:21.590 --> 00:04:21.600 align:start position:0%
+we can install it with the help of pip,
+ 
+
+00:04:21.600 --> 00:04:23.310 align:start position:0%
+we can install it with the help of pip,
+and <00:04:22.010><c>after </c><00:04:22.420><c>this, </c><00:04:22.830><c>if </c><00:04:23.240><c>I</c>
+
+00:04:23.310 --> 00:04:23.320 align:start position:0%
+and after this, if I
+ 
+
+00:04:23.320 --> 00:04:25.230 align:start position:0%
+and after this, if I
+type <00:04:23.688><c>python3 </c><00:04:24.056><c>here, </c><00:04:24.424><c>and </c><00:04:24.792><c>if </c><00:04:25.160><c>you</c>
+
+00:04:25.230 --> 00:04:25.240 align:start position:0%
+type python3 here, and if you
+ 
+
+00:04:25.240 --> 00:04:28.070 align:start position:0%
+type python3 here, and if you
+type <00:04:25.768><c>python </c><00:04:26.296><c>in </c><00:04:26.824><c>Windows, </c><00:04:27.352><c>you </c><00:04:27.880><c>will</c>
+
+00:04:28.070 --> 00:04:28.080 align:start position:0%
+type python in Windows, you will
+ 
+
+00:04:28.080 --> 00:04:30.029 align:start position:0%
+type python in Windows, you will
+see <00:04:28.271><c>python3.7 </c><00:04:28.462><c>like </c><00:04:28.653><c>this, </c><00:04:28.844><c>I </c><00:04:29.035><c>will </c><00:04:29.226><c>zoom </c><00:04:29.417><c>in </c><00:04:29.608><c>a </c><00:04:29.799><c>little,</c>
+
+00:04:30.029 --> 00:04:30.039 align:start position:0%
+see python3.7 like this, I will zoom in a little,
+ 
+
+00:04:30.039 --> 00:04:31.710 align:start position:0%
+see python3.7 like this, I will zoom in a little,
+yes, <00:04:30.335><c>now </c><00:04:30.631><c>okay, </c><00:04:30.927><c>so </c><00:04:31.223><c>if </c><00:04:31.519><c>I</c>
+
+00:04:31.710 --> 00:04:31.720 align:start position:0%
+yes, now okay, so if I
+ 
+
+00:04:31.720 --> 00:04:34.189 align:start position:0%
+yes, now okay, so if I
+type <00:04:32.040><c>import </c><00:04:32.360><c>pandas </c><00:04:32.680><c>here, </c><00:04:33.000><c>you </c><00:04:33.320><c>will </c><00:04:33.640><c>see, </c><00:04:33.960><c>now</c>
+
+00:04:34.189 --> 00:04:34.199 align:start position:0%
+type import pandas here, you will see, now
+ 
+
+00:04:34.199 --> 00:04:36.189 align:start position:0%
+type import pandas here, you will see, now
+I <00:04:34.461><c>will </c><00:04:34.723><c>not </c><00:04:34.985><c>see </c><00:04:35.247><c>any </c><00:04:35.509><c>error, </c><00:04:35.771><c>but </c><00:04:36.033><c>if</c>
+
+00:04:36.189 --> 00:04:36.199 align:start position:0%
+I will not see any error, but if
+ 
+
+00:04:36.199 --> 00:04:38.870 align:start position:0%
+I will not see any error, but if
+I <00:04:36.483><c>type </c><00:04:36.767><c>import </c><00:04:37.051><c>sklearn </c><00:04:37.335><c>here, </c><00:04:37.619><c>then </c><00:04:37.903><c>I </c><00:04:38.187><c>will </c><00:04:38.471><c>get </c><00:04:38.755><c>the</c>
+
+00:04:38.870 --> 00:04:38.880 align:start position:0%
+I type import sklearn here, then I will get the
+ 
+
+00:04:38.880 --> 00:04:40.830 align:start position:0%
+I type import sklearn here, then I will get the
+error, <00:04:39.319><c>module </c><00:04:39.758><c>not </c><00:04:40.197><c>found </c><00:04:40.636><c>error,</c>
+
+00:04:40.830 --> 00:04:40.840 align:start position:0%
+error, module not found error,
+ 
+
+00:04:40.840 --> 00:04:43.550 align:start position:0%
+error, module not found error,
+no <00:04:41.304><c>module </c><00:04:41.768><c>name </c><00:04:42.232><c>sklearn, </c><00:04:42.696><c>this </c><00:04:43.160><c>happened</c>
+
+00:04:43.550 --> 00:04:43.560 align:start position:0%
+no module name sklearn, this happened
+ 
+
+00:04:43.560 --> 00:04:44.990 align:start position:0%
+no module name sklearn, this happened
+because <00:04:43.973><c>this </c><00:04:44.386><c>module </c><00:04:44.799><c>was</c>
+
+00:04:44.990 --> 00:04:45.000 align:start position:0%
+because this module was
+ 
+
+00:04:45.000 --> 00:04:46.590 align:start position:0%
+because this module was
+not <00:04:45.116><c>present </c><00:04:45.232><c>in </c><00:04:45.348><c>my </c><00:04:45.464><c>computer, </c><00:04:45.580><c>now </c><00:04:45.696><c>you </c><00:04:45.812><c>guys </c><00:04:45.928><c>don't </c><00:04:46.044><c>worry </c><00:04:46.160><c>at </c><00:04:46.276><c>all </c><00:04:46.392><c>that</c>
+
+00:04:46.590 --> 00:04:48.350 align:start position:0%
+not present in my computer, now you guys don't worry at all that
+ 
+
+00:04:48.350 --> 00:04:48.360 align:start position:0%
+ 
+ 
+
+00:04:48.360 --> 00:04:49.990 align:start position:0%
+ 
+you <00:04:48.508><c>will </c><00:04:48.656><c>not </c><00:04:48.804><c>understand </c><00:04:48.952><c>what </c><00:04:49.100><c>all </c><00:04:49.248><c>these </c><00:04:49.396><c>things </c><00:04:49.544><c>are </c><00:04:49.692><c>being </c><00:04:49.840><c>written,</c>
+
+00:04:49.990 --> 00:04:50.000 align:start position:0%
+you will not understand what all these things are being written,
+ 
+
+00:04:50.000 --> 00:04:51.749 align:start position:0%
+you will not understand what all these things are being written,
+I <00:04:50.380><c>know, </c><00:04:50.760><c>I </c><00:04:51.140><c>am </c><00:04:51.520><c>just</c>
+
+00:04:51.749 --> 00:04:51.759 align:start position:0%
+I know, I am just
+ 
+
+00:04:51.759 --> 00:04:53.270 align:start position:0%
+I know, I am just
+telling <00:04:52.039><c>you </c><00:04:52.319><c>for </c><00:04:52.599><c>your </c><00:04:52.879><c>understanding </c><00:04:53.159><c>that</c>
+
+00:04:53.270 --> 00:04:53.280 align:start position:0%
+telling you for your understanding that
+ 
+
+00:04:53.280 --> 00:04:55.310 align:start position:0%
+telling you for your understanding that
+modules  <00:04:53.624><c>How </c><00:04:53.968><c>is </c><00:04:54.312><c>it </c><00:04:54.656><c>grabbed? </c><00:04:55.000><c>If</c>
+
+00:04:55.310 --> 00:04:55.320 align:start position:0%
+modules  How is it grabbed? If
+ 
+
+00:04:55.320 --> 00:04:58.029 align:start position:0%
+modules  How is it grabbed? If
+I
+
+00:04:58.029 --> 00:04:58.039 align:start position:0%
+ 
+ 
+
+00:04:58.039 --> 00:05:00.390 align:start position:0%
+ 
+want <00:04:58.471><c>to </c><00:04:58.903><c>install </c><00:04:59.335><c>python's </c><00:04:59.767><c>sklearn, </c><00:05:00.199><c>then</c>
+
+00:05:00.390 --> 00:05:00.400 align:start position:0%
+want to install python's sklearn, then
+ 
+
+00:05:00.400 --> 00:05:03.189 align:start position:0%
+want to install python's sklearn, then
+I <00:05:00.950><c>will </c><00:05:01.500><c>write </c><00:05:02.050><c>pip </c><00:05:02.600><c>install</c>
+
+00:05:03.189 --> 00:05:03.199 align:start position:0%
+I will write pip install
+ 
+
+00:05:03.199 --> 00:05:05.110 align:start position:0%
+I will write pip install
+sklearn. <00:05:03.429><c>Now </c><00:05:03.659><c>when </c><00:05:03.889><c>I </c><00:05:04.119><c>use </c><00:05:04.349><c>the </c><00:05:04.579><c>package, </c><00:05:04.809><c>I </c><00:05:05.039><c>will</c>
+
+00:05:05.110 --> 00:05:05.120 align:start position:0%
+sklearn. Now when I use the package, I will
+ 
+
+00:05:05.120 --> 00:05:06.870 align:start position:0%
+sklearn. Now when I use the package, I will
+write <00:05:05.550><c>sklearn, </c><00:05:05.980><c>but </c><00:05:06.410><c>I </c><00:05:06.840><c>will</c>
+
+00:05:06.870 --> 00:05:06.880 align:start position:0%
+write sklearn, but I will
+ 
+
+00:05:06.880 --> 00:05:08.510 align:start position:0%
+write sklearn, but I will
+install <00:05:07.097><c>it </c><00:05:07.314><c>with </c><00:05:07.531><c>the </c><00:05:07.748><c>name </c><00:05:07.965><c>sklearn. </c><00:05:08.182><c>So </c><00:05:08.399><c>you</c>
+
+00:05:08.510 --> 00:05:08.520 align:start position:0%
+install it with the name sklearn. So you
+ 
+
+00:05:08.520 --> 00:05:10.029 align:start position:0%
+install it with the name sklearn. So you
+can <00:05:08.657><c>see </c><00:05:08.794><c>that </c><00:05:08.931><c>it </c><00:05:09.068><c>is </c><00:05:09.205><c>getting </c><00:05:09.342><c>installed </c><00:05:09.479><c>and </c><00:05:09.616><c>is </c><00:05:09.753><c>getting</c>
+
+00:05:10.029 --> 00:05:10.039 align:start position:0%
+can see that it is getting installed and is getting
+ 
+
+00:05:10.039 --> 00:05:11.790 align:start position:0%
+can see that it is getting installed and is getting
+installed <00:05:10.319><c>at </c><00:05:10.599><c>a </c><00:05:10.879><c>very </c><00:05:11.159><c>good </c><00:05:11.439><c>speed. </c><00:05:11.719><c>Now</c>
+
+00:05:11.790 --> 00:05:11.800 align:start position:0%
+installed at a very good speed. Now
+ 
+
+00:05:11.800 --> 00:05:13.710 align:start position:0%
+installed at a very good speed. Now
+after <00:05:12.017><c>this, </c><00:05:12.234><c>if </c><00:05:12.451><c>I </c><00:05:12.668><c>write </c><00:05:12.885><c>python3 </c><00:05:13.102><c>and </c><00:05:13.319><c>import</c>
+
+00:05:13.710 --> 00:05:13.720 align:start position:0%
+after this, if I write python3 and import
+ 
+
+00:05:13.720 --> 00:05:16.029 align:start position:0%
+after this, if I write python3 and import
+sklearn, <00:05:14.066><c>then </c><00:05:14.412><c>my </c><00:05:14.758><c>work </c><00:05:15.104><c>will </c><00:05:15.450><c>be </c><00:05:15.796><c>done.</c>
+
+00:05:16.029 --> 00:05:16.039 align:start position:0%
+sklearn, then my work will be done.
+ 
+
+00:05:16.039 --> 00:05:17.790 align:start position:0%
+sklearn, then my work will be done.
+Now <00:05:16.375><c>it </c><00:05:16.711><c>is </c><00:05:17.047><c>installing </c><00:05:17.383><c>some </c><00:05:17.719><c>dependencies</c>
+
+00:05:17.790 --> 00:05:17.800 align:start position:0%
+Now it is installing some dependencies
+ 
+
+00:05:17.800 --> 00:05:19.510 align:start position:0%
+Now it is installing some dependencies
+which <00:05:18.040><c>may </c><00:05:18.280><c>take </c><00:05:18.520><c>some </c><00:05:18.760><c>time. </c><00:05:19.000><c>What </c><00:05:19.240><c>is</c>
+
+00:05:19.510 --> 00:05:19.520 align:start position:0%
+which may take some time. What is
+ 
+
+00:05:19.520 --> 00:05:21.110 align:start position:0%
+which may take some time. What is
+sklearn? <00:05:19.737><c>It </c><00:05:19.954><c>is </c><00:05:20.171><c>a </c><00:05:20.388><c>library </c><00:05:20.605><c>for </c><00:05:20.822><c>machine </c><00:05:21.039><c>learning.</c>
+
+00:05:21.110 --> 00:05:21.120 align:start position:0%
+sklearn? It is a library for machine learning.
+ 
+
+00:05:21.120 --> 00:05:22.749 align:start position:0%
+sklearn? It is a library for machine learning.
+What <00:05:21.408><c>we </c><00:05:21.696><c>are </c><00:05:21.984><c>using </c><00:05:22.272><c>right </c><00:05:22.560><c>now,</c>
+
+00:05:22.749 --> 00:05:22.759 align:start position:0%
+What we are using right now,
+ 
+
+00:05:22.759 --> 00:05:25.230 align:start position:0%
+What we are using right now,
+not <00:05:23.139><c>just </c><00:05:23.519><c>yet. </c><00:05:23.899><c>Okay, </c><00:05:24.279><c>so </c><00:05:24.659><c>if </c><00:05:25.039><c>I</c>
+
+00:05:25.230 --> 00:05:25.240 align:start position:0%
+not just yet. Okay, so if I
+ 
+
+00:05:25.240 --> 00:05:27.590 align:start position:0%
+not just yet. Okay, so if I
+write <00:05:25.672><c>sklearn </c><00:05:26.104><c>here, </c><00:05:26.536><c>then </c><00:05:26.968><c>you </c><00:05:27.400><c>will</c>
+
+00:05:27.590 --> 00:05:27.600 align:start position:0%
+write sklearn here, then you will
+ 
+
+00:05:27.600 --> 00:05:29.070 align:start position:0%
+write sklearn here, then you will
+see <00:05:27.765><c>here </c><00:05:27.930><c>that </c><00:05:28.095><c>it </c><00:05:28.260><c>is </c><00:05:28.425><c>a </c><00:05:28.590><c>machine </c><00:05:28.755><c>learning</c>
+
+00:05:29.070 --> 00:05:29.080 align:start position:0%
+see here that it is a machine learning
+ 
+
+00:05:29.080 --> 00:05:31.710 align:start position:0%
+see here that it is a machine learning
+library. <00:05:29.394><c>We </c><00:05:29.708><c>will </c><00:05:30.022><c>do </c><00:05:30.336><c>everything </c><00:05:30.650><c>and </c><00:05:30.964><c>create </c><00:05:31.278><c>a</c>
+
+00:05:31.710 --> 00:05:31.720 align:start position:0%
+library. We will do everything and create a
+ 
+
+00:05:31.720 --> 00:05:33.990 align:start position:0%
+library. We will do everything and create a
+blast. <00:05:32.136><c>Don't </c><00:05:32.552><c>worry, </c><00:05:32.968><c>right </c><00:05:33.384><c>now </c><00:05:33.800><c>many</c>
+
+00:05:33.990 --> 00:05:34.000 align:start position:0%
+blast. Don't worry, right now many
+ 
+
+00:05:34.000 --> 00:05:35.510 align:start position:0%
+blast. Don't worry, right now many
+people <00:05:34.182><c>are </c><00:05:34.364><c>commenting </c><00:05:34.546><c>to </c><00:05:34.728><c>me </c><00:05:34.910><c>that </c><00:05:35.092><c>it </c><00:05:35.274><c>is</c>
+
+00:05:35.510 --> 00:05:35.520 align:start position:0%
+people are commenting to me that it is
+ 
+
+00:05:35.520 --> 00:05:37.590 align:start position:0%
+people are commenting to me that it is
+running <00:05:36.400><c>very </c><00:05:37.280><c>slow.</c>
+
+00:05:37.590 --> 00:05:37.600 align:start position:0%
+running very slow.
+ 
+
+00:05:37.600 --> 00:05:39.110 align:start position:0%
+running very slow.
+We <00:05:37.710><c>know </c><00:05:37.820><c>all </c><00:05:37.930><c>these </c><00:05:38.040><c>things. </c><00:05:38.150><c>I </c><00:05:38.260><c>will </c><00:05:38.370><c>meet </c><00:05:38.480><c>those </c><00:05:38.590><c>people </c><00:05:38.700><c>after </c><00:05:38.810><c>a </c><00:05:38.920><c>few </c><00:05:39.030><c>days.</c>
+
+00:05:39.110 --> 00:05:39.120 align:start position:0%
+We know all these things. I will meet those people after a few days.
+ 
+
+00:05:39.120 --> 00:05:40.749 align:start position:0%
+We know all these things. I will meet those people after a few days.
+When <00:05:39.613><c>the </c><00:05:40.106><c>difficulty </c><00:05:40.599><c>level</c>
+
+00:05:40.749 --> 00:05:40.759 align:start position:0%
+When the difficulty level
+ 
+
+00:05:40.759 --> 00:05:42.790 align:start position:0%
+When the difficulty level
+increases <00:05:41.052><c>a </c><00:05:41.345><c>little </c><00:05:41.638><c>and </c><00:05:41.931><c>there </c><00:05:42.224><c>is </c><00:05:42.517><c>understanding,</c>
+
+00:05:42.790 --> 00:05:42.800 align:start position:0%
+increases a little and there is understanding,
+ 
+
+00:05:42.800 --> 00:05:44.390 align:start position:0%
+increases a little and there is understanding,
+it <00:05:43.149><c>will  </c><00:05:43.498><c>It's </c><00:05:43.847><c>guaranteed, </c><00:05:44.196><c>you</c>
+
+00:05:44.390 --> 00:05:44.400 align:start position:0%
+it will  It's guaranteed, you
+ 
+
+00:05:44.400 --> 00:05:46.550 align:start position:0%
+it will  It's guaranteed, you
+follow <00:05:44.680><c>me </c><00:05:44.960><c>step </c><00:05:45.240><c>by </c><00:05:45.520><c>step </c><00:05:45.800><c>all </c><00:05:46.080><c>day. </c><00:05:46.360><c>Now</c>
+
+00:05:46.550 --> 00:05:46.560 align:start position:0%
+follow me step by step all day. Now
+ 
+
+00:05:46.560 --> 00:05:49.469 align:start position:0%
+follow me step by step all day. Now
+I <00:05:46.862><c>want </c><00:05:47.164><c>to </c><00:05:47.466><c>show </c><00:05:47.768><c>you </c><00:05:48.070><c>guys, </c><00:05:48.372><c>as </c><00:05:48.674><c>soon </c><00:05:48.976><c>as </c><00:05:49.278><c>it's</c>
+
+00:05:49.469 --> 00:05:49.479 align:start position:0%
+I want to show you guys, as soon as it's
+ 
+
+00:05:49.479 --> 00:05:51.749 align:start position:0%
+I want to show you guys, as soon as it's
+installed, <00:05:49.770><c>and </c><00:05:50.061><c>after </c><00:05:50.352><c>this, </c><00:05:50.643><c>as </c><00:05:50.934><c>soon </c><00:05:51.225><c>as </c><00:05:51.516><c>I</c>
+
+00:05:51.749 --> 00:05:51.759 align:start position:0%
+installed, and after this, as soon as I
+ 
+
+00:05:51.759 --> 00:05:53.950 align:start position:0%
+installed, and after this, as soon as I
+type <00:05:51.976><c>python3, </c><00:05:52.193><c>I </c><00:05:52.410><c>want </c><00:05:52.627><c>to </c><00:05:52.844><c>show </c><00:05:53.061><c>you </c><00:05:53.278><c>import </c><00:05:53.495><c>sklearn. </c><00:05:53.712><c>The</c>
+
+00:05:53.950 --> 00:05:53.960 align:start position:0%
+type python3, I want to show you import sklearn. The
+ 
+
+00:05:53.960 --> 00:05:56.430 align:start position:0%
+type python3, I want to show you import sklearn. The
+import <00:05:54.980><c>sklearn </c><00:05:56.000><c>will</c>
+
+00:05:56.430 --> 00:05:56.440 align:start position:0%
+import sklearn will
+ 
+
+00:05:56.440 --> 00:06:00.029 align:start position:0%
+import sklearn will
+work <00:05:57.013><c>here. </c><00:05:57.586><c>You </c><00:05:58.159><c>see, </c><00:05:58.732><c>if </c><00:05:59.305><c>I </c><00:05:59.878><c>do</c>
+
+00:06:00.029 --> 00:06:00.039 align:start position:0%
+work here. You see, if I do
+ 
+
+00:06:00.039 --> 00:06:01.909 align:start position:0%
+work here. You see, if I do
+import <00:06:00.259><c>allan, </c><00:06:00.479><c>it </c><00:06:00.699><c>will </c><00:06:00.919><c>work. </c><00:06:01.139><c>If </c><00:06:01.359><c>it </c><00:06:01.579><c>doesn't, </c><00:06:01.799><c>an</c>
+
+00:06:01.909 --> 00:06:01.919 align:start position:0%
+import allan, it will work. If it doesn't, an
+ 
+
+00:06:01.919 --> 00:06:03.590 align:start position:0%
+import allan, it will work. If it doesn't, an
+error <00:06:02.223><c>will </c><00:06:02.527><c>come. </c><00:06:02.831><c>Okay, </c><00:06:03.135><c>so </c><00:06:03.439><c>I'll</c>
+
+00:06:03.590 --> 00:06:03.600 align:start position:0%
+error will come. Okay, so I'll
+ 
+
+00:06:03.600 --> 00:06:06.189 align:start position:0%
+error will come. Okay, so I'll
+exit <00:06:03.954><c>it </c><00:06:04.308><c>here. </c><00:06:04.662><c>Now, </c><00:06:05.016><c>this </c><00:06:05.370><c>thing </c><00:06:05.724><c>that </c><00:06:06.078><c>we</c>
+
+00:06:06.189 --> 00:06:06.199 align:start position:0%
+exit it here. Now, this thing that we
+ 
+
+00:06:06.199 --> 00:06:09.350 align:start position:0%
+exit it here. Now, this thing that we
+can <00:06:06.791><c>see </c><00:06:07.383><c>here </c><00:06:07.975><c>by </c><00:06:08.567><c>typing </c><00:06:09.159><c>python3,</c>
+
+00:06:09.350 --> 00:06:09.360 align:start position:0%
+can see here by typing python3,
+ 
+
+00:06:09.360 --> 00:06:11.749 align:start position:0%
+can see here by typing python3,
+this <00:06:09.753><c>is </c><00:06:10.146><c>Rufflet, </c><00:06:10.539><c>Python. </c><00:06:10.932><c>This </c><00:06:11.325><c>REPL. </c><00:06:11.718><c>REPL</c>
+
+00:06:11.749 --> 00:06:11.759 align:start position:0%
+this is Rufflet, Python. This REPL. REPL
+ 
+
+00:06:11.759 --> 00:06:15.710 align:start position:0%
+this is Rufflet, Python. This REPL. REPL
+means <00:06:12.479><c>read, </c><00:06:13.199><c>evaluate, </c><00:06:13.919><c>print </c><00:06:14.639><c>loop. </c><00:06:15.359><c>Okay,</c>
+
+00:06:15.710 --> 00:06:15.720 align:start position:0%
+means read, evaluate, print loop. Okay,
+ 
+
+00:06:15.720 --> 00:06:17.430 align:start position:0%
+means read, evaluate, print loop. Okay,
+we <00:06:16.119><c>won't </c><00:06:16.518><c>use </c><00:06:16.917><c>this, </c><00:06:17.316><c>we'll</c>
+
+00:06:17.430 --> 00:06:17.440 align:start position:0%
+we won't use this, we'll
+ 
+
+00:06:17.440 --> 00:06:21.909 align:start position:0%
+we won't use this, we'll
+write <00:06:17.853><c>proper </c><00:06:18.266><c>programs. </c><00:06:18.679><c>I'm</c>
+
+00:06:21.909 --> 00:06:21.919 align:start position:0%
+ 
+ 
+
+00:06:21.919 --> 00:06:23.950 align:start position:0%
+ 
+using <00:06:23.880><c>python2.</c>
+
+00:06:23.950 --> 00:06:23.960 align:start position:0%
+using python2.
+ 
+
+00:06:23.960 --> 00:06:25.990 align:start position:0%
+using python2.
+Can <00:06:24.165><c>you </c><00:06:24.370><c>do </c><00:06:24.575><c>this </c><00:06:24.780><c>without </c><00:06:24.985><c>Rufflet? </c><00:06:25.190><c>Absolutely, </c><00:06:25.395><c>it's</c>
+
+00:06:25.990 --> 00:06:26.000 align:start position:0%
+Can you do this without Rufflet? Absolutely, it's
+ 
+
+00:06:26.000 --> 00:06:27.830 align:start position:0%
+Can you do this without Rufflet? Absolutely, it's
+possible, <00:06:26.390><c>but </c><00:06:26.780><c>I'm </c><00:06:27.170><c>using </c><00:06:27.560><c>Rufflet</c>
+
+00:06:27.830 --> 00:06:27.840 align:start position:0%
+possible, but I'm using Rufflet
+ 
+
+00:06:27.840 --> 00:06:29.830 align:start position:0%
+possible, but I'm using Rufflet
+because <00:06:28.439><c>Rufflet </c><00:06:29.038><c>is </c><00:06:29.637><c>very</c>
+
+00:06:29.830 --> 00:06:29.840 align:start position:0%
+because Rufflet is very
+ 
+
+00:06:29.840 --> 00:06:31.469 align:start position:0%
+because Rufflet is very
+convenient. <00:06:30.135><c>Okay, </c><00:06:30.430><c>so </c><00:06:30.725><c>I'll </c><00:06:31.020><c>create </c><00:06:31.315><c>a</c>
+
+00:06:31.469 --> 00:06:31.479 align:start position:0%
+convenient. Okay, so I'll create a
+ 
+
+00:06:31.479 --> 00:06:33.629 align:start position:0%
+convenient. Okay, so I'll create a
+file <00:06:32.132><c>called </c><00:06:32.785><c>main.py </c><00:06:33.438><c>here,</c>
+
+00:06:33.629 --> 00:06:33.639 align:start position:0%
+file called main.py here,
+ 
+
+00:06:33.639 --> 00:06:35.870 align:start position:0%
+file called main.py here,
+and <00:06:33.913><c>I'll </c><00:06:34.187><c>move </c><00:06:34.461><c>its </c><00:06:34.735><c>output </c><00:06:35.009><c>to </c><00:06:35.283><c>the </c><00:06:35.557><c>console</c>
+
+00:06:35.870 --> 00:06:35.880 align:start position:0%
+and I'll move its output to the console
+ 
+
+00:06:35.880 --> 00:06:37.270 align:start position:0%
+and I'll move its output to the console
+here. <00:06:36.200><c>You </c><00:06:36.520><c>can </c><00:06:36.840><c>see </c><00:06:37.160><c>it</c>
+
+00:06:37.270 --> 00:06:37.280 align:start position:0%
+here. You can see it
+ 
+
+00:06:37.280 --> 00:06:38.589 align:start position:0%
+here. You can see it
+as <00:06:37.435><c>soon </c><00:06:37.590><c>as </c><00:06:37.745><c>I </c><00:06:37.900><c>drag </c><00:06:38.055><c>and </c><00:06:38.210><c>drop </c><00:06:38.365><c>it </c><00:06:38.520><c>here.</c>
+
+00:06:38.589 --> 00:06:38.599 align:start position:0%
+as soon as I drag and drop it here.
+ 
+
+00:06:38.599 --> 00:06:40.469 align:start position:0%
+as soon as I drag and drop it here.
+So <00:06:38.781><c>here </c><00:06:38.963><c>I </c><00:06:39.145><c>will </c><00:06:39.327><c>now </c><00:06:39.509><c>get </c><00:06:39.691><c>to </c><00:06:39.873><c>see </c><00:06:40.055><c>the </c><00:06:40.237><c>output,</c>
+
+00:06:40.469 --> 00:06:40.479 align:start position:0%
+So here I will now get to see the output,
+ 
+
+00:06:40.479 --> 00:06:41.990 align:start position:0%
+So here I will now get to see the output,
+you <00:06:40.946><c>guys </c><00:06:41.413><c>will </c><00:06:41.880><c>also</c>
+
+00:06:41.990 --> 00:06:42.000 align:start position:0%
+you guys will also
+ 
+
+00:06:42.000 --> 00:06:43.430 align:start position:0%
+you guys will also
+get <00:06:42.116><c>to </c><00:06:42.232><c>see </c><00:06:42.348><c>my </c><00:06:42.464><c>video </c><00:06:42.580><c>here </c><00:06:42.696><c>which </c><00:06:42.812><c>is </c><00:06:42.928><c>going </c><00:06:43.044><c>to </c><00:06:43.160><c>be</c>
+
+00:06:43.430 --> 00:06:43.440 align:start position:0%
+get to see my video here which is going to be
+ 
+
+00:06:43.440 --> 00:06:45.230 align:start position:0%
+get to see my video here which is going to be
+super <00:06:43.735><c>convenient </c><00:06:44.030><c>for </c><00:06:44.325><c>you </c><00:06:44.620><c>guys, </c><00:06:44.915><c>friend,</c>
+
+00:06:45.230 --> 00:06:45.240 align:start position:0%
+super convenient for you guys, friend,
+ 
+
+00:06:45.240 --> 00:06:47.469 align:start position:0%
+super convenient for you guys, friend,
+so <00:06:45.444><c>main.  </c><00:06:45.648><c>What </c><00:06:45.852><c>will </c><00:06:46.056><c>I </c><00:06:46.260><c>simply </c><00:06:46.464><c>write </c><00:06:46.668><c>here </c><00:06:46.872><c>inside </c><00:06:47.076><c>Pava?</c>
+
+00:06:47.469 --> 00:06:47.479 align:start position:0%
+so main.  What will I simply write here inside Pava?
+ 
+
+00:06:47.479 --> 00:06:49.469 align:start position:0%
+so main.  What will I simply write here inside Pava?
+I <00:06:47.999><c>will </c><00:06:48.519><c>write </c><00:06:49.039><c>import</c>
+
+00:06:49.469 --> 00:06:49.479 align:start position:0%
+I will write import
+ 
+
+00:06:49.479 --> 00:06:51.670 align:start position:0%
+I will write import
+pandas <00:06:49.620><c>here. </c><00:06:49.761><c>And </c><00:06:49.902><c>do </c><00:06:50.043><c>you </c><00:06:50.184><c>know </c><00:06:50.325><c>what </c><00:06:50.466><c>the </c><00:06:50.607><c>best </c><00:06:50.748><c>thing </c><00:06:50.889><c>about </c><00:06:51.030><c>Rolate </c><00:06:51.171><c>is, </c><00:06:51.312><c>as </c><00:06:51.453><c>soon </c><00:06:51.594><c>as</c>
+
+00:06:51.670 --> 00:06:51.680 align:start position:0%
+pandas here. And do you know what the best thing about Rolate is, as soon as
+ 
+
+00:06:51.680 --> 00:06:53.270 align:start position:0%
+pandas here. And do you know what the best thing about Rolate is, as soon as
+I <00:06:52.050><c>run </c><00:06:52.420><c>it, </c><00:06:52.790><c>it </c><00:06:53.160><c>will</c>
+
+00:06:53.270 --> 00:06:53.280 align:start position:0%
+I run it, it will
+ 
+
+00:06:53.280 --> 00:06:55.150 align:start position:0%
+I run it, it will
+detect <00:06:53.853><c>that </c><00:06:54.426><c>pandas </c><00:06:54.999><c>is</c>
+
+00:06:55.150 --> 00:06:55.160 align:start position:0%
+detect that pandas is
+ 
+
+00:06:55.160 --> 00:06:57.350 align:start position:0%
+detect that pandas is
+not <00:06:55.340><c>there, </c><00:06:55.520><c>then </c><00:06:55.700><c>it </c><00:06:55.880><c>will </c><00:06:56.060><c>automatically </c><00:06:56.240><c>install </c><00:06:56.420><c>it. </c><00:06:56.600><c>So </c><00:06:56.780><c>don't </c><00:06:56.960><c>get</c>
+
+00:06:57.350 --> 00:06:57.360 align:start position:0%
+not there, then it will automatically install it. So don't get
+ 
+
+00:06:57.360 --> 00:06:59.110 align:start position:0%
+not there, then it will automatically install it. So don't get
+confused <00:06:57.619><c>as </c><00:06:57.878><c>to </c><00:06:58.137><c>why </c><00:06:58.396><c>the </c><00:06:58.655><c>error </c><00:06:58.914><c>did</c>
+
+00:06:59.110 --> 00:06:59.120 align:start position:0%
+confused as to why the error did
+ 
+
+00:06:59.120 --> 00:07:01.510 align:start position:0%
+confused as to why the error did
+not <00:06:59.319><c>come, </c><00:06:59.518><c>the </c><00:06:59.717><c>error </c><00:06:59.916><c>did </c><00:07:00.115><c>not </c><00:07:00.314><c>come </c><00:07:00.513><c>because </c><00:07:00.712><c>Rolate </c><00:07:00.911><c>has</c>
+
+00:07:01.510 --> 00:07:03.390 align:start position:0%
+not come, the error did not come because Rolate has
+ 
+
+00:07:03.390 --> 00:07:03.400 align:start position:0%
+ 
+ 
+
+00:07:03.400 --> 00:07:05.710 align:start position:0%
+ 
+started <00:07:03.697><c>installing </c><00:07:03.994><c>it </c><00:07:04.291><c>for </c><00:07:04.588><c>your </c><00:07:04.885><c>convenience. </c><00:07:05.182><c>Rolate </c><00:07:05.479><c>wants</c>
+
+00:07:05.710 --> 00:07:05.720 align:start position:0%
+started installing it for your convenience. Rolate wants
+ 
+
+00:07:05.720 --> 00:07:07.230 align:start position:0%
+started installing it for your convenience. Rolate wants
+you <00:07:06.000><c>to </c><00:07:06.280><c>be </c><00:07:06.560><c>convenient </c><00:07:06.840><c>while </c><00:07:07.120><c>programming,</c>
+
+00:07:07.230 --> 00:07:07.240 align:start position:0%
+you to be convenient while programming,
+ 
+
+00:07:07.240 --> 00:07:09.230 align:start position:0%
+you to be convenient while programming,
+but <00:07:07.960><c>it </c><00:07:08.680><c>is</c>
+
+00:07:09.230 --> 00:07:09.240 align:start position:0%
+but it is
+ 
+
+00:07:09.240 --> 00:07:10.950 align:start position:0%
+but it is
+important <00:07:09.363><c>for </c><00:07:09.486><c>you </c><00:07:09.609><c>to </c><00:07:09.732><c>understand </c><00:07:09.855><c>the </c><00:07:09.978><c>concept. </c><00:07:10.101><c>If </c><00:07:10.224><c>you </c><00:07:10.347><c>run </c><00:07:10.470><c>it </c><00:07:10.593><c>here,</c>
+
+00:07:10.950 --> 00:07:10.960 align:start position:0%
+important for you to understand the concept. If you run it here,
+ 
+
+00:07:10.960 --> 00:07:12.589 align:start position:0%
+important for you to understand the concept. If you run it here,
+you <00:07:11.248><c>will </c><00:07:11.536><c>see </c><00:07:11.824><c>errors </c><00:07:12.112><c>etc. </c><00:07:12.400><c>as</c>
+
+00:07:12.589 --> 00:07:12.599 align:start position:0%
+you will see errors etc. as
+ 
+
+00:07:12.599 --> 00:07:14.629 align:start position:0%
+you will see errors etc. as
+I <00:07:12.925><c>showed </c><00:07:13.251><c>you, </c><00:07:13.577><c>but </c><00:07:13.903><c>in </c><00:07:14.229><c>Rolate, </c><00:07:14.555><c>it</c>
+
+00:07:14.629 --> 00:07:17.070 align:start position:0%
+I showed you, but in Rolate, it
+ 
+
+00:07:17.070 --> 00:07:17.080 align:start position:0%
+ 
+ 
+
+00:07:17.080 --> 00:07:18.950 align:start position:0%
+ 
+started <00:07:17.331><c>installing </c><00:07:17.582><c>pandas </c><00:07:17.833><c>automatically </c><00:07:18.084><c>for </c><00:07:18.335><c>me </c><00:07:18.586><c>because </c><00:07:18.837><c>Rolate</c>
+
+00:07:18.950 --> 00:07:18.960 align:start position:0%
+started installing pandas automatically for me because Rolate
+ 
+
+00:07:18.960 --> 00:07:21.469 align:start position:0%
+started installing pandas automatically for me because Rolate
+knows <00:07:19.360><c>that </c><00:07:19.760><c>pandas </c><00:07:20.160><c>has </c><00:07:20.560><c>been </c><00:07:20.960><c>imported, </c><00:07:21.360><c>so</c>
+
+00:07:21.469 --> 00:07:21.479 align:start position:0%
+knows that pandas has been imported, so
+ 
+
+00:07:21.479 --> 00:07:23.589 align:start position:0%
+knows that pandas has been imported, so
+definitely <00:07:21.724><c>I </c><00:07:21.969><c>want </c><00:07:22.214><c>to </c><00:07:22.459><c>use </c><00:07:22.704><c>pandas, </c><00:07:22.949><c>so </c><00:07:23.194><c>why </c><00:07:23.439><c>not</c>
+
+00:07:23.589 --> 00:07:23.599 align:start position:0%
+definitely I want to use pandas, so why not
+ 
+
+00:07:23.599 --> 00:07:25.430 align:start position:0%
+definitely I want to use pandas, so why not
+install <00:07:24.419><c>it </c><00:07:25.239><c>automatically,</c>
+
+00:07:25.430 --> 00:07:25.440 align:start position:0%
+install it automatically,
+ 
+
+00:07:25.440 --> 00:07:27.629 align:start position:0%
+install it automatically,
+which <00:07:25.742><c>I </c><00:07:26.044><c>find </c><00:07:26.346><c>quite </c><00:07:26.648><c>a </c><00:07:26.950><c>good </c><00:07:27.252><c>thing </c><00:07:27.554><c>about</c>
+
+00:07:27.629 --> 00:07:27.639 align:start position:0%
+which I find quite a good thing about
+ 
+
+00:07:27.639 --> 00:07:29.589 align:start position:0%
+which I find quite a good thing about
+Rolate. <00:07:28.026><c>So, </c><00:07:28.413><c>it </c><00:07:28.800><c>has</c>
+
+00:07:29.589 --> 00:07:29.599 align:start position:0%
+Rolate. So, it has
+ 
+
+00:07:29.599 --> 00:07:31.350 align:start position:0%
+Rolate. So, it has
+installed <00:07:30.132><c>pandas. </c><00:07:30.665><c>Now </c><00:07:31.198><c>let's</c>
+
+00:07:31.350 --> 00:07:31.360 align:start position:0%
+installed pandas. Now let's
+ 
+
+00:07:31.360 --> 00:07:34.550 align:start position:0%
+installed pandas. Now let's
+assume <00:07:31.670><c>that </c><00:07:31.980><c>I </c><00:07:32.290><c>write </c><00:07:32.600><c>print </c><00:07:32.910><c>high </c><00:07:33.220><c>here.  </c><00:07:33.530><c>If </c><00:07:33.840><c>I</c>
+
+00:07:34.550 --> 00:07:34.560 align:start position:0%
+assume that I write print high here.  If I
+ 
+
+00:07:34.560 --> 00:07:36.150 align:start position:0%
+assume that I write print high here.  If I
+type <00:07:34.695><c>something </c><00:07:34.830><c>like </c><00:07:34.965><c>this, </c><00:07:35.100><c>and </c><00:07:35.235><c>now </c><00:07:35.370><c>if </c><00:07:35.505><c>I </c><00:07:35.640><c>run </c><00:07:35.775><c>it, </c><00:07:35.910><c>it's</c>
+
+00:07:36.150 --> 00:07:36.160 align:start position:0%
+type something like this, and now if I run it, it's
+ 
+
+00:07:36.160 --> 00:07:37.990 align:start position:0%
+type something like this, and now if I run it, it's
+installed <00:07:37.800><c>because</c>
+
+00:07:37.990 --> 00:07:38.000 align:start position:0%
+installed because
+ 
+
+00:07:38.000 --> 00:07:40.430 align:start position:0%
+installed because
+I <00:07:38.570><c>see </c><00:07:39.140><c>Panda </c><00:07:39.710><c>Hi </c><00:07:40.280><c>here.</c>
+
+00:07:40.430 --> 00:07:40.440 align:start position:0%
+I see Panda Hi here.
+ 
+
+00:07:40.440 --> 00:07:42.790 align:start position:0%
+I see Panda Hi here.
+Okay, <00:07:40.659><c>so </c><00:07:40.878><c>this </c><00:07:41.097><c>is </c><00:07:41.316><c>a </c><00:07:41.535><c>feature </c><00:07:41.754><c>of </c><00:07:41.973><c>the </c><00:07:42.192><c>R </c><00:07:42.411><c>palette. </c><00:07:42.630><c>Now,</c>
+
+00:07:42.790 --> 00:07:42.800 align:start position:0%
+Okay, so this is a feature of the R palette. Now,
+ 
+
+00:07:42.800 --> 00:07:44.350 align:start position:0%
+Okay, so this is a feature of the R palette. Now,
+for <00:07:43.479><c>your </c><00:07:44.158><c>convenience,</c>
+
+00:07:44.350 --> 00:07:44.360 align:start position:0%
+for your convenience,
+ 
+
+00:07:44.360 --> 00:07:46.749 align:start position:0%
+for your convenience,
+I've <00:07:44.595><c>written </c><00:07:44.830><c>in </c><00:07:45.065><c>the </c><00:07:45.300><c>text </c><00:07:45.535><c>that </c><00:07:45.770><c>a </c><00:07:46.005><c>module </c><00:07:46.240><c>is</c>
+
+00:07:46.749 --> 00:07:46.759 align:start position:0%
+I've written in the text that a module is
+ 
+
+00:07:46.759 --> 00:07:48.350 align:start position:0%
+I've written in the text that a module is
+like <00:07:47.225><c>a </c><00:07:47.691><c>code </c><00:07:48.157><c>library</c>
+
+00:07:48.350 --> 00:07:48.360 align:start position:0%
+like a code library
+ 
+
+00:07:48.360 --> 00:07:49.790 align:start position:0%
+like a code library
+written <00:07:48.568><c>by </c><00:07:48.776><c>someone </c><00:07:48.984><c>else, </c><00:07:49.192><c>and </c><00:07:49.400><c>you</c>
+
+00:07:49.790 --> 00:07:49.800 align:start position:0%
+written by someone else, and you
+ 
+
+00:07:49.800 --> 00:07:51.149 align:start position:0%
+written by someone else, and you
+can <00:07:49.942><c>bring </c><00:07:50.084><c>it </c><00:07:50.226><c>into </c><00:07:50.368><c>your </c><00:07:50.510><c>program </c><00:07:50.652><c>using </c><00:07:50.794><c>the </c><00:07:50.936><c>import </c><00:07:51.078><c>keyword.</c>
+
+00:07:51.149 --> 00:07:53.110 align:start position:0%
+can bring it into your program using the import keyword.
+ 
+
+00:07:53.110 --> 00:07:53.120 align:start position:0%
+ 
+ 
+
+00:07:53.120 --> 00:07:54.710 align:start position:0%
+ 
+I'll <00:07:53.366><c>tell </c><00:07:53.612><c>you </c><00:07:53.858><c>about </c><00:07:54.104><c>it. </c><00:07:54.350><c>There </c><00:07:54.596><c>are</c>
+
+00:07:54.710 --> 00:07:54.720 align:start position:0%
+I'll tell you about it. There are
+ 
+
+00:07:54.720 --> 00:07:56.469 align:start position:0%
+I'll tell you about it. There are
+two <00:07:54.925><c>types </c><00:07:55.130><c>of </c><00:07:55.335><c>modules: </c><00:07:55.540><c>built-in </c><00:07:55.745><c>modules </c><00:07:55.950><c>and </c><00:07:56.155><c>external </c><00:07:56.360><c>modules.</c>
+
+00:07:56.469 --> 00:07:56.479 align:start position:0%
+two types of modules: built-in modules and external modules.
+ 
+
+00:07:56.479 --> 00:07:59.670 align:start position:0%
+two types of modules: built-in modules and external modules.
+Built-in <00:07:56.789><c>modules </c><00:07:57.099><c>are </c><00:07:57.409><c>those </c><00:07:57.719><c>that</c>
+
+00:07:59.670 --> 00:07:59.680 align:start position:0%
+Built-in modules are those that
+ 
+
+00:07:59.680 --> 00:08:01.629 align:start position:0%
+Built-in modules are those that
+exist. <00:08:00.000><c>So </c><00:08:00.320><c>let's </c><00:08:00.640><c>write </c><00:08:00.960><c>here, </c><00:08:01.280><c>"Built-</c>
+
+00:08:01.629 --> 00:08:01.639 align:start position:0%
+exist. So let's write here, "Built-
+ 
+
+00:08:01.639 --> 00:08:05.230 align:start position:0%
+exist. So let's write here, "Built-
+in <00:08:02.800><c>modules</c>
+
+00:08:05.230 --> 00:08:05.240 align:start position:0%
+ 
+ 
+
+00:08:05.240 --> 00:08:07.550 align:start position:0%
+ 
+in <00:08:05.606><c>python-pip," </c><00:08:05.972><c>which </c><00:08:06.338><c>are </c><00:08:06.704><c>those </c><00:08:07.070><c>modules </c><00:08:07.436><c>that</c>
+
+00:08:07.550 --> 00:08:07.560 align:start position:0%
+in python-pip," which are those modules that
+ 
+
+00:08:07.560 --> 00:08:08.909 align:start position:0%
+in python-pip," which are those modules that
+I <00:08:07.880><c>don't </c><00:08:08.200><c>need </c><00:08:08.520><c>to </c><00:08:08.840><c>install</c>
+
+00:08:08.909 --> 00:08:08.919 align:start position:0%
+I don't need to install
+ 
+
+00:08:08.919 --> 00:08:11.149 align:start position:0%
+I don't need to install
+again <00:08:09.083><c>and </c><00:08:09.247><c>again. </c><00:08:09.411><c>Look, </c><00:08:09.575><c>here's </c><00:08:09.739><c>a </c><00:08:09.903><c>list </c><00:08:10.067><c>of </c><00:08:10.231><c>all </c><00:08:10.395><c>those </c><00:08:10.559><c>modules.</c>
+
+00:08:11.149 --> 00:08:11.159 align:start position:0%
+again and again. Look, here's a list of all those modules.
+ 
+
+00:08:11.159 --> 00:08:13.350 align:start position:0%
+again and again. Look, here's a list of all those modules.
+You <00:08:11.839><c>can </c><00:08:12.519><c>see </c><00:08:13.199><c>here</c>
+
+00:08:13.350 --> 00:08:13.360 align:start position:0%
+You can see here
+ 
+
+00:08:13.360 --> 00:08:15.909 align:start position:0%
+You can see here
+that <00:08:13.839><c>there's </c><00:08:14.318><c>a </c><00:08:14.797><c>module </c><00:08:15.276><c>called </c><00:08:15.755><c>hashlip.</c>
+
+00:08:15.909 --> 00:08:15.919 align:start position:0%
+that there's a module called hashlip.
+ 
+
+00:08:15.919 --> 00:08:17.670 align:start position:0%
+that there's a module called hashlip.
+Let's <00:08:16.223><c>use </c><00:08:16.527><c>it </c><00:08:16.831><c>by </c><00:08:17.135><c>importing </c><00:08:17.439><c>hashlip</c>
+
+00:08:17.670 --> 00:08:17.680 align:start position:0%
+Let's use it by importing hashlip
+ 
+
+00:08:17.680 --> 00:08:19.589 align:start position:0%
+Let's use it by importing hashlip
+and <00:08:17.885><c>see </c><00:08:18.090><c>if </c><00:08:18.295><c>it </c><00:08:18.500><c>installs </c><00:08:18.705><c>when </c><00:08:18.910><c>I </c><00:08:19.115><c>import</c>
+
+00:08:19.589 --> 00:08:19.599 align:start position:0%
+and see if it installs when I import
+ 
+
+00:08:19.599 --> 00:08:22.350 align:start position:0%
+and see if it installs when I import
+hashlip. <00:08:21.919><c>So,</c>
+
+00:08:22.350 --> 00:08:22.360 align:start position:0%
+hashlip. So,
+ 
+
+00:08:22.360 --> 00:08:24.350 align:start position:0%
+hashlip. So,
+you <00:08:22.565><c>see, </c><00:08:22.770><c>as </c><00:08:22.975><c>soon </c><00:08:23.180><c>as </c><00:08:23.385><c>I </c><00:08:23.590><c>run </c><00:08:23.795><c>it,</c>
+
+00:08:24.350 --> 00:08:24.360 align:start position:0%
+you see, as soon as I run it,
+ 
+
+00:08:24.360 --> 00:08:26.070 align:start position:0%
+you see, as soon as I run it,
+I'm <00:08:24.613><c>running </c><00:08:24.866><c>it, </c><00:08:25.119><c>and </c><00:08:25.372><c>you'll </c><00:08:25.625><c>see </c><00:08:25.878><c>that</c>
+
+00:08:26.070 --> 00:08:26.080 align:start position:0%
+I'm running it, and you'll see that
+ 
+
+00:08:26.080 --> 00:08:27.990 align:start position:0%
+I'm running it, and you'll see that
+it's <00:08:26.284><c>not </c><00:08:26.488><c>installed.  </c><00:08:26.692><c>It's </c><00:08:26.896><c>simple, </c><00:08:27.100><c>it </c><00:08:27.304><c>came </c><00:08:27.508><c>by </c><00:08:27.712><c>typing </c><00:08:27.916><c>hi,</c>
+
+00:08:27.990 --> 00:08:28.000 align:start position:0%
+it's not installed.  It's simple, it came by typing hi,
+ 
+
+00:08:28.000 --> 00:08:29.990 align:start position:0%
+it's not installed.  It's simple, it came by typing hi,
+but <00:08:28.319><c>on </c><00:08:28.638><c>the </c><00:08:28.957><c>other </c><00:08:29.276><c>hand, </c><00:08:29.595><c>if </c><00:08:29.914><c>I</c>
+
+00:08:29.990 --> 00:08:30.000 align:start position:0%
+but on the other hand, if I
+ 
+
+00:08:30.000 --> 00:08:32.350 align:start position:0%
+but on the other hand, if I
+write <00:08:30.210><c>import </c><00:08:30.420><c>tensor </c><00:08:30.630><c>flow </c><00:08:30.840><c>here, </c><00:08:31.050><c>let </c><00:08:31.260><c>me </c><00:08:31.470><c>show </c><00:08:31.680><c>you </c><00:08:31.890><c>guys, </c><00:08:32.100><c>if </c><00:08:32.310><c>I</c>
+
+00:08:32.350 --> 00:08:32.360 align:start position:0%
+write import tensor flow here, let me show you guys, if I
+ 
+
+00:08:32.360 --> 00:08:33.870 align:start position:0%
+write import tensor flow here, let me show you guys, if I
+write <00:08:32.669><c>tensor </c><00:08:32.978><c>flow, </c><00:08:33.287><c>then </c><00:08:33.596><c>tensor</c>
+
+00:08:33.870 --> 00:08:33.880 align:start position:0%
+write tensor flow, then tensor
+ 
+
+00:08:33.880 --> 00:08:35.469 align:start position:0%
+write tensor flow, then tensor
+flow <00:08:34.229><c>will </c><00:08:34.578><c>start </c><00:08:34.927><c>getting </c><00:08:35.276><c>installed.</c>
+
+00:08:35.469 --> 00:08:35.479 align:start position:0%
+flow will start getting installed.
+ 
+
+00:08:35.479 --> 00:08:37.790 align:start position:0%
+flow will start getting installed.
+You <00:08:36.039><c>see, </c><00:08:36.599><c>here </c><00:08:37.159><c>it </c><00:08:37.719><c>has</c>
+
+00:08:37.790 --> 00:08:37.800 align:start position:0%
+You see, here it has
+ 
+
+00:08:37.800 --> 00:08:39.670 align:start position:0%
+You see, here it has
+started <00:08:38.180><c>installing </c><00:08:38.560><c>tensor </c><00:08:38.940><c>flow </c><00:08:39.320><c>because</c>
+
+00:08:39.670 --> 00:08:39.680 align:start position:0%
+started installing tensor flow because
+ 
+
+00:08:39.680 --> 00:08:41.389 align:start position:0%
+started installing tensor flow because
+tensor <00:08:39.946><c>flow </c><00:08:40.212><c>is </c><00:08:40.478><c>not </c><00:08:40.744><c>a </c><00:08:41.010><c>built-in </c><00:08:41.276><c>module,</c>
+
+00:08:41.389 --> 00:08:41.399 align:start position:0%
+tensor flow is not a built-in module,
+ 
+
+00:08:41.399 --> 00:08:43.110 align:start position:0%
+tensor flow is not a built-in module,
+it <00:08:41.663><c>is </c><00:08:41.927><c>an </c><00:08:42.191><c>external </c><00:08:42.455><c>module </c><00:08:42.719><c>which</c>
+
+00:08:43.110 --> 00:08:43.120 align:start position:0%
+it is an external module which
+ 
+
+00:08:43.120 --> 00:08:45.230 align:start position:0%
+it is an external module which
+needs <00:08:43.324><c>to </c><00:08:43.528><c>be </c><00:08:43.732><c>downloaded </c><00:08:43.936><c>from </c><00:08:44.140><c>the </c><00:08:44.344><c>internet, </c><00:08:44.548><c>that </c><00:08:44.752><c>is </c><00:08:44.956><c>why</c>
+
+00:08:45.230 --> 00:08:45.240 align:start position:0%
+needs to be downloaded from the internet, that is why
+ 
+
+00:08:45.240 --> 00:08:47.230 align:start position:0%
+needs to be downloaded from the internet, that is why
+it <00:08:45.486><c>is </c><00:08:45.732><c>being </c><00:08:45.978><c>brought. </c><00:08:46.224><c>Okay, </c><00:08:46.470><c>so </c><00:08:46.716><c>external</c>
+
+00:08:47.230 --> 00:08:47.240 align:start position:0%
+it is being brought. Okay, so external
+ 
+
+00:08:47.240 --> 00:08:49.430 align:start position:0%
+it is being brought. Okay, so external
+modules <00:08:47.466><c>have </c><00:08:47.692><c>to </c><00:08:47.918><c>be </c><00:08:48.144><c>brought, </c><00:08:48.370><c>like </c><00:08:48.596><c>if </c><00:08:48.822><c>there </c><00:08:49.048><c>is </c><00:08:49.274><c>some</c>
+
+00:08:49.430 --> 00:08:49.440 align:start position:0%
+modules have to be brought, like if there is some
+ 
+
+00:08:49.440 --> 00:08:51.230 align:start position:0%
+modules have to be brought, like if there is some
+stuff <00:08:49.693><c>in </c><00:08:49.946><c>your </c><00:08:50.199><c>house </c><00:08:50.452><c>which </c><00:08:50.705><c>is </c><00:08:50.958><c>finished,</c>
+
+00:08:51.230 --> 00:08:51.240 align:start position:0%
+stuff in your house which is finished,
+ 
+
+00:08:51.240 --> 00:08:53.430 align:start position:0%
+stuff in your house which is finished,
+you <00:08:51.403><c>have </c><00:08:51.566><c>to </c><00:08:51.729><c>bring </c><00:08:51.892><c>it </c><00:08:52.055><c>home, </c><00:08:52.218><c>you </c><00:08:52.381><c>have </c><00:08:52.544><c>to </c><00:08:52.707><c>bring </c><00:08:52.870><c>milk </c><00:08:53.033><c>every </c><00:08:53.196><c>day,</c>
+
+00:08:53.430 --> 00:08:53.440 align:start position:0%
+you have to bring it home, you have to bring milk every day,
+ 
+
+00:08:53.440 --> 00:08:54.949 align:start position:0%
+you have to bring it home, you have to bring milk every day,
+but <00:08:53.600><c>you </c><00:08:53.760><c>don't </c><00:08:53.920><c>have </c><00:08:54.080><c>to </c><00:08:54.240><c>bring </c><00:08:54.400><c>a </c><00:08:54.560><c>plate </c><00:08:54.720><c>every </c><00:08:54.880><c>day</c>
+
+00:08:54.949 --> 00:08:54.959 align:start position:0%
+but you don't have to bring a plate every day
+ 
+
+00:08:54.959 --> 00:08:56.269 align:start position:0%
+but you don't have to bring a plate every day
+because <00:08:55.207><c>it </c><00:08:55.455><c>is </c><00:08:55.703><c>in </c><00:08:55.951><c>your </c><00:08:56.199><c>house,</c>
+
+00:08:56.269 --> 00:08:56.279 align:start position:0%
+because it is in your house,
+ 
+
+00:08:56.279 --> 00:08:58.150 align:start position:0%
+because it is in your house,
+so <00:08:56.439><c>the </c><00:08:56.599><c>plate </c><00:08:56.759><c>is </c><00:08:56.919><c>a </c><00:08:57.079><c>built-in </c><00:08:57.239><c>module </c><00:08:57.399><c>and </c><00:08:57.559><c>the </c><00:08:57.719><c>milk </c><00:08:57.879><c>which</c>
+
+00:08:58.150 --> 00:08:58.160 align:start position:0%
+so the plate is a built-in module and the milk which
+ 
+
+00:08:58.160 --> 00:09:00.030 align:start position:0%
+so the plate is a built-in module and the milk which
+you <00:08:58.417><c>are </c><00:08:58.674><c>bringing </c><00:08:58.931><c>from </c><00:08:59.188><c>outside </c><00:08:59.445><c>every </c><00:08:59.702><c>day, </c><00:08:59.959><c>that</c>
+
+00:09:00.030 --> 00:09:00.040 align:start position:0%
+you are bringing from outside every day, that
+ 
+
+00:09:00.040 --> 00:09:02.230 align:start position:0%
+you are bringing from outside every day, that
+is <00:09:00.373><c>an </c><00:09:00.706><c>external </c><00:09:01.039><c>module. </c><00:09:01.372><c>Okay, </c><00:09:01.705><c>it's </c><00:09:02.038><c>fun,</c>
+
+00:09:02.230 --> 00:09:02.240 align:start position:0%
+is an external module. Okay, it's fun,
+ 
+
+00:09:02.240 --> 00:09:04.750 align:start position:0%
+is an external module. Okay, it's fun,
+friend, <00:09:02.461><c>look, </c><00:09:02.682><c>I </c><00:09:02.903><c>have </c><00:09:03.124><c>explained </c><00:09:03.345><c>how </c><00:09:03.566><c>to </c><00:09:03.787><c>use </c><00:09:04.008><c>the </c><00:09:04.229><c>pip </c><00:09:04.450><c>command </c><00:09:04.671><c>here.</c>
+
+00:09:04.750 --> 00:09:06.430 align:start position:0%
+friend, look, I have explained how to use the pip command here.
+ 
+
+00:09:06.430 --> 00:09:06.440 align:start position:0%
+ 
+ 
+
+00:09:06.440 --> 00:09:08.509 align:start position:0%
+ 
+Write <00:09:06.697><c>pip </c><00:09:06.954><c>install </c><00:09:07.211><c>pandas, </c><00:09:07.468><c>p </c><00:09:07.725><c>will </c><00:09:07.982><c>be </c><00:09:08.239><c>installed.</c>
+
+00:09:08.509 --> 00:09:08.519 align:start position:0%
+Write pip install pandas, p will be installed.
+ 
+
+00:09:08.519 --> 00:09:10.430 align:start position:0%
+Write pip install pandas, p will be installed.
+You <00:09:08.729><c>can </c><00:09:08.939><c>use </c><00:09:09.149><c>this </c><00:09:09.359><c>button </c><00:09:09.569><c>and </c><00:09:09.779><c>copy </c><00:09:09.989><c>the </c><00:09:10.199><c>code.</c>
+
+00:09:10.430 --> 00:09:10.440 align:start position:0%
+You can use this button and copy the code.
+ 
+
+00:09:10.440 --> 00:09:12.430 align:start position:0%
+You can use this button and copy the code.
+So <00:09:10.740><c>whatever </c><00:09:11.040><c>code </c><00:09:11.340><c>I </c><00:09:11.640><c>am </c><00:09:11.940><c>writing, </c><00:09:12.240><c>here</c>
+
+00:09:12.430 --> 00:09:12.440 align:start position:0%
+So whatever code I am writing, here
+ 
+
+00:09:12.440 --> 00:09:14.630 align:start position:0%
+So whatever code I am writing, here
+you <00:09:12.657><c>can </c><00:09:12.874><c>do </c><00:09:13.091><c>something </c><00:09:13.308><c>like </c><00:09:13.525><c>this.  </c><00:09:13.742><c>Copy </c><00:09:13.959><c>from </c><00:09:14.176><c>there </c><00:09:14.393><c>and</c>
+
+00:09:14.630 --> 00:09:14.640 align:start position:0%
+you can do something like this.  Copy from there and
+ 
+
+00:09:14.640 --> 00:09:17.550 align:start position:0%
+you can do something like this.  Copy from there and
+then <00:09:14.893><c>paste </c><00:09:15.146><c>it </c><00:09:15.399><c>like </c><00:09:15.652><c>this. </c><00:09:15.905><c>Okay, </c><00:09:16.158><c>and </c><00:09:16.411><c>you </c><00:09:16.664><c>will </c><00:09:16.917><c>be</c>
+
+00:09:17.550 --> 00:09:17.560 align:start position:0%
+then paste it like this. Okay, and you will be
+ 
+
+00:09:17.560 --> 00:09:19.949 align:start position:0%
+then paste it like this. Okay, and you will be
+able <00:09:17.780><c>to </c><00:09:18.000><c>run </c><00:09:18.220><c>it. </c><00:09:18.440><c>So </c><00:09:18.660><c>what </c><00:09:18.880><c>happens </c><00:09:19.100><c>in </c><00:09:19.320><c>Pandas? </c><00:09:19.540><c>There </c><00:09:19.760><c>is</c>
+
+00:09:19.949 --> 00:09:19.959 align:start position:0%
+able to run it. So what happens in Pandas? There is
+ 
+
+00:09:19.959 --> 00:09:22.509 align:start position:0%
+able to run it. So what happens in Pandas? There is
+a <00:09:20.284><c>module </c><00:09:20.609><c>called </c><00:09:20.934><c>Pandas </c><00:09:21.259><c>which </c><00:09:21.584><c>has </c><00:09:21.909><c>a </c><00:09:22.234><c>read</c>
+
+00:09:22.509 --> 00:09:22.519 align:start position:0%
+a module called Pandas which has a read
+ 
+
+00:09:22.519 --> 00:09:24.509 align:start position:0%
+a module called Pandas which has a read
+CSV <00:09:22.999><c>function. </c><00:09:23.479><c>CSV </c><00:09:23.959><c>is </c><00:09:24.439><c>a</c>
+
+00:09:24.509 --> 00:09:24.519 align:start position:0%
+CSV function. CSV is a
+ 
+
+00:09:24.519 --> 00:09:26.550 align:start position:0%
+CSV function. CSV is a
+file <00:09:24.825><c>like </c><00:09:25.131><c>Excel, </c><00:09:25.437><c>you </c><00:09:25.743><c>can </c><00:09:26.049><c>read </c><00:09:26.355><c>it.</c>
+
+00:09:26.550 --> 00:09:26.560 align:start position:0%
+file like Excel, you can read it.
+ 
+
+00:09:26.560 --> 00:09:28.509 align:start position:0%
+file like Excel, you can read it.
+But <00:09:26.795><c>don't </c><00:09:27.030><c>read </c><00:09:27.265><c>it </c><00:09:27.500><c>right </c><00:09:27.735><c>now. </c><00:09:27.970><c>I </c><00:09:28.205><c>am </c><00:09:28.440><c>just</c>
+
+00:09:28.509 --> 00:09:28.519 align:start position:0%
+But don't read it right now. I am just
+ 
+
+00:09:28.519 --> 00:09:30.190 align:start position:0%
+But don't read it right now. I am just
+telling <00:09:28.849><c>you </c><00:09:29.179><c>how </c><00:09:29.509><c>these </c><00:09:29.839><c>things</c>
+
+00:09:30.190 --> 00:09:30.200 align:start position:0%
+telling you how these things
+ 
+
+00:09:30.200 --> 00:09:32.269 align:start position:0%
+telling you how these things
+work. <00:09:30.485><c>In </c><00:09:30.770><c>the </c><00:09:31.055><c>coming </c><00:09:31.340><c>time, </c><00:09:31.625><c>I </c><00:09:31.910><c>will </c><00:09:32.195><c>make</c>
+
+00:09:32.269 --> 00:09:32.279 align:start position:0%
+work. In the coming time, I will make
+ 
+
+00:09:32.279 --> 00:09:34.470 align:start position:0%
+work. In the coming time, I will make
+you <00:09:32.532><c>read </c><00:09:32.785><c>the </c><00:09:33.038><c>Excel </c><00:09:33.291><c>file </c><00:09:33.544><c>in </c><00:09:33.797><c>detail.</c>
+
+00:09:34.470 --> 00:09:34.480 align:start position:0%
+you read the Excel file in detail.
+ 
+
+00:09:34.480 --> 00:09:36.910 align:start position:0%
+you read the Excel file in detail.
+You <00:09:34.755><c>may </c><00:09:35.030><c>also </c><00:09:35.305><c>miss </c><00:09:35.580><c>it </c><00:09:35.855><c>by </c><00:09:36.130><c>mistake. </c><00:09:36.405><c>Now, </c><00:09:36.680><c>a</c>
+
+00:09:36.910 --> 00:09:36.920 align:start position:0%
+You may also miss it by mistake. Now, a
+ 
+
+00:09:36.920 --> 00:09:38.670 align:start position:0%
+You may also miss it by mistake. Now, a
+lot <00:09:37.248><c>of </c><00:09:37.576><c>people </c><00:09:37.904><c>are </c><00:09:38.232><c>asking </c><00:09:38.560><c>which</c>
+
+00:09:38.670 --> 00:09:38.680 align:start position:0%
+lot of people are asking which
+ 
+
+00:09:38.680 --> 00:09:40.630 align:start position:0%
+lot of people are asking which
+Python <00:09:39.023><c>tutorial </c><00:09:39.366><c>should </c><00:09:39.709><c>I </c><00:09:40.052><c>follow. </c><00:09:40.395><c>So,</c>
+
+00:09:40.630 --> 00:09:40.640 align:start position:0%
+Python tutorial should I follow. So,
+ 
+
+00:09:40.640 --> 00:09:42.670 align:start position:0%
+Python tutorial should I follow. So,
+friends, <00:09:40.870><c>you </c><00:09:41.100><c>should </c><00:09:41.330><c>always </c><00:09:41.560><c>follow </c><00:09:41.790><c>the </c><00:09:42.020><c>latest </c><00:09:42.250><c>videos. </c><00:09:42.480><c>The</c>
+
+00:09:42.670 --> 00:09:42.680 align:start position:0%
+friends, you should always follow the latest videos. The
+ 
+
+00:09:42.680 --> 00:09:44.590 align:start position:0%
+friends, you should always follow the latest videos. The
+latest <00:09:43.109><c>videos </c><00:09:43.538><c>are </c><00:09:43.967><c>amazing. </c><00:09:44.396><c>So,</c>
+
+00:09:44.590 --> 00:09:44.600 align:start position:0%
+latest videos are amazing. So,
+ 
+
+00:09:44.600 --> 00:09:46.150 align:start position:0%
+latest videos are amazing. So,
+if <00:09:44.811><c>you </c><00:09:45.022><c>are </c><00:09:45.233><c>seeing </c><00:09:45.444><c>the </c><00:09:45.655><c>latest </c><00:09:45.866><c>video, </c><00:09:46.077><c>then</c>
+
+00:09:46.150 --> 00:09:46.160 align:start position:0%
+if you are seeing the latest video, then
+ 
+
+00:09:46.160 --> 00:09:47.990 align:start position:0%
+if you are seeing the latest video, then
+follow <00:09:46.488><c>it. </c><00:09:46.816><c>A </c><00:09:47.144><c>lot </c><00:09:47.472><c>of </c><00:09:47.800><c>people</c>
+
+00:09:47.990 --> 00:09:48.000 align:start position:0%
+follow it. A lot of people
+ 
+
+00:09:48.000 --> 00:09:52.910 align:start position:0%
+follow it. A lot of people
+ask <00:09:48.296><c>which </c><00:09:48.592><c>version </c><00:09:48.888><c>should </c><00:09:49.184><c>I </c><00:09:49.480><c>use.</c>
+
+00:09:52.910 --> 00:09:52.920 align:start position:0%
+ 
+ 
+
+00:09:52.920 --> 00:09:55.190 align:start position:0%
+ 
+If <00:09:53.189><c>you </c><00:09:53.458><c>are </c><00:09:53.727><c>using </c><00:09:53.996><c>Python </c><00:09:54.265><c>2, </c><00:09:54.534><c>then </c><00:09:54.803><c>you </c><00:09:55.072><c>do</c>
+
+00:09:55.190 --> 00:09:55.200 align:start position:0%
+If you are using Python 2, then you do
+ 
+
+00:09:55.200 --> 00:09:57.190 align:start position:0%
+If you are using Python 2, then you do
+n't <00:09:55.434><c>need </c><00:09:55.668><c>to </c><00:09:55.902><c>worry </c><00:09:56.136><c>about </c><00:09:56.370><c>that. </c><00:09:56.604><c>And </c><00:09:56.838><c>let </c><00:09:57.072><c>me</c>
+
+00:09:57.190 --> 00:09:57.200 align:start position:0%
+n't need to worry about that. And let me
+ 
+
+00:09:57.200 --> 00:09:58.990 align:start position:0%
+n't need to worry about that. And let me
+tell <00:09:57.460><c>you </c><00:09:57.720><c>that </c><00:09:57.980><c>as </c><00:09:58.240><c>long </c><00:09:58.500><c>as </c><00:09:58.760><c>it's</c>
+
+00:09:58.990 --> 00:09:59.000 align:start position:0%
+tell you that as long as it's
+ 
+
+00:09:59.000 --> 00:10:03.630 align:start position:0%
+tell you that as long as it's
+Py <00:09:59.617><c>3, </c><00:10:00.234><c>python </c><00:10:00.851><c>3.7, </c><00:10:01.468><c>3.11, </c><00:10:02.085><c>3.8, </c><00:10:02.702><c>there </c><00:10:03.319><c>wo</c>
+
+00:10:03.630 --> 00:10:03.640 align:start position:0%
+Py 3, python 3.7, 3.11, 3.8, there wo
+ 
+
+00:10:03.640 --> 00:10:05.350 align:start position:0%
+Py 3, python 3.7, 3.11, 3.8, there wo
+n't <00:10:03.913><c>be </c><00:10:04.186><c>much </c><00:10:04.459><c>difference </c><00:10:04.732><c>between </c><00:10:05.005><c>them. </c><00:10:05.278><c>Your</c>
+
+00:10:05.350 --> 00:10:05.360 align:start position:0%
+n't be much difference between them. Your
+ 
+
+00:10:05.360 --> 00:10:07.350 align:start position:0%
+n't be much difference between them. Your
+programs <00:10:05.696><c>will </c><00:10:06.032><c>work, </c><00:10:06.368><c>yes, </c><00:10:06.704><c>but </c><00:10:07.040><c>if</c>
+
+00:10:07.350 --> 00:10:07.360 align:start position:0%
+programs will work, yes, but if
+ 
+
+00:10:07.360 --> 00:10:29.630 align:start position:0%
+programs will work, yes, but if
+pythonanywhere.com is going to be the same.
+
+00:10:29.630 --> 00:10:29.640 align:start position:0%
+ 
+ 
+
+00:10:29.640 --> 00:10:31.829 align:start position:0%
+ 
+Now, <00:10:30.320><c>just </c><00:10:31.000><c>like </c><00:10:31.680><c>our</c>
+
+00:10:31.829 --> 00:10:31.839 align:start position:0%
+Now, just like our
+ 
+
+00:10:31.839 --> 00:10:34.230 align:start position:0%
+Now, just like our
+terminal, <00:10:32.153><c>similarly </c><00:10:32.467><c>there </c><00:10:32.781><c>is </c><00:10:33.095><c>a </c><00:10:33.409><c>shell </c><00:10:33.723><c>in </c><00:10:34.037><c>Railt.</c>
+
+00:10:34.230 --> 00:10:34.240 align:start position:0%
+terminal, similarly there is a shell in Railt.
+ 
+
+00:10:34.240 --> 00:10:39.110 align:start position:0%
+terminal, similarly there is a shell in Railt.
+Okay, <00:10:34.453><c>so </c><00:10:34.666><c>you </c><00:10:34.879><c>guys </c><00:10:35.092><c>go </c><00:10:35.305><c>to </c><00:10:35.518><c>the </c><00:10:35.731><c>shell </c><00:10:35.944><c>and </c><00:10:36.157><c>if</c>
+
+00:10:39.110 --> 00:10:39.120 align:start position:0%
+ 
+ 
+
+00:10:39.120 --> 00:10:41.710 align:start position:0%
+ 
+python3.8 <00:10:39.526><c>122 </c><00:10:39.932><c>is </c><00:10:40.338><c>installed </c><00:10:40.744><c>in </c><00:10:41.150><c>it, </c><00:10:41.556><c>then</c>
+
+00:10:41.710 --> 00:10:41.720 align:start position:0%
+python3.8 122 is installed in it, then
+ 
+
+00:10:41.720 --> 00:10:45.710 align:start position:0%
+python3.8 122 is installed in it, then
+if <00:10:42.194><c>I </c><00:10:42.668><c>write </c><00:10:43.142><c>here </c><00:10:43.616><c>print </c><00:10:44.090><c>hello, </c><00:10:44.564><c>okay, </c><00:10:45.038><c>I </c><00:10:45.512><c>do</c>
+
+00:10:45.710 --> 00:10:45.720 align:start position:0%
+if I write here print hello, okay, I do
+ 
+
+00:10:45.720 --> 00:10:48.230 align:start position:0%
+if I write here print hello, okay, I do
+n't <00:10:46.260><c>know </c><00:10:46.800><c>how </c><00:10:47.340><c>to </c><00:10:47.880><c>spell</c>
+
+00:10:48.230 --> 00:10:48.240 align:start position:0%
+n't know how to spell
+ 
+
+00:10:48.240 --> 00:10:50.190 align:start position:0%
+n't know how to spell
+hello, <00:10:48.513><c>okay </c><00:10:48.786><c>friends, </c><00:10:49.059><c>I </c><00:10:49.332><c>will </c><00:10:49.605><c>press </c><00:10:49.878><c>enter,</c>
+
+00:10:50.190 --> 00:10:50.200 align:start position:0%
+hello, okay friends, I will press enter,
+ 
+
+00:10:50.200 --> 00:10:51.870 align:start position:0%
+hello, okay friends, I will press enter,
+see, <00:10:50.504><c>I </c><00:10:50.808><c>have </c><00:10:51.112><c>written </c><00:10:51.416><c>hello </c><00:10:51.720><c>here,</c>
+
+00:10:51.870 --> 00:10:51.880 align:start position:0%
+see, I have written hello here,
+ 
+
+00:10:51.880 --> 00:10:53.990 align:start position:0%
+see, I have written hello here,
+okay, <00:10:52.154><c>so </c><00:10:52.428><c>you </c><00:10:52.702><c>will </c><00:10:52.976><c>get </c><00:10:53.250><c>this </c><00:10:53.524><c>terminal </c><00:10:53.798><c>here</c>
+
+00:10:53.990 --> 00:10:54.000 align:start position:0%
+okay, so you will get this terminal here
+ 
+
+00:10:54.000 --> 00:10:56.310 align:start position:0%
+okay, so you will get this terminal here
+and <00:10:54.733><c>your </c><00:10:55.466><c>ID </c><00:10:56.199><c>is</c>
+
+00:10:56.310 --> 00:10:56.320 align:start position:0%
+and your ID is
+ 
+
+00:10:56.320 --> 00:10:58.030 align:start position:0%
+and your ID is
+built <00:10:56.464><c>in </c><00:10:56.608><c>here </c><00:10:56.752><c>in </c><00:10:56.896><c>the </c><00:10:57.040><c>browser, </c><00:10:57.184><c>so </c><00:10:57.328><c>it </c><00:10:57.472><c>becomes </c><00:10:57.616><c>a </c><00:10:57.760><c>little</c>
+
+00:10:58.030 --> 00:10:58.040 align:start position:0%
+built in here in the browser, so it becomes a little
+ 
+
+00:10:58.040 --> 00:10:59.670 align:start position:0%
+built in here in the browser, so it becomes a little
+easier, <00:10:58.235><c>then </c><00:10:58.430><c>I </c><00:10:58.625><c>will </c><00:10:58.820><c>also </c><00:10:59.015><c>come </c><00:10:59.210><c>here, </c><00:10:59.405><c>you </c><00:10:59.600><c>will</c>
+
+00:10:59.670 --> 00:10:59.680 align:start position:0%
+easier, then I will also come here, you will
+ 
+
+00:10:59.680 --> 00:11:01.310 align:start position:0%
+easier, then I will also come here, you will
+see <00:11:00.200><c>me </c><00:11:00.720><c>below </c><00:11:01.240><c>here,</c>
+
+00:11:01.310 --> 00:11:01.320 align:start position:0%
+see me below here,
+ 
+
+00:11:01.320 --> 00:11:04.470 align:start position:0%
+see me below here,
+inside <00:11:02.306><c>this </c><00:11:03.292><c>window </c><00:11:04.278><c>which</c>
+
+00:11:04.470 --> 00:11:04.480 align:start position:0%
+inside this window which
+ 
+
+00:11:04.480 --> 00:11:06.069 align:start position:0%
+inside this window which
+will <00:11:04.830><c>float </c><00:11:05.180><c>and </c><00:11:05.530><c>then </c><00:11:05.880><c>here</c>
+
+00:11:06.069 --> 00:11:06.079 align:start position:0%
+will float and then here
+ 
+
+00:11:06.079 --> 00:11:07.910 align:start position:0%
+will float and then here
+you <00:11:06.247><c>will </c><00:11:06.415><c>see </c><00:11:06.583><c>the </c><00:11:06.751><c>text </c><00:11:06.919><c>tutorial </c><00:11:07.087><c>written </c><00:11:07.255><c>by </c><00:11:07.423><c>me, </c><00:11:07.591><c>I </c><00:11:07.759><c>have</c>
+
+00:11:07.910 --> 00:11:09.750 align:start position:0%
+you will see the text tutorial written by me, I have
+ 
+
+00:11:09.750 --> 00:11:09.760 align:start position:0%
+ 
+ 
+
+00:11:09.760 --> 00:11:11.389 align:start position:0%
+ 
+written <00:11:09.873><c>this </c><00:11:09.986><c>after </c><00:11:10.099><c>putting </c><00:11:10.212><c>a </c><00:11:10.325><c>lot </c><00:11:10.438><c>of </c><00:11:10.551><c>hard </c><00:11:10.664><c>work, </c><00:11:10.777><c>so </c><00:11:10.890><c>do </c><00:11:11.003><c>not </c><00:11:11.116><c>skip </c><00:11:11.229><c>reading</c>
+
+00:11:11.389 --> 00:11:11.399 align:start position:0%
+written this after putting a lot of hard work, so do not skip reading
+ 
+
+00:11:11.399 --> 00:11:13.590 align:start position:0%
+written this after putting a lot of hard work, so do not skip reading
+it <00:11:11.783><c>even </c><00:11:12.167><c>by </c><00:11:12.551><c>mistake, </c><00:11:12.935><c>okay, </c><00:11:13.319><c>so</c>
+
+00:11:13.590 --> 00:11:13.600 align:start position:0%
+it even by mistake, okay, so
+ 
+
+00:11:13.600 --> 00:11:15.110 align:start position:0%
+it even by mistake, okay, so
+you <00:11:13.746><c>are </c><00:11:13.892><c>going </c><00:11:14.038><c>to </c><00:11:14.184><c>have </c><00:11:14.330><c>a </c><00:11:14.476><c>great </c><00:11:14.622><c>learning </c><00:11:14.768><c>experience. </c><00:11:14.914><c>We</c>
+
+00:11:15.110 --> 00:11:20.670 align:start position:0%
+you are going to have a great learning experience. We
+ 
+
+00:11:20.670 --> 00:11:20.680 align:start position:0%
+ 
+ 
+
+00:11:20.680 --> 00:11:23.670 align:start position:0%
+ 
+crossed <00:11:21.053><c>our </c><00:11:21.426><c>python </c><00:11:21.799><c>within </c><00:11:22.172><c>2 </c><00:11:22.545><c>hours, </c><00:11:22.918><c>so</c>
+
+00:11:23.670 --> 00:11:23.680 align:start position:0%
+crossed our python within 2 hours, so
+ 
+
+00:11:23.680 --> 00:11:26.190 align:start position:0%
+crossed our python within 2 hours, so
+this <00:11:23.994><c>video </c><00:11:24.308><c>of </c><00:11:24.622><c>ours </c><00:11:24.936><c>was </c><00:11:25.250><c>trending </c><00:11:25.564><c>a </c><00:11:25.878><c>lot,</c>
+
+00:11:26.190 --> 00:11:26.200 align:start position:0%
+this video of ours was trending a lot,
+ 
+
+00:11:26.200 --> 00:11:28.790 align:start position:0%
+this video of ours was trending a lot,
+so <00:11:26.680><c>you </c><00:11:27.160><c>guys </c><00:11:27.640><c>must </c><00:11:28.120><c>access </c><00:11:28.600><c>it,</c>
+
+00:11:28.790 --> 00:11:28.800 align:start position:0%
+so you guys must access it,
+ 
+
+00:11:28.800 --> 00:11:30.590 align:start position:0%
+so you guys must access it,
+bookmark <00:11:29.104><c>the </c><00:11:29.408><c>playlist </c><00:11:29.712><c>by </c><00:11:30.016><c>clicking </c><00:11:30.320><c>here</c>
+
+00:11:30.590 --> 00:11:30.600 align:start position:0%
+bookmark the playlist by clicking here
+ 
+
+00:11:30.600 --> 00:11:32.590 align:start position:0%
+bookmark the playlist by clicking here
+Click <00:11:30.944><c>here </c><00:11:31.288><c>to </c><00:11:31.632><c>save </c><00:11:31.976><c>this </c><00:11:32.320><c>playlist</c>
+
+00:11:32.590 --> 00:11:32.600 align:start position:0%
+Click here to save this playlist
+ 
+
+00:11:32.600 --> 00:11:34.509 align:start position:0%
+Click here to save this playlist
+as <00:11:32.749><c>well </c><00:11:32.898><c>You </c><00:11:33.047><c>guys </c><00:11:33.196><c>are </c><00:11:33.345><c>going </c><00:11:33.494><c>to </c><00:11:33.643><c>have </c><00:11:33.792><c>a </c><00:11:33.941><c>lot </c><00:11:34.090><c>of </c><00:11:34.239><c>fun</c>
+
+00:11:34.509 --> 00:11:34.519 align:start position:0%
+as well You guys are going to have a lot of fun
+ 
+
+00:11:34.519 --> 00:11:59.230 align:start position:0%
+as well You guys are going to have a lot of fun
+pythonanywhere.com
+
+00:11:59.230 --> 00:11:59.240 align:start position:0%
+ 
+ 
+
+00:11:59.240 --> 00:12:01.030 align:start position:0%
+ 
+s <00:11:59.513><c>Computer </c><00:11:59.786><c>Computer </c><00:12:00.059><c>does </c><00:12:00.332><c>some </c><00:12:00.605><c>things </c><00:12:00.878><c>well</c>
+
+00:12:01.030 --> 00:12:01.040 align:start position:0%
+s Computer Computer does some things well
+ 
+
+00:12:01.040 --> 00:12:03.190 align:start position:0%
+s Computer Computer does some things well
+so <00:12:01.253><c>we </c><00:12:01.466><c>want </c><00:12:01.679><c>the </c><00:12:01.892><c>computer </c><00:12:02.105><c>to </c><00:12:02.318><c>do </c><00:12:02.531><c>the </c><00:12:02.744><c>work </c><00:12:02.957><c>in</c>
+
+00:12:03.190 --> 00:12:03.200 align:start position:0%
+so we want the computer to do the work in
+ 
+
+00:12:03.200 --> 00:12:04.910 align:start position:0%
+so we want the computer to do the work in
+which <00:12:03.422><c>the </c><00:12:03.644><c>computer </c><00:12:03.866><c>is </c><00:12:04.088><c>good </c><00:12:04.310><c>and </c><00:12:04.532><c>we </c><00:12:04.754><c>are</c>
+
+00:12:04.910 --> 00:12:04.920 align:start position:0%
+which the computer is good and we are
+ 
+
+00:12:04.920 --> 00:12:06.750 align:start position:0%
+which the computer is good and we are
+good <00:12:05.115><c>at </c><00:12:05.310><c>what </c><00:12:05.505><c>we </c><00:12:05.700><c>are </c><00:12:05.895><c>doing </c><00:12:06.090><c>in </c><00:12:06.285><c>our </c><00:12:06.480><c>daily</c>
+
+00:12:06.750 --> 00:12:06.760 align:start position:0%
+good at what we are doing in our daily
+ 
+
+00:12:06.760 --> 00:12:09.030 align:start position:0%
+good at what we are doing in our daily
+life <00:12:07.290><c>so </c><00:12:07.820><c>that </c><00:12:08.350><c>is </c><00:12:08.880><c>why</c>
+
+00:12:09.030 --> 00:12:09.040 align:start position:0%
+life so that is why
+ 
+
+00:12:09.040 --> 00:12:10.629 align:start position:0%
+life so that is why
+we <00:12:09.426><c>use </c><00:12:09.812><c>Python </c><00:12:10.198><c>programming</c>
+
+00:12:10.629 --> 00:12:10.639 align:start position:0%
+we use Python programming
+ 
+
+00:12:10.639 --> 00:12:12.269 align:start position:0%
+we use Python programming
+language <00:12:11.106><c>because </c><00:12:11.573><c>it </c><00:12:12.040><c>is</c>
+
+00:12:12.269 --> 00:12:12.279 align:start position:0%
+language because it is
+ 
+
+00:12:12.279 --> 00:12:14.550 align:start position:0%
+language because it is
+very <00:12:12.479><c>easy </c><00:12:12.679><c>do </c><00:12:12.879><c>meet </c><00:12:13.079><c>me </c><00:12:13.279><c>in </c><00:12:13.479><c>day </c><00:12:13.679><c>four </c><00:12:13.879><c>That's </c><00:12:14.079><c>all </c><00:12:14.279><c>for</c>
+
+00:12:14.550 --> 00:12:14.560 align:start position:0%
+very easy do meet me in day four That's all for
+ 
+
+00:12:14.560 --> 00:12:16.389 align:start position:0%
+very easy do meet me in day four That's all for
+now <00:12:14.989><c>in </c><00:12:15.418><c>this </c><00:12:15.847><c>video </c><00:12:16.276><c>guys</c>
+
+00:12:16.389 --> 00:12:16.399 align:start position:0%
+now in this video guys
+ 
+
+00:12:16.399 --> 00:12:18.590 align:start position:0%
+now in this video guys
+thank <00:12:16.684><c>you </c><00:12:16.969><c>so </c><00:12:17.254><c>much </c><00:12:17.539><c>guys </c><00:12:17.824><c>for </c><00:12:18.109><c>watching </c><00:12:18.394><c>this</c>
+
+00:12:18.590 --> 00:12:18.600 align:start position:0%
+thank you so much guys for watching this
+ 
+
+00:12:18.600 --> 00:12:22.400 align:start position:0%
+thank you so much guys for watching this
+video <00:12:18.980><c>and </c><00:12:19.360><c>I </c><00:12:19.740><c>will </c><00:12:20.120><c>see </c><00:12:20.500><c>you </c><00:12:20.880><c>next</c>
+
+00:12:22.400 --> 00:12:22.410 align:start position:0%
+video and I will see you next
+ 
+
+00:12:22.410 --> 00:12:23.010 align:start position:0%
+video and I will see you next
+[praise]
+
+00:12:23.010 --> 00:12:23.020 align:start position:0%
+[praise]
+ 
+
+00:12:23.020 --> 00:12:28.150 align:start position:0%
+[praise]
+[music]
+
+00:12:28.150 --> 00:12:28.160 align:start position:0%
+[music]
+ 
+
+00:12:28.160 --> 00:12:40.230 align:start position:0%
+[music]
+time <00:12:29.160><c>B</c>
+
+00:12:40.230 --> 00:12:40.240 align:start position:0%
+ 
+ 
+
+00:12:40.240 --> 00:12:42.490 align:start position:0%
+ 
+[music]
+

@@ -1,0 +1,1520 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:00.040 --> 00:00:01.589 align:start position:0%
+ 
+The <00:00:00.286><c>previous </c><00:00:00.532><c>video </c><00:00:00.778><c>showed </c><00:00:01.024><c>us </c><00:00:01.270><c>how </c><00:00:01.516><c>to</c>
+
+00:00:01.589 --> 00:00:01.599 align:start position:0%
+The previous video showed us how to
+ 
+
+00:00:01.599 --> 00:00:03.590 align:start position:0%
+The previous video showed us how to
+handle <00:00:02.079><c>errors </c><00:00:02.559><c>in </c><00:00:03.039><c>Python. </c><00:00:03.519><c>After</c>
+
+00:00:03.590 --> 00:00:03.600 align:start position:0%
+handle errors in Python. After
+ 
+
+00:00:03.600 --> 00:00:05.789 align:start position:0%
+handle errors in Python. After
+learning <00:00:04.090><c>all </c><00:00:04.580><c>this, </c><00:00:05.070><c>errors </c><00:00:05.560><c>wo</c>
+
+00:00:05.789 --> 00:00:05.799 align:start position:0%
+learning all this, errors wo
+ 
+
+00:00:05.799 --> 00:00:08.030 align:start position:0%
+learning all this, errors wo
+n't <00:00:06.039><c>bother </c><00:00:06.279><c>our </c><00:00:06.519><c>programs </c><00:00:06.759><c>as </c><00:00:06.999><c>much. </c><00:00:07.239><c>But </c><00:00:07.479><c>there's </c><00:00:07.719><c>another</c>
+
+00:00:08.030 --> 00:00:08.040 align:start position:0%
+n't bother our programs as much. But there's another
+ 
+
+00:00:08.040 --> 00:00:09.470 align:start position:0%
+n't bother our programs as much. But there's another
+concept <00:00:08.240><c>I </c><00:00:08.440><c>want </c><00:00:08.640><c>to </c><00:00:08.840><c>tell </c><00:00:09.040><c>you </c><00:00:09.240><c>about:</c>
+
+00:00:09.470 --> 00:00:09.480 align:start position:0%
+concept I want to tell you about:
+ 
+
+00:00:09.480 --> 00:00:11.310 align:start position:0%
+concept I want to tell you about:
+finally. <00:00:09.870><c>Along </c><00:00:10.260><c>with </c><00:00:10.650><c>close </c><00:00:11.040><c>try-</c>
+
+00:00:11.310 --> 00:00:11.320 align:start position:0%
+finally. Along with close try-
+ 
+
+00:00:11.320 --> 00:00:13.629 align:start position:0%
+finally. Along with close try-
+except, <00:00:11.767><c>you </c><00:00:12.214><c>can </c><00:00:12.661><c>also </c><00:00:13.108><c>use </c><00:00:13.555><c>finally</c>
+
+00:00:13.629 --> 00:00:13.639 align:start position:0%
+except, you can also use finally
+ 
+
+00:00:13.639 --> 00:00:15.549 align:start position:0%
+except, you can also use finally
+for <00:00:13.939><c>cleanups. </c><00:00:14.239><c>I'll </c><00:00:14.539><c>explain </c><00:00:14.839><c>what </c><00:00:15.139><c>kind </c><00:00:15.439><c>of</c>
+
+00:00:15.549 --> 00:00:15.559 align:start position:0%
+for cleanups. I'll explain what kind of
+ 
+
+00:00:15.559 --> 00:00:17.349 align:start position:0%
+for cleanups. I'll explain what kind of
+cleanups <00:00:16.132><c>it </c><00:00:16.705><c>performs. </c><00:00:17.278><c>The</c>
+
+00:00:17.349 --> 00:00:17.359 align:start position:0%
+cleanups it performs. The
+ 
+
+00:00:17.359 --> 00:00:19.429 align:start position:0%
+cleanups it performs. The
+code <00:00:17.945><c>placed </c><00:00:18.531><c>inside </c><00:00:19.117><c>finally</c>
+
+00:00:19.429 --> 00:00:19.439 align:start position:0%
+code placed inside finally
+ 
+
+00:00:19.439 --> 00:00:21.349 align:start position:0%
+code placed inside finally
+always <00:00:19.783><c>executes, </c><00:00:20.127><c>regardless </c><00:00:20.471><c>of </c><00:00:20.815><c>whether </c><00:00:21.159><c>an</c>
+
+00:00:21.349 --> 00:00:21.359 align:start position:0%
+always executes, regardless of whether an
+ 
+
+00:00:21.359 --> 00:00:23.230 align:start position:0%
+always executes, regardless of whether an
+error <00:00:21.799><c>occurs </c><00:00:22.239><c>or </c><00:00:22.679><c>not. </c><00:00:23.119><c>Let's</c>
+
+00:00:23.230 --> 00:00:23.240 align:start position:0%
+error occurs or not. Let's
+ 
+
+00:00:23.240 --> 00:00:24.910 align:start position:0%
+error occurs or not. Let's
+look <00:00:23.434><c>at </c><00:00:23.628><c>this </c><00:00:23.822><c>topic </c><00:00:24.016><c>on </c><00:00:24.210><c>the </c><00:00:24.404><c>computer </c><00:00:24.598><c>screen.</c>
+
+00:00:24.910 --> 00:00:24.920 align:start position:0%
+look at this topic on the computer screen.
+ 
+
+00:00:24.920 --> 00:00:27.490 align:start position:0%
+look at this topic on the computer screen.
+And <00:00:25.226><c>let's </c><00:00:25.532><c>get </c><00:00:25.838><c>started.</c>
+
+00:00:27.490 --> 00:00:27.500 align:start position:0%
+And let's get started.
+ 
+
+00:00:27.500 --> 00:00:35.549 align:start position:0%
+And let's get started.
+[Music]
+
+00:00:35.549 --> 00:00:35.559 align:start position:0%
+[Music]
+ 
+
+00:00:35.559 --> 00:00:37.510 align:start position:0%
+[Music]
+What <00:00:35.799><c>we </c><00:00:36.039><c>used </c><00:00:36.279><c>to </c><00:00:36.519><c>do </c><00:00:36.759><c>with </c><00:00:36.999><c>try-except </c><00:00:37.239><c>was</c>
+
+00:00:37.510 --> 00:00:37.520 align:start position:0%
+What we used to do with try-except was
+ 
+
+00:00:37.520 --> 00:00:39.750 align:start position:0%
+What we used to do with try-except was
+try <00:00:38.040><c>any </c><00:00:38.560><c>code. </c><00:00:39.080><c>If </c><00:00:39.600><c>it</c>
+
+00:00:39.750 --> 00:00:39.760 align:start position:0%
+try any code. If it
+ 
+
+00:00:39.760 --> 00:00:41.830 align:start position:0%
+try any code. If it
+worked, <00:00:40.093><c>that's </c><00:00:40.426><c>good. </c><00:00:40.759><c>If </c><00:00:41.092><c>it </c><00:00:41.425><c>didn't, </c><00:00:41.758><c>at</c>
+
+00:00:41.830 --> 00:00:41.840 align:start position:0%
+worked, that's good. If it didn't, at
+ 
+
+00:00:41.840 --> 00:00:43.389 align:start position:0%
+worked, that's good. If it didn't, at
+least <00:00:42.080><c>our </c><00:00:42.320><c>program </c><00:00:42.560><c>wouldn't </c><00:00:42.800><c>crash. </c><00:00:43.040><c>It </c><00:00:43.280><c>would</c>
+
+00:00:43.389 --> 00:00:43.399 align:start position:0%
+least our program wouldn't crash. It would
+ 
+
+00:00:43.399 --> 00:00:45.630 align:start position:0%
+least our program wouldn't crash. It would
+go <00:00:43.624><c>into </c><00:00:43.849><c>the </c><00:00:44.074><c>accept </c><00:00:44.299><c>block. </c><00:00:44.524><c>I </c><00:00:44.749><c>was </c><00:00:44.974><c>able </c><00:00:45.199><c>to</c>
+
+00:00:45.630 --> 00:00:45.640 align:start position:0%
+go into the accept block. I was able to
+ 
+
+00:00:45.640 --> 00:00:48.270 align:start position:0%
+go into the accept block. I was able to
+handle <00:00:46.144><c>specific </c><00:00:46.648><c>errors, </c><00:00:47.152><c>like </c><00:00:47.656><c>value </c><00:00:48.160><c>errors,</c>
+
+00:00:48.270 --> 00:00:48.280 align:start position:0%
+handle specific errors, like value errors,
+ 
+
+00:00:48.280 --> 00:00:50.549 align:start position:0%
+handle specific errors, like value errors,
+memory <00:00:48.780><c>errors, </c><00:00:49.280><c>or </c><00:00:49.780><c>index </c><00:00:50.280><c>errors.</c>
+
+00:00:50.549 --> 00:00:50.559 align:start position:0%
+memory errors, or index errors.
+ 
+
+00:00:50.559 --> 00:00:52.029 align:start position:0%
+memory errors, or index errors.
+I <00:00:50.785><c>could </c><00:00:51.011><c>handle </c><00:00:51.237><c>those </c><00:00:51.463><c>as </c><00:00:51.689><c>well. </c><00:00:51.915><c>So,</c>
+
+00:00:52.029 --> 00:00:52.039 align:start position:0%
+I could handle those as well. So,
+ 
+
+00:00:52.039 --> 00:00:54.549 align:start position:0%
+I could handle those as well. So,
+I <00:00:52.249><c>had </c><00:00:52.459><c>this </c><00:00:52.669><c>feature </c><00:00:52.879><c>as </c><00:00:53.089><c>well. </c><00:00:53.299><c>Now, </c><00:00:53.509><c>what </c><00:00:53.719><c>happens </c><00:00:53.929><c>here </c><00:00:54.139><c>is </c><00:00:54.349><c>that</c>
+
+00:00:54.549 --> 00:00:54.559 align:start position:0%
+I had this feature as well. Now, what happens here is that
+ 
+
+00:00:54.559 --> 00:00:56.229 align:start position:0%
+I had this feature as well. Now, what happens here is that
+sometimes <00:00:54.727><c>we </c><00:00:54.895><c>need </c><00:00:55.063><c>some </c><00:00:55.231><c>cleanup.  </c><00:00:55.399><c>We </c><00:00:55.567><c>have </c><00:00:55.735><c>to </c><00:00:55.903><c>do </c><00:00:56.071><c>this</c>
+
+00:00:56.229 --> 00:00:56.239 align:start position:0%
+sometimes we need some cleanup.  We have to do this
+ 
+
+00:00:56.239 --> 00:00:59.389 align:start position:0%
+sometimes we need some cleanup.  We have to do this
+and <00:00:57.239><c>sometimes </c><00:00:58.239><c>we </c><00:00:59.239><c>want</c>
+
+00:00:59.389 --> 00:00:59.399 align:start position:0%
+and sometimes we want
+ 
+
+00:00:59.399 --> 00:01:01.549 align:start position:0%
+and sometimes we want
+that <00:00:59.577><c>some </c><00:00:59.755><c>code </c><00:00:59.933><c>should </c><00:01:00.111><c>be </c><00:01:00.289><c>executed </c><00:01:00.467><c>relative </c><00:01:00.645><c>to </c><00:01:00.823><c>what </c><00:01:01.001><c>ever </c><00:01:01.179><c>happens, </c><00:01:01.357><c>so</c>
+
+00:01:01.549 --> 00:01:01.559 align:start position:0%
+that some code should be executed relative to what ever happens, so
+ 
+
+00:01:01.559 --> 00:01:04.710 align:start position:0%
+that some code should be executed relative to what ever happens, so
+suppose <00:01:04.600><c>I</c>
+
+00:01:04.710 --> 00:01:04.720 align:start position:0%
+suppose I
+ 
+
+00:01:04.720 --> 00:01:06.670 align:start position:0%
+suppose I
+try <00:01:05.306><c>something, </c><00:01:05.892><c>suppose </c><00:01:06.478><c>I</c>
+
+00:01:06.670 --> 00:01:06.680 align:start position:0%
+try something, suppose I
+ 
+
+00:01:06.680 --> 00:01:09.950 align:start position:0%
+try something, suppose I
+wrote <00:01:06.987><c>let's </c><00:01:07.294><c>say </c><00:01:07.601><c>I </c><00:01:07.908><c>have </c><00:01:08.215><c>a </c><00:01:08.522><c>list </c><00:01:08.829><c>and </c><00:01:09.136><c>it </c><00:01:09.443><c>contains </c><00:01:09.750><c>some</c>
+
+00:01:09.950 --> 00:01:09.960 align:start position:0%
+wrote let's say I have a list and it contains some
+ 
+
+00:01:09.960 --> 00:01:12.469 align:start position:0%
+wrote let's say I have a list and it contains some
+numbers, <00:01:10.490><c>okay </c><00:01:11.020><c>these </c><00:01:11.550><c>are </c><00:01:12.080><c>numbers</c>
+
+00:01:12.469 --> 00:01:12.479 align:start position:0%
+numbers, okay these are numbers
+ 
+
+00:01:12.479 --> 00:01:16.469 align:start position:0%
+numbers, okay these are numbers
+and <00:01:13.072><c>here </c><00:01:13.665><c>I </c><00:01:14.258><c>ask </c><00:01:14.851><c>the </c><00:01:15.444><c>user </c><00:01:16.037><c>to</c>
+
+00:01:16.469 --> 00:01:16.479 align:start position:0%
+and here I ask the user to
+ 
+
+00:01:16.479 --> 00:01:20.789 align:start position:0%
+and here I ask the user to
+input <00:01:17.065><c>it </c><00:01:17.651><c>and </c><00:01:18.237><c>I </c><00:01:18.823><c>say </c><00:01:19.409><c>enter </c><00:01:19.995><c>the</c>
+
+00:01:20.789 --> 00:01:20.799 align:start position:0%
+input it and I say enter the
+ 
+
+00:01:20.799 --> 00:01:23.030 align:start position:0%
+input it and I say enter the
+index, <00:01:21.152><c>I </c><00:01:21.505><c>am </c><00:01:21.858><c>asking </c><00:01:22.211><c>the </c><00:01:22.564><c>user </c><00:01:22.917><c>brother</c>
+
+00:01:23.030 --> 00:01:23.040 align:start position:0%
+index, I am asking the user brother
+ 
+
+00:01:23.040 --> 00:01:24.830 align:start position:0%
+index, I am asking the user brother
+tell <00:01:23.296><c>me </c><00:01:23.552><c>which </c><00:01:23.808><c>index </c><00:01:24.064><c>you </c><00:01:24.320><c>want</c>
+
+00:01:24.830 --> 00:01:24.840 align:start position:0%
+tell me which index you want
+ 
+
+00:01:24.840 --> 00:01:28.630 align:start position:0%
+tell me which index you want
+and <00:01:25.240><c>I </c><00:01:25.640><c>print </c><00:01:26.040><c>the </c><00:01:26.440><c>value </c><00:01:26.840><c>of </c><00:01:27.240><c>that </c><00:01:27.640><c>index </c><00:01:28.040><c>here,</c>
+
+00:01:28.630 --> 00:01:28.640 align:start position:0%
+and I print the value of that index here,
+ 
+
+00:01:28.640 --> 00:01:30.990 align:start position:0%
+and I print the value of that index here,
+now <00:01:29.780><c>I </c><00:01:30.920><c>will</c>
+
+00:01:30.990 --> 00:01:31.000 align:start position:0%
+now I will
+ 
+
+00:01:31.000 --> 00:01:34.389 align:start position:0%
+now I will
+write <00:01:31.256><c>accept </c><00:01:31.512><c>here </c><00:01:31.768><c>and </c><00:01:32.024><c>if </c><00:01:32.280><c>an </c><00:01:32.536><c>error </c><00:01:32.792><c>comes, </c><00:01:33.048><c>if </c><00:01:33.304><c>an </c><00:01:33.560><c>error </c><00:01:33.816><c>comes </c><00:01:34.072><c>then</c>
+
+00:01:34.389 --> 00:01:34.399 align:start position:0%
+write accept here and if an error comes, if an error comes then
+ 
+
+00:01:34.399 --> 00:01:37.030 align:start position:0%
+write accept here and if an error comes, if an error comes then
+what <00:01:34.709><c>will </c><00:01:35.019><c>happen </c><00:01:35.329><c>is </c><00:01:35.639><c>that </c><00:01:35.949><c>I </c><00:01:36.259><c>will </c><00:01:36.569><c>print </c><00:01:36.879><c>here</c>
+
+00:01:37.030 --> 00:01:37.040 align:start position:0%
+what will happen is that I will print here
+ 
+
+00:01:37.040 --> 00:01:41.789 align:start position:0%
+what will happen is that I will print here
+sum <00:01:37.786><c>error </c><00:01:38.532><c>rd, </c><00:01:39.278><c>okay </c><00:01:40.024><c>some </c><00:01:40.770><c>error </c><00:01:41.516><c>came,</c>
+
+00:01:41.789 --> 00:01:41.799 align:start position:0%
+sum error rd, okay some error came,
+ 
+
+00:01:41.799 --> 00:01:45.069 align:start position:0%
+sum error rd, okay some error came,
+simple <00:01:42.181><c>thing, </c><00:01:42.563><c>now </c><00:01:42.945><c>if </c><00:01:43.327><c>I </c><00:01:43.709><c>run </c><00:01:44.091><c>this </c><00:01:44.473><c>then</c>
+
+00:01:45.069 --> 00:01:45.079 align:start position:0%
+simple thing, now if I run this then
+ 
+
+00:01:45.079 --> 00:01:47.630 align:start position:0%
+simple thing, now if I run this then
+you <00:01:45.386><c>guys </c><00:01:45.693><c>see </c><00:01:46.000><c>here</c>
+
+00:01:47.630 --> 00:01:47.640 align:start position:0%
+you guys see here
+ 
+
+00:01:47.640 --> 00:01:50.429 align:start position:0%
+you guys see here
+that <00:01:48.022><c>I </c><00:01:48.404><c>am </c><00:01:48.786><c>being </c><00:01:49.168><c>asked </c><00:01:49.550><c>to </c><00:01:49.932><c>enter </c><00:01:50.314><c>the</c>
+
+00:01:50.429 --> 00:01:50.439 align:start position:0%
+that I am being asked to enter the
+ 
+
+00:01:50.439 --> 00:01:52.429 align:start position:0%
+that I am being asked to enter the
+index, <00:01:50.592><c>now </c><00:01:50.745><c>it </c><00:01:50.898><c>will </c><00:01:51.051><c>be </c><00:01:51.204><c>asked </c><00:01:51.357><c>and </c><00:01:51.510><c>what </c><00:01:51.663><c>will </c><00:01:51.816><c>I </c><00:01:51.969><c>do, </c><00:01:52.122><c>I </c><00:01:52.275><c>will</c>
+
+00:01:52.429 --> 00:01:52.439 align:start position:0%
+index, now it will be asked and what will I do, I will
+ 
+
+00:01:52.439 --> 00:01:54.190 align:start position:0%
+index, now it will be asked and what will I do, I will
+enter <00:01:52.759><c>the </c><00:01:53.079><c>value </c><00:01:53.399><c>of </c><00:01:53.719><c>the </c><00:01:54.039><c>index,</c>
+
+00:01:54.190 --> 00:01:54.200 align:start position:0%
+enter the value of the index,
+ 
+
+00:01:54.200 --> 00:01:56.230 align:start position:0%
+enter the value of the index,
+suppose <00:01:54.583><c>I </c><00:01:54.966><c>entered </c><00:01:55.349><c>five, </c><00:01:55.732><c>okay </c><00:01:56.115><c>and</c>
+
+00:01:56.230 --> 00:01:56.240 align:start position:0%
+suppose I entered five, okay and
+ 
+
+00:01:56.240 --> 00:01:58.069 align:start position:0%
+suppose I entered five, okay and
+it <00:01:56.426><c>is </c><00:01:56.612><c>saying </c><00:01:56.798><c>sum </c><00:01:56.984><c>error </c><00:01:57.170><c>rd </c><00:01:57.356><c>and </c><00:01:57.542><c>I </c><00:01:57.728><c>will </c><00:01:57.914><c>tell</c>
+
+00:01:58.069 --> 00:01:58.079 align:start position:0%
+it is saying sum error rd and I will tell
+ 
+
+00:01:58.079 --> 00:02:00.990 align:start position:0%
+it is saying sum error rd and I will tell
+what <00:01:58.355><c>the </c><00:01:58.631><c>error </c><00:01:58.907><c>was, </c><00:01:59.183><c>that </c><00:01:59.459><c>error </c><00:01:59.735><c>was </c><00:02:00.011><c>15 </c><00:02:00.287><c>6  </c><00:02:00.563><c>7 </c><00:02:00.839><c>char</c>
+
+00:02:00.990 --> 00:02:01.000 align:start position:0%
+what the error was, that error was 15 6  7 char
+ 
+
+00:02:01.000 --> 00:02:03.590 align:start position:0%
+what the error was, that error was 15 6  7 char
+value <00:02:01.183><c>0 </c><00:02:01.366><c>1 </c><00:02:01.549><c>2 </c><00:02:01.732><c>3 </c><00:02:01.915><c>the </c><00:02:02.098><c>index </c><00:02:02.281><c>will </c><00:02:02.464><c>remain </c><00:02:02.647><c>valid </c><00:02:02.830><c>even </c><00:02:03.013><c>if </c><00:02:03.196><c>you</c>
+
+00:02:03.590 --> 00:02:03.600 align:start position:0%
+value 0 1 2 3 the index will remain valid even if you
+ 
+
+00:02:03.600 --> 00:02:05.350 align:start position:0%
+value 0 1 2 3 the index will remain valid even if you
+enter <00:02:03.747><c>4 </c><00:02:03.894><c>then </c><00:02:04.041><c>also </c><00:02:04.188><c>error </c><00:02:04.335><c>will </c><00:02:04.482><c>come </c><00:02:04.629><c>if </c><00:02:04.776><c>you </c><00:02:04.923><c>enter </c><00:02:05.070><c>5</c>
+
+00:02:05.350 --> 00:02:05.360 align:start position:0%
+enter 4 then also error will come if you enter 5
+ 
+
+00:02:05.360 --> 00:02:08.749 align:start position:0%
+enter 4 then also error will come if you enter 5
+then <00:02:05.826><c>error </c><00:02:06.292><c>will </c><00:02:06.758><c>come </c><00:02:07.224><c>this </c><00:02:07.690><c>is </c><00:02:08.156><c>said</c>
+
+00:02:08.749 --> 00:02:08.759 align:start position:0%
+then error will come this is said
+ 
+
+00:02:08.759 --> 00:02:12.830 align:start position:0%
+then error will come this is said
+about <00:02:09.219><c>finally </c><00:02:09.679><c>that </c><00:02:10.139><c>whether </c><00:02:10.599><c>you </c><00:02:11.059><c>go </c><00:02:11.519><c>in </c><00:02:11.979><c>try </c><00:02:12.439><c>or</c>
+
+00:02:12.830 --> 00:02:12.840 align:start position:0%
+about finally that whether you go in try or
+ 
+
+00:02:12.840 --> 00:02:16.350 align:start position:0%
+about finally that whether you go in try or
+accept <00:02:13.490><c>I </c><00:02:14.140><c>am </c><00:02:14.790><c>always </c><00:02:15.440><c>executed</c>
+
+00:02:16.350 --> 00:02:16.360 align:start position:0%
+accept I am always executed
+ 
+
+00:02:16.360 --> 00:02:19.110 align:start position:0%
+accept I am always executed
+okay <00:02:16.950><c>this </c><00:02:17.540><c>code </c><00:02:18.130><c>always </c><00:02:18.720><c>gets</c>
+
+00:02:19.110 --> 00:02:19.120 align:start position:0%
+okay this code always gets
+ 
+
+00:02:19.120 --> 00:02:21.589 align:start position:0%
+okay this code always gets
+executed <00:02:20.219><c>whether </c><00:02:21.318><c>it</c>
+
+00:02:21.589 --> 00:02:21.599 align:start position:0%
+executed whether it
+ 
+
+00:02:21.599 --> 00:02:24.550 align:start position:0%
+executed whether it
+goes <00:02:21.924><c>in </c><00:02:22.249><c>try </c><00:02:22.574><c>or </c><00:02:22.899><c>accept </c><00:02:23.224><c>so </c><00:02:23.549><c>you </c><00:02:23.874><c>will </c><00:02:24.199><c>say</c>
+
+00:02:24.550 --> 00:02:24.560 align:start position:0%
+goes in try or accept so you will say
+ 
+
+00:02:24.560 --> 00:02:27.830 align:start position:0%
+goes in try or accept so you will say
+yes <00:02:24.977><c>okay </c><00:02:25.394><c>I </c><00:02:25.811><c>entered </c><00:02:26.228><c>zero </c><00:02:26.645><c>I </c><00:02:27.062><c>am </c><00:02:27.479><c>always</c>
+
+00:02:27.830 --> 00:02:27.840 align:start position:0%
+yes okay I entered zero I am always
+ 
+
+00:02:27.840 --> 00:02:29.910 align:start position:0%
+yes okay I entered zero I am always
+executed <00:02:28.220><c>my </c><00:02:28.600><c>program </c><00:02:28.980><c>ran </c><00:02:29.360><c>I</c>
+
+00:02:29.910 --> 00:02:29.920 align:start position:0%
+executed my program ran I
+ 
+
+00:02:29.920 --> 00:02:32.030 align:start position:0%
+executed my program ran I
+printed <00:02:30.370><c>li </c><00:02:30.820><c>which </c><00:02:31.270><c>was </c><00:02:31.720><c>one</c>
+
+00:02:32.030 --> 00:02:32.040 align:start position:0%
+printed li which was one
+ 
+
+00:02:32.040 --> 00:02:34.350 align:start position:0%
+printed li which was one
+and <00:02:32.346><c>I </c><00:02:32.652><c>am </c><00:02:32.958><c>always </c><00:02:33.264><c>executed </c><00:02:33.570><c>means </c><00:02:33.876><c>the</c>
+
+00:02:34.350 --> 00:02:34.360 align:start position:0%
+and I am always executed means the
+ 
+
+00:02:34.360 --> 00:02:37.430 align:start position:0%
+and I am always executed means the
+content <00:02:34.719><c>inside </c><00:02:35.078><c>finally </c><00:02:35.437><c>also </c><00:02:35.796><c>got </c><00:02:36.155><c>executed </c><00:02:36.514><c>okay </c><00:02:36.873><c>now </c><00:02:37.232><c>I</c>
+
+00:02:37.430 --> 00:02:37.440 align:start position:0%
+content inside finally also got executed okay now I
+ 
+
+00:02:37.440 --> 00:02:39.710 align:start position:0%
+content inside finally also got executed okay now I
+will <00:02:37.786><c>produce </c><00:02:38.132><c>error </c><00:02:38.478><c>okay </c><00:02:38.824><c>how </c><00:02:39.170><c>will </c><00:02:39.516><c>I</c>
+
+00:02:39.710 --> 00:02:39.720 align:start position:0%
+will produce error okay how will I
+ 
+
+00:02:39.720 --> 00:02:41.470 align:start position:0%
+will produce error okay how will I
+produce <00:02:40.119><c>error </c><00:02:40.518><c>producing </c><00:02:40.917><c>error </c><00:02:41.316><c>is</c>
+
+00:02:41.470 --> 00:02:41.480 align:start position:0%
+produce error producing error is
+ 
+
+00:02:41.480 --> 00:02:42.869 align:start position:0%
+produce error producing error is
+simple <00:02:41.700><c>I </c><00:02:41.920><c>will </c><00:02:42.140><c>write </c><00:02:42.360><c>my </c><00:02:42.580><c>name </c><00:02:42.800><c>here</c>
+
+00:02:42.869 --> 00:02:42.879 align:start position:0%
+simple I will write my name here
+ 
+
+00:02:42.879 --> 00:02:44.830 align:start position:0%
+simple I will write my name here
+when <00:02:43.063><c>it </c><00:02:43.247><c>will </c><00:02:43.431><c>ask </c><00:02:43.615><c>me </c><00:02:43.799><c>enter </c><00:02:43.983><c>the </c><00:02:44.167><c>index </c><00:02:44.351><c>then </c><00:02:44.535><c>I </c><00:02:44.719><c>will</c>
+
+00:02:44.830 --> 00:02:44.840 align:start position:0%
+when it will ask me enter the index then I will
+ 
+
+00:02:44.840 --> 00:02:46.670 align:start position:0%
+when it will ask me enter the index then I will
+simply <00:02:45.144><c>write </c><00:02:45.448><c>my </c><00:02:45.752><c>name </c><00:02:46.056><c>here </c><00:02:46.360><c>okay</c>
+
+00:02:46.670 --> 00:02:46.680 align:start position:0%
+simply write my name here okay
+ 
+
+00:02:46.680 --> 00:02:49.509 align:start position:0%
+simply write my name here okay
+suppose <00:02:47.106><c>I </c><00:02:47.532><c>wrote </c><00:02:47.958><c>DA </c><00:02:48.384><c>here </c><00:02:48.810><c>some </c><00:02:49.236><c>error</c>
+
+00:02:49.509 --> 00:02:49.519 align:start position:0%
+suppose I wrote DA here some error
+ 
+
+00:02:49.519 --> 00:02:51.470 align:start position:0%
+suppose I wrote DA here some error
+acks <00:02:49.719><c>and </c><00:02:49.919><c>here </c><00:02:50.119><c>it </c><00:02:50.319><c>is </c><00:02:50.519><c>getting </c><00:02:50.719><c>written </c><00:02:50.919><c>I </c><00:02:51.119><c>am </c><00:02:51.319><c>always</c>
+
+00:02:51.470 --> 00:02:51.480 align:start position:0%
+acks and here it is getting written I am always
+ 
+
+00:02:51.480 --> 00:02:53.750 align:start position:0%
+acks and here it is getting written I am always
+executed <00:02:52.200><c>now </c><00:02:52.920><c>people </c><00:02:53.640><c>know</c>
+
+00:02:53.750 --> 00:02:53.760 align:start position:0%
+executed now people know
+ 
+
+00:02:53.760 --> 00:02:55.470 align:start position:0%
+executed now people know
+what <00:02:53.982><c>is </c><00:02:54.204><c>the </c><00:02:54.426><c>question </c><00:02:54.648><c>people's </c><00:02:54.870><c>question </c><00:02:55.092><c>is </c><00:02:55.314><c>this</c>
+
+00:02:55.470 --> 00:02:55.480 align:start position:0%
+what is the question people's question is this
+ 
+
+00:02:55.480 --> 00:02:57.470 align:start position:0%
+what is the question people's question is this
+That <00:02:55.840><c>friend, </c><00:02:56.200><c>okay, </c><00:02:56.560><c>you </c><00:02:56.920><c>told </c><00:02:57.280><c>us</c>
+
+00:02:57.470 --> 00:02:57.480 align:start position:0%
+That friend, okay, you told us
+ 
+
+00:02:57.480 --> 00:02:59.270 align:start position:0%
+That friend, okay, you told us
+about <00:02:58.000><c>finally, </c><00:02:58.520><c>about </c><00:02:59.040><c>try,</c>
+
+00:02:59.270 --> 00:02:59.280 align:start position:0%
+about finally, about try,
+ 
+
+00:02:59.280 --> 00:03:01.830 align:start position:0%
+about finally, about try,
+told <00:02:59.776><c>us </c><00:03:00.272><c>about </c><00:03:00.768><c>it, </c><00:03:01.264><c>that's </c><00:03:01.760><c>right,</c>
+
+00:03:01.830 --> 00:03:01.840 align:start position:0%
+told us about it, that's right,
+ 
+
+00:03:01.840 --> 00:03:03.470 align:start position:0%
+told us about it, that's right,
+about <00:03:01.960><c>finally, </c><00:03:02.080><c>you </c><00:03:02.200><c>told </c><00:03:02.320><c>us </c><00:03:02.440><c>that </c><00:03:02.560><c>it </c><00:03:02.680><c>always </c><00:03:02.800><c>executes, </c><00:03:02.920><c>so</c>
+
+00:03:03.470 --> 00:03:03.480 align:start position:0%
+about finally, you told us that it always executes, so
+ 
+
+00:03:03.480 --> 00:03:05.509 align:start position:0%
+about finally, you told us that it always executes, so
+friend, <00:03:03.742><c>why </c><00:03:04.004><c>should </c><00:03:04.266><c>I </c><00:03:04.528><c>put </c><00:03:04.790><c>a </c><00:03:05.052><c>finally </c><00:03:05.314><c>block,</c>
+
+00:03:05.509 --> 00:03:05.519 align:start position:0%
+friend, why should I put a finally block,
+ 
+
+00:03:05.519 --> 00:03:07.830 align:start position:0%
+friend, why should I put a finally block,
+why <00:03:05.745><c>should </c><00:03:05.971><c>I </c><00:03:06.197><c>not </c><00:03:06.423><c>do </c><00:03:06.649><c>this, </c><00:03:06.875><c>this </c><00:03:07.101><c>is </c><00:03:07.327><c>the </c><00:03:07.553><c>biggest</c>
+
+00:03:07.830 --> 00:03:07.840 align:start position:0%
+why should I not do this, this is the biggest
+ 
+
+00:03:07.840 --> 00:03:09.509 align:start position:0%
+why should I not do this, this is the biggest
+doubt <00:03:08.045><c>of </c><00:03:08.250><c>people, </c><00:03:08.455><c>they </c><00:03:08.660><c>say </c><00:03:08.865><c>brother, </c><00:03:09.070><c>why </c><00:03:09.275><c>should</c>
+
+00:03:09.509 --> 00:03:09.519 align:start position:0%
+doubt of people, they say brother, why should
+ 
+
+00:03:09.519 --> 00:03:11.509 align:start position:0%
+doubt of people, they say brother, why should
+I <00:03:09.903><c>do </c><00:03:10.287><c>this, </c><00:03:10.671><c>why </c><00:03:11.055><c>should </c><00:03:11.439><c>I</c>
+
+00:03:11.509 --> 00:03:11.519 align:start position:0%
+I do this, why should I
+ 
+
+00:03:11.519 --> 00:03:13.830 align:start position:0%
+I do this, why should I
+study <00:03:11.799><c>for </c><00:03:12.079><c>finally, </c><00:03:12.359><c>why </c><00:03:12.639><c>should </c><00:03:12.919><c>I </c><00:03:13.199><c>not </c><00:03:13.479><c>do </c><00:03:13.759><c>this,</c>
+
+00:03:13.830 --> 00:03:13.840 align:start position:0%
+study for finally, why should I not do this,
+ 
+
+00:03:13.840 --> 00:03:15.949 align:start position:0%
+study for finally, why should I not do this,
+directly <00:03:14.144><c>print </c><00:03:14.448><c>I </c><00:03:14.752><c>am </c><00:03:15.056><c>always </c><00:03:15.360><c>executed,</c>
+
+00:03:15.949 --> 00:03:15.959 align:start position:0%
+directly print I am always executed,
+ 
+
+00:03:15.959 --> 00:03:17.830 align:start position:0%
+directly print I am always executed,
+this <00:03:16.409><c>will </c><00:03:16.859><c>also </c><00:03:17.309><c>always </c><00:03:17.759><c>execute,</c>
+
+00:03:17.830 --> 00:03:17.840 align:start position:0%
+this will also always execute,
+ 
+
+00:03:17.840 --> 00:03:19.589 align:start position:0%
+this will also always execute,
+go <00:03:18.066><c>inside </c><00:03:18.292><c>try, </c><00:03:18.518><c>it </c><00:03:18.744><c>will </c><00:03:18.970><c>still </c><00:03:19.196><c>execute,</c>
+
+00:03:19.589 --> 00:03:19.599 align:start position:0%
+go inside try, it will still execute,
+ 
+
+00:03:19.599 --> 00:03:21.630 align:start position:0%
+go inside try, it will still execute,
+go <00:03:19.867><c>inside </c><00:03:20.135><c>accept, </c><00:03:20.403><c>it </c><00:03:20.671><c>will </c><00:03:20.939><c>still </c><00:03:21.207><c>execute, </c><00:03:21.475><c>so</c>
+
+00:03:21.630 --> 00:03:21.640 align:start position:0%
+go inside accept, it will still execute, so
+ 
+
+00:03:21.640 --> 00:03:23.070 align:start position:0%
+go inside accept, it will still execute, so
+what <00:03:21.912><c>is </c><00:03:22.184><c>the </c><00:03:22.456><c>story, </c><00:03:22.728><c>see, </c><00:03:23.000><c>I</c>
+
+00:03:23.070 --> 00:03:23.080 align:start position:0%
+what is the story, see, I
+ 
+
+00:03:23.080 --> 00:03:24.670 align:start position:0%
+what is the story, see, I
+wrote <00:03:23.235><c>here, </c><00:03:23.390><c>if </c><00:03:23.545><c>I </c><00:03:23.700><c>produce </c><00:03:23.855><c>an </c><00:03:24.010><c>error </c><00:03:24.165><c>here, </c><00:03:24.320><c>even </c><00:03:24.475><c>then</c>
+
+00:03:24.670 --> 00:03:24.680 align:start position:0%
+wrote here, if I produce an error here, even then
+ 
+
+00:03:24.680 --> 00:03:27.750 align:start position:0%
+wrote here, if I produce an error here, even then
+you <00:03:25.266><c>will </c><00:03:25.852><c>see </c><00:03:26.438><c>that</c>
+
+00:03:27.750 --> 00:03:27.760 align:start position:0%
+you will see that
+ 
+
+00:03:27.760 --> 00:03:31.149 align:start position:0%
+you will see that
+it <00:03:28.399><c>is </c><00:03:29.038><c>always </c><00:03:29.677><c>executed </c><00:03:30.316><c>and </c><00:03:30.955><c>if</c>
+
+00:03:31.149 --> 00:03:31.159 align:start position:0%
+it is always executed and if
+ 
+
+00:03:31.159 --> 00:03:33.190 align:start position:0%
+it is always executed and if
+I <00:03:31.394><c>do </c><00:03:31.629><c>not </c><00:03:31.864><c>produce </c><00:03:32.099><c>an </c><00:03:32.334><c>error </c><00:03:32.569><c>in </c><00:03:32.804><c>it, </c><00:03:33.039><c>suppose</c>
+
+00:03:33.190 --> 00:03:33.200 align:start position:0%
+I do not produce an error in it, suppose
+ 
+
+00:03:33.200 --> 00:03:34.949 align:start position:0%
+I do not produce an error in it, suppose
+I <00:03:33.512><c>do </c><00:03:33.824><c>something </c><00:03:34.136><c>like </c><00:03:34.448><c>putting </c><00:03:34.760><c>zero</c>
+
+00:03:34.949 --> 00:03:34.959 align:start position:0%
+I do something like putting zero
+ 
+
+00:03:34.959 --> 00:03:37.229 align:start position:0%
+I do something like putting zero
+index, <00:03:35.273><c>even </c><00:03:35.587><c>then </c><00:03:35.901><c>I </c><00:03:36.215><c>am </c><00:03:36.529><c>always </c><00:03:36.843><c>executed, </c><00:03:37.157><c>so</c>
+
+00:03:37.229 --> 00:03:37.239 align:start position:0%
+index, even then I am always executed, so
+ 
+
+00:03:37.239 --> 00:03:38.630 align:start position:0%
+index, even then I am always executed, so
+brother, <00:03:37.421><c>what </c><00:03:37.603><c>is </c><00:03:37.785><c>the </c><00:03:37.967><c>difference, </c><00:03:38.149><c>now </c><00:03:38.331><c>I </c><00:03:38.513><c>will</c>
+
+00:03:38.630 --> 00:03:38.640 align:start position:0%
+brother, what is the difference, now I will
+ 
+
+00:03:38.640 --> 00:03:40.509 align:start position:0%
+brother, what is the difference, now I will
+tell <00:03:38.926><c>you </c><00:03:39.212><c>where </c><00:03:39.498><c>the </c><00:03:39.784><c>difference </c><00:03:40.070><c>is </c><00:03:40.356><c>visible,</c>
+
+00:03:40.509 --> 00:03:40.519 align:start position:0%
+tell you where the difference is visible,
+ 
+
+00:03:40.519 --> 00:03:43.350 align:start position:0%
+tell you where the difference is visible,
+when <00:03:40.799><c>you </c><00:03:41.079><c>wrap </c><00:03:41.359><c>the </c><00:03:41.639><c>same </c><00:03:41.919><c>thing </c><00:03:42.199><c>in </c><00:03:42.479><c>a </c><00:03:42.759><c>function  </c><00:03:43.039><c>So</c>
+
+00:03:43.350 --> 00:03:43.360 align:start position:0%
+when you wrap the same thing in a function  So
+ 
+
+00:03:43.360 --> 00:03:46.270 align:start position:0%
+when you wrap the same thing in a function  So
+suppose <00:03:44.780><c>I </c><00:03:46.200><c>am</c>
+
+00:03:46.270 --> 00:03:46.280 align:start position:0%
+suppose I am
+ 
+
+00:03:46.280 --> 00:03:49.550 align:start position:0%
+suppose I am
+wrapping <00:03:46.594><c>it </c><00:03:46.908><c>in </c><00:03:47.222><c>a </c><00:03:47.536><c>function </c><00:03:47.850><c>called </c><00:03:48.164><c>func1, </c><00:03:48.478><c>okay, </c><00:03:48.792><c>oops,</c>
+
+00:03:49.550 --> 00:03:49.560 align:start position:0%
+wrapping it in a function called func1, okay, oops,
+ 
+
+00:03:49.560 --> 00:03:52.309 align:start position:0%
+wrapping it in a function called func1, okay, oops,
+I <00:03:49.763><c>will </c><00:03:49.966><c>do </c><00:03:50.169><c>it </c><00:03:50.372><c>like </c><00:03:50.575><c>this </c><00:03:50.778><c>and </c><00:03:50.981><c>what </c><00:03:51.184><c>I </c><00:03:51.387><c>am </c><00:03:51.590><c>doing </c><00:03:51.793><c>is </c><00:03:51.996><c>I </c><00:03:52.199><c>am</c>
+
+00:03:52.309 --> 00:03:52.319 align:start position:0%
+I will do it like this and what I am doing is I am
+ 
+
+00:03:52.319 --> 00:03:55.149 align:start position:0%
+I will do it like this and what I am doing is I am
+giving <00:03:55.000><c>the</c>
+
+00:03:55.149 --> 00:03:55.159 align:start position:0%
+giving the
+ 
+
+00:03:55.159 --> 00:03:57.830 align:start position:0%
+giving the
+value <00:03:55.419><c>of </c><00:03:55.679><c>i </c><00:03:55.939><c>inside </c><00:03:56.199><c>func1, </c><00:03:56.459><c>okay </c><00:03:56.719><c>or </c><00:03:56.979><c>suppose </c><00:03:57.239><c>I </c><00:03:57.499><c>am </c><00:03:57.759><c>simply</c>
+
+00:03:57.830 --> 00:03:57.840 align:start position:0%
+value of i inside func1, okay or suppose I am simply
+ 
+
+00:03:57.840 --> 00:03:59.550 align:start position:0%
+value of i inside func1, okay or suppose I am simply
+running <00:03:58.620><c>func1 </c><00:03:59.400><c>here,</c>
+
+00:03:59.550 --> 00:03:59.560 align:start position:0%
+running func1 here,
+ 
+
+00:03:59.560 --> 00:04:03.030 align:start position:0%
+running func1 here,
+okay, <00:04:00.005><c>and </c><00:04:00.450><c>I </c><00:04:00.895><c>am </c><00:04:01.340><c>saying </c><00:04:01.785><c>x </c><00:04:02.230><c>= </c><00:04:02.675><c>func1</c>
+
+00:04:03.030 --> 00:04:03.040 align:start position:0%
+okay, and I am saying x = func1
+ 
+
+00:04:03.040 --> 00:04:05.710 align:start position:0%
+okay, and I am saying x = func1
+and <00:04:03.453><c>I </c><00:04:03.866><c>write </c><00:04:04.279><c>print </c><00:04:04.692><c>x </c><00:04:05.105><c>here, </c><00:04:05.518><c>okay,</c>
+
+00:04:05.710 --> 00:04:05.720 align:start position:0%
+and I write print x here, okay,
+ 
+
+00:04:05.720 --> 00:04:09.190 align:start position:0%
+and I write print x here, okay,
+now <00:04:06.273><c>if </c><00:04:06.826><c>I </c><00:04:07.379><c>am </c><00:04:07.932><c>trying, </c><00:04:08.485><c>then </c><00:04:09.038><c>I</c>
+
+00:04:09.190 --> 00:04:09.200 align:start position:0%
+now if I am trying, then I
+ 
+
+00:04:09.200 --> 00:04:11.429 align:start position:0%
+now if I am trying, then I
+return, <00:04:09.526><c>let's </c><00:04:09.852><c>say, </c><00:04:10.178><c>row, </c><00:04:10.504><c>okay </c><00:04:10.830><c>and </c><00:04:11.156><c>if</c>
+
+00:04:11.429 --> 00:04:11.439 align:start position:0%
+return, let's say, row, okay and if
+ 
+
+00:04:11.439 --> 00:04:13.710 align:start position:0%
+return, let's say, row, okay and if
+I <00:04:11.855><c>am </c><00:04:12.271><c>going </c><00:04:12.687><c>inside </c><00:04:13.103><c>accept, </c><00:04:13.519><c>then</c>
+
+00:04:13.710 --> 00:04:13.720 align:start position:0%
+I am going inside accept, then
+ 
+
+00:04:13.720 --> 00:04:17.550 align:start position:0%
+I am going inside accept, then
+what <00:04:14.075><c>will </c><00:04:14.430><c>happen </c><00:04:14.785><c>is </c><00:04:15.140><c>that </c><00:04:15.495><c>obviously </c><00:04:15.850><c>I </c><00:04:16.205><c>want </c><00:04:16.560><c>to</c>
+
+00:04:17.550 --> 00:04:17.560 align:start position:0%
+what will happen is that obviously I want to
+ 
+
+00:04:17.560 --> 00:04:19.469 align:start position:0%
+what will happen is that obviously I want to
+return <00:04:17.919><c>this, </c><00:04:18.278><c>let's </c><00:04:18.637><c>say </c><00:04:18.996><c>one, </c><00:04:19.355><c>okay,</c>
+
+00:04:19.469 --> 00:04:19.479 align:start position:0%
+return this, let's say one, okay,
+ 
+
+00:04:19.479 --> 00:04:21.189 align:start position:0%
+return this, let's say one, okay,
+I <00:04:19.725><c>want </c><00:04:19.971><c>to </c><00:04:20.217><c>return </c><00:04:20.463><c>some </c><00:04:20.709><c>value, </c><00:04:20.955><c>in</c>
+
+00:04:21.189 --> 00:04:21.199 align:start position:0%
+I want to return some value, in
+ 
+
+00:04:21.199 --> 00:04:23.189 align:start position:0%
+I want to return some value, in
+fact, <00:04:21.812><c>I </c><00:04:22.425><c>return </c><00:04:23.038><c>one,</c>
+
+00:04:23.189 --> 00:04:23.199 align:start position:0%
+fact, I return one,
+ 
+
+00:04:23.199 --> 00:04:25.150 align:start position:0%
+fact, I return one,
+return <00:04:23.467><c>row, </c><00:04:23.735><c>zero </c><00:04:24.003><c>means </c><00:04:24.271><c>an </c><00:04:24.539><c>error </c><00:04:24.807><c>has </c><00:04:25.075><c>occurred</c>
+
+00:04:25.150 --> 00:04:25.160 align:start position:0%
+return row, zero means an error has occurred
+ 
+
+00:04:25.160 --> 00:04:27.270 align:start position:0%
+return row, zero means an error has occurred
+and <00:04:25.440><c>one </c><00:04:25.720><c>means </c><00:04:26.000><c>that </c><00:04:26.280><c>it </c><00:04:26.560><c>has </c><00:04:26.840><c>run </c><00:04:27.120><c>successfully,</c>
+
+00:04:27.270 --> 00:04:27.280 align:start position:0%
+and one means that it has run successfully,
+ 
+
+00:04:27.280 --> 00:04:29.230 align:start position:0%
+and one means that it has run successfully,
+okay, <00:04:27.488><c>if </c><00:04:27.696><c>I </c><00:04:27.904><c>run </c><00:04:28.112><c>this </c><00:04:28.320><c>program, </c><00:04:28.528><c>then </c><00:04:28.736><c>it </c><00:04:28.944><c>will </c><00:04:29.152><c>be</c>
+
+00:04:29.230 --> 00:04:29.240 align:start position:0%
+okay, if I run this program, then it will be
+ 
+
+00:04:29.240 --> 00:04:31.909 align:start position:0%
+okay, if I run this program, then it will be
+exactly <00:04:30.039><c>what </c><00:04:30.838><c>you </c><00:04:31.637><c>expected,</c>
+
+00:04:31.909 --> 00:04:31.919 align:start position:0%
+exactly what you expected,
+ 
+
+00:04:31.919 --> 00:04:34.870 align:start position:0%
+exactly what you expected,
+that <00:04:32.852><c>it </c><00:04:33.785><c>will </c><00:04:34.718><c>not</c>
+
+00:04:34.870 --> 00:04:34.880 align:start position:0%
+that it will not
+ 
+
+00:04:34.880 --> 00:04:36.629 align:start position:0%
+that it will not
+run, <00:04:35.216><c>I </c><00:04:35.552><c>am </c><00:04:35.888><c>always </c><00:04:36.224><c>executed, </c><00:04:36.560><c>like</c>
+
+00:04:36.629 --> 00:04:36.639 align:start position:0%
+run, I am always executed, like
+ 
+
+00:04:36.639 --> 00:04:38.350 align:start position:0%
+run, I am always executed, like
+if <00:04:36.861><c>I </c><00:04:37.083><c>put </c><00:04:37.305><c>zero </c><00:04:37.527><c>here, </c><00:04:37.749><c>then </c><00:04:37.971><c>you </c><00:04:38.193><c>guys</c>
+
+00:04:38.350 --> 00:04:38.360 align:start position:0%
+if I put zero here, then you guys
+ 
+
+00:04:38.360 --> 00:04:40.870 align:start position:0%
+if I put zero here, then you guys
+see, <00:04:38.574><c>I </c><00:04:38.788><c>will </c><00:04:39.002><c>put </c><00:04:39.216><c>row </c><00:04:39.430><c>here, </c><00:04:39.644><c>if </c><00:04:39.858><c>I </c><00:04:40.072><c>then </c><00:04:40.286><c>one, </c><00:04:40.500><c>then </c><00:04:40.714><c>one</c>
+
+00:04:40.870 --> 00:04:40.880 align:start position:0%
+see, I will put row here, if I then one, then one
+ 
+
+00:04:40.880 --> 00:04:42.749 align:start position:0%
+see, I will put row here, if I then one, then one
+came <00:04:41.009><c>from </c><00:04:41.138><c>here </c><00:04:41.267><c>and  </c><00:04:41.396><c>I </c><00:04:41.525><c>printed </c><00:04:41.654><c>x </c><00:04:41.783><c>and </c><00:04:41.912><c>it </c><00:04:42.041><c>came </c><00:04:42.170><c>out </c><00:04:42.299><c>to </c><00:04:42.428><c>be </c><00:04:42.557><c>one.</c>
+
+00:04:42.749 --> 00:04:42.759 align:start position:0%
+came from here and  I printed x and it came out to be one.
+ 
+
+00:04:42.759 --> 00:04:43.990 align:start position:0%
+came from here and  I printed x and it came out to be one.
+I <00:04:43.219><c>am </c><00:04:43.679><c>always</c>
+
+00:04:43.990 --> 00:04:44.000 align:start position:0%
+I am always
+ 
+
+00:04:44.000 --> 00:04:46.270 align:start position:0%
+I am always
+executed <00:04:44.360><c>did </c><00:04:44.720><c>not </c><00:04:45.080><c>run. </c><00:04:45.440><c>Okay, </c><00:04:45.800><c>similarly,</c>
+
+00:04:46.270 --> 00:04:46.280 align:start position:0%
+executed did not run. Okay, similarly,
+ 
+
+00:04:46.280 --> 00:04:47.950 align:start position:0%
+executed did not run. Okay, similarly,
+if <00:04:46.528><c>I </c><00:04:46.776><c>generate </c><00:04:47.024><c>an </c><00:04:47.272><c>error </c><00:04:47.520><c>here,</c>
+
+00:04:47.950 --> 00:04:47.960 align:start position:0%
+if I generate an error here,
+ 
+
+00:04:47.960 --> 00:04:50.430 align:start position:0%
+if I generate an error here,
+then <00:04:48.250><c>also </c><00:04:48.540><c>you </c><00:04:48.830><c>will </c><00:04:49.120><c>see </c><00:04:49.410><c>that </c><00:04:49.700><c>I </c><00:04:49.990><c>am </c><00:04:50.280><c>always</c>
+
+00:04:50.430 --> 00:04:50.440 align:start position:0%
+then also you will see that I am always
+ 
+
+00:04:50.440 --> 00:04:52.749 align:start position:0%
+then also you will see that I am always
+executed <00:04:50.856><c>will </c><00:04:51.272><c>not </c><00:04:51.688><c>run. </c><00:04:52.104><c>So </c><00:04:52.520><c>you</c>
+
+00:04:52.749 --> 00:04:52.759 align:start position:0%
+executed will not run. So you
+ 
+
+00:04:52.759 --> 00:04:56.189 align:start position:0%
+executed will not run. So you
+can <00:04:53.247><c>see </c><00:04:53.735><c>here </c><00:04:54.223><c>that </c><00:04:54.711><c>if </c><00:04:55.199><c>I</c>
+
+00:04:56.189 --> 00:04:56.199 align:start position:0%
+can see here that if I
+ 
+
+00:04:56.199 --> 00:04:58.189 align:start position:0%
+can see here that if I
+write <00:04:56.535><c>it </c><00:04:56.871><c>like </c><00:04:57.207><c>this, </c><00:04:57.543><c>suppose </c><00:04:57.879><c>I</c>
+
+00:04:58.189 --> 00:04:58.199 align:start position:0%
+write it like this, suppose I
+ 
+
+00:04:58.199 --> 00:05:00.150 align:start position:0%
+write it like this, suppose I
+generate <00:04:58.394><c>an </c><00:04:58.589><c>error </c><00:04:58.784><c>by </c><00:04:58.979><c>writing </c><00:04:59.174><c>d </c><00:04:59.369><c>here, </c><00:04:59.564><c>the </c><00:04:59.759><c>sum </c><00:04:59.954><c>error</c>
+
+00:05:00.150 --> 00:05:00.160 align:start position:0%
+generate an error by writing d here, the sum error
+ 
+
+00:05:00.160 --> 00:05:01.790 align:start position:0%
+generate an error by writing d here, the sum error
+record <00:05:00.371><c>came </c><00:05:00.582><c>out </c><00:05:00.793><c>and </c><00:05:01.004><c>then </c><00:05:01.215><c>zero </c><00:05:01.426><c>got </c><00:05:01.637><c>printed</c>
+
+00:05:01.790 --> 00:05:01.800 align:start position:0%
+record came out and then zero got printed
+ 
+
+00:05:01.800 --> 00:05:03.749 align:start position:0%
+record came out and then zero got printed
+because <00:05:02.128><c>this </c><00:05:02.456><c>function </c><00:05:02.784><c>returned </c><00:05:03.112><c>zero, </c><00:05:03.440><c>so</c>
+
+00:05:03.749 --> 00:05:03.759 align:start position:0%
+because this function returned zero, so
+ 
+
+00:05:03.759 --> 00:05:05.909 align:start position:0%
+because this function returned zero, so
+this <00:05:03.999><c>zero </c><00:05:04.239><c>came </c><00:05:04.479><c>out </c><00:05:04.719><c>and </c><00:05:04.959><c>here </c><00:05:05.199><c>the </c><00:05:05.439><c>sum </c><00:05:05.679><c>error</c>
+
+00:05:05.909 --> 00:05:05.919 align:start position:0%
+this zero came out and here the sum error
+ 
+
+00:05:05.919 --> 00:05:08.590 align:start position:0%
+this zero came out and here the sum error
+record <00:05:06.332><c>came </c><00:05:06.745><c>out. </c><00:05:07.158><c>But </c><00:05:07.571><c>now </c><00:05:07.984><c>I </c><00:05:08.397><c>will</c>
+
+00:05:08.590 --> 00:05:08.600 align:start position:0%
+record came out. But now I will
+ 
+
+00:05:08.600 --> 00:05:11.590 align:start position:0%
+record came out. But now I will
+tell <00:05:08.815><c>you </c><00:05:09.030><c>what </c><00:05:09.245><c>would </c><00:05:09.460><c>have </c><00:05:09.675><c>happened </c><00:05:09.890><c>if </c><00:05:10.105><c>I </c><00:05:10.320><c>had </c><00:05:10.535><c>done </c><00:05:10.750><c>it </c><00:05:10.965><c>like </c><00:05:11.180><c>this. </c><00:05:11.395><c>So,</c>
+
+00:05:11.590 --> 00:05:11.600 align:start position:0%
+tell you what would have happened if I had done it like this. So,
+ 
+
+00:05:11.600 --> 00:05:13.710 align:start position:0%
+tell you what would have happened if I had done it like this. So,
+first <00:05:12.069><c>of </c><00:05:12.538><c>all </c><00:05:13.007><c>I </c><00:05:13.476><c>will</c>
+
+00:05:13.710 --> 00:05:13.720 align:start position:0%
+first of all I will
+ 
+
+00:05:13.720 --> 00:05:15.990 align:start position:0%
+first of all I will
+show <00:05:13.880><c>you </c><00:05:14.040><c>by </c><00:05:14.200><c>putting </c><00:05:14.360><c>a </c><00:05:14.520><c>valid </c><00:05:14.680><c>index. </c><00:05:14.840><c>I </c><00:05:15.000><c>will </c><00:05:15.160><c>show </c><00:05:15.320><c>you </c><00:05:15.480><c>by </c><00:05:15.640><c>putting </c><00:05:15.800><c>row</c>
+
+00:05:15.990 --> 00:05:16.000 align:start position:0%
+show you by putting a valid index. I will show you by putting row
+ 
+
+00:05:16.000 --> 00:05:18.029 align:start position:0%
+show you by putting a valid index. I will show you by putting row
+and <00:05:17.919><c>I</c>
+
+00:05:18.029 --> 00:05:18.039 align:start position:0%
+and I
+ 
+
+00:05:18.039 --> 00:05:19.390 align:start position:0%
+and I
+put <00:05:18.142><c>zero </c><00:05:18.245><c>here, </c><00:05:18.348><c>so </c><00:05:18.451><c>you </c><00:05:18.554><c>can </c><00:05:18.657><c>see </c><00:05:18.760><c>that </c><00:05:18.863><c>here </c><00:05:18.966><c>I </c><00:05:19.069><c>am </c><00:05:19.172><c>always </c><00:05:19.275><c>executed</c>
+
+00:05:19.390 --> 00:05:19.400 align:start position:0%
+put zero here, so you can see that here I am always executed
+ 
+
+00:05:19.400 --> 00:05:22.070 align:start position:0%
+put zero here, so you can see that here I am always executed
+ran, <00:05:19.766><c>that </c><00:05:20.132><c>is, </c><00:05:20.498><c>even </c><00:05:20.864><c>if </c><00:05:21.230><c>the </c><00:05:21.596><c>function</c>
+
+00:05:22.070 --> 00:05:22.080 align:start position:0%
+ran, that is, even if the function
+ 
+
+00:05:22.080 --> 00:05:23.749 align:start position:0%
+ran, that is, even if the function
+returns, <00:05:22.586><c>it </c><00:05:23.092><c>will </c><00:05:23.598><c>still</c>
+
+00:05:23.749 --> 00:05:23.759 align:start position:0%
+returns, it will still
+ 
+
+00:05:23.759 --> 00:05:26.070 align:start position:0%
+returns, it will still
+execute. <00:05:23.975><c>It </c><00:05:24.191><c>will </c><00:05:24.407><c>not </c><00:05:24.623><c>accept </c><00:05:24.839><c>that, </c><00:05:25.055><c>that </c><00:05:25.271><c>is, </c><00:05:25.487><c>you </c><00:05:25.703><c>had </c><00:05:25.919><c>already</c>
+
+00:05:26.070 --> 00:05:26.080 align:start position:0%
+execute. It will not accept that, that is, you had already
+ 
+
+00:05:26.080 --> 00:05:28.550 align:start position:0%
+execute. It will not accept that, that is, you had already
+returned <00:05:26.510><c>inside </c><00:05:26.940><c>the </c><00:05:27.370><c>try </c><00:05:27.800><c>itself,</c>
+
+00:05:28.550 --> 00:05:28.560 align:start position:0%
+returned inside the try itself,
+ 
+
+00:05:28.560 --> 00:05:30.629 align:start position:0%
+returned inside the try itself,
+but <00:05:28.665><c>it </c><00:05:28.770><c>will </c><00:05:28.875><c>say, </c><00:05:28.980><c>no </c><00:05:29.085><c>brother, </c><00:05:29.190><c>finally </c><00:05:29.295><c>means </c><00:05:29.400><c>if </c><00:05:29.505><c>it </c><00:05:29.610><c>has </c><00:05:29.715><c>to </c><00:05:29.820><c>happen, </c><00:05:29.925><c>then </c><00:05:30.030><c>it </c><00:05:30.135><c>has </c><00:05:30.240><c>to </c><00:05:30.345><c>happen.</c>
+
+00:05:30.629 --> 00:05:30.639 align:start position:0%
+but it will say, no brother, finally means if it has to happen, then it has to happen.
+ 
+
+00:05:30.639 --> 00:05:33.710 align:start position:0%
+but it will say, no brother, finally means if it has to happen, then it has to happen.
+Okay, <00:05:31.125><c>so </c><00:05:31.611><c>this  </c><00:05:32.097><c>It </c><00:05:32.583><c>will </c><00:05:33.069><c>only </c><00:05:33.555><c>be</c>
+
+00:05:33.710 --> 00:05:33.720 align:start position:0%
+Okay, so this  It will only be
+ 
+
+00:05:33.720 --> 00:05:37.070 align:start position:0%
+Okay, so this  It will only be
+accepted <00:05:34.066><c>if </c><00:05:34.412><c>it </c><00:05:34.758><c>happens </c><00:05:35.104><c>and </c><00:05:35.450><c>inside </c><00:05:35.796><c>accept </c><00:05:36.142><c>also </c><00:05:36.488><c>you </c><00:05:36.834><c>will</c>
+
+00:05:37.070 --> 00:05:37.080 align:start position:0%
+accepted if it happens and inside accept also you will
+ 
+
+00:05:37.080 --> 00:05:39.150 align:start position:0%
+accepted if it happens and inside accept also you will
+see <00:05:37.266><c>the </c><00:05:37.452><c>same </c><00:05:37.638><c>thing </c><00:05:37.824><c>that </c><00:05:38.010><c>if </c><00:05:38.196><c>an </c><00:05:38.382><c>error </c><00:05:38.568><c>is </c><00:05:38.754><c>produced</c>
+
+00:05:39.150 --> 00:05:39.160 align:start position:0%
+see the same thing that if an error is produced
+ 
+
+00:05:39.160 --> 00:05:41.510 align:start position:0%
+see the same thing that if an error is produced
+then <00:05:39.320><c>it </c><00:05:39.480><c>will </c><00:05:39.640><c>say </c><00:05:39.800><c>brother </c><00:05:39.960><c>if </c><00:05:40.120><c>I </c><00:05:40.280><c>have </c><00:05:40.440><c>to </c><00:05:40.600><c>execute </c><00:05:40.760><c>then </c><00:05:40.920><c>it </c><00:05:41.080><c>has </c><00:05:41.240><c>to </c><00:05:41.400><c>be</c>
+
+00:05:41.510 --> 00:05:41.520 align:start position:0%
+then it will say brother if I have to execute then it has to be
+ 
+
+00:05:41.520 --> 00:05:43.790 align:start position:0%
+then it will say brother if I have to execute then it has to be
+executed <00:05:41.928><c>now </c><00:05:42.336><c>you </c><00:05:42.744><c>cannot </c><00:05:43.152><c>stop </c><00:05:43.560><c>me</c>
+
+00:05:43.790 --> 00:05:43.800 align:start position:0%
+executed now you cannot stop me
+ 
+
+00:05:43.800 --> 00:05:45.990 align:start position:0%
+executed now you cannot stop me
+but <00:05:44.060><c>you </c><00:05:44.320><c>will </c><00:05:44.580><c>say </c><00:05:44.840><c>friend </c><00:05:45.100><c>but </c><00:05:45.360><c>you </c><00:05:45.620><c>have </c><00:05:45.880><c>already</c>
+
+00:05:45.990 --> 00:05:46.000 align:start position:0%
+but you will say friend but you have already
+ 
+
+00:05:46.000 --> 00:05:47.749 align:start position:0%
+but you will say friend but you have already
+returned <00:05:46.546><c>here </c><00:05:47.092><c>there </c><00:05:47.638><c>was</c>
+
+00:05:47.749 --> 00:05:47.759 align:start position:0%
+returned here there was
+ 
+
+00:05:47.759 --> 00:05:49.710 align:start position:0%
+returned here there was
+a <00:05:47.909><c>rule </c><00:05:48.059><c>of </c><00:05:48.209><c>the </c><00:05:48.359><c>function </c><00:05:48.509><c>that </c><00:05:48.659><c>if </c><00:05:48.809><c>you </c><00:05:48.959><c>return </c><00:05:49.109><c>then </c><00:05:49.259><c>nothing </c><00:05:49.409><c>will </c><00:05:49.559><c>be</c>
+
+00:05:49.710 --> 00:05:49.720 align:start position:0%
+a rule of the function that if you return then nothing will be
+ 
+
+00:05:49.720 --> 00:05:51.070 align:start position:0%
+a rule of the function that if you return then nothing will be
+executed <00:05:50.319><c>after </c><00:05:50.918><c>that</c>
+
+00:05:51.070 --> 00:05:51.080 align:start position:0%
+executed after that
+ 
+
+00:05:51.080 --> 00:05:53.270 align:start position:0%
+executed after that
+it <00:05:51.240><c>will </c><00:05:51.400><c>say </c><00:05:51.560><c>no </c><00:05:51.720><c>brother </c><00:05:51.880><c>finally </c><00:05:52.040><c>means </c><00:05:52.200><c>it </c><00:05:52.360><c>has </c><00:05:52.520><c>to </c><00:05:52.680><c>be </c><00:05:52.840><c>executed </c><00:05:53.000><c>even</c>
+
+00:05:53.270 --> 00:05:53.280 align:start position:0%
+it will say no brother finally means it has to be executed even
+ 
+
+00:05:53.280 --> 00:05:56.790 align:start position:0%
+it will say no brother finally means it has to be executed even
+if <00:05:54.030><c>the </c><00:05:54.780><c>function </c><00:05:55.530><c>returns </c><00:05:56.280><c>okay</c>
+
+00:05:56.790 --> 00:05:56.800 align:start position:0%
+if the function returns okay
+ 
+
+00:05:56.800 --> 00:05:58.550 align:start position:0%
+if the function returns okay
+if <00:05:57.120><c>you </c><00:05:57.440><c>found </c><00:05:57.760><c>this </c><00:05:58.080><c>video </c><00:05:58.400><c>confusing</c>
+
+00:05:58.550 --> 00:05:58.560 align:start position:0%
+if you found this video confusing
+ 
+
+00:05:58.560 --> 00:06:00.950 align:start position:0%
+if you found this video confusing
+watch <00:05:58.825><c>it </c><00:05:59.090><c>again </c><00:05:59.355><c>because </c><00:05:59.620><c>this </c><00:05:59.885><c>is </c><00:06:00.150><c>a </c><00:06:00.415><c>very </c><00:06:00.680><c>commonly</c>
+
+00:06:00.950 --> 00:06:00.960 align:start position:0%
+watch it again because this is a very commonly
+ 
+
+00:06:00.960 --> 00:06:02.749 align:start position:0%
+watch it again because this is a very commonly
+asked <00:06:01.719><c>interview </c><00:06:02.478><c>question</c>
+
+00:06:02.749 --> 00:06:02.759 align:start position:0%
+asked interview question
+ 
+
+00:06:02.759 --> 00:06:05.870 align:start position:0%
+asked interview question
+what <00:06:03.193><c>is </c><00:06:03.627><c>the </c><00:06:04.061><c>use </c><00:06:04.495><c>of </c><00:06:04.929><c>finally </c><00:06:05.363><c>people </c><00:06:05.797><c>ask</c>
+
+00:06:05.870 --> 00:06:05.880 align:start position:0%
+what is the use of finally people ask
+ 
+
+00:06:05.880 --> 00:06:08.189 align:start position:0%
+what is the use of finally people ask
+brother <00:06:06.100><c>what </c><00:06:06.320><c>is </c><00:06:06.540><c>the </c><00:06:06.760><c>use </c><00:06:06.980><c>of </c><00:06:07.200><c>finally </c><00:06:07.420><c>and </c><00:06:07.640><c>this </c><00:06:07.860><c>is </c><00:06:08.080><c>what</c>
+
+00:06:08.189 --> 00:06:08.199 align:start position:0%
+brother what is the use of finally and this is what
+ 
+
+00:06:08.199 --> 00:06:10.309 align:start position:0%
+brother what is the use of finally and this is what
+people <00:06:08.485><c>say </c><00:06:08.771><c>if </c><00:06:09.057><c>you </c><00:06:09.343><c>read </c><00:06:09.629><c>anywhere </c><00:06:09.915><c>normally</c>
+
+00:06:10.309 --> 00:06:10.319 align:start position:0%
+people say if you read anywhere normally
+ 
+
+00:06:10.319 --> 00:06:12.309 align:start position:0%
+people say if you read anywhere normally
+about <00:06:10.619><c>finally </c><00:06:10.919><c>it </c><00:06:11.219><c>is </c><00:06:11.519><c>always </c><00:06:11.819><c>executed </c><00:06:12.119><c>oh</c>
+
+00:06:12.309 --> 00:06:12.319 align:start position:0%
+about finally it is always executed oh
+ 
+
+00:06:12.319 --> 00:06:14.309 align:start position:0%
+about finally it is always executed oh
+brother <00:06:12.465><c>always </c><00:06:12.611><c>executed </c><00:06:12.757><c>so </c><00:06:12.903><c>I </c><00:06:13.049><c>can </c><00:06:13.195><c>do </c><00:06:13.341><c>it </c><00:06:13.487><c>like </c><00:06:13.633><c>this </c><00:06:13.779><c>also </c><00:06:13.925><c>simply </c><00:06:14.071><c>by</c>
+
+00:06:14.309 --> 00:06:14.319 align:start position:0%
+brother always executed so I can do it like this also simply by
+ 
+
+00:06:14.319 --> 00:06:16.749 align:start position:0%
+brother always executed so I can do it like this also simply by
+writing <00:06:14.656><c>it </c><00:06:14.993><c>like </c><00:06:15.330><c>this </c><00:06:15.667><c>so </c><00:06:16.004><c>why </c><00:06:16.341><c>do </c><00:06:16.678><c>I</c>
+
+00:06:16.749 --> 00:06:16.759 align:start position:0%
+writing it like this so why do I
+ 
+
+00:06:16.759 --> 00:06:19.749 align:start position:0%
+writing it like this so why do I
+need <00:06:17.124><c>finally </c><00:06:17.489><c>it </c><00:06:17.854><c>is </c><00:06:18.219><c>the </c><00:06:18.584><c>need </c><00:06:18.949><c>of </c><00:06:19.314><c>finally</c>
+
+00:06:19.749 --> 00:06:19.759 align:start position:0%
+need finally it is the need of finally
+ 
+
+00:06:19.759 --> 00:06:21.749 align:start position:0%
+need finally it is the need of finally
+friend <00:06:20.010><c>if </c><00:06:20.261><c>you </c><00:06:20.512><c>want </c><00:06:20.763><c>that </c><00:06:21.014><c>you </c><00:06:21.265><c>have </c><00:06:21.516><c>a</c>
+
+00:06:21.749 --> 00:06:21.759 align:start position:0%
+friend if you want that you have a
+ 
+
+00:06:21.759 --> 00:06:23.830 align:start position:0%
+friend if you want that you have a
+database <00:06:22.639><c>connection, </c><00:06:23.519><c>you</c>
+
+00:06:23.830 --> 00:06:23.840 align:start position:0%
+database connection, you
+ 
+
+00:06:23.840 --> 00:06:26.309 align:start position:0%
+database connection, you
+want <00:06:24.102><c>to </c><00:06:24.364><c>break </c><00:06:24.626><c>it </c><00:06:24.888><c>because </c><00:06:25.150><c>if </c><00:06:25.412><c>you </c><00:06:25.674><c>get </c><00:06:25.936><c>an </c><00:06:26.198><c>error</c>
+
+00:06:26.309 --> 00:06:26.319 align:start position:0%
+want to break it because if you get an error
+ 
+
+00:06:26.319 --> 00:06:27.950 align:start position:0%
+want to break it because if you get an error
+Suppose <00:06:26.470><c>it </c><00:06:26.621><c>is </c><00:06:26.772><c>like </c><00:06:26.923><c>this, </c><00:06:27.074><c>in </c><00:06:27.225><c>which </c><00:06:27.376><c>you </c><00:06:27.527><c>want </c><00:06:27.678><c>to</c>
+
+00:06:27.950 --> 00:06:30.790 align:start position:0%
+Suppose it is like this, in which you want to
+ 
+
+00:06:30.790 --> 00:06:32.390 align:start position:0%
+ 
+ 
+
+00:06:32.390 --> 00:06:32.400 align:start position:0%
+ 
+ 
+
+00:06:32.400 --> 00:06:34.909 align:start position:0%
+ 
+revise <00:06:32.607><c>the </c><00:06:32.814><c>database </c><00:06:33.021><c>connection </c><00:06:33.228><c>which </c><00:06:33.435><c>you </c><00:06:33.642><c>had </c><00:06:33.849><c>established </c><00:06:34.056><c>or </c><00:06:34.263><c>you </c><00:06:34.470><c>want </c><00:06:34.677><c>to</c>
+
+00:06:34.909 --> 00:06:34.919 align:start position:0%
+revise the database connection which you had established or you want to
+ 
+
+00:06:34.919 --> 00:06:37.029 align:start position:0%
+revise the database connection which you had established or you want to
+clean <00:06:35.239><c>up </c><00:06:35.559><c>a </c><00:06:35.879><c>file </c><00:06:36.199><c>or </c><00:06:36.519><c>you </c><00:06:36.839><c>had</c>
+
+00:06:37.029 --> 00:06:37.039 align:start position:0%
+clean up a file or you had
+ 
+
+00:06:37.039 --> 00:06:39.230 align:start position:0%
+clean up a file or you had
+opened <00:06:37.209><c>a </c><00:06:37.379><c>file </c><00:06:37.549><c>on </c><00:06:37.719><c>which </c><00:06:37.889><c>you </c><00:06:38.059><c>were </c><00:06:38.229><c>performing </c><00:06:38.399><c>an </c><00:06:38.569><c>operation </c><00:06:38.739><c>and </c><00:06:38.909><c>you </c><00:06:39.079><c>may</c>
+
+00:06:39.230 --> 00:06:39.240 align:start position:0%
+opened a file on which you were performing an operation and you may
+ 
+
+00:06:39.240 --> 00:06:41.589 align:start position:0%
+opened a file on which you were performing an operation and you may
+want <00:06:39.600><c>to </c><00:06:39.960><c>close </c><00:06:40.320><c>it, </c><00:06:40.680><c>so </c><00:06:41.040><c>if </c><00:06:41.400><c>you</c>
+
+00:06:41.589 --> 00:06:41.599 align:start position:0%
+want to close it, so if you
+ 
+
+00:06:41.599 --> 00:06:44.189 align:start position:0%
+want to close it, so if you
+want <00:06:41.806><c>to </c><00:06:42.013><c>do </c><00:06:42.220><c>such </c><00:06:42.427><c>work </c><00:06:42.634><c>then </c><00:06:42.841><c>what </c><00:06:43.048><c>you </c><00:06:43.255><c>have </c><00:06:43.462><c>to </c><00:06:43.669><c>do </c><00:06:43.876><c>is</c>
+
+00:06:44.189 --> 00:06:44.199 align:start position:0%
+want to do such work then what you have to do is
+ 
+
+00:06:44.199 --> 00:06:47.150 align:start position:0%
+want to do such work then what you have to do is
+you <00:06:45.066><c>have </c><00:06:45.933><c>to </c><00:06:46.800><c>put</c>
+
+00:06:47.150 --> 00:06:47.160 align:start position:0%
+you have to put
+ 
+
+00:06:47.160 --> 00:06:50.790 align:start position:0%
+you have to put
+that <00:06:47.430><c>thing </c><00:06:47.700><c>inside </c><00:06:47.970><c>finally </c><00:06:48.240><c>and </c><00:06:48.510><c>your </c><00:06:48.780><c>work </c><00:06:49.050><c>will </c><00:06:49.320><c>be </c><00:06:49.590><c>done, </c><00:06:49.860><c>okay, </c><00:06:50.130><c>it </c><00:06:50.400><c>is</c>
+
+00:06:50.790 --> 00:06:50.800 align:start position:0%
+that thing inside finally and your work will be done, okay, it is
+ 
+
+00:06:50.800 --> 00:06:52.469 align:start position:0%
+that thing inside finally and your work will be done, okay, it is
+respectful <00:06:51.047><c>of </c><00:06:51.294><c>weather </c><00:06:51.541><c>you </c><00:06:51.788><c>are </c><00:06:52.035><c>returning</c>
+
+00:06:52.469 --> 00:06:52.479 align:start position:0%
+respectful of weather you are returning
+ 
+
+00:06:52.479 --> 00:06:54.830 align:start position:0%
+respectful of weather you are returning
+inside, <00:06:52.799><c>try </c><00:06:53.119><c>it, </c><00:06:53.439><c>respectful </c><00:06:53.759><c>of </c><00:06:54.079><c>weather </c><00:06:54.399><c>you </c><00:06:54.719><c>are</c>
+
+00:06:54.830 --> 00:06:54.840 align:start position:0%
+inside, try it, respectful of weather you are
+ 
+
+00:06:54.840 --> 00:06:57.710 align:start position:0%
+inside, try it, respectful of weather you are
+returning <00:06:55.146><c>inside </c><00:06:55.452><c>accept, </c><00:06:55.758><c>your </c><00:06:56.064><c>work </c><00:06:56.370><c>will </c><00:06:56.676><c>be </c><00:06:56.982><c>done, </c><00:06:57.288><c>so </c><00:06:57.594><c>this</c>
+
+00:06:57.710 --> 00:06:57.720 align:start position:0%
+returning inside accept, your work will be done, so this
+ 
+
+00:06:57.720 --> 00:06:59.990 align:start position:0%
+returning inside accept, your work will be done, so this
+example <00:06:58.453><c>which </c><00:06:59.186><c>is </c><00:06:59.919><c>written</c>
+
+00:06:59.990 --> 00:07:00.000 align:start position:0%
+example which is written
+ 
+
+00:07:00.000 --> 00:07:02.589 align:start position:0%
+example which is written
+in <00:07:00.406><c>the </c><00:07:00.812><c>main </c><00:07:01.218><c>page </c><00:07:01.624><c>right </c><00:07:02.030><c>now, </c><00:07:02.436><c>I</c>
+
+00:07:02.589 --> 00:07:02.599 align:start position:0%
+in the main page right now, I
+ 
+
+00:07:02.599 --> 00:07:05.469 align:start position:0%
+in the main page right now, I
+believe <00:07:03.199><c>it </c><00:07:03.799><c>is </c><00:07:04.399><c>very </c><00:07:04.999><c>important,</c>
+
+00:07:05.469 --> 00:07:05.479 align:start position:0%
+believe it is very important,
+ 
+
+00:07:05.479 --> 00:07:07.430 align:start position:0%
+believe it is very important,
+you <00:07:05.659><c>people </c><00:07:05.839><c>must </c><00:07:06.019><c>try </c><00:07:06.199><c>it </c><00:07:06.379><c>and </c><00:07:06.559><c>if </c><00:07:06.739><c>you </c><00:07:06.919><c>people </c><00:07:07.099><c>have </c><00:07:07.279><c>not</c>
+
+00:07:07.430 --> 00:07:07.440 align:start position:0%
+you people must try it and if you people have not
+ 
+
+00:07:07.440 --> 00:07:28.270 align:start position:0%
+you people must try it and if you people have not
+yet learned
+
+00:07:28.270 --> 00:07:28.280 align:start position:0%
+ 
+ 
+
+00:07:28.280 --> 00:07:30.749 align:start position:0%
+ 
+python, <00:07:28.673><c>then </c><00:07:29.066><c>write </c><00:07:29.459><c>all </c><00:07:29.852><c>this </c><00:07:30.245><c>so </c><00:07:30.638><c>that</c>
+
+00:07:30.749 --> 00:07:30.759 align:start position:0%
+python, then write all this so that
+ 
+
+00:07:30.759 --> 00:07:32.070 align:start position:0%
+python, then write all this so that
+any <00:07:30.896><c>new </c><00:07:31.033><c>person </c><00:07:31.170><c>coming </c><00:07:31.307><c>to </c><00:07:31.444><c>do </c><00:07:31.581><c>this </c><00:07:31.718><c>course </c><00:07:31.855><c>can </c><00:07:31.992><c>get</c>
+
+00:07:32.070 --> 00:07:32.080 align:start position:0%
+any new person coming to do this course can get
+ 
+
+00:07:32.080 --> 00:07:33.510 align:start position:0%
+any new person coming to do this course can get
+a <00:07:32.520><c>good </c><00:07:32.960><c>input, </c><00:07:33.400><c>I</c>
+
+00:07:33.510 --> 00:07:33.520 align:start position:0%
+a good input, I
+ 
+
+00:07:33.520 --> 00:07:35.150 align:start position:0%
+a good input, I
+hope <00:07:33.676><c>that </c><00:07:33.832><c>you </c><00:07:33.988><c>people </c><00:07:34.144><c>will </c><00:07:34.300><c>go </c><00:07:34.456><c>to </c><00:07:34.612><c>the </c><00:07:34.768><c>first </c><00:07:34.924><c>video </c><00:07:35.080><c>and</c>
+
+00:07:35.150 --> 00:07:35.160 align:start position:0%
+hope that you people will go to the first video and
+ 
+
+00:07:35.160 --> 00:07:36.790 align:start position:0%
+hope that you people will go to the first video and
+leave <00:07:35.489><c>your </c><00:07:35.818><c>review </c><00:07:36.147><c>comment </c><00:07:36.476><c>because</c>
+
+00:07:36.790 --> 00:07:36.800 align:start position:0%
+leave your review comment because
+ 
+
+00:07:36.800 --> 00:07:39.390 align:start position:0%
+leave your review comment because
+till <00:07:37.025><c>now </c><00:07:37.250><c>you </c><00:07:37.475><c>have </c><00:07:37.700><c>watched </c><00:07:37.925><c>this </c><00:07:38.150><c>course </c><00:07:38.375><c>for </c><00:07:38.600><c>37 </c><00:07:38.825><c>consecutive </c><00:07:39.050><c>days, </c><00:07:39.275><c>for</c>
+
+00:07:39.390 --> 00:07:39.400 align:start position:0%
+till now you have watched this course for 37 consecutive days, for
+ 
+
+00:07:39.400 --> 00:07:41.270 align:start position:0%
+till now you have watched this course for 37 consecutive days, for
+now <00:07:39.640><c>this  </c><00:07:39.880><c>That's </c><00:07:40.120><c>all </c><00:07:40.360><c>in </c><00:07:40.600><c>the </c><00:07:40.840><c>video </c><00:07:41.080><c>guys</c>
+
+00:07:41.270 --> 00:07:41.280 align:start position:0%
+now this  That's all in the video guys
+ 
+
+00:07:41.280 --> 00:07:43.230 align:start position:0%
+now this  That's all in the video guys
+thank <00:07:41.560><c>you </c><00:07:41.840><c>so </c><00:07:42.120><c>much </c><00:07:42.400><c>guys </c><00:07:42.680><c>for </c><00:07:42.960><c>watching</c>
+
+00:07:43.230 --> 00:07:43.240 align:start position:0%
+thank you so much guys for watching
+ 
+
+00:07:43.240 --> 00:07:47.240 align:start position:0%
+thank you so much guys for watching
+this <00:07:43.550><c>video </c><00:07:43.860><c>and </c><00:07:44.170><c>I </c><00:07:44.480><c>will </c><00:07:44.790><c>see </c><00:07:45.100><c>you </c><00:07:45.410><c>next </c><00:07:45.720><c>time</c>
+
+00:07:47.240 --> 00:07:47.250 align:start position:0%
+this video and I will see you next time
+ 
+
+00:07:47.250 --> 00:08:06.720 align:start position:0%
+this video and I will see you next time
+[music]
+

@@ -1,0 +1,1544 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:00.000 --> 00:00:02.389 align:start position:0%
+ 
+We <00:00:00.246><c>all </c><00:00:00.492><c>saw </c><00:00:00.738><c>functions </c><00:00:00.984><c>and </c><00:00:01.230><c>had </c><00:00:01.476><c>a </c><00:00:01.722><c>lot </c><00:00:01.968><c>of </c><00:00:02.214><c>fun</c>
+
+00:00:02.389 --> 00:00:02.399 align:start position:0%
+We all saw functions and had a lot of fun
+ 
+
+00:00:02.399 --> 00:00:04.309 align:start position:0%
+We all saw functions and had a lot of fun
+learning <00:00:02.849><c>about </c><00:00:03.299><c>functions. </c><00:00:03.749><c>Today </c><00:00:04.199><c>I'll</c>
+
+00:00:04.309 --> 00:00:04.319 align:start position:0%
+learning about functions. Today I'll
+ 
+
+00:00:04.319 --> 00:00:05.690 align:start position:0%
+learning about functions. Today I'll
+tell <00:00:04.779><c>you </c><00:00:05.239><c>about </c><00:00:05.699><c>records.</c>
+
+00:00:05.690 --> 00:00:05.700 align:start position:0%
+tell you about records.
+ 
+
+00:00:05.700 --> 00:00:07.849 align:start position:0%
+tell you about records.
+Rejections <00:00:06.040><c>are </c><00:00:06.380><c>basically </c><00:00:06.720><c>functions, </c><00:00:07.060><c>but </c><00:00:07.400><c>if </c><00:00:07.740><c>you</c>
+
+00:00:07.849 --> 00:00:07.859 align:start position:0%
+Rejections are basically functions, but if you
+ 
+
+00:00:07.859 --> 00:00:10.250 align:start position:0%
+Rejections are basically functions, but if you
+call <00:00:08.159><c>a </c><00:00:08.459><c>function </c><00:00:08.759><c>from </c><00:00:09.059><c>within </c><00:00:09.359><c>a </c><00:00:09.659><c>function, </c><00:00:09.959><c>it's</c>
+
+00:00:10.250 --> 00:00:10.260 align:start position:0%
+call a function from within a function, it's
+ 
+
+00:00:10.260 --> 00:00:11.990 align:start position:0%
+call a function from within a function, it's
+called <00:00:11.040><c>rejection. </c><00:00:11.820><c>This</c>
+
+00:00:11.990 --> 00:00:12.000 align:start position:0%
+called rejection. This
+ 
+
+00:00:12.000 --> 00:00:13.669 align:start position:0%
+called rejection. This
+topic <00:00:12.375><c>boggles </c><00:00:12.750><c>many </c><00:00:13.125><c>people's </c><00:00:13.500><c>minds,</c>
+
+00:00:13.669 --> 00:00:13.679 align:start position:0%
+topic boggles many people's minds,
+ 
+
+00:00:13.679 --> 00:00:15.589 align:start position:0%
+topic boggles many people's minds,
+but <00:00:13.859><c>it's </c><00:00:14.039><c>so </c><00:00:14.219><c>easy. </c><00:00:14.399><c>After </c><00:00:14.579><c>this </c><00:00:14.759><c>video, </c><00:00:14.939><c>you'll </c><00:00:15.119><c>be </c><00:00:15.299><c>able </c><00:00:15.479><c>to</c>
+
+00:00:15.589 --> 00:00:15.599 align:start position:0%
+but it's so easy. After this video, you'll be able to
+ 
+
+00:00:15.599 --> 00:00:16.970 align:start position:0%
+but it's so easy. After this video, you'll be able to
+appreciate <00:00:15.799><c>it. </c><00:00:15.999><c>Let's </c><00:00:16.199><c>go </c><00:00:16.399><c>to </c><00:00:16.599><c>the </c><00:00:16.799><c>computer</c>
+
+00:00:16.970 --> 00:00:16.980 align:start position:0%
+appreciate it. Let's go to the computer
+ 
+
+00:00:16.980 --> 00:00:18.890 align:start position:0%
+appreciate it. Let's go to the computer
+screen <00:00:17.328><c>and </c><00:00:17.676><c>see </c><00:00:18.024><c>how </c><00:00:18.372><c>records </c><00:00:18.720><c>are</c>
+
+00:00:18.890 --> 00:00:18.900 align:start position:0%
+screen and see how records are
+ 
+
+00:00:18.900 --> 00:00:20.929 align:start position:0%
+screen and see how records are
+written <00:00:19.380><c>in </c><00:00:19.860><c>Python. </c><00:00:20.340><c>Let's </c><00:00:20.820><c>get</c>
+
+00:00:20.929 --> 00:00:20.939 align:start position:0%
+written in Python. Let's get
+ 
+
+00:00:20.939 --> 00:00:22.500 align:start position:0%
+written in Python. Let's get
+started.
+
+00:00:22.500 --> 00:00:22.510 align:start position:0%
+started.
+ 
+
+00:00:22.510 --> 00:00:30.589 align:start position:0%
+started.
+[Music]
+
+00:00:30.589 --> 00:00:30.599 align:start position:0%
+[Music]
+ 
+
+00:00:30.599 --> 00:00:32.810 align:start position:0%
+[Music]
+We've <00:00:30.929><c>seen </c><00:00:31.259><c>the </c><00:00:31.589><c>functions </c><00:00:31.919><c>so </c><00:00:32.249><c>far. </c><00:00:32.579><c>Let's</c>
+
+00:00:32.810 --> 00:00:32.820 align:start position:0%
+We've seen the functions so far. Let's
+ 
+
+00:00:32.820 --> 00:00:35.090 align:start position:0%
+We've seen the functions so far. Let's
+run <00:00:33.520><c>them </c><00:00:34.220><c>once. </c><00:00:34.920><c>Can</c>
+
+00:00:35.090 --> 00:00:35.100 align:start position:0%
+run them once. Can
+ 
+
+00:00:35.100 --> 00:00:37.010 align:start position:0%
+run them once. Can
+we <00:00:35.263><c>call </c><00:00:35.426><c>a </c><00:00:35.589><c>function </c><00:00:35.752><c>inside </c><00:00:35.915><c>a </c><00:00:36.078><c>function? </c><00:00:36.241><c>If </c><00:00:36.404><c>you </c><00:00:36.567><c>apply </c><00:00:36.730><c>a </c><00:00:36.893><c>little</c>
+
+00:00:37.010 --> 00:00:37.020 align:start position:0%
+we call a function inside a function? If you apply a little
+ 
+
+00:00:37.020 --> 00:00:38.810 align:start position:0%
+we call a function inside a function? If you apply a little
+common <00:00:37.344><c>sense, </c><00:00:37.668><c>you'll </c><00:00:37.992><c>get </c><00:00:38.316><c>the </c><00:00:38.640><c>answer,</c>
+
+00:00:38.810 --> 00:00:38.820 align:start position:0%
+common sense, you'll get the answer,
+ 
+
+00:00:38.820 --> 00:00:41.690 align:start position:0%
+common sense, you'll get the answer,
+yes, <00:00:39.222><c>if </c><00:00:39.624><c>I </c><00:00:40.026><c>create </c><00:00:40.428><c>a </c><00:00:40.830><c>function </c><00:00:41.232><c>for </c><00:00:41.634><c>average</c>
+
+00:00:41.690 --> 00:00:41.700 align:start position:0%
+yes, if I create a function for average
+ 
+
+00:00:41.700 --> 00:00:43.729 align:start position:0%
+yes, if I create a function for average
+and <00:00:41.886><c>I </c><00:00:42.072><c>want </c><00:00:42.258><c>to </c><00:00:42.444><c>call </c><00:00:42.630><c>the </c><00:00:42.816><c>sum </c><00:00:43.002><c>function </c><00:00:43.188><c>inside </c><00:00:43.374><c>it,</c>
+
+00:00:43.729 --> 00:00:43.739 align:start position:0%
+and I want to call the sum function inside it,
+ 
+
+00:00:43.739 --> 00:00:45.470 align:start position:0%
+and I want to call the sum function inside it,
+I <00:00:44.144><c>can </c><00:00:44.549><c>definitely </c><00:00:44.954><c>do </c><00:00:45.359><c>that.</c>
+
+00:00:45.470 --> 00:00:45.480 align:start position:0%
+I can definitely do that.
+ 
+
+00:00:45.480 --> 00:00:47.150 align:start position:0%
+I can definitely do that.
+Okay, <00:00:45.792><c>there's </c><00:00:46.104><c>nothing </c><00:00:46.416><c>confusing </c><00:00:46.728><c>about </c><00:00:47.040><c>it,</c>
+
+00:00:47.150 --> 00:00:47.160 align:start position:0%
+Okay, there's nothing confusing about it,
+ 
+
+00:00:47.160 --> 00:00:50.229 align:start position:0%
+Okay, there's nothing confusing about it,
+but <00:00:47.700><c>can </c><00:00:48.240><c>I </c><00:00:48.780><c>call </c><00:00:49.320><c>a </c><00:00:49.860><c>function</c>
+
+00:00:50.229 --> 00:00:50.239 align:start position:0%
+but can I call a function
+ 
+
+00:00:50.239 --> 00:00:53.389 align:start position:0%
+but can I call a function
+inside <00:00:50.969><c>it? </c><00:00:51.699><c>This </c><00:00:52.429><c>might </c><00:00:53.159><c>seem</c>
+
+00:00:53.389 --> 00:00:53.399 align:start position:0%
+inside it? This might seem
+ 
+
+00:00:53.399 --> 00:00:54.830 align:start position:0%
+inside it? This might seem
+conjuring, <00:00:53.714><c>and </c><00:00:54.029><c>you'll </c><00:00:54.344><c>say, </c><00:00:54.659><c>"</c>
+
+00:00:54.830 --> 00:00:54.840 align:start position:0%
+conjuring, and you'll say, "
+ 
+
+00:00:54.840 --> 00:00:57.830 align:start position:0%
+conjuring, and you'll say, "
+Wait <00:00:55.225><c>a </c><00:00:55.610><c>minute, </c><00:00:55.995><c>I </c><00:00:56.380><c>created </c><00:00:56.765><c>a </c><00:00:57.150><c>function </c><00:00:57.535><c>to</c>
+
+00:00:57.830 --> 00:00:57.840 align:start position:0%
+Wait a minute, I created a function to
+ 
+
+00:00:57.840 --> 00:01:00.049 align:start position:0%
+Wait a minute, I created a function to
+call <00:00:58.274><c>it, </c><00:00:58.708><c>so </c><00:00:59.142><c>inside </c><00:00:59.576><c>it."</c>
+
+00:01:00.049 --> 00:01:00.059 align:start position:0%
+call it, so inside it."
+ 
+
+00:01:00.059 --> 00:01:02.029 align:start position:0%
+call it, so inside it."
+Why <00:01:00.316><c>are </c><00:01:00.573><c>you </c><00:01:00.830><c>calling </c><00:01:01.087><c>yourself </c><00:01:01.344><c>that? </c><00:01:01.601><c>Let </c><00:01:01.858><c>me</c>
+
+00:01:02.029 --> 00:01:02.039 align:start position:0%
+Why are you calling yourself that? Let me
+ 
+
+00:01:02.039 --> 00:01:03.110 align:start position:0%
+Why are you calling yourself that? Let me
+explain <00:01:02.219><c>and </c><00:01:02.399><c>I </c><00:01:02.579><c>will </c><00:01:02.759><c>tell </c><00:01:02.939><c>you </c><00:01:03.119><c>guys</c>
+
+00:01:03.110 --> 00:01:03.120 align:start position:0%
+explain and I will tell you guys
+ 
+
+00:01:03.120 --> 00:01:06.170 align:start position:0%
+explain and I will tell you guys
+where <00:01:03.408><c>and </c><00:01:03.696><c>in </c><00:01:03.984><c>which </c><00:01:04.272><c>women </c><00:01:04.560><c>this </c><00:01:04.848><c>happens. </c><00:01:05.136><c>I </c><00:01:05.424><c>will </c><00:01:05.712><c>take </c><00:01:06.000><c>a</c>
+
+00:01:06.170 --> 00:01:06.180 align:start position:0%
+where and in which women this happens. I will take a
+ 
+
+00:01:06.180 --> 00:01:07.730 align:start position:0%
+where and in which women this happens. I will take a
+very <00:01:06.870><c>simple </c><00:01:07.560><c>example</c>
+
+00:01:07.730 --> 00:01:07.740 align:start position:0%
+very simple example
+ 
+
+00:01:07.740 --> 00:01:09.649 align:start position:0%
+very simple example
+first <00:01:07.997><c>and </c><00:01:08.254><c>then </c><00:01:08.511><c>I </c><00:01:08.768><c>will </c><00:01:09.025><c>tell </c><00:01:09.282><c>you </c><00:01:09.539><c>guys.</c>
+
+00:01:09.649 --> 00:01:09.659 align:start position:0%
+first and then I will tell you guys.
+ 
+
+00:01:09.659 --> 00:01:13.010 align:start position:0%
+first and then I will tell you guys.
+Okay, <00:01:10.189><c>now </c><00:01:10.719><c>look, </c><00:01:11.249><c>let </c><00:01:11.779><c>me </c><00:01:12.309><c>talk </c><00:01:12.839><c>about</c>
+
+00:01:13.010 --> 00:01:13.020 align:start position:0%
+Okay, now look, let me talk about
+ 
+
+00:01:13.020 --> 00:01:14.750 align:start position:0%
+Okay, now look, let me talk about
+factorial. <00:01:13.410><c>If </c><00:01:13.800><c>you </c><00:01:14.190><c>don't </c><00:01:14.580><c>know</c>
+
+00:01:14.750 --> 00:01:14.760 align:start position:0%
+factorial. If you don't know
+ 
+
+00:01:14.760 --> 00:01:16.250 align:start position:0%
+factorial. If you don't know
+what <00:01:14.925><c>a </c><00:01:15.090><c>factorial </c><00:01:15.255><c>is, </c><00:01:15.420><c>then </c><00:01:15.585><c>I </c><00:01:15.750><c>will </c><00:01:15.915><c>tell </c><00:01:16.080><c>you</c>
+
+00:01:16.250 --> 00:01:16.260 align:start position:0%
+what a factorial is, then I will tell you
+ 
+
+00:01:16.260 --> 00:01:19.149 align:start position:0%
+what a factorial is, then I will tell you
+what <00:01:16.692><c>a </c><00:01:17.124><c>factorial </c><00:01:17.556><c>is. </c><00:01:17.988><c>I </c><00:01:18.420><c>will</c>
+
+00:01:19.149 --> 00:01:19.159 align:start position:0%
+what a factorial is. I will
+ 
+
+00:01:19.159 --> 00:01:22.010 align:start position:0%
+what a factorial is. I will
+make <00:01:19.619><c>a </c><00:01:20.079><c>comment </c><00:01:20.539><c>here. </c><00:01:20.999><c>You</c>
+
+00:01:22.010 --> 00:01:22.020 align:start position:0%
+make a comment here. You
+ 
+
+00:01:22.020 --> 00:01:24.050 align:start position:0%
+make a comment here. You
+know, <00:01:22.245><c>if </c><00:01:22.470><c>I </c><00:01:22.695><c>talk </c><00:01:22.920><c>about </c><00:01:23.145><c>factorial </c><00:01:23.370><c>of </c><00:01:23.595><c>seven, </c><00:01:23.820><c>then</c>
+
+00:01:24.050 --> 00:01:24.060 align:start position:0%
+know, if I talk about factorial of seven, then
+ 
+
+00:01:24.060 --> 00:01:27.050 align:start position:0%
+know, if I talk about factorial of seven, then
+factorial <00:01:24.470><c>of </c><00:01:24.880><c>7 </c><00:01:25.290><c>means </c><00:01:25.700><c>7 </c><00:01:26.110><c>* </c><00:01:26.520><c>6</c>
+
+00:01:27.050 --> 00:01:27.060 align:start position:0%
+factorial of 7 means 7 * 6
+ 
+
+00:01:27.060 --> 00:01:33.530 align:start position:0%
+factorial of 7 means 7 * 6
+* <00:01:27.549><c>5 </c><00:01:28.038><c>* </c><00:01:28.527><c>4 </c><00:01:29.016><c>* </c><00:01:29.505><c>3 </c><00:01:29.994><c>* </c><00:01:30.483><c>2 </c><00:01:30.972><c>* </c><00:01:31.461><c>1. </c><00:01:31.950><c>Okay, </c><00:01:32.439><c>this </c><00:01:32.928><c>is </c><00:01:33.417><c>the</c>
+
+00:01:33.530 --> 00:01:33.540 align:start position:0%
+* 5 * 4 * 3 * 2 * 1. Okay, this is the
+ 
+
+00:01:33.540 --> 00:01:36.109 align:start position:0%
+* 5 * 4 * 3 * 2 * 1. Okay, this is the
+factorial <00:01:34.339><c>of </c><00:01:35.138><c>seven </c><00:01:35.937><c>and</c>
+
+00:01:36.109 --> 00:01:36.119 align:start position:0%
+factorial of seven and
+ 
+
+00:01:36.119 --> 00:01:37.910 align:start position:0%
+factorial of seven and
+I <00:01:36.285><c>don't </c><00:01:36.451><c>know </c><00:01:36.617><c>what </c><00:01:36.783><c>its </c><00:01:36.949><c>value </c><00:01:37.115><c>will </c><00:01:37.281><c>be. </c><00:01:37.447><c>You </c><00:01:37.613><c>can</c>
+
+00:01:37.910 --> 00:01:37.920 align:start position:0%
+I don't know what its value will be. You can
+ 
+
+00:01:37.920 --> 00:01:39.350 align:start position:0%
+I don't know what its value will be. You can
+calculate <00:01:38.319><c>it. </c><00:01:38.718><c>Okay, </c><00:01:39.117><c>whatever</c>
+
+00:01:39.350 --> 00:01:39.360 align:start position:0%
+calculate it. Okay, whatever
+ 
+
+00:01:39.360 --> 00:01:41.569 align:start position:0%
+calculate it. Okay, whatever
+comes <00:01:39.768><c>after </c><00:01:40.176><c>multiplying </c><00:01:40.584><c>these, </c><00:01:40.992><c>if </c><00:01:41.400><c>I</c>
+
+00:01:41.569 --> 00:01:41.579 align:start position:0%
+comes after multiplying these, if I
+ 
+
+00:01:41.579 --> 00:01:43.730 align:start position:0%
+comes after multiplying these, if I
+talk <00:01:41.749><c>about </c><00:01:41.919><c>factorial </c><00:01:42.089><c>6, </c><00:01:42.259><c>then </c><00:01:42.429><c>I </c><00:01:42.599><c>will </c><00:01:42.769><c>keep </c><00:01:42.939><c>multiplying </c><00:01:43.109><c>from </c><00:01:43.279><c>six </c><00:01:43.449><c>to </c><00:01:43.619><c>one</c>
+
+00:01:43.730 --> 00:01:43.740 align:start position:0%
+talk about factorial 6, then I will keep multiplying from six to one
+ 
+
+00:01:43.740 --> 00:01:45.710 align:start position:0%
+talk about factorial 6, then I will keep multiplying from six to one
+and
+
+00:01:45.710 --> 00:01:45.720 align:start position:0%
+and
+ 
+
+00:01:45.720 --> 00:01:47.749 align:start position:0%
+and
+I <00:01:45.915><c>will </c><00:01:46.110><c>get </c><00:01:46.305><c>the </c><00:01:46.500><c>value </c><00:01:46.695><c>of </c><00:01:46.890><c>the </c><00:01:47.085><c>factorial. </c><00:01:47.280><c>Okay,</c>
+
+00:01:47.749 --> 00:01:47.759 align:start position:0%
+I will get the value of the factorial. Okay,
+ 
+
+00:01:47.759 --> 00:01:50.030 align:start position:0%
+I will get the value of the factorial. Okay,
+similarly, <00:01:48.076><c>if </c><00:01:48.393><c>I </c><00:01:48.710><c>talk </c><00:01:49.027><c>about </c><00:01:49.344><c>factorial </c><00:01:49.661><c>5, </c><00:01:49.978><c>then</c>
+
+00:01:50.030 --> 00:01:50.040 align:start position:0%
+similarly, if I talk about factorial 5, then
+ 
+
+00:01:50.040 --> 00:01:54.050 align:start position:0%
+similarly, if I talk about factorial 5, then
+I <00:01:50.389><c>will </c><00:01:50.738><c>have </c><00:01:51.087><c>to </c><00:01:51.436><c>calculate </c><00:01:51.785><c>this </c><00:01:52.134><c>one.  </c><00:01:52.483><c>If </c><00:01:52.832><c>I </c><00:01:53.181><c>want </c><00:01:53.530><c>to </c><00:01:53.879><c>get</c>
+
+00:01:54.050 --> 00:01:54.060 align:start position:0%
+I will have to calculate this one.  If I want to get
+ 
+
+00:01:54.060 --> 00:01:55.850 align:start position:0%
+I will have to calculate this one.  If I want to get
+5
+
+00:01:55.850 --> 00:01:55.860 align:start position:0%
+5
+ 
+
+00:01:55.860 --> 00:02:01.450 align:start position:0%
+5
+then <00:01:56.211><c>from </c><00:01:56.562><c>end </c><00:01:56.913><c>I </c><00:01:57.264><c>go </c><00:01:57.615><c>for </c><00:01:57.966><c>factorial </c><00:01:58.317><c>4</c>
+
+00:02:01.450 --> 00:02:01.460 align:start position:0%
+ 
+ 
+
+00:02:01.460 --> 00:02:21.229 align:start position:0%
+ 
+okay <00:02:01.710><c>this </c><00:02:01.960><c>is </c><00:02:02.210><c>the </c><00:02:02.460><c>definition</c>
+
+00:02:21.229 --> 00:02:21.239 align:start position:0%
+ 
+ 
+
+00:02:21.239 --> 00:02:24.369 align:start position:0%
+ 
+so <00:02:21.531><c>I </c><00:02:21.823><c>will </c><00:02:22.115><c>first </c><00:02:22.407><c>get </c><00:02:22.699><c>the </c><00:02:22.991><c>factorial </c><00:02:23.283><c>by </c><00:02:23.575><c>taking</c>
+
+00:02:24.369 --> 00:02:24.379 align:start position:0%
+so I will first get the factorial by taking
+ 
+
+00:02:24.379 --> 00:02:27.650 align:start position:0%
+so I will first get the factorial by taking
+that <00:02:24.736><c>number </c><00:02:25.093><c>minus </c><00:02:25.450><c>one </c><00:02:25.807><c>and </c><00:02:26.164><c>multiplying </c><00:02:26.521><c>it </c><00:02:26.878><c>by </c><00:02:27.235><c>n</c>
+
+00:02:27.650 --> 00:02:27.660 align:start position:0%
+that number minus one and multiplying it by n
+ 
+
+00:02:27.660 --> 00:02:30.830 align:start position:0%
+that number minus one and multiplying it by n
+if <00:02:28.560><c>you </c><00:02:29.460><c>guys </c><00:02:30.360><c>do</c>
+
+00:02:30.830 --> 00:02:30.840 align:start position:0%
+if you guys do
+ 
+
+00:02:30.840 --> 00:02:32.750 align:start position:0%
+if you guys do
+n't <00:02:31.088><c>have </c><00:02:31.336><c>a </c><00:02:31.584><c>mathematical </c><00:02:31.832><c>background </c><00:02:32.080><c>you </c><00:02:32.328><c>know </c><00:02:32.576><c>maths</c>
+
+00:02:32.750 --> 00:02:32.760 align:start position:0%
+n't have a mathematical background you know maths
+ 
+
+00:02:32.760 --> 00:02:34.850 align:start position:0%
+n't have a mathematical background you know maths
+or <00:02:33.225><c>at </c><00:02:33.690><c>least </c><00:02:34.155><c>you </c><00:02:34.620><c>have</c>
+
+00:02:34.850 --> 00:02:34.860 align:start position:0%
+or at least you have
+ 
+
+00:02:34.860 --> 00:02:37.369 align:start position:0%
+or at least you have
+learnt <00:02:35.055><c>maths </c><00:02:35.250><c>in </c><00:02:35.445><c>your </c><00:02:35.640><c>life </c><00:02:35.835><c>then </c><00:02:36.030><c>it </c><00:02:36.225><c>will </c><00:02:36.420><c>take </c><00:02:36.615><c>a </c><00:02:36.810><c>little </c><00:02:37.005><c>hunting </c><00:02:37.200><c>look</c>
+
+00:02:37.369 --> 00:02:37.379 align:start position:0%
+learnt maths in your life then it will take a little hunting look
+ 
+
+00:02:37.379 --> 00:02:41.750 align:start position:0%
+learnt maths in your life then it will take a little hunting look
+above <00:02:38.079><c>can't </c><00:02:38.779><c>I </c><00:02:39.479><c>write </c><00:02:40.179><c>factorial </c><00:02:40.879><c>7 </c><00:02:41.579><c>as</c>
+
+00:02:41.750 --> 00:02:41.760 align:start position:0%
+above can't I write factorial 7 as
+ 
+
+00:02:41.760 --> 00:02:44.869 align:start position:0%
+above can't I write factorial 7 as
+7 <00:02:42.250><c>* </c><00:02:42.740><c>6 </c><00:02:43.230><c>see </c><00:02:43.720><c>what </c><00:02:44.210><c>I </c><00:02:44.700><c>have</c>
+
+00:02:44.869 --> 00:02:44.879 align:start position:0%
+7 * 6 see what I have
+ 
+
+00:02:44.879 --> 00:02:47.089 align:start position:0%
+7 * 6 see what I have
+highlighted <00:02:45.131><c>is </c><00:02:45.383><c>factorial </c><00:02:45.635><c>six </c><00:02:45.887><c>is ​​</c><00:02:46.139><c>it</c>
+
+00:02:47.089 --> 00:02:47.099 align:start position:0%
+highlighted is factorial six is ​​it
+ 
+
+00:02:47.099 --> 00:02:49.430 align:start position:0%
+highlighted is factorial six is ​​it
+or <00:02:47.339><c>not </c><00:02:47.579><c>and </c><00:02:47.819><c>if </c><00:02:48.059><c>you </c><00:02:48.299><c>guys </c><00:02:48.539><c>think </c><00:02:48.779><c>a </c><00:02:49.019><c>little </c><00:02:49.259><c>then</c>
+
+00:02:49.430 --> 00:02:49.440 align:start position:0%
+or not and if you guys think a little then
+ 
+
+00:02:49.440 --> 00:02:51.589 align:start position:0%
+or not and if you guys think a little then
+you <00:02:49.662><c>will </c><00:02:49.884><c>get </c><00:02:50.106><c>the </c><00:02:50.328><c>answer </c><00:02:50.550><c>yes </c><00:02:50.772><c>can't </c><00:02:50.994><c>I</c>
+
+00:02:51.589 --> 00:02:51.599 align:start position:0%
+you will get the answer yes can't I
+ 
+
+00:02:51.599 --> 00:02:55.190 align:start position:0%
+you will get the answer yes can't I
+write <00:02:51.888><c>factorial </c><00:02:52.177><c>six </c><00:02:52.466><c>as </c><00:02:52.755><c>6 </c><00:02:53.044><c>* </c><00:02:53.333><c>5 </c><00:02:53.622><c>definitely </c><00:02:53.911><c>I </c><00:02:54.200><c>can</c>
+
+00:02:55.190 --> 00:02:55.200 align:start position:0%
+write factorial six as 6 * 5 definitely I can
+ 
+
+00:02:55.200 --> 00:02:57.229 align:start position:0%
+write factorial six as 6 * 5 definitely I can
+write <00:02:55.450><c>it </c><00:02:55.700><c>so </c><00:02:55.950><c>this </c><00:02:56.200><c>formula </c><00:02:56.450><c>is </c><00:02:56.700><c>pos</c>
+
+00:02:57.229 --> 00:02:57.239 align:start position:0%
+write it so this formula is pos
+ 
+
+00:02:57.239 --> 00:02:59.030 align:start position:0%
+write it so this formula is pos
+correct <00:02:57.563><c>okay </c><00:02:57.887><c>it </c><00:02:58.211><c>is </c><00:02:58.535><c>absolutely </c><00:02:58.859><c>correct</c>
+
+00:02:59.030 --> 00:02:59.040 align:start position:0%
+correct okay it is absolutely correct
+ 
+
+00:02:59.040 --> 00:03:01.610 align:start position:0%
+correct okay it is absolutely correct
+absolutely <00:02:59.565><c>correct </c><00:03:00.090><c>use </c><00:03:00.615><c>this </c><00:03:01.140><c>information</c>
+
+00:03:01.610 --> 00:03:01.620 align:start position:0%
+absolutely correct use this information
+ 
+
+00:03:01.620 --> 00:03:21.770 align:start position:0%
+absolutely correct use this information
+
+
+00:03:21.770 --> 00:03:21.780 align:start position:0%
+ 
+ 
+
+00:03:21.780 --> 00:03:24.290 align:start position:0%
+ 
+if <00:03:22.080><c>their </c><00:03:22.380><c>value </c><00:03:22.680><c>is </c><00:03:22.980><c>zero </c><00:03:23.280><c>then </c><00:03:23.580><c>I </c><00:03:23.880><c>will </c><00:03:24.180><c>return</c>
+
+00:03:24.290 --> 00:03:25.449 align:start position:0%
+if their value is zero then I will return
+ 
+
+00:03:25.449 --> 00:03:25.459 align:start position:0%
+ 
+ 
+
+00:03:25.459 --> 00:03:33.490 align:start position:0%
+ 
+and
+
+00:03:33.490 --> 00:03:33.500 align:start position:0%
+ 
+ 
+
+00:03:33.500 --> 00:03:48.970 align:start position:0%
+ 
+what <00:03:33.865><c>will </c><00:03:34.230><c>be </c><00:03:34.595><c>the </c><00:03:34.960><c>value </c><00:03:35.325><c>of </c><00:03:35.690><c>l </c><00:03:36.055><c>will</c>
+
+00:03:48.970 --> 00:03:48.980 align:start position:0%
+ 
+ 
+
+00:03:48.980 --> 00:03:51.649 align:start position:0%
+ 
+calculate <00:03:49.292><c>the </c><00:03:49.604><c>return </c><00:03:49.916><c>and </c><00:03:50.228><c>give </c><00:03:50.540><c>the </c><00:03:50.852><c>function </c><00:03:51.164><c>will </c><00:03:51.476><c>Python</c>
+
+00:03:51.649 --> 00:03:51.659 align:start position:0%
+calculate the return and give the function will Python
+ 
+
+00:03:51.659 --> 00:03:54.890 align:start position:0%
+calculate the return and give the function will Python
+accept <00:03:52.679><c>the </c><00:03:53.699><c>fact </c><00:03:54.719><c>that</c>
+
+00:03:54.890 --> 00:03:54.900 align:start position:0%
+accept the fact that
+ 
+
+00:03:54.900 --> 00:03:56.750 align:start position:0%
+accept the fact that
+inside <00:03:55.012><c>factorial </c><00:03:55.124><c>n </c><00:03:55.236><c>I </c><00:03:55.348><c>have </c><00:03:55.460><c>called </c><00:03:55.572><c>factorial </c><00:03:55.684><c>n </c><00:03:55.796><c>- </c><00:03:55.908><c>1 </c><00:03:56.020><c>that </c><00:03:56.132><c>is </c><00:03:56.244><c>I </c><00:03:56.356><c>have </c><00:03:56.468><c>called </c><00:03:56.580><c>the</c>
+
+00:03:56.750 --> 00:03:56.760 align:start position:0%
+inside factorial n I have called factorial n - 1 that is I have called the
+ 
+
+00:03:56.760 --> 00:03:58.970 align:start position:0%
+inside factorial n I have called factorial n - 1 that is I have called the
+function <00:03:57.749><c>from  </c><00:03:58.738><c>I</c>
+
+00:03:58.970 --> 00:03:58.980 align:start position:0%
+function from  I
+ 
+
+00:03:58.980 --> 00:04:03.649 align:start position:0%
+function from  I
+called <00:03:59.159><c>it </c><00:03:59.338><c>inside </c><00:03:59.517><c>it.</c>
+
+00:04:03.649 --> 00:04:03.659 align:start position:0%
+ 
+ 
+
+00:04:03.659 --> 00:04:05.869 align:start position:0%
+ 
+Now <00:04:03.879><c>let </c><00:04:04.099><c>me </c><00:04:04.319><c>show </c><00:04:04.539><c>you </c><00:04:04.759><c>that </c><00:04:04.979><c>if </c><00:04:05.199><c>I </c><00:04:05.419><c>print </c><00:04:05.639><c>the</c>
+
+00:04:05.869 --> 00:04:07.149 align:start position:0%
+Now let me show you that if I print the
+ 
+
+00:04:07.149 --> 00:04:07.159 align:start position:0%
+ 
+ 
+
+00:04:07.159 --> 00:04:10.369 align:start position:0%
+ 
+factorial <00:04:07.496><c>of </c><00:04:07.833><c>three, </c><00:04:08.170><c>I </c><00:04:08.507><c>did </c><00:04:08.844><c>this </c><00:04:09.181><c>so </c><00:04:09.518><c>that </c><00:04:09.855><c>we </c><00:04:10.192><c>can</c>
+
+00:04:10.369 --> 00:04:10.379 align:start position:0%
+factorial of three, I did this so that we can
+ 
+
+00:04:10.379 --> 00:04:13.070 align:start position:0%
+factorial of three, I did this so that we can
+evaluate <00:04:11.339><c>it </c><00:04:12.299><c>ourselves.</c>
+
+00:04:13.070 --> 00:04:13.080 align:start position:0%
+evaluate it ourselves.
+ 
+
+00:04:13.080 --> 00:04:16.310 align:start position:0%
+evaluate it ourselves.
+And <00:04:13.589><c>four </c><00:04:14.098><c>and </c><00:04:14.607><c>five, </c><00:04:15.116><c>now </c><00:04:15.625><c>you </c><00:04:16.134><c>see,</c>
+
+00:04:16.310 --> 00:04:16.320 align:start position:0%
+And four and five, now you see,
+ 
+
+00:04:16.320 --> 00:04:19.430 align:start position:0%
+And four and five, now you see,
+when <00:04:16.653><c>I </c><00:04:16.986><c>tried </c><00:04:17.319><c>to </c><00:04:17.652><c>calculate </c><00:04:17.985><c>three, </c><00:04:18.318><c>I </c><00:04:18.651><c>got </c><00:04:18.984><c>3 </c><00:04:19.317><c>*</c>
+
+00:04:19.430 --> 00:04:19.440 align:start position:0%
+when I tried to calculate three, I got 3 *
+ 
+
+00:04:19.440 --> 00:04:24.050 align:start position:0%
+when I tried to calculate three, I got 3 *
+2 <00:04:20.340><c>* </c><00:04:21.240><c>1 </c><00:04:22.140><c>= </c><00:04:23.040><c>6. </c><00:04:23.940><c>Here,</c>
+
+00:04:24.050 --> 00:04:24.060 align:start position:0%
+2 * 1 = 6. Here,
+ 
+
+00:04:24.060 --> 00:04:25.850 align:start position:0%
+2 * 1 = 6. Here,
+if <00:04:24.255><c>I </c><00:04:24.450><c>tried </c><00:04:24.645><c>to </c><00:04:24.840><c>calculate </c><00:04:25.035><c>4, </c><00:04:25.230><c>I </c><00:04:25.425><c>got </c><00:04:25.620><c>4</c>
+
+00:04:25.850 --> 00:04:25.860 align:start position:0%
+if I tried to calculate 4, I got 4
+ 
+
+00:04:25.860 --> 00:04:29.090 align:start position:0%
+if I tried to calculate 4, I got 4
+* <00:04:26.242><c>3 </c><00:04:26.624><c>* </c><00:04:27.006><c>2 </c><00:04:27.388><c>* </c><00:04:27.770><c>1 </c><00:04:28.152><c>which </c><00:04:28.534><c>is </c><00:04:28.916><c>24.</c>
+
+00:04:29.090 --> 00:04:29.100 align:start position:0%
+* 3 * 2 * 1 which is 24.
+ 
+
+00:04:29.100 --> 00:04:31.850 align:start position:0%
+* 3 * 2 * 1 which is 24.
+Factorial <00:04:29.580><c>five, </c><00:04:30.060><c>which </c><00:04:30.540><c>was </c><00:04:31.020><c>5000, </c><00:04:31.500><c>23,</c>
+
+00:04:31.850 --> 00:04:31.860 align:start position:0%
+Factorial five, which was 5000, 23,
+ 
+
+00:04:31.860 --> 00:04:35.650 align:start position:0%
+Factorial five, which was 5000, 23,
+62, <00:04:32.249><c>120, </c><00:04:32.638><c>I </c><00:04:33.027><c>got </c><00:04:33.416><c>it </c><00:04:33.805><c>here. </c><00:04:34.194><c>Okay, </c><00:04:34.583><c>so </c><00:04:34.972><c>what</c>
+
+00:04:35.650 --> 00:04:35.660 align:start position:0%
+62, 120, I got it here. Okay, so what
+ 
+
+00:04:35.660 --> 00:04:38.450 align:start position:0%
+62, 120, I got it here. Okay, so what
+we <00:04:36.148><c>did </c><00:04:36.636><c>here </c><00:04:37.124><c>was </c><00:04:37.612><c>that </c><00:04:38.100><c>we</c>
+
+00:04:38.450 --> 00:04:38.460 align:start position:0%
+we did here was that we
+ 
+
+00:04:38.460 --> 00:04:41.810 align:start position:0%
+we did here was that we
+called <00:04:38.732><c>the </c><00:04:39.004><c>same </c><00:04:39.276><c>function </c><00:04:39.548><c>inside </c><00:04:39.820><c>a </c><00:04:40.092><c>function </c><00:04:40.364><c>but </c><00:04:40.636><c>with </c><00:04:40.908><c>different </c><00:04:41.180><c>arguments, </c><00:04:41.452><c>with</c>
+
+00:04:41.810 --> 00:04:41.820 align:start position:0%
+called the same function inside a function but with different arguments, with
+ 
+
+00:04:41.820 --> 00:04:44.150 align:start position:0%
+called the same function inside a function but with different arguments, with
+n <00:04:42.179><c>- </c><00:04:42.538><c>1 </c><00:04:42.897><c>arguments. </c><00:04:43.256><c>So, </c><00:04:43.615><c>let </c><00:04:43.974><c>me</c>
+
+00:04:44.150 --> 00:04:44.160 align:start position:0%
+n - 1 arguments. So, let me
+ 
+
+00:04:44.160 --> 00:04:46.490 align:start position:0%
+n - 1 arguments. So, let me
+explain <00:04:46.320><c>to</c>
+
+00:04:46.490 --> 00:04:46.500 align:start position:0%
+explain to
+ 
+
+00:04:46.500 --> 00:04:48.189 align:start position:0%
+explain to
+you <00:04:46.590><c>guys </c><00:04:46.680><c>how </c><00:04:46.770><c>this </c><00:04:46.860><c>function </c><00:04:46.950><c>is </c><00:04:47.040><c>working. </c><00:04:47.130><c>First </c><00:04:47.220><c>of </c><00:04:47.310><c>all, </c><00:04:47.400><c>what </c><00:04:47.490><c>will </c><00:04:47.580><c>happen </c><00:04:47.670><c>is </c><00:04:47.760><c>that </c><00:04:47.850><c>it </c><00:04:47.940><c>will</c>
+
+00:04:48.189 --> 00:04:48.199 align:start position:0%
+you guys how this function is working. First of all, what will happen is that it will
+ 
+
+00:04:48.199 --> 00:04:50.990 align:start position:0%
+you guys how this function is working. First of all, what will happen is that it will
+calculate <00:04:49.092><c>factorial </c><00:04:49.985><c>5. </c><00:04:50.878><c>Okay,</c>
+
+00:04:50.990 --> 00:04:51.000 align:start position:0%
+calculate factorial 5. Okay,
+ 
+
+00:04:51.000 --> 00:04:52.790 align:start position:0%
+calculate factorial 5. Okay,
+I <00:04:51.214><c>will </c><00:04:51.428><c>remove </c><00:04:51.642><c>both </c><00:04:51.856><c>of </c><00:04:52.070><c>these. </c><00:04:52.284><c>Let </c><00:04:52.498><c>me</c>
+
+00:04:52.790 --> 00:04:52.800 align:start position:0%
+I will remove both of these. Let me
+ 
+
+00:04:52.800 --> 00:04:54.350 align:start position:0%
+I will remove both of these. Let me
+remove <00:04:53.040><c>both </c><00:04:53.280><c>of </c><00:04:53.520><c>these. </c><00:04:53.760><c>Now, </c><00:04:54.000><c>we </c><00:04:54.240><c>are</c>
+
+00:04:54.350 --> 00:04:54.360 align:start position:0%
+remove both of these. Now, we are
+ 
+
+00:04:54.360 --> 00:04:56.210 align:start position:0%
+remove both of these. Now, we are
+calculating <00:04:54.708><c>factorial </c><00:04:55.056><c>5. </c><00:04:55.404><c>When </c><00:04:55.752><c>it </c><00:04:56.100><c>will</c>
+
+00:04:56.210 --> 00:04:56.220 align:start position:0%
+calculating factorial 5. When it will
+ 
+
+00:04:56.220 --> 00:04:58.189 align:start position:0%
+calculating factorial 5. When it will
+calculate <00:04:56.720><c>factorial </c><00:04:57.220><c>5, </c><00:04:57.720><c>then</c>
+
+00:04:58.189 --> 00:04:58.199 align:start position:0%
+calculate factorial 5, then
+ 
+
+00:04:58.199 --> 00:05:01.249 align:start position:0%
+calculate factorial 5, then
+inside <00:04:58.420><c>this  </c><00:04:58.641><c>So </c><00:04:58.862><c>he </c><00:04:59.083><c>won't </c><00:04:59.304><c>be </c><00:04:59.525><c>able </c><00:04:59.746><c>to </c><00:04:59.967><c>go </c><00:05:00.188><c>in. </c><00:05:00.409><c>If </c><00:05:00.630><c>he </c><00:05:00.851><c>goes </c><00:05:01.072><c>inside,</c>
+
+00:05:01.249 --> 00:05:01.259 align:start position:0%
+inside this  So he won't be able to go in. If he goes inside,
+ 
+
+00:05:01.259 --> 00:05:03.590 align:start position:0%
+inside this  So he won't be able to go in. If he goes inside,
+he <00:05:01.519><c>will </c><00:05:01.779><c>be </c><00:05:02.039><c>caught. </c><00:05:02.299><c>He </c><00:05:02.559><c>wanted </c><00:05:02.819><c>to</c>
+
+00:05:03.590 --> 00:05:07.090 align:start position:0%
+he will be caught. He wanted to
+ 
+
+00:05:07.090 --> 00:05:07.100 align:start position:0%
+ 
+ 
+
+00:05:07.100 --> 00:05:11.050 align:start position:0%
+ 
+
+
+00:05:11.050 --> 00:05:11.060 align:start position:0%
+ 
+ 
+
+00:05:11.060 --> 00:05:14.710 align:start position:0%
+ 
+know <00:05:11.423><c>five </c><00:05:11.786><c>multiplied </c><00:05:12.149><c>by </c><00:05:12.512><c>4, </c><00:05:12.875><c>but </c><00:05:13.238><c>do </c><00:05:13.601><c>5 </c><00:05:13.964><c>* </c><00:05:14.327><c>factorial </c><00:05:14.690><c>4.</c>
+
+00:05:14.710 --> 00:05:14.720 align:start position:0%
+know five multiplied by 4, but do 5 * factorial 4.
+ 
+
+00:05:14.720 --> 00:05:18.710 align:start position:0%
+know five multiplied by 4, but do 5 * factorial 4.
+Yes, <00:05:15.033><c>brother, </c><00:05:15.346><c>do </c><00:05:15.659><c>5 </c><00:05:15.972><c>* </c><00:05:16.285><c>4 </c><00:05:16.598><c>and </c><00:05:16.911><c>find </c><00:05:17.224><c>the </c><00:05:17.537><c>value </c><00:05:17.850><c>of </c><00:05:18.163><c>factorial </c><00:05:18.476><c>4.</c>
+
+00:05:18.710 --> 00:05:18.720 align:start position:0%
+Yes, brother, do 5 * 4 and find the value of factorial 4.
+ 
+
+00:05:18.720 --> 00:05:20.749 align:start position:0%
+Yes, brother, do 5 * 4 and find the value of factorial 4.
+Now, <00:05:19.650><c>I </c><00:05:20.580><c>will</c>
+
+00:05:20.749 --> 00:05:20.759 align:start position:0%
+Now, I will
+ 
+
+00:05:20.759 --> 00:05:22.909 align:start position:0%
+Now, I will
+go <00:05:20.875><c>again </c><00:05:20.991><c>to </c><00:05:21.107><c>find </c><00:05:21.223><c>the </c><00:05:21.339><c>value </c><00:05:21.455><c>of </c><00:05:21.571><c>factorial </c><00:05:21.687><c>4. </c><00:05:21.803><c>I </c><00:05:21.919><c>will</c>
+
+00:05:22.909 --> 00:05:22.919 align:start position:0%
+go again to find the value of factorial 4. I will
+ 
+
+00:05:22.919 --> 00:05:25.010 align:start position:0%
+go again to find the value of factorial 4. I will
+say, <00:05:23.028><c>brother, </c><00:05:23.137><c>this </c><00:05:23.246><c>time </c><00:05:23.355><c>the </c><00:05:23.464><c>value </c><00:05:23.573><c>of </c><00:05:23.682><c>n </c><00:05:23.791><c>is </c><00:05:23.900><c>4. </c><00:05:24.009><c>He </c><00:05:24.118><c>will</c>
+
+00:05:25.010 --> 00:05:25.020 align:start position:0%
+say, brother, this time the value of n is 4. He will
+ 
+
+00:05:25.020 --> 00:05:28.510 align:start position:0%
+say, brother, this time the value of n is 4. He will
+say, <00:05:25.280><c>reduce </c><00:05:25.540><c>it </c><00:05:25.800><c>by </c><00:05:26.060><c>one. </c><00:05:26.320><c>What </c><00:05:26.580><c>should </c><00:05:26.840><c>you </c><00:05:27.100><c>do? </c><00:05:27.360><c>You</c>
+
+00:05:28.510 --> 00:05:28.520 align:start position:0%
+say, reduce it by one. What should you do? You
+ 
+
+00:05:28.520 --> 00:05:31.070 align:start position:0%
+say, reduce it by one. What should you do? You
+need <00:05:28.950><c>factorial </c><00:05:29.380><c>4, </c><00:05:29.810><c>right? </c><00:05:30.240><c>For</c>
+
+00:05:31.070 --> 00:05:31.080 align:start position:0%
+need factorial 4, right? For
+ 
+
+00:05:31.080 --> 00:05:41.890 align:start position:0%
+need factorial 4, right? For
+multiplying <00:05:31.320><c>by</c>
+
+00:05:41.890 --> 00:05:41.900 align:start position:0%
+ 
+ 
+
+00:05:41.900 --> 00:05:46.070 align:start position:0%
+ 
+factorial. <00:05:43.269><c>Okay, </c><00:05:44.638><c>now</c>
+
+00:05:46.070 --> 00:05:46.080 align:start position:0%
+factorial. Okay, now
+ 
+
+00:05:46.080 --> 00:05:47.990 align:start position:0%
+factorial. Okay, now
+what <00:05:46.300><c>happens </c><00:05:46.520><c>is </c><00:05:46.740><c>that</c>
+
+00:05:47.990 --> 00:05:48.000 align:start position:0%
+what happens is that
+ 
+
+00:05:48.000 --> 00:05:50.810 align:start position:0%
+what happens is that
+factorial is one,
+
+00:05:50.810 --> 00:06:03.969 align:start position:0%
+ 
+ 
+
+00:06:03.969 --> 00:06:03.979 align:start position:0%
+ 
+ 
+
+00:06:03.979 --> 00:06:06.710 align:start position:0%
+ 
+and <00:06:04.306><c>we </c><00:06:04.633><c>will </c><00:06:04.960><c>get </c><00:06:05.287><c>it </c><00:06:05.614><c>after </c><00:06:05.941><c>returning </c><00:06:06.268><c>it. </c><00:06:06.595><c>So,</c>
+
+00:06:06.710 --> 00:06:06.720 align:start position:0%
+and we will get it after returning it. So,
+ 
+
+00:06:06.720 --> 00:06:10.730 align:start position:0%
+and we will get it after returning it. So,
+if <00:06:07.207><c>I </c><00:06:07.694><c>write </c><00:06:08.181><c>it </c><00:06:08.668><c>like </c><00:06:09.155><c>this, </c><00:06:09.642><c>then </c><00:06:10.129><c>I </c><00:06:10.616><c>have</c>
+
+00:06:10.730 --> 00:06:10.740 align:start position:0%
+if I write it like this, then I have
+ 
+
+00:06:10.740 --> 00:06:13.670 align:start position:0%
+if I write it like this, then I have
+now <00:06:11.184><c>got </c><00:06:11.628><c>the </c><00:06:12.072><c>value </c><00:06:12.516><c>five </c><00:06:12.960><c>multiplied</c>
+
+00:06:13.670 --> 00:06:13.680 align:start position:0%
+now got the value five multiplied
+ 
+
+00:06:13.680 --> 00:06:16.010 align:start position:0%
+now got the value five multiplied
+by <00:06:13.920><c>4 </c><00:06:14.160><c>multiplied </c><00:06:14.400><c>by, </c><00:06:14.640><c>which </c><00:06:14.880><c>means </c><00:06:15.120><c>the </c><00:06:15.360><c>series </c><00:06:15.600><c>has </c><00:06:15.840><c>been</c>
+
+00:06:16.010 --> 00:06:16.020 align:start position:0%
+by 4 multiplied by, which means the series has been
+ 
+
+00:06:16.020 --> 00:06:17.930 align:start position:0%
+by 4 multiplied by, which means the series has been
+activated.
+
+00:06:17.930 --> 00:06:17.940 align:start position:0%
+activated.
+ 
+
+00:06:17.940 --> 00:06:27.850 align:start position:0%
+activated.
+Free <00:06:18.900><c>stop</c>
+
+00:06:27.850 --> 00:06:27.860 align:start position:0%
+ 
+ 
+
+00:06:27.860 --> 00:06:39.490 align:start position:0%
+ 
+multiplying. <00:06:28.860><c>Let's</c>
+
+00:06:39.490 --> 00:06:39.500 align:start position:0%
+ 
+ 
+
+00:06:39.500 --> 00:06:42.590 align:start position:0%
+ 
+try <00:06:40.079><c>to </c><00:06:40.658><c>understand </c><00:06:41.237><c>the </c><00:06:41.816><c>request</c>
+
+00:06:42.590 --> 00:06:42.600 align:start position:0%
+try to understand the request
+ 
+
+00:06:42.600 --> 00:06:44.330 align:start position:0%
+try to understand the request
+process <00:06:42.912><c>of </c><00:06:43.224><c>defining </c><00:06:43.536><c>something </c><00:06:43.848><c>in </c><00:06:44.160><c>terms</c>
+
+00:06:44.330 --> 00:06:44.340 align:start position:0%
+process of defining something in terms
+ 
+
+00:06:44.340 --> 00:06:46.010 align:start position:0%
+process of defining something in terms
+of <00:06:44.664><c>it. </c><00:06:44.988><c>Like </c><00:06:45.312><c>we </c><00:06:45.636><c>did </c><00:06:45.960><c>factorial,</c>
+
+00:06:46.010 --> 00:06:46.020 align:start position:0%
+of it. Like we did factorial,
+ 
+
+00:06:46.020 --> 00:06:48.050 align:start position:0%
+of it. Like we did factorial,
+we <00:06:46.332><c>said </c><00:06:46.644><c>that </c><00:06:46.956><c>factorial </c><00:06:47.268><c>is </c><00:06:47.580><c>n.</c>
+
+00:06:48.050 --> 00:06:48.060 align:start position:0%
+we said that factorial is n.
+ 
+
+00:06:48.060 --> 00:06:49.909 align:start position:0%
+we said that factorial is n.
+In <00:06:48.220><c>n </c><00:06:48.380><c>multiplied, </c><00:06:48.540><c>factorial </c><00:06:48.700><c>of </c><00:06:48.860><c>n </c><00:06:49.020><c>- </c><00:06:49.180><c>1 </c><00:06:49.340><c>is </c><00:06:49.500><c>the</c>
+
+00:06:49.909 --> 00:06:49.919 align:start position:0%
+In n multiplied, factorial of n - 1 is the
+ 
+
+00:06:49.919 --> 00:06:51.710 align:start position:0%
+In n multiplied, factorial of n - 1 is the
+factorial. <00:06:50.071><c>So, </c><00:06:50.223><c>we </c><00:06:50.375><c>inserted </c><00:06:50.527><c>factorial </c><00:06:50.679><c>in </c><00:06:50.831><c>the </c><00:06:50.983><c>definition </c><00:06:51.135><c>of </c><00:06:51.287><c>factorial </c><00:06:51.439><c>itself. </c><00:06:51.591><c>So,</c>
+
+00:06:51.710 --> 00:06:51.720 align:start position:0%
+factorial. So, we inserted factorial in the definition of factorial itself. So,
+ 
+
+00:06:51.720 --> 00:06:54.469 align:start position:0%
+factorial. So, we inserted factorial in the definition of factorial itself. So,
+this <00:06:53.069><c>is </c><00:06:54.418><c>called</c>
+
+00:06:54.469 --> 00:06:54.479 align:start position:0%
+this is called
+ 
+
+00:06:54.479 --> 00:06:56.450 align:start position:0%
+this is called
+defining <00:06:54.959><c>something.  </c><00:06:55.439><c>In </c><00:06:55.919><c>terms </c><00:06:56.399><c>of</c>
+
+00:06:56.450 --> 00:06:56.460 align:start position:0%
+defining something.  In terms of
+ 
+
+00:06:56.460 --> 00:06:58.129 align:start position:0%
+defining something.  In terms of
+itself, <00:06:57.240><c>another </c><00:06:58.020><c>example</c>
+
+00:06:58.129 --> 00:06:58.139 align:start position:0%
+itself, another example
+ 
+
+00:06:58.139 --> 00:07:00.110 align:start position:0%
+itself, another example
+is <00:06:58.356><c>very </c><00:06:58.573><c>popular </c><00:06:58.790><c>and </c><00:06:59.007><c>that </c><00:06:59.224><c>is </c><00:06:59.441><c>the </c><00:06:59.658><c>calculation </c><00:06:59.875><c>of</c>
+
+00:07:00.110 --> 00:07:00.120 align:start position:0%
+is very popular and that is the calculation of
+ 
+
+00:07:00.120 --> 00:07:02.870 align:start position:0%
+is very popular and that is the calculation of
+Sonakshi <00:07:00.413><c>series. </c><00:07:00.706><c>Then </c><00:07:00.999><c>the </c><00:07:01.292><c>formula </c><00:07:01.585><c>for </c><00:07:01.878><c>that </c><00:07:02.171><c>Nachi </c><00:07:02.464><c>sequence </c><00:07:02.757><c>is</c>
+
+00:07:02.870 --> 00:07:02.880 align:start position:0%
+Sonakshi series. Then the formula for that Nachi sequence is
+ 
+
+00:07:02.880 --> 00:07:05.710 align:start position:0%
+Sonakshi series. Then the formula for that Nachi sequence is
+that <00:07:03.480><c>if </c><00:07:04.080><c>you </c><00:07:04.680><c>want </c><00:07:05.280><c>to</c>
+
+00:07:05.710 --> 00:07:05.720 align:start position:0%
+that if you want to
+ 
+
+00:07:05.720 --> 00:07:09.170 align:start position:0%
+that if you want to
+calculate <00:07:06.099><c>the </c><00:07:06.478><c>series, </c><00:07:06.857><c>I </c><00:07:07.236><c>go </c><00:07:07.615><c>to </c><00:07:07.994><c>the </c><00:07:08.373><c>number </c><00:07:08.752><c>here</c>
+
+00:07:09.170 --> 00:07:09.180 align:start position:0%
+calculate the series, I go to the number here
+ 
+
+00:07:09.180 --> 00:07:10.670 align:start position:0%
+calculate the series, I go to the number here
+and <00:07:09.555><c>I </c><00:07:09.930><c>will </c><00:07:10.305><c>show </c><00:07:10.680><c>you</c>
+
+00:07:10.670 --> 00:07:10.680 align:start position:0%
+and I will show you
+ 
+
+00:07:10.680 --> 00:07:13.490 align:start position:0%
+and I will show you
+here <00:07:10.987><c>that </c><00:07:11.294><c>F </c><00:07:11.601><c>zero </c><00:07:11.908><c>is </c><00:07:12.215><c>zero, </c><00:07:12.522><c>F1 </c><00:07:12.829><c>is </c><00:07:13.136><c>zero.</c>
+
+00:07:13.490 --> 00:07:13.500 align:start position:0%
+here that F zero is zero, F1 is zero.
+ 
+
+00:07:13.500 --> 00:07:15.830 align:start position:0%
+here that F zero is zero, F1 is zero.
+And <00:07:13.817><c>if </c><00:07:14.134><c>you </c><00:07:14.451><c>want </c><00:07:14.768><c>to </c><00:07:15.085><c>calculate </c><00:07:15.402><c>any </c><00:07:15.719><c>other</c>
+
+00:07:15.830 --> 00:07:15.840 align:start position:0%
+And if you want to calculate any other
+ 
+
+00:07:15.840 --> 00:07:17.809 align:start position:0%
+And if you want to calculate any other
+number, <00:07:16.045><c>then </c><00:07:16.250><c>add </c><00:07:16.455><c>the </c><00:07:16.660><c>last </c><00:07:16.865><c>two </c><00:07:17.070><c>numbers, </c><00:07:17.275><c>so</c>
+
+00:07:17.809 --> 00:07:17.819 align:start position:0%
+number, then add the last two numbers, so
+ 
+
+00:07:17.819 --> 00:07:19.790 align:start position:0%
+number, then add the last two numbers, so
+zero <00:07:18.025><c>will </c><00:07:18.231><c>be </c><00:07:18.437><c>one. </c><00:07:18.643><c>Then </c><00:07:18.849><c>after </c><00:07:19.055><c>that </c><00:07:19.261><c>add </c><00:07:19.467><c>two </c><00:07:19.673><c>numbers.</c>
+
+00:07:19.790 --> 00:07:19.800 align:start position:0%
+zero will be one. Then after that add two numbers.
+ 
+
+00:07:19.800 --> 00:07:21.670 align:start position:0%
+zero will be one. Then after that add two numbers.
+Okay, <00:07:20.460><c>so</c>
+
+00:07:21.670 --> 00:07:21.680 align:start position:0%
+Okay, so
+ 
+
+00:07:21.680 --> 00:07:24.010 align:start position:0%
+Okay, so
+what <00:07:22.066><c>is </c><00:07:22.452><c>F </c><00:07:22.838><c>zero? </c><00:07:23.224><c>F </c><00:07:23.610><c>zero </c><00:07:23.996><c>is</c>
+
+00:07:24.010 --> 00:07:24.020 align:start position:0%
+what is F zero? F zero is
+ 
+
+00:07:24.020 --> 00:07:28.969 align:start position:0%
+what is F zero? F zero is
+zero <00:07:24.625><c>and </c><00:07:25.230><c>F1 </c><00:07:25.835><c>is </c><00:07:26.440><c>1. </c><00:07:27.045><c>Okay, </c><00:07:27.650><c>so </c><00:07:28.255><c>zero </c><00:07:28.860><c>and</c>
+
+00:07:28.969 --> 00:07:28.979 align:start position:0%
+zero and F1 is 1. Okay, so zero and
+ 
+
+00:07:28.979 --> 00:07:31.010 align:start position:0%
+zero and F1 is 1. Okay, so zero and
+one <00:07:29.114><c>is </c><00:07:29.249><c>this. </c><00:07:29.384><c>And </c><00:07:29.519><c>after </c><00:07:29.654><c>this, </c><00:07:29.789><c>if </c><00:07:29.924><c>you </c><00:07:30.059><c>want </c><00:07:30.194><c>to </c><00:07:30.329><c>calculate </c><00:07:30.464><c>f2, </c><00:07:30.599><c>then</c>
+
+00:07:31.010 --> 00:07:31.020 align:start position:0%
+one is this. And after this, if you want to calculate f2, then
+ 
+
+00:07:31.020 --> 00:07:33.070 align:start position:0%
+one is this. And after this, if you want to calculate f2, then
+its <00:07:31.800><c>formula </c><00:07:32.580><c>is</c>
+
+00:07:33.070 --> 00:07:33.080 align:start position:0%
+its formula is
+ 
+
+00:07:33.080 --> 00:07:38.809 align:start position:0%
+its formula is
+f2. <00:07:34.484><c>Okay, </c><00:07:35.888><c>F1 </c><00:07:37.292><c>and </c><00:07:38.696><c>+</c>
+
+00:07:38.809 --> 00:07:38.819 align:start position:0%
+f2. Okay, F1 and +
+ 
+
+00:07:38.819 --> 00:07:42.710 align:start position:0%
+f2. Okay, F1 and +
+F <00:07:39.359><c>zero, </c><00:07:39.899><c>okay, </c><00:07:40.439><c>something </c><00:07:40.979><c>like </c><00:07:41.519><c>this. </c><00:07:42.059><c>And </c><00:07:42.599><c>f</c>
+
+00:07:42.710 --> 00:07:42.720 align:start position:0%
+F zero, okay, something like this. And f
+ 
+
+00:07:42.720 --> 00:07:43.930 align:start position:0%
+F zero, okay, something like this. And f
+is <00:07:42.780><c>your</c>
+
+00:07:43.930 --> 00:07:43.940 align:start position:0%
+is your
+ 
+
+00:07:43.940 --> 00:07:46.749 align:start position:0%
+is your
+f1 <00:07:44.920><c>and </c><00:07:45.900><c>plus</c>
+
+00:07:46.749 --> 00:07:46.759 align:start position:0%
+f1 and plus
+ 
+
+00:07:46.759 --> 00:07:50.330 align:start position:0%
+f1 and plus
+f2. <00:07:47.136><c>Okay, </c><00:07:47.513><c>something </c><00:07:47.890><c>like </c><00:07:48.267><c>this. </c><00:07:48.644><c>You </c><00:07:49.021><c>can </c><00:07:49.398><c>calculate </c><00:07:49.775><c>it </c><00:07:50.152><c>by</c>
+
+00:07:50.330 --> 00:07:50.340 align:start position:0%
+f2. Okay, something like this. You can calculate it by
+ 
+
+00:07:50.340 --> 00:07:52.730 align:start position:0%
+f2. Okay, something like this. You can calculate it by
+adding <00:07:50.556><c>the </c><00:07:50.772><c>last </c><00:07:50.988><c>two </c><00:07:51.204><c>numbers. </c><00:07:51.420><c>Now </c><00:07:51.636><c>I </c><00:07:51.852><c>am </c><00:07:52.068><c>giving </c><00:07:52.284><c>you </c><00:07:52.500><c>a</c>
+
+00:07:52.730 --> 00:07:52.740 align:start position:0%
+adding the last two numbers. Now I am giving you a
+ 
+
+00:07:52.740 --> 00:07:54.529 align:start position:0%
+adding the last two numbers. Now I am giving you a
+quick <00:07:53.075><c>quiz, </c><00:07:53.410><c>which </c><00:07:53.745><c>you </c><00:07:54.080><c>have </c><00:07:54.415><c>to</c>
+
+00:07:54.529 --> 00:07:54.539 align:start position:0%
+quick quiz, which you have to
+ 
+
+00:07:54.539 --> 00:07:56.150 align:start position:0%
+quick quiz, which you have to
+answer <00:07:54.761><c>in </c><00:07:54.983><c>the </c><00:07:55.205><c>comment </c><00:07:55.427><c>section </c><00:07:55.649><c>of </c><00:07:55.871><c>Rapid </c><00:07:56.093><c>by</c>
+
+00:07:56.150 --> 00:07:56.160 align:start position:0%
+answer in the comment section of Rapid by
+ 
+
+00:07:56.160 --> 00:07:59.210 align:start position:0%
+answer in the comment section of Rapid by
+making <00:07:56.511><c>your </c><00:07:56.862><c>own </c><00:07:57.213><c>app. </c><00:07:57.564><c>And </c><00:07:57.915><c>that </c><00:07:58.266><c>is  </c><00:07:58.617><c>Brother,</c>
+
+00:07:59.210 --> 00:07:59.220 align:start position:0%
+making your own app. And that is  Brother,
+ 
+
+00:07:59.220 --> 00:08:01.150 align:start position:0%
+making your own app. And that is  Brother,
+you have to
+
+00:08:01.150 --> 00:08:01.160 align:start position:0%
+you have to
+ 
+
+00:08:01.160 --> 00:08:04.070 align:start position:0%
+you have to
+create <00:08:01.606><c>a </c><00:08:02.052><c>function </c><00:08:02.498><c>that </c><00:08:02.944><c>calculates </c><00:08:03.390><c>the </c><00:08:03.836><c>series.</c>
+
+00:08:04.070 --> 00:08:04.080 align:start position:0%
+create a function that calculates the series.
+ 
+
+00:08:04.080 --> 00:08:06.170 align:start position:0%
+create a function that calculates the series.
+Okay, <00:08:04.420><c>now </c><00:08:04.760><c>I </c><00:08:05.100><c>am </c><00:08:05.440><c>writing </c><00:08:05.780><c>it </c><00:08:06.120><c>exactly</c>
+
+00:08:06.170 --> 00:08:06.180 align:start position:0%
+Okay, now I am writing it exactly
+ 
+
+00:08:06.180 --> 00:08:07.870 align:start position:0%
+Okay, now I am writing it exactly
+like <00:08:06.540><c>I </c><00:08:06.900><c>wrote</c>
+
+00:08:07.870 --> 00:08:07.880 align:start position:0%
+like I wrote
+ 
+
+00:08:07.880 --> 00:08:11.089 align:start position:0%
+like I wrote
+for <00:08:08.610><c>this </c><00:08:09.340><c>factorial </c><00:08:10.070><c>program </c><00:08:10.800><c>above.</c>
+
+00:08:11.089 --> 00:08:11.099 align:start position:0%
+for this factorial program above.
+ 
+
+00:08:11.099 --> 00:08:13.309 align:start position:0%
+for this factorial program above.
+Okay, <00:08:11.407><c>I </c><00:08:11.715><c>am </c><00:08:12.023><c>writing </c><00:08:12.331><c>it </c><00:08:12.639><c>exactly </c><00:08:12.947><c>like </c><00:08:13.255><c>that.</c>
+
+00:08:13.309 --> 00:08:13.319 align:start position:0%
+Okay, I am writing it exactly like that.
+ 
+
+00:08:13.319 --> 00:08:16.010 align:start position:0%
+Okay, I am writing it exactly like that.
+You <00:08:13.551><c>see, </c><00:08:13.783><c>f </c><00:08:14.015><c>is </c><00:08:14.247><c>zero, </c><00:08:14.479><c>zero. </c><00:08:14.711><c>Okay, </c><00:08:14.943><c>I </c><00:08:15.175><c>will</c>
+
+00:08:16.010 --> 00:08:16.020 align:start position:0%
+You see, f is zero, zero. Okay, I will
+ 
+
+00:08:16.020 --> 00:08:17.770 align:start position:0%
+You see, f is zero, zero. Okay, I will
+write <00:08:16.230><c>it </c><00:08:16.440><c>here,</c>
+
+00:08:17.770 --> 00:08:17.780 align:start position:0%
+write it here,
+ 
+
+00:08:17.780 --> 00:08:19.450 align:start position:0%
+write it here,
+good
+
+00:08:19.450 --> 00:08:19.460 align:start position:0%
+good
+ 
+
+00:08:19.460 --> 00:08:22.249 align:start position:0%
+good
+sequence. <00:08:19.842><c>Now </c><00:08:20.224><c>what </c><00:08:20.606><c>you </c><00:08:20.988><c>have </c><00:08:21.370><c>to </c><00:08:21.752><c>do </c><00:08:22.134><c>is</c>
+
+00:08:22.249 --> 00:08:24.050 align:start position:0%
+sequence. Now what you have to do is
+ 
+
+00:08:24.050 --> 00:08:24.060 align:start position:0%
+ 
+ 
+
+00:08:24.060 --> 00:08:26.869 align:start position:0%
+ 
+write <00:08:24.131><c>a </c><00:08:24.202><c>program </c><00:08:24.273><c>to </c><00:08:24.344><c>print </c><00:08:24.415><c>that </c><00:08:24.486><c>good </c><00:08:24.557><c>sequence. </c><00:08:24.628><c>So, </c><00:08:24.699><c>I </c><00:08:24.770><c>will </c><00:08:24.841><c>write </c><00:08:24.912><c>it </c><00:08:24.983><c>here. </c><00:08:25.054><c>Is </c><00:08:25.125><c>there </c><00:08:25.196><c>a</c>
+
+00:08:26.869 --> 00:08:26.879 align:start position:0%
+write a program to print that good sequence. So, I will write it here. Is there a
+ 
+
+00:08:26.879 --> 00:08:29.170 align:start position:0%
+write a program to print that good sequence. So, I will write it here. Is there a
+quiz <00:08:27.569><c>for </c><00:08:28.259><c>you?</c>
+
+00:08:29.170 --> 00:08:29.180 align:start position:0%
+quiz for you?
+ 
+
+00:08:29.180 --> 00:08:34.630 align:start position:0%
+quiz for you?
+Right, <00:08:30.633><c>program, </c><00:08:32.086><c>you </c><00:08:33.539><c>print</c>
+
+00:08:34.630 --> 00:08:34.640 align:start position:0%
+Right, program, you print
+ 
+
+00:08:34.640 --> 00:08:37.010 align:start position:0%
+Right, program, you print
+Banarasi <00:08:35.204><c>sequence. </c><00:08:35.768><c>Okay, </c><00:08:36.332><c>right, </c><00:08:36.896><c>program,</c>
+
+00:08:37.010 --> 00:08:37.020 align:start position:0%
+Banarasi sequence. Okay, right, program,
+ 
+
+00:08:37.020 --> 00:08:39.529 align:start position:0%
+Banarasi sequence. Okay, right, program,
+you <00:08:37.410><c>print </c><00:08:37.800><c>Diana, </c><00:08:38.190><c>good </c><00:08:38.580><c>sequence. </c><00:08:38.970><c>Okay, </c><00:08:39.360><c>so</c>
+
+00:08:39.529 --> 00:08:39.539 align:start position:0%
+you print Diana, good sequence. Okay, so
+ 
+
+00:08:39.539 --> 00:08:42.350 align:start position:0%
+you print Diana, good sequence. Okay, so
+this <00:08:39.799><c>f </c><00:08:40.059><c>is </c><00:08:40.319><c>zero, </c><00:08:40.579><c>f1 </c><00:08:40.839><c>becomes </c><00:08:41.099><c>f1, </c><00:08:41.359><c>f2 </c><00:08:41.619><c>becomes </c><00:08:41.879><c>f1</c>
+
+00:08:42.350 --> 00:08:42.360 align:start position:0%
+this f is zero, f1 becomes f1, f2 becomes f1
+ 
+
+00:08:42.360 --> 00:08:43.750 align:start position:0%
+this f is zero, f1 becomes f1, f2 becomes f1
+plus <00:08:42.559><c>zero, </c><00:08:42.758><c>f1 </c><00:08:42.957><c>becomes</c>
+
+00:08:43.750 --> 00:08:43.760 align:start position:0%
+plus zero, f1 becomes
+ 
+
+00:08:43.760 --> 00:08:47.570 align:start position:0%
+plus zero, f1 becomes
+-1 <00:08:44.199><c>+ </c><00:08:44.638><c>f2 </c><00:08:45.077><c>becomes </c><00:08:45.516><c>-2. </c><00:08:45.955><c>Okay, </c><00:08:46.394><c>I </c><00:08:46.833><c>hope </c><00:08:47.272><c>you</c>
+
+00:08:47.570 --> 00:08:47.580 align:start position:0%
+-1 + f2 becomes -2. Okay, I hope you
+ 
+
+00:08:47.580 --> 00:08:50.269 align:start position:0%
+-1 + f2 becomes -2. Okay, I hope you
+guys <00:08:47.960><c>understood </c><00:08:48.340><c>it </c><00:08:48.720><c>and </c><00:08:49.100><c>you </c><00:08:49.480><c>will </c><00:08:49.860><c>definitely</c>
+
+00:08:50.269 --> 00:08:50.279 align:start position:0%
+guys understood it and you will definitely
+ 
+
+00:08:50.279 --> 00:08:51.829 align:start position:0%
+guys understood it and you will definitely
+make <00:08:50.439><c>it. </c><00:08:50.599><c>Do </c><00:08:50.759><c>tell </c><00:08:50.919><c>me </c><00:08:51.079><c>in </c><00:08:51.239><c>the </c><00:08:51.399><c>comment </c><00:08:51.559><c>section </c><00:08:51.719><c>below.</c>
+
+00:08:51.829 --> 00:08:51.839 align:start position:0%
+make it. Do tell me in the comment section below.
+ 
+
+00:08:51.839 --> 00:08:54.110 align:start position:0%
+make it. Do tell me in the comment section below.
+Make <00:08:52.199><c>this </c><00:08:52.559><c>program </c><00:08:52.919><c>and </c><00:08:53.279><c>check </c><00:08:53.639><c>it </c><00:08:53.999><c>yourself.</c>
+
+00:08:54.110 --> 00:08:56.230 align:start position:0%
+Make this program and check it yourself.
+ 
+
+00:08:56.230 --> 00:08:56.240 align:start position:0%
+ 
+ 
+
+00:08:56.240 --> 00:08:58.850 align:start position:0%
+ 
+Generating <00:08:56.545><c>it </c><00:08:56.850><c>is </c><00:08:57.155><c>very </c><00:08:57.460><c>easy. </c><00:08:57.765><c>First </c><00:08:58.070><c>there </c><00:08:58.375><c>is </c><00:08:58.680><c>zero,</c>
+
+00:08:58.850 --> 00:08:58.860 align:start position:0%
+Generating it is very easy. First there is zero,
+ 
+
+00:08:58.860 --> 00:09:00.530 align:start position:0%
+Generating it is very easy. First there is zero,
+then <00:08:58.985><c>there </c><00:08:59.110><c>is </c><00:08:59.235><c>one. </c><00:08:59.360><c>Then </c><00:08:59.485><c>I </c><00:08:59.610><c>will </c><00:08:59.735><c>add </c><00:08:59.860><c>these </c><00:08:59.985><c>two, </c><00:09:00.110><c>then </c><00:09:00.235><c>one </c><00:09:00.360><c>will</c>
+
+00:09:00.530 --> 00:09:00.540 align:start position:0%
+then there is one. Then I will add these two, then one will
+ 
+
+00:09:00.540 --> 00:09:02.449 align:start position:0%
+then there is one. Then I will add these two, then one will
+come. <00:09:00.713><c>Then </c><00:09:00.886><c>I </c><00:09:01.059><c>will </c><00:09:01.232><c>add </c><00:09:01.405><c>these </c><00:09:01.578><c>two, </c><00:09:01.751><c>then </c><00:09:01.924><c>three </c><00:09:02.097><c>will </c><00:09:02.270><c>come.</c>
+
+00:09:02.449 --> 00:09:02.459 align:start position:0%
+come. Then I will add these two, then three will come.
+ 
+
+00:09:02.459 --> 00:09:04.490 align:start position:0%
+come. Then I will add these two, then three will come.
+Okay, <00:09:02.716><c>then </c><00:09:02.973><c>I </c><00:09:03.230><c>will </c><00:09:03.487><c>add </c><00:09:03.744><c>these </c><00:09:04.001><c>two, </c><00:09:04.258><c>then</c>
+
+00:09:04.490 --> 00:09:04.500 align:start position:0%
+Okay, then I will add these two, then
+ 
+
+00:09:04.500 --> 00:09:06.110 align:start position:0%
+Okay, then I will add these two, then
+three <00:09:04.680><c>will </c><00:09:04.860><c>come. </c><00:09:05.040><c>Okay, </c><00:09:05.220><c>then </c><00:09:05.400><c>these </c><00:09:05.580><c>two  </c><00:09:05.760><c>ko </c><00:09:05.940><c>jodunga</c>
+
+00:09:06.110 --> 00:09:06.120 align:start position:0%
+three will come. Okay, then these two  ko jodunga
+ 
+
+00:09:06.120 --> 00:09:09.710 align:start position:0%
+three will come. Okay, then these two  ko jodunga
+toh <00:09:06.525><c>punch </c><00:09:06.930><c>aayega </c><00:09:07.335><c>four </c><00:09:07.740><c>sorry </c><00:09:08.145><c>punch </c><00:09:08.550><c>aayega </c><00:09:08.955><c>ok </c><00:09:09.360><c>then</c>
+
+00:09:09.710 --> 00:09:09.720 align:start position:0%
+toh punch aayega four sorry punch aayega ok then
+ 
+
+00:09:09.720 --> 00:09:12.829 align:start position:0%
+toh punch aayega four sorry punch aayega ok then
+punch <00:09:09.997><c>and </c><00:09:10.274><c>three </c><00:09:10.551><c>eight </c><00:09:10.828><c>aayega </c><00:09:11.105><c>and </c><00:09:11.382><c>so </c><00:09:11.659><c>on </c><00:09:11.936><c>I</c>
+
+00:09:12.829 --> 00:09:12.839 align:start position:0%
+punch and three eight aayega and so on I
+ 
+
+00:09:12.839 --> 00:09:14.810 align:start position:0%
+punch and three eight aayega and so on I
+hope <00:09:13.049><c>I </c><00:09:13.259><c>have </c><00:09:13.469><c>not </c><00:09:13.679><c>made </c><00:09:13.889><c>any </c><00:09:14.099><c>mistake </c><00:09:14.309><c>and </c><00:09:14.519><c>so</c>
+
+00:09:14.810 --> 00:09:14.820 align:start position:0%
+hope I have not made any mistake and so
+ 
+
+00:09:14.820 --> 00:09:16.910 align:start position:0%
+hope I have not made any mistake and so
+on <00:09:14.948><c>so </c><00:09:15.076><c>zero </c><00:09:15.204><c>plus </c><00:09:15.332><c>one </c><00:09:15.460><c>is </c><00:09:15.588><c>one </c><00:09:15.716><c>plus </c><00:09:15.844><c>one </c><00:09:15.972><c>is </c><00:09:16.100><c>two </c><00:09:16.228><c>plus </c><00:09:16.356><c>one </c><00:09:16.484><c>is </c><00:09:16.612><c>three </c><00:09:16.740><c>is</c>
+
+00:09:16.910 --> 00:09:16.920 align:start position:0%
+on so zero plus one is one plus one is two plus one is three is
+ 
+
+00:09:16.920 --> 00:09:19.370 align:start position:0%
+on so zero plus one is one plus one is two plus one is three is
+five <00:09:19.260><c>+</c>
+
+00:09:19.370 --> 00:09:19.380 align:start position:0%
+five +
+ 
+
+00:09:19.380 --> 00:09:21.410 align:start position:0%
+five +
+38 <00:09:19.860><c>and </c><00:09:20.340><c>so </c><00:09:20.820><c>on</c>
+
+00:09:21.410 --> 00:09:21.420 align:start position:0%
+38 and so on
+ 
+
+00:09:21.420 --> 00:09:24.070 align:start position:0%
+38 and so on
+if <00:09:21.580><c>you </c><00:09:21.740><c>are </c><00:09:21.900><c>going </c><00:09:22.060><c>to </c><00:09:22.220><c>go </c><00:09:22.380><c>then</c>
+
+00:09:24.070 --> 00:09:24.080 align:start position:0%
+if you are going to go then
+ 
+
+00:09:24.080 --> 00:09:28.070 align:start position:0%
+if you are going to go then
+0123 <00:09:24.549><c>456 </c><00:09:25.018><c>agar </c><00:09:25.487><c>aapko </c><00:09:25.956><c>toh </c><00:09:26.425><c>aapko </c><00:09:26.894><c>8 </c><00:09:27.363><c>mile </c><00:09:27.832><c>chahiye</c>
+
+00:09:28.070 --> 00:09:28.080 align:start position:0%
+0123 456 agar aapko toh aapko 8 mile chahiye
+ 
+
+00:09:28.080 --> 00:09:33.070 align:start position:0%
+0123 456 agar aapko toh aapko 8 mile chahiye
+aisa <00:09:28.320><c>product</c>
+
+00:09:33.070 --> 00:09:33.080 align:start position:0%
+ 
+ 
+
+00:09:33.080 --> 00:09:35.269 align:start position:0%
+ 
+nahi <00:09:33.396><c>kari </c><00:09:33.712><c>to </c><00:09:34.028><c>usko </c><00:09:34.344><c>click </c><00:09:34.660><c>here </c><00:09:34.976><c>and</c>
+
+00:09:35.269 --> 00:09:35.279 align:start position:0%
+nahi kari to usko click here and
+ 
+
+00:09:35.279 --> 00:09:37.009 align:start position:0%
+nahi kari to usko click here and
+bookmark <00:09:35.436><c>it </c><00:09:35.593><c>click </c><00:09:35.750><c>here </c><00:09:35.907><c>do </c><00:09:36.064><c>it </c><00:09:36.221><c>that's </c><00:09:36.378><c>all </c><00:09:36.535><c>the</c>
+
+00:09:37.009 --> 00:09:37.019 align:start position:0%
+bookmark it click here do it that's all the
+ 
+
+00:09:37.019 --> 00:09:38.630 align:start position:0%
+bookmark it click here do it that's all the
+gas <00:09:37.184><c>in </c><00:09:37.349><c>this </c><00:09:37.514><c>video </c><00:09:37.679><c>thank </c><00:09:37.844><c>you </c><00:09:38.009><c>so </c><00:09:38.174><c>much </c><00:09:38.339><c>gas</c>
+
+00:09:38.630 --> 00:09:38.640 align:start position:0%
+gas in this video thank you so much gas
+ 
+
+00:09:38.640 --> 00:09:40.490 align:start position:0%
+gas in this video thank you so much gas
+for <00:09:38.857><c>watching </c><00:09:39.074><c>this </c><00:09:39.291><c>video </c><00:09:39.508><c>and </c><00:09:39.725><c>I </c><00:09:39.942><c>will </c><00:09:40.159><c>see </c><00:09:40.376><c>you</c>
+
+00:09:40.490 --> 00:09:40.500 align:start position:0%
+for watching this video and I will see you
+ 
+
+00:09:40.500 --> 00:09:42.320 align:start position:0%
+for watching this video and I will see you
+next
+
+00:09:42.320 --> 00:09:42.330 align:start position:0%
+next
+ 
+
+00:09:42.330 --> 00:09:42.620 align:start position:0%
+next
+[praise]
+
+00:09:42.620 --> 00:09:42.630 align:start position:0%
+[praise]
+ 
+
+00:09:42.630 --> 00:10:02.109 align:start position:0%
+[praise]
+[music]
+

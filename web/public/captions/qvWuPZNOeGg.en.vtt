@@ -1,0 +1,832 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:00.000 --> 00:00:01.610 align:start position:0%
+ 
+So, <00:00:00.239><c>in </c><00:00:00.478><c>the </c><00:00:00.717><c>previous </c><00:00:00.956><c>video, </c><00:00:01.195><c>we </c><00:00:01.434><c>had</c>
+
+00:00:01.610 --> 00:00:01.620 align:start position:0%
+So, in the previous video, we had
+ 
+
+00:00:01.620 --> 00:00:03.290 align:start position:0%
+So, in the previous video, we had
+seen <00:00:01.879><c>the </c><00:00:02.138><c>follow-up </c><00:00:02.397><c>very </c><00:00:02.656><c>closely </c><00:00:02.915><c>and </c><00:00:03.174><c>there</c>
+
+00:00:03.290 --> 00:00:03.300 align:start position:0%
+seen the follow-up very closely and there
+ 
+
+00:00:03.300 --> 00:00:05.030 align:start position:0%
+seen the follow-up very closely and there
+we <00:00:03.429><c>had </c><00:00:03.558><c>seen </c><00:00:03.687><c>what </c><00:00:03.816><c>all </c><00:00:03.945><c>can </c><00:00:04.074><c>be </c><00:00:04.203><c>done </c><00:00:04.332><c>with </c><00:00:04.461><c>the </c><00:00:04.590><c>for </c><00:00:04.719><c>loop, </c><00:00:04.848><c>how </c><00:00:04.977><c>can</c>
+
+00:00:05.030 --> 00:00:05.040 align:start position:0%
+we had seen what all can be done with the for loop, how can
+ 
+
+00:00:05.040 --> 00:00:06.889 align:start position:0%
+we had seen what all can be done with the for loop, how can
+we <00:00:05.310><c>iterate </c><00:00:05.580><c>through </c><00:00:05.850><c>a </c><00:00:06.120><c>list, </c><00:00:06.390><c>what </c><00:00:06.660><c>all</c>
+
+00:00:06.889 --> 00:00:09.169 align:start position:0%
+we iterate through a list, what all
+ 
+
+00:00:09.169 --> 00:00:09.179 align:start position:0%
+ 
+ 
+
+00:00:09.179 --> 00:00:10.549 align:start position:0%
+ 
+can <00:00:09.305><c>we </c><00:00:09.431><c>do </c><00:00:09.557><c>with </c><00:00:09.683><c>a </c><00:00:09.809><c>dictionary, </c><00:00:09.935><c>after </c><00:00:10.061><c>that </c><00:00:10.187><c>we </c><00:00:10.313><c>had</c>
+
+00:00:10.549 --> 00:00:10.559 align:start position:0%
+can we do with a dictionary, after that we had
+ 
+
+00:00:10.559 --> 00:00:11.990 align:start position:0%
+can we do with a dictionary, after that we had
+also <00:00:10.904><c>solved </c><00:00:11.249><c>a </c><00:00:11.594><c>small </c><00:00:11.939><c>quiz,</c>
+
+00:00:11.990 --> 00:00:12.000 align:start position:0%
+also solved a small quiz,
+ 
+
+00:00:12.000 --> 00:00:14.209 align:start position:0%
+also solved a small quiz,
+now <00:00:12.255><c>we </c><00:00:12.510><c>will </c><00:00:12.765><c>talk </c><00:00:13.020><c>about </c><00:00:13.275><c>while </c><00:00:13.530><c>loops </c><00:00:13.785><c>and </c><00:00:14.040><c>without</c>
+
+00:00:14.209 --> 00:00:14.219 align:start position:0%
+now we will talk about while loops and without
+ 
+
+00:00:14.219 --> 00:00:15.470 align:start position:0%
+now we will talk about while loops and without
+visiting <00:00:14.354><c>the </c><00:00:14.489><c>time, </c><00:00:14.624><c>here </c><00:00:14.759><c>I </c><00:00:14.894><c>will </c><00:00:15.029><c>create </c><00:00:15.164><c>a </c><00:00:15.299><c>file</c>
+
+00:00:15.470 --> 00:00:15.480 align:start position:0%
+visiting the time, here I will create a file
+ 
+
+00:00:15.480 --> 00:00:18.769 align:start position:0%
+visiting the time, here I will create a file
+whose <00:00:16.010><c>name </c><00:00:16.540><c>will </c><00:00:17.070><c>be </c><00:00:17.600><c>tube </c><00:00:18.130><c>17 </c><00:00:18.660><c>and</c>
+
+00:00:18.769 --> 00:00:18.779 align:start position:0%
+whose name will be tube 17 and
+ 
+
+00:00:18.779 --> 00:00:20.269 align:start position:0%
+whose name will be tube 17 and
+enter <00:00:19.019><c>inside </c><00:00:19.259><c>it, </c><00:00:19.499><c>here </c><00:00:19.739><c>I </c><00:00:19.979><c>will</c>
+
+00:00:20.269 --> 00:00:20.279 align:start position:0%
+enter inside it, here I will
+ 
+
+00:00:20.279 --> 00:00:21.769 align:start position:0%
+enter inside it, here I will
+start, <00:00:20.609><c>create </c><00:00:20.939><c>a </c><00:00:21.269><c>variable </c><00:00:21.599><c>and</c>
+
+00:00:21.769 --> 00:00:21.779 align:start position:0%
+start, create a variable and
+ 
+
+00:00:21.779 --> 00:00:24.290 align:start position:0%
+start, create a variable and
+name <00:00:22.071><c>it </c><00:00:22.363><c>i, </c><00:00:22.655><c>now </c><00:00:22.947><c>here </c><00:00:23.239><c>I </c><00:00:23.531><c>have </c><00:00:23.823><c>set </c><00:00:24.115><c>i</c>
+
+00:00:24.290 --> 00:00:24.300 align:start position:0%
+name it i, now here I have set i
+ 
+
+00:00:24.300 --> 00:00:26.150 align:start position:0%
+name it i, now here I have set i
+below <00:00:24.570><c>zero, </c><00:00:24.840><c>now </c><00:00:25.110><c>what </c><00:00:25.380><c>if </c><00:00:25.650><c>I </c><00:00:25.920><c>do</c>
+
+00:00:26.150 --> 00:00:26.160 align:start position:0%
+below zero, now what if I do
+ 
+
+00:00:26.160 --> 00:00:29.230 align:start position:0%
+below zero, now what if I do
+here, <00:00:26.400><c>I </c><00:00:26.640><c>write </c><00:00:26.880><c>'</c>
+
+00:00:29.230 --> 00:00:29.240 align:start position:0%
+here, I write '
+ 
+
+00:00:29.240 --> 00:00:33.530 align:start position:0%
+here, I write '
+Value <00:00:29.658><c>45' </c><00:00:30.076><c>as </c><00:00:30.494><c>long </c><00:00:30.912><c>as </c><00:00:31.330><c>i </c><00:00:31.748><c>is </c><00:00:32.166><c>less </c><00:00:32.584><c>than </c><00:00:33.002><c>45 </c><00:00:33.420><c>and</c>
+
+00:00:33.530 --> 00:00:33.540 align:start position:0%
+Value 45' as long as i is less than 45 and
+ 
+
+00:00:33.540 --> 00:00:35.389 align:start position:0%
+Value 45' as long as i is less than 45 and
+enter <00:00:33.819><c>inside </c><00:00:34.098><c>it </c><00:00:34.377><c>and </c><00:00:34.656><c>after </c><00:00:34.935><c>that </c><00:00:35.214><c>I</c>
+
+00:00:35.389 --> 00:00:35.399 align:start position:0%
+enter inside it and after that I
+ 
+
+00:00:35.399 --> 00:00:38.150 align:start position:0%
+enter inside it and after that I
+write <00:00:35.564><c>'print </c><00:00:35.729><c>i' </c><00:00:35.894><c>here, </c><00:00:36.059><c>then </c><00:00:36.224><c>what </c><00:00:36.389><c>will </c><00:00:36.554><c>happen, </c><00:00:36.719><c>i </c><00:00:36.884><c>will </c><00:00:37.049><c>keep </c><00:00:37.214><c>getting </c><00:00:37.379><c>printed, </c><00:00:37.544><c>it </c><00:00:37.709><c>will </c><00:00:37.874><c>keep </c><00:00:38.039><c>getting</c>
+
+00:00:38.150 --> 00:00:38.160 align:start position:0%
+write 'print i' here, then what will happen, i will keep getting printed, it will keep getting
+ 
+
+00:00:38.160 --> 00:00:40.130 align:start position:0%
+write 'print i' here, then what will happen, i will keep getting printed, it will keep getting
+printed, <00:00:38.496><c>it </c><00:00:38.832><c>will </c><00:00:39.168><c>keep </c><00:00:39.504><c>getting </c><00:00:39.840><c>printed,</c>
+
+00:00:40.130 --> 00:00:40.140 align:start position:0%
+printed, it will keep getting printed,
+ 
+
+00:00:40.140 --> 00:00:42.170 align:start position:0%
+printed, it will keep getting printed,
+because <00:00:40.405><c>because </c><00:00:40.670><c>the </c><00:00:40.935><c>while </c><00:00:41.200><c>loop </c><00:00:41.465><c>works </c><00:00:41.730><c>like </c><00:00:41.995><c>this,</c>
+
+00:00:42.170 --> 00:00:42.180 align:start position:0%
+because because the while loop works like this,
+ 
+
+00:00:42.180 --> 00:00:43.729 align:start position:0%
+because because the while loop works like this,
+first <00:00:42.480><c>of </c><00:00:42.780><c>all </c><00:00:43.080><c>we </c><00:00:43.380><c>write </c><00:00:43.680><c>the</c>
+
+00:00:43.729 --> 00:00:43.739 align:start position:0%
+first of all we write the
+ 
+
+00:00:43.739 --> 00:00:46.130 align:start position:0%
+first of all we write the
+file, <00:00:43.996><c>after </c><00:00:44.253><c>that </c><00:00:44.510><c>we </c><00:00:44.767><c>write </c><00:00:45.024><c>the </c><00:00:45.281><c>condition, </c><00:00:45.538><c>as</c>
+
+00:00:46.130 --> 00:00:46.140 align:start position:0%
+file, after that we write the condition, as
+ 
+
+00:00:46.140 --> 00:00:49.130 align:start position:0%
+file, after that we write the condition, as
+long <00:00:46.415><c>as </c><00:00:46.690><c>that </c><00:00:46.965><c>condition </c><00:00:47.240><c>is </c><00:00:47.515><c>true, </c><00:00:47.790><c>it </c><00:00:48.065><c>will </c><00:00:48.340><c>keep </c><00:00:48.615><c>running, </c><00:00:48.890><c>the</c>
+
+00:00:49.130 --> 00:00:49.140 align:start position:0%
+long as that condition is true, it will keep running, the
+ 
+
+00:00:49.140 --> 00:00:51.590 align:start position:0%
+long as that condition is true, it will keep running, the
+for <00:00:49.432><c>look </c><00:00:49.724><c>will </c><00:00:50.016><c>keep </c><00:00:50.308><c>running, </c><00:00:50.600><c>the </c><00:00:50.892><c>follow </c><00:00:51.184><c>would </c><00:00:51.476><c>keep</c>
+
+00:00:51.590 --> 00:00:51.600 align:start position:0%
+for look will keep running, the follow would keep
+ 
+
+00:00:51.600 --> 00:00:53.150 align:start position:0%
+for look will keep running, the follow would keep
+running <00:00:51.715><c>till </c><00:00:51.830><c>when  </c><00:00:51.945><c>It </c><00:00:52.060><c>keeps </c><00:00:52.175><c>running </c><00:00:52.290><c>until </c><00:00:52.405><c>either </c><00:00:52.520><c>our </c><00:00:52.635><c>list </c><00:00:52.750><c>ends </c><00:00:52.865><c>or </c><00:00:52.980><c>the</c>
+
+00:00:53.150 --> 00:00:53.160 align:start position:0%
+running till when  It keeps running until either our list ends or the
+ 
+
+00:00:53.160 --> 00:00:55.250 align:start position:0%
+running till when  It keeps running until either our list ends or the
+dusty <00:00:53.594><c>ends </c><00:00:54.028><c>or </c><00:00:54.462><c>until </c><00:00:54.896><c>the</c>
+
+00:00:55.250 --> 00:00:55.260 align:start position:0%
+dusty ends or until the
+ 
+
+00:00:55.260 --> 00:00:57.410 align:start position:0%
+dusty ends or until the
+content <00:00:55.470><c>of </c><00:00:55.680><c>the </c><00:00:55.890><c>thing </c><00:00:56.100><c>we </c><00:00:56.310><c>are </c><00:00:56.520><c>applying </c><00:00:56.730><c>follow </c><00:00:56.940><c>to</c>
+
+00:00:57.410 --> 00:00:57.420 align:start position:0%
+content of the thing we are applying follow to
+ 
+
+00:00:57.420 --> 00:00:59.209 align:start position:0%
+content of the thing we are applying follow to
+ends.
+
+00:00:59.209 --> 00:00:59.219 align:start position:0%
+ends.
+ 
+
+00:00:59.219 --> 00:01:01.549 align:start position:0%
+ends.
+What <00:00:59.373><c>happens </c><00:00:59.527><c>in </c><00:00:59.681><c>look, </c><00:00:59.835><c>brother, </c><00:00:59.989><c>as </c><00:01:00.143><c>long </c><00:01:00.297><c>as </c><00:01:00.451><c>the </c><00:01:00.605><c>condition </c><00:01:00.759><c>is </c><00:01:00.913><c>true, </c><00:01:01.067><c>it </c><00:01:01.221><c>will </c><00:01:01.375><c>keep</c>
+
+00:01:01.549 --> 00:01:01.559 align:start position:0%
+What happens in look, brother, as long as the condition is true, it will keep
+ 
+
+00:01:01.559 --> 00:01:04.369 align:start position:0%
+What happens in look, brother, as long as the condition is true, it will keep
+running <00:01:01.724><c>as </c><00:01:01.889><c>long </c><00:01:02.054><c>as </c><00:01:02.219><c>there </c><00:01:02.384><c>is </c><00:01:02.549><c>life, </c><00:01:02.714><c>as </c><00:01:02.879><c>long </c><00:01:03.044><c>as </c><00:01:03.209><c>there </c><00:01:03.374><c>is </c><00:01:03.539><c>life, </c><00:01:03.704><c>it </c><00:01:03.869><c>will </c><00:01:04.034><c>keep </c><00:01:04.199><c>running.</c>
+
+00:01:04.369 --> 00:01:04.379 align:start position:0%
+running as long as there is life, as long as there is life, it will keep running.
+ 
+
+00:01:04.379 --> 00:01:06.410 align:start position:0%
+running as long as there is life, as long as there is life, it will keep running.
+So <00:01:04.644><c>now </c><00:01:04.909><c>what </c><00:01:05.174><c>do </c><00:01:05.439><c>we </c><00:01:05.704><c>have </c><00:01:05.969><c>to </c><00:01:06.234><c>do,</c>
+
+00:01:06.410 --> 00:01:06.420 align:start position:0%
+So now what do we have to do,
+ 
+
+00:01:06.420 --> 00:01:08.270 align:start position:0%
+So now what do we have to do,
+how <00:01:06.660><c>long </c><00:01:06.900><c>will </c><00:01:07.140><c>this </c><00:01:07.380><c>life </c><00:01:07.620><c>remain, </c><00:01:07.860><c>that </c><00:01:08.100><c>is,</c>
+
+00:01:08.270 --> 00:01:08.280 align:start position:0%
+how long will this life remain, that is,
+ 
+
+00:01:08.280 --> 00:01:10.810 align:start position:0%
+how long will this life remain, that is,
+how <00:01:08.546><c>long </c><00:01:08.812><c>will </c><00:01:09.078><c>this </c><00:01:09.344><c>condition </c><00:01:09.610><c>remain </c><00:01:09.876><c>true, </c><00:01:10.142><c>we </c><00:01:10.408><c>have </c><00:01:10.674><c>to</c>
+
+00:01:10.810 --> 00:01:10.820 align:start position:0%
+how long will this condition remain true, we have to
+ 
+
+00:01:10.820 --> 00:01:13.190 align:start position:0%
+how long will this condition remain true, we have to
+determine <00:01:11.236><c>this </c><00:01:11.652><c>inside </c><00:01:12.068><c>the </c><00:01:12.484><c>volume. </c><00:01:12.900><c>If</c>
+
+00:01:13.190 --> 00:01:13.200 align:start position:0%
+determine this inside the volume. If
+ 
+
+00:01:13.200 --> 00:01:14.750 align:start position:0%
+determine this inside the volume. If
+I <00:01:13.405><c>leave </c><00:01:13.610><c>it </c><00:01:13.815><c>like </c><00:01:14.020><c>this, </c><00:01:14.225><c>then </c><00:01:14.430><c>I </c><00:01:14.635><c>will</c>
+
+00:01:14.750 --> 00:01:14.760 align:start position:0%
+I leave it like this, then I will
+ 
+
+00:01:14.760 --> 00:01:16.249 align:start position:0%
+I leave it like this, then I will
+show <00:01:14.913><c>you </c><00:01:15.066><c>how </c><00:01:15.219><c>to </c><00:01:15.372><c>run </c><00:01:15.525><c>it, </c><00:01:15.678><c>friend, </c><00:01:15.831><c>look </c><00:01:15.984><c>at </c><00:01:16.137><c>this,</c>
+
+00:01:16.249 --> 00:01:16.259 align:start position:0%
+show you how to run it, friend, look at this,
+ 
+
+00:01:16.259 --> 00:01:17.630 align:start position:0%
+show you how to run it, friend, look at this,
+here <00:01:16.329><c>zero </c><00:01:16.399><c>is </c><00:01:16.469><c>getting </c><00:01:16.539><c>printed, </c><00:01:16.609><c>it </c><00:01:16.679><c>keeps </c><00:01:16.749><c>getting </c><00:01:16.819><c>printed, </c><00:01:16.889><c>it </c><00:01:16.959><c>keeps </c><00:01:17.029><c>getting </c><00:01:17.099><c>printed, </c><00:01:17.169><c>it </c><00:01:17.239><c>keeps </c><00:01:17.309><c>getting </c><00:01:17.379><c>printed, </c><00:01:17.449><c>it </c><00:01:17.519><c>is</c>
+
+00:01:17.630 --> 00:01:19.010 align:start position:0%
+here zero is getting printed, it keeps getting printed, it keeps getting printed, it keeps getting printed, it is
+ 
+
+00:01:19.010 --> 00:01:20.390 align:start position:0%
+ 
+ 
+
+00:01:20.390 --> 00:01:20.400 align:start position:0%
+ 
+ 
+
+00:01:20.400 --> 00:01:22.070 align:start position:0%
+ 
+not <00:01:20.587><c>going </c><00:01:20.774><c>to </c><00:01:20.961><c>stop </c><00:01:21.148><c>until </c><00:01:21.335><c>I </c><00:01:21.522><c>stop </c><00:01:21.709><c>it, </c><00:01:21.896><c>so</c>
+
+00:01:22.070 --> 00:01:22.080 align:start position:0%
+not going to stop until I stop it, so
+ 
+
+00:01:22.080 --> 00:01:23.450 align:start position:0%
+not going to stop until I stop it, so
+how <00:01:22.212><c>will </c><00:01:22.344><c>I </c><00:01:22.476><c>stop </c><00:01:22.608><c>it </c><00:01:22.740><c>from </c><00:01:22.872><c>stopping? </c><00:01:23.004><c>What </c><00:01:23.136><c>will </c><00:01:23.268><c>I </c><00:01:23.400><c>do,</c>
+
+00:01:23.450 --> 00:01:23.460 align:start position:0%
+how will I stop it from stopping? What will I do,
+ 
+
+00:01:23.460 --> 00:01:25.789 align:start position:0%
+how will I stop it from stopping? What will I do,
+after <00:01:23.760><c>print </c><00:01:24.060><c>i, </c><00:01:24.360><c>I </c><00:01:24.660><c>will </c><00:01:24.960><c>put </c><00:01:25.260><c>a </c><00:01:25.560><c>condition</c>
+
+00:01:25.789 --> 00:01:25.799 align:start position:0%
+after print i, I will put a condition
+ 
+
+00:01:25.799 --> 00:01:27.590 align:start position:0%
+after print i, I will put a condition
+updates <00:01:26.234><c>treatment </c><00:01:26.669><c>here, </c><00:01:27.104><c>I </c><00:01:27.539><c>will</c>
+
+00:01:27.590 --> 00:01:27.600 align:start position:0%
+updates treatment here, I will
+ 
+
+00:01:27.600 --> 00:01:30.469 align:start position:0%
+updates treatment here, I will
+write <00:01:27.959><c>i </c><00:01:28.318><c>= </c><00:01:28.677><c>i </c><00:01:29.036><c>+ </c><00:01:29.395><c>1, </c><00:01:29.754><c>what </c><00:01:30.113><c>is </c><00:01:30.472><c>this,</c>
+
+00:01:30.469 --> 00:01:30.479 align:start position:0%
+write i = i + 1, what is this,
+ 
+
+00:01:30.479 --> 00:01:32.270 align:start position:0%
+write i = i + 1, what is this,
+equal, <00:01:30.839><c>that </c><00:01:31.199><c>is </c><00:01:31.559><c>our </c><00:01:31.919><c>assignment </c><00:01:32.279><c>operator.</c>
+
+00:01:32.270 --> 00:01:32.280 align:start position:0%
+equal, that is our assignment operator.
+ 
+
+00:01:32.280 --> 00:01:34.130 align:start position:0%
+equal, that is our assignment operator.
+I <00:01:32.490><c>will </c><00:01:32.700><c>talk </c><00:01:32.910><c>more </c><00:01:33.120><c>about </c><00:01:33.330><c>operators </c><00:01:33.540><c>in </c><00:01:33.750><c>a </c><00:01:33.960><c>video,</c>
+
+00:01:34.130 --> 00:01:34.140 align:start position:0%
+I will talk more about operators in a video,
+ 
+
+00:01:34.140 --> 00:01:35.450 align:start position:0%
+I will talk more about operators in a video,
+but <00:01:34.425><c>for </c><00:01:34.710><c>now, </c><00:01:34.995><c>just </c><00:01:35.280><c>understand</c>
+
+00:01:35.450 --> 00:01:35.460 align:start position:0%
+but for now, just understand
+ 
+
+00:01:35.460 --> 00:01:38.270 align:start position:0%
+but for now, just understand
+that <00:01:36.320><c>this </c><00:01:37.180><c>statement </c><00:01:38.040><c>will</c>
+
+00:01:38.270 --> 00:01:38.280 align:start position:0%
+that this statement will
+ 
+
+00:01:38.280 --> 00:01:40.010 align:start position:0%
+that this statement will
+increment <00:01:38.395><c>i </c><00:01:38.510><c>by </c><00:01:38.625><c>one </c><00:01:38.740><c>and </c><00:01:38.855><c>as </c><00:01:38.970><c>it </c><00:01:39.085><c>keeps </c><00:01:39.200><c>incrementing, </c><00:01:39.315><c>it </c><00:01:39.430><c>will </c><00:01:39.545><c>keep </c><00:01:39.660><c>getting </c><00:01:39.775><c>printed</c>
+
+00:01:40.010 --> 00:01:40.020 align:start position:0%
+increment i by one and as it keeps incrementing, it will keep getting printed
+ 
+
+00:01:40.020 --> 00:01:41.569 align:start position:0%
+increment i by one and as it keeps incrementing, it will keep getting printed
+one <00:01:40.207><c>time.  </c><00:01:40.394><c>It </c><00:01:40.581><c>will </c><00:01:40.768><c>happen </c><00:01:40.955><c>that </c><00:01:41.142><c>it </c><00:01:41.329><c>will </c><00:01:41.516><c>become</c>
+
+00:01:41.569 --> 00:01:41.579 align:start position:0%
+one time.  It will happen that it will become
+ 
+
+00:01:41.579 --> 00:01:44.149 align:start position:0%
+one time.  It will happen that it will become
+greater <00:01:41.930><c>than </c><00:01:42.281><c>45 </c><00:01:42.632><c>and </c><00:01:42.983><c>this </c><00:01:43.334><c>condition </c><00:01:43.685><c>will </c><00:01:44.036><c>become</c>
+
+00:01:44.149 --> 00:01:44.159 align:start position:0%
+greater than 45 and this condition will become
+ 
+
+00:01:44.159 --> 00:01:46.670 align:start position:0%
+greater than 45 and this condition will become
+false <00:01:44.425><c>and </c><00:01:44.691><c>even </c><00:01:44.957><c>if </c><00:01:45.223><c>it </c><00:01:45.489><c>becomes </c><00:01:45.755><c>45 </c><00:01:46.021><c>then </c><00:01:46.287><c>also </c><00:01:46.553><c>the</c>
+
+00:01:46.670 --> 00:01:46.680 align:start position:0%
+false and even if it becomes 45 then also the
+ 
+
+00:01:46.680 --> 00:01:48.889 align:start position:0%
+false and even if it becomes 45 then also the
+condition <00:01:46.912><c>will </c><00:01:47.144><c>become </c><00:01:47.376><c>false </c><00:01:47.608><c>and </c><00:01:47.840><c>slowly </c><00:01:48.072><c>44 </c><00:01:48.304><c>will </c><00:01:48.536><c>be</c>
+
+00:01:48.889 --> 00:01:48.899 align:start position:0%
+condition will become false and slowly 44 will be
+ 
+
+00:01:48.899 --> 00:01:50.210 align:start position:0%
+condition will become false and slowly 44 will be
+printed <00:01:49.184><c>for </c><00:01:49.469><c>us, </c><00:01:49.754><c>I </c><00:01:50.039><c>will</c>
+
+00:01:50.210 --> 00:01:50.220 align:start position:0%
+printed for us, I will
+ 
+
+00:01:50.220 --> 00:01:51.830 align:start position:0%
+printed for us, I will
+show <00:01:50.470><c>you </c><00:01:50.720><c>guys, </c><00:01:50.970><c>as </c><00:01:51.220><c>soon </c><00:01:51.470><c>as </c><00:01:51.720><c>I</c>
+
+00:01:51.830 --> 00:01:51.840 align:start position:0%
+show you guys, as soon as I
+ 
+
+00:01:51.840 --> 00:01:53.149 align:start position:0%
+show you guys, as soon as I
+print <00:01:52.002><c>this, </c><00:01:52.164><c>you </c><00:01:52.326><c>guys </c><00:01:52.488><c>see </c><00:01:52.650><c>here </c><00:01:52.812><c>it </c><00:01:52.974><c>is</c>
+
+00:01:53.149 --> 00:01:53.159 align:start position:0%
+print this, you guys see here it is
+ 
+
+00:01:53.159 --> 00:01:56.030 align:start position:0%
+print this, you guys see here it is
+printing <00:01:53.465><c>from </c><00:01:53.771><c>zero </c><00:01:54.077><c>to </c><00:01:54.383><c>44 </c><00:01:54.689><c>and </c><00:01:54.995><c>this </c><00:01:55.301><c>is </c><00:01:55.607><c>a </c><00:01:55.913><c>very</c>
+
+00:01:56.030 --> 00:01:56.040 align:start position:0%
+printing from zero to 44 and this is a very
+ 
+
+00:01:56.040 --> 00:01:58.490 align:start position:0%
+printing from zero to 44 and this is a very
+good <00:01:56.256><c>thing, </c><00:01:56.472><c>friend, </c><00:01:56.688><c>I </c><00:01:56.904><c>have </c><00:01:57.120><c>learned </c><00:01:57.336><c>to </c><00:01:57.552><c>stop </c><00:01:57.768><c>the </c><00:01:57.984><c>look </c><00:01:58.200><c>here</c>
+
+00:01:58.490 --> 00:01:58.500 align:start position:0%
+good thing, friend, I have learned to stop the look here
+ 
+
+00:01:58.500 --> 00:02:00.709 align:start position:0%
+good thing, friend, I have learned to stop the look here
+and <00:01:58.920><c>I </c><00:01:59.340><c>do </c><00:01:59.760><c>it, </c><00:02:00.180><c>I </c><00:02:00.600><c>understood</c>
+
+00:02:00.709 --> 00:02:00.719 align:start position:0%
+and I do it, I understood
+ 
+
+00:02:00.719 --> 00:02:03.249 align:start position:0%
+and I do it, I understood
+when <00:02:00.984><c>to </c><00:02:01.249><c>use </c><00:02:01.514><c>the </c><00:02:01.779><c>for </c><00:02:02.044><c>loop, </c><00:02:02.309><c>I </c><00:02:02.574><c>get</c>
+
+00:02:03.249 --> 00:02:03.259 align:start position:0%
+when to use the for loop, I get
+ 
+
+00:02:03.259 --> 00:02:05.709 align:start position:0%
+when to use the for loop, I get
+many <00:02:04.089><c>questions, </c><00:02:04.919><c>it</c>
+
+00:02:05.709 --> 00:02:05.719 align:start position:0%
+many questions, it
+ 
+
+00:02:05.719 --> 00:02:08.809 align:start position:0%
+many questions, it
+is <00:02:06.036><c>fast, </c><00:02:06.353><c>file </c><00:02:06.670><c>loop </c><00:02:06.987><c>is </c><00:02:07.304><c>fast, </c><00:02:07.621><c>should </c><00:02:07.938><c>I </c><00:02:08.255><c>use </c><00:02:08.572><c>it,</c>
+
+00:02:08.809 --> 00:02:08.819 align:start position:0%
+is fast, file loop is fast, should I use it,
+ 
+
+00:02:08.819 --> 00:02:12.410 align:start position:0%
+is fast, file loop is fast, should I use it,
+I <00:02:09.137><c>need </c><00:02:09.455><c>speed, </c><00:02:09.773><c>file </c><00:02:10.091><c>for, </c><00:02:10.409><c>friend, </c><00:02:10.727><c>see, </c><00:02:11.045><c>it </c><00:02:11.363><c>happens </c><00:02:11.681><c>that </c><00:02:11.999><c>the</c>
+
+00:02:12.410 --> 00:02:12.420 align:start position:0%
+I need speed, file for, friend, see, it happens that the
+ 
+
+00:02:12.420 --> 00:02:13.910 align:start position:0%
+I need speed, file for, friend, see, it happens that the
+while <00:02:12.670><c>loop </c><00:02:12.920><c>and </c><00:02:13.170><c>the </c><00:02:13.420><c>follow </c><00:02:13.670><c>loop </c><00:02:13.920><c>are</c>
+
+00:02:13.910 --> 00:02:13.920 align:start position:0%
+while loop and the follow loop are
+ 
+
+00:02:13.920 --> 00:02:16.130 align:start position:0%
+while loop and the follow loop are
+made <00:02:14.208><c>for </c><00:02:14.496><c>your </c><00:02:14.784><c>convenience, </c><00:02:15.072><c>both </c><00:02:15.360><c>the</c>
+
+00:02:16.130 --> 00:02:16.140 align:start position:0%
+made for your convenience, both the
+ 
+
+00:02:16.140 --> 00:02:18.290 align:start position:0%
+made for your convenience, both the
+loops <00:02:16.839><c>boil </c><00:02:17.538><c>down </c><00:02:18.237><c>to</c>
+
+00:02:18.290 --> 00:02:18.300 align:start position:0%
+loops boil down to
+ 
+
+00:02:18.300 --> 00:02:20.630 align:start position:0%
+loops boil down to
+machine <00:02:18.720><c>level </c><00:02:19.140><c>code, </c><00:02:19.560><c>so </c><00:02:19.980><c>I </c><00:02:20.400><c>will</c>
+
+00:02:20.630 --> 00:02:20.640 align:start position:0%
+machine level code, so I will
+ 
+
+00:02:20.640 --> 00:02:22.670 align:start position:0%
+machine level code, so I will
+not <00:02:20.872><c>talk </c><00:02:21.104><c>much </c><00:02:21.336><c>about </c><00:02:21.568><c>machine </c><00:02:21.800><c>level </c><00:02:22.032><c>code </c><00:02:22.264><c>here, </c><00:02:22.496><c>just</c>
+
+00:02:22.670 --> 00:02:22.680 align:start position:0%
+not talk much about machine level code here, just
+ 
+
+00:02:22.680 --> 00:02:24.770 align:start position:0%
+not talk much about machine level code here, just
+understand <00:02:22.893><c>this </c><00:02:23.106><c>much, </c><00:02:23.319><c>use </c><00:02:23.532><c>what </c><00:02:23.745><c>you </c><00:02:23.958><c>find </c><00:02:24.171><c>easy, </c><00:02:24.384><c>what </c><00:02:24.597><c>you</c>
+
+00:02:24.770 --> 00:02:24.780 align:start position:0%
+understand this much, use what you find easy, what you
+ 
+
+00:02:24.780 --> 00:02:26.690 align:start position:0%
+understand this much, use what you find easy, what you
+do <00:02:25.339><c>is, </c><00:02:25.898><c>you </c><00:02:26.457><c>should</c>
+
+00:02:26.690 --> 00:02:28.729 align:start position:0%
+do is, you should
+ 
+
+00:02:28.729 --> 00:02:28.739 align:start position:0%
+ 
+ 
+
+00:02:28.739 --> 00:02:30.050 align:start position:0%
+ 
+not <00:02:28.840><c>put </c><00:02:28.941><c>any </c><00:02:29.042><c>unnecessary </c><00:02:29.143><c>lines </c><00:02:29.244><c>while </c><00:02:29.345><c>programming, </c><00:02:29.446><c>you </c><00:02:29.547><c>should </c><00:02:29.648><c>not </c><00:02:29.749><c>put </c><00:02:29.850><c>any </c><00:02:29.951><c>such </c><00:02:30.052><c>line</c>
+
+00:02:30.050 --> 00:02:30.060 align:start position:0%
+not put any unnecessary lines while programming, you should not put any such line
+ 
+
+00:02:30.060 --> 00:02:31.610 align:start position:0%
+not put any unnecessary lines while programming, you should not put any such line
+which <00:02:30.300><c>takes </c><00:02:30.540><c>time, </c><00:02:30.780><c>right </c><00:02:31.020><c>now </c><00:02:31.260><c>we </c><00:02:31.500><c>are</c>
+
+00:02:31.610 --> 00:02:31.620 align:start position:0%
+which takes time, right now we are
+ 
+
+00:02:31.620 --> 00:02:33.530 align:start position:0%
+which takes time, right now we are
+not <00:02:31.877><c>reducing </c><00:02:32.134><c>on </c><00:02:32.391><c>optimization </c><00:02:32.648><c>here </c><00:02:32.905><c>when </c><00:02:33.162><c>you </c><00:02:33.419><c>are</c>
+
+00:02:33.530 --> 00:02:33.540 align:start position:0%
+not reducing on optimization here when you are
+ 
+
+00:02:33.540 --> 00:02:34.490 align:start position:0%
+not reducing on optimization here when you are
+learning <00:02:33.659><c>the </c><00:02:33.778><c>basics  </c><00:02:33.897><c>If </c><00:02:34.016><c>you </c><00:02:34.135><c>are </c><00:02:34.254><c>learning </c><00:02:34.373><c>any</c>
+
+00:02:34.490 --> 00:02:34.500 align:start position:0%
+learning the basics  If you are learning any
+ 
+
+00:02:34.500 --> 00:02:36.710 align:start position:0%
+learning the basics  If you are learning any
+programming <00:02:34.965><c>language </c><00:02:35.430><c>then </c><00:02:35.895><c>your </c><00:02:36.360><c>first</c>
+
+00:02:36.710 --> 00:02:36.720 align:start position:0%
+programming language then your first
+ 
+
+00:02:36.720 --> 00:02:39.110 align:start position:0%
+programming language then your first
+target <00:02:36.952><c>should </c><00:02:37.184><c>be </c><00:02:37.416><c>that </c><00:02:37.648><c>I </c><00:02:37.880><c>have </c><00:02:38.112><c>to </c><00:02:38.344><c>get </c><00:02:38.576><c>this</c>
+
+00:02:39.110 --> 00:02:39.120 align:start position:0%
+target should be that I have to get this
+ 
+
+00:02:39.120 --> 00:02:41.210 align:start position:0%
+target should be that I have to get this
+work <00:02:39.339><c>done </c><00:02:39.558><c>and </c><00:02:39.777><c>I </c><00:02:39.996><c>have </c><00:02:40.215><c>to </c><00:02:40.434><c>get </c><00:02:40.653><c>this </c><00:02:40.872><c>work </c><00:02:41.091><c>done,</c>
+
+00:02:41.210 --> 00:02:41.220 align:start position:0%
+work done and I have to get this work done,
+ 
+
+00:02:41.220 --> 00:02:43.190 align:start position:0%
+work done and I have to get this work done,
+you <00:02:41.406><c>have </c><00:02:41.592><c>to </c><00:02:41.778><c>get </c><00:02:41.964><c>your </c><00:02:42.150><c>work </c><00:02:42.336><c>done </c><00:02:42.522><c>by </c><00:02:42.708><c>doing </c><00:02:42.894><c>anything, </c><00:02:43.080><c>so</c>
+
+00:02:43.190 --> 00:02:45.650 align:start position:0%
+you have to get your work done by doing anything, so
+ 
+
+00:02:45.650 --> 00:02:45.660 align:start position:0%
+ 
+ 
+
+00:02:45.660 --> 00:02:47.990 align:start position:0%
+ 
+if <00:02:46.710><c>you </c><00:02:47.760><c>want</c>
+
+00:02:47.990 --> 00:02:48.000 align:start position:0%
+if you want
+ 
+
+00:02:48.000 --> 00:02:49.970 align:start position:0%
+if you want
+to <00:02:48.129><c>print </c><00:02:48.258><c>a </c><00:02:48.387><c>number </c><00:02:48.516><c>from </c><00:02:48.645><c>zero </c><00:02:48.774><c>to </c><00:02:48.903><c>45 </c><00:02:49.032><c>then </c><00:02:49.161><c>why </c><00:02:49.290><c>not </c><00:02:49.419><c>do </c><00:02:49.548><c>a </c><00:02:49.677><c>print</c>
+
+00:02:49.970 --> 00:02:49.980 align:start position:0%
+to print a number from zero to 45 then why not do a print
+ 
+
+00:02:49.980 --> 00:02:59.809 align:start position:0%
+to print a number from zero to 45 then why not do a print
+statement, should I
+
+00:02:59.809 --> 00:02:59.819 align:start position:0%
+ 
+ 
+
+00:02:59.819 --> 00:03:01.250 align:start position:0%
+ 
+not <00:02:59.990><c>do </c><00:03:00.161><c>it, </c><00:03:00.332><c>should </c><00:03:00.503><c>I </c><00:03:00.674><c>go </c><00:03:00.845><c>to </c><00:03:01.016><c>the</c>
+
+00:03:01.250 --> 00:03:01.260 align:start position:0%
+not do it, should I go to the
+ 
+
+00:03:01.260 --> 00:03:03.050 align:start position:0%
+not do it, should I go to the
+objective, <00:03:01.500><c>should </c><00:03:01.740><c>I </c><00:03:01.980><c>not </c><00:03:02.220><c>go </c><00:03:02.460><c>to </c><00:03:02.700><c>the </c><00:03:02.940><c>objective,</c>
+
+00:03:03.050 --> 00:03:03.060 align:start position:0%
+objective, should I not go to the objective,
+ 
+
+00:03:03.060 --> 00:03:04.970 align:start position:0%
+objective, should I not go to the objective,
+all <00:03:03.320><c>those </c><00:03:03.580><c>things </c><00:03:03.840><c>come </c><00:03:04.100><c>later, </c><00:03:04.360><c>so </c><00:03:04.620><c>I</c>
+
+00:03:04.970 --> 00:03:04.980 align:start position:0%
+all those things come later, so I
+ 
+
+00:03:04.980 --> 00:03:06.290 align:start position:0%
+all those things come later, so I
+hope <00:03:05.294><c>you </c><00:03:05.608><c>liked </c><00:03:05.922><c>this </c><00:03:06.236><c>video,</c>
+
+00:03:06.290 --> 00:03:06.300 align:start position:0%
+hope you liked this video,
+ 
+
+00:03:06.300 --> 00:03:07.309 align:start position:0%
+hope you liked this video,
+if <00:03:06.492><c>you </c><00:03:06.684><c>liked </c><00:03:06.876><c>my </c><00:03:07.068><c>video </c><00:03:07.260><c>then</c>
+
+00:03:07.309 --> 00:03:07.319 align:start position:0%
+if you liked my video then
+ 
+
+00:03:07.319 --> 00:03:08.630 align:start position:0%
+if you liked my video then
+you <00:03:07.619><c>must </c><00:03:07.919><c>like </c><00:03:08.219><c>this </c><00:03:08.519><c>video</c>
+
+00:03:08.630 --> 00:03:08.640 align:start position:0%
+you must like this video
+ 
+
+00:03:08.640 --> 00:03:10.009 align:start position:0%
+you must like this video
+and <00:03:09.060><c>if </c><00:03:09.480><c>you </c><00:03:09.900><c>have</c>
+
+00:03:10.009 --> 00:03:10.019 align:start position:0%
+and if you have
+ 
+
+00:03:10.019 --> 00:03:11.390 align:start position:0%
+and if you have
+not <00:03:10.319><c>accessed </c><00:03:10.619><c>my </c><00:03:10.919><c>playlist </c><00:03:11.219><c>then</c>
+
+00:03:11.390 --> 00:03:11.400 align:start position:0%
+not accessed my playlist then
+ 
+
+00:03:11.400 --> 00:03:13.610 align:start position:0%
+not accessed my playlist then
+what <00:03:11.590><c>should </c><00:03:11.780><c>you </c><00:03:11.970><c>do, </c><00:03:12.160><c>open </c><00:03:12.350><c>my </c><00:03:12.540><c>channel </c><00:03:12.730><c>and </c><00:03:12.920><c>go </c><00:03:13.110><c>to </c><00:03:13.300><c>the </c><00:03:13.490><c>playlist,</c>
+
+00:03:13.610 --> 00:03:14.990 align:start position:0%
+what should you do, open my channel and go to the playlist,
+ 
+
+00:03:14.990 --> 00:03:15.000 align:start position:0%
+ 
+ 
+
+00:03:15.000 --> 00:03:16.430 align:start position:0%
+ 
+what <00:03:15.210><c>will </c><00:03:15.420><c>happen </c><00:03:15.630><c>after </c><00:03:15.840><c>that, </c><00:03:16.050><c>this </c><00:03:16.260><c>playlist</c>
+
+00:03:16.430 --> 00:03:16.440 align:start position:0%
+what will happen after that, this playlist
+ 
+
+00:03:16.440 --> 00:03:18.410 align:start position:0%
+what will happen after that, this playlist
+will <00:03:16.705><c>open </c><00:03:16.970><c>and </c><00:03:17.235><c>click </c><00:03:17.500><c>on </c><00:03:17.765><c>play </c><00:03:18.030><c>all </c><00:03:18.295><c>and</c>
+
+00:03:18.410 --> 00:03:18.420 align:start position:0%
+will open and click on play all and
+ 
+
+00:03:18.420 --> 00:03:19.970 align:start position:0%
+will open and click on play all and
+watch <00:03:18.540><c>your </c><00:03:18.660><c>video </c><00:03:18.780><c>of </c><00:03:18.900><c>choice, </c><00:03:19.020><c>what </c><00:03:19.140><c>will </c><00:03:19.260><c>happen </c><00:03:19.380><c>from </c><00:03:19.500><c>that </c><00:03:19.620><c>is </c><00:03:19.740><c>that </c><00:03:19.860><c>the</c>
+
+00:03:19.970 --> 00:03:19.980 align:start position:0%
+watch your video of choice, what will happen from that is that the
+ 
+
+00:03:19.980 --> 00:03:22.130 align:start position:0%
+watch your video of choice, what will happen from that is that the
+entire <00:03:20.290><c>syllabus </c><00:03:20.600><c>will </c><00:03:20.910><c>appear </c><00:03:21.220><c>on </c><00:03:21.530><c>your </c><00:03:21.840><c>side</c>
+
+00:03:22.130 --> 00:03:22.140 align:start position:0%
+entire syllabus will appear on your side
+ 
+
+00:03:22.140 --> 00:03:24.710 align:start position:0%
+entire syllabus will appear on your side
+and <00:03:22.380><c>when </c><00:03:22.620><c>the </c><00:03:22.860><c>syllabus </c><00:03:23.100><c>is </c><00:03:23.340><c>on </c><00:03:23.580><c>the </c><00:03:23.820><c>side </c><00:03:24.060><c>then </c><00:03:24.300><c>it </c><00:03:24.540><c>is</c>
+
+00:03:24.710 --> 00:03:24.720 align:start position:0%
+and when the syllabus is on the side then it is
+ 
+
+00:03:24.720 --> 00:03:26.509 align:start position:0%
+and when the syllabus is on the side then it is
+fun <00:03:24.922><c>to </c><00:03:25.124><c>study </c><00:03:25.326><c>and </c><00:03:25.528><c>I </c><00:03:25.730><c>also </c><00:03:25.932><c>remain </c><00:03:26.134><c>engaged, </c><00:03:26.336><c>so</c>
+
+00:03:26.509 --> 00:03:26.519 align:start position:0%
+fun to study and I also remain engaged, so
+ 
+
+00:03:26.519 --> 00:03:28.309 align:start position:0%
+fun to study and I also remain engaged, so
+I <00:03:26.685><c>hope </c><00:03:26.851><c>that </c><00:03:27.017><c>along </c><00:03:27.183><c>with </c><00:03:27.349><c>this </c><00:03:27.515><c>video </c><00:03:27.681><c>series, </c><00:03:27.847><c>I </c><00:03:28.013><c>would</c>
+
+00:03:28.309 --> 00:03:28.319 align:start position:0%
+I hope that along with this video series, I would
+ 
+
+00:03:28.319 --> 00:03:29.509 align:start position:0%
+I hope that along with this video series, I would
+request <00:03:29.220><c>you</c>
+
+00:03:29.509 --> 00:03:29.519 align:start position:0%
+request you
+ 
+
+00:03:29.519 --> 00:03:31.070 align:start position:0%
+request you
+that <00:03:29.783><c>you </c><00:03:30.047><c>also </c><00:03:30.311><c>do </c><00:03:30.575><c>your </c><00:03:30.839><c>own</c>
+
+00:03:31.070 --> 00:03:31.080 align:start position:0%
+that you also do your own
+ 
+
+00:03:31.080 --> 00:03:32.750 align:start position:0%
+that you also do your own
+Keep <00:03:31.268><c>practicing, </c><00:03:31.456><c>keep </c><00:03:31.644><c>writing </c><00:03:31.832><c>programs, </c><00:03:32.020><c>and </c><00:03:32.208><c>show </c><00:03:32.396><c>me</c>
+
+00:03:32.750 --> 00:03:32.760 align:start position:0%
+Keep practicing, keep writing programs, and show me
+ 
+
+00:03:32.760 --> 00:03:34.670 align:start position:0%
+Keep practicing, keep writing programs, and show me
+what <00:03:33.108><c>you've </c><00:03:33.456><c>written. </c><00:03:33.804><c>I'd </c><00:03:34.152><c>love </c><00:03:34.500><c>to.</c>
+
+00:03:34.670 --> 00:03:34.680 align:start position:0%
+what you've written. I'd love to.
+ 
+
+00:03:34.680 --> 00:03:36.770 align:start position:0%
+what you've written. I'd love to.
+Thank <00:03:34.848><c>you </c><00:03:35.016><c>so </c><00:03:35.184><c>much </c><00:03:35.352><c>for </c><00:03:35.520><c>watching </c><00:03:35.688><c>this </c><00:03:35.856><c>video </c><00:03:36.024><c>and </c><00:03:36.192><c>see </c><00:03:36.360><c>you</c>
+
+00:03:36.770 --> 00:03:36.780 align:start position:0%
+Thank you so much for watching this video and see you
+ 
+
+00:03:36.780 --> 00:03:41.350 align:start position:0%
+Thank you so much for watching this video and see you
+next <00:03:37.440><c>time.</c>
+
+00:03:41.350 --> 00:03:41.360 align:start position:0%
+ 
+ 
+
+00:03:41.360 --> 00:03:55.860 align:start position:0%
+ 
+[Music]
+

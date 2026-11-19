@@ -1,0 +1,2000 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:00.000 --> 00:00:02.090 align:start position:0%
+ 
+Sometimes <00:00:00.219><c>the </c><00:00:00.438><c>code </c><00:00:00.657><c>we </c><00:00:00.876><c>write </c><00:00:01.095><c>contains </c><00:00:01.314><c>an </c><00:00:01.533><c>error, </c><00:00:01.752><c>not </c><00:00:01.971><c>just</c>
+
+00:00:02.090 --> 00:00:02.100 align:start position:0%
+Sometimes the code we write contains an error, not just
+ 
+
+00:00:02.100 --> 00:00:03.949 align:start position:0%
+Sometimes the code we write contains an error, not just
+sometimes, <00:00:02.475><c>but </c><00:00:02.850><c>errors </c><00:00:03.225><c>occur </c><00:00:03.600><c>frequently.</c>
+
+00:00:03.949 --> 00:00:06.590 align:start position:0%
+sometimes, but errors occur frequently.
+ 
+
+00:00:06.590 --> 00:00:06.600 align:start position:0%
+ 
+ 
+
+00:00:06.600 --> 00:00:08.990 align:start position:0%
+ 
+Whenever <00:00:07.619><c>a </c><00:00:08.638><c>programmer</c>
+
+00:00:08.990 --> 00:00:09.000 align:start position:0%
+Whenever a programmer
+ 
+
+00:00:09.000 --> 00:00:11.270 align:start position:0%
+Whenever a programmer
+makes <00:00:09.174><c>a </c><00:00:09.348><c>mistake, </c><00:00:09.522><c>or </c><00:00:09.696><c>sometimes </c><00:00:09.870><c>a </c><00:00:10.044><c>mistake </c><00:00:10.218><c>can </c><00:00:10.392><c>occur </c><00:00:10.566><c>with </c><00:00:10.740><c>a </c><00:00:10.914><c>server.</c>
+
+00:00:11.270 --> 00:00:11.280 align:start position:0%
+makes a mistake, or sometimes a mistake can occur with a server.
+ 
+
+00:00:11.280 --> 00:00:12.589 align:start position:0%
+makes a mistake, or sometimes a mistake can occur with a server.
+We <00:00:11.790><c>might </c><00:00:12.300><c>have</c>
+
+00:00:12.589 --> 00:00:12.599 align:start position:0%
+We might have
+ 
+
+00:00:12.599 --> 00:00:14.390 align:start position:0%
+We might have
+requested <00:00:12.839><c>some </c><00:00:13.079><c>records </c><00:00:13.319><c>from </c><00:00:13.559><c>the </c><00:00:13.799><c>server </c><00:00:14.039><c>and </c><00:00:14.279><c>those</c>
+
+00:00:14.390 --> 00:00:14.400 align:start position:0%
+requested some records from the server and those
+ 
+
+00:00:14.400 --> 00:00:16.550 align:start position:0%
+requested some records from the server and those
+records <00:00:14.592><c>might </c><00:00:14.784><c>not </c><00:00:14.976><c>have </c><00:00:15.168><c>been </c><00:00:15.360><c>received. </c><00:00:15.552><c>Due </c><00:00:15.744><c>to </c><00:00:15.936><c>a </c><00:00:16.128><c>server </c><00:00:16.320><c>error,</c>
+
+00:00:16.550 --> 00:00:16.560 align:start position:0%
+records might not have been received. Due to a server error,
+ 
+
+00:00:16.560 --> 00:00:17.990 align:start position:0%
+records might not have been received. Due to a server error,
+our <00:00:17.000><c>Python </c><00:00:17.440><c>program </c><00:00:17.880><c>might</c>
+
+00:00:17.990 --> 00:00:18.000 align:start position:0%
+our Python program might
+ 
+
+00:00:18.000 --> 00:00:20.390 align:start position:0%
+our Python program might
+terminate. <00:00:18.700><c>We </c><00:00:19.400><c>don't </c><00:00:20.100><c>want</c>
+
+00:00:20.390 --> 00:00:20.400 align:start position:0%
+terminate. We don't want
+ 
+
+00:00:20.400 --> 00:00:22.609 align:start position:0%
+terminate. We don't want
+our <00:00:20.593><c>program </c><00:00:20.786><c>to </c><00:00:20.979><c>stop </c><00:00:21.172><c>because </c><00:00:21.365><c>of </c><00:00:21.558><c>any </c><00:00:21.751><c>error. </c><00:00:21.944><c>That's </c><00:00:22.137><c>why</c>
+
+00:00:22.609 --> 00:00:22.619 align:start position:0%
+our program to stop because of any error. That's why
+ 
+
+00:00:22.619 --> 00:00:24.290 align:start position:0%
+our program to stop because of any error. That's why
+we <00:00:23.880><c>use</c>
+
+00:00:24.290 --> 00:00:24.300 align:start position:0%
+we use
+ 
+
+00:00:24.300 --> 00:00:25.970 align:start position:0%
+we use
+error <00:00:24.497><c>handling </c><00:00:24.694><c>within </c><00:00:24.891><c>our </c><00:00:25.088><c>Python </c><00:00:25.285><c>programs. </c><00:00:25.482><c>To </c><00:00:25.679><c>handle</c>
+
+00:00:25.970 --> 00:00:25.980 align:start position:0%
+error handling within our Python programs. To handle
+ 
+
+00:00:25.980 --> 00:00:27.890 align:start position:0%
+error handling within our Python programs. To handle
+errors <00:00:26.400><c>in </c><00:00:26.820><c>Python, </c><00:00:27.240><c>we </c><00:00:27.660><c>use</c>
+
+00:00:27.890 --> 00:00:27.900 align:start position:0%
+errors in Python, we use
+ 
+
+00:00:27.900 --> 00:00:29.990 align:start position:0%
+errors in Python, we use
+dry <00:00:28.349><c>exceptions </c><00:00:28.798><c>and </c><00:00:29.247><c>dry </c><00:00:29.696><c>exceptions.</c>
+
+00:00:29.990 --> 00:00:30.000 align:start position:0%
+dry exceptions and dry exceptions.
+ 
+
+00:00:30.000 --> 00:00:32.030 align:start position:0%
+dry exceptions and dry exceptions.
+Exception <00:00:30.309><c>handling </c><00:00:30.618><c>is </c><00:00:30.927><c>so </c><00:00:31.236><c>easy. </c><00:00:31.545><c>Let's </c><00:00:31.854><c>watch</c>
+
+00:00:32.030 --> 00:00:32.040 align:start position:0%
+Exception handling is so easy. Let's watch
+ 
+
+00:00:32.040 --> 00:00:33.470 align:start position:0%
+Exception handling is so easy. Let's watch
+this <00:00:32.460><c>video </c><00:00:32.880><c>on </c><00:00:33.300><c>your</c>
+
+00:00:33.470 --> 00:00:33.480 align:start position:0%
+this video on your
+ 
+
+00:00:33.480 --> 00:00:35.330 align:start position:0%
+this video on your
+computer <00:00:33.980><c>screen </c><00:00:34.480><c>and </c><00:00:34.980><c>see</c>
+
+00:00:35.330 --> 00:00:35.340 align:start position:0%
+computer screen and see
+ 
+
+00:00:35.340 --> 00:00:37.190 align:start position:0%
+computer screen and see
+how <00:00:35.629><c>error </c><00:00:35.918><c>handling </c><00:00:36.207><c>is </c><00:00:36.496><c>done </c><00:00:36.785><c>in </c><00:00:37.074><c>Python.</c>
+
+00:00:37.190 --> 00:00:37.200 align:start position:0%
+how error handling is done in Python.
+ 
+
+00:00:37.200 --> 00:00:39.450 align:start position:0%
+how error handling is done in Python.
+Let's <00:00:37.530><c>get </c><00:00:37.860><c>started.</c>
+
+00:00:39.450 --> 00:00:39.460 align:start position:0%
+Let's get started.
+ 
+
+00:00:39.460 --> 00:00:47.510 align:start position:0%
+Let's get started.
+[Music]
+
+00:00:47.510 --> 00:00:47.520 align:start position:0%
+[Music]
+ 
+
+00:00:47.520 --> 00:00:49.850 align:start position:0%
+[Music]
+So, <00:00:47.723><c>the </c><00:00:47.926><c>basic </c><00:00:48.129><c>issue </c><00:00:48.332><c>of </c><00:00:48.535><c>exception </c><00:00:48.738><c>handling </c><00:00:48.941><c>is </c><00:00:49.144><c>that </c><00:00:49.347><c>it </c><00:00:49.550><c>will</c>
+
+00:00:49.850 --> 00:00:52.250 align:start position:0%
+So, the basic issue of exception handling is that it will
+ 
+
+00:00:52.250 --> 00:00:52.260 align:start position:0%
+ 
+ 
+
+00:00:52.260 --> 00:00:54.950 align:start position:0%
+ 
+often <00:00:52.575><c>appear </c><00:00:52.890><c>in </c><00:00:53.205><c>your </c><00:00:53.520><c>programs. </c><00:00:53.835><c>You </c><00:00:54.150><c>will </c><00:00:54.465><c>make </c><00:00:54.780><c>a</c>
+
+00:00:54.950 --> 00:00:54.960 align:start position:0%
+often appear in your programs. You will make a
+ 
+
+00:00:54.960 --> 00:00:56.930 align:start position:0%
+often appear in your programs. You will make a
+mistake <00:00:55.151><c>here </c><00:00:55.342><c>yourself, </c><00:00:55.533><c>or </c><00:00:55.724><c>it </c><00:00:55.915><c>might </c><00:00:56.106><c>happen.  </c><00:00:56.297><c>There </c><00:00:56.488><c>might </c><00:00:56.679><c>be </c><00:00:56.870><c>a</c>
+
+00:00:56.930 --> 00:00:56.940 align:start position:0%
+mistake here yourself, or it might happen.  There might be a
+ 
+
+00:00:56.940 --> 00:00:58.970 align:start position:0%
+mistake here yourself, or it might happen.  There might be a
+situation <00:00:57.560><c>like </c><00:00:58.180><c>suppose </c><00:00:58.800><c>you</c>
+
+00:00:58.970 --> 00:00:58.980 align:start position:0%
+situation like suppose you
+ 
+
+00:00:58.980 --> 00:01:01.010 align:start position:0%
+situation like suppose you
+requested <00:00:59.127><c>some </c><00:00:59.274><c>data </c><00:00:59.421><c>from </c><00:00:59.568><c>the </c><00:00:59.715><c>server </c><00:00:59.862><c>and </c><00:01:00.009><c>the </c><00:01:00.156><c>data </c><00:01:00.303><c>that </c><00:01:00.450><c>came </c><00:01:00.597><c>from </c><00:01:00.744><c>the </c><00:01:00.891><c>server</c>
+
+00:01:01.010 --> 00:01:01.020 align:start position:0%
+requested some data from the server and the data that came from the server
+ 
+
+00:01:01.020 --> 00:01:03.770 align:start position:0%
+requested some data from the server and the data that came from the server
+came <00:01:01.460><c>in </c><00:01:01.900><c>the </c><00:01:02.340><c>wrong </c><00:01:02.780><c>format, </c><00:01:03.220><c>here </c><00:01:03.660><c>the</c>
+
+00:01:03.770 --> 00:01:03.780 align:start position:0%
+came in the wrong format, here the
+ 
+
+00:01:03.780 --> 00:01:05.570 align:start position:0%
+came in the wrong format, here the
+server <00:01:03.990><c>was </c><00:01:04.200><c>not </c><00:01:04.410><c>working </c><00:01:04.620><c>or </c><00:01:04.830><c>for </c><00:01:05.040><c>some </c><00:01:05.250><c>reason </c><00:01:05.460><c>the</c>
+
+00:01:05.570 --> 00:01:05.580 align:start position:0%
+server was not working or for some reason the
+ 
+
+00:01:05.580 --> 00:01:09.050 align:start position:0%
+server was not working or for some reason the
+data <00:01:05.962><c>was </c><00:01:06.344><c>not </c><00:01:06.726><c>found </c><00:01:07.108><c>compatible, </c><00:01:07.490><c>in </c><00:01:07.872><c>such </c><00:01:08.254><c>a </c><00:01:08.636><c>situation</c>
+
+00:01:09.050 --> 00:01:09.060 align:start position:0%
+data was not found compatible, in such a situation
+ 
+
+00:01:09.060 --> 00:01:11.210 align:start position:0%
+data was not found compatible, in such a situation
+you <00:01:09.360><c>will </c><00:01:09.660><c>see </c><00:01:09.960><c>an </c><00:01:10.260><c>error </c><00:01:10.560><c>but</c>
+
+00:01:11.210 --> 00:01:11.220 align:start position:0%
+you will see an error but
+ 
+
+00:01:11.220 --> 00:01:13.609 align:start position:0%
+you will see an error but
+if <00:01:11.616><c>you </c><00:01:12.012><c>get </c><00:01:12.408><c>an </c><00:01:12.804><c>error </c><00:01:13.200><c>then</c>
+
+00:01:13.609 --> 00:01:13.619 align:start position:0%
+if you get an error then
+ 
+
+00:01:13.619 --> 00:01:15.950 align:start position:0%
+if you get an error then
+your <00:01:14.051><c>program </c><00:01:14.483><c>will </c><00:01:14.915><c>stop, </c><00:01:15.347><c>we </c><00:01:15.779><c>all</c>
+
+00:01:15.950 --> 00:01:15.960 align:start position:0%
+your program will stop, we all
+ 
+
+00:01:15.960 --> 00:01:19.630 align:start position:0%
+your program will stop, we all
+know <00:01:16.290><c>this, </c><00:01:16.620><c>for </c><00:01:16.950><c>example </c><00:01:17.280><c>if </c><00:01:17.610><c>I </c><00:01:17.940><c>say </c><00:01:18.270><c>a </c><00:01:18.600><c>=</c>
+
+00:01:19.630 --> 00:01:19.640 align:start position:0%
+know this, for example if I say a =
+ 
+
+00:01:19.640 --> 00:01:24.530 align:start position:0%
+know this, for example if I say a =
+input <00:01:20.279><c>and </c><00:01:20.918><c>I </c><00:01:21.557><c>say </c><00:01:22.196><c>enter </c><00:01:22.835><c>the </c><00:01:23.474><c>number </c><00:01:24.113><c>and</c>
+
+00:01:24.530 --> 00:01:24.540 align:start position:0%
+input and I say enter the number and
+ 
+
+00:01:24.540 --> 00:01:26.330 align:start position:0%
+input and I say enter the number and
+after <00:01:24.719><c>that </c><00:01:24.898><c>I </c><00:01:25.077><c>will </c><00:01:25.256><c>do </c><00:01:25.435><c>something </c><00:01:25.614><c>like </c><00:01:25.793><c>this </c><00:01:25.972><c>and</c>
+
+00:01:26.330 --> 00:01:26.340 align:start position:0%
+after that I will do something like this and
+ 
+
+00:01:26.340 --> 00:01:29.170 align:start position:0%
+after that I will do something like this and
+after <00:01:26.710><c>that </c><00:01:27.080><c>suppose </c><00:01:27.450><c>I </c><00:01:27.820><c>write </c><00:01:28.190><c>here </c><00:01:28.560><c>the</c>
+
+00:01:29.170 --> 00:01:29.180 align:start position:0%
+after that suppose I write here the
+ 
+
+00:01:29.180 --> 00:01:32.530 align:start position:0%
+after that suppose I write here the
+multiplication <00:01:30.180><c>table</c>
+
+00:01:32.530 --> 00:01:32.540 align:start position:0%
+multiplication table
+ 
+
+00:01:32.540 --> 00:01:36.850 align:start position:0%
+multiplication table
+multiplication <00:01:33.014><c>table </c><00:01:33.488><c>of, </c><00:01:33.962><c>in </c><00:01:34.436><c>this</c>
+
+00:01:36.850 --> 00:01:36.860 align:start position:0%
+multiplication table of, in this
+ 
+
+00:01:36.860 --> 00:01:40.370 align:start position:0%
+multiplication table of, in this
+I <00:01:37.516><c>will </c><00:01:38.172><c>write </c><00:01:38.828><c>something </c><00:01:39.484><c>like </c><00:01:40.140><c>this</c>
+
+00:01:40.370 --> 00:01:40.380 align:start position:0%
+I will write something like this
+ 
+
+00:01:40.380 --> 00:01:44.569 align:start position:0%
+I will write something like this
+multiplication <00:01:40.882><c>table </c><00:01:41.384><c>of </c><00:01:41.886><c>a </c><00:01:42.388><c>and </c><00:01:42.890><c>here </c><00:01:43.392><c>I </c><00:01:43.894><c>say </c><00:01:44.396><c>in</c>
+
+00:01:44.569 --> 00:01:45.969 align:start position:0%
+multiplication table of a and here I say in
+ 
+
+00:01:45.969 --> 00:01:45.979 align:start position:0%
+ 
+ 
+
+00:01:45.979 --> 00:01:48.429 align:start position:0%
+ 
+range
+
+00:01:48.429 --> 00:01:48.439 align:start position:0%
+range
+ 
+
+00:01:48.439 --> 00:01:51.969 align:start position:0%
+range
+1211 <00:01:48.815><c>so </c><00:01:49.191><c>that </c><00:01:49.567><c>from </c><00:01:49.943><c>one </c><00:01:50.319><c>to </c><00:01:50.695><c>10</c>
+
+00:01:51.969 --> 00:01:51.979 align:start position:0%
+1211 so that from one to 10
+ 
+
+00:01:51.979 --> 00:01:54.830 align:start position:0%
+1211 so that from one to 10
+friend <00:01:52.445><c>again </c><00:01:52.911><c>a </c><00:01:53.377><c>string </c><00:01:53.843><c>and </c><00:01:54.309><c>I </c><00:01:54.775><c>will</c>
+
+00:01:54.830 --> 00:01:54.840 align:start position:0%
+friend again a string and I will
+ 
+
+00:01:54.840 --> 00:01:57.889 align:start position:0%
+friend again a string and I will
+write <00:01:55.117><c>here </c><00:01:55.394><c>whatever </c><00:01:55.671><c>is </c><00:01:55.948><c>my </c><00:01:56.225><c>variable </c><00:01:56.502><c>a </c><00:01:56.779><c>and </c><00:01:57.056><c>I</c>
+
+00:01:57.889 --> 00:01:57.899 align:start position:0%
+write here whatever is my variable a and I
+ 
+
+00:01:57.899 --> 00:02:00.109 align:start position:0%
+write here whatever is my variable a and I
+will <00:01:58.190><c>write </c><00:01:58.481><c>multiply </c><00:01:58.772><c>by </c><00:01:59.063><c>and </c><00:01:59.354><c>I </c><00:01:59.645><c>will </c><00:01:59.936><c>write</c>
+
+00:02:00.109 --> 00:02:00.119 align:start position:0%
+will write multiply by and I will write
+ 
+
+00:02:00.119 --> 00:02:03.530 align:start position:0%
+will write multiply by and I will write
+here <00:02:00.401><c>i </c><00:02:00.683><c>and </c><00:02:00.965><c>I </c><00:02:01.247><c>will </c><00:02:01.529><c>write </c><00:02:01.811><c>this </c><00:02:02.093><c>equal </c><00:02:02.375><c>to </c><00:02:02.657><c>you </c><00:02:02.939><c>and</c>
+
+00:02:03.530 --> 00:02:03.540 align:start position:0%
+here i and I will write this equal to you and
+ 
+
+00:02:03.540 --> 00:02:05.630 align:start position:0%
+here i and I will write this equal to you and
+here <00:02:03.791><c>I </c><00:02:04.042><c>will </c><00:02:04.293><c>write </c><00:02:04.544><c>simply </c><00:02:04.795><c>a</c>
+
+00:02:05.630 --> 00:02:05.640 align:start position:0%
+here I will write simply a
+ 
+
+00:02:05.640 --> 00:02:07.670 align:start position:0%
+here I will write simply a
+multiply <00:02:05.897><c>by </c><00:02:06.154><c>i, </c><00:02:06.411><c>okay </c><00:02:06.668><c>this </c><00:02:06.925><c>value </c><00:02:07.182><c>will </c><00:02:07.439><c>be</c>
+
+00:02:07.670 --> 00:02:07.680 align:start position:0%
+multiply by i, okay this value will be
+ 
+
+00:02:07.680 --> 00:02:11.270 align:start position:0%
+multiply by i, okay this value will be
+valid <00:02:08.330><c>and </c><00:02:08.980><c>if </c><00:02:09.630><c>I </c><00:02:10.280><c>enter</c>
+
+00:02:11.270 --> 00:02:11.280 align:start position:0%
+valid and if I enter
+ 
+
+00:02:11.280 --> 00:02:14.210 align:start position:0%
+valid and if I enter
+My <00:02:11.680><c>value </c><00:02:12.080><c>is </c><00:02:12.480><c>one </c><00:02:12.880><c>seven </c><00:02:13.280><c>and </c><00:02:13.680><c>obviously</c>
+
+00:02:14.210 --> 00:02:14.220 align:start position:0%
+My value is one seven and obviously
+ 
+
+00:02:14.220 --> 00:02:16.010 align:start position:0%
+My value is one seven and obviously
+I <00:02:14.422><c>have </c><00:02:14.624><c>to </c><00:02:14.826><c>convert </c><00:02:15.028><c>it </c><00:02:15.230><c>into </c><00:02:15.432><c>an </c><00:02:15.634><c>integer </c><00:02:15.836><c>today</c>
+
+00:02:16.010 --> 00:02:16.020 align:start position:0%
+I have to convert it into an integer today
+ 
+
+00:02:16.020 --> 00:02:18.170 align:start position:0%
+I have to convert it into an integer today
+I <00:02:16.260><c>will </c><00:02:16.500><c>write </c><00:02:16.740><c>it </c><00:02:16.980><c>here </c><00:02:17.220><c>in </c><00:02:17.460><c>top </c><00:02:17.700><c>a </c><00:02:17.940><c>and</c>
+
+00:02:18.170 --> 00:02:18.180 align:start position:0%
+I will write it here in top a and
+ 
+
+00:02:18.180 --> 00:02:19.550 align:start position:0%
+I will write it here in top a and
+here <00:02:18.410><c>also </c><00:02:18.640><c>when </c><00:02:18.870><c>I </c><00:02:19.100><c>am </c><00:02:19.330><c>doing </c><00:02:19.560><c>calculations</c>
+
+00:02:19.550 --> 00:02:19.560 align:start position:0%
+here also when I am doing calculations
+ 
+
+00:02:19.560 --> 00:02:22.250 align:start position:0%
+here also when I am doing calculations
+I <00:02:19.959><c>will </c><00:02:20.358><c>convert </c><00:02:20.757><c>it </c><00:02:21.156><c>into </c><00:02:21.555><c>inches </c><00:02:21.954><c>now</c>
+
+00:02:22.250 --> 00:02:22.260 align:start position:0%
+I will convert it into inches now
+ 
+
+00:02:22.260 --> 00:02:24.589 align:start position:0%
+I will convert it into inches now
+I <00:02:22.583><c>will </c><00:02:22.906><c>run </c><00:02:23.229><c>it </c><00:02:23.552><c>if </c><00:02:23.875><c>I</c>
+
+00:02:24.589 --> 00:02:24.599 align:start position:0%
+I will run it if I
+ 
+
+00:02:24.599 --> 00:02:26.930 align:start position:0%
+I will run it if I
+enter <00:02:24.769><c>the </c><00:02:24.939><c>number </c><00:02:25.109><c>8 </c><00:02:25.279><c>then </c><00:02:25.449><c>the </c><00:02:25.619><c>table </c><00:02:25.789><c>of </c><00:02:25.959><c>8 </c><00:02:26.129><c>will </c><00:02:26.299><c>get </c><00:02:26.469><c>printed </c><00:02:26.639><c>here</c>
+
+00:02:26.930 --> 00:02:26.940 align:start position:0%
+enter the number 8 then the table of 8 will get printed here
+ 
+
+00:02:26.940 --> 00:02:28.550 align:start position:0%
+enter the number 8 then the table of 8 will get printed here
+as <00:02:27.225><c>you </c><00:02:27.510><c>can </c><00:02:27.795><c>see </c><00:02:28.080><c>and</c>
+
+00:02:28.550 --> 00:02:28.560 align:start position:0%
+as you can see and
+ 
+
+00:02:28.560 --> 00:02:30.290 align:start position:0%
+as you can see and
+similarly <00:02:28.782><c>if </c><00:02:29.004><c>I </c><00:02:29.226><c>enter </c><00:02:29.448><c>any </c><00:02:29.670><c>other </c><00:02:29.892><c>number </c><00:02:30.114><c>here</c>
+
+00:02:30.290 --> 00:02:30.300 align:start position:0%
+similarly if I enter any other number here
+ 
+
+00:02:30.300 --> 00:02:31.790 align:start position:0%
+similarly if I enter any other number here
+then
+
+00:02:31.790 --> 00:02:31.800 align:start position:0%
+then
+ 
+
+00:02:31.800 --> 00:02:34.070 align:start position:0%
+then
+its <00:02:32.140><c>table </c><00:02:32.480><c>will </c><00:02:32.820><c>get </c><00:02:33.160><c>printed </c><00:02:33.500><c>and </c><00:02:33.840><c>the</c>
+
+00:02:34.070 --> 00:02:34.080 align:start position:0%
+its table will get printed and the
+ 
+
+00:02:34.080 --> 00:02:35.750 align:start position:0%
+its table will get printed and the
+program <00:02:34.395><c>works </c><00:02:34.710><c>absolutely </c><00:02:35.025><c>fine </c><00:02:35.340><c>no</c>
+
+00:02:35.750 --> 00:02:35.760 align:start position:0%
+program works absolutely fine no
+ 
+
+00:02:35.760 --> 00:02:37.550 align:start position:0%
+program works absolutely fine no
+problem <00:02:36.040><c>till </c><00:02:36.320><c>now </c><00:02:36.600><c>I </c><00:02:36.880><c>have </c><00:02:37.160><c>not </c><00:02:37.440><c>entered</c>
+
+00:02:37.550 --> 00:02:37.560 align:start position:0%
+problem till now I have not entered
+ 
+
+00:02:37.560 --> 00:02:40.010 align:start position:0%
+problem till now I have not entered
+maybe <00:02:37.794><c>now </c><00:02:38.028><c>I </c><00:02:38.262><c>have </c><00:02:38.496><c>entered </c><00:02:38.730><c>and </c><00:02:38.964><c>the </c><00:02:39.198><c>table </c><00:02:39.432><c>of </c><00:02:39.666><c>4 </c><00:02:39.900><c>has</c>
+
+00:02:40.010 --> 00:02:40.020 align:start position:0%
+maybe now I have entered and the table of 4 has
+ 
+
+00:02:40.020 --> 00:02:44.449 align:start position:0%
+maybe now I have entered and the table of 4 has
+also <00:02:40.645><c>been </c><00:02:41.270><c>entered </c><00:02:41.895><c>but </c><00:02:42.520><c>just </c><00:02:43.145><c>think </c><00:02:43.770><c>if </c><00:02:44.395><c>I</c>
+
+00:02:44.449 --> 00:02:44.459 align:start position:0%
+also been entered but just think if I
+ 
+
+00:02:44.459 --> 00:02:47.089 align:start position:0%
+also been entered but just think if I
+write <00:02:44.674><c>here </c><00:02:44.889><c>Harry </c><00:02:45.104><c>what </c><00:02:45.319><c>do </c><00:02:45.534><c>you </c><00:02:45.749><c>want </c><00:02:45.964><c>1 </c><00:02:46.179><c>minute </c><00:02:46.394><c>why </c><00:02:46.609><c>are </c><00:02:46.824><c>you </c><00:02:47.039><c>writing</c>
+
+00:02:47.089 --> 00:02:47.099 align:start position:0%
+write here Harry what do you want 1 minute why are you writing
+ 
+
+00:02:47.099 --> 00:02:49.309 align:start position:0%
+write here Harry what do you want 1 minute why are you writing
+brother <00:02:47.309><c>it </c><00:02:47.519><c>is </c><00:02:47.729><c>my </c><00:02:47.939><c>wish </c><00:02:48.149><c>my </c><00:02:48.359><c>keyboard </c><00:02:48.569><c>I </c><00:02:48.779><c>am</c>
+
+00:02:49.309 --> 00:02:49.319 align:start position:0%
+brother it is my wish my keyboard I am
+ 
+
+00:02:49.319 --> 00:02:51.110 align:start position:0%
+brother it is my wish my keyboard I am
+writing <00:02:49.559><c>okay </c><00:02:49.799><c>and </c><00:02:50.039><c>I </c><00:02:50.279><c>will </c><00:02:50.519><c>press </c><00:02:50.759><c>enter</c>
+
+00:02:51.110 --> 00:02:51.120 align:start position:0%
+writing okay and I will press enter
+ 
+
+00:02:51.120 --> 00:02:54.229 align:start position:0%
+writing okay and I will press enter
+and <00:02:51.502><c>you </c><00:02:51.884><c>see </c><00:02:52.266><c>here </c><00:02:52.648><c>this </c><00:02:53.030><c>arrow </c><00:02:53.412><c>has </c><00:02:53.794><c>got </c><00:02:54.176><c>an</c>
+
+00:02:54.229 --> 00:02:54.239 align:start position:0%
+and you see here this arrow has got an
+ 
+
+00:02:54.239 --> 00:02:56.270 align:start position:0%
+and you see here this arrow has got an
+error <00:02:54.539><c>overall </c><00:02:54.839><c>it </c><00:02:55.139><c>is </c><00:02:55.439><c>saying </c><00:02:55.739><c>that </c><00:02:56.039><c>brother</c>
+
+00:02:56.270 --> 00:02:56.280 align:start position:0%
+error overall it is saying that brother
+ 
+
+00:02:56.280 --> 00:02:58.729 align:start position:0%
+error overall it is saying that brother
+whatever <00:02:56.835><c>you </c><00:02:57.390><c>have </c><00:02:57.945><c>written </c><00:02:58.500><c>you</c>
+
+00:02:58.729 --> 00:02:58.739 align:start position:0%
+whatever you have written you
+ 
+
+00:02:58.739 --> 00:03:00.470 align:start position:0%
+whatever you have written you
+cannot <00:02:58.955><c>convert </c><00:02:59.171><c>it </c><00:02:59.387><c>into </c><00:02:59.603><c>integer </c><00:02:59.819><c>and</c>
+
+00:03:00.470 --> 00:03:00.480 align:start position:0%
+cannot convert it into integer and
+ 
+
+00:03:00.480 --> 00:03:02.150 align:start position:0%
+cannot convert it into integer and
+what <00:03:00.702><c>is </c><00:03:00.924><c>the </c><00:03:01.146><c>meaning </c><00:03:01.368><c>of </c><00:03:01.590><c>its </c><00:03:01.812><c>multiplication </c><00:03:02.034><c>table,</c>
+
+00:03:02.150 --> 00:03:02.160 align:start position:0%
+what is the meaning of its multiplication table,
+ 
+
+00:03:02.160 --> 00:03:04.250 align:start position:0%
+what is the meaning of its multiplication table,
+multiplication <00:03:02.366><c>table </c><00:03:02.572><c>of </c><00:03:02.778><c>8 </c><00:03:02.984><c>so </c><00:03:03.190><c>I </c><00:03:03.396><c>understand </c><00:03:03.602><c>the </c><00:03:03.808><c>meaning </c><00:03:04.014><c>of</c>
+
+00:03:04.250 --> 00:03:04.260 align:start position:0%
+multiplication table of 8 so I understand the meaning of
+ 
+
+00:03:04.260 --> 00:03:06.290 align:start position:0%
+multiplication table of 8 so I understand the meaning of
+multiplication <00:03:04.740><c>table  </c><00:03:05.220><c>What </c><00:03:05.700><c>does </c><00:03:06.180><c>it</c>
+
+00:03:06.290 --> 00:03:06.300 align:start position:0%
+multiplication table  What does it
+ 
+
+00:03:06.300 --> 00:03:09.589 align:start position:0%
+multiplication table  What does it
+mean? <00:03:06.840><c>An </c><00:03:07.380><c>error </c><00:03:07.920><c>occurred </c><00:03:08.460><c>here. </c><00:03:09.000><c>Okay, </c><00:03:09.540><c>now</c>
+
+00:03:09.589 --> 00:03:09.599 align:start position:0%
+mean? An error occurred here. Okay, now
+ 
+
+00:03:09.599 --> 00:03:11.630 align:start position:0%
+mean? An error occurred here. Okay, now
+notice <00:03:10.094><c>one </c><00:03:10.589><c>thing. </c><00:03:11.084><c>If </c><00:03:11.579><c>I</c>
+
+00:03:11.630 --> 00:03:11.640 align:start position:0%
+notice one thing. If I
+ 
+
+00:03:11.640 --> 00:03:15.110 align:start position:0%
+notice one thing. If I
+write <00:03:12.015><c>here, </c><00:03:12.390><c>"print </c><00:03:12.765><c>some </c><00:03:13.140><c>lines </c><00:03:13.515><c>of </c><00:03:13.890><c>code," </c><00:03:14.265><c>which </c><00:03:14.640><c>means</c>
+
+00:03:15.110 --> 00:03:15.120 align:start position:0%
+write here, "print some lines of code," which means
+ 
+
+00:03:15.120 --> 00:03:17.149 align:start position:0%
+write here, "print some lines of code," which means
+we <00:03:15.308><c>have </c><00:03:15.496><c>some </c><00:03:15.684><c>lines </c><00:03:15.872><c>of </c><00:03:16.060><c>code </c><00:03:16.248><c>here. </c><00:03:16.436><c>And</c>
+
+00:03:17.149 --> 00:03:17.159 align:start position:0%
+we have some lines of code here. And
+ 
+
+00:03:17.159 --> 00:03:18.830 align:start position:0%
+we have some lines of code here. And
+here <00:03:17.549><c>our </c><00:03:17.939><c>program </c><00:03:18.329><c>is </c><00:03:18.719><c>ending.</c>
+
+00:03:18.830 --> 00:03:18.840 align:start position:0%
+here our program is ending.
+ 
+
+00:03:18.840 --> 00:03:20.809 align:start position:0%
+here our program is ending.
+So <00:03:19.275><c>I </c><00:03:19.710><c>write </c><00:03:20.145><c>"end </c><00:03:20.580><c>of</c>
+
+00:03:20.809 --> 00:03:20.819 align:start position:0%
+So I write "end of
+ 
+
+00:03:20.819 --> 00:03:23.270 align:start position:0%
+So I write "end of
+program," <00:03:21.153><c>okay. </c><00:03:21.487><c>So </c><00:03:21.821><c>I </c><00:03:22.155><c>will </c><00:03:22.489><c>run </c><00:03:22.823><c>it. </c><00:03:23.157><c>So</c>
+
+00:03:23.270 --> 00:03:23.280 align:start position:0%
+program," okay. So I will run it. So
+ 
+
+00:03:23.280 --> 00:03:25.970 align:start position:0%
+program," okay. So I will run it. So
+you <00:03:23.602><c>guys </c><00:03:23.924><c>see </c><00:03:24.246><c>that </c><00:03:24.568><c>by </c><00:03:24.890><c>writing </c><00:03:25.212><c>here, </c><00:03:25.534><c>I </c><00:03:25.856><c>am</c>
+
+00:03:25.970 --> 00:03:25.980 align:start position:0%
+you guys see that by writing here, I am
+ 
+
+00:03:25.980 --> 00:03:27.290 align:start position:0%
+you guys see that by writing here, I am
+entering <00:03:26.340><c>the </c><00:03:26.700><c>number. </c><00:03:27.060><c>I</c>
+
+00:03:27.290 --> 00:03:27.300 align:start position:0%
+entering the number. I
+ 
+
+00:03:27.300 --> 00:03:30.050 align:start position:0%
+entering the number. I
+wrote <00:03:27.677><c>"three </c><00:03:28.054><c>multiple," </c><00:03:28.431><c>and </c><00:03:28.808><c>here </c><00:03:29.185><c>I </c><00:03:29.562><c>see </c><00:03:29.939><c>three.</c>
+
+00:03:30.050 --> 00:03:30.060 align:start position:0%
+wrote "three multiple," and here I see three.
+ 
+
+00:03:30.060 --> 00:03:32.089 align:start position:0%
+wrote "three multiple," and here I see three.
+And <00:03:30.339><c>after </c><00:03:30.618><c>that, </c><00:03:30.897><c>look </c><00:03:31.176><c>here, </c><00:03:31.455><c>we </c><00:03:31.734><c>have</c>
+
+00:03:32.089 --> 00:03:32.099 align:start position:0%
+And after that, look here, we have
+ 
+
+00:03:32.099 --> 00:03:35.890 align:start position:0%
+And after that, look here, we have
+lines <00:03:32.279><c>of </c><00:03:32.459><c>code.</c>
+
+00:03:35.890 --> 00:03:35.900 align:start position:0%
+ 
+ 
+
+00:03:35.900 --> 00:03:38.270 align:start position:0%
+ 
+After <00:03:36.197><c>this, </c><00:03:36.494><c>we </c><00:03:36.791><c>are </c><00:03:37.088><c>doing </c><00:03:37.385><c>some </c><00:03:37.682><c>important </c><00:03:37.979><c>lines</c>
+
+00:03:38.270 --> 00:03:38.280 align:start position:0%
+After this, we are doing some important lines
+ 
+
+00:03:38.280 --> 00:03:39.710 align:start position:0%
+After this, we are doing some important lines
+of <00:03:38.490><c>quadrature. </c><00:03:38.700><c>In </c><00:03:38.910><c>which, </c><00:03:39.120><c>from </c><00:03:39.330><c>the </c><00:03:39.540><c>latest,</c>
+
+00:03:39.710 --> 00:03:39.720 align:start position:0%
+of quadrature. In which, from the latest,
+ 
+
+00:03:39.720 --> 00:03:41.809 align:start position:0%
+of quadrature. In which, from the latest,
+we <00:03:40.128><c>are </c><00:03:40.536><c>sending </c><00:03:40.944><c>this </c><00:03:41.352><c>multiplication </c><00:03:41.760><c>table</c>
+
+00:03:41.809 --> 00:03:41.819 align:start position:0%
+we are sending this multiplication table
+ 
+
+00:03:41.819 --> 00:03:45.770 align:start position:0%
+we are sending this multiplication table
+somewhere. <00:03:42.359><c>Okay, </c><00:03:42.899><c>for </c><00:03:43.439><c>some </c><00:03:43.979><c>work. </c><00:03:44.519><c>Now, </c><00:03:45.059><c>if </c><00:03:45.599><c>I</c>
+
+00:03:45.770 --> 00:03:45.780 align:start position:0%
+somewhere. Okay, for some work. Now, if I
+ 
+
+00:03:45.780 --> 00:03:47.470 align:start position:0%
+somewhere. Okay, for some work. Now, if I
+write <00:03:46.020><c>my </c><00:03:46.260><c>name </c><00:03:46.500><c>here,</c>
+
+00:03:47.470 --> 00:03:47.480 align:start position:0%
+write my name here,
+ 
+
+00:03:47.480 --> 00:03:49.610 align:start position:0%
+write my name here,
+my <00:03:47.688><c>name </c><00:03:47.896><c>is </c><00:03:48.104><c>not </c><00:03:48.312><c>there </c><00:03:48.520><c>here, </c><00:03:48.728><c>I </c><00:03:48.936><c>am </c><00:03:49.144><c>writing </c><00:03:49.352><c>"joker," </c><00:03:49.560><c>so</c>
+
+00:03:49.610 --> 00:03:49.620 align:start position:0%
+my name is not there here, I am writing "joker," so
+ 
+
+00:03:49.620 --> 00:03:51.890 align:start position:0%
+my name is not there here, I am writing "joker," so
+these <00:03:50.129><c>two </c><00:03:50.638><c>lines </c><00:03:51.147><c>are </c><00:03:51.656><c>also</c>
+
+00:03:51.890 --> 00:03:51.900 align:start position:0%
+these two lines are also
+ 
+
+00:03:51.900 --> 00:03:53.210 align:start position:0%
+these two lines are also
+not <00:03:52.054><c>printed, </c><00:03:52.208><c>which </c><00:03:52.362><c>means </c><00:03:52.516><c>our </c><00:03:52.670><c>program </c><00:03:52.824><c>is </c><00:03:52.978><c>finished</c>
+
+00:03:53.210 --> 00:03:53.220 align:start position:0%
+not printed, which means our program is finished
+ 
+
+00:03:53.220 --> 00:03:55.850 align:start position:0%
+not printed, which means our program is finished
+here. <00:03:53.849><c>Now, </c><00:03:54.478><c>see, </c><00:03:55.107><c>there </c><00:03:55.736><c>is</c>
+
+00:03:55.850 --> 00:03:55.860 align:start position:0%
+here. Now, see, there is
+ 
+
+00:03:55.860 --> 00:03:57.530 align:start position:0%
+here. Now, see, there is
+no <00:03:56.380><c>guarantee </c><00:03:56.900><c>that </c><00:03:57.420><c>whatever</c>
+
+00:03:57.530 --> 00:03:57.540 align:start position:0%
+no guarantee that whatever
+ 
+
+00:03:57.540 --> 00:04:00.170 align:start position:0%
+no guarantee that whatever
+number <00:03:57.733><c>the </c><00:03:57.926><c>user </c><00:03:58.119><c>is </c><00:03:58.312><c>entering </c><00:03:58.505><c>in </c><00:03:58.698><c>the </c><00:03:58.891><c>input </c><00:03:59.084><c>will </c><00:03:59.277><c>always </c><00:03:59.470><c>be </c><00:03:59.663><c>a </c><00:03:59.856><c>valid </c><00:04:00.049><c>number,</c>
+
+00:04:00.170 --> 00:04:00.180 align:start position:0%
+number the user is entering in the input will always be a valid number,
+ 
+
+00:04:00.180 --> 00:04:02.330 align:start position:0%
+number the user is entering in the input will always be a valid number,
+or <00:04:00.690><c>whatever </c><00:04:01.200><c>string </c><00:04:01.710><c>literal </c><00:04:02.220><c>the</c>
+
+00:04:02.330 --> 00:04:02.340 align:start position:0%
+or whatever string literal the
+ 
+
+00:04:02.340 --> 00:04:06.589 align:start position:0%
+or whatever string literal the
+user <00:04:02.748><c>is </c><00:04:03.156><c>entering </c><00:04:03.564><c>will </c><00:04:03.972><c>always </c><00:04:04.380><c>be </c><00:04:04.788><c>a </c><00:04:05.196><c>valid </c><00:04:05.604><c>number. </c><00:04:06.012><c>There </c><00:04:06.420><c>is</c>
+
+00:04:06.589 --> 00:04:06.599 align:start position:0%
+user is entering will always be a valid number. There is
+ 
+
+00:04:06.599 --> 00:04:09.410 align:start position:0%
+user is entering will always be a valid number. There is
+no <00:04:06.929><c>guarantee </c><00:04:07.259><c>of </c><00:04:07.589><c>this, </c><00:04:07.919><c>but  </c><00:04:08.249><c>I </c><00:04:08.579><c>want </c><00:04:08.909><c>to </c><00:04:09.239><c>do</c>
+
+00:04:09.410 --> 00:04:09.420 align:start position:0%
+no guarantee of this, but  I want to do
+ 
+
+00:04:09.420 --> 00:04:12.770 align:start position:0%
+no guarantee of this, but  I want to do
+something <00:04:09.766><c>like </c><00:04:10.112><c>this </c><00:04:10.458><c>here </c><00:04:10.804><c>in </c><00:04:11.150><c>line </c><00:04:11.496><c>number </c><00:04:11.842><c>4 </c><00:04:12.188><c>and </c><00:04:12.534><c>5.</c>
+
+00:04:12.770 --> 00:04:12.780 align:start position:0%
+something like this here in line number 4 and 5.
+ 
+
+00:04:12.780 --> 00:04:14.809 align:start position:0%
+something like this here in line number 4 and 5.
+Listen <00:04:13.020><c>to </c><00:04:13.260><c>me </c><00:04:13.500><c>carefully </c><00:04:13.740><c>and </c><00:04:13.980><c>you </c><00:04:14.220><c>heard </c><00:04:14.460><c>this, </c><00:04:14.700><c>right?</c>
+
+00:04:14.809 --> 00:04:14.819 align:start position:0%
+Listen to me carefully and you heard this, right?
+ 
+
+00:04:14.819 --> 00:04:16.069 align:start position:0%
+Listen to me carefully and you heard this, right?
+You <00:04:15.219><c>understood </c><00:04:15.619><c>the </c><00:04:16.019><c>try-except.</c>
+
+00:04:16.069 --> 00:04:16.079 align:start position:0%
+You understood the try-except.
+ 
+
+00:04:16.079 --> 00:04:18.830 align:start position:0%
+You understood the try-except.
+You <00:04:16.394><c>have </c><00:04:16.709><c>to </c><00:04:17.024><c>do </c><00:04:17.339><c>something </c><00:04:17.654><c>like </c><00:04:17.969><c>this: </c><00:04:18.284><c>If </c><00:04:18.599><c>I</c>
+
+00:04:18.830 --> 00:04:18.840 align:start position:0%
+You have to do something like this: If I
+ 
+
+00:04:18.840 --> 00:04:22.189 align:start position:0%
+You have to do something like this: If I
+want <00:04:19.634><c>my </c><00:04:20.428><c>program </c><00:04:21.222><c>to </c><00:04:22.016><c>run,</c>
+
+00:04:22.189 --> 00:04:22.199 align:start position:0%
+want my program to run,
+ 
+
+00:04:22.199 --> 00:04:25.610 align:start position:0%
+want my program to run,
+but <00:04:22.451><c>if </c><00:04:22.703><c>I </c><00:04:22.955><c>want </c><00:04:23.207><c>to </c><00:04:23.459><c>do </c><00:04:23.711><c>something </c><00:04:23.963><c>such </c><00:04:24.215><c>that </c><00:04:24.467><c>if </c><00:04:24.719><c>my</c>
+
+00:04:25.610 --> 00:04:25.620 align:start position:0%
+but if I want to do something such that if my
+ 
+
+00:04:25.620 --> 00:04:28.010 align:start position:0%
+but if I want to do something such that if my
+program <00:04:25.970><c>is </c><00:04:26.320><c>running </c><00:04:26.670><c>correctly, </c><00:04:27.020><c>then </c><00:04:27.370><c>it </c><00:04:27.720><c>should</c>
+
+00:04:28.010 --> 00:04:28.020 align:start position:0%
+program is running correctly, then it should
+ 
+
+00:04:28.020 --> 00:04:30.770 align:start position:0%
+program is running correctly, then it should
+run, <00:04:28.260><c>then </c><00:04:28.500><c>normally </c><00:04:28.740><c>this </c><00:04:28.980><c>should </c><00:04:29.220><c>happen, </c><00:04:29.460><c>but </c><00:04:29.700><c>if </c><00:04:29.940><c>there</c>
+
+00:04:30.770 --> 00:04:30.780 align:start position:0%
+run, then normally this should happen, but if there
+ 
+
+00:04:30.780 --> 00:04:34.990 align:start position:0%
+run, then normally this should happen, but if there
+is <00:04:31.109><c>an </c><00:04:31.438><c>error, </c><00:04:31.767><c>then </c><00:04:32.096><c>something </c><00:04:32.425><c>else </c><00:04:32.754><c>should </c><00:04:33.083><c>happen. </c><00:04:33.412><c>Okay,</c>
+
+00:04:34.990 --> 00:04:35.000 align:start position:0%
+is an error, then something else should happen. Okay,
+ 
+
+00:04:35.000 --> 00:04:38.390 align:start position:0%
+is an error, then something else should happen. Okay,
+now <00:04:35.656><c>I </c><00:04:36.312><c>will </c><00:04:36.968><c>show </c><00:04:37.624><c>you </c><00:04:38.280><c>here</c>
+
+00:04:38.390 --> 00:04:38.400 align:start position:0%
+now I will show you here
+ 
+
+00:04:38.400 --> 00:04:40.249 align:start position:0%
+now I will show you here
+what <00:04:38.586><c>I </c><00:04:38.772><c>will </c><00:04:38.958><c>do </c><00:04:39.144><c>in </c><00:04:39.330><c>these </c><00:04:39.516><c>two </c><00:04:39.702><c>lines </c><00:04:39.888><c>of </c><00:04:40.074><c>code</c>
+
+00:04:40.249 --> 00:04:40.259 align:start position:0%
+what I will do in these two lines of code
+ 
+
+00:04:40.259 --> 00:04:41.629 align:start position:0%
+what I will do in these two lines of code
+because <00:04:40.459><c>I </c><00:04:40.659><c>know </c><00:04:40.859><c>that </c><00:04:41.059><c>there </c><00:04:41.259><c>is </c><00:04:41.459><c>a</c>
+
+00:04:41.629 --> 00:04:41.639 align:start position:0%
+because I know that there is a
+ 
+
+00:04:41.639 --> 00:04:45.590 align:start position:0%
+because I know that there is a
+possibility <00:04:42.011><c>of </c><00:04:42.383><c>an </c><00:04:42.755><c>error, </c><00:04:43.127><c>so </c><00:04:43.499><c>I </c><00:04:43.871><c>will </c><00:04:44.243><c>try </c><00:04:44.615><c>it. </c><00:04:44.987><c>I </c><00:04:45.359><c>will</c>
+
+00:04:45.590 --> 00:04:45.600 align:start position:0%
+possibility of an error, so I will try it. I will
+ 
+
+00:04:45.600 --> 00:04:47.270 align:start position:0%
+possibility of an error, so I will try it. I will
+say <00:04:45.773><c>try. </c><00:04:45.946><c>For </c><00:04:46.119><c>this, </c><00:04:46.292><c>I </c><00:04:46.465><c>will </c><00:04:46.638><c>use </c><00:04:46.811><c>the </c><00:04:46.984><c>try </c><00:04:47.157><c>key</c>
+
+00:04:47.270 --> 00:04:47.280 align:start position:0%
+say try. For this, I will use the try key
+ 
+
+00:04:47.280 --> 00:04:48.770 align:start position:0%
+say try. For this, I will use the try key
+and <00:04:47.507><c>I </c><00:04:47.734><c>will </c><00:04:47.961><c>use </c><00:04:48.188><c>try, </c><00:04:48.415><c>just</c>
+
+00:04:48.770 --> 00:04:48.780 align:start position:0%
+and I will use try, just
+ 
+
+00:04:48.780 --> 00:04:50.390 align:start position:0%
+and I will use try, just
+like <00:04:48.946><c>I </c><00:04:49.112><c>do </c><00:04:49.278><c>in </c><00:04:49.444><c>loops, </c><00:04:49.610><c>just </c><00:04:49.776><c>like </c><00:04:49.942><c>I </c><00:04:50.108><c>do </c><00:04:50.274><c>it</c>
+
+00:04:50.390 --> 00:04:50.400 align:start position:0%
+like I do in loops, just like I do it
+ 
+
+00:04:50.400 --> 00:04:52.010 align:start position:0%
+like I do in loops, just like I do it
+everywhere, <00:04:50.640><c>I </c><00:04:50.880><c>will </c><00:04:51.120><c>use </c><00:04:51.360><c>try </c><00:04:51.600><c>here </c><00:04:51.840><c>too,</c>
+
+00:04:52.010 --> 00:04:52.020 align:start position:0%
+everywhere, I will use try here too,
+ 
+
+00:04:52.020 --> 00:04:53.930 align:start position:0%
+everywhere, I will use try here too,
+and <00:04:52.454><c>here </c><00:04:52.888><c>I </c><00:04:53.322><c>will </c><00:04:53.756><c>write</c>
+
+00:04:53.930 --> 00:04:53.940 align:start position:0%
+and here I will write
+ 
+
+00:04:53.940 --> 00:04:57.430 align:start position:0%
+and here I will write
+accept <00:04:54.525><c>and </c><00:04:55.110><c>I </c><00:04:55.695><c>will </c><00:04:56.280><c>write</c>
+
+00:04:57.430 --> 00:04:57.440 align:start position:0%
+accept and I will write
+ 
+
+00:04:57.440 --> 00:05:00.790 align:start position:0%
+accept and I will write
+exception <00:04:57.831><c>si </c><00:04:58.222><c>here </c><00:04:58.613><c>so </c><00:04:59.004><c>that </c><00:04:59.395><c>I </c><00:04:59.786><c>can </c><00:05:00.177><c>know</c>
+
+00:05:00.790 --> 00:05:00.800 align:start position:0%
+exception si here so that I can know
+ 
+
+00:05:00.800 --> 00:05:03.170 align:start position:0%
+exception si here so that I can know
+what <00:05:01.052><c>the </c><00:05:01.304><c>error </c><00:05:01.556><c>is. </c><00:05:01.808><c>I </c><00:05:02.060><c>will </c><00:05:02.312><c>write </c><00:05:02.564><c>print </c><00:05:02.816><c>here.</c>
+
+00:05:03.170 --> 00:05:03.180 align:start position:0%
+what the error is. I will write print here.
+ 
+
+00:05:03.180 --> 00:05:05.749 align:start position:0%
+what the error is. I will write print here.
+Okay, <00:05:03.487><c>this </c><00:05:03.794><c>is </c><00:05:04.101><c>done </c><00:05:04.408><c>like </c><00:05:04.715><c>a </c><00:05:05.022><c>template. </c><00:05:05.329><c>It </c><00:05:05.636><c>is</c>
+
+00:05:05.749 --> 00:05:05.759 align:start position:0%
+Okay, this is done like a template. It is
+ 
+
+00:05:05.759 --> 00:05:07.969 align:start position:0%
+Okay, this is done like a template. It is
+often <00:05:06.164><c>tried </c><00:05:06.569><c>by </c><00:05:06.974><c>Python </c><00:05:07.379><c>programmers.</c>
+
+00:05:07.969 --> 00:05:07.979 align:start position:0%
+often tried by Python programmers.
+ 
+
+00:05:07.979 --> 00:05:10.430 align:start position:0%
+often tried by Python programmers.
+Whatever <00:05:08.549><c>code </c><00:05:09.119><c>you </c><00:05:09.689><c>want </c><00:05:10.259><c>to</c>
+
+00:05:10.430 --> 00:05:10.440 align:start position:0%
+Whatever code you want to
+ 
+
+00:05:10.440 --> 00:05:12.770 align:start position:0%
+Whatever code you want to
+write <00:05:10.642><c>for </c><00:05:10.844><c>anything, </c><00:05:11.046><c>write </c><00:05:11.248><c>it, </c><00:05:11.450><c>just </c><00:05:11.652><c>write </c><00:05:11.854><c>two </c><00:05:12.056><c>lines.</c>
+
+00:05:12.770 --> 00:05:12.780 align:start position:0%
+write for anything, write it, just write two lines.
+ 
+
+00:05:12.780 --> 00:05:14.450 align:start position:0%
+write for anything, write it, just write two lines.
+Write <00:05:13.002><c>50 </c><00:05:13.224><c>lines, </c><00:05:13.446><c>100 </c><00:05:13.668><c>lines, </c><00:05:13.890><c>write </c><00:05:14.112><c>as </c><00:05:14.334><c>much</c>
+
+00:05:14.450 --> 00:05:14.460 align:start position:0%
+Write 50 lines, 100 lines, write as much
+ 
+
+00:05:14.460 --> 00:05:15.830 align:start position:0%
+Write 50 lines, 100 lines, write as much
+code <00:05:14.724><c>as </c><00:05:14.988><c>you </c><00:05:15.252><c>want </c><00:05:15.516><c>to </c><00:05:15.780><c>try,</c>
+
+00:05:15.830 --> 00:05:15.840 align:start position:0%
+code as you want to try,
+ 
+
+00:05:15.840 --> 00:05:28.390 align:start position:0%
+code as you want to try,
+accept <00:05:16.800><c>will</c>
+
+00:05:28.390 --> 00:05:28.400 align:start position:0%
+ 
+ 
+
+00:05:28.400 --> 00:05:31.070 align:start position:0%
+ 
+start <00:05:29.025><c>accepting, </c><00:05:29.650><c>so </c><00:05:30.275><c>if </c><00:05:30.900><c>I</c>
+
+00:05:31.070 --> 00:05:31.080 align:start position:0%
+start accepting, so if I
+ 
+
+00:05:31.080 --> 00:05:32.629 align:start position:0%
+start accepting, so if I
+show <00:05:31.237><c>you </c><00:05:31.394><c>the </c><00:05:31.551><c>run </c><00:05:31.708><c>key </c><00:05:31.865><c>of </c><00:05:32.022><c>this </c><00:05:32.179><c>program </c><00:05:32.336><c>here,</c>
+
+00:05:32.629 --> 00:05:32.639 align:start position:0%
+show you the run key of this program here,
+ 
+
+00:05:32.639 --> 00:05:35.170 align:start position:0%
+show you the run key of this program here,
+I <00:05:33.107><c>wrote </c><00:05:33.575><c>Harry </c><00:05:34.043><c>here, </c><00:05:34.511><c>so </c><00:05:34.979><c>see,</c>
+
+00:05:35.170 --> 00:05:35.180 align:start position:0%
+I wrote Harry here, so see,
+ 
+
+00:05:35.180 --> 00:05:37.430 align:start position:0%
+I wrote Harry here, so see,
+multiplication <00:05:35.608><c>table </c><00:05:36.036><c>of </c><00:05:36.464><c>Harry </c><00:05:36.892><c>got </c><00:05:37.320><c>printed,</c>
+
+00:05:37.430 --> 00:05:37.440 align:start position:0%
+multiplication table of Harry got printed,
+ 
+
+00:05:37.440 --> 00:05:40.150 align:start position:0%
+multiplication table of Harry got printed,
+then <00:05:37.748><c>this </c><00:05:38.056><c>error </c><00:05:38.364><c>happened </c><00:05:38.672><c>because </c><00:05:38.980><c>you </c><00:05:39.288><c>printed </c><00:05:39.596><c>it,</c>
+
+00:05:40.150 --> 00:05:40.160 align:start position:0%
+then this error happened because you printed it,
+ 
+
+00:05:40.160 --> 00:05:43.070 align:start position:0%
+then this error happened because you printed it,
+so <00:05:40.560><c>this </c><00:05:40.960><c>got </c><00:05:41.360><c>printed, </c><00:05:41.760><c>this </c><00:05:42.160><c>is </c><00:05:42.560><c>an </c><00:05:42.960><c>error,</c>
+
+00:05:43.070 --> 00:05:43.080 align:start position:0%
+so this got printed, this is an error,
+ 
+
+00:05:43.080 --> 00:05:45.350 align:start position:0%
+so this got printed, this is an error,
+so <00:05:43.290><c>this </c><00:05:43.500><c>error </c><00:05:43.710><c>got </c><00:05:43.920><c>printed </c><00:05:44.130><c>and </c><00:05:44.340><c>these </c><00:05:44.550><c>two </c><00:05:44.760><c>lines </c><00:05:44.970><c>of </c><00:05:45.180><c>mine</c>
+
+00:05:45.350 --> 00:05:45.360 align:start position:0%
+so this error got printed and these two lines of mine
+ 
+
+00:05:45.360 --> 00:05:48.650 align:start position:0%
+so this error got printed and these two lines of mine
+also <00:05:45.749><c>ran </c><00:05:46.138><c>successfully, </c><00:05:46.527><c>okay, </c><00:05:46.916><c>if </c><00:05:47.305><c>I </c><00:05:47.694><c>want, </c><00:05:48.083><c>I </c><00:05:48.472><c>can</c>
+
+00:05:48.650 --> 00:05:48.660 align:start position:0%
+also ran successfully, okay, if I want, I can
+ 
+
+00:05:48.660 --> 00:05:51.590 align:start position:0%
+also ran successfully, okay, if I want, I can
+write <00:05:48.980><c>this </c><00:05:49.300><c>here, </c><00:05:49.620><c>sorry,</c>
+
+00:05:51.590 --> 00:05:51.600 align:start position:0%
+write this here, sorry,
+ 
+
+00:05:51.600 --> 00:05:53.029 align:start position:0%
+write this here, sorry,
+I <00:05:51.887><c>can </c><00:05:52.174><c>write </c><00:05:52.461><c>something </c><00:05:52.748><c>like </c><00:05:53.035><c>this,</c>
+
+00:05:53.029 --> 00:05:53.039 align:start position:0%
+I can write something like this,
+ 
+
+00:05:53.039 --> 00:05:55.670 align:start position:0%
+I can write something like this,
+sorry, <00:05:53.580><c>sam,</c>
+
+00:05:55.670 --> 00:05:55.680 align:start position:0%
+sorry, sam,
+ 
+
+00:05:55.680 --> 00:05:58.430 align:start position:0%
+sorry, sam,
+arrogant,
+
+00:05:58.430 --> 00:05:58.440 align:start position:0%
+arrogant,
+ 
+
+00:05:58.440 --> 00:06:01.629 align:start position:0%
+arrogant,
+okay, <00:05:58.728><c>so </c><00:05:59.016><c>if </c><00:05:59.304><c>I </c><00:05:59.592><c>do </c><00:05:59.880><c>this,</c>
+
+00:06:01.629 --> 00:06:01.639 align:start position:0%
+okay, so if I do this,
+ 
+
+00:06:01.639 --> 00:06:04.010 align:start position:0%
+okay, so if I do this,
+you <00:06:01.890><c>see, </c><00:06:02.141><c>here </c><00:06:02.392><c>I </c><00:06:02.643><c>am </c><00:06:02.894><c>not </c><00:06:03.145><c>doing </c><00:06:03.396><c>that, </c><00:06:03.647><c>I </c><00:06:03.898><c>wrote</c>
+
+00:06:04.010 --> 00:06:04.020 align:start position:0%
+you see, here I am not doing that, I wrote
+ 
+
+00:06:04.020 --> 00:06:05.990 align:start position:0%
+you see, here I am not doing that, I wrote
+enter, <00:06:04.470><c>number, </c><00:06:04.920><c>man, </c><00:06:05.370><c>lo, </c><00:06:05.820><c>you,</c>
+
+00:06:05.990 --> 00:06:06.000 align:start position:0%
+enter, number, man, lo, you,
+ 
+
+00:06:06.000 --> 00:06:17.629 align:start position:0%
+enter, number, man, lo, you,
+I <00:06:06.290><c>wrote </c><00:06:06.580><c>multiplication </c><00:06:06.870><c>table </c><00:06:07.160><c>of </c><00:06:07.450><c>you, </c><00:06:07.740><c>sorry,</c>
+
+00:06:17.629 --> 00:06:17.639 align:start position:0%
+ 
+ 
+
+00:06:17.639 --> 00:06:22.270 align:start position:0%
+ 
+okay, <00:06:18.127><c>and </c><00:06:18.615><c>I </c><00:06:19.103><c>don't </c><00:06:19.591><c>need </c><00:06:20.079><c>it </c><00:06:20.567><c>either, </c><00:06:21.055><c>so</c>
+
+00:06:22.270 --> 00:06:22.280 align:start position:0%
+okay, and I don't need it either, so
+ 
+
+00:06:22.280 --> 00:06:24.350 align:start position:0%
+okay, and I don't need it either, so
+I <00:06:22.491><c>can </c><00:06:22.702><c>just </c><00:06:22.913><c>write </c><00:06:23.124><c>accept </c><00:06:23.335><c>in </c><00:06:23.546><c>such </c><00:06:23.757><c>a </c><00:06:23.968><c>way </c><00:06:24.179><c>that</c>
+
+00:06:24.350 --> 00:06:24.360 align:start position:0%
+I can just write accept in such a way that
+ 
+
+00:06:24.360 --> 00:06:26.710 align:start position:0%
+I can just write accept in such a way that
+if <00:06:24.744><c>any </c><00:06:25.128><c>error </c><00:06:25.512><c>comes, </c><00:06:25.896><c>then </c><00:06:26.280><c>here,</c>
+
+00:06:26.710 --> 00:06:26.720 align:start position:0%
+if any error comes, then here,
+ 
+
+00:06:26.720 --> 00:06:29.150 align:start position:0%
+if any error comes, then here,
+now <00:06:27.106><c>see, </c><00:06:27.492><c>invalid </c><00:06:27.878><c>input </c><00:06:28.264><c>was </c><00:06:28.650><c>written </c><00:06:29.036><c>here</c>
+
+00:06:29.150 --> 00:06:29.160 align:start position:0%
+now see, invalid input was written here
+ 
+
+00:06:29.160 --> 00:06:31.430 align:start position:0%
+now see, invalid input was written here
+and <00:06:29.399><c>after </c><00:06:29.638><c>that </c><00:06:29.877><c>the </c><00:06:30.116><c>code </c><00:06:30.355><c>after </c><00:06:30.594><c>this </c><00:06:30.833><c>will </c><00:06:31.072><c>keep </c><00:06:31.311><c>on</c>
+
+00:06:31.430 --> 00:06:31.440 align:start position:0%
+and after that the code after this will keep on
+ 
+
+00:06:31.440 --> 00:06:32.629 align:start position:0%
+and after that the code after this will keep on
+executing, <00:06:32.520><c>this</c>
+
+00:06:32.629 --> 00:06:32.639 align:start position:0%
+executing, this
+ 
+
+00:06:32.639 --> 00:06:34.730 align:start position:0%
+executing, this
+is <00:06:32.845><c>most </c><00:06:33.051><c>important </c><00:06:33.257><c>because </c><00:06:33.463><c>we </c><00:06:33.669><c>do </c><00:06:33.875><c>this  </c><00:06:34.081><c>This </c><00:06:34.287><c>is </c><00:06:34.493><c>why</c>
+
+00:06:34.730 --> 00:06:34.740 align:start position:0%
+is most important because we do this  This is why
+ 
+
+00:06:34.740 --> 00:06:36.590 align:start position:0%
+is most important because we do this  This is why
+our <00:06:35.159><c>lines </c><00:06:35.578><c>of </c><00:06:35.997><c>code </c><00:06:36.416><c>keep</c>
+
+00:06:36.590 --> 00:06:36.600 align:start position:0%
+our lines of code keep
+ 
+
+00:06:36.600 --> 00:06:39.469 align:start position:0%
+our lines of code keep
+executing. <00:06:37.460><c>Okay, </c><00:06:38.320><c>our </c><00:06:39.180><c>lines</c>
+
+00:06:39.469 --> 00:06:39.479 align:start position:0%
+executing. Okay, our lines
+ 
+
+00:06:39.479 --> 00:06:41.090 align:start position:0%
+executing. Okay, our lines
+of <00:06:39.704><c>code </c><00:06:39.929><c>keep </c><00:06:40.154><c>executing. </c><00:06:40.379><c>The</c>
+
+00:06:41.090 --> 00:06:41.100 align:start position:0%
+of code keep executing. The
+ 
+
+00:06:41.100 --> 00:06:43.790 align:start position:0%
+of code keep executing. The
+program <00:06:41.980><c>does </c><00:06:42.860><c>get </c><00:06:43.740><c>executed</c>
+
+00:06:43.790 --> 00:06:43.800 align:start position:0%
+program does get executed
+ 
+
+00:06:43.800 --> 00:06:46.550 align:start position:0%
+program does get executed
+when <00:06:44.020><c>it </c><00:06:44.240><c>encounters </c><00:06:44.460><c>an </c><00:06:44.680><c>error. </c><00:06:44.900><c>And </c><00:06:45.120><c>if </c><00:06:45.340><c>it </c><00:06:45.560><c>encounters </c><00:06:45.780><c>an </c><00:06:46.000><c>error, </c><00:06:46.220><c>if </c><00:06:46.440><c>it</c>
+
+00:06:46.550 --> 00:06:46.560 align:start position:0%
+when it encounters an error. And if it encounters an error, if it
+ 
+
+00:06:46.560 --> 00:06:48.409 align:start position:0%
+when it encounters an error. And if it encounters an error, if it
+encounters <00:06:46.896><c>line </c><00:06:47.232><c>number </c><00:06:47.568><c>seven </c><00:06:47.904><c>or </c><00:06:48.240><c>line</c>
+
+00:06:48.409 --> 00:06:48.419 align:start position:0%
+encounters line number seven or line
+ 
+
+00:06:48.419 --> 00:06:50.390 align:start position:0%
+encounters line number seven or line
+number <00:06:49.319><c>five, </c><00:06:50.219><c>then</c>
+
+00:06:50.390 --> 00:06:50.400 align:start position:0%
+number five, then
+ 
+
+00:06:50.400 --> 00:06:51.890 align:start position:0%
+number five, then
+my <00:06:50.553><c>program </c><00:06:50.706><c>will </c><00:06:50.859><c>stop </c><00:06:51.012><c>right </c><00:06:51.165><c>there. </c><00:06:51.318><c>I </c><00:06:51.471><c>don't </c><00:06:51.624><c>want </c><00:06:51.777><c>that.</c>
+
+00:06:51.890 --> 00:06:51.900 align:start position:0%
+my program will stop right there. I don't want that.
+ 
+
+00:06:51.900 --> 00:06:53.029 align:start position:0%
+my program will stop right there. I don't want that.
+I <00:06:52.032><c>want </c><00:06:52.164><c>my </c><00:06:52.296><c>program </c><00:06:52.428><c>to </c><00:06:52.560><c>continue</c>
+
+00:06:53.029 --> 00:06:53.039 align:start position:0%
+I want my program to continue
+ 
+
+00:06:53.039 --> 00:06:55.969 align:start position:0%
+I want my program to continue
+and <00:06:53.236><c>if </c><00:06:53.433><c>it </c><00:06:53.630><c>encounters </c><00:06:53.827><c>an </c><00:06:54.024><c>error </c><00:06:54.221><c>in </c><00:06:54.418><c>one </c><00:06:54.615><c>of </c><00:06:54.812><c>these </c><00:06:55.009><c>lines, </c><00:06:55.206><c>then </c><00:06:55.403><c>it </c><00:06:55.600><c>should </c><00:06:55.797><c>do</c>
+
+00:06:55.969 --> 00:06:55.979 align:start position:0%
+and if it encounters an error in one of these lines, then it should do
+ 
+
+00:06:55.979 --> 00:06:58.370 align:start position:0%
+and if it encounters an error in one of these lines, then it should do
+something <00:06:56.779><c>else. </c><00:06:57.579><c>Okay, </c><00:06:58.379><c>so</c>
+
+00:06:58.370 --> 00:06:58.380 align:start position:0%
+something else. Okay, so
+ 
+
+00:06:58.380 --> 00:07:00.469 align:start position:0%
+something else. Okay, so
+I <00:06:58.612><c>can </c><00:06:58.844><c>take </c><00:06:59.076><c>my </c><00:06:59.308><c>program </c><00:06:59.540><c>in </c><00:06:59.772><c>a </c><00:07:00.004><c>different </c><00:07:00.236><c>direction.</c>
+
+00:07:00.469 --> 00:07:00.479 align:start position:0%
+I can take my program in a different direction.
+ 
+
+00:07:00.479 --> 00:07:02.689 align:start position:0%
+I can take my program in a different direction.
+If <00:07:00.791><c>an </c><00:07:01.103><c>error </c><00:07:01.415><c>occurs, </c><00:07:01.727><c>I </c><00:07:02.039><c>can</c>
+
+00:07:02.689 --> 00:07:02.699 align:start position:0%
+If an error occurs, I can
+ 
+
+00:07:02.699 --> 00:07:04.969 align:start position:0%
+If an error occurs, I can
+also <00:07:02.999><c>handle </c><00:07:03.299><c>the </c><00:07:03.599><c>error </c><00:07:03.899><c>of </c><00:07:04.199><c>a </c><00:07:04.499><c>specific </c><00:07:04.799><c>type.</c>
+
+00:07:04.969 --> 00:07:04.979 align:start position:0%
+also handle the error of a specific type.
+ 
+
+00:07:04.979 --> 00:07:07.790 align:start position:0%
+also handle the error of a specific type.
+Okay, <00:07:05.373><c>so </c><00:07:05.767><c>I </c><00:07:06.161><c>can </c><00:07:06.555><c>do </c><00:07:06.949><c>all </c><00:07:07.343><c>those </c><00:07:07.737><c>things.</c>
+
+00:07:07.790 --> 00:07:07.800 align:start position:0%
+Okay, so I can do all those things.
+ 
+
+00:07:07.800 --> 00:07:10.010 align:start position:0%
+Okay, so I can do all those things.
+So <00:07:08.062><c>I </c><00:07:08.324><c>hope </c><00:07:08.586><c>you </c><00:07:08.848><c>guys </c><00:07:09.110><c>understood </c><00:07:09.372><c>something </c><00:07:09.634><c>about </c><00:07:09.896><c>how</c>
+
+00:07:10.010 --> 00:07:10.020 align:start position:0%
+So I hope you guys understood something about how
+ 
+
+00:07:10.020 --> 00:07:11.689 align:start position:0%
+So I hope you guys understood something about how
+exceptions <00:07:10.540><c>are </c><00:07:11.060><c>handled </c><00:07:11.580><c>in</c>
+
+00:07:11.689 --> 00:07:11.699 align:start position:0%
+exceptions are handled in
+ 
+
+00:07:11.699 --> 00:07:13.490 align:start position:0%
+exceptions are handled in
+Python. <00:07:12.199><c>Now </c><00:07:12.699><c>let's </c><00:07:13.199><c>read</c>
+
+00:07:13.490 --> 00:07:13.500 align:start position:0%
+Python. Now let's read
+ 
+
+00:07:13.500 --> 00:07:15.590 align:start position:0%
+Python. Now let's read
+what <00:07:13.782><c>is </c><00:07:14.064><c>written </c><00:07:14.346><c>here. </c><00:07:14.628><c>Exception </c><00:07:14.910><c>handling </c><00:07:15.192><c>is </c><00:07:15.474><c>the</c>
+
+00:07:15.590 --> 00:07:15.600 align:start position:0%
+what is written here. Exception handling is the
+ 
+
+00:07:15.600 --> 00:07:17.930 align:start position:0%
+what is written here. Exception handling is the
+process <00:07:15.996><c>of </c><00:07:16.392><c>responding. </c><00:07:16.788><c>So, </c><00:07:17.184><c>unwanted </c><00:07:17.580><c>and</c>
+
+00:07:17.930 --> 00:07:17.940 align:start position:0%
+process of responding. So, unwanted and
+ 
+
+00:07:17.940 --> 00:07:19.430 align:start position:0%
+process of responding. So, unwanted and
+unexpected <00:07:18.159><c>events. </c><00:07:18.378><c>Like </c><00:07:18.597><c>in </c><00:07:18.816><c>this </c><00:07:19.035><c>case, </c><00:07:19.254><c>the</c>
+
+00:07:19.430 --> 00:07:19.440 align:start position:0%
+unexpected events. Like in this case, the
+ 
+
+00:07:19.440 --> 00:07:20.870 align:start position:0%
+unexpected events. Like in this case, the
+expected <00:07:19.784><c>event </c><00:07:20.128><c>was </c><00:07:20.472><c>the </c><00:07:20.816><c>user</c>
+
+00:07:20.870 --> 00:07:20.880 align:start position:0%
+expected event was the user
+ 
+
+00:07:20.880 --> 00:07:23.270 align:start position:0%
+expected event was the user
+inputting <00:07:21.080><c>a </c><00:07:21.280><c>string </c><00:07:21.480><c>instead </c><00:07:21.680><c>of </c><00:07:21.880><c>a </c><00:07:22.080><c>number. </c><00:07:22.280><c>This </c><00:07:22.480><c>was </c><00:07:22.680><c>the</c>
+
+00:07:23.270 --> 00:07:23.280 align:start position:0%
+inputting a string instead of a number. This was the
+ 
+
+00:07:23.280 --> 00:07:25.670 align:start position:0%
+inputting a string instead of a number. This was the
+unexpected <00:07:23.670><c>event.  </c><00:07:24.060><c>That </c><00:07:24.450><c>is </c><00:07:24.840><c>when </c><00:07:25.230><c>a </c><00:07:25.620><c>computer</c>
+
+00:07:25.670 --> 00:07:25.680 align:start position:0%
+unexpected event.  That is when a computer
+ 
+
+00:07:25.680 --> 00:07:27.890 align:start position:0%
+unexpected event.  That is when a computer
+program <00:07:26.129><c>runs </c><00:07:26.578><c>exception </c><00:07:27.027><c>handling </c><00:07:27.476><c>deals</c>
+
+00:07:27.890 --> 00:07:27.900 align:start position:0%
+program runs exception handling deals
+ 
+
+00:07:27.900 --> 00:07:29.629 align:start position:0%
+program runs exception handling deals
+with <00:07:28.130><c>these </c><00:07:28.360><c>events </c><00:07:28.590><c>so </c><00:07:28.820><c>the </c><00:07:29.050><c>program </c><00:07:29.280><c>handles</c>
+
+00:07:29.629 --> 00:07:29.639 align:start position:0%
+with these events so the program handles
+ 
+
+00:07:29.639 --> 00:07:31.610 align:start position:0%
+with these events so the program handles
+system <00:07:29.987><c>crashes </c><00:07:30.335><c>and </c><00:07:30.683><c>without </c><00:07:31.031><c>this </c><00:07:31.379><c>process</c>
+
+00:07:31.610 --> 00:07:31.620 align:start position:0%
+system crashes and without this process
+ 
+
+00:07:31.620 --> 00:07:34.010 align:start position:0%
+system crashes and without this process
+exceptions <00:07:32.028><c>would </c><00:07:32.436><c>destroy </c><00:07:32.844><c>the </c><00:07:33.252><c>normal </c><00:07:33.660><c>operation</c>
+
+00:07:34.010 --> 00:07:34.020 align:start position:0%
+exceptions would destroy the normal operation
+ 
+
+00:07:34.020 --> 00:07:36.409 align:start position:0%
+exceptions would destroy the normal operation
+of <00:07:34.253><c>the </c><00:07:34.486><c>program </c><00:07:34.719><c>okay </c><00:07:34.952><c>so </c><00:07:35.185><c>you </c><00:07:35.418><c>should </c><00:07:35.651><c>know </c><00:07:35.884><c>this </c><00:07:36.117><c>thing</c>
+
+00:07:36.409 --> 00:07:36.419 align:start position:0%
+of the program okay so you should know this thing
+ 
+
+00:07:36.419 --> 00:07:38.510 align:start position:0%
+of the program okay so you should know this thing
+python <00:07:36.759><c>has </c><00:07:37.099><c>built </c><00:07:37.439><c>in </c><00:07:37.779><c>exceptions </c><00:07:38.119><c>and </c><00:07:38.459><c>when</c>
+
+00:07:38.510 --> 00:07:38.520 align:start position:0%
+python has built in exceptions and when
+ 
+
+00:07:38.520 --> 00:07:40.129 align:start position:0%
+python has built in exceptions and when
+your
+
+00:07:40.129 --> 00:07:40.139 align:start position:0%
+your
+ 
+
+00:07:40.139 --> 00:07:43.850 align:start position:0%
+your
+program <00:07:40.739><c>encounters </c><00:07:41.339><c>an </c><00:07:41.939><c>error </c><00:07:42.539><c>something </c><00:07:43.139><c>in </c><00:07:43.739><c>the</c>
+
+00:07:43.850 --> 00:07:43.860 align:start position:0%
+program encounters an error something in the
+ 
+
+00:07:43.860 --> 00:07:45.650 align:start position:0%
+program encounters an error something in the
+program <00:07:44.183><c>goes </c><00:07:44.506><c>wrong </c><00:07:44.829><c>if </c><00:07:45.152><c>anything </c><00:07:45.475><c>happens</c>
+
+00:07:45.650 --> 00:07:45.660 align:start position:0%
+program goes wrong if anything happens
+ 
+
+00:07:45.660 --> 00:07:47.450 align:start position:0%
+program goes wrong if anything happens
+that <00:07:45.900><c>your </c><00:07:46.140><c>program </c><00:07:46.380><c>is </c><00:07:46.620><c>not </c><00:07:46.860><c>running </c><00:07:47.100><c>properly </c><00:07:47.340><c>then</c>
+
+00:07:47.450 --> 00:07:47.460 align:start position:0%
+that your program is not running properly then
+ 
+
+00:07:47.460 --> 00:07:49.370 align:start position:0%
+that your program is not running properly then
+what <00:07:47.633><c>will </c><00:07:47.806><c>happen </c><00:07:47.979><c>is </c><00:07:48.152><c>that </c><00:07:48.325><c>you </c><00:07:48.498><c>will </c><00:07:48.671><c>get </c><00:07:48.844><c>an </c><00:07:49.017><c>exception</c>
+
+00:07:49.370 --> 00:07:49.380 align:start position:0%
+what will happen is that you will get an exception
+ 
+
+00:07:49.380 --> 00:07:51.050 align:start position:0%
+what will happen is that you will get an exception
+when <00:07:50.099><c>this </c><00:07:50.818><c>exception</c>
+
+00:07:51.050 --> 00:07:51.060 align:start position:0%
+when this exception
+ 
+
+00:07:51.060 --> 00:07:53.930 align:start position:0%
+when this exception
+internally <00:07:51.404><c>stops </c><00:07:51.748><c>the </c><00:07:52.092><c>current </c><00:07:52.436><c>process </c><00:07:52.780><c>and </c><00:07:53.124><c>passes </c><00:07:53.468><c>to </c><00:07:53.812><c>the</c>
+
+00:07:53.930 --> 00:07:53.940 align:start position:0%
+internally stops the current process and passes to the
+ 
+
+00:07:53.940 --> 00:07:56.270 align:start position:0%
+internally stops the current process and passes to the
+calling <00:07:54.230><c>process </c><00:07:54.520><c>until </c><00:07:54.810><c>it </c><00:07:55.100><c>is </c><00:07:55.390><c>100 </c><00:07:55.680><c>if</c>
+
+00:07:56.270 --> 00:07:56.280 align:start position:0%
+calling process until it is 100 if
+ 
+
+00:07:56.280 --> 00:07:57.950 align:start position:0%
+calling process until it is 100 if
+not <00:07:56.655><c>handled </c><00:07:57.030><c>programming </c><00:07:57.405><c>crashes </c><00:07:57.780><c>as</c>
+
+00:07:57.950 --> 00:07:57.960 align:start position:0%
+not handled programming crashes as
+ 
+
+00:07:57.960 --> 00:07:59.270 align:start position:0%
+not handled programming crashes as
+you <00:07:58.129><c>just </c><00:07:58.298><c>saw </c><00:07:58.467><c>here </c><00:07:58.636><c>our </c><00:07:58.805><c>program </c><00:07:58.974><c>was</c>
+
+00:07:59.270 --> 00:07:59.280 align:start position:0%
+you just saw here our program was
+ 
+
+00:07:59.280 --> 00:08:02.689 align:start position:0%
+you just saw here our program was
+cached <00:07:59.880><c>okay </c><00:08:00.480><c>and </c><00:08:01.080><c>this </c><00:08:01.680><c>is </c><00:08:02.280><c>the</c>
+
+00:08:02.689 --> 00:08:02.699 align:start position:0%
+cached okay and this is the
+ 
+
+00:08:02.699 --> 00:08:04.070 align:start position:0%
+cached okay and this is the
+syntax <00:08:02.939><c>of </c><00:08:03.179><c>three </c><00:08:03.419><c>exceptions </c><00:08:03.659><c>which </c><00:08:03.899><c>I</c>
+
+00:08:04.070 --> 00:08:04.080 align:start position:0%
+syntax of three exceptions which I
+ 
+
+00:08:04.080 --> 00:08:06.950 align:start position:0%
+syntax of three exceptions which I
+told <00:08:04.386><c>you </c><00:08:04.692><c>now </c><00:08:04.998><c>you </c><00:08:05.304><c>can </c><00:08:05.610><c>also </c><00:08:05.916><c>handle </c><00:08:06.222><c>a </c><00:08:06.528><c>specific </c><00:08:06.834><c>error</c>
+
+00:08:06.950 --> 00:08:06.960 align:start position:0%
+told you now you can also handle a specific error
+ 
+
+00:08:06.960 --> 00:08:08.809 align:start position:0%
+told you now you can also handle a specific error
+like <00:08:07.260><c>here </c><00:08:07.560><c>if </c><00:08:07.860><c>you </c><00:08:08.160><c>look </c><00:08:08.460><c>at</c>
+
+00:08:08.809 --> 00:08:08.819 align:start position:0%
+like here if you look at
+ 
+
+00:08:08.819 --> 00:08:10.850 align:start position:0%
+like here if you look at
+this <00:08:10.740><c>example</c>
+
+00:08:10.850 --> 00:08:10.860 align:start position:0%
+this example
+ 
+
+00:08:10.860 --> 00:08:13.790 align:start position:0%
+this example
+you <00:08:11.700><c>will </c><00:08:12.540><c>see </c><00:08:13.380><c>here</c>
+
+00:08:13.790 --> 00:08:13.800 align:start position:0%
+you will see here
+ 
+
+00:08:13.800 --> 00:08:15.950 align:start position:0%
+you will see here
+I <00:08:13.956><c>handled </c><00:08:14.112><c>the </c><00:08:14.268><c>value </c><00:08:14.424><c>error </c><00:08:14.580><c>that  </c><00:08:14.736><c>No, </c><00:08:14.892><c>I </c><00:08:15.048><c>have </c><00:08:15.204><c>done </c><00:08:15.360><c>this </c><00:08:15.516><c>equal </c><00:08:15.672><c>to </c><00:08:15.828><c>this.</c>
+
+00:08:15.950 --> 00:08:17.510 align:start position:0%
+I handled the value error that  No, I have done this equal to this.
+ 
+
+00:08:17.510 --> 00:08:17.520 align:start position:0%
+ 
+ 
+
+00:08:17.520 --> 00:08:20.330 align:start position:0%
+ 
+If <00:08:17.827><c>I </c><00:08:18.134><c>do </c><00:08:18.441><c>not </c><00:08:18.748><c>put </c><00:08:19.055><c>a </c><00:08:19.362><c>wait, </c><00:08:19.669><c>then </c><00:08:19.976><c>the</c>
+
+00:08:20.330 --> 00:08:20.340 align:start position:0%
+If I do not put a wait, then the
+ 
+
+00:08:20.340 --> 00:08:23.350 align:start position:0%
+If I do not put a wait, then the
+specific <00:08:21.319><c>number</c>
+
+00:08:23.350 --> 00:08:23.360 align:start position:0%
+specific number
+ 
+
+00:08:23.360 --> 00:08:26.390 align:start position:0%
+specific number
+value <00:08:24.105><c>error </c><00:08:24.850><c>is </c><00:08:25.595><c>handled. </c><00:08:26.340><c>Okay,</c>
+
+00:08:26.390 --> 00:08:26.400 align:start position:0%
+value error is handled. Okay,
+ 
+
+00:08:26.400 --> 00:08:29.749 align:start position:0%
+value error is handled. Okay,
+now <00:08:26.635><c>it </c><00:08:26.870><c>is </c><00:08:27.105><c>possible </c><00:08:27.340><c>to </c><00:08:27.575><c>have </c><00:08:27.810><c>five </c><00:08:28.045><c>types </c><00:08:28.280><c>of </c><00:08:28.515><c>errors </c><00:08:28.750><c>in </c><00:08:28.985><c>one </c><00:08:29.220><c>line. </c><00:08:29.455><c>So, </c><00:08:29.690><c>here</c>
+
+00:08:29.749 --> 00:08:29.759 align:start position:0%
+now it is possible to have five types of errors in one line. So, here
+ 
+
+00:08:29.759 --> 00:08:33.170 align:start position:0%
+now it is possible to have five types of errors in one line. So, here
+you <00:08:30.879><c>are </c><00:08:31.999><c>doing </c><00:08:33.119><c>this</c>
+
+00:08:33.170 --> 00:08:33.180 align:start position:0%
+you are doing this
+ 
+
+00:08:33.180 --> 00:08:36.050 align:start position:0%
+you are doing this
+and <00:08:33.582><c>here, </c><00:08:33.984><c>here </c><00:08:34.386><c>you </c><00:08:34.788><c>are </c><00:08:35.190><c>doing </c><00:08:35.592><c>something </c><00:08:35.994><c>like</c>
+
+00:08:36.050 --> 00:08:36.060 align:start position:0%
+and here, here you are doing something like
+ 
+
+00:08:36.060 --> 00:08:38.630 align:start position:0%
+and here, here you are doing something like
+requesting <00:08:36.576><c>server </c><00:08:37.092><c>data </c><00:08:37.608><c>from </c><00:08:38.124><c>let </c><00:08:38.640><c>us.</c>
+
+00:08:38.630 --> 00:08:38.640 align:start position:0%
+requesting server data from let us.
+ 
+
+00:08:38.640 --> 00:08:40.730 align:start position:0%
+requesting server data from let us.
+If <00:08:38.887><c>you </c><00:08:39.134><c>are </c><00:08:39.381><c>hitting </c><00:08:39.628><c>the </c><00:08:39.875><c>service </c><00:08:40.122><c>data </c><00:08:40.369><c>and </c><00:08:40.616><c>it</c>
+
+00:08:40.730 --> 00:08:40.740 align:start position:0%
+If you are hitting the service data and it
+ 
+
+00:08:40.740 --> 00:08:43.370 align:start position:0%
+If you are hitting the service data and it
+comes <00:08:41.108><c>there, </c><00:08:41.476><c>then </c><00:08:41.844><c>you </c><00:08:42.212><c>can </c><00:08:42.580><c>handle </c><00:08:42.948><c>that </c><00:08:43.316><c>error.</c>
+
+00:08:43.370 --> 00:08:43.380 align:start position:0%
+comes there, then you can handle that error.
+ 
+
+00:08:43.380 --> 00:08:45.470 align:start position:0%
+comes there, then you can handle that error.
+If <00:08:43.554><c>you </c><00:08:43.728><c>want </c><00:08:43.902><c>to </c><00:08:44.076><c>handle </c><00:08:44.250><c>this </c><00:08:44.424><c>value </c><00:08:44.598><c>error, </c><00:08:44.772><c>then </c><00:08:44.946><c>I </c><00:08:45.120><c>will </c><00:08:45.294><c>do</c>
+
+00:08:45.470 --> 00:08:45.480 align:start position:0%
+If you want to handle this value error, then I will do
+ 
+
+00:08:45.480 --> 00:08:47.810 align:start position:0%
+If you want to handle this value error, then I will do
+this <00:08:45.797><c>or </c><00:08:46.114><c>you </c><00:08:46.431><c>can </c><00:08:46.748><c>do </c><00:08:47.065><c>something </c><00:08:47.382><c>else, </c><00:08:47.699><c>so</c>
+
+00:08:47.810 --> 00:08:47.820 align:start position:0%
+this or you can do something else, so
+ 
+
+00:08:47.820 --> 00:08:50.509 align:start position:0%
+this or you can do something else, so
+you <00:08:48.335><c>can </c><00:08:48.850><c>put </c><00:08:49.365><c>multiple </c><00:08:49.880><c>accepts. </c><00:08:50.395><c>So,</c>
+
+00:08:50.509 --> 00:08:50.519 align:start position:0%
+you can put multiple accepts. So,
+ 
+
+00:08:50.519 --> 00:08:52.610 align:start position:0%
+you can put multiple accepts. So,
+here <00:08:50.843><c>I </c><00:08:51.167><c>am </c><00:08:51.491><c>writing </c><00:08:51.815><c>accept </c><00:08:52.139><c>and</c>
+
+00:08:52.610 --> 00:08:52.620 align:start position:0%
+here I am writing accept and
+ 
+
+00:08:52.620 --> 00:08:54.769 align:start position:0%
+here I am writing accept and
+exception <00:08:53.130><c>updates, </c><00:08:53.640><c>that </c><00:08:54.150><c>is, </c><00:08:54.660><c>you</c>
+
+00:08:54.769 --> 00:08:54.779 align:start position:0%
+exception updates, that is, you
+ 
+
+00:08:54.779 --> 00:08:56.389 align:start position:0%
+exception updates, that is, you
+can <00:08:54.959><c>give </c><00:08:55.139><c>any </c><00:08:55.319><c>error </c><00:08:55.499><c>here. </c><00:08:55.679><c>And </c><00:08:55.859><c>now </c><00:08:56.039><c>look </c><00:08:56.219><c>here,</c>
+
+00:08:56.389 --> 00:08:56.399 align:start position:0%
+can give any error here. And now look here,
+ 
+
+00:08:56.399 --> 00:08:58.610 align:start position:0%
+can give any error here. And now look here,
+I <00:08:56.749><c>have </c><00:08:57.099><c>written </c><00:08:57.449><c>accept, </c><00:08:57.799><c>that </c><00:08:58.149><c>is, </c><00:08:58.499><c>I</c>
+
+00:08:58.610 --> 00:08:58.620 align:start position:0%
+I have written accept, that is, I
+ 
+
+00:08:58.620 --> 00:09:00.470 align:start position:0%
+I have written accept, that is, I
+want <00:08:58.890><c>to </c><00:08:59.160><c>handle </c><00:08:59.430><c>the </c><00:08:59.700><c>index </c><00:08:59.970><c>like </c><00:09:00.240><c>this.</c>
+
+00:09:00.470 --> 00:09:00.480 align:start position:0%
+want to handle the index like this.
+ 
+
+00:09:00.480 --> 00:09:05.269 align:start position:0%
+want to handle the index like this.
+Now, <00:09:01.230><c>here </c><00:09:01.980><c>a </c><00:09:02.730><c>= </c><00:09:03.480><c>6 </c><00:09:04.230><c>3 </c><00:09:04.980><c>and</c>
+
+00:09:05.269 --> 00:09:05.279 align:start position:0%
+Now, here a = 6 3 and
+ 
+
+00:09:05.279 --> 00:09:08.990 align:start position:0%
+Now, here a = 6 3 and
+what <00:09:05.525><c>I </c><00:09:05.771><c>am </c><00:09:06.017><c>doing </c><00:09:06.263><c>here, </c><00:09:06.509><c>I </c><00:09:06.755><c>have </c><00:09:07.001><c>done </c><00:09:07.247><c>it </c><00:09:07.493><c>here</c>
+
+00:09:08.990 --> 00:09:09.000 align:start position:0%
+what I am doing here, I have done it here
+ 
+
+00:09:09.000 --> 00:09:12.769 align:start position:0%
+what I am doing here, I have done it here
+and <00:09:09.457><c>I </c><00:09:09.914><c>am </c><00:09:10.371><c>doing </c><00:09:10.828><c>enum </c><00:09:11.285><c>here. </c><00:09:11.742><c>I </c><00:09:12.199><c>am </c><00:09:12.656><c>doing</c>
+
+00:09:12.769 --> 00:09:12.779 align:start position:0%
+and I am doing enum here. I am doing
+ 
+
+00:09:12.779 --> 00:09:15.610 align:start position:0%
+and I am doing enum here. I am doing
+print.
+
+00:09:15.610 --> 00:09:15.620 align:start position:0%
+print.
+ 
+
+00:09:15.620 --> 00:09:18.050 align:start position:0%
+print.
+Now <00:09:16.072><c>see </c><00:09:16.524><c>what </c><00:09:16.976><c>is </c><00:09:17.428><c>happening </c><00:09:17.880><c>here.</c>
+
+00:09:18.050 --> 00:09:18.060 align:start position:0%
+Now see what is happening here.
+ 
+
+00:09:18.060 --> 00:09:19.550 align:start position:0%
+Now see what is happening here.
+Inside <00:09:18.280><c>the </c><00:09:18.500><c>try, </c><00:09:18.720><c>I </c><00:09:18.940><c>tried </c><00:09:19.160><c>three </c><00:09:19.380><c>lines.</c>
+
+00:09:19.550 --> 00:09:19.560 align:start position:0%
+Inside the try, I tried three lines.
+ 
+
+00:09:19.560 --> 00:09:21.530 align:start position:0%
+Inside the try, I tried three lines.
+Now <00:09:20.200><c>look.  </c><00:09:20.840><c>If </c><00:09:21.480><c>I</c>
+
+00:09:21.530 --> 00:09:21.540 align:start position:0%
+Now look.  If I
+ 
+
+00:09:21.540 --> 00:09:25.070 align:start position:0%
+Now look.  If I
+enter <00:09:21.708><c>the </c><00:09:21.876><c>value </c><00:09:22.044><c>of </c><00:09:22.212><c>name </c><00:09:22.380><c>as </c><00:09:22.548><c>zero </c><00:09:22.716><c>here, </c><00:09:22.884><c>then </c><00:09:23.052><c>what </c><00:09:23.220><c>will </c><00:09:23.388><c>happen </c><00:09:23.556><c>is </c><00:09:23.724><c>that </c><00:09:23.892><c>a0 </c><00:09:24.060><c>will </c><00:09:24.228><c>be</c>
+
+00:09:25.070 --> 00:09:25.080 align:start position:0%
+enter the value of name as zero here, then what will happen is that a0 will be
+ 
+
+00:09:25.080 --> 00:09:27.710 align:start position:0%
+enter the value of name as zero here, then what will happen is that a0 will be
+printed. <00:09:25.920><c>Okay, </c><00:09:26.760><c>if </c><00:09:27.600><c>I</c>
+
+00:09:27.710 --> 00:09:27.720 align:start position:0%
+printed. Okay, if I
+ 
+
+00:09:27.720 --> 00:09:31.250 align:start position:0%
+printed. Okay, if I
+enter <00:09:27.990><c>the </c><00:09:28.260><c>value </c><00:09:28.530><c>of </c><00:09:28.800><c>name </c><00:09:29.070><c>as </c><00:09:29.340><c>something </c><00:09:29.610><c>invalid </c><00:09:29.880><c>here</c>
+
+00:09:31.250 --> 00:09:31.260 align:start position:0%
+enter the value of name as something invalid here
+ 
+
+00:09:31.260 --> 00:09:33.290 align:start position:0%
+enter the value of name as something invalid here
+and <00:09:31.460><c>press </c><00:09:31.660><c>enter, </c><00:09:31.860><c>I'll </c><00:09:32.060><c>write </c><00:09:32.260><c>it </c><00:09:32.460><c>as </c><00:09:32.660><c>not </c><00:09:32.860><c>an </c><00:09:33.060><c>integer.</c>
+
+00:09:33.290 --> 00:09:35.449 align:start position:0%
+and press enter, I'll write it as not an integer.
+ 
+
+00:09:35.449 --> 00:09:35.459 align:start position:0%
+ 
+ 
+
+00:09:35.459 --> 00:09:38.090 align:start position:0%
+ 
+If <00:09:36.014><c>I </c><00:09:36.569><c>enter </c><00:09:37.124><c>a </c><00:09:37.679><c>valid</c>
+
+00:09:38.090 --> 00:09:38.100 align:start position:0%
+If I enter a valid
+ 
+
+00:09:38.100 --> 00:09:40.250 align:start position:0%
+If I enter a valid
+wait, <00:09:38.332><c>it </c><00:09:38.564><c>will </c><00:09:38.796><c>come </c><00:09:39.028><c>here </c><00:09:39.260><c>and </c><00:09:39.492><c>throw </c><00:09:39.724><c>an </c><00:09:39.956><c>error</c>
+
+00:09:40.250 --> 00:09:40.260 align:start position:0%
+wait, it will come here and throw an error
+ 
+
+00:09:40.260 --> 00:09:41.570 align:start position:0%
+wait, it will come here and throw an error
+because <00:09:40.639><c>this </c><00:09:41.018><c>list </c><00:09:41.397><c>is</c>
+
+00:09:41.570 --> 00:09:41.580 align:start position:0%
+because this list is
+ 
+
+00:09:41.580 --> 00:09:44.389 align:start position:0%
+because this list is
+n't <00:09:41.965><c>big </c><00:09:42.350><c>enough </c><00:09:42.735><c>to </c><00:09:43.120><c>handle </c><00:09:43.505><c>the </c><00:09:43.890><c>four. </c><00:09:44.275><c>You'll</c>
+
+00:09:44.389 --> 00:09:44.399 align:start position:0%
+n't big enough to handle the four. You'll
+ 
+
+00:09:44.399 --> 00:09:46.430 align:start position:0%
+n't big enough to handle the four. You'll
+see, <00:09:44.689><c>I'm </c><00:09:44.979><c>giving </c><00:09:45.269><c>an </c><00:09:45.559><c>induction, </c><00:09:45.849><c>so </c><00:09:46.139><c>I'm</c>
+
+00:09:46.430 --> 00:09:46.440 align:start position:0%
+see, I'm giving an induction, so I'm
+ 
+
+00:09:46.440 --> 00:09:48.110 align:start position:0%
+see, I'm giving an induction, so I'm
+handling <00:09:46.776><c>it </c><00:09:47.112><c>in </c><00:09:47.448><c>a </c><00:09:47.784><c>specific </c><00:09:48.120><c>way.</c>
+
+00:09:48.110 --> 00:09:48.120 align:start position:0%
+handling it in a specific way.
+ 
+
+00:09:48.120 --> 00:09:50.210 align:start position:0%
+handling it in a specific way.
+You'll <00:09:48.460><c>see, </c><00:09:48.800><c>if </c><00:09:49.140><c>index </c><00:09:49.480><c>a </c><00:09:49.820><c>is </c><00:09:50.160><c>there,</c>
+
+00:09:50.210 --> 00:09:50.220 align:start position:0%
+You'll see, if index a is there,
+ 
+
+00:09:50.220 --> 00:09:51.790 align:start position:0%
+You'll see, if index a is there,
+I'll <00:09:50.266><c>do </c><00:09:50.312><c>this. </c><00:09:50.358><c>If </c><00:09:50.404><c>memory </c><00:09:50.450><c>is </c><00:09:50.496><c>there, </c><00:09:50.542><c>I'll </c><00:09:50.588><c>do </c><00:09:50.634><c>this.</c>
+
+00:09:51.790 --> 00:09:51.800 align:start position:0%
+I'll do this. If memory is there, I'll do this.
+ 
+
+00:09:51.800 --> 00:09:54.590 align:start position:0%
+I'll do this. If memory is there, I'll do this.
+Okay, <00:09:53.600><c>we'll</c>
+
+00:09:54.590 --> 00:09:54.600 align:start position:0%
+Okay, we'll
+ 
+
+00:09:54.600 --> 00:09:55.610 align:start position:0%
+Okay, we'll
+read <00:09:54.860><c>about </c><00:09:55.120><c>error </c><00:09:55.380><c>objects,</c>
+
+00:09:55.610 --> 00:09:55.620 align:start position:0%
+read about error objects,
+ 
+
+00:09:55.620 --> 00:09:57.050 align:start position:0%
+read about error objects,
+what <00:09:55.872><c>errors </c><00:09:56.124><c>exist </c><00:09:56.376><c>in </c><00:09:56.628><c>Python, </c><00:09:56.880><c>and</c>
+
+00:09:57.050 --> 00:09:57.060 align:start position:0%
+what errors exist in Python, and
+ 
+
+00:09:57.060 --> 00:09:58.790 align:start position:0%
+what errors exist in Python, and
+we'll <00:09:57.340><c>see </c><00:09:57.620><c>which </c><00:09:57.900><c>ones </c><00:09:58.180><c>are </c><00:09:58.460><c>released </c><00:09:58.740><c>when.</c>
+
+00:09:58.790 --> 00:09:58.800 align:start position:0%
+we'll see which ones are released when.
+ 
+
+00:09:58.800 --> 00:10:05.110 align:start position:0%
+we'll see which ones are released when.
+But <00:09:59.130><c>this </c><00:09:59.460><c>is </c><00:09:59.790><c>how </c><00:10:00.120><c>basic</c>
+
+00:10:05.110 --> 00:10:05.120 align:start position:0%
+ 
+ 
+
+00:10:05.120 --> 00:10:07.670 align:start position:0%
+ 
+exception <00:10:05.730><c>handling </c><00:10:06.340><c>works </c><00:10:06.950><c>in </c><00:10:07.560><c>Python.</c>
+
+00:10:07.670 --> 00:10:07.680 align:start position:0%
+exception handling works in Python.
+ 
+
+00:10:07.680 --> 00:10:10.790 align:start position:0%
+exception handling works in Python.
+You <00:10:08.970><c>guys </c><00:10:10.260><c>should</c>
+
+00:10:10.790 --> 00:10:10.800 align:start position:0%
+You guys should
+ 
+
+00:10:10.800 --> 00:10:13.130 align:start position:0%
+You guys should
+definitely <00:10:11.195><c>try </c><00:10:11.590><c>the </c><00:10:11.985><c>program </c><00:10:12.380><c>once, </c><00:10:12.775><c>and</c>
+
+00:10:13.130 --> 00:10:14.810 align:start position:0%
+definitely try the program once, and
+ 
+
+00:10:14.810 --> 00:10:14.820 align:start position:0%
+ 
+ 
+
+00:10:14.820 --> 00:10:16.730 align:start position:0%
+ 
+not <00:10:14.950><c>just </c><00:10:15.080><c>the </c><00:10:15.210><c>source </c><00:10:15.340><c>code </c><00:10:15.470><c>I've </c><00:10:15.600><c>provided, </c><00:10:15.730><c>you </c><00:10:15.860><c>can </c><00:10:15.990><c>also </c><00:10:16.120><c>try </c><00:10:16.250><c>it </c><00:10:16.380><c>yourself.</c>
+
+00:10:16.730 --> 00:10:16.740 align:start position:0%
+not just the source code I've provided, you can also try it yourself.
+ 
+
+00:10:16.740 --> 00:10:18.350 align:start position:0%
+not just the source code I've provided, you can also try it yourself.
+Try <00:10:17.004><c>producing </c><00:10:17.268><c>different </c><00:10:17.532><c>types </c><00:10:17.796><c>of </c><00:10:18.060><c>errors</c>
+
+00:10:18.350 --> 00:10:18.360 align:start position:0%
+Try producing different types of errors
+ 
+
+00:10:18.360 --> 00:10:31.190 align:start position:0%
+Try producing different types of errors
+and <00:10:18.800><c>handling </c><00:10:19.240><c>them.  </c><00:10:19.680><c>Try</c>
+
+00:10:31.190 --> 00:10:31.200 align:start position:0%
+ 
+ 
+
+00:10:31.200 --> 00:10:34.850 align:start position:0%
+ 
+this <00:10:31.645><c>video </c><00:10:32.090><c>and </c><00:10:32.535><c>I'll </c><00:10:32.980><c>see </c><00:10:33.425><c>you </c><00:10:33.870><c>next </c><00:10:34.315><c>time</c>
+
+00:10:34.850 --> 00:10:34.860 align:start position:0%
+this video and I'll see you next time
+ 
+
+00:10:34.860 --> 00:10:35.160 align:start position:0%
+this video and I'll see you next time
+[applause]
+
+00:10:35.160 --> 00:10:35.170 align:start position:0%
+[applause]
+ 
+
+00:10:35.170 --> 00:10:54.640 align:start position:0%
+[applause]
+[music]
+

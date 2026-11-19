@@ -1,0 +1,4052 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:00.000 --> 00:00:02.330 align:start position:0%
+ 
+List <00:00:00.620><c>is </c><00:00:01.240><c>a </c><00:00:01.860><c>very</c>
+
+00:00:02.330 --> 00:00:02.340 align:start position:0%
+List is a very
+ 
+
+00:00:02.340 --> 00:00:04.309 align:start position:0%
+List is a very
+important <00:00:02.609><c>data </c><00:00:02.878><c>type </c><00:00:03.147><c>in </c><00:00:03.416><c>programming. </c><00:00:03.685><c>If </c><00:00:03.954><c>you</c>
+
+00:00:04.309 --> 00:00:07.789 align:start position:0%
+important data type in programming. If you
+ 
+
+00:00:07.789 --> 00:00:07.799 align:start position:0%
+ 
+ 
+
+00:00:07.799 --> 00:00:09.410 align:start position:0%
+ 
+want <00:00:07.919><c>to </c><00:00:08.039><c>store </c><00:00:08.159><c>10, </c><00:00:08.279><c>15, </c><00:00:08.399><c>or </c><00:00:08.519><c>20 </c><00:00:08.639><c>things </c><00:00:08.759><c>in </c><00:00:08.879><c>a </c><00:00:08.999><c>particular </c><00:00:09.119><c>entity, </c><00:00:09.239><c>you</c>
+
+00:00:09.410 --> 00:00:09.420 align:start position:0%
+want to store 10, 15, or 20 things in a particular entity, you
+ 
+
+00:00:09.420 --> 00:00:10.970 align:start position:0%
+want to store 10, 15, or 20 things in a particular entity, you
+create <00:00:09.617><c>a </c><00:00:09.814><c>list </c><00:00:10.011><c>of </c><00:00:10.208><c>them. </c><00:00:10.405><c>For </c><00:00:10.602><c>example, </c><00:00:10.799><c>you</c>
+
+00:00:10.970 --> 00:00:12.650 align:start position:0%
+create a list of them. For example, you
+ 
+
+00:00:12.650 --> 00:00:12.660 align:start position:0%
+ 
+ 
+
+00:00:12.660 --> 00:00:14.390 align:start position:0%
+ 
+can <00:00:12.749><c>create </c><00:00:12.838><c>a </c><00:00:12.927><c>list </c><00:00:13.016><c>of </c><00:00:13.105><c>marks </c><00:00:13.194><c>of </c><00:00:13.283><c>students </c><00:00:13.372><c>of </c><00:00:13.461><c>class </c><00:00:13.550><c>AETS. </c><00:00:13.639><c>Or </c><00:00:13.728><c>you </c><00:00:13.817><c>can </c><00:00:13.906><c>create </c><00:00:13.995><c>a </c><00:00:14.084><c>list</c>
+
+00:00:14.390 --> 00:00:14.400 align:start position:0%
+can create a list of marks of students of class AETS. Or you can create a list
+ 
+
+00:00:14.400 --> 00:00:16.609 align:start position:0%
+can create a list of marks of students of class AETS. Or you can create a list
+of <00:00:14.784><c>people </c><00:00:15.168><c>living </c><00:00:15.552><c>in </c><00:00:15.936><c>Europe. </c><00:00:16.320><c>Or</c>
+
+00:00:16.609 --> 00:00:16.619 align:start position:0%
+of people living in Europe. Or
+ 
+
+00:00:16.619 --> 00:00:19.310 align:start position:0%
+of people living in Europe. Or
+you <00:00:16.885><c>can </c><00:00:17.151><c>create </c><00:00:17.417><c>a </c><00:00:17.683><c>list </c><00:00:17.949><c>of </c><00:00:18.215><c>people </c><00:00:18.481><c>Android </c><00:00:18.747><c>in </c><00:00:19.013><c>100</c>
+
+00:00:19.310 --> 00:00:19.320 align:start position:0%
+you can create a list of people Android in 100
+ 
+
+00:00:19.320 --> 00:00:21.349 align:start position:0%
+you can create a list of people Android in 100
+days <00:00:19.785><c>of </c><00:00:20.250><c>court </c><00:00:20.715><c>Python. </c><00:00:21.180><c>By</c>
+
+00:00:21.349 --> 00:00:21.359 align:start position:0%
+days of court Python. By
+ 
+
+00:00:21.359 --> 00:00:23.450 align:start position:0%
+days of court Python. By
+creating <00:00:21.854><c>all </c><00:00:22.349><c>these </c><00:00:22.844><c>lists, </c><00:00:23.339><c>you</c>
+
+00:00:23.450 --> 00:00:23.460 align:start position:0%
+creating all these lists, you
+ 
+
+00:00:23.460 --> 00:00:25.070 align:start position:0%
+creating all these lists, you
+can <00:00:23.712><c>perform </c><00:00:23.964><c>some </c><00:00:24.216><c>operations </c><00:00:24.468><c>on </c><00:00:24.720><c>them,</c>
+
+00:00:25.070 --> 00:00:25.080 align:start position:0%
+can perform some operations on them,
+ 
+
+00:00:25.080 --> 00:00:27.890 align:start position:0%
+can perform some operations on them,
+iterate <00:00:25.373><c>them, </c><00:00:25.666><c>and </c><00:00:25.959><c>even </c><00:00:26.252><c>call </c><00:00:26.545><c>them </c><00:00:26.838><c>by </c><00:00:27.131><c>a </c><00:00:27.424><c>name. </c><00:00:27.717><c>For</c>
+
+00:00:27.890 --> 00:00:27.900 align:start position:0%
+iterate them, and even call them by a name. For
+ 
+
+00:00:27.900 --> 00:00:29.870 align:start position:0%
+iterate them, and even call them by a name. For
+example,
+
+00:00:29.870 --> 00:00:29.880 align:start position:0%
+example,
+ 
+
+00:00:29.880 --> 00:00:31.490 align:start position:0%
+example,
+a <00:00:30.005><c>list </c><00:00:30.130><c>of </c><00:00:30.255><c>class </c><00:00:30.380><c>10th </c><00:00:30.505><c>Maths </c><00:00:30.630><c>marks </c><00:00:30.755><c>has </c><00:00:30.880><c>been </c><00:00:31.005><c>created. </c><00:00:31.130><c>All </c><00:00:31.255><c>the</c>
+
+00:00:31.490 --> 00:00:31.500 align:start position:0%
+a list of class 10th Maths marks has been created. All the
+ 
+
+00:00:31.500 --> 00:00:33.470 align:start position:0%
+a list of class 10th Maths marks has been created. All the
+marks <00:00:31.688><c>of </c><00:00:31.876><c>the </c><00:00:32.064><c>students </c><00:00:32.252><c>are </c><00:00:32.440><c>written </c><00:00:32.628><c>in </c><00:00:32.816><c>it.</c>
+
+00:00:33.470 --> 00:00:33.480 align:start position:0%
+marks of the students are written in it.
+ 
+
+00:00:33.480 --> 00:00:35.030 align:start position:0%
+marks of the students are written in it.
+A <00:00:33.618><c>list </c><00:00:33.756><c>of </c><00:00:33.894><c>class </c><00:00:34.032><c>11th </c><00:00:34.170><c>Science </c><00:00:34.308><c>marks </c><00:00:34.446><c>has </c><00:00:34.584><c>been </c><00:00:34.722><c>created. </c><00:00:34.860><c>By</c>
+
+00:00:35.030 --> 00:00:35.040 align:start position:0%
+A list of class 11th Science marks has been created. By
+ 
+
+00:00:35.040 --> 00:00:38.090 align:start position:0%
+A list of class 11th Science marks has been created. By
+creating <00:00:35.415><c>a </c><00:00:35.790><c>list, </c><00:00:36.165><c>we </c><00:00:36.540><c>are </c><00:00:36.915><c>able </c><00:00:37.290><c>to </c><00:00:37.665><c>collect </c><00:00:38.040><c>things</c>
+
+00:00:38.090 --> 00:00:38.100 align:start position:0%
+creating a list, we are able to collect things
+ 
+
+00:00:38.100 --> 00:00:40.069 align:start position:0%
+creating a list, we are able to collect things
+and <00:00:38.286><c>it </c><00:00:38.472><c>is </c><00:00:38.658><c>very </c><00:00:38.844><c>easy </c><00:00:39.030><c>for </c><00:00:39.216><c>us </c><00:00:39.402><c>to </c><00:00:39.588><c>reference </c><00:00:39.774><c>it. </c><00:00:39.960><c>Let's</c>
+
+00:00:40.069 --> 00:00:41.810 align:start position:0%
+and it is very easy for us to reference it. Let's
+ 
+
+00:00:41.810 --> 00:00:41.820 align:start position:0%
+ 
+ 
+
+00:00:41.820 --> 00:00:43.910 align:start position:0%
+ 
+look <00:00:41.955><c>at </c><00:00:42.090><c>the </c><00:00:42.225><c>list </c><00:00:42.360><c>on </c><00:00:42.495><c>the </c><00:00:42.630><c>computer </c><00:00:42.765><c>screen </c><00:00:42.900><c>and </c><00:00:43.035><c>then </c><00:00:43.170><c>we </c><00:00:43.305><c>will </c><00:00:43.440><c>see</c>
+
+00:00:43.910 --> 00:00:43.920 align:start position:0%
+look at the list on the computer screen and then we will see
+ 
+
+00:00:43.920 --> 00:00:45.530 align:start position:0%
+look at the list on the computer screen and then we will see
+what <00:00:44.122><c>operations </c><00:00:44.324><c>can </c><00:00:44.526><c>be </c><00:00:44.728><c>done </c><00:00:44.930><c>with </c><00:00:45.132><c>the </c><00:00:45.334><c>list </c><00:00:45.536><c>and</c>
+
+00:00:45.530 --> 00:00:45.540 align:start position:0%
+what operations can be done with the list and
+ 
+
+00:00:45.540 --> 00:00:48.290 align:start position:0%
+what operations can be done with the list and
+how <00:00:46.043><c>the </c><00:00:46.546><c>list </c><00:00:47.049><c>will </c><00:00:47.552><c>help </c><00:00:48.055><c>you</c>
+
+00:00:48.290 --> 00:00:48.300 align:start position:0%
+how the list will help you
+ 
+
+00:00:48.300 --> 00:00:51.700 align:start position:0%
+how the list will help you
+in <00:00:48.820><c>programming. </c><00:00:49.340><c>Let's </c><00:00:49.860><c>get</c>
+
+00:00:51.700 --> 00:00:51.710 align:start position:0%
+in programming. Let's get
+ 
+
+00:00:51.710 --> 00:00:59.750 align:start position:0%
+in programming. Let's get
+[Music].
+
+00:00:59.750 --> 00:00:59.760 align:start position:0%
+[Music].
+ 
+
+00:00:59.760 --> 00:01:01.850 align:start position:0%
+[Music].
+Today's <00:00:59.966><c>day </c><00:01:00.172><c>is </c><00:01:00.378><c>very </c><00:01:00.584><c>special </c><00:01:00.790><c>because  </c><00:01:00.996><c>We </c><00:01:01.202><c>are </c><00:01:01.408><c>going </c><00:01:01.614><c>to</c>
+
+00:01:01.850 --> 00:01:01.860 align:start position:0%
+Today's day is very special because  We are going to
+ 
+
+00:01:01.860 --> 00:01:03.229 align:start position:0%
+Today's day is very special because  We are going to
+talk <00:01:02.059><c>about </c><00:01:02.258><c>lists. </c><00:01:02.457><c>It </c><00:01:02.656><c>is </c><00:01:02.855><c>a </c><00:01:03.054><c>very</c>
+
+00:01:03.229 --> 00:01:03.239 align:start position:0%
+talk about lists. It is a very
+ 
+
+00:01:03.239 --> 00:01:05.450 align:start position:0%
+talk about lists. It is a very
+good <00:01:03.429><c>data </c><00:01:03.619><c>type. </c><00:01:03.809><c>Well, </c><00:01:03.999><c>in </c><00:01:04.189><c>the </c><00:01:04.379><c>sense </c><00:01:04.569><c>of </c><00:01:04.759><c>it, </c><00:01:04.949><c>it </c><00:01:05.139><c>is </c><00:01:05.329><c>a</c>
+
+00:01:05.450 --> 00:01:05.460 align:start position:0%
+good data type. Well, in the sense of it, it is a
+ 
+
+00:01:05.460 --> 00:01:07.070 align:start position:0%
+good data type. Well, in the sense of it, it is a
+very <00:01:05.960><c>common </c><00:01:06.460><c>data </c><00:01:06.960><c>type.</c>
+
+00:01:07.070 --> 00:01:07.080 align:start position:0%
+very common data type.
+ 
+
+00:01:07.080 --> 00:01:08.929 align:start position:0%
+very common data type.
+And <00:01:07.297><c>you </c><00:01:07.514><c>guys </c><00:01:07.731><c>have </c><00:01:07.948><c>to </c><00:01:08.165><c>understand </c><00:01:08.382><c>lists </c><00:01:08.599><c>very </c><00:01:08.816><c>carefully.</c>
+
+00:01:08.929 --> 00:01:08.939 align:start position:0%
+And you guys have to understand lists very carefully.
+ 
+
+00:01:08.939 --> 00:01:10.670 align:start position:0%
+And you guys have to understand lists very carefully.
+Look, <00:01:09.229><c>if </c><00:01:09.519><c>you </c><00:01:09.809><c>are </c><00:01:10.099><c>not </c><00:01:10.389><c>focusing, </c><00:01:10.679><c>then</c>
+
+00:01:10.670 --> 00:01:10.680 align:start position:0%
+Look, if you are not focusing, then
+ 
+
+00:01:10.680 --> 00:01:12.770 align:start position:0%
+Look, if you are not focusing, then
+start <00:01:11.145><c>focusing </c><00:01:11.610><c>because </c><00:01:12.075><c>this </c><00:01:12.540><c>is</c>
+
+00:01:12.770 --> 00:01:12.780 align:start position:0%
+start focusing because this is
+ 
+
+00:01:12.780 --> 00:01:14.690 align:start position:0%
+start focusing because this is
+one <00:01:13.164><c>of </c><00:01:13.548><c>the </c><00:01:13.932><c>most </c><00:01:14.316><c>important </c><00:01:14.700><c>topics.</c>
+
+00:01:14.690 --> 00:01:14.700 align:start position:0%
+one of the most important topics.
+ 
+
+00:01:14.700 --> 00:01:17.149 align:start position:0%
+one of the most important topics.
+What <00:01:14.912><c>is </c><00:01:15.124><c>a </c><00:01:15.336><c>list? </c><00:01:15.548><c>Look, </c><00:01:15.760><c>first </c><00:01:15.972><c>of </c><00:01:16.184><c>all, </c><00:01:16.396><c>I </c><00:01:16.608><c>will </c><00:01:16.820><c>show </c><00:01:17.032><c>you</c>
+
+00:01:17.149 --> 00:01:17.159 align:start position:0%
+What is a list? Look, first of all, I will show you
+ 
+
+00:01:17.159 --> 00:01:18.469 align:start position:0%
+What is a list? Look, first of all, I will show you
+guys <00:01:17.429><c>by </c><00:01:17.699><c>doing </c><00:01:17.969><c>it </c><00:01:18.239><c>myself.</c>
+
+00:01:18.469 --> 00:01:18.479 align:start position:0%
+guys by doing it myself.
+ 
+
+00:01:18.479 --> 00:01:20.050 align:start position:0%
+guys by doing it myself.
+What <00:01:18.604><c>is </c><00:01:18.729><c>a </c><00:01:18.854><c>list? </c><00:01:18.979><c>I </c><00:01:19.104><c>will </c><00:01:19.229><c>write </c><00:01:19.354><c>'L' </c><00:01:19.479><c>as </c><00:01:19.604><c>equal </c><00:01:19.729><c>to </c><00:01:19.854><c>'E'. </c><00:01:19.979><c>You</c>
+
+00:01:20.050 --> 00:01:20.060 align:start position:0%
+What is a list? I will write 'L' as equal to 'E'. You
+ 
+
+00:01:20.060 --> 00:01:22.609 align:start position:0%
+What is a list? I will write 'L' as equal to 'E'. You
+know, <00:01:20.476><c>I </c><00:01:20.892><c>put </c><00:01:21.308><c>square </c><00:01:21.724><c>brackets </c><00:01:22.140><c>like </c><00:01:22.556><c>this</c>
+
+00:01:22.609 --> 00:01:22.619 align:start position:0%
+know, I put square brackets like this
+ 
+
+00:01:22.619 --> 00:01:24.070 align:start position:0%
+know, I put square brackets like this
+and <00:01:22.979><c>I </c><00:01:23.339><c>wrote</c>
+
+00:01:24.070 --> 00:01:24.080 align:start position:0%
+and I wrote
+ 
+
+00:01:24.080 --> 00:01:27.109 align:start position:0%
+and I wrote
+356. <00:01:24.514><c>Okay, </c><00:01:24.948><c>so </c><00:01:25.382><c>this </c><00:01:25.816><c>is </c><00:01:26.250><c>a </c><00:01:26.684><c>list. </c><00:01:27.118><c>Okay,</c>
+
+00:01:27.109 --> 00:01:27.119 align:start position:0%
+356. Okay, so this is a list. Okay,
+ 
+
+00:01:27.119 --> 00:01:29.030 align:start position:0%
+356. Okay, so this is a list. Okay,
+this <00:01:27.419><c>is </c><00:01:27.719><c>a </c><00:01:28.019><c>valid </c><00:01:28.319><c>Python </c><00:01:28.619><c>program </c><00:01:28.919><c>because</c>
+
+00:01:29.030 --> 00:01:29.040 align:start position:0%
+this is a valid Python program because
+ 
+
+00:01:29.040 --> 00:01:30.590 align:start position:0%
+this is a valid Python program because
+I <00:01:29.340><c>am </c><00:01:29.640><c>running </c><00:01:29.940><c>it. </c><00:01:30.240><c>Look,</c>
+
+00:01:30.590 --> 00:01:30.600 align:start position:0%
+I am running it. Look,
+ 
+
+00:01:30.600 --> 00:01:32.810 align:start position:0%
+I am running it. Look,
+no <00:01:30.833><c>error </c><00:01:31.066><c>came </c><00:01:31.299><c>here. </c><00:01:31.532><c>If </c><00:01:31.765><c>I </c><00:01:31.998><c>want </c><00:01:32.231><c>to </c><00:01:32.464><c>print </c><00:01:32.697><c>this,</c>
+
+00:01:32.810 --> 00:01:32.820 align:start position:0%
+no error came here. If I want to print this,
+ 
+
+00:01:32.820 --> 00:01:34.550 align:start position:0%
+no error came here. If I want to print this,
+I <00:01:33.060><c>will </c><00:01:33.300><c>simply </c><00:01:33.540><c>print </c><00:01:33.780><c>'del' </c><00:01:34.020><c>and</c>
+
+00:01:34.550 --> 00:01:34.560 align:start position:0%
+I will simply print 'del' and
+ 
+
+00:01:34.560 --> 00:01:36.890 align:start position:0%
+I will simply print 'del' and
+I <00:01:34.806><c>will </c><00:01:35.052><c>see </c><00:01:35.298><c>356 </c><00:01:35.544><c>exactly </c><00:01:35.790><c>as </c><00:01:36.036><c>I </c><00:01:36.282><c>have </c><00:01:36.528><c>created </c><00:01:36.774><c>it.</c>
+
+00:01:36.890 --> 00:01:36.900 align:start position:0%
+I will see 356 exactly as I have created it.
+ 
+
+00:01:36.900 --> 00:01:39.230 align:start position:0%
+I will see 356 exactly as I have created it.
+If <00:01:37.890><c>I </c><00:01:38.880><c>print</c>
+
+00:01:39.230 --> 00:01:39.240 align:start position:0%
+If I print
+ 
+
+00:01:39.240 --> 00:01:42.469 align:start position:0%
+If I print
+its <00:01:39.792><c>type, </c><00:01:40.344><c>it </c><00:01:40.896><c>will </c><00:01:41.448><c>tell </c><00:01:42.000><c>me,</c>
+
+00:01:42.469 --> 00:01:42.479 align:start position:0%
+its type, it will tell me,
+ 
+
+00:01:42.479 --> 00:01:44.870 align:start position:0%
+its type, it will tell me,
+brother, <00:01:42.641><c>this </c><00:01:42.803><c>is </c><00:01:42.965><c>a </c><00:01:43.127><c>list </c><00:01:43.289><c>of </c><00:01:43.451><c>Python. </c><00:01:43.613><c>And </c><00:01:43.775><c>you </c><00:01:43.937><c>guys, </c><00:01:44.099><c>look, </c><00:01:44.261><c>I </c><00:01:44.423><c>will </c><00:01:44.585><c>see </c><00:01:44.747><c>the</c>
+
+00:01:44.870 --> 00:01:44.880 align:start position:0%
+brother, this is a list of Python. And you guys, look, I will see the
+ 
+
+00:01:44.880 --> 00:01:47.450 align:start position:0%
+brother, this is a list of Python. And you guys, look, I will see the
+class <00:01:46.080><c>'list' </c><00:01:47.280><c>here.</c>
+
+00:01:47.450 --> 00:01:47.460 align:start position:0%
+class 'list' here.
+ 
+
+00:01:47.460 --> 00:01:49.789 align:start position:0%
+class 'list' here.
+Okay, <00:01:47.768><c>so </c><00:01:48.076><c>fast, </c><00:01:48.384><c>so </c><00:01:48.692><c>good, </c><00:01:49.000><c>we </c><00:01:49.308><c>have </c><00:01:49.616><c>understood</c>
+
+00:01:49.789 --> 00:01:49.799 align:start position:0%
+Okay, so fast, so good, we have understood
+ 
+
+00:01:49.799 --> 00:01:52.130 align:start position:0%
+Okay, so fast, so good, we have understood
+what <00:01:50.076><c>a </c><00:01:50.353><c>list </c><00:01:50.630><c>is </c><00:01:50.907><c>and </c><00:01:51.184><c>why </c><00:01:51.461><c>it </c><00:01:51.738><c>is </c><00:01:52.015><c>created.</c>
+
+00:01:52.130 --> 00:01:52.140 align:start position:0%
+what a list is and why it is created.
+ 
+
+00:01:52.140 --> 00:01:55.310 align:start position:0%
+what a list is and why it is created.
+List, <00:01:53.140><c>we </c><00:01:54.140><c>can </c><00:01:55.140><c>have</c>
+
+00:01:55.310 --> 00:01:55.320 align:start position:0%
+List, we can have
+ 
+
+00:01:55.320 --> 00:01:58.010 align:start position:0%
+List, we can have
+multiple <00:01:55.532><c>things </c><00:01:55.744><c>under </c><00:01:55.956><c>one </c><00:01:56.168><c>name. </c><00:01:56.380><c>Listen </c><00:01:56.592><c>to </c><00:01:56.804><c>me </c><00:01:57.016><c>carefully.</c>
+
+00:01:58.010 --> 00:01:58.020 align:start position:0%
+multiple things under one name. Listen to me carefully.
+ 
+
+00:01:58.020 --> 00:01:59.690 align:start position:0%
+multiple things under one name. Listen to me carefully.
+If <00:01:58.395><c>we </c><00:01:58.770><c>want </c><00:01:59.145><c>to </c><00:01:59.520><c>display</c>
+
+00:01:59.690 --> 00:01:59.700 align:start position:0%
+If we want to display
+ 
+
+00:01:59.700 --> 00:02:01.850 align:start position:0%
+If we want to display
+marks, <00:01:59.982><c>for </c><00:02:00.264><c>example, </c><00:02:00.546><c>the </c><00:02:00.828><c>marks </c><00:02:01.110><c>of </c><00:02:01.392><c>one </c><00:02:01.674><c>student,</c>
+
+00:02:01.850 --> 00:02:01.860 align:start position:0%
+marks, for example, the marks of one student,
+ 
+
+00:02:01.860 --> 00:02:03.950 align:start position:0%
+marks, for example, the marks of one student,
+I <00:02:02.108><c>will </c><00:02:02.356><c>say </c><00:02:02.604><c>friend, </c><00:02:02.852><c>these </c><00:02:03.100><c>three </c><00:02:03.348><c>students, </c><00:02:03.596><c>the</c>
+
+00:02:03.950 --> 00:02:03.960 align:start position:0%
+I will say friend, these three students, the
+ 
+
+00:02:03.960 --> 00:02:06.109 align:start position:0%
+I will say friend, these three students, the
+classmates <00:02:04.289><c>come </c><00:02:04.618><c>for </c><00:02:04.947><c>tuition, </c><00:02:05.276><c>out </c><00:02:05.605><c>of </c><00:02:05.934><c>the</c>
+
+00:02:06.109 --> 00:02:06.119 align:start position:0%
+classmates come for tuition, out of the
+ 
+
+00:02:06.119 --> 00:02:08.029 align:start position:0%
+classmates come for tuition, out of the
+marks <00:02:06.319><c>of </c><00:02:06.519><c>all </c><00:02:06.719><c>three, </c><00:02:06.919><c>one </c><00:02:07.119><c>got </c><00:02:07.319><c>three, </c><00:02:07.519><c>one </c><00:02:07.719><c>got </c><00:02:07.919><c>five,</c>
+
+00:02:08.029 --> 00:02:08.039 align:start position:0%
+marks of all three, one got three, one got five,
+ 
+
+00:02:08.039 --> 00:02:10.669 align:start position:0%
+marks of all three, one got three, one got five,
+one <00:02:08.271><c>got </c><00:02:08.503><c>six, </c><00:02:08.735><c>so </c><00:02:08.967><c>what </c><00:02:09.199><c>did </c><00:02:09.431><c>we </c><00:02:09.663><c>do, </c><00:02:09.895><c>we</c>
+
+00:02:10.669 --> 00:02:10.679 align:start position:0%
+one got six, so what did we do, we
+ 
+
+00:02:10.679 --> 00:02:13.869 align:start position:0%
+one got six, so what did we do, we
+kept <00:02:11.279><c>many </c><00:02:11.879><c>values ​​</c><00:02:12.479><c>under </c><00:02:13.079><c>one </c><00:02:13.679><c>name,</c>
+
+00:02:13.869 --> 00:02:13.879 align:start position:0%
+kept many values ​​under one name,
+ 
+
+00:02:13.879 --> 00:02:17.330 align:start position:0%
+kept many values ​​under one name,
+in <00:02:14.892><c>this </c><00:02:15.905><c>case </c><00:02:16.918><c>we</c>
+
+00:02:17.330 --> 00:02:17.340 align:start position:0%
+in this case we
+ 
+
+00:02:17.340 --> 00:02:19.790 align:start position:0%
+in this case we
+kept <00:02:17.541><c>three </c><00:02:17.742><c>five </c><00:02:17.943><c>and </c><00:02:18.144><c>six, </c><00:02:18.345><c>these </c><00:02:18.546><c>three </c><00:02:18.747><c>values ​​</c><00:02:18.948><c>under </c><00:02:19.149><c>marks, </c><00:02:19.350><c>now </c><00:02:19.551><c>if</c>
+
+00:02:19.790 --> 00:02:19.800 align:start position:0%
+kept three five and six, these three values ​​under marks, now if
+ 
+
+00:02:19.800 --> 00:02:22.010 align:start position:0%
+kept three five and six, these three values ​​under marks, now if
+I <00:02:20.140><c>want </c><00:02:20.480><c>to </c><00:02:20.820><c>display </c><00:02:21.160><c>all </c><00:02:21.500><c>the </c><00:02:21.840><c>marks,</c>
+
+00:02:22.010 --> 00:02:22.020 align:start position:0%
+I want to display all the marks,
+ 
+
+00:02:22.020 --> 00:02:24.650 align:start position:0%
+I want to display all the marks,
+then <00:02:22.430><c>I </c><00:02:22.840><c>can </c><00:02:23.250><c>display </c><00:02:23.660><c>it </c><00:02:24.070><c>like </c><00:02:24.480><c>this,</c>
+
+00:02:24.650 --> 00:02:24.660 align:start position:0%
+then I can display it like this,
+ 
+
+00:02:24.660 --> 00:02:27.949 align:start position:0%
+then I can display it like this,
+mark <00:02:25.320><c>zero </c><00:02:25.980><c>means</c>
+
+00:02:27.949 --> 00:02:27.959 align:start position:0%
+mark zero means
+ 
+
+00:02:27.959 --> 00:02:29.890 align:start position:0%
+mark zero means
+marks, <00:02:28.229><c>as </c><00:02:28.499><c>we </c><00:02:28.769><c>saw </c><00:02:29.039><c>earlier </c><00:02:29.309><c>in </c><00:02:29.579><c>the</c>
+
+00:02:29.890 --> 00:02:29.900 align:start position:0%
+marks, as we saw earlier in the
+ 
+
+00:02:29.900 --> 00:02:32.869 align:start position:0%
+marks, as we saw earlier in the
+dictionary, <00:02:30.248><c>sorry, </c><00:02:30.596><c>in </c><00:02:30.944><c>the </c><00:02:31.292><c>case </c><00:02:31.640><c>of </c><00:02:31.988><c>string, </c><00:02:32.336><c>we</c>
+
+00:02:32.869 --> 00:02:32.879 align:start position:0%
+dictionary, sorry, in the case of string, we
+ 
+
+00:02:32.879 --> 00:02:34.390 align:start position:0%
+dictionary, sorry, in the case of string, we
+saw <00:02:33.179><c>that </c><00:02:33.479><c>in </c><00:02:33.779><c>our </c><00:02:34.079><c>string,</c>
+
+00:02:34.390 --> 00:02:34.400 align:start position:0%
+saw that in our string,
+ 
+
+00:02:34.400 --> 00:02:37.070 align:start position:0%
+saw that in our string,
+if <00:02:35.025><c>we </c><00:02:35.650><c>use </c><00:02:36.275><c>zero, </c><00:02:36.900><c>we</c>
+
+00:02:37.070 --> 00:02:37.080 align:start position:0%
+if we use zero, we
+ 
+
+00:02:37.080 --> 00:02:39.470 align:start position:0%
+if we use zero, we
+get <00:02:37.333><c>the </c><00:02:37.586><c>first </c><00:02:37.839><c>character, </c><00:02:38.092><c>and </c><00:02:38.345><c>if </c><00:02:38.598><c>we </c><00:02:38.851><c>use </c><00:02:39.104><c>van, </c><00:02:39.357><c>we</c>
+
+00:02:39.470 --> 00:02:39.480 align:start position:0%
+get the first character, and if we use van, we
+ 
+
+00:02:39.480 --> 00:02:41.150 align:start position:0%
+get the first character, and if we use van, we
+get <00:02:39.730><c>the </c><00:02:39.980><c>second </c><00:02:40.230><c>character, </c><00:02:40.480><c>and </c><00:02:40.730><c>so </c><00:02:40.980><c>on,</c>
+
+00:02:41.150 --> 00:02:41.160 align:start position:0%
+get the second character, and so on,
+ 
+
+00:02:41.160 --> 00:02:42.650 align:start position:0%
+get the second character, and so on,
+counting <00:02:41.424><c>starts </c><00:02:41.688><c>from </c><00:02:41.952><c>zero, </c><00:02:42.216><c>this </c><00:02:42.480><c>is</c>
+
+00:02:42.650 --> 00:02:42.660 align:start position:0%
+counting starts from zero, this is
+ 
+
+00:02:42.660 --> 00:02:44.690 align:start position:0%
+counting starts from zero, this is
+called <00:02:43.320><c>index, </c><00:02:43.980><c>so </c><00:02:44.640><c>index</c>
+
+00:02:44.690 --> 00:02:44.700 align:start position:0%
+called index, so index
+ 
+
+00:02:44.700 --> 00:02:46.750 align:start position:0%
+called index, so index
+starts <00:02:44.940><c>from </c><00:02:45.180><c>zero </c><00:02:45.420><c>in </c><00:02:45.660><c>Python </c><00:02:45.900><c>also, </c><00:02:46.140><c>okay,</c>
+
+00:02:46.750 --> 00:02:46.760 align:start position:0%
+starts from zero in Python also, okay,
+ 
+
+00:02:46.760 --> 00:02:48.890 align:start position:0%
+starts from zero in Python also, okay,
+in <00:02:47.048><c>Python </c><00:02:47.336><c>list </c><00:02:47.624><c>also </c><00:02:47.912><c>it </c><00:02:48.200><c>starts </c><00:02:48.488><c>from </c><00:02:48.776><c>zero,</c>
+
+00:02:48.890 --> 00:02:48.900 align:start position:0%
+in Python list also it starts from zero,
+ 
+
+00:02:48.900 --> 00:02:50.390 align:start position:0%
+in Python list also it starts from zero,
+so <00:02:49.152><c>if </c><00:02:49.404><c>I </c><00:02:49.656><c>write </c><00:02:49.908><c>print </c><00:02:50.160><c>marks</c>
+
+00:02:50.390 --> 00:02:50.400 align:start position:0%
+so if I write print marks
+ 
+
+00:02:50.400 --> 00:02:52.009 align:start position:0%
+so if I write print marks
+zero <00:02:50.650><c>here, </c><00:02:50.900><c>I </c><00:02:51.150><c>will </c><00:02:51.400><c>see </c><00:02:51.650><c>only </c><00:02:51.900><c>three,</c>
+
+00:02:52.009 --> 00:02:52.019 align:start position:0%
+zero here, I will see only three,
+ 
+
+00:02:52.019 --> 00:02:54.290 align:start position:0%
+zero here, I will see only three,
+if <00:02:52.439><c>I </c><00:02:52.859><c>write </c><00:02:53.279><c>marks </c><00:02:53.699><c>van,</c>
+
+00:02:54.290 --> 00:02:54.300 align:start position:0%
+if I write marks van,
+ 
+
+00:02:54.300 --> 00:02:57.229 align:start position:0%
+if I write marks van,
+what <00:02:54.685><c>will </c><00:02:55.070><c>I </c><00:02:55.455><c>see, </c><00:02:55.840><c>I </c><00:02:56.225><c>will </c><00:02:56.610><c>see </c><00:02:56.995><c>five</c>
+
+00:02:57.229 --> 00:02:57.239 align:start position:0%
+what will I see, I will see five
+ 
+
+00:02:57.239 --> 00:02:59.990 align:start position:0%
+what will I see, I will see five
+and <00:02:57.525><c>if </c><00:02:57.811><c>I </c><00:02:58.097><c>write </c><00:02:58.383><c>print </c><00:02:58.669><c>marks </c><00:02:58.955><c>two, </c><00:02:59.241><c>it </c><00:02:59.527><c>will </c><00:02:59.813><c>show</c>
+
+00:02:59.990 --> 00:03:00.000 align:start position:0%
+and if I write print marks two, it will show
+ 
+
+00:03:00.000 --> 00:03:02.570 align:start position:0%
+and if I write print marks two, it will show
+six  <00:03:00.372><c>You </c><00:03:00.744><c>will </c><00:03:01.116><c>see, </c><00:03:01.488><c>okay, </c><00:03:01.860><c>so</c>
+
+00:03:02.570 --> 00:03:02.580 align:start position:0%
+six  You will see, okay, so
+ 
+
+00:03:02.580 --> 00:03:05.210 align:start position:0%
+six  You will see, okay, so
+marks <00:03:02.922><c>zero, </c><00:03:03.264><c>marks </c><00:03:03.606><c>one, </c><00:03:03.948><c>marks </c><00:03:04.290><c>two, </c><00:03:04.632><c>three, </c><00:03:04.974><c>five</c>
+
+00:03:05.210 --> 00:03:05.220 align:start position:0%
+marks zero, marks one, marks two, three, five
+ 
+
+00:03:05.220 --> 00:03:08.449 align:start position:0%
+marks zero, marks one, marks two, three, five
+and <00:03:05.844><c>six, </c><00:03:06.468><c>okay, </c><00:03:07.092><c>so </c><00:03:07.716><c>I </c><00:03:08.340><c>hope</c>
+
+00:03:08.449 --> 00:03:08.459 align:start position:0%
+and six, okay, so I hope
+ 
+
+00:03:08.459 --> 00:03:10.550 align:start position:0%
+and six, okay, so I hope
+this <00:03:08.733><c>is </c><00:03:09.007><c>clear </c><00:03:09.281><c>to </c><00:03:09.555><c>you, </c><00:03:09.829><c>so </c><00:03:10.103><c>if </c><00:03:10.377><c>you</c>
+
+00:03:10.550 --> 00:03:10.560 align:start position:0%
+this is clear to you, so if you
+ 
+
+00:03:10.560 --> 00:03:12.410 align:start position:0%
+this is clear to you, so if you
+go <00:03:10.722><c>to </c><00:03:10.884><c>notes, </c><00:03:11.046><c>I </c><00:03:11.208><c>have </c><00:03:11.370><c>written </c><00:03:11.532><c>list </c><00:03:11.694><c>are</c>
+
+00:03:12.410 --> 00:03:12.420 align:start position:0%
+go to notes, I have written list are
+ 
+
+00:03:12.420 --> 00:03:15.250 align:start position:0%
+go to notes, I have written list are
+ordered <00:03:12.730><c>collection </c><00:03:13.040><c>of </c><00:03:13.350><c>the </c><00:03:13.660><c>items, </c><00:03:13.970><c>okay, </c><00:03:14.280><c>the</c>
+
+00:03:15.250 --> 00:03:15.260 align:start position:0%
+ordered collection of the items, okay, the
+ 
+
+00:03:15.260 --> 00:03:17.750 align:start position:0%
+ordered collection of the items, okay, the
+order <00:03:15.636><c>is </c><00:03:16.012><c>maintained, </c><00:03:16.388><c>first </c><00:03:16.764><c>there </c><00:03:17.140><c>is </c><00:03:17.516><c>three,</c>
+
+00:03:17.750 --> 00:03:17.760 align:start position:0%
+order is maintained, first there is three,
+ 
+
+00:03:17.760 --> 00:03:20.449 align:start position:0%
+order is maintained, first there is three,
+then <00:03:18.006><c>five, </c><00:03:18.252><c>so </c><00:03:18.498><c>this </c><00:03:18.744><c>order </c><00:03:18.990><c>will </c><00:03:19.236><c>be </c><00:03:19.482><c>maintained, </c><00:03:19.728><c>only </c><00:03:19.974><c>when </c><00:03:20.220><c>you</c>
+
+00:03:20.449 --> 00:03:20.459 align:start position:0%
+then five, so this order will be maintained, only when you
+ 
+
+00:03:20.459 --> 00:03:22.690 align:start position:0%
+then five, so this order will be maintained, only when you
+print, <00:03:20.699><c>the </c><00:03:20.939><c>order </c><00:03:21.179><c>will </c><00:03:21.419><c>be </c><00:03:21.659><c>maintained, </c><00:03:21.899><c>if </c><00:03:22.139><c>you </c><00:03:22.379><c>do</c>
+
+00:03:22.690 --> 00:03:22.700 align:start position:0%
+print, the order will be maintained, if you do
+ 
+
+00:03:22.700 --> 00:03:24.830 align:start position:0%
+print, the order will be maintained, if you do
+indexing <00:03:22.952><c>in </c><00:03:23.204><c>this </c><00:03:23.456><c>way, </c><00:03:23.708><c>then </c><00:03:23.960><c>this </c><00:03:24.212><c>order </c><00:03:24.464><c>will </c><00:03:24.716><c>be</c>
+
+00:03:24.830 --> 00:03:24.840 align:start position:0%
+indexing in this way, then this order will be
+ 
+
+00:03:24.840 --> 00:03:26.809 align:start position:0%
+indexing in this way, then this order will be
+maintained, <00:03:25.420><c>okay, </c><00:03:26.000><c>desktop </c><00:03:26.580><c>multiple</c>
+
+00:03:26.809 --> 00:03:26.819 align:start position:0%
+maintained, okay, desktop multiple
+ 
+
+00:03:26.819 --> 00:03:28.610 align:start position:0%
+maintained, okay, desktop multiple
+items <00:03:27.155><c>to </c><00:03:27.491><c>single </c><00:03:27.827><c>normal, </c><00:03:28.163><c>as </c><00:03:28.499><c>we</c>
+
+00:03:28.610 --> 00:03:28.620 align:start position:0%
+items to single normal, as we
+ 
+
+00:03:28.620 --> 00:03:30.290 align:start position:0%
+items to single normal, as we
+saw, <00:03:28.766><c>multiple </c><00:03:28.912><c>values ​​</c><00:03:29.058><c>are </c><00:03:29.204><c>stored </c><00:03:29.350><c>in </c><00:03:29.496><c>a </c><00:03:29.642><c>variable </c><00:03:29.788><c>named </c><00:03:29.934><c>marks,</c>
+
+00:03:30.290 --> 00:03:30.300 align:start position:0%
+saw, multiple values ​​are stored in a variable named marks,
+ 
+
+00:03:30.300 --> 00:03:32.869 align:start position:0%
+saw, multiple values ​​are stored in a variable named marks,
+list <00:03:31.039><c>items </c><00:03:31.778><c>unseparated </c><00:03:32.517><c>by</c>
+
+00:03:32.869 --> 00:03:32.879 align:start position:0%
+list items unseparated by
+ 
+
+00:03:32.879 --> 00:03:35.750 align:start position:0%
+list items unseparated by
+marks <00:03:33.659><c>with </c><00:03:34.439><c>in </c><00:03:35.219><c>square</c>
+
+00:03:35.750 --> 00:03:35.760 align:start position:0%
+marks with in square
+ 
+
+00:03:35.760 --> 00:03:38.270 align:start position:0%
+marks with in square
+brackets, <00:03:36.227><c>okay, </c><00:03:36.694><c>look </c><00:03:37.161><c>here, </c><00:03:37.628><c>separated </c><00:03:38.095><c>by</c>
+
+00:03:38.270 --> 00:03:38.280 align:start position:0%
+brackets, okay, look here, separated by
+ 
+
+00:03:38.280 --> 00:03:40.490 align:start position:0%
+brackets, okay, look here, separated by
+marks <00:03:38.699><c>and </c><00:03:39.118><c>enclosed </c><00:03:39.537><c>with </c><00:03:39.956><c>in </c><00:03:40.375><c>square</c>
+
+00:03:40.490 --> 00:03:40.500 align:start position:0%
+marks and enclosed with in square
+ 
+
+00:03:40.500 --> 00:03:43.610 align:start position:0%
+marks and enclosed with in square
+brackets, <00:03:41.400><c>okay, </c><00:03:42.300><c>start </c><00:03:43.200><c>and</c>
+
+00:03:43.610 --> 00:03:43.620 align:start position:0%
+brackets, okay, start and
+ 
+
+00:03:43.620 --> 00:03:45.890 align:start position:0%
+brackets, okay, start and
+end <00:03:43.890><c>with </c><00:03:44.160><c>square </c><00:03:44.430><c>brackets, </c><00:03:44.700><c>okay, </c><00:03:44.970><c>I </c><00:03:45.240><c>hope </c><00:03:45.510><c>this </c><00:03:45.780><c>is</c>
+
+00:03:45.890 --> 00:03:45.900 align:start position:0%
+end with square brackets, okay, I hope this is
+ 
+
+00:03:45.900 --> 00:03:48.589 align:start position:0%
+end with square brackets, okay, I hope this is
+clear <00:03:46.219><c>to </c><00:03:46.538><c>you, </c><00:03:46.857><c>list </c><00:03:47.176><c>items </c><00:03:47.495><c>are </c><00:03:47.814><c>separated</c>
+
+00:03:48.589 --> 00:03:48.599 align:start position:0%
+clear to you, list items are separated
+ 
+
+00:03:48.599 --> 00:03:50.630 align:start position:0%
+clear to you, list items are separated
+by <00:03:48.859><c>marks, </c><00:03:49.119><c>then </c><00:03:49.379><c>this </c><00:03:49.639><c>list </c><00:03:49.899><c>is </c><00:03:50.159><c>changeable,</c>
+
+00:03:50.630 --> 00:03:50.640 align:start position:0%
+by marks, then this list is changeable,
+ 
+
+00:03:50.640 --> 00:03:52.250 align:start position:0%
+by marks, then this list is changeable,
+meaning <00:03:50.850><c>I </c><00:03:51.060><c>can </c><00:03:51.270><c>alter </c><00:03:51.480><c>them </c><00:03:51.690><c>after </c><00:03:51.900><c>creation,</c>
+
+00:03:52.250 --> 00:03:52.260 align:start position:0%
+meaning I can alter them after creation,
+ 
+
+00:03:52.260 --> 00:03:55.190 align:start position:0%
+meaning I can alter them after creation,
+okay, <00:03:52.709><c>after </c><00:03:53.158><c>this, </c><00:03:53.607><c>after </c><00:03:54.056><c>creating </c><00:03:54.505><c>marks, </c><00:03:54.954><c>I</c>
+
+00:03:55.190 --> 00:03:55.200 align:start position:0%
+okay, after this, after creating marks, I
+ 
+
+00:03:55.200 --> 00:03:57.589 align:start position:0%
+okay, after this, after creating marks, I
+can <00:03:55.580><c>add </c><00:03:55.960><c>another </c><00:03:56.340><c>value </c><00:03:56.720><c>in </c><00:03:57.100><c>it, </c><00:03:57.480><c>so</c>
+
+00:03:57.589 --> 00:03:57.599 align:start position:0%
+can add another value in it, so
+ 
+
+00:03:57.599 --> 00:03:59.270 align:start position:0%
+can add another value in it, so
+let's <00:03:57.765><c>say </c><00:03:57.931><c>another </c><00:03:58.097><c>child </c><00:03:58.263><c>went </c><00:03:58.429><c>to </c><00:03:58.595><c>study </c><00:03:58.761><c>in </c><00:03:58.927><c>district, </c><00:03:59.093><c>the</c>
+
+00:03:59.270 --> 00:03:59.280 align:start position:0%
+let's say another child went to study in district, the
+ 
+
+00:03:59.280 --> 00:04:02.030 align:start position:0%
+let's say another child went to study in district, the
+fourth <00:03:59.657><c>one, </c><00:04:00.034><c>he </c><00:04:00.411><c>says, </c><00:04:00.788><c>brother, </c><00:04:01.165><c>include </c><00:04:01.542><c>me </c><00:04:01.919><c>also.</c>
+
+00:04:02.030 --> 00:04:02.040 align:start position:0%
+fourth one, he says, brother, include me also.
+ 
+
+00:04:02.040 --> 00:04:04.490 align:start position:0%
+fourth one, he says, brother, include me also.
+Look <00:04:02.172><c>at </c><00:04:02.304><c>that </c><00:04:02.436><c>time, </c><00:04:02.568><c>a </c><00:04:02.700><c>man, </c><00:04:02.832><c>a </c><00:04:02.964><c>test </c><00:04:03.096><c>was </c><00:04:03.228><c>going </c><00:04:03.360><c>on, </c><00:04:03.492><c>he</c>
+
+00:04:04.490 --> 00:04:04.500 align:start position:0%
+Look at that time, a man, a test was going on, he
+ 
+
+00:04:04.500 --> 00:04:05.750 align:start position:0%
+Look at that time, a man, a test was going on, he
+says, <00:04:04.642><c>"Brother, </c><00:04:04.784><c>I </c><00:04:04.926><c>also </c><00:04:05.068><c>want </c><00:04:05.210><c>to </c><00:04:05.352><c>take </c><00:04:05.494><c>the </c><00:04:05.636><c>test,</c>
+
+00:04:05.750 --> 00:04:05.760 align:start position:0%
+says, "Brother, I also want to take the test,
+ 
+
+00:04:05.760 --> 00:04:07.070 align:start position:0%
+says, "Brother, I also want to take the test,
+I <00:04:05.862><c>want </c><00:04:05.964><c>to </c><00:04:06.066><c>see </c><00:04:06.168><c>how </c><00:04:06.270><c>well </c><00:04:06.372><c>I </c><00:04:06.474><c>am </c><00:04:06.576><c>doing." </c><00:04:06.678><c>Then </c><00:04:06.780><c>the</c>
+
+00:04:07.070 --> 00:04:07.080 align:start position:0%
+I want to see how well I am doing." Then the
+ 
+
+00:04:07.080 --> 00:04:09.589 align:start position:0%
+I want to see how well I am doing." Then the
+teacher <00:04:07.439><c>says, </c><00:04:07.798><c>"Come </c><00:04:08.157><c>on </c><00:04:08.516><c>brother, </c><00:04:08.875><c>sit </c><00:04:09.234><c>down,</c>
+
+00:04:09.589 --> 00:04:09.599 align:start position:0%
+teacher says, "Come on brother, sit down,
+ 
+
+00:04:09.599 --> 00:04:11.390 align:start position:0%
+teacher says, "Come on brother, sit down,
+you <00:04:09.801><c>too." </c><00:04:10.003><c>I </c><00:04:10.205><c>will </c><00:04:10.407><c>add </c><00:04:10.609><c>your </c><00:04:10.811><c>marks </c><00:04:11.013><c>to </c><00:04:11.215><c>the</c>
+
+00:04:11.390 --> 00:04:11.400 align:start position:0%
+you too." I will add your marks to the
+ 
+
+00:04:11.400 --> 00:04:13.429 align:start position:0%
+you too." I will add your marks to the
+variable <00:04:11.639><c>named </c><00:04:11.878><c>marks. </c><00:04:12.117><c>It </c><00:04:12.356><c>can </c><00:04:12.595><c>be</c>
+
+00:04:13.429 --> 00:04:13.439 align:start position:0%
+variable named marks. It can be
+ 
+
+00:04:13.439 --> 00:04:16.629 align:start position:0%
+variable named marks. It can be
+added <00:04:13.819><c>to </c><00:04:14.199><c>the </c><00:04:14.579><c>list,</c>
+
+00:04:16.629 --> 00:04:16.639 align:start position:0%
+added to the list,
+ 
+
+00:04:16.639 --> 00:04:19.909 align:start position:0%
+added to the list,
+okay? <00:04:17.165><c>But </c><00:04:17.691><c>if </c><00:04:18.217><c>we </c><00:04:18.743><c>talk </c><00:04:19.269><c>about </c><00:04:19.795><c>doubles,</c>
+
+00:04:19.909 --> 00:04:19.919 align:start position:0%
+okay? But if we talk about doubles,
+ 
+
+00:04:19.919 --> 00:04:21.469 align:start position:0%
+okay? But if we talk about doubles,
+they <00:04:20.207><c>don't </c><00:04:20.495><c>change. </c><00:04:20.783><c>Okay, </c><00:04:21.071><c>let </c><00:04:21.359><c>me</c>
+
+00:04:21.469 --> 00:04:21.479 align:start position:0%
+they don't change. Okay, let me
+ 
+
+00:04:21.479 --> 00:04:23.390 align:start position:0%
+they don't change. Okay, let me
+tell <00:04:21.899><c>you </c><00:04:22.319><c>in </c><00:04:22.739><c>advance, </c><00:04:23.159><c>doubles</c>
+
+00:04:23.390 --> 00:04:23.400 align:start position:0%
+tell you in advance, doubles
+ 
+
+00:04:23.400 --> 00:04:25.189 align:start position:0%
+tell you in advance, doubles
+cannot <00:04:23.546><c>be </c><00:04:23.692><c>changed. </c><00:04:23.838><c>A </c><00:04:23.984><c>list </c><00:04:24.130><c>can </c><00:04:24.276><c>be </c><00:04:24.422><c>changed. </c><00:04:24.568><c>We </c><00:04:24.714><c>have</c>
+
+00:04:25.189 --> 00:04:25.199 align:start position:0%
+cannot be changed. A list can be changed. We have
+ 
+
+00:04:25.199 --> 00:04:27.050 align:start position:0%
+cannot be changed. A list can be changed. We have
+some <00:04:25.367><c>method </c><00:04:25.535><c>end </c><00:04:25.703><c>list, </c><00:04:25.871><c>there </c><00:04:26.039><c>is </c><00:04:26.207><c>an </c><00:04:26.375><c>add </c><00:04:26.543><c>end </c><00:04:26.711><c>method, </c><00:04:26.879><c>we</c>
+
+00:04:27.050 --> 00:04:29.450 align:start position:0%
+some method end list, there is an add end method, we
+ 
+
+00:04:29.450 --> 00:04:29.460 align:start position:0%
+ 
+ 
+
+00:04:29.460 --> 00:04:31.610 align:start position:0%
+ 
+can <00:04:29.596><c>add </c><00:04:29.732><c>things </c><00:04:29.868><c>to </c><00:04:30.004><c>the </c><00:04:30.140><c>end </c><00:04:30.276><c>of </c><00:04:30.412><c>the </c><00:04:30.548><c>list </c><00:04:30.684><c>using </c><00:04:30.820><c>that. </c><00:04:30.956><c>Okay, </c><00:04:31.092><c>so </c><00:04:31.228><c>this </c><00:04:31.364><c>is </c><00:04:31.500><c>done.</c>
+
+00:04:31.610 --> 00:04:31.620 align:start position:0%
+can add things to the end of the list using that. Okay, so this is done.
+ 
+
+00:04:31.620 --> 00:04:35.030 align:start position:0%
+can add things to the end of the list using that. Okay, so this is done.
+Now <00:04:32.082><c>you </c><00:04:32.544><c>can </c><00:04:33.006><c>print </c><00:04:33.468><c>the </c><00:04:33.930><c>list </c><00:04:34.392><c>like </c><00:04:34.854><c>this.</c>
+
+00:04:35.030 --> 00:04:35.040 align:start position:0%
+Now you can print the list like this.
+ 
+
+00:04:35.040 --> 00:04:38.270 align:start position:0%
+Now you can print the list like this.
+We <00:04:35.600><c>have </c><00:04:36.160><c>seen </c><00:04:36.720><c>whether </c><00:04:37.280><c>a</c>
+
+00:04:38.270 --> 00:04:38.280 align:start position:0%
+We have seen whether a
+ 
+
+00:04:38.280 --> 00:04:39.590 align:start position:0%
+We have seen whether a
+string <00:04:38.399><c>data </c><00:04:38.518><c>type </c><00:04:38.637><c>can </c><00:04:38.756><c>also </c><00:04:38.875><c>be </c><00:04:38.994><c>added </c><00:04:39.113><c>here, </c><00:04:39.232><c>that </c><00:04:39.351><c>is, </c><00:04:39.470><c>can</c>
+
+00:04:39.590 --> 00:04:39.600 align:start position:0%
+string data type can also be added here, that is, can
+ 
+
+00:04:39.600 --> 00:04:42.230 align:start position:0%
+string data type can also be added here, that is, can
+any <00:04:39.853><c>other </c><00:04:40.106><c>data </c><00:04:40.359><c>type </c><00:04:40.612><c>also </c><00:04:40.865><c>be </c><00:04:41.118><c>added </c><00:04:41.371><c>within </c><00:04:41.624><c>a </c><00:04:41.877><c>list?</c>
+
+00:04:42.230 --> 00:04:42.240 align:start position:0%
+any other data type also be added within a list?
+ 
+
+00:04:42.240 --> 00:04:43.670 align:start position:0%
+any other data type also be added within a list?
+If <00:04:42.405><c>it </c><00:04:42.570><c>is </c><00:04:42.735><c>a </c><00:04:42.900><c>list </c><00:04:43.065><c>of </c><00:04:43.230><c>numbers, </c><00:04:43.395><c>can </c><00:04:43.560><c>a</c>
+
+00:04:43.670 --> 00:04:43.680 align:start position:0%
+If it is a list of numbers, can a
+ 
+
+00:04:43.680 --> 00:04:45.590 align:start position:0%
+If it is a list of numbers, can a
+string <00:04:43.859><c>also </c><00:04:44.038><c>be </c><00:04:44.217><c>added </c><00:04:44.396><c>to </c><00:04:44.575><c>it? </c><00:04:44.754><c>Can</c>
+
+00:04:45.590 --> 00:04:45.600 align:start position:0%
+string also be added to it? Can
+ 
+
+00:04:45.600 --> 00:04:47.930 align:start position:0%
+string also be added to it? Can
+a <00:04:45.737><c>boolean </c><00:04:45.874><c>also </c><00:04:46.011><c>be </c><00:04:46.148><c>added </c><00:04:46.285><c>to </c><00:04:46.422><c>it </c><00:04:46.559><c>using </c><00:04:46.696><c>let </c><00:04:46.833><c>us? </c><00:04:46.970><c>So </c><00:04:47.107><c>the </c><00:04:47.244><c>answer </c><00:04:47.381><c>is, </c><00:04:47.518><c>it </c><00:04:47.655><c>can </c><00:04:47.792><c>be </c><00:04:47.929><c>added.</c>
+
+00:04:47.930 --> 00:04:47.940 align:start position:0%
+a boolean also be added to it using let us? So the answer is, it can be added.
+ 
+
+00:04:47.940 --> 00:04:51.950 align:start position:0%
+a boolean also be added to it using let us? So the answer is, it can be added.
+Okay, <00:04:48.550><c>of </c><00:04:49.160><c>course, </c><00:04:49.770><c>it </c><00:04:50.380><c>can </c><00:04:50.990><c>be </c><00:04:51.600><c>added.</c>
+
+00:04:51.950 --> 00:04:51.960 align:start position:0%
+Okay, of course, it can be added.
+ 
+
+00:04:51.960 --> 00:04:53.930 align:start position:0%
+Okay, of course, it can be added.
+Why <00:04:52.177><c>not, </c><00:04:52.394><c>it </c><00:04:52.611><c>can </c><00:04:52.828><c>be </c><00:04:53.045><c>added. </c><00:04:53.262><c>Python </c><00:04:53.479><c>allows </c><00:04:53.696><c>it,</c>
+
+00:04:53.930 --> 00:04:53.940 align:start position:0%
+Why not, it can be added. Python allows it,
+ 
+
+00:04:53.940 --> 00:04:56.210 align:start position:0%
+Why not, it can be added. Python allows it,
+but <00:04:54.290><c>we </c><00:04:54.640><c>will </c><00:04:54.990><c>see </c><00:04:55.340><c>if </c><00:04:55.690><c>you </c><00:04:56.040><c>are</c>
+
+00:04:56.210 --> 00:04:56.220 align:start position:0%
+but we will see if you are
+ 
+
+00:04:56.220 --> 00:04:57.710 align:start position:0%
+but we will see if you are
+creating <00:04:56.508><c>a </c><00:04:56.796><c>variable </c><00:04:57.084><c>named </c><00:04:57.372><c>marks </c><00:04:57.660><c>in</c>
+
+00:04:57.710 --> 00:04:57.720 align:start position:0%
+creating a variable named marks in
+ 
+
+00:04:57.720 --> 00:04:59.390 align:start position:0%
+creating a variable named marks in
+which <00:04:57.827><c>you </c><00:04:57.934><c>have </c><00:04:58.041><c>stored </c><00:04:58.148><c>the </c><00:04:58.255><c>marks.  </c><00:04:58.362><c>If </c><00:04:58.469><c>you </c><00:04:58.576><c>want </c><00:04:58.683><c>to </c><00:04:58.790><c>do </c><00:04:58.897><c>this </c><00:04:59.004><c>then </c><00:04:59.111><c>you </c><00:04:59.218><c>might</c>
+
+00:04:59.390 --> 00:04:59.400 align:start position:0%
+which you have stored the marks.  If you want to do this then you might
+ 
+
+00:04:59.400 --> 00:05:02.450 align:start position:0%
+which you have stored the marks.  If you want to do this then you might
+not <00:04:59.612><c>want </c><00:04:59.824><c>to </c><00:05:00.036><c>do </c><00:05:00.248><c>it </c><00:05:00.460><c>like </c><00:05:00.672><c>this, </c><00:05:00.884><c>but </c><00:05:01.096><c>it </c><00:05:01.308><c>is </c><00:05:01.520><c>possible, </c><00:05:01.732><c>it </c><00:05:01.944><c>is </c><00:05:02.156><c>possible,</c>
+
+00:05:02.450 --> 00:05:02.460 align:start position:0%
+not want to do it like this, but it is possible, it is possible,
+ 
+
+00:05:02.460 --> 00:05:06.290 align:start position:0%
+not want to do it like this, but it is possible, it is possible,
+you <00:05:03.170><c>can </c><00:05:03.880><c>see </c><00:05:04.590><c>here </c><00:05:05.300><c>356,</c>
+
+00:05:06.290 --> 00:05:06.300 align:start position:0%
+you can see here 356,
+ 
+
+00:05:06.300 --> 00:05:08.330 align:start position:0%
+you can see here 356,
+see <00:05:06.467><c>this </c><00:05:06.634><c>is </c><00:05:06.801><c>here, </c><00:05:06.968><c>okay </c><00:05:07.135><c>now </c><00:05:07.302><c>along </c><00:05:07.469><c>with </c><00:05:07.636><c>marks </c><00:05:07.803><c>two, </c><00:05:07.970><c>I</c>
+
+00:05:08.330 --> 00:05:10.310 align:start position:0%
+see this is here, okay now along with marks two, I
+ 
+
+00:05:10.310 --> 00:05:10.320 align:start position:0%
+ 
+ 
+
+00:05:10.320 --> 00:05:11.629 align:start position:0%
+ 
+can <00:05:10.453><c>also </c><00:05:10.586><c>print </c><00:05:10.719><c>marks </c><00:05:10.852><c>three, </c><00:05:10.985><c>I </c><00:05:11.118><c>can </c><00:05:11.251><c>also </c><00:05:11.384><c>print </c><00:05:11.517><c>marks</c>
+
+00:05:11.629 --> 00:05:11.639 align:start position:0%
+can also print marks three, I can also print marks
+ 
+
+00:05:11.639 --> 00:05:13.010 align:start position:0%
+can also print marks three, I can also print marks
+four, <00:05:11.804><c>I </c><00:05:11.969><c>can </c><00:05:12.134><c>also </c><00:05:12.299><c>print </c><00:05:12.464><c>marks </c><00:05:12.629><c>five, </c><00:05:12.794><c>I </c><00:05:12.959><c>can</c>
+
+00:05:13.010 --> 00:05:13.020 align:start position:0%
+four, I can also print marks five, I can
+ 
+
+00:05:13.020 --> 00:05:17.090 align:start position:0%
+four, I can also print marks five, I can
+also <00:05:13.363><c>print </c><00:05:13.706><c>six, </c><00:05:14.049><c>I </c><00:05:14.392><c>cannot </c><00:05:14.735><c>do </c><00:05:15.078><c>0 </c><00:05:15.421><c>1 </c><00:05:15.764><c>2 </c><00:05:16.107><c>3 </c><00:05:16.450><c>4 </c><00:05:16.793><c>5,</c>
+
+00:05:17.090 --> 00:05:17.100 align:start position:0%
+also print six, I cannot do 0 1 2 3 4 5,
+ 
+
+00:05:17.100 --> 00:05:18.590 align:start position:0%
+also print six, I cannot do 0 1 2 3 4 5,
+actually <00:05:17.820><c>if </c><00:05:18.540><c>I</c>
+
+00:05:18.590 --> 00:05:18.600 align:start position:0%
+actually if I
+ 
+
+00:05:18.600 --> 00:05:19.730 align:start position:0%
+actually if I
+run <00:05:18.870><c>this </c><00:05:19.140><c>program, </c><00:05:19.410><c>it </c><00:05:19.680><c>will</c>
+
+00:05:19.730 --> 00:05:19.740 align:start position:0%
+run this program, it will
+ 
+
+00:05:19.740 --> 00:05:22.550 align:start position:0%
+run this program, it will
+come <00:05:20.002><c>here </c><00:05:20.264><c>because </c><00:05:20.526><c>zero </c><00:05:20.788><c>van </c><00:05:21.050><c>tu </c><00:05:21.312><c>three </c><00:05:21.574><c>four </c><00:05:21.836><c>part</c>
+
+00:05:22.550 --> 00:05:22.560 align:start position:0%
+come here because zero van tu three four part
+ 
+
+00:05:22.560 --> 00:05:25.909 align:start position:0%
+come here because zero van tu three four part
+five <00:05:22.950><c>is </c><00:05:23.340><c>not </c><00:05:23.730><c>there, </c><00:05:24.120><c>list </c><00:05:24.510><c>out </c><00:05:24.900><c>of </c><00:05:25.290><c>index </c><00:05:25.680><c>out</c>
+
+00:05:25.909 --> 00:05:25.919 align:start position:0%
+five is not there, list out of index out
+ 
+
+00:05:25.919 --> 00:05:27.170 align:start position:0%
+five is not there, list out of index out
+of <00:05:26.189><c>range, </c><00:05:26.459><c>friend,</c>
+
+00:05:27.170 --> 00:05:27.180 align:start position:0%
+of range, friend,
+ 
+
+00:05:27.180 --> 00:05:30.050 align:start position:0%
+of range, friend,
+you <00:05:27.609><c>are </c><00:05:28.038><c>trying </c><00:05:28.467><c>to </c><00:05:28.896><c>access </c><00:05:29.325><c>marks </c><00:05:29.754><c>five,</c>
+
+00:05:30.050 --> 00:05:30.060 align:start position:0%
+you are trying to access marks five,
+ 
+
+00:05:30.060 --> 00:05:32.810 align:start position:0%
+you are trying to access marks five,
+okay, <00:05:30.329><c>so </c><00:05:30.598><c>this </c><00:05:30.867><c>is </c><00:05:31.136><c>the </c><00:05:31.405><c>kind </c><00:05:31.674><c>of </c><00:05:31.943><c>thing, </c><00:05:32.212><c>it </c><00:05:32.481><c>will </c><00:05:32.750><c>remain,</c>
+
+00:05:32.810 --> 00:05:32.820 align:start position:0%
+okay, so this is the kind of thing, it will remain,
+ 
+
+00:05:32.820 --> 00:05:35.150 align:start position:0%
+okay, so this is the kind of thing, it will remain,
+if <00:05:33.035><c>I </c><00:05:33.250><c>remove </c><00:05:33.465><c>this </c><00:05:33.680><c>and </c><00:05:33.895><c>show </c><00:05:34.110><c>you </c><00:05:34.325><c>by </c><00:05:34.540><c>running </c><00:05:34.755><c>it, </c><00:05:34.970><c>then</c>
+
+00:05:35.150 --> 00:05:35.160 align:start position:0%
+if I remove this and show you by running it, then
+ 
+
+00:05:35.160 --> 00:05:36.770 align:start position:0%
+if I remove this and show you by running it, then
+you <00:05:35.389><c>will </c><00:05:35.618><c>see </c><00:05:35.847><c>all </c><00:05:36.076><c>these </c><00:05:36.305><c>values, </c><00:05:36.534><c>because</c>
+
+00:05:36.770 --> 00:05:38.330 align:start position:0%
+you will see all these values, because
+ 
+
+00:05:38.330 --> 00:05:38.340 align:start position:0%
+ 
+ 
+
+00:05:38.340 --> 00:05:40.490 align:start position:0%
+ 
+I <00:05:38.477><c>have </c><00:05:38.614><c>printed </c><00:05:38.751><c>zero </c><00:05:38.888><c>van </c><00:05:39.025><c>tu </c><00:05:39.162><c>three </c><00:05:39.299><c>four </c><00:05:39.436><c>three </c><00:05:39.573><c>times, </c><00:05:39.710><c>you </c><00:05:39.847><c>will </c><00:05:39.984><c>see </c><00:05:40.121><c>six, </c><00:05:40.258><c>Hari</c>
+
+00:05:40.490 --> 00:05:40.500 align:start position:0%
+I have printed zero van tu three four three times, you will see six, Hari
+ 
+
+00:05:40.500 --> 00:05:42.710 align:start position:0%
+I have printed zero van tu three four three times, you will see six, Hari
+and <00:05:41.200><c>True, </c><00:05:41.900><c>okay, </c><00:05:42.600><c>so</c>
+
+00:05:42.710 --> 00:05:42.720 align:start position:0%
+and True, okay, so
+ 
+
+00:05:42.720 --> 00:05:45.110 align:start position:0%
+and True, okay, so
+you <00:05:42.960><c>can </c><00:05:43.200><c>do </c><00:05:43.440><c>it </c><00:05:43.680><c>like </c><00:05:43.920><c>this, </c><00:05:44.160><c>so </c><00:05:44.400><c>here</c>
+
+00:05:45.110 --> 00:05:46.670 align:start position:0%
+you can do it like this, so here
+ 
+
+00:05:46.670 --> 00:05:46.680 align:start position:0%
+ 
+ 
+
+00:05:46.680 --> 00:05:49.010 align:start position:0%
+ 
+we <00:05:46.820><c>have </c><00:05:46.960><c>seen </c><00:05:47.100><c>that </c><00:05:47.240><c>there </c><00:05:47.380><c>can </c><00:05:47.520><c>be </c><00:05:47.660><c>different </c><00:05:47.800><c>data </c><00:05:47.940><c>types </c><00:05:48.080><c>in </c><00:05:48.220><c>a </c><00:05:48.360><c>list, </c><00:05:48.500><c>okay </c><00:05:48.640><c>now </c><00:05:48.780><c>let's</c>
+
+00:05:49.010 --> 00:05:49.020 align:start position:0%
+we have seen that there can be different data types in a list, okay now let's
+ 
+
+00:05:49.020 --> 00:05:50.210 align:start position:0%
+we have seen that there can be different data types in a list, okay now let's
+talk <00:05:49.189><c>about </c><00:05:49.358><c>list </c><00:05:49.527><c>index </c><00:05:49.696><c>because </c><00:05:49.865><c>we </c><00:05:50.034><c>have</c>
+
+00:05:50.210 --> 00:05:50.220 align:start position:0%
+talk about list index because we have
+ 
+
+00:05:50.220 --> 00:05:52.010 align:start position:0%
+talk about list index because we have
+already <00:05:50.356><c>done </c><00:05:50.492><c>it, </c><00:05:50.628><c>it </c><00:05:50.764><c>is </c><00:05:50.900><c>exactly </c><00:05:51.036><c>like </c><00:05:51.172><c>string </c><00:05:51.308><c>index.  </c><00:05:51.444><c>There </c><00:05:51.580><c>is </c><00:05:51.716><c>nothing</c>
+
+00:05:52.010 --> 00:05:52.020 align:start position:0%
+already done it, it is exactly like string index.  There is nothing
+ 
+
+00:05:52.020 --> 00:05:53.810 align:start position:0%
+already done it, it is exactly like string index.  There is nothing
+that <00:05:52.829><c>there </c><00:05:53.638><c>is</c>
+
+00:05:53.810 --> 00:05:53.820 align:start position:0%
+that there is
+ 
+
+00:05:53.820 --> 00:05:56.270 align:start position:0%
+that there is
+anything <00:05:54.004><c>different </c><00:05:54.188><c>in </c><00:05:54.372><c>it </c><00:05:54.556><c>zero </c><00:05:54.740><c>if </c><00:05:54.924><c>you </c><00:05:55.108><c>print </c><00:05:55.292><c>color </c><00:05:55.476><c>zero </c><00:05:55.660><c>then </c><00:05:55.844><c>it </c><00:05:56.028><c>will</c>
+
+00:05:56.270 --> 00:05:56.280 align:start position:0%
+anything different in it zero if you print color zero then it will
+ 
+
+00:05:56.280 --> 00:05:57.890 align:start position:0%
+anything different in it zero if you print color zero then it will
+come <00:05:56.433><c>red </c><00:05:56.586><c>if </c><00:05:56.739><c>you </c><00:05:56.892><c>turn </c><00:05:57.045><c>off </c><00:05:57.198><c>colors </c><00:05:57.351><c>then </c><00:05:57.504><c>it </c><00:05:57.657><c>will</c>
+
+00:05:57.890 --> 00:05:57.900 align:start position:0%
+come red if you turn off colors then it will
+ 
+
+00:05:57.900 --> 00:05:59.570 align:start position:0%
+come red if you turn off colors then it will
+come <00:05:58.038><c>green </c><00:05:58.176><c>and </c><00:05:58.314><c>so </c><00:05:58.452><c>on </c><00:05:58.590><c>okay </c><00:05:58.728><c>if </c><00:05:58.866><c>you </c><00:05:59.004><c>punch </c><00:05:59.142><c>colors </c><00:05:59.280><c>then</c>
+
+00:05:59.570 --> 00:05:59.580 align:start position:0%
+come green and so on okay if you punch colors then
+ 
+
+00:05:59.580 --> 00:06:01.370 align:start position:0%
+come green and so on okay if you punch colors then
+you <00:05:59.766><c>will </c><00:05:59.952><c>get </c><00:06:00.138><c>an </c><00:06:00.324><c>error </c><00:06:00.510><c>okay </c><00:06:00.696><c>also </c><00:06:00.882><c>keep </c><00:06:01.068><c>this </c><00:06:01.254><c>in</c>
+
+00:06:01.370 --> 00:06:01.380 align:start position:0%
+you will get an error okay also keep this in
+ 
+
+00:06:01.380 --> 00:06:03.529 align:start position:0%
+you will get an error okay also keep this in
+mind <00:06:01.642><c>each </c><00:06:01.904><c>item </c><00:06:02.166><c>element </c><00:06:02.428><c>in </c><00:06:02.690><c>d </c><00:06:02.952><c>list </c><00:06:03.214><c>has </c><00:06:03.476><c>a</c>
+
+00:06:03.529 --> 00:06:03.539 align:start position:0%
+mind each item element in d list has a
+ 
+
+00:06:03.539 --> 00:06:06.170 align:start position:0%
+mind each item element in d list has a
+unique <00:06:03.819><c>index </c><00:06:04.099><c>this </c><00:06:04.379><c>index </c><00:06:04.659><c>can </c><00:06:04.939><c>be </c><00:06:05.219><c>used </c><00:06:05.499><c>to </c><00:06:05.779><c>access </c><00:06:06.059><c>any</c>
+
+00:06:06.170 --> 00:06:06.180 align:start position:0%
+unique index this index can be used to access any
+ 
+
+00:06:06.180 --> 00:06:08.689 align:start position:0%
+unique index this index can be used to access any
+particular <00:06:06.960><c>item </c><00:06:07.740><c>from </c><00:06:08.520><c>d</c>
+
+00:06:08.689 --> 00:06:08.699 align:start position:0%
+particular item from d
+ 
+
+00:06:08.699 --> 00:06:11.570 align:start position:0%
+particular item from d
+list <00:06:08.864><c>d </c><00:06:09.029><c>first </c><00:06:09.194><c>item </c><00:06:09.359><c>zero </c><00:06:09.524><c>is </c><00:06:09.689><c>the </c><00:06:09.854><c>index </c><00:06:10.019><c>of </c><00:06:10.184><c>second </c><00:06:10.349><c>item </c><00:06:10.514><c>van </c><00:06:10.679><c>the </c><00:06:10.844><c>index </c><00:06:11.009><c>of </c><00:06:11.174><c>third </c><00:06:11.339><c>item</c>
+
+00:06:11.570 --> 00:06:12.950 align:start position:0%
+list d first item zero is the index of second item van the index of third item
+ 
+
+00:06:12.950 --> 00:06:12.960 align:start position:0%
+ 
+ 
+
+00:06:12.960 --> 00:06:14.689 align:start position:0%
+ 
+and <00:06:13.284><c>so </c><00:06:13.608><c>on </c><00:06:13.932><c>the </c><00:06:14.256><c>counting </c><00:06:14.580><c>is</c>
+
+00:06:14.689 --> 00:06:14.699 align:start position:0%
+and so on the counting is
+ 
+
+00:06:14.699 --> 00:06:16.189 align:start position:0%
+and so on the counting is
+starting <00:06:14.963><c>from </c><00:06:15.227><c>zero </c><00:06:15.491><c>many </c><00:06:15.755><c>people </c><00:06:16.019><c>get</c>
+
+00:06:16.189 --> 00:06:16.199 align:start position:0%
+starting from zero many people get
+ 
+
+00:06:16.199 --> 00:06:18.590 align:start position:0%
+starting from zero many people get
+confused <00:06:16.604><c>in </c><00:06:17.009><c>this </c><00:06:17.414><c>thing </c><00:06:17.819><c>that</c>
+
+00:06:18.590 --> 00:06:18.600 align:start position:0%
+confused in this thing that
+ 
+
+00:06:18.600 --> 00:06:20.570 align:start position:0%
+confused in this thing that
+why <00:06:18.786><c>the </c><00:06:18.972><c>first </c><00:06:19.158><c>item </c><00:06:19.344><c>is </c><00:06:19.530><c>not </c><00:06:19.716><c>available </c><00:06:19.902><c>from </c><00:06:20.088><c>van </c><00:06:20.274><c>or </c><00:06:20.460><c>the</c>
+
+00:06:20.570 --> 00:06:20.580 align:start position:0%
+why the first item is not available from van or the
+ 
+
+00:06:20.580 --> 00:06:22.730 align:start position:0%
+why the first item is not available from van or the
+last <00:06:20.790><c>item </c><00:06:21.000><c>for </c><00:06:21.210><c>example </c><00:06:21.420><c>if </c><00:06:21.630><c>you </c><00:06:21.840><c>look </c><00:06:22.050><c>at </c><00:06:22.260><c>its </c><00:06:22.470><c>length </c><00:06:22.680><c>marks</c>
+
+00:06:22.730 --> 00:06:22.740 align:start position:0%
+last item for example if you look at its length marks
+ 
+
+00:06:22.740 --> 00:06:25.550 align:start position:0%
+last item for example if you look at its length marks
+one <00:06:22.942><c>two </c><00:06:23.144><c>three </c><00:06:23.346><c>four </c><00:06:23.548><c>punch </c><00:06:23.750><c>item </c><00:06:23.952><c>in </c><00:06:24.154><c>it </c><00:06:24.356><c>but </c><00:06:24.558><c>to</c>
+
+00:06:25.550 --> 00:06:25.560 align:start position:0%
+one two three four punch item in it but to
+ 
+
+00:06:25.560 --> 00:06:28.010 align:start position:0%
+one two three four punch item in it but to
+access <00:06:25.788><c>the </c><00:06:26.016><c>last </c><00:06:26.244><c>why </c><00:06:26.472><c>is </c><00:06:26.700><c>it </c><00:06:26.928><c>written </c><00:06:27.156><c>five </c><00:06:27.384><c>why </c><00:06:27.612><c>is </c><00:06:27.840><c>it</c>
+
+00:06:28.010 --> 00:06:28.020 align:start position:0%
+access the last why is it written five why is it
+ 
+
+00:06:28.020 --> 00:06:29.689 align:start position:0%
+access the last why is it written five why is it
+written <00:06:28.220><c>four </c><00:06:28.420><c>because </c><00:06:28.620><c>the </c><00:06:28.820><c>counting </c><00:06:29.020><c>is </c><00:06:29.220><c>starting</c>
+
+00:06:29.689 --> 00:06:29.699 align:start position:0%
+written four because the counting is starting
+ 
+
+00:06:29.699 --> 00:06:31.249 align:start position:0%
+written four because the counting is starting
+from <00:06:30.179><c>zero </c><00:06:30.659><c>if </c><00:06:31.139><c>you</c>
+
+00:06:31.249 --> 00:06:31.259 align:start position:0%
+from zero if you
+ 
+
+00:06:31.259 --> 00:06:33.350 align:start position:0%
+from zero if you
+start <00:06:31.533><c>counting </c><00:06:31.807><c>from </c><00:06:32.081><c>zero </c><00:06:32.355><c>in </c><00:06:32.629><c>your </c><00:06:32.903><c>hands </c><00:06:33.177><c>then</c>
+
+00:06:33.350 --> 00:06:33.360 align:start position:0%
+start counting from zero in your hands then
+ 
+
+00:06:33.360 --> 00:06:35.990 align:start position:0%
+start counting from zero in your hands then
+you <00:06:33.668><c>will </c><00:06:33.976><c>get </c><00:06:34.284><c>four </c><00:06:34.592><c>on </c><00:06:34.900><c>your </c><00:06:35.208><c>fifth </c><00:06:35.516><c>finger</c>
+
+00:06:35.990 --> 00:06:36.000 align:start position:0%
+you will get four on your fifth finger
+ 
+
+00:06:36.000 --> 00:06:37.330 align:start position:0%
+you will get four on your fifth finger
+
+
+00:06:37.330 --> 00:06:37.340 align:start position:0%
+ 
+ 
+
+00:06:37.340 --> 00:06:40.670 align:start position:0%
+ 
+01234 <00:06:37.684><c>so </c><00:06:38.028><c>you </c><00:06:38.372><c>will </c><00:06:38.716><c>get </c><00:06:39.060><c>it </c><00:06:39.404><c>like </c><00:06:39.748><c>this </c><00:06:40.092><c>so </c><00:06:40.436><c>here</c>
+
+00:06:40.670 --> 00:06:40.680 align:start position:0%
+01234 so you will get it like this so here
+ 
+
+00:06:40.680 --> 00:06:42.050 align:start position:0%
+01234 so you will get it like this so here
+because <00:06:40.826><c>the </c><00:06:40.972><c>counting </c><00:06:41.118><c>is </c><00:06:41.264><c>starting </c><00:06:41.410><c>from </c><00:06:41.556><c>zero </c><00:06:41.702><c>that </c><00:06:41.848><c>is </c><00:06:41.994><c>why</c>
+
+00:06:42.050 --> 00:06:42.060 align:start position:0%
+because the counting is starting from zero that is why
+ 
+
+00:06:42.060 --> 00:06:43.730 align:start position:0%
+because the counting is starting from zero that is why
+this <00:06:42.400><c>happens </c><00:06:42.740><c>so </c><00:06:43.080><c>never</c>
+
+00:06:43.730 --> 00:06:43.740 align:start position:0%
+this happens so never
+ 
+
+00:06:43.740 --> 00:06:45.110 align:start position:0%
+this happens so never
+bring <00:06:43.950><c>this </c><00:06:44.160><c>confusion </c><00:06:44.370><c>in </c><00:06:44.580><c>your </c><00:06:44.790><c>mind </c><00:06:45.000><c>from</c>
+
+00:06:45.110 --> 00:06:45.120 align:start position:0%
+bring this confusion in your mind from
+ 
+
+00:06:45.120 --> 00:06:47.270 align:start position:0%
+bring this confusion in your mind from
+here <00:06:45.346><c>if </c><00:06:45.572><c>you </c><00:06:45.798><c>have </c><00:06:46.024><c>any  </c><00:06:46.250><c>We </c><00:06:46.476><c>have </c><00:06:46.702><c>to </c><00:06:46.928><c>print </c><00:06:47.154><c>0123</c>
+
+00:06:47.270 --> 00:06:47.280 align:start position:0%
+here if you have any  We have to print 0123
+ 
+
+00:06:47.280 --> 00:06:48.409 align:start position:0%
+here if you have any  We have to print 0123
+from <00:06:47.340><c>this </c><00:06:47.400><c>list.</c>
+
+00:06:48.409 --> 00:06:48.419 align:start position:0%
+from this list.
+ 
+
+00:06:48.419 --> 00:06:51.290 align:start position:0%
+from this list.
+This <00:06:48.677><c>is </c><00:06:48.935><c>at </c><00:06:49.193><c>three. </c><00:06:49.451><c>I </c><00:06:49.709><c>believe </c><00:06:49.967><c>it </c><00:06:50.225><c>is </c><00:06:50.483><c>the </c><00:06:50.741><c>fourth </c><00:06:50.999><c>element,</c>
+
+00:06:51.290 --> 00:06:51.300 align:start position:0%
+This is at three. I believe it is the fourth element,
+ 
+
+00:06:51.300 --> 00:06:53.510 align:start position:0%
+This is at three. I believe it is the fourth element,
+but <00:06:51.720><c>we </c><00:06:52.140><c>are </c><00:06:52.560><c>starting </c><00:06:52.980><c>from </c><00:06:53.400><c>zero,</c>
+
+00:06:53.510 --> 00:06:53.520 align:start position:0%
+but we are starting from zero,
+ 
+
+00:06:53.520 --> 00:06:55.969 align:start position:0%
+but we are starting from zero,
+so <00:06:53.702><c>its </c><00:06:53.884><c>index </c><00:06:54.066><c>is </c><00:06:54.248><c>three. </c><00:06:54.430><c>Okay, </c><00:06:54.612><c>I </c><00:06:54.794><c>hope </c><00:06:54.976><c>that</c>
+
+00:06:55.969 --> 00:06:55.979 align:start position:0%
+so its index is three. Okay, I hope that
+ 
+
+00:06:55.979 --> 00:06:57.950 align:start position:0%
+so its index is three. Okay, I hope that
+clears <00:06:56.429><c>it </c><00:06:56.879><c>up. </c><00:06:57.329><c>Okay, </c><00:06:57.779><c>many</c>
+
+00:06:57.950 --> 00:06:57.960 align:start position:0%
+clears it up. Okay, many
+ 
+
+00:06:57.960 --> 00:06:59.689 align:start position:0%
+clears it up. Okay, many
+people <00:06:58.155><c>get </c><00:06:58.350><c>confused </c><00:06:58.545><c>about </c><00:06:58.740><c>this </c><00:06:58.935><c>too. </c><00:06:59.130><c>If </c><00:06:59.325><c>someone </c><00:06:59.520><c>asks</c>
+
+00:06:59.689 --> 00:06:59.699 align:start position:0%
+people get confused about this too. If someone asks
+ 
+
+00:06:59.699 --> 00:07:01.550 align:start position:0%
+people get confused about this too. If someone asks
+me <00:06:59.909><c>what </c><00:07:00.119><c>is </c><00:07:00.329><c>the </c><00:07:00.539><c>length </c><00:07:00.749><c>of </c><00:07:00.959><c>color, </c><00:07:01.169><c>then </c><00:07:01.379><c>do</c>
+
+00:07:01.550 --> 00:07:01.560 align:start position:0%
+me what is the length of color, then do
+ 
+
+00:07:01.560 --> 00:07:03.170 align:start position:0%
+me what is the length of color, then do
+n't <00:07:01.685><c>say </c><00:07:01.810><c>four </c><00:07:01.935><c>after </c><00:07:02.060><c>seeing </c><00:07:02.185><c>this </c><00:07:02.310><c>four </c><00:07:02.435><c>because </c><00:07:02.560><c>the </c><00:07:02.685><c>counting </c><00:07:02.810><c>is</c>
+
+00:07:03.170 --> 00:07:03.180 align:start position:0%
+n't say four after seeing this four because the counting is
+ 
+
+00:07:03.180 --> 00:07:04.490 align:start position:0%
+n't say four after seeing this four because the counting is
+starting <00:07:03.306><c>from </c><00:07:03.432><c>zero. </c><00:07:03.558><c>If </c><00:07:03.684><c>it </c><00:07:03.810><c>had </c><00:07:03.936><c>started </c><00:07:04.062><c>from </c><00:07:04.188><c>one, </c><00:07:04.314><c>then</c>
+
+00:07:04.490 --> 00:07:04.500 align:start position:0%
+starting from zero. If it had started from one, then
+ 
+
+00:07:04.500 --> 00:07:07.370 align:start position:0%
+starting from zero. If it had started from one, then
+you <00:07:04.834><c>would </c><00:07:05.168><c>have </c><00:07:05.502><c>seen </c><00:07:05.836><c>the </c><00:07:06.170><c>fifth. </c><00:07:06.504><c>So </c><00:07:06.838><c>the</c>
+
+00:07:07.370 --> 00:07:07.380 align:start position:0%
+you would have seen the fifth. So the
+ 
+
+00:07:07.380 --> 00:07:09.409 align:start position:0%
+you would have seen the fifth. So the
+index <00:07:07.710><c>is </c><00:07:08.040><c>different, </c><00:07:08.370><c>the </c><00:07:08.700><c>length </c><00:07:09.030><c>is </c><00:07:09.360><c>different.</c>
+
+00:07:09.409 --> 00:07:09.419 align:start position:0%
+index is different, the length is different.
+ 
+
+00:07:09.419 --> 00:07:11.330 align:start position:0%
+index is different, the length is different.
+Its <00:07:09.588><c>length </c><00:07:09.757><c>is </c><00:07:09.926><c>the </c><00:07:10.095><c>fifth. </c><00:07:10.264><c>The </c><00:07:10.433><c>length </c><00:07:10.602><c>of </c><00:07:10.771><c>colors </c><00:07:10.940><c>is </c><00:07:11.109><c>the </c><00:07:11.278><c>fifth,</c>
+
+00:07:11.330 --> 00:07:11.340 align:start position:0%
+Its length is the fifth. The length of colors is the fifth,
+ 
+
+00:07:11.340 --> 00:07:13.370 align:start position:0%
+Its length is the fifth. The length of colors is the fifth,
+but <00:07:11.525><c>its </c><00:07:11.710><c>index </c><00:07:11.895><c>of </c><00:07:12.080><c>the </c><00:07:12.265><c>first </c><00:07:12.450><c>one </c><00:07:12.635><c>is </c><00:07:12.820><c>zero </c><00:07:13.005><c>and </c><00:07:13.190><c>the</c>
+
+00:07:13.370 --> 00:07:13.380 align:start position:0%
+but its index of the first one is zero and the
+ 
+
+00:07:13.380 --> 00:07:16.430 align:start position:0%
+but its index of the first one is zero and the
+fourth <00:07:13.739><c>of </c><00:07:14.098><c>the </c><00:07:14.457><c>second </c><00:07:14.816><c>one </c><00:07:15.175><c>is </c><00:07:15.534><c>234. </c><00:07:15.893><c>Okay, </c><00:07:16.252><c>you</c>
+
+00:07:16.430 --> 00:07:16.440 align:start position:0%
+fourth of the second one is 234. Okay, you
+ 
+
+00:07:16.440 --> 00:07:18.290 align:start position:0%
+fourth of the second one is 234. Okay, you
+people <00:07:16.845><c>should </c><00:07:17.250><c>know </c><00:07:17.655><c>this. </c><00:07:18.060><c>Now</c>
+
+00:07:18.290 --> 00:07:18.300 align:start position:0%
+people should know this. Now
+ 
+
+00:07:18.300 --> 00:07:20.089 align:start position:0%
+people should know this. Now
+we <00:07:18.531><c>can </c><00:07:18.762><c>access </c><00:07:18.993><c>it </c><00:07:19.224><c>through </c><00:07:19.455><c>square </c><00:07:19.686><c>bracket </c><00:07:19.917><c>notation.</c>
+
+00:07:20.089 --> 00:07:20.099 align:start position:0%
+we can access it through square bracket notation.
+ 
+
+00:07:20.099 --> 00:07:21.770 align:start position:0%
+we can access it through square bracket notation.
+I <00:07:20.279><c>have </c><00:07:20.459><c>told </c><00:07:20.639><c>you </c><00:07:20.819><c>this, </c><00:07:20.999><c>it </c><00:07:21.179><c>is </c><00:07:21.359><c>exactly</c>
+
+00:07:21.770 --> 00:07:21.780 align:start position:0%
+I have told you this, it is exactly
+ 
+
+00:07:21.780 --> 00:07:23.930 align:start position:0%
+I have told you this, it is exactly
+like <00:07:22.071><c>a </c><00:07:22.362><c>string. </c><00:07:22.653><c>Let's </c><00:07:22.944><c>talk </c><00:07:23.235><c>about </c><00:07:23.526><c>negative </c><00:07:23.817><c>indexing.</c>
+
+00:07:23.930 --> 00:07:23.940 align:start position:0%
+like a string. Let's talk about negative indexing.
+ 
+
+00:07:23.940 --> 00:07:25.189 align:start position:0%
+like a string. Let's talk about negative indexing.
+Look, <00:07:24.320><c>we </c><00:07:24.700><c>talked </c><00:07:25.080><c>about</c>
+
+00:07:25.189 --> 00:07:25.199 align:start position:0%
+Look, we talked about
+ 
+
+00:07:25.199 --> 00:07:27.469 align:start position:0%
+Look, we talked about
+negative <00:07:25.509><c>indexing </c><00:07:25.819><c>in </c><00:07:26.129><c>a </c><00:07:26.439><c>string. </c><00:07:26.749><c>If </c><00:07:27.059><c>I</c>
+
+00:07:27.469 --> 00:07:27.479 align:start position:0%
+negative indexing in a string. If I
+ 
+
+00:07:27.479 --> 00:07:29.570 align:start position:0%
+negative indexing in a string. If I
+want <00:07:27.839><c>to </c><00:07:28.199><c>comment </c><00:07:28.559><c>it </c><00:07:28.919><c>out </c><00:07:29.279><c>here,</c>
+
+00:07:29.570 --> 00:07:29.580 align:start position:0%
+want to comment it out here,
+ 
+
+00:07:29.580 --> 00:07:30.890 align:start position:0%
+want to comment it out here,
+I <00:07:29.760><c>have </c><00:07:29.940><c>put </c><00:07:30.120><c>all </c><00:07:30.300><c>the </c><00:07:30.480><c>print </c><00:07:30.660><c>statements </c><00:07:30.840><c>here</c>
+
+00:07:30.890 --> 00:07:30.900 align:start position:0%
+I have put all the print statements here
+ 
+
+00:07:30.900 --> 00:07:32.749 align:start position:0%
+I have put all the print statements here
+and <00:07:31.102><c>I </c><00:07:31.304><c>will </c><00:07:31.506><c>put </c><00:07:31.708><c>a </c><00:07:31.910><c>fresh </c><00:07:32.112><c>print </c><00:07:32.314><c>statement </c><00:07:32.516><c>here.</c>
+
+00:07:32.749 --> 00:07:32.759 align:start position:0%
+and I will put a fresh print statement here.
+ 
+
+00:07:32.759 --> 00:07:35.990 align:start position:0%
+and I will put a fresh print statement here.
+If <00:07:33.219><c>I </c><00:07:33.679><c>write </c><00:07:34.139><c>marks </c><00:07:34.599><c>- </c><00:07:35.059><c>3, </c><00:07:35.519><c>then</c>
+
+00:07:35.990 --> 00:07:36.000 align:start position:0%
+If I write marks - 3, then
+ 
+
+00:07:36.000 --> 00:07:38.210 align:start position:0%
+If I write marks - 3, then
+what <00:07:36.419><c>will </c><00:07:36.838><c>be </c><00:07:37.257><c>printed? </c><00:07:37.676><c>I </c><00:07:38.095><c>will</c>
+
+00:07:38.210 --> 00:07:38.220 align:start position:0%
+what will be printed? I will
+ 
+
+00:07:38.220 --> 00:07:39.770 align:start position:0%
+what will be printed? I will
+tell <00:07:38.364><c>you </c><00:07:38.508><c>the </c><00:07:38.652><c>easiest </c><00:07:38.796><c>way </c><00:07:38.940><c>to </c><00:07:39.084><c>do </c><00:07:39.228><c>this </c><00:07:39.372><c>and </c><00:07:39.516><c>I </c><00:07:39.660><c>taught</c>
+
+00:07:39.770 --> 00:07:39.780 align:start position:0%
+tell you the easiest way to do this and I taught
+ 
+
+00:07:39.780 --> 00:07:41.330 align:start position:0%
+tell you the easiest way to do this and I taught
+you <00:07:39.918><c>in </c><00:07:40.056><c>the </c><00:07:40.194><c>chapter </c><00:07:40.332><c>on </c><00:07:40.470><c>strings.  </c><00:07:40.608><c>I </c><00:07:40.746><c>also </c><00:07:40.884><c>told </c><00:07:41.022><c>you </c><00:07:41.160><c>the</c>
+
+00:07:41.330 --> 00:07:41.340 align:start position:0%
+you in the chapter on strings.  I also told you the
+ 
+
+00:07:41.340 --> 00:07:44.749 align:start position:0%
+you in the chapter on strings.  I also told you the
+easiest <00:07:41.830><c>way </c><00:07:42.320><c>to </c><00:07:42.810><c>do </c><00:07:43.300><c>this </c><00:07:43.790><c>is </c><00:07:44.280><c>that</c>
+
+00:07:44.749 --> 00:07:44.759 align:start position:0%
+easiest way to do this is that
+ 
+
+00:07:44.759 --> 00:07:47.330 align:start position:0%
+easiest way to do this is that
+if <00:07:45.839><c>you </c><00:07:46.919><c>are</c>
+
+00:07:47.330 --> 00:07:47.340 align:start position:0%
+if you are
+ 
+
+00:07:47.340 --> 00:07:50.089 align:start position:0%
+if you are
+given <00:07:47.769><c>marks </c><00:07:48.198><c>five </c><00:07:48.627><c>sorry </c><00:07:49.056><c>minus </c><00:07:49.485><c>three </c><00:07:49.914><c>then</c>
+
+00:07:50.089 --> 00:07:50.099 align:start position:0%
+given marks five sorry minus three then
+ 
+
+00:07:50.099 --> 00:07:53.270 align:start position:0%
+given marks five sorry minus three then
+what <00:07:50.496><c>will </c><00:07:50.893><c>you </c><00:07:51.290><c>do, </c><00:07:51.687><c>this </c><00:07:52.084><c>is </c><00:07:52.481><c>negative </c><00:07:52.878><c>index, </c><00:07:53.275><c>okay,</c>
+
+00:07:53.270 --> 00:07:53.280 align:start position:0%
+what will you do, this is negative index, okay,
+ 
+
+00:07:53.280 --> 00:07:55.070 align:start position:0%
+what will you do, this is negative index, okay,
+you <00:07:53.640><c>have </c><00:07:54.000><c>to </c><00:07:54.360><c>convert </c><00:07:54.720><c>it</c>
+
+00:07:55.070 --> 00:07:55.080 align:start position:0%
+you have to convert it
+ 
+
+00:07:55.080 --> 00:07:57.650 align:start position:0%
+you have to convert it
+into <00:07:55.270><c>positive </c><00:07:55.460><c>index, </c><00:07:55.650><c>okay, </c><00:07:55.840><c>how </c><00:07:56.030><c>will </c><00:07:56.220><c>you </c><00:07:56.410><c>do </c><00:07:56.600><c>it, </c><00:07:56.790><c>how </c><00:07:56.980><c>will </c><00:07:57.170><c>you</c>
+
+00:07:57.650 --> 00:07:57.660 align:start position:0%
+into positive index, okay, how will you do it, how will you
+ 
+
+00:07:57.660 --> 00:07:59.749 align:start position:0%
+into positive index, okay, how will you do it, how will you
+convert <00:07:58.125><c>it </c><00:07:58.590><c>into </c><00:07:59.055><c>positive </c><00:07:59.520><c>index,</c>
+
+00:07:59.749 --> 00:07:59.759 align:start position:0%
+convert it into positive index,
+ 
+
+00:07:59.759 --> 00:08:01.430 align:start position:0%
+convert it into positive index,
+what <00:07:59.900><c>will </c><00:08:00.041><c>you </c><00:08:00.182><c>do </c><00:08:00.323><c>here, </c><00:08:00.464><c>you </c><00:08:00.605><c>will </c><00:08:00.746><c>put </c><00:08:00.887><c>the </c><00:08:01.028><c>length </c><00:08:01.169><c>of </c><00:08:01.310><c>marks,</c>
+
+00:08:01.430 --> 00:08:01.440 align:start position:0%
+what will you do here, you will put the length of marks,
+ 
+
+00:08:01.440 --> 00:08:05.390 align:start position:0%
+what will you do here, you will put the length of marks,
+what <00:08:01.746><c>will </c><00:08:02.052><c>you </c><00:08:02.358><c>do, </c><00:08:02.664><c>you </c><00:08:02.970><c>will </c><00:08:03.276><c>put </c><00:08:03.582><c>the </c><00:08:03.888><c>length </c><00:08:04.194><c>of </c><00:08:04.500><c>marks,</c>
+
+00:08:05.390 --> 00:08:05.400 align:start position:0%
+what will you do, you will put the length of marks,
+ 
+
+00:08:05.400 --> 00:08:07.309 align:start position:0%
+what will you do, you will put the length of marks,
+how <00:08:05.689><c>much </c><00:08:05.978><c>is </c><00:08:06.267><c>the </c><00:08:06.556><c>length </c><00:08:06.845><c>of </c><00:08:07.134><c>marks,</c>
+
+00:08:07.309 --> 00:08:07.319 align:start position:0%
+how much is the length of marks,
+ 
+
+00:08:07.319 --> 00:08:08.629 align:start position:0%
+how much is the length of marks,
+tell <00:08:07.409><c>me </c><00:08:07.499><c>how </c><00:08:07.589><c>much </c><00:08:07.679><c>is </c><00:08:07.769><c>the </c><00:08:07.859><c>length </c><00:08:07.949><c>of </c><00:08:08.039><c>marks, </c><00:08:08.129><c>what </c><00:08:08.219><c>is </c><00:08:08.309><c>the </c><00:08:08.399><c>length </c><00:08:08.489><c>of </c><00:08:08.579><c>marks,</c>
+
+00:08:08.629 --> 00:08:08.639 align:start position:0%
+tell me how much is the length of marks, what is the length of marks,
+ 
+
+00:08:08.639 --> 00:08:11.689 align:start position:0%
+tell me how much is the length of marks, what is the length of marks,
+punch, <00:08:09.179><c>okay, </c><00:08:09.719><c>punch, </c><00:08:10.259><c>isn't </c><00:08:10.799><c>it,</c>
+
+00:08:11.689 --> 00:08:11.699 align:start position:0%
+punch, okay, punch, isn't it,
+ 
+
+00:08:11.699 --> 00:08:13.610 align:start position:0%
+punch, okay, punch, isn't it,
+Apache
+
+00:08:13.610 --> 00:08:13.620 align:start position:0%
+Apache
+ 
+
+00:08:13.620 --> 00:08:20.529 align:start position:0%
+Apache
+5 <00:08:14.319><c>- </c><00:08:15.018><c>3, </c><00:08:15.717><c>how </c><00:08:16.416><c>much </c><00:08:17.115><c>is </c><00:08:17.814><c>the</c>
+
+00:08:20.529 --> 00:08:20.539 align:start position:0%
+ 
+ 
+
+00:08:20.539 --> 00:08:23.270 align:start position:0%
+ 
+marks <00:08:20.717><c>for </c><00:08:20.895><c>you, </c><00:08:21.073><c>then </c><00:08:21.251><c>tell </c><00:08:21.429><c>me </c><00:08:21.607><c>six, </c><00:08:21.785><c>okay, </c><00:08:21.963><c>so </c><00:08:22.141><c>this </c><00:08:22.319><c>will </c><00:08:22.497><c>also </c><00:08:22.675><c>do, </c><00:08:22.853><c>this </c><00:08:23.031><c>will </c><00:08:23.209><c>also</c>
+
+00:08:23.270 --> 00:08:23.280 align:start position:0%
+marks for you, then tell me six, okay, so this will also do, this will also
+ 
+
+00:08:23.280 --> 00:08:26.390 align:start position:0%
+marks for you, then tell me six, okay, so this will also do, this will also
+print <00:08:26.280><c>six,</c>
+
+00:08:26.390 --> 00:08:26.400 align:start position:0%
+print six,
+ 
+
+00:08:26.400 --> 00:08:27.830 align:start position:0%
+print six,
+this <00:08:27.030><c>will </c><00:08:27.660><c>also</c>
+
+00:08:27.830 --> 00:08:27.840 align:start position:0%
+this will also
+ 
+
+00:08:27.840 --> 00:08:29.689 align:start position:0%
+this will also
+print <00:08:27.984><c>six, </c><00:08:28.128><c>okay, </c><00:08:28.272><c>so </c><00:08:28.416><c>I </c><00:08:28.560><c>can </c><00:08:28.704><c>do </c><00:08:28.848><c>six </c><00:08:28.992><c>pack </c><00:08:29.136><c>four </c><00:08:29.280><c>times,</c>
+
+00:08:29.689 --> 00:08:29.699 align:start position:0%
+print six, okay, so I can do six pack four times,
+ 
+
+00:08:29.699 --> 00:08:31.029 align:start position:0%
+print six, okay, so I can do six pack four times,
+right <00:08:30.180><c>now</c>
+
+00:08:31.029 --> 00:08:31.039 align:start position:0%
+right now
+ 
+
+00:08:31.039 --> 00:08:34.730 align:start position:0%
+right now
+I <00:08:31.479><c>got </c><00:08:31.919><c>to </c><00:08:32.359><c>see </c><00:08:32.799><c>end </c><00:08:33.239><c>4 </c><00:08:33.679><c>years, </c><00:08:34.119><c>so </c><00:08:34.559><c>whenever</c>
+
+00:08:34.730 --> 00:08:34.740 align:start position:0%
+I got to see end 4 years, so whenever
+ 
+
+00:08:34.740 --> 00:08:36.649 align:start position:0%
+I got to see end 4 years, so whenever
+you <00:08:35.220><c>get </c><00:08:35.700><c>negative </c><00:08:36.180><c>indexing,</c>
+
+00:08:36.649 --> 00:08:36.659 align:start position:0%
+you get negative indexing,
+ 
+
+00:08:36.659 --> 00:08:38.269 align:start position:0%
+you get negative indexing,
+first <00:08:36.909><c>convert </c><00:08:37.159><c>it </c><00:08:37.409><c>into </c><00:08:37.659><c>positive </c><00:08:37.909><c>indexing </c><00:08:38.159><c>by</c>
+
+00:08:38.269 --> 00:08:38.279 align:start position:0%
+first convert it into positive indexing by
+ 
+
+00:08:38.279 --> 00:08:40.610 align:start position:0%
+first convert it into positive indexing by
+putting <00:08:38.541><c>the </c><00:08:38.803><c>length </c><00:08:39.065><c>of </c><00:08:39.327><c>marks </c><00:08:39.589><c>here, </c><00:08:39.851><c>there </c><00:08:40.113><c>will </c><00:08:40.375><c>be</c>
+
+00:08:40.610 --> 00:08:40.620 align:start position:0%
+putting the length of marks here, there will be
+ 
+
+00:08:40.620 --> 00:08:42.469 align:start position:0%
+putting the length of marks here, there will be
+confusion, <00:08:41.200><c>many </c><00:08:41.780><c>people </c><00:08:42.360><c>will</c>
+
+00:08:42.469 --> 00:08:42.479 align:start position:0%
+confusion, many people will
+ 
+
+00:08:42.479 --> 00:08:44.690 align:start position:0%
+confusion, many people will
+tell <00:08:42.689><c>you </c><00:08:42.899><c>like </c><00:08:43.109><c>this, </c><00:08:43.319><c>friend, </c><00:08:43.529><c>count </c><00:08:43.739><c>the </c><00:08:43.949><c>third </c><00:08:44.159><c>from </c><00:08:44.369><c>the </c><00:08:44.579><c>back,</c>
+
+00:08:44.690 --> 00:08:44.700 align:start position:0%
+tell you like this, friend, count the third from the back,
+ 
+
+00:08:44.700 --> 00:08:47.509 align:start position:0%
+tell you like this, friend, count the third from the back,
+okay, <00:08:44.980><c>zero </c><00:08:45.260><c>one, </c><00:08:45.540><c>or </c><00:08:45.820><c>count </c><00:08:46.100><c>straight </c><00:08:46.380><c>from </c><00:08:46.660><c>the </c><00:08:46.940><c>back, </c><00:08:47.220><c>one,</c>
+
+00:08:47.509 --> 00:08:47.519 align:start position:0%
+okay, zero one, or count straight from the back, one,
+ 
+
+00:08:47.519 --> 00:08:50.389 align:start position:0%
+okay, zero one, or count straight from the back, one,
+two, <00:08:47.939><c>three, </c><00:08:48.359><c>marks </c><00:08:48.779><c>- </c><00:08:49.199><c>3 </c><00:08:49.619><c>will </c><00:08:50.039><c>go,</c>
+
+00:08:50.389 --> 00:08:50.399 align:start position:0%
+two, three, marks - 3 will go,
+ 
+
+00:08:50.399 --> 00:08:52.550 align:start position:0%
+two, three, marks - 3 will go,
+you <00:08:50.654><c>are </c><00:08:50.909><c>not </c><00:08:51.164><c>following </c><00:08:51.419><c>those </c><00:08:51.674><c>kind </c><00:08:51.929><c>of </c><00:08:52.184><c>rules  </c><00:08:52.439><c>I</c>
+
+00:08:52.550 --> 00:08:52.560 align:start position:0%
+you are not following those kind of rules  I
+ 
+
+00:08:52.560 --> 00:08:53.990 align:start position:0%
+you are not following those kind of rules  I
+believe <00:08:52.740><c>that </c><00:08:52.920><c>you </c><00:08:53.100><c>guys </c><00:08:53.280><c>should </c><00:08:53.460><c>remember </c><00:08:53.640><c>this. </c><00:08:53.820><c>Okay,</c>
+
+00:08:53.990 --> 00:08:54.000 align:start position:0%
+believe that you guys should remember this. Okay,
+ 
+
+00:08:54.000 --> 00:08:56.449 align:start position:0%
+believe that you guys should remember this. Okay,
+I'm <00:08:54.467><c>not </c><00:08:54.934><c>saying </c><00:08:55.401><c>this, </c><00:08:55.868><c>you </c><00:08:56.335><c>wo</c>
+
+00:08:56.449 --> 00:08:56.459 align:start position:0%
+I'm not saying this, you wo
+ 
+
+00:08:56.459 --> 00:08:59.389 align:start position:0%
+I'm not saying this, you wo
+n't <00:08:56.609><c>get </c><00:08:56.759><c>the </c><00:08:56.909><c>right </c><00:08:57.059><c>answer, </c><00:08:57.209><c>but </c><00:08:57.359><c>I </c><00:08:57.509><c>found </c><00:08:57.659><c>this </c><00:08:57.809><c>to </c><00:08:57.959><c>be </c><00:08:58.109><c>the </c><00:08:58.259><c>easiest </c><00:08:58.409><c>way </c><00:08:58.559><c>in </c><00:08:58.709><c>my </c><00:08:58.859><c>life.</c>
+
+00:08:59.389 --> 00:08:59.399 align:start position:0%
+n't get the right answer, but I found this to be the easiest way in my life.
+ 
+
+00:08:59.399 --> 00:09:01.490 align:start position:0%
+n't get the right answer, but I found this to be the easiest way in my life.
+And <00:08:59.939><c>I </c><00:09:00.479><c>never </c><00:09:01.019><c>use</c>
+
+00:09:01.490 --> 00:09:01.500 align:start position:0%
+And I never use
+ 
+
+00:09:01.500 --> 00:09:02.810 align:start position:0%
+And I never use
+negative <00:09:01.654><c>indexing </c><00:09:01.808><c>in </c><00:09:01.962><c>my </c><00:09:02.116><c>personal </c><00:09:02.270><c>projects. </c><00:09:02.424><c>I </c><00:09:02.578><c>do</c>
+
+00:09:02.810 --> 00:09:04.130 align:start position:0%
+negative indexing in my personal projects. I do
+ 
+
+00:09:04.130 --> 00:09:04.140 align:start position:0%
+ 
+ 
+
+00:09:04.140 --> 00:09:05.930 align:start position:0%
+ 
+n't <00:09:04.369><c>find </c><00:09:04.598><c>it </c><00:09:04.827><c>confusing </c><00:09:05.056><c>at </c><00:09:05.285><c>all. </c><00:09:05.514><c>Okay,</c>
+
+00:09:05.930 --> 00:09:05.940 align:start position:0%
+n't find it confusing at all. Okay,
+ 
+
+00:09:05.940 --> 00:09:08.210 align:start position:0%
+n't find it confusing at all. Okay,
+if <00:09:06.257><c>I </c><00:09:06.574><c>see </c><00:09:06.891><c>it </c><00:09:07.208><c>in </c><00:09:07.525><c>someone </c><00:09:07.842><c>else's </c><00:09:08.159><c>projects,</c>
+
+00:09:08.210 --> 00:09:08.220 align:start position:0%
+if I see it in someone else's projects,
+ 
+
+00:09:08.220 --> 00:09:10.190 align:start position:0%
+if I see it in someone else's projects,
+sometimes <00:09:08.840><c>scenarios </c><00:09:09.460><c>arise </c><00:09:10.080><c>where</c>
+
+00:09:10.190 --> 00:09:10.200 align:start position:0%
+sometimes scenarios arise where
+ 
+
+00:09:10.200 --> 00:09:11.630 align:start position:0%
+sometimes scenarios arise where
+they <00:09:10.463><c>have </c><00:09:10.726><c>to </c><00:09:10.989><c>do </c><00:09:11.252><c>negative </c><00:09:11.515><c>indexing.</c>
+
+00:09:11.630 --> 00:09:11.640 align:start position:0%
+they have to do negative indexing.
+ 
+
+00:09:11.640 --> 00:09:15.170 align:start position:0%
+they have to do negative indexing.
+Okay, <00:09:12.312><c>I </c><00:09:12.984><c>do </c><00:09:13.656><c>it </c><00:09:14.328><c>in </c><00:09:15.000><c>this.</c>
+
+00:09:15.170 --> 00:09:15.180 align:start position:0%
+Okay, I do it in this.
+ 
+
+00:09:15.180 --> 00:09:18.769 align:start position:0%
+Okay, I do it in this.
+Okay, <00:09:15.546><c>I </c><00:09:15.912><c>wrote </c><00:09:16.278><c>the </c><00:09:16.644><c>third </c><00:09:17.010><c>item </c><00:09:17.376><c>from </c><00:09:17.742><c>the </c><00:09:18.108><c>last </c><00:09:18.474><c>as</c>
+
+00:09:18.769 --> 00:09:18.779 align:start position:0%
+Okay, I wrote the third item from the last as
+ 
+
+00:09:18.779 --> 00:09:21.230 align:start position:0%
+Okay, I wrote the third item from the last as
+-3. <00:09:19.559><c>But </c><00:09:20.339><c>you </c><00:09:21.119><c>will</c>
+
+00:09:21.230 --> 00:09:21.240 align:start position:0%
+-3. But you will
+ 
+
+00:09:21.240 --> 00:09:22.750 align:start position:0%
+-3. But you will
+do all these tasks
+
+00:09:22.750 --> 00:09:22.760 align:start position:0%
+do all these tasks
+ 
+
+00:09:22.760 --> 00:09:26.269 align:start position:0%
+do all these tasks
+if <00:09:23.245><c>in </c><00:09:23.730><c>an </c><00:09:24.215><c>exam </c><00:09:24.700><c>or </c><00:09:25.185><c>at </c><00:09:25.670><c>any </c><00:09:26.155><c>time</c>
+
+00:09:26.269 --> 00:09:26.279 align:start position:0%
+if in an exam or at any time
+ 
+
+00:09:26.279 --> 00:09:27.949 align:start position:0%
+if in an exam or at any time
+someone <00:09:26.371><c>is </c><00:09:26.463><c>asking </c><00:09:26.555><c>you </c><00:09:26.647><c>for </c><00:09:26.739><c>the </c><00:09:26.831><c>output </c><00:09:26.923><c>of </c><00:09:27.015><c>the </c><00:09:27.107><c>program </c><00:09:27.199><c>and </c><00:09:27.291><c>you </c><00:09:27.383><c>are </c><00:09:27.475><c>telling</c>
+
+00:09:27.949 --> 00:09:27.959 align:start position:0%
+someone is asking you for the output of the program and you are telling
+ 
+
+00:09:27.959 --> 00:09:29.630 align:start position:0%
+someone is asking you for the output of the program and you are telling
+him <00:09:28.187><c>that </c><00:09:28.415><c>brother, </c><00:09:28.643><c>this </c><00:09:28.871><c>is </c><00:09:29.099><c>negative</c>
+
+00:09:29.630 --> 00:09:29.640 align:start position:0%
+him that brother, this is negative
+ 
+
+00:09:29.640 --> 00:09:31.310 align:start position:0%
+him that brother, this is negative
+indexing, <00:09:29.915><c>you </c><00:09:30.190><c>should </c><00:09:30.465><c>do </c><00:09:30.740><c>it </c><00:09:31.015><c>first.</c>
+
+00:09:31.310 --> 00:09:31.320 align:start position:0%
+indexing, you should do it first.
+ 
+
+00:09:31.320 --> 00:09:33.889 align:start position:0%
+indexing, you should do it first.
+Convert <00:09:31.495><c>it </c><00:09:31.670><c>to </c><00:09:31.845><c>positive </c><00:09:32.020><c>indexing. </c><00:09:32.195><c>Okay, </c><00:09:32.370><c>convert </c><00:09:32.545><c>it </c><00:09:32.720><c>to </c><00:09:32.895><c>positive</c>
+
+00:09:33.889 --> 00:09:33.899 align:start position:0%
+Convert it to positive indexing. Okay, convert it to positive
+ 
+
+00:09:33.899 --> 00:09:35.870 align:start position:0%
+Convert it to positive indexing. Okay, convert it to positive
+indexing, <00:09:34.829><c>after </c><00:09:35.759><c>that</c>
+
+00:09:35.870 --> 00:09:35.880 align:start position:0%
+indexing, after that
+ 
+
+00:09:35.880 --> 00:09:38.389 align:start position:0%
+indexing, after that
+your <00:09:36.222><c>task </c><00:09:36.564><c>will </c><00:09:36.906><c>be </c><00:09:37.248><c>done. </c><00:09:37.590><c>Okay, </c><00:09:37.932><c>I </c><00:09:38.274><c>hope</c>
+
+00:09:38.389 --> 00:09:38.399 align:start position:0%
+your task will be done. Okay, I hope
+ 
+
+00:09:38.399 --> 00:09:40.250 align:start position:0%
+your task will be done. Okay, I hope
+everyone <00:09:38.849><c>is </c><00:09:39.299><c>understanding </c><00:09:39.749><c>this. </c><00:09:40.199><c>Now</c>
+
+00:09:40.250 --> 00:09:40.260 align:start position:0%
+everyone is understanding this. Now
+ 
+
+00:09:40.260 --> 00:09:42.889 align:start position:0%
+everyone is understanding this. Now
+look <00:09:40.619><c>here, </c><00:09:40.978><c>we </c><00:09:41.337><c>have </c><00:09:41.696><c>also </c><00:09:42.055><c>seen </c><00:09:42.414><c>negative </c><00:09:42.773><c>indexing.</c>
+
+00:09:42.889 --> 00:09:42.899 align:start position:0%
+look here, we have also seen negative indexing.
+ 
+
+00:09:42.899 --> 00:09:44.210 align:start position:0%
+look here, we have also seen negative indexing.
+Okay, <00:09:43.184><c>I </c><00:09:43.469><c>told </c><00:09:43.754><c>you </c><00:09:44.039><c>guys</c>
+
+00:09:44.210 --> 00:09:44.220 align:start position:0%
+Okay, I told you guys
+ 
+
+00:09:44.220 --> 00:09:47.389 align:start position:0%
+Okay, I told you guys
+how <00:09:44.443><c>to </c><00:09:44.666><c>do </c><00:09:44.889><c>it. </c><00:09:45.112><c>If </c><00:09:45.335><c>I </c><00:09:45.558><c>want </c><00:09:45.781><c>to </c><00:09:46.004><c>find </c><00:09:46.227><c>out </c><00:09:46.450><c>whether </c><00:09:46.673><c>an</c>
+
+00:09:47.389 --> 00:09:47.399 align:start position:0%
+how to do it. If I want to find out whether an
+ 
+
+00:09:47.399 --> 00:09:49.490 align:start position:0%
+how to do it. If I want to find out whether an
+element <00:09:47.551><c>is </c><00:09:47.703><c>in </c><00:09:47.855><c>the </c><00:09:48.007><c>list </c><00:09:48.159><c>or </c><00:09:48.311><c>not, </c><00:09:48.463><c>suppose </c><00:09:48.615><c>I </c><00:09:48.767><c>want </c><00:09:48.919><c>to </c><00:09:49.071><c>find </c><00:09:49.223><c>out </c><00:09:49.375><c>whether</c>
+
+00:09:49.490 --> 00:09:49.500 align:start position:0%
+element is in the list or not, suppose I want to find out whether
+ 
+
+00:09:49.500 --> 00:09:51.530 align:start position:0%
+element is in the list or not, suppose I want to find out whether
+seven <00:09:49.747><c>elements </c><00:09:49.994><c>are </c><00:09:50.241><c>in </c><00:09:50.488><c>the </c><00:09:50.735><c>list </c><00:09:50.982><c>or </c><00:09:51.229><c>not, </c><00:09:51.476><c>then</c>
+
+00:09:51.530 --> 00:09:51.540 align:start position:0%
+seven elements are in the list or not, then
+ 
+
+00:09:51.540 --> 00:09:55.130 align:start position:0%
+seven elements are in the list or not, then
+what <00:09:52.020><c>will </c><00:09:52.500><c>I </c><00:09:52.980><c>write </c><00:09:53.460><c>here?  </c><00:09:53.940><c>If </c><00:09:54.420><c>I</c>
+
+00:09:55.130 --> 00:09:55.140 align:start position:0%
+what will I write here?  If I
+ 
+
+00:09:55.140 --> 00:09:59.230 align:start position:0%
+what will I write here?  If I
+write <00:09:55.960><c>7 </c><00:09:56.780><c>in </c><00:09:57.600><c>marks</c>
+
+00:09:59.230 --> 00:09:59.240 align:start position:0%
+write 7 in marks
+ 
+
+00:09:59.240 --> 00:10:02.260 align:start position:0%
+write 7 in marks
+in <00:09:59.920><c>marks </c><00:10:00.600><c>print</c>
+
+00:10:02.260 --> 00:10:02.270 align:start position:0%
+in marks print
+ 
+
+00:10:02.270 --> 00:10:12.850 align:start position:0%
+in marks print
+[music]
+
+00:10:12.850 --> 00:10:16.269 align:start position:0%
+ 
+ 
+
+00:10:16.269 --> 00:10:16.279 align:start position:0%
+ 
+ 
+
+00:10:16.279 --> 00:10:19.430 align:start position:0%
+ 
+okay, <00:10:16.666><c>this </c><00:10:17.053><c>thing </c><00:10:17.440><c>can </c><00:10:17.827><c>be </c><00:10:18.214><c>used </c><00:10:18.601><c>in </c><00:10:18.988><c>string </c><00:10:19.375><c>also,</c>
+
+00:10:19.430 --> 00:10:19.440 align:start position:0%
+okay, this thing can be used in string also,
+ 
+
+00:10:19.440 --> 00:10:21.290 align:start position:0%
+okay, this thing can be used in string also,
+I <00:10:19.660><c>will </c><00:10:19.880><c>show </c><00:10:20.100><c>you </c><00:10:20.320><c>its </c><00:10:20.540><c>example </c><00:10:20.760><c>here</c>
+
+00:10:21.290 --> 00:10:21.300 align:start position:0%
+I will show you its example here
+ 
+
+00:10:21.300 --> 00:10:23.030 align:start position:0%
+I will show you its example here
+how <00:10:21.560><c>to </c><00:10:21.820><c>use </c><00:10:22.080><c>these </c><00:10:22.340><c>words </c><00:10:22.600><c>in </c><00:10:22.860><c>string,</c>
+
+00:10:23.030 --> 00:10:23.040 align:start position:0%
+how to use these words in string,
+ 
+
+00:10:23.040 --> 00:10:24.949 align:start position:0%
+how to use these words in string,
+but <00:10:23.209><c>if </c><00:10:23.378><c>I </c><00:10:23.547><c>write </c><00:10:23.716><c>Harry </c><00:10:23.885><c>here </c><00:10:24.054><c>"done" </c><00:10:24.223><c>then </c><00:10:24.392><c>will </c><00:10:24.561><c>it </c><00:10:24.730><c>return </c><00:10:24.899><c>no,</c>
+
+00:10:24.949 --> 00:10:24.959 align:start position:0%
+but if I write Harry here "done" then will it return no,
+ 
+
+00:10:24.959 --> 00:10:27.290 align:start position:0%
+but if I write Harry here "done" then will it return no,
+you <00:10:27.120><c>guys</c>
+
+00:10:27.290 --> 00:10:27.300 align:start position:0%
+you guys
+ 
+
+00:10:27.300 --> 00:10:29.329 align:start position:0%
+you guys
+tell <00:10:27.441><c>me </c><00:10:27.582><c>in </c><00:10:27.723><c>the </c><00:10:27.864><c>comment </c><00:10:28.005><c>first, </c><00:10:28.146><c>I </c><00:10:28.287><c>am </c><00:10:28.428><c>waiting </c><00:10:28.569><c>for </c><00:10:28.710><c>your </c><00:10:28.851><c>answer, </c><00:10:28.992><c>it </c><00:10:29.133><c>will </c><00:10:29.274><c>return</c>
+
+00:10:29.329 --> 00:10:29.339 align:start position:0%
+tell me in the comment first, I am waiting for your answer, it will return
+ 
+
+00:10:29.339 --> 00:10:31.970 align:start position:0%
+tell me in the comment first, I am waiting for your answer, it will return
+yes <00:10:30.539><c>because </c><00:10:31.739><c>brother</c>
+
+00:10:31.970 --> 00:10:31.980 align:start position:0%
+yes because brother
+ 
+
+00:10:31.980 --> 00:10:33.590 align:start position:0%
+yes because brother
+Harry <00:10:32.250><c>is </c><00:10:32.520><c>inside </c><00:10:32.790><c>the </c><00:10:33.060><c>variable </c><00:10:33.330><c>named </c><00:10:33.600><c>marks,</c>
+
+00:10:33.590 --> 00:10:33.600 align:start position:0%
+Harry is inside the variable named marks,
+ 
+
+00:10:33.600 --> 00:10:36.050 align:start position:0%
+Harry is inside the variable named marks,
+okay, <00:10:33.791><c>so </c><00:10:33.982><c>you </c><00:10:34.173><c>will </c><00:10:34.364><c>get </c><00:10:34.555><c>it </c><00:10:34.746><c>as </c><00:10:34.937><c>yes, </c><00:10:35.128><c>okay, </c><00:10:35.319><c>I </c><00:10:35.510><c>hope</c>
+
+00:10:36.050 --> 00:10:36.060 align:start position:0%
+okay, so you will get it as yes, okay, I hope
+ 
+
+00:10:36.060 --> 00:10:38.329 align:start position:0%
+okay, so you will get it as yes, okay, I hope
+this <00:10:36.585><c>is </c><00:10:37.110><c>clear, </c><00:10:37.635><c>I </c><00:10:38.160><c>hope</c>
+
+00:10:38.329 --> 00:10:38.339 align:start position:0%
+this is clear, I hope
+ 
+
+00:10:38.339 --> 00:10:40.490 align:start position:0%
+this is clear, I hope
+everyone <00:10:38.594><c>understood, </c><00:10:38.849><c>okay, </c><00:10:39.104><c>this </c><00:10:39.359><c>is </c><00:10:39.614><c>a </c><00:10:39.869><c>very </c><00:10:40.124><c>good </c><00:10:40.379><c>thing,</c>
+
+00:10:40.490 --> 00:10:40.500 align:start position:0%
+everyone understood, okay, this is a very good thing,
+ 
+
+00:10:40.500 --> 00:10:43.670 align:start position:0%
+everyone understood, okay, this is a very good thing,
+now <00:10:40.633><c>look </c><00:10:40.766><c>here </c><00:10:40.899><c>if </c><00:10:41.032><c>you </c><00:10:41.165><c>guys </c><00:10:41.298><c>enter </c><00:10:41.431><c>six, </c><00:10:41.564><c>okay, </c><00:10:41.697><c>even </c><00:10:41.830><c>if </c><00:10:41.963><c>you </c><00:10:42.096><c>enter </c><00:10:42.229><c>six, </c><00:10:42.362><c>you </c><00:10:42.495><c>will </c><00:10:42.628><c>get </c><00:10:42.761><c>it </c><00:10:42.894><c>here, </c><00:10:43.027><c>yes, </c><00:10:43.160><c>but </c><00:10:43.293><c>let </c><00:10:43.426><c>me </c><00:10:43.559><c>show</c>
+
+00:10:43.670 --> 00:10:45.769 align:start position:0%
+now look here if you guys enter six, okay, even if you enter six, you will get it here, yes, but let me show
+ 
+
+00:10:45.769 --> 00:10:45.779 align:start position:0%
+ 
+ 
+
+00:10:45.779 --> 00:10:49.310 align:start position:0%
+ 
+you <00:10:47.489><c>one </c><00:10:49.199><c>thing,</c>
+
+00:10:49.310 --> 00:10:49.320 align:start position:0%
+you one thing,
+ 
+
+00:10:49.320 --> 00:10:51.110 align:start position:0%
+you one thing,
+if <00:10:49.453><c>I </c><00:10:49.586><c>enter </c><00:10:49.719><c>six </c><00:10:49.852><c>here </c><00:10:49.985><c>like </c><00:10:50.118><c>this, </c><00:10:50.251><c>that </c><00:10:50.384><c>is, </c><00:10:50.517><c>"done", </c><00:10:50.650><c>that </c><00:10:50.783><c>is, </c><00:10:50.916><c>as </c><00:10:51.049><c>a</c>
+
+00:10:51.110 --> 00:10:51.120 align:start position:0%
+if I enter six here like this, that is, "done", that is, as a
+ 
+
+00:10:51.120 --> 00:10:53.870 align:start position:0%
+if I enter six here like this, that is, "done", that is, as a
+string, <00:10:51.488><c>then </c><00:10:51.856><c>will </c><00:10:52.224><c>you </c><00:10:52.592><c>get </c><00:10:52.960><c>it </c><00:10:53.328><c>or </c><00:10:53.696><c>not,</c>
+
+00:10:53.870 --> 00:10:53.880 align:start position:0%
+string, then will you get it or not,
+ 
+
+00:10:53.880 --> 00:10:55.850 align:start position:0%
+string, then will you get it or not,
+you <00:10:54.479><c>tell </c><00:10:55.078><c>me</c>
+
+00:10:55.850 --> 00:10:55.860 align:start position:0%
+you tell me
+ 
+
+00:10:55.860 --> 00:10:57.410 align:start position:0%
+you tell me
+in <00:10:55.956><c>the </c><00:10:56.052><c>comment, </c><00:10:56.148><c>whether </c><00:10:56.244><c>you </c><00:10:56.340><c>will </c><00:10:56.436><c>get </c><00:10:56.532><c>it </c><00:10:56.628><c>or </c><00:10:56.724><c>not, </c><00:10:56.820><c>write </c><00:10:56.916><c>like </c><00:10:57.012><c>this </c><00:10:57.108><c>if </c><00:10:57.204><c>it </c><00:10:57.300><c>is</c>
+
+00:10:57.410 --> 00:10:57.420 align:start position:0%
+in the comment, whether you will get it or not, write like this if it is
+ 
+
+00:10:57.420 --> 00:10:59.210 align:start position:0%
+in the comment, whether you will get it or not, write like this if it is
+six, <00:10:57.660><c>then </c><00:10:57.900><c>you </c><00:10:58.140><c>will </c><00:10:58.380><c>get </c><00:10:58.620><c>it </c><00:10:58.860><c>or</c>
+
+00:10:59.210 --> 00:10:59.220 align:start position:0%
+six, then you will get it or
+ 
+
+00:10:59.220 --> 00:11:02.389 align:start position:0%
+six, then you will get it or
+not, <00:10:59.537><c>okay, </c><00:10:59.854><c>I </c><00:11:00.171><c>am </c><00:11:00.488><c>running </c><00:11:00.805><c>and </c><00:11:01.122><c>you </c><00:11:01.439><c>will</c>
+
+00:11:02.389 --> 00:11:02.399 align:start position:0%
+not, okay, I am running and you will
+ 
+
+00:11:02.399 --> 00:11:03.769 align:start position:0%
+not, okay, I am running and you will
+not <00:11:02.519><c>get </c><00:11:02.639><c>it, </c><00:11:02.759><c>why </c><00:11:02.879><c>will </c><00:11:02.999><c>you </c><00:11:03.119><c>not </c><00:11:03.239><c>get </c><00:11:03.359><c>it, </c><00:11:03.479><c>because</c>
+
+00:11:03.769 --> 00:11:03.779 align:start position:0%
+not get it, why will you not get it, because
+ 
+
+00:11:03.779 --> 00:11:07.490 align:start position:0%
+not get it, why will you not get it, because
+friend, <00:11:04.276><c>in </c><00:11:04.773><c>our </c><00:11:05.270><c>list, </c><00:11:05.767><c>six </c><00:11:06.264><c>is ​​</c><00:11:06.761><c>not </c><00:11:07.258><c>an</c>
+
+00:11:07.490 --> 00:11:07.500 align:start position:0%
+friend, in our list, six is ​​not an
+ 
+
+00:11:07.500 --> 00:11:09.710 align:start position:0%
+friend, in our list, six is ​​not an
+unstring, <00:11:07.733><c>okay, </c><00:11:07.966><c>so </c><00:11:08.199><c>this </c><00:11:08.432><c>is </c><00:11:08.665><c>the </c><00:11:08.898><c>thing, </c><00:11:09.131><c>you </c><00:11:09.364><c>can  </c><00:11:09.597><c>You</c>
+
+00:11:09.710 --> 00:11:09.720 align:start position:0%
+unstring, okay, so this is the thing, you can  You
+ 
+
+00:11:09.720 --> 00:11:13.009 align:start position:0%
+unstring, okay, so this is the thing, you can  You
+can <00:11:10.073><c>do </c><00:11:10.426><c>this </c><00:11:10.779><c>with </c><00:11:11.132><c>the </c><00:11:11.485><c>help </c><00:11:11.838><c>of </c><00:11:12.191><c>Word. </c><00:11:12.544><c>Now </c><00:11:12.897><c>one</c>
+
+00:11:13.009 --> 00:11:13.019 align:start position:0%
+can do this with the help of Word. Now one
+ 
+
+00:11:13.019 --> 00:11:14.449 align:start position:0%
+can do this with the help of Word. Now one
+more <00:11:13.207><c>thing </c><00:11:13.395><c>comes, </c><00:11:13.583><c>the </c><00:11:13.771><c>concept </c><00:11:13.959><c>of </c><00:11:14.147><c>jump </c><00:11:14.335><c>index</c>
+
+00:11:14.449 --> 00:11:14.459 align:start position:0%
+more thing comes, the concept of jump index
+ 
+
+00:11:14.459 --> 00:11:16.490 align:start position:0%
+more thing comes, the concept of jump index
+comes, <00:11:14.684><c>but </c><00:11:14.909><c>before </c><00:11:15.134><c>that </c><00:11:15.359><c>I </c><00:11:15.584><c>want </c><00:11:15.809><c>to </c><00:11:16.034><c>tell </c><00:11:16.259><c>you</c>
+
+00:11:16.490 --> 00:11:16.500 align:start position:0%
+comes, but before that I want to tell you
+ 
+
+00:11:16.500 --> 00:11:19.850 align:start position:0%
+comes, but before that I want to tell you
+that <00:11:16.991><c>suppose </c><00:11:17.482><c>I </c><00:11:17.973><c>write </c><00:11:18.464><c>F </c><00:11:18.955><c>A</c>
+
+00:11:19.850 --> 00:11:19.860 align:start position:0%
+that suppose I write F A
+ 
+
+00:11:19.860 --> 00:11:22.910 align:start position:0%
+that suppose I write F A
+R <00:11:20.190><c>A </c><00:11:20.520><c>in </c><00:11:20.850><c>Harry, </c><00:11:21.180><c>then</c>
+
+00:11:22.910 --> 00:11:22.920 align:start position:0%
+R A in Harry, then
+ 
+
+00:11:22.920 --> 00:11:26.389 align:start position:0%
+R A in Harry, then
+what <00:11:23.660><c>happens </c><00:11:24.400><c>is </c><00:11:25.140><c>that</c>
+
+00:11:26.389 --> 00:11:26.399 align:start position:0%
+what happens is that
+ 
+
+00:11:26.399 --> 00:11:28.250 align:start position:0%
+what happens is that
+you <00:11:26.567><c>people </c><00:11:26.735><c>can </c><00:11:26.903><c>do </c><00:11:27.071><c>something </c><00:11:27.239><c>like </c><00:11:27.407><c>this </c><00:11:27.575><c>inside </c><00:11:27.743><c>the </c><00:11:27.911><c>string, </c><00:11:28.079><c>you</c>
+
+00:11:28.250 --> 00:11:28.260 align:start position:0%
+you people can do something like this inside the string, you
+ 
+
+00:11:28.260 --> 00:11:29.690 align:start position:0%
+you people can do something like this inside the string, you
+see <00:11:28.406><c>here </c><00:11:28.552><c>if </c><00:11:28.698><c>I </c><00:11:28.844><c>write </c><00:11:28.990><c>F </c><00:11:29.136><c>A </c><00:11:29.282><c>R </c><00:11:29.428><c>A </c><00:11:29.574><c>is</c>
+
+00:11:29.690 --> 00:11:29.700 align:start position:0%
+see here if I write F A R A is
+ 
+
+00:11:29.700 --> 00:11:31.970 align:start position:0%
+see here if I write F A R A is
+inside <00:11:29.885><c>Harry </c><00:11:30.070><c>and </c><00:11:30.255><c>Han </c><00:11:30.440><c>is </c><00:11:30.625><c>there </c><00:11:30.810><c>then </c><00:11:30.995><c>yes </c><00:11:31.180><c>I </c><00:11:31.365><c>will </c><00:11:31.550><c>get </c><00:11:31.735><c>it</c>
+
+00:11:31.970 --> 00:11:31.980 align:start position:0%
+inside Harry and Han is there then yes I will get it
+ 
+
+00:11:31.980 --> 00:11:35.210 align:start position:0%
+inside Harry and Han is there then yes I will get it
+printed, <00:11:32.592><c>is </c><00:11:33.204><c>it </c><00:11:33.816><c>inside </c><00:11:34.428><c>Arya </c><00:11:35.040><c>if</c>
+
+00:11:35.210 --> 00:11:35.220 align:start position:0%
+printed, is it inside Arya if
+ 
+
+00:11:35.220 --> 00:11:36.949 align:start position:0%
+printed, is it inside Arya if
+not <00:11:35.442><c>then </c><00:11:35.664><c>I </c><00:11:35.886><c>will </c><00:11:36.108><c>not </c><00:11:36.330><c>get </c><00:11:36.552><c>yes </c><00:11:36.774><c>friend</c>
+
+00:11:36.949 --> 00:11:36.959 align:start position:0%
+not then I will not get yes friend
+ 
+
+00:11:36.959 --> 00:11:39.590 align:start position:0%
+not then I will not get yes friend
+here, <00:11:37.182><c>only </c><00:11:37.405><c>this </c><00:11:37.628><c>one </c><00:11:37.851><c>will </c><00:11:38.074><c>get </c><00:11:38.297><c>no, </c><00:11:38.520><c>yes </c><00:11:38.743><c>will </c><00:11:38.966><c>not </c><00:11:39.189><c>be </c><00:11:39.412><c>found</c>
+
+00:11:39.590 --> 00:11:39.600 align:start position:0%
+here, only this one will get no, yes will not be found
+ 
+
+00:11:39.600 --> 00:11:43.069 align:start position:0%
+here, only this one will get no, yes will not be found
+and <00:11:40.037><c>if </c><00:11:40.474><c>I </c><00:11:40.911><c>write </c><00:11:41.348><c>here </c><00:11:41.785><c>if </c><00:11:42.222><c>H </c><00:11:42.659><c>A</c>
+
+00:11:43.069 --> 00:11:43.079 align:start position:0%
+and if I write here if H A
+ 
+
+00:11:43.079 --> 00:11:44.810 align:start position:0%
+and if I write here if H A
+in <00:11:43.208><c>Harry </c><00:11:43.337><c>then </c><00:11:43.466><c>that </c><00:11:43.595><c>will </c><00:11:43.724><c>be </c><00:11:43.853><c>true, </c><00:11:43.982><c>I </c><00:11:44.111><c>will </c><00:11:44.240><c>get </c><00:11:44.369><c>s </c><00:11:44.498><c>here, </c><00:11:44.627><c>that </c><00:11:44.756><c>is,</c>
+
+00:11:44.810 --> 00:11:44.820 align:start position:0%
+in Harry then that will be true, I will get s here, that is,
+ 
+
+00:11:44.820 --> 00:11:46.970 align:start position:0%
+in Harry then that will be true, I will get s here, that is,
+you <00:11:45.170><c>will </c><00:11:45.520><c>see, </c><00:11:45.870><c>it </c><00:11:46.220><c>will </c><00:11:46.570><c>be </c><00:11:46.920><c>found</c>
+
+00:11:46.970 --> 00:11:46.980 align:start position:0%
+you will see, it will be found
+ 
+
+00:11:46.980 --> 00:11:49.130 align:start position:0%
+you will see, it will be found
+here, <00:11:47.363><c>so </c><00:11:47.746><c>in </c><00:11:48.129><c>this </c><00:11:48.512><c>way </c><00:11:48.895><c>we</c>
+
+00:11:49.130 --> 00:11:49.140 align:start position:0%
+here, so in this way we
+ 
+
+00:11:49.140 --> 00:11:50.990 align:start position:0%
+here, so in this way we
+can <00:11:49.420><c>apply </c><00:11:49.700><c>this </c><00:11:49.980><c>thing </c><00:11:50.260><c>for </c><00:11:50.540><c>strings </c><00:11:50.820><c>also,</c>
+
+00:11:50.990 --> 00:11:51.000 align:start position:0%
+can apply this thing for strings also,
+ 
+
+00:11:51.000 --> 00:11:53.990 align:start position:0%
+can apply this thing for strings also,
+I <00:11:51.325><c>will </c><00:11:51.650><c>write </c><00:11:51.975><c>from </c><00:11:52.300><c>here </c><00:11:52.625><c>this </c><00:11:52.950><c>thing </c><00:11:53.275><c>applies</c>
+
+00:11:53.990 --> 00:11:54.000 align:start position:0%
+I will write from here this thing applies
+ 
+
+00:11:54.000 --> 00:11:58.250 align:start position:0%
+I will write from here this thing applies
+for <00:11:54.502><c>strings </c><00:11:55.004><c>today </c><00:11:55.506><c>well, </c><00:11:56.008><c>okay </c><00:11:56.510><c>friend, </c><00:11:57.012><c>this </c><00:11:57.514><c>thing </c><00:11:58.016><c>is</c>
+
+00:11:58.250 --> 00:11:58.260 align:start position:0%
+for strings today well, okay friend, this thing is
+ 
+
+00:11:58.260 --> 00:12:00.889 align:start position:0%
+for strings today well, okay friend, this thing is
+applied <00:11:58.669><c>for </c><00:11:59.078><c>strings </c><00:11:59.487><c>also, </c><00:11:59.896><c>great</c>
+
+00:12:00.889 --> 00:12:00.899 align:start position:0%
+applied for strings also, great
+ 
+
+00:12:00.899 --> 00:12:03.769 align:start position:0%
+applied for strings also, great
+friend, <00:12:01.229><c>I </c><00:12:01.559><c>enjoyed </c><00:12:01.889><c>it </c><00:12:02.219><c>a </c><00:12:02.549><c>lot, </c><00:12:02.879><c>now </c><00:12:03.209><c>here </c><00:12:03.539><c>you</c>
+
+00:12:03.769 --> 00:12:03.779 align:start position:0%
+friend, I enjoyed it a lot, now here you
+ 
+
+00:12:03.779 --> 00:12:06.710 align:start position:0%
+friend, I enjoyed it a lot, now here you
+people <00:12:03.984><c>see </c><00:12:04.189><c>that </c><00:12:04.394><c>if </c><00:12:04.599><c>you </c><00:12:04.804><c>want </c><00:12:05.009><c>to </c><00:12:05.214><c>print </c><00:12:05.419><c>all </c><00:12:05.624><c>the </c><00:12:05.829><c>elements </c><00:12:06.034><c>in </c><00:12:06.239><c>the</c>
+
+00:12:06.710 --> 00:12:06.720 align:start position:0%
+people see that if you want to print all the elements in the
+ 
+
+00:12:06.720 --> 00:12:08.030 align:start position:0%
+people see that if you want to print all the elements in the
+list <00:12:06.910><c>then </c><00:12:07.100><c>how </c><00:12:07.290><c>will </c><00:12:07.480><c>you </c><00:12:07.670><c>do </c><00:12:07.860><c>it,</c>
+
+00:12:08.030 --> 00:12:08.040 align:start position:0%
+list then how will you do it,
+ 
+
+00:12:08.040 --> 00:12:09.949 align:start position:0%
+list then how will you do it,
+if <00:12:08.239><c>I </c><00:12:08.438><c>give </c><00:12:08.637><c>you </c><00:12:08.836><c>marks </c><00:12:09.035><c>in </c><00:12:09.234><c>printing </c><00:12:09.433><c>all, </c><00:12:09.632><c>I </c><00:12:09.831><c>am</c>
+
+00:12:09.949 --> 00:12:09.959 align:start position:0%
+if I give you marks in printing all, I am
+ 
+
+00:12:09.959 --> 00:12:11.449 align:start position:0%
+if I give you marks in printing all, I am
+commenting <00:12:10.092><c>out </c><00:12:10.225><c>this </c><00:12:10.358><c>thing </c><00:12:10.491><c>again </c><00:12:10.624><c>so </c><00:12:10.757><c>that </c><00:12:10.890><c>you </c><00:12:11.023><c>are </c><00:12:11.156><c>getting</c>
+
+00:12:11.449 --> 00:12:11.459 align:start position:0%
+commenting out this thing again so that you are getting
+ 
+
+00:12:11.459 --> 00:12:13.790 align:start position:0%
+commenting out this thing again so that you are getting
+confusion, <00:12:11.705><c>I </c><00:12:11.951><c>will </c><00:12:12.197><c>give </c><00:12:12.443><c>you </c><00:12:12.689><c>marks  </c><00:12:12.935><c>If </c><00:12:13.181><c>I </c><00:12:13.427><c>want </c><00:12:13.673><c>to</c>
+
+00:12:13.790 --> 00:12:13.800 align:start position:0%
+confusion, I will give you marks  If I want to
+ 
+
+00:12:13.800 --> 00:12:16.310 align:start position:0%
+confusion, I will give you marks  If I want to
+print <00:12:14.385><c>all </c><00:12:14.970><c>of </c><00:12:15.555><c>them, </c><00:12:16.140><c>I</c>
+
+00:12:16.310 --> 00:12:16.320 align:start position:0%
+print all of them, I
+ 
+
+00:12:16.320 --> 00:12:18.650 align:start position:0%
+print all of them, I
+can <00:12:16.505><c>either </c><00:12:16.690><c>do </c><00:12:16.875><c>it </c><00:12:17.060><c>like </c><00:12:17.245><c>this </c><00:12:17.430><c>or </c><00:12:17.615><c>if </c><00:12:17.800><c>I </c><00:12:17.985><c>do </c><00:12:18.170><c>it </c><00:12:18.355><c>like </c><00:12:18.540><c>this,</c>
+
+00:12:18.650 --> 00:12:18.660 align:start position:0%
+can either do it like this or if I do it like this,
+ 
+
+00:12:18.660 --> 00:12:20.050 align:start position:0%
+can either do it like this or if I do it like this,
+
+
+00:12:20.050 --> 00:12:20.060 align:start position:0%
+ 
+ 
+
+00:12:20.060 --> 00:12:22.009 align:start position:0%
+ 
+I <00:12:20.366><c>left </c><00:12:20.672><c>the </c><00:12:20.978><c>starting </c><00:12:21.284><c>blank </c><00:12:21.590><c>and </c><00:12:21.896><c>the</c>
+
+00:12:22.009 --> 00:12:22.019 align:start position:0%
+I left the starting blank and the
+ 
+
+00:12:22.019 --> 00:12:24.410 align:start position:0%
+I left the starting blank and the
+ending <00:12:23.159><c>blank, </c><00:12:24.299><c>so</c>
+
+00:12:24.410 --> 00:12:24.420 align:start position:0%
+ending blank, so
+ 
+
+00:12:24.420 --> 00:12:27.170 align:start position:0%
+ending blank, so
+I <00:12:24.686><c>will </c><00:12:24.952><c>get </c><00:12:25.218><c>to </c><00:12:25.484><c>see </c><00:12:25.750><c>the </c><00:12:26.016><c>entire </c><00:12:26.282><c>thing </c><00:12:26.548><c>here. </c><00:12:26.814><c>Okay,</c>
+
+00:12:27.170 --> 00:12:27.180 align:start position:0%
+I will get to see the entire thing here. Okay,
+ 
+
+00:12:27.180 --> 00:12:29.030 align:start position:0%
+I will get to see the entire thing here. Okay,
+marks. <00:12:27.428><c>Well, </c><00:12:27.676><c>if </c><00:12:27.924><c>I </c><00:12:28.172><c>write </c><00:12:28.420><c>van </c><00:12:28.668><c>here, </c><00:12:28.916><c>then</c>
+
+00:12:29.030 --> 00:12:29.040 align:start position:0%
+marks. Well, if I write van here, then
+ 
+
+00:12:29.040 --> 00:12:32.329 align:start position:0%
+marks. Well, if I write van here, then
+what <00:12:29.520><c>will </c><00:12:30.000><c>happen? </c><00:12:30.480><c>You </c><00:12:30.960><c>see, </c><00:12:31.440><c>here </c><00:12:31.920><c>this</c>
+
+00:12:32.329 --> 00:12:32.339 align:start position:0%
+what will happen? You see, here this
+ 
+
+00:12:32.339 --> 00:12:34.610 align:start position:0%
+what will happen? You see, here this
+index <00:12:32.519><c>will </c><00:12:32.699><c>start </c><00:12:32.879><c>from </c><00:12:33.059><c>van </c><00:12:33.239><c>and </c><00:12:33.419><c>will </c><00:12:33.599><c>go </c><00:12:33.779><c>all </c><00:12:33.959><c>the </c><00:12:34.139><c>way </c><00:12:34.319><c>till</c>
+
+00:12:34.610 --> 00:12:34.620 align:start position:0%
+index will start from van and will go all the way till
+ 
+
+00:12:34.620 --> 00:12:37.310 align:start position:0%
+index will start from van and will go all the way till
+length <00:12:34.859><c>-1, </c><00:12:35.098><c>that </c><00:12:35.337><c>is, </c><00:12:35.576><c>it </c><00:12:35.815><c>will </c><00:12:36.054><c>go </c><00:12:36.293><c>till </c><00:12:36.532><c>the </c><00:12:36.771><c>last </c><00:12:37.010><c>element</c>
+
+00:12:37.310 --> 00:12:37.320 align:start position:0%
+length -1, that is, it will go till the last element
+ 
+
+00:12:37.320 --> 00:12:39.170 align:start position:0%
+length -1, that is, it will go till the last element
+completely. <00:12:37.920><c>But </c><00:12:38.520><c>if </c><00:12:39.120><c>I</c>
+
+00:12:39.170 --> 00:12:39.180 align:start position:0%
+completely. But if I
+ 
+
+00:12:39.180 --> 00:12:41.810 align:start position:0%
+completely. But if I
+write <00:12:39.453><c>minus </c><00:12:39.726><c>van </c><00:12:39.999><c>here, </c><00:12:40.272><c>then </c><00:12:40.545><c>what </c><00:12:40.818><c>will </c><00:12:41.091><c>I </c><00:12:41.364><c>do </c><00:12:41.637><c>first?</c>
+
+00:12:41.810 --> 00:12:41.820 align:start position:0%
+write minus van here, then what will I do first?
+ 
+
+00:12:41.820 --> 00:12:43.430 align:start position:0%
+write minus van here, then what will I do first?
+Personally, <00:12:42.449><c>I </c><00:12:43.078><c>will</c>
+
+00:12:43.430 --> 00:12:43.440 align:start position:0%
+Personally, I will
+ 
+
+00:12:43.440 --> 00:12:44.870 align:start position:0%
+Personally, I will
+convert <00:12:43.573><c>it </c><00:12:43.706><c>to </c><00:12:43.839><c>positive </c><00:12:43.972><c>indexing. </c><00:12:44.105><c>First </c><00:12:44.238><c>of </c><00:12:44.371><c>all, </c><00:12:44.504><c>I </c><00:12:44.637><c>will</c>
+
+00:12:44.870 --> 00:12:44.880 align:start position:0%
+convert it to positive indexing. First of all, I will
+ 
+
+00:12:44.880 --> 00:12:47.030 align:start position:0%
+convert it to positive indexing. First of all, I will
+not <00:12:45.264><c>read </c><00:12:45.648><c>it </c><00:12:46.032><c>in </c><00:12:46.416><c>the </c><00:12:46.800><c>circle.</c>
+
+00:12:47.030 --> 00:12:47.040 align:start position:0%
+not read it in the circle.
+ 
+
+00:12:47.040 --> 00:12:49.190 align:start position:0%
+not read it in the circle.
+What <00:12:47.163><c>will </c><00:12:47.286><c>be </c><00:12:47.409><c>the </c><00:12:47.532><c>length </c><00:12:47.655><c>of </c><00:12:47.778><c>marks? </c><00:12:47.901><c>Length </c><00:12:48.024><c>of </c><00:12:48.147><c>marks </c><00:12:48.270><c>is </c><00:12:48.393><c>five, </c><00:12:48.516><c>five </c><00:12:48.639><c>is </c><00:12:48.762><c>three, </c><00:12:48.885><c>two </c><00:12:49.008><c>five </c><00:12:49.131><c>is</c>
+
+00:12:49.190 --> 00:12:49.200 align:start position:0%
+What will be the length of marks? Length of marks is five, five is three, two five is
+ 
+
+00:12:49.200 --> 00:12:51.710 align:start position:0%
+What will be the length of marks? Length of marks is five, five is three, two five is
+five, <00:12:49.440><c>so </c><00:12:49.680><c>what </c><00:12:49.920><c>will </c><00:12:50.160><c>be </c><00:12:50.400><c>5 </c><00:12:50.640><c>- </c><00:12:50.880><c>1, </c><00:12:51.120><c>it </c><00:12:51.360><c>will </c><00:12:51.600><c>be</c>
+
+00:12:51.710 --> 00:12:51.720 align:start position:0%
+five, so what will be 5 - 1, it will be
+ 
+
+00:12:51.720 --> 00:12:53.569 align:start position:0%
+five, so what will be 5 - 1, it will be
+four. <00:12:52.154><c>Okay, </c><00:12:52.588><c>because </c><00:12:53.022><c>five </c><00:12:53.456><c>minus</c>
+
+00:12:53.569 --> 00:12:53.579 align:start position:0%
+four. Okay, because five minus
+ 
+
+00:12:53.579 --> 00:12:55.970 align:start position:0%
+four. Okay, because five minus
+van <00:12:53.754><c>is </c><00:12:53.929><c>four, </c><00:12:54.104><c>that </c><00:12:54.279><c>is </c><00:12:54.454><c>why </c><00:12:54.629><c>here </c><00:12:54.804><c>I </c><00:12:54.979><c>will </c><00:12:55.154><c>change </c><00:12:55.329><c>it </c><00:12:55.504><c>to </c><00:12:55.679><c>van </c><00:12:55.854><c>four.</c>
+
+00:12:55.970 --> 00:12:55.980 align:start position:0%
+van is four, that is why here I will change it to van four.
+ 
+
+00:12:55.980 --> 00:12:58.069 align:start position:0%
+van is four, that is why here I will change it to van four.
+Okay, <00:12:56.400><c>I </c><00:12:56.820><c>made </c><00:12:57.240><c>it </c><00:12:57.660><c>marks</c>
+
+00:12:58.069 --> 00:12:58.079 align:start position:0%
+Okay, I made it marks
+ 
+
+00:12:58.079 --> 00:13:00.050 align:start position:0%
+Okay, I made it marks
+van <00:12:58.439><c>four, </c><00:12:58.799><c>van </c><00:12:59.159><c>four. </c><00:12:59.519><c>If </c><00:12:59.879><c>I</c>
+
+00:13:00.050 --> 00:13:00.060 align:start position:0%
+van four, van four. If I
+ 
+
+00:13:00.060 --> 00:13:01.970 align:start position:0%
+van four, van four. If I
+do <00:13:00.216><c>this, </c><00:13:00.372><c>then </c><00:13:00.528><c>it </c><00:13:00.684><c>will </c><00:13:00.840><c>start </c><00:13:00.996><c>from </c><00:13:01.152><c>van </c><00:13:01.308><c>and </c><00:13:01.464><c>4 </c><00:13:01.620><c>will</c>
+
+00:13:01.970 --> 00:13:01.980 align:start position:0%
+do this, then it will start from van and 4 will
+ 
+
+00:13:01.980 --> 00:13:04.790 align:start position:0%
+do this, then it will start from van and 4 will
+not <00:13:02.220><c>be </c><00:13:02.460><c>included. </c><00:13:02.700><c>So, </c><00:13:02.940><c>I </c><00:13:03.180><c>will </c><00:13:03.420><c>get </c><00:13:03.660><c>to </c><00:13:03.900><c>see </c><00:13:04.140><c>56 </c><00:13:04.380><c>and </c><00:13:04.620><c>Hari</c>
+
+00:13:04.790 --> 00:13:04.800 align:start position:0%
+not be included. So, I will get to see 56 and Hari
+ 
+
+00:13:04.800 --> 00:13:06.889 align:start position:0%
+not be included. So, I will get to see 56 and Hari
+here. <00:13:05.240><c>You </c><00:13:05.680><c>guys </c><00:13:06.120><c>see,</c>
+
+00:13:06.889 --> 00:13:06.899 align:start position:0%
+here. You guys see,
+ 
+
+00:13:06.899 --> 00:13:09.110 align:start position:0%
+here. You guys see,
+I <00:13:07.064><c>will </c><00:13:07.229><c>get </c><00:13:07.394><c>to </c><00:13:07.559><c>see </c><00:13:07.724><c>56 </c><00:13:07.889><c>and </c><00:13:08.054><c>Hari. </c><00:13:08.219><c>Okay, </c><00:13:08.384><c>so </c><00:13:08.549><c>this </c><00:13:08.714><c>is </c><00:13:08.879><c>how</c>
+
+00:13:09.110 --> 00:13:09.120 align:start position:0%
+I will get to see 56 and Hari. Okay, so this is how
+ 
+
+00:13:09.120 --> 00:13:10.730 align:start position:0%
+I will get to see 56 and Hari. Okay, so this is how
+we <00:13:09.372><c>did </c><00:13:09.624><c>it, </c><00:13:09.876><c>just </c><00:13:10.128><c>like </c><00:13:10.380><c>we</c>
+
+00:13:10.730 --> 00:13:10.740 align:start position:0%
+we did it, just like we
+ 
+
+00:13:10.740 --> 00:13:12.230 align:start position:0%
+we did it, just like we
+saw <00:13:10.906><c>in </c><00:13:11.072><c>Spring.  </c><00:13:11.238><c>We </c><00:13:11.404><c>can </c><00:13:11.570><c>do </c><00:13:11.736><c>slicing, </c><00:13:11.902><c>okay, </c><00:13:12.068><c>there </c><00:13:12.234><c>is</c>
+
+00:13:12.230 --> 00:13:12.240 align:start position:0%
+saw in Spring.  We can do slicing, okay, there is
+ 
+
+00:13:12.240 --> 00:13:14.449 align:start position:0%
+saw in Spring.  We can do slicing, okay, there is
+also <00:13:12.589><c>the </c><00:13:12.938><c>concept </c><00:13:13.287><c>of </c><00:13:13.636><c>a </c><00:13:13.985><c>jump </c><00:13:14.334><c>index,</c>
+
+00:13:14.449 --> 00:13:14.459 align:start position:0%
+also the concept of a jump index,
+ 
+
+00:13:14.459 --> 00:13:17.150 align:start position:0%
+also the concept of a jump index,
+if <00:13:14.869><c>I </c><00:13:15.279><c>change </c><00:13:15.689><c>the </c><00:13:16.099><c>jump </c><00:13:16.509><c>index </c><00:13:16.919><c>to</c>
+
+00:13:17.150 --> 00:13:17.160 align:start position:0%
+if I change the jump index to
+ 
+
+00:13:17.160 --> 00:13:20.629 align:start position:0%
+if I change the jump index to
+142, <00:13:17.639><c>then </c><00:13:18.118><c>what </c><00:13:18.597><c>will </c><00:13:19.076><c>happen </c><00:13:19.555><c>is </c><00:13:20.034><c>that </c><00:13:20.513><c>in</c>
+
+00:13:20.629 --> 00:13:20.639 align:start position:0%
+142, then what will happen is that in
+ 
+
+00:13:20.639 --> 00:13:22.850 align:start position:0%
+142, then what will happen is that in
+my <00:13:21.119><c>original </c><00:13:21.599><c>marks, </c><00:13:22.079><c>it </c><00:13:22.559><c>will</c>
+
+00:13:22.850 --> 00:13:22.860 align:start position:0%
+my original marks, it will
+ 
+
+00:13:22.860 --> 00:13:25.250 align:start position:0%
+my original marks, it will
+start <00:13:23.129><c>taking </c><00:13:23.398><c>the </c><00:13:23.667><c>values ​​</c><00:13:23.936><c>one </c><00:13:24.205><c>by </c><00:13:24.474><c>one </c><00:13:24.743><c>by </c><00:13:25.012><c>jumping,</c>
+
+00:13:25.250 --> 00:13:25.260 align:start position:0%
+start taking the values ​​one by one by jumping,
+ 
+
+00:13:25.260 --> 00:13:27.170 align:start position:0%
+start taking the values ​​one by one by jumping,
+so <00:13:25.860><c>look, </c><00:13:26.460><c>it </c><00:13:27.060><c>will</c>
+
+00:13:27.170 --> 00:13:27.180 align:start position:0%
+so look, it will
+ 
+
+00:13:27.180 --> 00:13:29.150 align:start position:0%
+so look, it will
+first <00:13:27.305><c>do </c><00:13:27.430><c>the </c><00:13:27.555><c>slicing </c><00:13:27.680><c>from </c><00:13:27.805><c>1 </c><00:13:27.930><c>to </c><00:13:28.055><c>4, </c><00:13:28.180><c>okay, </c><00:13:28.305><c>so </c><00:13:28.430><c>from </c><00:13:28.555><c>1 </c><00:13:28.680><c>to</c>
+
+00:13:29.150 --> 00:13:29.160 align:start position:0%
+first do the slicing from 1 to 4, okay, so from 1 to
+ 
+
+00:13:29.160 --> 00:13:30.829 align:start position:0%
+first do the slicing from 1 to 4, okay, so from 1 to
+4, <00:13:29.339><c>first </c><00:13:29.518><c>of </c><00:13:29.697><c>all, </c><00:13:29.876><c>this </c><00:13:30.055><c>A </c><00:13:30.234><c>will </c><00:13:30.413><c>go </c><00:13:30.592><c>five, </c><00:13:30.771><c>six</c>
+
+00:13:30.829 --> 00:13:30.839 align:start position:0%
+4, first of all, this A will go five, six
+ 
+
+00:13:30.839 --> 00:13:33.290 align:start position:0%
+4, first of all, this A will go five, six
+and <00:13:31.619><c>Harry, </c><00:13:32.399><c>okay, </c><00:13:33.179><c>then</c>
+
+00:13:33.290 --> 00:13:33.300 align:start position:0%
+and Harry, okay, then
+ 
+
+00:13:33.300 --> 00:13:35.690 align:start position:0%
+and Harry, okay, then
+what <00:13:33.484><c>will </c><00:13:33.668><c>it </c><00:13:33.852><c>do, </c><00:13:34.036><c>first </c><00:13:34.220><c>of </c><00:13:34.404><c>all </c><00:13:34.588><c>it </c><00:13:34.772><c>will </c><00:13:34.956><c>take </c><00:13:35.140><c>the </c><00:13:35.324><c>first </c><00:13:35.508><c>value,</c>
+
+00:13:35.690 --> 00:13:35.700 align:start position:0%
+what will it do, first of all it will take the first value,
+ 
+
+00:13:35.700 --> 00:13:39.410 align:start position:0%
+what will it do, first of all it will take the first value,
+okay, <00:13:36.073><c>then </c><00:13:36.446><c>it </c><00:13:36.819><c>will </c><00:13:37.192><c>take </c><00:13:37.565><c>this, </c><00:13:37.938><c>then </c><00:13:38.311><c>it </c><00:13:38.684><c>will </c><00:13:39.057><c>keep</c>
+
+00:13:39.410 --> 00:13:39.420 align:start position:0%
+okay, then it will take this, then it will keep
+ 
+
+00:13:39.420 --> 00:13:41.509 align:start position:0%
+okay, then it will take this, then it will keep
+taking <00:13:39.599><c>like </c><00:13:39.778><c>this, </c><00:13:39.957><c>okay, </c><00:13:40.136><c>after </c><00:13:40.315><c>doing </c><00:13:40.494><c>1 </c><00:13:40.673><c>and </c><00:13:40.852><c>2 </c><00:13:41.031><c>here, </c><00:13:41.210><c>it </c><00:13:41.389><c>is</c>
+
+00:13:41.509 --> 00:13:41.519 align:start position:0%
+taking like this, okay, after doing 1 and 2 here, it is
+ 
+
+00:13:41.519 --> 00:13:44.150 align:start position:0%
+taking like this, okay, after doing 1 and 2 here, it is
+finished, <00:13:41.999><c>hence </c><00:13:42.479><c>5 </c><00:13:42.959><c>and </c><00:13:43.439><c>Hari</c>
+
+00:13:44.150 --> 00:13:44.160 align:start position:0%
+finished, hence 5 and Hari
+ 
+
+00:13:44.160 --> 00:13:46.129 align:start position:0%
+finished, hence 5 and Hari
+came <00:13:44.366><c>here, </c><00:13:44.572><c>to </c><00:13:44.778><c>understand </c><00:13:44.984><c>this </c><00:13:45.190><c>a </c><00:13:45.396><c>little </c><00:13:45.602><c>better, </c><00:13:45.808><c>let </c><00:13:46.014><c>me</c>
+
+00:13:46.129 --> 00:13:47.930 align:start position:0%
+came here, to understand this a little better, let me
+ 
+
+00:13:47.930 --> 00:13:47.940 align:start position:0%
+ 
+ 
+
+00:13:47.940 --> 00:13:50.750 align:start position:0%
+ 
+explain <00:13:48.027><c>it </c><00:13:48.114><c>to </c><00:13:48.201><c>you </c><00:13:48.288><c>guys </c><00:13:48.375><c>a </c><00:13:48.462><c>little </c><00:13:48.549><c>more </c><00:13:48.636><c>clearly, </c><00:13:48.723><c>you </c><00:13:48.810><c>see, </c><00:13:48.897><c>here</c>
+
+00:13:50.750 --> 00:13:50.760 align:start position:0%
+explain it to you guys a little more clearly, you see, here
+ 
+
+00:13:50.760 --> 00:13:52.490 align:start position:0%
+explain it to you guys a little more clearly, you see, here
+I <00:13:51.030><c>have </c><00:13:51.300><c>increased </c><00:13:51.570><c>a </c><00:13:51.840><c>few </c><00:13:52.110><c>more </c><00:13:52.380><c>values</c>
+
+00:13:52.490 --> 00:13:52.500 align:start position:0%
+I have increased a few more values
+ 
+
+00:13:52.500 --> 00:13:54.710 align:start position:0%
+I have increased a few more values
+inside <00:13:52.666><c>it, </c><00:13:52.832><c>so </c><00:13:52.998><c>see, </c><00:13:53.164><c>if </c><00:13:53.330><c>I </c><00:13:53.496><c>run </c><00:13:53.662><c>this </c><00:13:53.828><c>also, </c><00:13:53.994><c>then</c>
+
+00:13:54.710 --> 00:13:54.720 align:start position:0%
+inside it, so see, if I run this also, then
+ 
+
+00:13:54.720 --> 00:13:56.810 align:start position:0%
+inside it, so see, if I run this also, then
+see <00:13:54.940><c>what </c><00:13:55.160><c>I </c><00:13:55.380><c>get </c><00:13:55.600><c>here, </c><00:13:55.820><c>first </c><00:13:56.040><c>of </c><00:13:56.260><c>all, </c><00:13:56.480><c>I </c><00:13:56.700><c>will</c>
+
+00:13:56.810 --> 00:13:56.820 align:start position:0%
+see what I get here, first of all, I will
+ 
+
+00:13:56.820 --> 00:13:58.310 align:start position:0%
+see what I get here, first of all, I will
+get <00:13:57.017><c>the </c><00:13:57.214><c>marks </c><00:13:57.411><c>which </c><00:13:57.608><c>are </c><00:13:57.805><c>the </c><00:13:58.002><c>complete </c><00:13:58.199><c>marks,</c>
+
+00:13:58.310 --> 00:13:58.320 align:start position:0%
+get the marks which are the complete marks,
+ 
+
+00:13:58.320 --> 00:14:00.769 align:start position:0%
+get the marks which are the complete marks,
+then <00:13:58.575><c>marks </c><00:13:58.830><c>one </c><00:13:59.085><c>minus </c><00:13:59.340><c>van, </c><00:13:59.595><c>that </c><00:13:59.850><c>means </c><00:14:00.105><c>marks </c><00:14:00.360><c>one</c>
+
+00:14:00.769 --> 00:14:00.779 align:start position:0%
+then marks one minus van, that means marks one
+ 
+
+00:14:00.779 --> 00:14:04.190 align:start position:0%
+then marks one minus van, that means marks one
+and <00:14:01.145><c>four, </c><00:14:01.511><c>not </c><00:14:01.877><c>even </c><00:14:02.243><c>sorry, </c><00:14:02.609><c>the </c><00:14:02.975><c>length </c><00:14:03.341><c>has </c><00:14:03.707><c>just </c><00:14:04.073><c>changed,</c>
+
+00:14:04.190 --> 00:14:04.200 align:start position:0%
+and four, not even sorry, the length has just changed,
+ 
+
+00:14:04.200 --> 00:14:07.990 align:start position:0%
+and four, not even sorry, the length has just changed,
+so <00:14:04.810><c>its </c><00:14:05.420><c>length </c><00:14:06.030><c>is </c><00:14:06.640><c>-1, </c><00:14:07.250><c>okay, </c><00:14:07.860><c>so</c>
+
+00:14:07.990 --> 00:14:08.000 align:start position:0%
+so its length is -1, okay, so
+ 
+
+00:14:08.000 --> 00:14:11.389 align:start position:0%
+so its length is -1, okay, so
+whatever <00:14:08.371><c>it </c><00:14:08.742><c>is, </c><00:14:09.113><c>it </c><00:14:09.484><c>is </c><00:14:09.855><c>fine.  </c><00:14:10.226><c>I </c><00:14:10.597><c>will </c><00:14:10.968><c>subtract </c><00:14:11.339><c>one</c>
+
+00:14:11.389 --> 00:14:11.399 align:start position:0%
+whatever it is, it is fine.  I will subtract one
+ 
+
+00:14:11.399 --> 00:14:13.970 align:start position:0%
+whatever it is, it is fine.  I will subtract one
+here, <00:14:11.809><c>I </c><00:14:12.219><c>will </c><00:14:12.629><c>make </c><00:14:13.039><c>it </c><00:14:13.449><c>van </c><00:14:13.859><c>you</c>
+
+00:14:13.970 --> 00:14:13.980 align:start position:0%
+here, I will make it van you
+ 
+
+00:14:13.980 --> 00:14:17.150 align:start position:0%
+here, I will make it van you
+zero <00:14:14.332><c>van </c><00:14:14.684><c>you </c><00:14:15.036><c>three </c><00:14:15.388><c>four </c><00:14:15.740><c>five </c><00:14:16.092><c>six </c><00:14:16.444><c>seven </c><00:14:16.796><c>eight</c>
+
+00:14:17.150 --> 00:14:17.160 align:start position:0%
+zero van you three four five six seven eight
+ 
+
+00:14:17.160 --> 00:14:20.150 align:start position:0%
+zero van you three four five six seven eight
+han <00:14:17.480><c>okay </c><00:14:17.800><c>this </c><00:14:18.120><c>will </c><00:14:18.440><c>come </c><00:14:18.760><c>out </c><00:14:19.080><c>now </c><00:14:19.400><c>see </c><00:14:19.720><c>1 </c><00:14:20.040><c>2</c>
+
+00:14:20.150 --> 00:14:20.160 align:start position:0%
+han okay this will come out now see 1 2
+ 
+
+00:14:20.160 --> 00:14:22.129 align:start position:0%
+han okay this will come out now see 1 2
+8 <00:14:20.304><c>first </c><00:14:20.448><c>of </c><00:14:20.592><c>all </c><00:14:20.736><c>it </c><00:14:20.880><c>will </c><00:14:21.024><c>do </c><00:14:21.168><c>marks </c><00:14:21.312><c>128 </c><00:14:21.456><c>I </c><00:14:21.600><c>will </c><00:14:21.744><c>make </c><00:14:21.888><c>it</c>
+
+00:14:22.129 --> 00:14:22.139 align:start position:0%
+8 first of all it will do marks 128 I will make it
+ 
+
+00:14:22.139 --> 00:14:24.710 align:start position:0%
+8 first of all it will do marks 128 I will make it
+80 <00:14:22.539><c>here </c><00:14:22.939><c>so </c><00:14:23.339><c>that </c><00:14:23.739><c>I </c><00:14:24.139><c>can </c><00:14:24.539><c>see</c>
+
+00:14:24.710 --> 00:14:24.720 align:start position:0%
+80 here so that I can see
+ 
+
+00:14:24.720 --> 00:14:27.050 align:start position:0%
+80 here so that I can see
+how <00:14:25.005><c>much </c><00:14:25.290><c>is </c><00:14:25.575><c>marks </c><00:14:25.860><c>128</c>
+
+00:14:27.050 --> 00:14:27.060 align:start position:0%
+how much is marks 128
+ 
+
+00:14:27.060 --> 00:14:29.449 align:start position:0%
+how much is marks 128
+okay <00:14:27.539><c>so </c><00:14:28.018><c>here </c><00:14:28.497><c>I </c><00:14:28.976><c>am </c><00:14:29.455><c>changing</c>
+
+00:14:29.449 --> 00:14:29.459 align:start position:0%
+okay so here I am changing
+ 
+
+00:14:29.459 --> 00:14:31.389 align:start position:0%
+okay so here I am changing
+its <00:14:29.639><c>box</c>
+
+00:14:31.389 --> 00:14:31.399 align:start position:0%
+its box
+ 
+
+00:14:31.399 --> 00:14:34.610 align:start position:0%
+its box
+1282 <00:14:31.756><c>672 </c><00:14:32.113><c>now </c><00:14:32.470><c>because </c><00:14:32.827><c>here </c><00:14:33.184><c>I </c><00:14:33.541><c>have </c><00:14:33.898><c>given </c><00:14:34.255><c>jump</c>
+
+00:14:34.610 --> 00:14:34.620 align:start position:0%
+1282 672 now because here I have given jump
+ 
+
+00:14:34.620 --> 00:14:35.930 align:start position:0%
+1282 672 now because here I have given jump
+index <00:14:34.718><c>2 </c><00:14:34.816><c>so </c><00:14:34.914><c>what </c><00:14:35.012><c>will </c><00:14:35.110><c>it </c><00:14:35.208><c>do </c><00:14:35.306><c>first </c><00:14:35.404><c>of </c><00:14:35.502><c>all </c><00:14:35.600><c>it </c><00:14:35.698><c>will</c>
+
+00:14:35.930 --> 00:14:35.940 align:start position:0%
+index 2 so what will it do first of all it will
+ 
+
+00:14:35.940 --> 00:14:38.930 align:start position:0%
+index 2 so what will it do first of all it will
+print <00:14:36.152><c>five </c><00:14:36.364><c>then </c><00:14:36.576><c>it </c><00:14:36.788><c>will </c><00:14:37.000><c>print </c><00:14:37.212><c>one </c><00:14:37.424><c>two </c><00:14:37.636><c>harry </c><00:14:37.848><c>then </c><00:14:38.060><c>it </c><00:14:38.272><c>will</c>
+
+00:14:38.930 --> 00:14:38.940 align:start position:0%
+print five then it will print one two harry then it will
+ 
+
+00:14:38.940 --> 00:14:40.730 align:start position:0%
+print five then it will print one two harry then it will
+print <00:14:39.200><c>one </c><00:14:39.460><c>two </c><00:14:39.720><c>six </c><00:14:39.980><c>then </c><00:14:40.240><c>it </c><00:14:40.500><c>will</c>
+
+00:14:40.730 --> 00:14:40.740 align:start position:0%
+print one two six then it will
+ 
+
+00:14:40.740 --> 00:14:42.170 align:start position:0%
+print one two six then it will
+print <00:14:41.180><c>one </c><00:14:41.620><c>two </c><00:14:42.060><c>tu</c>
+
+00:14:42.170 --> 00:14:42.180 align:start position:0%
+print one two tu
+ 
+
+00:14:42.180 --> 00:14:44.629 align:start position:0%
+print one two tu
+if <00:14:42.479><c>the </c><00:14:42.778><c>jump </c><00:14:43.077><c>index </c><00:14:43.376><c>is </c><00:14:43.675><c>made </c><00:14:43.974><c>three </c><00:14:44.273><c>done </c><00:14:44.572><c>then</c>
+
+00:14:44.629 --> 00:14:44.639 align:start position:0%
+if the jump index is made three done then
+ 
+
+00:14:44.639 --> 00:14:46.610 align:start position:0%
+if the jump index is made three done then
+what <00:14:44.801><c>will </c><00:14:44.963><c>it </c><00:14:45.125><c>do </c><00:14:45.287><c>it </c><00:14:45.449><c>will </c><00:14:45.611><c>jump </c><00:14:45.773><c>three </c><00:14:45.935><c>times </c><00:14:46.097><c>I </c><00:14:46.259><c>will</c>
+
+00:14:46.610 --> 00:14:46.620 align:start position:0%
+what will it do it will jump three times I will
+ 
+
+00:14:46.620 --> 00:14:48.650 align:start position:0%
+what will it do it will jump three times I will
+show <00:14:46.826><c>you </c><00:14:47.032><c>how </c><00:14:47.238><c>first </c><00:14:47.444><c>of </c><00:14:47.650><c>all </c><00:14:47.856><c>what </c><00:14:48.062><c>will </c><00:14:48.268><c>I </c><00:14:48.474><c>get</c>
+
+00:14:48.650 --> 00:14:48.660 align:start position:0%
+show you how first of all what will I get
+ 
+
+00:14:48.660 --> 00:14:50.810 align:start position:0%
+show you how first of all what will I get
+to <00:14:48.814><c>see </c><00:14:48.968><c>first </c><00:14:49.122><c>of </c><00:14:49.276><c>all </c><00:14:49.430><c>it </c><00:14:49.584><c>will </c><00:14:49.738><c>fetch </c><00:14:49.892><c>the </c><00:14:50.046><c>value </c><00:14:50.200><c>of </c><00:14:50.354><c>marks </c><00:14:50.508><c>18</c>
+
+00:14:50.810 --> 00:14:50.820 align:start position:0%
+to see first of all it will fetch the value of marks 18
+ 
+
+00:14:50.820 --> 00:14:52.910 align:start position:0%
+to see first of all it will fetch the value of marks 18
+here <00:14:51.315><c>see </c><00:14:51.810><c>this </c><00:14:52.305><c>is </c><00:14:52.800><c>the</c>
+
+00:14:52.910 --> 00:14:52.920 align:start position:0%
+here see this is the
+ 
+
+00:14:52.920 --> 00:14:54.710 align:start position:0%
+here see this is the
+value <00:14:53.072><c>of </c><00:14:53.224><c>my </c><00:14:53.376><c>marks </c><00:14:53.528><c>18 </c><00:14:53.680><c>whenever </c><00:14:53.832><c>you </c><00:14:53.984><c>want </c><00:14:54.136><c>to </c><00:14:54.288><c>solve </c><00:14:54.440><c>such </c><00:14:54.592><c>question</c>
+
+00:14:54.710 --> 00:14:54.720 align:start position:0%
+value of my marks 18 whenever you want to solve such question
+ 
+
+00:14:54.720 --> 00:14:57.230 align:start position:0%
+value of my marks 18 whenever you want to solve such question
+first <00:14:55.154><c>of </c><00:14:55.588><c>all </c><00:14:56.022><c>you </c><00:14:56.456><c>do</c>
+
+00:14:57.230 --> 00:14:57.240 align:start position:0%
+first of all you do
+ 
+
+00:14:57.240 --> 00:15:00.050 align:start position:0%
+first of all you do
+slicing <00:14:57.639><c>marks </c><00:14:58.038><c>van </c><00:14:58.437><c>colon </c><00:14:58.836><c>and </c><00:14:59.235><c>find </c><00:14:59.634><c>out</c>
+
+00:15:00.050 --> 00:15:00.060 align:start position:0%
+slicing marks van colon and find out
+ 
+
+00:15:00.060 --> 00:15:01.970 align:start position:0%
+slicing marks van colon and find out
+how <00:15:00.277><c>much </c><00:15:00.494><c>is </c><00:15:00.711><c>my </c><00:15:00.928><c>this </c><00:15:01.145><c>is </c><00:15:01.362><c>marks </c><00:15:01.579><c>van </c><00:15:01.796><c>column</c>
+
+00:15:01.970 --> 00:15:01.980 align:start position:0%
+how much is my this is marks van column
+ 
+
+00:15:01.980 --> 00:15:04.370 align:start position:0%
+how much is my this is marks van column
+now <00:15:02.220><c>see </c><00:15:02.460><c>what </c><00:15:02.700><c>I </c><00:15:02.940><c>will </c><00:15:03.180><c>do </c><00:15:03.420><c>because</c>
+
+00:15:04.370 --> 00:15:04.380 align:start position:0%
+now see what I will do because
+ 
+
+00:15:04.380 --> 00:15:06.170 align:start position:0%
+now see what I will do because
+van <00:15:04.575><c>column </c><00:15:04.770><c>is </c><00:15:04.965><c>net </c><00:15:05.160><c>colon </c><00:15:05.355><c>three </c><00:15:05.550><c>so </c><00:15:05.745><c>my </c><00:15:05.940><c>jump</c>
+
+00:15:06.170 --> 00:15:06.180 align:start position:0%
+van column is net colon three so my jump
+ 
+
+00:15:06.180 --> 00:15:07.850 align:start position:0%
+van column is net colon three so my jump
+index <00:15:06.290><c>is </c><00:15:06.400><c>3 </c><00:15:06.510><c>so </c><00:15:06.620><c>first </c><00:15:06.730><c>of </c><00:15:06.840><c>all </c><00:15:06.950><c>I  </c><00:15:07.060><c>I </c><00:15:07.170><c>will </c><00:15:07.280><c>take </c><00:15:07.390><c>the </c><00:15:07.500><c>first</c>
+
+00:15:07.850 --> 00:15:07.860 align:start position:0%
+index is 3 so first of all I  I will take the first
+ 
+
+00:15:07.860 --> 00:15:09.590 align:start position:0%
+index is 3 so first of all I  I will take the first
+value, <00:15:08.057><c>okay, </c><00:15:08.254><c>I </c><00:15:08.451><c>took </c><00:15:08.648><c>it, </c><00:15:08.845><c>then </c><00:15:09.042><c>one, </c><00:15:09.239><c>two,</c>
+
+00:15:09.590 --> 00:15:09.600 align:start position:0%
+value, okay, I took it, then one, two,
+ 
+
+00:15:09.600 --> 00:15:11.210 align:start position:0%
+value, okay, I took it, then one, two,
+three, <00:15:09.707><c>I </c><00:15:09.814><c>will </c><00:15:09.921><c>take </c><00:15:10.028><c>this </c><00:15:10.135><c>one,</c>
+
+00:15:11.210 --> 00:15:11.220 align:start position:0%
+three, I will take this one,
+ 
+
+00:15:11.220 --> 00:15:14.150 align:start position:0%
+three, I will take this one,
+then <00:15:13.980><c>123,</c>
+
+00:15:14.150 --> 00:15:14.160 align:start position:0%
+then 123,
+ 
+
+00:15:14.160 --> 00:15:15.949 align:start position:0%
+then 123,
+now <00:15:14.495><c>I </c><00:15:14.830><c>cannot </c><00:15:15.165><c>go </c><00:15:15.500><c>further </c><00:15:15.835><c>because</c>
+
+00:15:15.949 --> 00:15:15.959 align:start position:0%
+now I cannot go further because
+ 
+
+00:15:15.959 --> 00:15:18.230 align:start position:0%
+now I cannot go further because
+I <00:15:16.157><c>cannot </c><00:15:16.355><c>go </c><00:15:16.553><c>further, </c><00:15:16.751><c>so </c><00:15:16.949><c>there </c><00:15:17.147><c>is </c><00:15:17.345><c>no </c><00:15:17.543><c>point </c><00:15:17.741><c>in </c><00:15:17.939><c>it,</c>
+
+00:15:18.230 --> 00:15:18.240 align:start position:0%
+I cannot go further, so there is no point in it,
+ 
+
+00:15:18.240 --> 00:15:19.850 align:start position:0%
+I cannot go further, so there is no point in it,
+okay, <00:15:18.528><c>if </c><00:15:18.816><c>I </c><00:15:19.104><c>make </c><00:15:19.392><c>it </c><00:15:19.680><c>nine,</c>
+
+00:15:19.850 --> 00:15:19.860 align:start position:0%
+okay, if I make it nine,
+ 
+
+00:15:19.860 --> 00:15:21.350 align:start position:0%
+okay, if I make it nine,
+I <00:15:20.124><c>will </c><00:15:20.388><c>make </c><00:15:20.652><c>it </c><00:15:20.916><c>nine </c><00:15:21.180><c>and</c>
+
+00:15:21.350 --> 00:15:21.360 align:start position:0%
+I will make it nine and
+ 
+
+00:15:21.360 --> 00:15:24.170 align:start position:0%
+I will make it nine and
+show <00:15:21.549><c>you, </c><00:15:21.738><c>I </c><00:15:21.927><c>will </c><00:15:22.116><c>make </c><00:15:22.305><c>it </c><00:15:22.494><c>nine </c><00:15:22.683><c>here </c><00:15:22.872><c>also, </c><00:15:23.061><c>done </c><00:15:23.250><c>and </c><00:15:23.439><c>run </c><00:15:23.628><c>it,</c>
+
+00:15:24.170 --> 00:15:26.090 align:start position:0%
+show you, I will make it nine here also, done and run it,
+ 
+
+00:15:26.090 --> 00:15:26.100 align:start position:0%
+ 
+ 
+
+00:15:26.100 --> 00:15:27.829 align:start position:0%
+ 
+what <00:15:26.262><c>will </c><00:15:26.424><c>be </c><00:15:26.586><c>the </c><00:15:26.748><c>value </c><00:15:26.910><c>of </c><00:15:27.072><c>van </c><00:15:27.234><c>column </c><00:15:27.396><c>nine, </c><00:15:27.558><c>marks, </c><00:15:27.720><c>van</c>
+
+00:15:27.829 --> 00:15:27.839 align:start position:0%
+what will be the value of van column nine, marks, van
+ 
+
+00:15:27.839 --> 00:15:30.050 align:start position:0%
+what will be the value of van column nine, marks, van
+column <00:15:28.109><c>nine </c><00:15:28.379><c>will </c><00:15:28.649><c>be </c><00:15:28.919><c>this, </c><00:15:29.189><c>okay, </c><00:15:29.459><c>now </c><00:15:29.729><c>when </c><00:15:29.999><c>the</c>
+
+00:15:30.050 --> 00:15:30.060 align:start position:0%
+column nine will be this, okay, now when the
+ 
+
+00:15:30.060 --> 00:15:32.449 align:start position:0%
+column nine will be this, okay, now when the
+index <00:15:30.468><c>is </c><00:15:30.876><c>three, </c><00:15:31.284><c>first </c><00:15:31.692><c>punch </c><00:15:32.100><c>will</c>
+
+00:15:32.449 --> 00:15:32.459 align:start position:0%
+index is three, first punch will
+ 
+
+00:15:32.459 --> 00:15:35.269 align:start position:0%
+index is three, first punch will
+come, <00:15:32.745><c>one, </c><00:15:33.031><c>two, </c><00:15:33.317><c>three, </c><00:15:33.603><c>then </c><00:15:33.889><c>true </c><00:15:34.175><c>will </c><00:15:34.461><c>come, </c><00:15:34.747><c>one, </c><00:15:35.033><c>two,</c>
+
+00:15:35.269 --> 00:15:35.279 align:start position:0%
+come, one, two, three, then true will come, one, two,
+ 
+
+00:15:35.279 --> 00:15:37.730 align:start position:0%
+come, one, two, three, then true will come, one, two,
+three, <00:15:35.679><c>I </c><00:15:36.079><c>cannot </c><00:15:36.479><c>go </c><00:15:36.879><c>in, </c><00:15:37.279><c>I </c><00:15:37.679><c>will</c>
+
+00:15:37.730 --> 00:15:37.740 align:start position:0%
+three, I cannot go in, I will
+ 
+
+00:15:37.740 --> 00:15:39.889 align:start position:0%
+three, I cannot go in, I will
+stop, <00:15:38.031><c>this </c><00:15:38.322><c>is </c><00:15:38.613><c>why </c><00:15:38.904><c>we </c><00:15:39.195><c>will </c><00:15:39.486><c>see </c><00:15:39.777><c>this,</c>
+
+00:15:39.889 --> 00:15:39.899 align:start position:0%
+stop, this is why we will see this,
+ 
+
+00:15:39.899 --> 00:15:41.870 align:start position:0%
+stop, this is why we will see this,
+okay, <00:15:40.179><c>so </c><00:15:40.459><c>in </c><00:15:40.739><c>this </c><00:15:41.019><c>way </c><00:15:41.299><c>the </c><00:15:41.579><c>jump</c>
+
+00:15:41.870 --> 00:15:41.880 align:start position:0%
+okay, so in this way the jump
+ 
+
+00:15:41.880 --> 00:15:44.090 align:start position:0%
+okay, so in this way the jump
+reduces <00:15:42.162><c>the </c><00:15:42.444><c>index, </c><00:15:42.726><c>I </c><00:15:43.008><c>hope </c><00:15:43.290><c>you </c><00:15:43.572><c>guys </c><00:15:43.854><c>understood,</c>
+
+00:15:44.090 --> 00:15:44.100 align:start position:0%
+reduces the index, I hope you guys understood,
+ 
+
+00:15:44.100 --> 00:15:45.710 align:start position:0%
+reduces the index, I hope you guys understood,
+okay, <00:15:44.412><c>read </c><00:15:44.724><c>this, </c><00:15:45.036><c>what </c><00:15:45.348><c>I </c><00:15:45.660><c>have</c>
+
+00:15:45.710 --> 00:15:45.720 align:start position:0%
+okay, read this, what I have
+ 
+
+00:15:45.720 --> 00:15:47.870 align:start position:0%
+okay, read this, what I have
+explained <00:15:45.878><c>here, </c><00:15:46.036><c>the </c><00:15:46.194><c>growth </c><00:15:46.352><c>rate, </c><00:15:46.510><c>okay, </c><00:15:46.668><c>you </c><00:15:46.826><c>will </c><00:15:46.984><c>like </c><00:15:47.142><c>it, </c><00:15:47.300><c>you </c><00:15:47.458><c>will</c>
+
+00:15:47.870 --> 00:15:47.880 align:start position:0%
+explained here, the growth rate, okay, you will like it, you will
+ 
+
+00:15:47.880 --> 00:15:50.269 align:start position:0%
+explained here, the growth rate, okay, you will like it, you will
+understand, <00:15:48.375><c>okay, </c><00:15:48.870><c>now </c><00:15:49.365><c>this </c><00:15:49.860><c>positive</c>
+
+00:15:50.269 --> 00:15:50.279 align:start position:0%
+understand, okay, now this positive
+ 
+
+00:15:50.279 --> 00:15:52.009 align:start position:0%
+understand, okay, now this positive
+and <00:15:50.435><c>discuss, </c><00:15:50.591><c>if </c><00:15:50.747><c>you </c><00:15:50.903><c>keep </c><00:15:51.059><c>it </c><00:15:51.215><c>like </c><00:15:51.371><c>this, </c><00:15:51.527><c>then </c><00:15:51.683><c>you </c><00:15:51.839><c>will</c>
+
+00:15:52.009 --> 00:15:54.170 align:start position:0%
+and discuss, if you keep it like this, then you will
+ 
+
+00:15:54.170 --> 00:15:54.180 align:start position:0%
+ 
+ 
+
+00:15:54.180 --> 00:15:56.569 align:start position:0%
+ 
+convert <00:15:54.539><c>positive </c><00:15:54.898><c>to </c><00:15:55.257><c>negative, </c><00:15:55.616><c>okay, </c><00:15:55.975><c>if </c><00:15:56.334><c>you</c>
+
+00:15:56.569 --> 00:15:56.579 align:start position:0%
+convert positive to negative, okay, if you
+ 
+
+00:15:56.579 --> 00:15:58.430 align:start position:0%
+convert positive to negative, okay, if you
+leave <00:15:56.819><c>the </c><00:15:57.059><c>colon, </c><00:15:57.299><c>okay, </c><00:15:57.539><c>marks, </c><00:15:57.779><c>colon, </c><00:15:58.019><c>if </c><00:15:58.259><c>you</c>
+
+00:15:58.430 --> 00:15:58.440 align:start position:0%
+leave the colon, okay, marks, colon, if you
+ 
+
+00:15:58.440 --> 00:16:01.850 align:start position:0%
+leave the colon, okay, marks, colon, if you
+leave <00:15:58.758><c>it </c><00:15:59.076><c>like </c><00:15:59.394><c>this, </c><00:15:59.712><c>then </c><00:16:00.030><c>it </c><00:16:00.348><c>will </c><00:16:00.666><c>automatically </c><00:16:00.984><c>put </c><00:16:01.302><c>zero </c><00:16:01.620><c>here</c>
+
+00:16:01.850 --> 00:16:01.860 align:start position:0%
+leave it like this, then it will automatically put zero here
+ 
+
+00:16:01.860 --> 00:16:04.850 align:start position:0%
+leave it like this, then it will automatically put zero here
+and <00:16:02.075><c>here </c><00:16:02.290><c>it </c><00:16:02.505><c>will </c><00:16:02.720><c>be </c><00:16:02.935><c>len  </c><00:16:03.150><c>Lenovo </c><00:16:03.365><c>will </c><00:16:03.580><c>put </c><00:16:03.795><c>of </c><00:16:04.010><c>mass,</c>
+
+00:16:04.850 --> 00:16:04.860 align:start position:0%
+and here it will be len  Lenovo will put of mass,
+ 
+
+00:16:04.860 --> 00:16:12.290 align:start position:0%
+and here it will be len  Lenovo will put of mass,
+Lenovo, <00:16:05.670><c>okay, </c><00:16:06.480><c>sometimes</c>
+
+00:16:12.290 --> 00:16:12.300 align:start position:0%
+ 
+ 
+
+00:16:12.300 --> 00:16:14.350 align:start position:0%
+ 
+what <00:16:12.569><c>will </c><00:16:12.838><c>happen,</c>
+
+00:16:14.350 --> 00:16:14.360 align:start position:0%
+what will happen,
+ 
+
+00:16:14.360 --> 00:16:17.389 align:start position:0%
+what will happen,
+okay, <00:16:14.682><c>even </c><00:16:15.004><c>if </c><00:16:15.326><c>you </c><00:16:15.648><c>leave </c><00:16:15.970><c>it </c><00:16:16.292><c>blank </c><00:16:16.614><c>and</c>
+
+00:16:17.389 --> 00:16:17.399 align:start position:0%
+okay, even if you leave it blank and
+ 
+
+00:16:17.399 --> 00:16:20.150 align:start position:0%
+okay, even if you leave it blank and
+if <00:16:17.799><c>you </c><00:16:18.199><c>write </c><00:16:18.599><c>Main </c><00:16:18.999><c>Lo </c><00:16:19.399><c>1:7 </c><00:16:19.799><c>or</c>
+
+00:16:20.150 --> 00:16:20.160 align:start position:0%
+if you write Main Lo 1:7 or
+ 
+
+00:16:20.160 --> 00:16:22.129 align:start position:0%
+if you write Main Lo 1:7 or
+write <00:16:20.425><c>this, </c><00:16:20.690><c>empty </c><00:16:20.955><c>column </c><00:16:21.220><c>7, </c><00:16:21.485><c>then </c><00:16:21.750><c>it </c><00:16:22.015><c>will</c>
+
+00:16:22.129 --> 00:16:22.139 align:start position:0%
+write this, empty column 7, then it will
+ 
+
+00:16:22.139 --> 00:16:24.290 align:start position:0%
+write this, empty column 7, then it will
+automatically <00:16:22.571><c>put </c><00:16:23.003><c>zero </c><00:16:23.435><c>here, </c><00:16:23.867><c>okay, </c><00:16:24.299><c>so</c>
+
+00:16:24.290 --> 00:16:24.300 align:start position:0%
+automatically put zero here, okay, so
+ 
+
+00:16:24.300 --> 00:16:26.750 align:start position:0%
+automatically put zero here, okay, so
+whenever <00:16:24.679><c>you </c><00:16:25.058><c>see </c><00:16:25.437><c>something </c><00:16:25.816><c>like </c><00:16:26.195><c>this, </c><00:16:26.574><c>then</c>
+
+00:16:26.750 --> 00:16:26.760 align:start position:0%
+whenever you see something like this, then
+ 
+
+00:16:26.760 --> 00:16:28.189 align:start position:0%
+whenever you see something like this, then
+in <00:16:26.949><c>the </c><00:16:27.138><c>beginning </c><00:16:27.327><c>it </c><00:16:27.516><c>will </c><00:16:27.705><c>put </c><00:16:27.894><c>zero,</c>
+
+00:16:28.189 --> 00:16:28.199 align:start position:0%
+in the beginning it will put zero,
+ 
+
+00:16:28.199 --> 00:16:29.990 align:start position:0%
+in the beginning it will put zero,
+in <00:16:28.634><c>the </c><00:16:29.069><c>end </c><00:16:29.504><c>Lenovo </c><00:16:29.939><c>will</c>
+
+00:16:29.990 --> 00:16:30.000 align:start position:0%
+in the end Lenovo will
+ 
+
+00:16:30.000 --> 00:16:32.389 align:start position:0%
+in the end Lenovo will
+put <00:16:30.277><c>whatever </c><00:16:30.554><c>your </c><00:16:30.831><c>list </c><00:16:31.108><c>is, </c><00:16:31.385><c>okay, </c><00:16:31.662><c>I </c><00:16:31.939><c>hope </c><00:16:32.216><c>that's</c>
+
+00:16:32.389 --> 00:16:32.399 align:start position:0%
+put whatever your list is, okay, I hope that's
+ 
+
+00:16:32.399 --> 00:16:33.769 align:start position:0%
+put whatever your list is, okay, I hope that's
+not <00:16:32.744><c>confusing, </c><00:16:33.089><c>you </c><00:16:33.434><c>are </c><00:16:33.779><c>understanding,</c>
+
+00:16:33.769 --> 00:16:33.779 align:start position:0%
+not confusing, you are understanding,
+ 
+
+00:16:33.779 --> 00:16:35.990 align:start position:0%
+not confusing, you are understanding,
+okay, <00:16:34.304><c>now </c><00:16:34.829><c>here </c><00:16:35.354><c>I </c><00:16:35.879><c>have</c>
+
+00:16:35.990 --> 00:16:36.000 align:start position:0%
+okay, now here I have
+ 
+
+00:16:36.000 --> 00:16:37.910 align:start position:0%
+okay, now here I have
+given <00:16:36.372><c>many </c><00:16:36.744><c>examples, </c><00:16:37.116><c>you </c><00:16:37.488><c>guys </c><00:16:37.860><c>should</c>
+
+00:16:37.910 --> 00:16:37.920 align:start position:0%
+given many examples, you guys should
+ 
+
+00:16:37.920 --> 00:16:39.710 align:start position:0%
+given many examples, you guys should
+see <00:16:38.142><c>them, </c><00:16:38.364><c>negative </c><00:16:38.586><c>and </c><00:16:38.808><c>this </c><00:16:39.030><c>is </c><00:16:39.252><c>a </c><00:16:39.474><c>little</c>
+
+00:16:39.710 --> 00:16:39.720 align:start position:0%
+see them, negative and this is a little
+ 
+
+00:16:39.720 --> 00:16:41.269 align:start position:0%
+see them, negative and this is a little
+confusing <00:16:40.160><c>thing </c><00:16:40.600><c>also, </c><00:16:41.040><c>because</c>
+
+00:16:41.269 --> 00:16:41.279 align:start position:0%
+confusing thing also, because
+ 
+
+00:16:41.279 --> 00:16:43.490 align:start position:0%
+confusing thing also, because
+questions <00:16:41.431><c>are </c><00:16:41.583><c>asked, </c><00:16:41.735><c>what </c><00:16:41.887><c>do </c><00:16:42.039><c>you </c><00:16:42.191><c>have </c><00:16:42.343><c>to </c><00:16:42.495><c>do, </c><00:16:42.647><c>you </c><00:16:42.799><c>have </c><00:16:42.951><c>to </c><00:16:43.103><c>do </c><00:16:43.255><c>a</c>
+
+00:16:43.490 --> 00:16:43.500 align:start position:0%
+questions are asked, what do you have to do, you have to do a
+ 
+
+00:16:43.500 --> 00:16:45.590 align:start position:0%
+questions are asked, what do you have to do, you have to do a
+simple <00:16:45.300><c>reduction,</c>
+
+00:16:45.590 --> 00:16:45.600 align:start position:0%
+simple reduction,
+ 
+
+00:16:45.600 --> 00:16:47.150 align:start position:0%
+simple reduction,
+convert <00:16:45.810><c>negative </c><00:16:46.020><c>into </c><00:16:46.230><c>positive </c><00:16:46.440><c>first </c><00:16:46.650><c>and </c><00:16:46.860><c>only</c>
+
+00:16:47.150 --> 00:16:47.160 align:start position:0%
+convert negative into positive first and only
+ 
+
+00:16:47.160 --> 00:16:50.689 align:start position:0%
+convert negative into positive first and only
+after <00:16:47.639><c>that </c><00:16:48.118><c>you </c><00:16:48.597><c>have </c><00:16:49.076><c>to </c><00:16:49.555><c>do </c><00:16:50.034><c>your </c><00:16:50.513><c>work,</c>
+
+00:16:50.689 --> 00:16:50.699 align:start position:0%
+after that you have to do your work,
+ 
+
+00:16:50.699 --> 00:16:53.509 align:start position:0%
+after that you have to do your work,
+continue, <00:16:51.179><c>okay, </c><00:16:51.659><c>now </c><00:16:52.139><c>see </c><00:16:52.619><c>here,</c>
+
+00:16:53.509 --> 00:16:53.519 align:start position:0%
+continue, okay, now see here,
+ 
+
+00:16:53.519 --> 00:16:55.009 align:start position:0%
+continue, okay, now see here,
+many <00:16:53.979><c>examples </c><00:16:54.439><c>are </c><00:16:54.899><c>given,</c>
+
+00:16:55.009 --> 00:16:55.019 align:start position:0%
+many examples are given,
+ 
+
+00:16:55.019 --> 00:16:58.129 align:start position:0%
+many examples are given,
+you <00:16:55.269><c>guys </c><00:16:55.519><c>can </c><00:16:55.769><c>try </c><00:16:56.019><c>all </c><00:16:56.269><c>these </c><00:16:56.519><c>on </c><00:16:56.769><c>yourselves, </c><00:16:57.019><c>okay, </c><00:16:57.269><c>so </c><00:16:57.519><c>now </c><00:16:57.769><c>I </c><00:16:58.019><c>will</c>
+
+00:16:58.129 --> 00:16:58.139 align:start position:0%
+you guys can try all these on yourselves, okay, so now I will
+ 
+
+00:16:58.139 --> 00:16:59.810 align:start position:0%
+you guys can try all these on yourselves, okay, so now I will
+tell <00:16:58.361><c>you </c><00:16:58.583><c>guys </c><00:16:58.805><c>about </c><00:16:59.027><c>list </c><00:16:59.249><c>compression, </c><00:16:59.471><c>I </c><00:16:59.693><c>hope</c>
+
+00:16:59.810 --> 00:16:59.820 align:start position:0%
+tell you guys about list compression, I hope
+ 
+
+00:16:59.820 --> 00:17:02.269 align:start position:0%
+tell you guys about list compression, I hope
+today's <00:17:00.137><c>video </c><00:17:00.454><c>will </c><00:17:00.771><c>not </c><00:17:01.088><c>be </c><00:17:01.405><c>too </c><00:17:01.722><c>long.  </c><00:17:02.039><c>It</c>
+
+00:17:02.269 --> 00:17:02.279 align:start position:0%
+today's video will not be too long.  It
+ 
+
+00:17:02.279 --> 00:17:04.669 align:start position:0%
+today's video will not be too long.  It
+is <00:17:02.511><c>happening </c><00:17:02.743><c>but </c><00:17:02.975><c>there </c><00:17:03.207><c>are </c><00:17:03.439><c>a </c><00:17:03.671><c>lot </c><00:17:03.903><c>of </c><00:17:04.135><c>concepts</c>
+
+00:17:04.669 --> 00:17:04.679 align:start position:0%
+is happening but there are a lot of concepts
+ 
+
+00:17:04.679 --> 00:17:05.870 align:start position:0%
+is happening but there are a lot of concepts
+that <00:17:04.787><c>I </c><00:17:04.895><c>want </c><00:17:05.003><c>us </c><00:17:05.111><c>to </c><00:17:05.219><c>learn </c><00:17:05.327><c>in </c><00:17:05.435><c>today's </c><00:17:05.543><c>video </c><00:17:05.651><c>itself. </c><00:17:05.759><c>What</c>
+
+00:17:05.870 --> 00:17:07.689 align:start position:0%
+that I want us to learn in today's video itself. What
+ 
+
+00:17:07.689 --> 00:17:07.699 align:start position:0%
+ 
+ 
+
+00:17:07.699 --> 00:17:09.789 align:start position:0%
+ 
+
+
+00:17:09.789 --> 00:17:09.799 align:start position:0%
+ 
+ 
+
+00:17:09.799 --> 00:17:13.010 align:start position:0%
+ 
+you <00:17:10.224><c>are </c><00:17:10.649><c>doing </c><00:17:11.074><c>is </c><00:17:11.499><c>generating </c><00:17:11.924><c>an </c><00:17:12.349><c>on-planet </c><00:17:12.774><c>list.</c>
+
+00:17:13.010 --> 00:17:13.020 align:start position:0%
+you are doing is generating an on-planet list.
+ 
+
+00:17:13.020 --> 00:17:14.990 align:start position:0%
+you are doing is generating an on-planet list.
+Okay, <00:17:13.392><c>what </c><00:17:13.764><c>you </c><00:17:14.136><c>are </c><00:17:14.508><c>doing </c><00:17:14.880><c>is</c>
+
+00:17:14.990 --> 00:17:15.000 align:start position:0%
+Okay, what you are doing is
+ 
+
+00:17:15.000 --> 00:17:16.610 align:start position:0%
+Okay, what you are doing is
+generating <00:17:15.159><c>an </c><00:17:15.318><c>on-planet </c><00:17:15.477><c>list. </c><00:17:15.636><c>So </c><00:17:15.795><c>what </c><00:17:15.954><c>we </c><00:17:16.113><c>will </c><00:17:16.272><c>do </c><00:17:16.431><c>is</c>
+
+00:17:16.610 --> 00:17:16.620 align:start position:0%
+generating an on-planet list. So what we will do is
+ 
+
+00:17:16.620 --> 00:17:19.150 align:start position:0%
+generating an on-planet list. So what we will do is
+we <00:17:17.016><c>will </c><00:17:17.412><c>write </c><00:17:17.808><c>print </c><00:17:18.204><c>here </c><00:17:18.600><c>and</c>
+
+00:17:19.150 --> 00:17:19.160 align:start position:0%
+we will write print here and
+ 
+
+00:17:19.160 --> 00:17:22.370 align:start position:0%
+we will write print here and
+I <00:17:19.656><c>have </c><00:17:20.152><c>applied </c><00:17:20.648><c>a </c><00:17:21.144><c>list </c><00:17:21.640><c>compression </c><00:17:22.136><c>here.</c>
+
+00:17:22.370 --> 00:17:22.380 align:start position:0%
+I have applied a list compression here.
+ 
+
+00:17:22.380 --> 00:17:23.689 align:start position:0%
+I have applied a list compression here.
+List <00:17:22.537><c>compression </c><00:17:22.694><c>means </c><00:17:22.851><c>I </c><00:17:23.008><c>am </c><00:17:23.165><c>generating </c><00:17:23.322><c>an </c><00:17:23.479><c>on-planet </c><00:17:23.636><c>list.</c>
+
+00:17:23.689 --> 00:17:24.650 align:start position:0%
+List compression means I am generating an on-planet list.
+ 
+
+00:17:24.650 --> 00:17:24.660 align:start position:0%
+ 
+ 
+
+00:17:24.660 --> 00:17:27.110 align:start position:0%
+ 
+In <00:17:24.887><c>fact, </c><00:17:25.114><c>let's </c><00:17:25.341><c>not </c><00:17:25.568><c>print, </c><00:17:25.795><c>let's </c><00:17:26.022><c>write </c><00:17:26.249><c>an </c><00:17:26.476><c>on-planet </c><00:17:26.703><c>list </c><00:17:26.930><c>called</c>
+
+00:17:27.110 --> 00:17:27.120 align:start position:0%
+In fact, let's not print, let's write an on-planet list called
+ 
+
+00:17:27.120 --> 00:17:29.450 align:start position:0%
+In fact, let's not print, let's write an on-planet list called
+lost. <00:17:27.251><c>I </c><00:17:27.382><c>want </c><00:17:27.513><c>to </c><00:17:27.644><c>create </c><00:17:27.775><c>a </c><00:17:27.906><c>list </c><00:17:28.037><c>called </c><00:17:28.168><c>lost. </c><00:17:28.299><c>I </c><00:17:28.430><c>will </c><00:17:28.561><c>say </c><00:17:28.692><c>lost </c><00:17:28.823><c>is </c><00:17:28.954><c>equal </c><00:17:29.085><c>to </c><00:17:29.216><c>two</c>
+
+00:17:29.450 --> 00:17:29.460 align:start position:0%
+lost. I want to create a list called lost. I will say lost is equal to two
+ 
+
+00:17:29.460 --> 00:17:31.610 align:start position:0%
+lost. I want to create a list called lost. I will say lost is equal to two
+square
+
+00:17:31.610 --> 00:17:31.620 align:start position:0%
+square
+ 
+
+00:17:31.620 --> 00:17:37.730 align:start position:0%
+square
+brackets. <00:17:32.020><c>I </c><00:17:32.420><c>will </c><00:17:32.820><c>say </c><00:17:33.220><c>i </c><00:17:33.620><c>for </c><00:17:34.020><c>i </c><00:17:34.420><c>in </c><00:17:34.820><c>the </c><00:17:35.220><c>range</c>
+
+00:17:37.730 --> 00:17:37.740 align:start position:0%
+brackets. I will say i for i in the range
+ 
+
+00:17:37.740 --> 00:17:40.370 align:start position:0%
+brackets. I will say i for i in the range
+45 <00:17:37.930><c>or </c><00:17:38.120><c>4. </c><00:17:38.310><c>Okay, </c><00:17:38.500><c>45, </c><00:17:38.690><c>so </c><00:17:38.880><c>there </c><00:17:39.070><c>will </c><00:17:39.260><c>be </c><00:17:39.450><c>a </c><00:17:39.640><c>lot </c><00:17:39.830><c>of </c><00:17:40.020><c>numbers</c>
+
+00:17:40.370 --> 00:17:40.380 align:start position:0%
+45 or 4. Okay, 45, so there will be a lot of numbers
+ 
+
+00:17:40.380 --> 00:17:43.250 align:start position:0%
+45 or 4. Okay, 45, so there will be a lot of numbers
+four. <00:17:40.810><c>Okay, </c><00:17:41.240><c>so </c><00:17:41.670><c>what </c><00:17:42.100><c>will </c><00:17:42.530><c>this </c><00:17:42.960><c>list</c>
+
+00:17:43.250 --> 00:17:43.260 align:start position:0%
+four. Okay, so what will this list
+ 
+
+00:17:43.260 --> 00:17:47.289 align:start position:0%
+four. Okay, so what will this list
+comprehension <00:17:43.710><c>be </c><00:17:44.160><c>for </c><00:17:44.610><c>i </c><00:17:45.060><c>in </c><00:17:45.510><c>the </c><00:17:45.960><c>range</c>
+
+00:17:47.289 --> 00:17:47.299 align:start position:0%
+comprehension be for i in the range
+ 
+
+00:17:47.299 --> 00:17:51.110 align:start position:0%
+comprehension be for i in the range
+0123, <00:17:47.746><c>these </c><00:17:48.193><c>four </c><00:17:48.640><c>values ​​</c><00:17:49.087><c>will </c><00:17:49.534><c>come. </c><00:17:49.981><c>So </c><00:17:50.428><c>these </c><00:17:50.875><c>four</c>
+
+00:17:51.110 --> 00:17:51.120 align:start position:0%
+0123, these four values ​​will come. So these four
+ 
+
+00:17:51.120 --> 00:17:52.610 align:start position:0%
+0123, these four values ​​will come. So these four
+values ​​<00:17:51.224><c>will </c><00:17:51.328><c>be </c><00:17:51.432><c>added </c><00:17:51.536><c>here</c>
+
+00:17:52.610 --> 00:17:52.620 align:start position:0%
+values ​​will be added here
+ 
+
+00:17:52.620 --> 00:17:55.190 align:start position:0%
+values ​​will be added here
+inside <00:17:53.040><c>the </c><00:17:53.460><c>0123 </c><00:17:53.880><c>list. </c><00:17:54.300><c>Let </c><00:17:54.720><c>me </c><00:17:55.140><c>show</c>
+
+00:17:55.190 --> 00:17:55.200 align:start position:0%
+inside the 0123 list. Let me show
+ 
+
+00:17:55.200 --> 00:17:57.409 align:start position:0%
+inside the 0123 list. Let me show
+you, <00:17:55.426><c>as </c><00:17:55.652><c>you </c><00:17:55.878><c>can </c><00:17:56.104><c>see, </c><00:17:56.330><c>I </c><00:17:56.556><c>see </c><00:17:56.782><c>zero </c><00:17:57.008><c>van </c><00:17:57.234><c>two</c>
+
+00:17:57.409 --> 00:17:57.419 align:start position:0%
+you, as you can see, I see zero van two
+ 
+
+00:17:57.419 --> 00:17:58.909 align:start position:0%
+you, as you can see, I see zero van two
+and <00:17:58.169><c>three </c><00:17:58.919><c>here.</c>
+
+00:17:58.909 --> 00:17:58.919 align:start position:0%
+and three here.
+ 
+
+00:17:58.919 --> 00:18:00.770 align:start position:0%
+and three here.
+Now <00:17:59.324><c>if </c><00:17:59.729><c>I </c><00:18:00.134><c>wanted, </c><00:18:00.539><c>I</c>
+
+00:18:00.770 --> 00:18:00.780 align:start position:0%
+Now if I wanted, I
+ 
+
+00:18:00.780 --> 00:18:03.230 align:start position:0%
+Now if I wanted, I
+could <00:18:00.938><c>also </c><00:18:01.096><c>multiply </c><00:18:01.254><c>this </c><00:18:01.412><c>by </c><00:18:01.570><c>i. </c><00:18:01.728><c>If </c><00:18:01.886><c>I </c><00:18:02.044><c>multiply </c><00:18:02.202><c>this </c><00:18:02.360><c>by </c><00:18:02.518><c>i, </c><00:18:02.676><c>I </c><00:18:02.834><c>will </c><00:18:02.992><c>get</c>
+
+00:18:03.230 --> 00:18:05.270 align:start position:0%
+could also multiply this by i. If I multiply this by i, I will get
+ 
+
+00:18:05.270 --> 00:18:05.280 align:start position:0%
+ 
+ 
+
+00:18:05.280 --> 00:18:08.810 align:start position:0%
+ 
+014 <00:18:06.135><c>and </c><00:18:06.990><c>9 </c><00:18:07.845><c>printed.  </c><00:18:08.700><c>I</c>
+
+00:18:08.810 --> 00:18:08.820 align:start position:0%
+014 and 9 printed.  I
+ 
+
+00:18:08.820 --> 00:18:10.310 align:start position:0%
+014 and 9 printed.  I
+can <00:18:09.048><c>write </c><00:18:09.276><c>anything </c><00:18:09.504><c>here, </c><00:18:09.732><c>any </c><00:18:09.960><c>expression,</c>
+
+00:18:10.310 --> 00:18:10.320 align:start position:0%
+can write anything here, any expression,
+ 
+
+00:18:10.320 --> 00:18:12.230 align:start position:0%
+can write anything here, any expression,
+any <00:18:10.899><c>value </c><00:18:11.478><c>will </c><00:18:12.057><c>become</c>
+
+00:18:12.230 --> 00:18:12.240 align:start position:0%
+any value will become
+ 
+
+00:18:12.240 --> 00:18:15.350 align:start position:0%
+any value will become
+an <00:18:12.566><c>element </c><00:18:12.892><c>of </c><00:18:13.218><c>my </c><00:18:13.544><c>list, </c><00:18:13.870><c>okay, </c><00:18:14.196><c>and </c><00:18:14.522><c>it </c><00:18:14.848><c>will </c><00:18:15.174><c>be</c>
+
+00:18:15.350 --> 00:18:15.360 align:start position:0%
+an element of my list, okay, and it will be
+ 
+
+00:18:15.360 --> 00:18:18.350 align:start position:0%
+an element of my list, okay, and it will be
+for <00:18:15.745><c>i, </c><00:18:16.130><c>and </c><00:18:16.515><c>if </c><00:18:16.900><c>I </c><00:18:17.285><c>want, </c><00:18:17.670><c>I </c><00:18:18.055><c>can</c>
+
+00:18:18.350 --> 00:18:18.360 align:start position:0%
+for i, and if I want, I can
+ 
+
+00:18:18.360 --> 00:18:20.390 align:start position:0%
+for i, and if I want, I can
+also <00:18:18.513><c>create </c><00:18:18.666><c>a </c><00:18:18.819><c>list </c><00:18:18.972><c>from </c><00:18:19.125><c>another </c><00:18:19.278><c>list, </c><00:18:19.431><c>by </c><00:18:19.584><c>creating </c><00:18:19.737><c>a</c>
+
+00:18:20.390 --> 00:18:20.400 align:start position:0%
+also create a list from another list, by creating a
+ 
+
+00:18:20.400 --> 00:18:22.789 align:start position:0%
+also create a list from another list, by creating a
+list <00:18:20.669><c>here, </c><00:18:20.938><c>so </c><00:18:21.207><c>list </c><00:18:21.476><c>comprehension </c><00:18:21.745><c>can </c><00:18:22.014><c>be </c><00:18:22.283><c>quite </c><00:18:22.552><c>complex,</c>
+
+00:18:22.789 --> 00:18:22.799 align:start position:0%
+list here, so list comprehension can be quite complex,
+ 
+
+00:18:22.799 --> 00:18:25.190 align:start position:0%
+list here, so list comprehension can be quite complex,
+now <00:18:23.539><c>let's </c><00:18:24.279><c>say </c><00:18:25.019><c>I</c>
+
+00:18:25.190 --> 00:18:25.200 align:start position:0%
+now let's say I
+ 
+
+00:18:25.200 --> 00:18:27.230 align:start position:0%
+now let's say I
+want <00:18:25.392><c>to </c><00:18:25.584><c>go </c><00:18:25.776><c>up </c><00:18:25.968><c>to </c><00:18:26.160><c>10, </c><00:18:26.352><c>now </c><00:18:26.544><c>I </c><00:18:26.736><c>can </c><00:18:26.928><c>also </c><00:18:27.120><c>add</c>
+
+00:18:27.230 --> 00:18:27.240 align:start position:0%
+want to go up to 10, now I can also add
+ 
+
+00:18:27.240 --> 00:18:28.610 align:start position:0%
+want to go up to 10, now I can also add
+a <00:18:27.492><c>condition </c><00:18:27.744><c>here, </c><00:18:27.996><c>okay, </c><00:18:28.248><c>this </c><00:18:28.500><c>is</c>
+
+00:18:28.610 --> 00:18:28.620 align:start position:0%
+a condition here, okay, this is
+ 
+
+00:18:28.620 --> 00:18:30.350 align:start position:0%
+a condition here, okay, this is
+one <00:18:28.780><c>thing, </c><00:18:28.940><c>I </c><00:18:29.100><c>will</c>
+
+00:18:30.350 --> 00:18:30.360 align:start position:0%
+one thing, I will
+ 
+
+00:18:30.360 --> 00:18:34.490 align:start position:0%
+one thing, I will
+make <00:18:31.000><c>another </c><00:18:31.640><c>copy </c><00:18:32.280><c>of </c><00:18:32.920><c>this, </c><00:18:33.560><c>I </c><00:18:34.200><c>can</c>
+
+00:18:34.490 --> 00:18:34.500 align:start position:0%
+make another copy of this, I can
+ 
+
+00:18:34.500 --> 00:18:36.650 align:start position:0%
+make another copy of this, I can
+also <00:18:34.674><c>add </c><00:18:34.848><c>an </c><00:18:35.022><c>if </c><00:18:35.196><c>condition, </c><00:18:35.370><c>I </c><00:18:35.544><c>will </c><00:18:35.718><c>say </c><00:18:35.892><c>if </c><00:18:36.066><c>i </c><00:18:36.240><c>is</c>
+
+00:18:36.650 --> 00:18:36.660 align:start position:0%
+also add an if condition, I will say if i is
+ 
+
+00:18:36.660 --> 00:18:40.810 align:start position:0%
+also add an if condition, I will say if i is
+equal <00:18:36.830><c>to </c><00:18:37.000><c>10, </c><00:18:37.170><c>then </c><00:18:37.340><c>only </c><00:18:37.510><c>i </c><00:18:37.680><c>want </c><00:18:37.850><c>i </c><00:18:38.020><c>to </c><00:18:38.190><c>be </c><00:18:38.360><c>in </c><00:18:38.530><c>the </c><00:18:38.700><c>list,</c>
+
+00:18:40.810 --> 00:18:44.270 align:start position:0%
+equal to 10, then only i want i to be in the list,
+ 
+
+00:18:44.270 --> 00:18:44.280 align:start position:0%
+ 
+ 
+
+00:18:44.280 --> 00:18:47.090 align:start position:0%
+ 
+I <00:18:44.594><c>want </c><00:18:44.908><c>to </c><00:18:45.222><c>put </c><00:18:45.536><c>this </c><00:18:45.850><c>expression </c><00:18:46.164><c>inside </c><00:18:46.478><c>the </c><00:18:46.792><c>list</c>
+
+00:18:47.090 --> 00:18:47.100 align:start position:0%
+I want to put this expression inside the list
+ 
+
+00:18:47.100 --> 00:18:50.029 align:start position:0%
+I want to put this expression inside the list
+when <00:18:47.487><c>this </c><00:18:47.874><c>condition </c><00:18:48.261><c>is </c><00:18:48.648><c>true, </c><00:18:49.035><c>okay,</c>
+
+00:18:50.029 --> 00:18:50.039 align:start position:0%
+when this condition is true, okay,
+ 
+
+00:18:50.039 --> 00:18:52.549 align:start position:0%
+when this condition is true, okay,
+when <00:18:50.382><c>this </c><00:18:50.725><c>condition </c><00:18:51.068><c>is </c><00:18:51.411><c>true, </c><00:18:51.754><c>and </c><00:18:52.097><c>if </c><00:18:52.440><c>I</c>
+
+00:18:52.549 --> 00:18:52.559 align:start position:0%
+when this condition is true, and if I
+ 
+
+00:18:52.559 --> 00:18:54.650 align:start position:0%
+when this condition is true, and if I
+run <00:18:52.791><c>this </c><00:18:53.023><c>now, </c><00:18:53.255><c>you </c><00:18:53.487><c>will </c><00:18:53.719><c>see </c><00:18:53.951><c>that </c><00:18:54.183><c>only </c><00:18:54.415><c>these</c>
+
+00:18:54.650 --> 00:18:54.660 align:start position:0%
+run this now, you will see that only these
+ 
+
+00:18:54.660 --> 00:18:58.310 align:start position:0%
+run this now, you will see that only these
+numbers <00:18:54.910><c>will </c><00:18:55.160><c>come </c><00:18:55.410><c>here, </c><00:18:55.660><c>zero </c><00:18:55.910><c>came, </c><00:18:56.160><c>four </c><00:18:56.410><c>came, </c><00:18:56.660><c>six </c><00:18:56.910><c>came, </c><00:18:57.160><c>eight </c><00:18:57.410><c>came,</c>
+
+00:18:58.310 --> 00:18:58.320 align:start position:0%
+numbers will come here, zero came, four came, six came, eight came,
+ 
+
+00:18:58.320 --> 00:19:01.490 align:start position:0%
+numbers will come here, zero came, four came, six came, eight came,
+7 <00:18:58.714><c>did </c><00:18:59.108><c>not </c><00:18:59.502><c>come, </c><00:18:59.896><c>five </c><00:19:00.290><c>did </c><00:19:00.684><c>not </c><00:19:01.078><c>come,</c>
+
+00:19:01.490 --> 00:19:01.500 align:start position:0%
+7 did not come, five did not come,
+ 
+
+00:19:01.500 --> 00:19:03.590 align:start position:0%
+7 did not come, five did not come,
+three <00:19:01.791><c>did </c><00:19:02.082><c>not </c><00:19:02.373><c>come, </c><00:19:02.664><c>okay, </c><00:19:02.955><c>one </c><00:19:03.246><c>also </c><00:19:03.537><c>did</c>
+
+00:19:03.590 --> 00:19:03.600 align:start position:0%
+three did not come, okay, one also did
+ 
+
+00:19:03.600 --> 00:19:05.870 align:start position:0%
+three did not come, okay, one also did
+not <00:19:03.960><c>come, </c><00:19:04.320><c>so </c><00:19:04.680><c>in </c><00:19:05.040><c>this </c><00:19:05.400><c>way </c><00:19:05.760><c>I</c>
+
+00:19:05.870 --> 00:19:10.130 align:start position:0%
+not come, so in this way I
+ 
+
+00:19:10.130 --> 00:19:10.140 align:start position:0%
+ 
+ 
+
+00:19:10.140 --> 00:19:12.110 align:start position:0%
+ 
+can <00:19:10.280><c>change </c><00:19:10.420><c>my </c><00:19:10.560><c>list </c><00:19:10.700><c>comprehension </c><00:19:10.840><c>by </c><00:19:10.980><c>adding </c><00:19:11.120><c>a </c><00:19:11.260><c>condition, </c><00:19:11.400><c>something </c><00:19:11.540><c>inside </c><00:19:11.680><c>it.  </c><00:19:11.820><c>I</c>
+
+00:19:12.110 --> 00:19:12.120 align:start position:0%
+can change my list comprehension by adding a condition, something inside it.  I
+ 
+
+00:19:12.120 --> 00:19:14.390 align:start position:0%
+can change my list comprehension by adding a condition, something inside it.  I
+can <00:19:12.366><c>take </c><00:19:12.612><c>selective </c><00:19:12.858><c>values. </c><00:19:13.104><c>Okay, </c><00:19:13.350><c>I </c><00:19:13.596><c>hope </c><00:19:13.842><c>this </c><00:19:14.088><c>thing </c><00:19:14.334><c>is</c>
+
+00:19:14.390 --> 00:19:14.400 align:start position:0%
+can take selective values. Okay, I hope this thing is
+ 
+
+00:19:14.400 --> 00:19:16.730 align:start position:0%
+can take selective values. Okay, I hope this thing is
+clear <00:19:14.669><c>to </c><00:19:14.938><c>you </c><00:19:15.207><c>guys. </c><00:19:15.476><c>Go </c><00:19:15.745><c>through </c><00:19:16.014><c>this. </c><00:19:16.283><c>In </c><00:19:16.552><c>this,</c>
+
+00:19:16.730 --> 00:19:16.740 align:start position:0%
+clear to you guys. Go through this. In this,
+ 
+
+00:19:16.740 --> 00:19:18.590 align:start position:0%
+clear to you guys. Go through this. In this,
+you <00:19:17.030><c>have </c><00:19:17.320><c>to </c><00:19:17.610><c>see </c><00:19:17.900><c>from </c><00:19:18.190><c>other </c><00:19:18.480><c>examples,</c>
+
+00:19:18.590 --> 00:19:18.600 align:start position:0%
+you have to see from other examples,
+ 
+
+00:19:18.600 --> 00:19:20.750 align:start position:0%
+you have to see from other examples,
+run <00:19:18.857><c>this, </c><00:19:19.114><c>copy </c><00:19:19.371><c>it, </c><00:19:19.628><c>run </c><00:19:19.885><c>the </c><00:19:20.142><c>court </c><00:19:20.399><c>and</c>
+
+00:19:20.750 --> 00:19:20.760 align:start position:0%
+run this, copy it, run the court and
+ 
+
+00:19:20.760 --> 00:19:23.210 align:start position:0%
+run this, copy it, run the court and
+you <00:19:20.994><c>guys </c><00:19:21.228><c>will </c><00:19:21.462><c>enjoy </c><00:19:21.696><c>it. </c><00:19:21.930><c>And </c><00:19:22.164><c>okay, </c><00:19:22.398><c>that's </c><00:19:22.632><c>all </c><00:19:22.866><c>for </c><00:19:23.100><c>now</c>
+
+00:19:23.210 --> 00:19:23.220 align:start position:0%
+you guys will enjoy it. And okay, that's all for now
+ 
+
+00:19:23.220 --> 00:19:24.289 align:start position:0%
+you guys will enjoy it. And okay, that's all for now
+in <00:19:23.339><c>this </c><00:19:23.458><c>video. </c><00:19:23.577><c>I </c><00:19:23.696><c>know </c><00:19:23.815><c>the </c><00:19:23.934><c>video </c><00:19:24.053><c>got </c><00:19:24.172><c>a</c>
+
+00:19:24.289 --> 00:19:24.299 align:start position:0%
+in this video. I know the video got a
+ 
+
+00:19:24.299 --> 00:19:26.270 align:start position:0%
+in this video. I know the video got a
+bit <00:19:24.671><c>long, </c><00:19:25.043><c>but </c><00:19:25.415><c>I </c><00:19:25.787><c>wanted </c><00:19:26.159><c>to</c>
+
+00:19:26.270 --> 00:19:26.280 align:start position:0%
+bit long, but I wanted to
+ 
+
+00:19:26.280 --> 00:19:27.650 align:start position:0%
+bit long, but I wanted to
+give <00:19:26.383><c>you </c><00:19:26.486><c>all </c><00:19:26.589><c>a </c><00:19:26.692><c>very </c><00:19:26.795><c>good </c><00:19:26.898><c>introduction </c><00:19:27.001><c>to </c><00:19:27.104><c>the </c><00:19:27.207><c>list, </c><00:19:27.310><c>that's </c><00:19:27.413><c>why</c>
+
+00:19:27.650 --> 00:19:27.660 align:start position:0%
+give you all a very good introduction to the list, that's why
+ 
+
+00:19:27.660 --> 00:19:28.909 align:start position:0%
+give you all a very good introduction to the list, that's why
+I <00:19:27.849><c>have </c><00:19:28.038><c>kept </c><00:19:28.227><c>this </c><00:19:28.416><c>video </c><00:19:28.605><c>a </c><00:19:28.794><c>bit</c>
+
+00:19:28.909 --> 00:19:28.919 align:start position:0%
+I have kept this video a bit
+ 
+
+00:19:28.919 --> 00:19:31.310 align:start position:0%
+I have kept this video a bit
+long. <00:19:29.339><c>I </c><00:19:29.759><c>hope </c><00:19:30.179><c>you </c><00:19:30.599><c>guys </c><00:19:31.019><c>do</c>
+
+00:19:31.310 --> 00:19:31.320 align:start position:0%
+long. I hope you guys do
+ 
+
+00:19:31.320 --> 00:19:33.470 align:start position:0%
+long. I hope you guys do
+n't <00:19:31.546><c>get </c><00:19:31.772><c>tired. </c><00:19:31.998><c>Today's </c><00:19:32.224><c>T20 </c><00:19:32.450><c>has </c><00:19:32.676><c>become </c><00:19:32.902><c>a </c><00:19:33.128><c>bit </c><00:19:33.354><c>long,</c>
+
+00:19:33.470 --> 00:19:33.480 align:start position:0%
+n't get tired. Today's T20 has become a bit long,
+ 
+
+00:19:33.480 --> 00:19:35.750 align:start position:0%
+n't get tired. Today's T20 has become a bit long,
+but <00:19:33.706><c>sometimes </c><00:19:33.932><c>the </c><00:19:34.158><c>day </c><00:19:34.384><c>is </c><00:19:34.610><c>short, </c><00:19:34.836><c>sometimes </c><00:19:35.062><c>it </c><00:19:35.288><c>is </c><00:19:35.514><c>long,</c>
+
+00:19:35.750 --> 00:19:35.760 align:start position:0%
+but sometimes the day is short, sometimes it is long,
+ 
+
+00:19:35.760 --> 00:19:37.669 align:start position:0%
+but sometimes the day is short, sometimes it is long,
+sometimes <00:19:35.959><c>there </c><00:19:36.158><c>is </c><00:19:36.357><c>exercise, </c><00:19:36.556><c>then </c><00:19:36.755><c>there </c><00:19:36.954><c>is </c><00:19:37.153><c>a </c><00:19:37.352><c>day </c><00:19:37.551><c>of</c>
+
+00:19:37.669 --> 00:19:37.679 align:start position:0%
+sometimes there is exercise, then there is a day of
+ 
+
+00:19:37.679 --> 00:19:39.590 align:start position:0%
+sometimes there is exercise, then there is a day of
+rest, <00:19:37.852><c>but </c><00:19:38.025><c>you </c><00:19:38.198><c>guys </c><00:19:38.371><c>have </c><00:19:38.544><c>to </c><00:19:38.717><c>be </c><00:19:38.890><c>ready, </c><00:19:39.063><c>friend, </c><00:19:39.236><c>if</c>
+
+00:19:39.590 --> 00:19:39.600 align:start position:0%
+rest, but you guys have to be ready, friend, if
+ 
+
+00:19:39.600 --> 00:19:40.850 align:start position:0%
+rest, but you guys have to be ready, friend, if
+some <00:19:39.733><c>day </c><00:19:39.866><c>a </c><00:19:39.999><c>big </c><00:19:40.132><c>day </c><00:19:40.265><c>comes, </c><00:19:40.398><c>then </c><00:19:40.531><c>there </c><00:19:40.664><c>is </c><00:19:40.797><c>no</c>
+
+00:19:40.850 --> 00:19:40.860 align:start position:0%
+some day a big day comes, then there is no
+ 
+
+00:19:40.860 --> 00:19:43.010 align:start position:0%
+some day a big day comes, then there is no
+tension, <00:19:41.048><c>we </c><00:19:41.236><c>will </c><00:19:41.424><c>do </c><00:19:41.612><c>it. </c><00:19:41.800><c>Okay, </c><00:19:41.988><c>for </c><00:19:42.176><c>now,</c>
+
+00:19:43.010 --> 00:19:43.020 align:start position:0%
+tension, we will do it. Okay, for now,
+ 
+
+00:19:43.020 --> 00:19:44.510 align:start position:0%
+tension, we will do it. Okay, for now,
+Akhilesh, <00:19:44.340><c>do</c>
+
+00:19:44.510 --> 00:19:44.520 align:start position:0%
+Akhilesh, do
+ 
+
+00:19:44.520 --> 00:19:46.669 align:start position:0%
+Akhilesh, do
+access <00:19:44.760><c>this </c><00:19:45.000><c>playlist </c><00:19:45.240><c>and </c><00:19:45.480><c>I </c><00:19:45.720><c>will </c><00:19:45.960><c>see </c><00:19:46.200><c>you </c><00:19:46.440><c>next.</c>
+
+00:19:46.669 --> 00:19:46.679 align:start position:0%
+access this playlist and I will see you next.
+ 
+
+00:19:46.679 --> 00:19:48.250 align:start position:0%
+access this playlist and I will see you next.
+
+
+00:19:48.250 --> 00:19:48.260 align:start position:0%
+ 
+ 
+
+00:19:48.260 --> 00:19:48.860 align:start position:0%
+ 
+[Prashant]
+
+00:19:48.860 --> 00:19:48.870 align:start position:0%
+[Prashant]
+ 
+
+00:19:48.870 --> 00:20:08.339 align:start position:0%
+[Prashant]
+[Music]
+

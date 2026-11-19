@@ -1,0 +1,1736 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:00.000 --> 00:00:00.150 align:start position:0%
+ 
+[Music]
+
+00:00:00.150 --> 00:00:00.160 align:start position:0%
+[Music]
+ 
+
+00:00:00.160 --> 00:00:02.669 align:start position:0%
+[Music]
+Welcome <00:00:00.392><c>to </c><00:00:00.624><c>100 </c><00:00:00.856><c>Days </c><00:00:01.088><c>of </c><00:00:01.320><c>Code </c><00:00:01.552><c>Guys. </c><00:00:01.784><c>In </c><00:00:02.016><c>100 </c><00:00:02.248><c>Days </c><00:00:02.480><c>of</c>
+
+00:00:02.669 --> 00:00:02.679 align:start position:0%
+Welcome to 100 Days of Code Guys. In 100 Days of
+ 
+
+00:00:02.679 --> 00:00:04.390 align:start position:0%
+Welcome to 100 Days of Code Guys. In 100 Days of
+Code, <00:00:02.852><c>we're </c><00:00:03.025><c>going </c><00:00:03.198><c>to</c>
+
+00:00:04.390 --> 00:00:04.400 align:start position:0%
+Code, we're going to
+ 
+
+00:00:04.400 --> 00:00:06.990 align:start position:0%
+Code, we're going to
+learn <00:00:04.819><c>Python </c><00:00:05.238><c>2, </c><00:00:05.657><c>job </c><00:00:06.076><c>ready. </c><00:00:06.495><c>That </c><00:00:06.914><c>means</c>
+
+00:00:06.990 --> 00:00:07.000 align:start position:0%
+learn Python 2, job ready. That means
+ 
+
+00:00:07.000 --> 00:00:08.990 align:start position:0%
+learn Python 2, job ready. That means
+if <00:00:07.335><c>you've </c><00:00:07.670><c>dedicated </c><00:00:08.005><c>100 </c><00:00:08.340><c>days </c><00:00:08.675><c>here,</c>
+
+00:00:08.990 --> 00:00:09.000 align:start position:0%
+if you've dedicated 100 days here,
+ 
+
+00:00:09.000 --> 00:00:11.030 align:start position:0%
+if you've dedicated 100 days here,
+I'll <00:00:09.376><c>tell </c><00:00:09.752><c>you </c><00:00:10.128><c>guys </c><00:00:10.504><c>about </c><00:00:10.880><c>it</c>
+
+00:00:11.030 --> 00:00:11.040 align:start position:0%
+I'll tell you guys about it
+ 
+
+00:00:11.040 --> 00:00:12.789 align:start position:0%
+I'll tell you guys about it
+in <00:00:11.272><c>a </c><00:00:11.504><c>whitespace </c><00:00:11.736><c>lesson. </c><00:00:11.968><c>You'll </c><00:00:12.200><c>be</c>
+
+00:00:12.789 --> 00:00:12.799 align:start position:0%
+in a whitespace lesson. You'll be
+ 
+
+00:00:12.799 --> 00:00:30.109 align:start position:0%
+in a whitespace lesson. You'll be
+
+
+00:00:30.109 --> 00:00:30.119 align:start position:0%
+ 
+ 
+
+00:00:30.119 --> 00:00:32.069 align:start position:0%
+ 
+working <00:00:30.236><c>on </c><00:00:30.353><c>things </c><00:00:30.470><c>that </c><00:00:30.587><c>will </c><00:00:30.704><c>be </c><00:00:30.821><c>used </c><00:00:30.938><c>at </c><00:00:31.055><c>pythonanywhere.com. </c><00:00:31.172><c>There's </c><00:00:31.289><c>going </c><00:00:31.406><c>to </c><00:00:31.523><c>be </c><00:00:31.640><c>a</c>
+
+00:00:32.069 --> 00:00:32.079 align:start position:0%
+working on things that will be used at pythonanywhere.com. There's going to be a
+ 
+
+00:00:32.079 --> 00:00:36.709 align:start position:0%
+working on things that will be used at pythonanywhere.com. There's going to be a
+lot <00:00:32.559><c>of </c><00:00:33.039><c>excitement </c><00:00:33.519><c>and </c><00:00:33.999><c>fun.</c>
+
+00:00:36.709 --> 00:00:36.719 align:start position:0%
+ 
+ 
+
+00:00:36.719 --> 00:00:40.389 align:start position:0%
+ 
+Python <00:00:37.092><c>2 </c><00:00:37.465><c>and </c><00:00:37.838><c>Rasam </c><00:00:38.211><c>were </c><00:00:38.584><c>created </c><00:00:38.957><c>in </c><00:00:39.330><c>1991 </c><00:00:39.703><c>by </c><00:00:40.076><c>Gudo</c>
+
+00:00:40.389 --> 00:00:40.399 align:start position:0%
+Python 2 and Rasam were created in 1991 by Gudo
+ 
+
+00:00:40.399 --> 00:00:42.830 align:start position:0%
+Python 2 and Rasam were created in 1991 by Gudo
+Van <00:00:40.627><c>Rasam </c><00:00:40.855><c>Manti. </c><00:00:41.083><c>He </c><00:00:41.311><c>was </c><00:00:41.539><c>watching </c><00:00:41.767><c>a </c><00:00:41.995><c>show </c><00:00:42.223><c>called </c><00:00:42.451><c>Python </c><00:00:42.679><c>Circus</c>
+
+00:00:42.830 --> 00:00:42.840 align:start position:0%
+Van Rasam Manti. He was watching a show called Python Circus
+ 
+
+00:00:42.840 --> 00:00:44.869 align:start position:0%
+Van Rasam Manti. He was watching a show called Python Circus
+on <00:00:43.074><c>TV </c><00:00:43.308><c>while </c><00:00:43.542><c>he </c><00:00:43.776><c>was </c><00:00:44.010><c>working </c><00:00:44.244><c>on </c><00:00:44.478><c>this </c><00:00:44.712><c>language.</c>
+
+00:00:44.869 --> 00:00:44.879 align:start position:0%
+on TV while he was working on this language.
+ 
+
+00:00:44.879 --> 00:00:46.430 align:start position:0%
+on TV while he was working on this language.
+He <00:00:46.280><c>thought,</c>
+
+00:00:46.430 --> 00:00:46.440 align:start position:0%
+He thought,
+ 
+
+00:00:46.440 --> 00:00:48.229 align:start position:0%
+He thought,
+why <00:00:46.668><c>not </c><00:00:46.896><c>name </c><00:00:47.124><c>it </c><00:00:47.352><c>Python? </c><00:00:47.580><c>And </c><00:00:47.808><c>since </c><00:00:48.036><c>then,</c>
+
+00:00:48.229 --> 00:00:48.239 align:start position:0%
+why not name it Python? And since then,
+ 
+
+00:00:48.239 --> 00:00:50.389 align:start position:0%
+why not name it Python? And since then,
+it's <00:00:48.443><c>been </c><00:00:48.647><c>named </c><00:00:48.851><c>Python. </c><00:00:49.055><c>In </c><00:00:49.259><c>this </c><00:00:49.463><c>course, </c><00:00:49.667><c>we'll </c><00:00:49.871><c>be </c><00:00:50.075><c>doing </c><00:00:50.279><c>a</c>
+
+00:00:50.389 --> 00:00:50.399 align:start position:0%
+it's been named Python. In this course, we'll be doing a
+ 
+
+00:00:50.399 --> 00:00:52.150 align:start position:0%
+it's been named Python. In this course, we'll be doing a
+lot <00:00:50.516><c>of </c><00:00:50.633><c>practice </c><00:00:50.750><c>along </c><00:00:50.867><c>with </c><00:00:50.984><c>theory. </c><00:00:51.101><c>There </c><00:00:51.218><c>are </c><00:00:51.335><c>going </c><00:00:51.452><c>to </c><00:00:51.569><c>be </c><00:00:51.686><c>a </c><00:00:51.803><c>lot </c><00:00:51.920><c>of</c>
+
+00:00:52.150 --> 00:00:52.160 align:start position:0%
+lot of practice along with theory. There are going to be a lot of
+ 
+
+00:00:52.160 --> 00:00:54.110 align:start position:0%
+lot of practice along with theory. There are going to be a lot of
+exercises
+
+00:00:54.110 --> 00:00:54.120 align:start position:0%
+exercises
+ 
+
+00:00:54.120 --> 00:00:55.790 align:start position:0%
+exercises
+and <00:00:54.400><c>quizzes, </c><00:00:54.680><c>and </c><00:00:54.960><c>there </c><00:00:55.240><c>are </c><00:00:55.520><c>a</c>
+
+00:00:55.790 --> 00:00:55.800 align:start position:0%
+and quizzes, and there are a
+ 
+
+00:00:55.800 --> 00:00:58.150 align:start position:0%
+and quizzes, and there are a
+lot <00:00:56.232><c>of </c><00:00:56.664><c>challenges </c><00:00:57.096><c>waiting </c><00:00:57.528><c>for </c><00:00:57.960><c>you.</c>
+
+00:00:58.150 --> 00:00:58.160 align:start position:0%
+lot of challenges waiting for you.
+ 
+
+00:00:58.160 --> 00:00:59.950 align:start position:0%
+lot of challenges waiting for you.
+So, <00:00:58.377><c>I'm </c><00:00:58.594><c>going </c><00:00:58.811><c>to </c><00:00:59.028><c>log </c><00:00:59.245><c>into </c><00:00:59.462><c>my </c><00:00:59.679><c>computer</c>
+
+00:00:59.950 --> 00:00:59.960 align:start position:0%
+So, I'm going to log into my computer
+ 
+
+00:00:59.960 --> 00:01:02.189 align:start position:0%
+So, I'm going to log into my computer
+and <00:01:02.000><c>immediately</c>
+
+00:01:02.189 --> 00:01:02.199 align:start position:0%
+and immediately
+ 
+
+00:01:02.199 --> 00:01:04.429 align:start position:0%
+and immediately
+introduce <00:01:02.403><c>you </c><00:01:02.607><c>to </c><00:01:02.811><c>the </c><00:01:03.015><c>quirky </c><00:01:03.219><c>and </c><00:01:03.423><c>humble </c><00:01:03.627><c>nature </c><00:01:03.831><c>of </c><00:01:04.035><c>Python.</c>
+
+00:01:04.429 --> 00:01:04.439 align:start position:0%
+introduce you to the quirky and humble nature of Python.
+ 
+
+00:01:04.439 --> 00:01:06.030 align:start position:0%
+introduce you to the quirky and humble nature of Python.
+So, <00:01:04.692><c>right </c><00:01:04.945><c>now, </c><00:01:05.198><c>please </c><00:01:05.451><c>like </c><00:01:05.704><c>this </c><00:01:05.957><c>video,</c>
+
+00:01:06.030 --> 00:01:06.040 align:start position:0%
+So, right now, please like this video,
+ 
+
+00:01:06.040 --> 00:01:07.429 align:start position:0%
+So, right now, please like this video,
+subscribe, <00:01:06.453><c>and </c><00:01:06.866><c>turn </c><00:01:07.279><c>on</c>
+
+00:01:07.429 --> 00:01:07.439 align:start position:0%
+subscribe, and turn on
+ 
+
+00:01:07.439 --> 00:01:09.590 align:start position:0%
+subscribe, and turn on
+notifications <00:01:07.679><c>so </c><00:01:07.919><c>that </c><00:01:08.159><c>we </c><00:01:08.399><c>can </c><00:01:08.639><c>keep </c><00:01:08.879><c>up </c><00:01:09.119><c>with </c><00:01:09.359><c>it.</c>
+
+00:01:09.590 --> 00:01:09.600 align:start position:0%
+notifications so that we can keep up with it.
+ 
+
+00:01:09.600 --> 00:01:11.469 align:start position:0%
+notifications so that we can keep up with it.
+You <00:01:09.741><c>should </c><00:01:09.882><c>not </c><00:01:10.023><c>miss </c><00:01:10.164><c>any </c><00:01:10.305><c>day </c><00:01:10.446><c>and </c><00:01:10.587><c>you </c><00:01:10.728><c>should </c><00:01:10.869><c>keep </c><00:01:11.010><c>getting </c><00:01:11.151><c>notifications </c><00:01:11.292><c>every </c><00:01:11.433><c>day</c>
+
+00:01:11.469 --> 00:01:11.479 align:start position:0%
+You should not miss any day and you should keep getting notifications every day
+ 
+
+00:01:11.479 --> 00:01:14.990 align:start position:0%
+You should not miss any day and you should keep getting notifications every day
+because
+
+00:01:14.990 --> 00:01:15.000 align:start position:0%
+ 
+ 
+
+00:01:15.000 --> 00:01:17.749 align:start position:0%
+ 
+you <00:01:15.225><c>should </c><00:01:15.450><c>all </c><00:01:15.675><c>accept </c><00:01:15.900><c>YouTube's </c><00:01:16.125><c>100 </c><00:01:16.350><c>Days </c><00:01:16.575><c>of </c><00:01:16.800><c>Code </c><00:01:17.025><c>Challenge </c><00:01:17.250><c>right </c><00:01:17.475><c>now.</c>
+
+00:01:17.749 --> 00:01:19.710 align:start position:0%
+you should all accept YouTube's 100 Days of Code Challenge right now.
+ 
+
+00:01:19.710 --> 00:01:19.720 align:start position:0%
+ 
+ 
+
+00:01:19.720 --> 00:01:21.830 align:start position:0%
+ 
+Write <00:01:19.876><c>in </c><00:01:20.032><c>the </c><00:01:20.188><c>comment </c><00:01:20.344><c>section </c><00:01:20.500><c>below, </c><00:01:20.656><c>"I </c><00:01:20.812><c>accept </c><00:01:20.968><c>the </c><00:01:21.124><c>100 </c><00:01:21.280><c>Days </c><00:01:21.436><c>of </c><00:01:21.592><c>Code</c>
+
+00:01:21.830 --> 00:01:21.840 align:start position:0%
+Write in the comment section below, "I accept the 100 Days of Code
+ 
+
+00:01:21.840 --> 00:01:24.470 align:start position:0%
+Write in the comment section below, "I accept the 100 Days of Code
+Challenge." <00:01:22.173><c>Let's </c><00:01:22.506><c>get </c><00:01:22.839><c>started.</c>
+
+00:01:24.470 --> 00:01:24.480 align:start position:0%
+Challenge." Let's get started.
+ 
+
+00:01:24.480 --> 00:01:32.590 align:start position:0%
+Challenge." Let's get started.
+[Music]
+
+00:01:32.590 --> 00:01:32.600 align:start position:0%
+[Music]
+ 
+
+00:01:32.600 --> 00:01:33.670 align:start position:0%
+[Music]
+So <00:01:32.920><c>I'm </c><00:01:33.240><c>here. </c><00:01:33.560><c>There's</c>
+
+00:01:33.670 --> 00:01:33.680 align:start position:0%
+So I'm here. There's
+ 
+
+00:01:33.680 --> 00:02:00.109 align:start position:0%
+So I'm here. There's
+googlethalli.com to
+
+00:02:00.109 --> 00:02:00.119 align:start position:0%
+ 
+ 
+
+00:02:00.119 --> 00:02:02.149 align:start position:0%
+ 
+use <00:02:00.519><c>Python </c><00:02:00.919><c>on </c><00:02:01.319><c>your </c><00:02:01.719><c>computer,</c>
+
+00:02:02.149 --> 00:02:02.159 align:start position:0%
+use Python on your computer,
+ 
+
+00:02:02.159 --> 00:02:03.990 align:start position:0%
+use Python on your computer,
+but <00:02:02.405><c>I'm </c><00:02:02.651><c>going </c><00:02:02.897><c>to </c><00:02:03.143><c>use </c><00:02:03.389><c>Roulette </c><00:02:03.635><c>here.</c>
+
+00:02:03.990 --> 00:02:04.000 align:start position:0%
+but I'm going to use Roulette here.
+ 
+
+00:02:04.000 --> 00:02:07.749 align:start position:0%
+but I'm going to use Roulette here.
+You
+
+00:02:07.749 --> 00:02:07.759 align:start position:0%
+You
+ 
+
+00:02:07.759 --> 00:02:10.109 align:start position:0%
+You
+can <00:02:08.079><c>use </c><00:02:08.399><c>Roulette. </c><00:02:08.719><c>It's </c><00:02:09.039><c>a </c><00:02:09.359><c>color </c><00:02:09.679><c>browser-</c>
+
+00:02:10.109 --> 00:02:10.119 align:start position:0%
+can use Roulette. It's a color browser-
+ 
+
+00:02:10.119 --> 00:02:11.910 align:start position:0%
+can use Roulette. It's a color browser-
+based <00:02:10.549><c>code. </c><00:02:10.979><c>I'm </c><00:02:11.409><c>using </c><00:02:11.839><c>it</c>
+
+00:02:11.910 --> 00:02:11.920 align:start position:0%
+based code. I'm using it
+ 
+
+00:02:11.920 --> 00:02:14.270 align:start position:0%
+based code. I'm using it
+because <00:02:12.266><c>I </c><00:02:12.612><c>find </c><00:02:12.958><c>it </c><00:02:13.304><c>very </c><00:02:13.650><c>easy </c><00:02:13.996><c>to</c>
+
+00:02:14.270 --> 00:02:14.280 align:start position:0%
+because I find it very easy to
+ 
+
+00:02:14.280 --> 00:02:16.750 align:start position:0%
+because I find it very easy to
+use. <00:02:14.510><c>And </c><00:02:14.740><c>along </c><00:02:14.970><c>with </c><00:02:15.200><c>that, </c><00:02:15.430><c>it's </c><00:02:15.660><c>going </c><00:02:15.890><c>to </c><00:02:16.120><c>be</c>
+
+00:02:16.750 --> 00:02:16.760 align:start position:0%
+use. And along with that, it's going to be
+ 
+
+00:02:16.760 --> 00:02:18.949 align:start position:0%
+use. And along with that, it's going to be
+very <00:02:17.060><c>easy </c><00:02:17.360><c>for </c><00:02:17.660><c>me </c><00:02:17.960><c>to </c><00:02:18.260><c>code </c><00:02:18.560><c>here.</c>
+
+00:02:18.949 --> 00:02:18.959 align:start position:0%
+very easy for me to code here.
+ 
+
+00:02:18.959 --> 00:02:21.840 align:start position:0%
+very easy for me to code here.
+So <00:02:19.625><c>here </c><00:02:20.291><c>on </c><00:02:20.957><c>my</c>
+
+00:02:21.840 --> 00:02:21.850 align:start position:0%
+So here on my
+ 
+
+00:02:21.850 --> 00:02:29.869 align:start position:0%
+So here on my
+[Music]
+
+00:02:29.869 --> 00:02:29.879 align:start position:0%
+ 
+ 
+
+00:02:29.879 --> 00:02:31.949 align:start position:0%
+ 
+platform, <00:02:30.104><c>basically, </c><00:02:30.329><c>I'm </c><00:02:30.554><c>giving </c><00:02:30.779><c>you </c><00:02:31.004><c>an </c><00:02:31.229><c>online </c><00:02:31.454><c>way </c><00:02:31.679><c>to</c>
+
+00:02:31.949 --> 00:02:31.959 align:start position:0%
+platform, basically, I'm giving you an online way to
+ 
+
+00:02:31.959 --> 00:02:34.110 align:start position:0%
+platform, basically, I'm giving you an online way to
+write <00:02:32.639><c>code. </c><00:02:33.319><c>If </c><00:02:33.999><c>your</c>
+
+00:02:34.110 --> 00:02:34.120 align:start position:0%
+write code. If your
+ 
+
+00:02:34.120 --> 00:02:36.350 align:start position:0%
+write code. If your
+computer <00:02:34.446><c>isn't </c><00:02:34.772><c>fast </c><00:02:35.098><c>enough </c><00:02:35.424><c>or </c><00:02:35.750><c>you're </c><00:02:36.076><c>having</c>
+
+00:02:36.350 --> 00:02:36.360 align:start position:0%
+computer isn't fast enough or you're having
+ 
+
+00:02:36.360 --> 00:02:38.750 align:start position:0%
+computer isn't fast enough or you're having
+trouble <00:02:36.910><c>computing, </c><00:02:37.460><c>that </c><00:02:38.010><c>is, </c><00:02:38.560><c>if</c>
+
+00:02:38.750 --> 00:02:38.760 align:start position:0%
+trouble computing, that is, if
+ 
+
+00:02:38.760 --> 00:02:41.149 align:start position:0%
+trouble computing, that is, if
+your <00:02:39.216><c>computer </c><00:02:39.672><c>lags </c><00:02:40.128><c>a </c><00:02:40.584><c>lot, </c><00:02:41.040><c>then</c>
+
+00:02:41.149 --> 00:02:41.159 align:start position:0%
+your computer lags a lot, then
+ 
+
+00:02:41.159 --> 00:02:43.149 align:start position:0%
+your computer lags a lot, then
+you <00:02:41.487><c>just </c><00:02:41.815><c>need </c><00:02:42.143><c>a </c><00:02:42.471><c>browser </c><00:02:42.799><c>tab</c>
+
+00:02:43.149 --> 00:02:43.159 align:start position:0%
+you just need a browser tab
+ 
+
+00:02:43.159 --> 00:02:45.790 align:start position:0%
+you just need a browser tab
+and <00:02:43.408><c>you'll </c><00:02:43.657><c>be </c><00:02:43.906><c>able </c><00:02:44.155><c>to </c><00:02:44.404><c>follow </c><00:02:44.653><c>along </c><00:02:44.902><c>with </c><00:02:45.151><c>me. </c><00:02:45.400><c>And</c>
+
+00:02:45.790 --> 00:02:45.800 align:start position:0%
+and you'll be able to follow along with me. And
+ 
+
+00:02:45.800 --> 00:02:47.509 align:start position:0%
+and you'll be able to follow along with me. And
+because <00:02:46.128><c>I'm </c><00:02:46.456><c>using </c><00:02:46.784><c>Roulette, </c><00:02:47.112><c>it'll </c><00:02:47.440><c>be</c>
+
+00:02:47.509 --> 00:02:47.519 align:start position:0%
+because I'm using Roulette, it'll be
+ 
+
+00:02:47.519 --> 00:02:49.830 align:start position:0%
+because I'm using Roulette, it'll be
+easy <00:02:47.845><c>for </c><00:02:48.171><c>you </c><00:02:48.497><c>too.  </c><00:02:48.823><c>Follow </c><00:02:49.149><c>me, </c><00:02:49.475><c>so</c>
+
+00:02:49.830 --> 00:02:49.840 align:start position:0%
+easy for you too.  Follow me, so
+ 
+
+00:02:49.840 --> 00:02:52.589 align:start position:0%
+easy for you too.  Follow me, so
+I'll <00:02:50.375><c>quickly </c><00:02:50.910><c>go </c><00:02:51.445><c>to </c><00:02:51.980><c>my </c><00:02:52.515><c>rails.</c>
+
+00:02:52.589 --> 00:02:52.599 align:start position:0%
+I'll quickly go to my rails.
+ 
+
+00:02:52.599 --> 00:02:55.390 align:start position:0%
+I'll quickly go to my rails.
+I've <00:02:53.179><c>already </c><00:02:53.759><c>created </c><00:02:54.339><c>some </c><00:02:54.919><c>wrappers.</c>
+
+00:02:55.390 --> 00:02:55.400 align:start position:0%
+I've already created some wrappers.
+ 
+
+00:02:55.400 --> 00:02:58.949 align:start position:0%
+I've already created some wrappers.
+I'll <00:02:56.520><c>scroll </c><00:02:57.640><c>down </c><00:02:58.760><c>and</c>
+
+00:02:58.949 --> 00:02:58.959 align:start position:0%
+I'll scroll down and
+ 
+
+00:02:58.959 --> 00:03:00.830 align:start position:0%
+I'll scroll down and
+go <00:02:59.303><c>to </c><00:02:59.647><c>the </c><00:02:59.991><c>python2.job.ready </c><00:03:00.335><c>folder. </c><00:03:00.679><c>Here's</c>
+
+00:03:00.830 --> 00:03:00.840 align:start position:0%
+go to the python2.job.ready folder. Here's
+ 
+
+00:03:00.840 --> 00:03:04.589 align:start position:0%
+go to the python2.job.ready folder. Here's
+our <00:03:01.535><c>day </c><00:03:02.230><c>one </c><00:03:02.925><c>wrapper. </c><00:03:03.620><c>Okay, </c><00:03:04.315><c>so</c>
+
+00:03:04.589 --> 00:03:04.599 align:start position:0%
+our day one wrapper. Okay, so
+ 
+
+00:03:04.599 --> 00:03:07.190 align:start position:0%
+our day one wrapper. Okay, so
+here <00:03:05.149><c>you </c><00:03:05.699><c>guys </c><00:03:06.249><c>can </c><00:03:06.799><c>see</c>
+
+00:03:07.190 --> 00:03:07.200 align:start position:0%
+here you guys can see
+ 
+
+00:03:07.200 --> 00:03:08.789 align:start position:0%
+here you guys can see
+my <00:03:07.940><c>video, </c><00:03:08.680><c>you'll</c>
+
+00:03:08.789 --> 00:03:08.799 align:start position:0%
+my video, you'll
+ 
+
+00:03:08.799 --> 00:03:11.869 align:start position:0%
+my video, you'll
+see <00:03:09.199><c>it </c><00:03:09.599><c>in </c><00:03:09.999><c>a </c><00:03:10.399><c>floating </c><00:03:10.799><c>pane </c><00:03:11.199><c>here, </c><00:03:11.599><c>and</c>
+
+00:03:11.869 --> 00:03:11.879 align:start position:0%
+see it in a floating pane here, and
+ 
+
+00:03:11.879 --> 00:03:14.149 align:start position:0%
+see it in a floating pane here, and
+our <00:03:12.232><c>content </c><00:03:12.585><c>will </c><00:03:12.938><c>be </c><00:03:13.291><c>here. </c><00:03:13.644><c>Here </c><00:03:13.997><c>we'll</c>
+
+00:03:14.149 --> 00:03:14.159 align:start position:0%
+our content will be here. Here we'll
+ 
+
+00:03:14.159 --> 00:03:17.110 align:start position:0%
+our content will be here. Here we'll
+write <00:03:14.499><c>the </c><00:03:14.839><c>code, </c><00:03:15.179><c>so </c><00:03:15.519><c>I'll </c><00:03:15.859><c>keep </c><00:03:16.199><c>the </c><00:03:16.539><c>console </c><00:03:16.879><c>here,</c>
+
+00:03:17.110 --> 00:03:18.470 align:start position:0%
+write the code, so I'll keep the console here,
+ 
+
+00:03:18.470 --> 00:03:18.480 align:start position:0%
+ 
+ 
+
+00:03:18.480 --> 00:03:22.270 align:start position:0%
+ 
+and <00:03:19.073><c>along </c><00:03:19.666><c>with </c><00:03:20.259><c>that, </c><00:03:20.852><c>the </c><00:03:21.445><c>code </c><00:03:22.038><c>I'll</c>
+
+00:03:22.270 --> 00:03:22.280 align:start position:0%
+and along with that, the code I'll
+ 
+
+00:03:22.280 --> 00:03:24.229 align:start position:0%
+and along with that, the code I'll
+show <00:03:22.640><c>you, </c><00:03:23.000><c>I'll </c><00:03:23.360><c>close </c><00:03:23.720><c>it </c><00:03:24.080><c>here,</c>
+
+00:03:24.229 --> 00:03:24.239 align:start position:0%
+show you, I'll close it here,
+ 
+
+00:03:24.239 --> 00:03:26.110 align:start position:0%
+show you, I'll close it here,
+I'll <00:03:24.525><c>write </c><00:03:24.811><c>the </c><00:03:25.097><c>code </c><00:03:25.383><c>here, </c><00:03:25.669><c>and </c><00:03:25.955><c>the</c>
+
+00:03:26.110 --> 00:03:26.120 align:start position:0%
+I'll write the code here, and the
+ 
+
+00:03:26.120 --> 00:03:28.309 align:start position:0%
+I'll write the code here, and the
+output <00:03:26.374><c>of </c><00:03:26.628><c>that </c><00:03:26.882><c>code </c><00:03:27.136><c>will </c><00:03:27.390><c>come </c><00:03:27.644><c>here. </c><00:03:27.898><c>So </c><00:03:28.152><c>I'll</c>
+
+00:03:28.309 --> 00:03:28.319 align:start position:0%
+output of that code will come here. So I'll
+ 
+
+00:03:28.319 --> 00:03:31.110 align:start position:0%
+output of that code will come here. So I'll
+quickly <00:03:28.684><c>create </c><00:03:29.049><c>a </c><00:03:29.414><c>new </c><00:03:29.779><c>file </c><00:03:30.144><c>here, </c><00:03:30.509><c>so </c><00:03:30.874><c>I'll</c>
+
+00:03:31.110 --> 00:03:31.120 align:start position:0%
+quickly create a new file here, so I'll
+ 
+
+00:03:31.120 --> 00:03:33.990 align:start position:0%
+quickly create a new file here, so I'll
+click <00:03:31.566><c>here </c><00:03:32.012><c>and </c><00:03:32.458><c>open </c><00:03:32.904><c>the </c><00:03:33.350><c>main </c><00:03:33.796><c>page.</c>
+
+00:03:33.990 --> 00:03:34.000 align:start position:0%
+click here and open the main page.
+ 
+
+00:03:34.000 --> 00:03:35.630 align:start position:0%
+click here and open the main page.
+I <00:03:34.189><c>actually </c><00:03:34.378><c>want </c><00:03:34.567><c>to </c><00:03:34.756><c>open </c><00:03:34.945><c>the </c><00:03:35.134><c>main </c><00:03:35.323><c>page </c><00:03:35.512><c>here.</c>
+
+00:03:35.630 --> 00:03:35.640 align:start position:0%
+I actually want to open the main page here.
+ 
+
+00:03:35.640 --> 00:03:37.589 align:start position:0%
+I actually want to open the main page here.
+So <00:03:36.213><c>you </c><00:03:36.786><c>guys </c><00:03:37.359><c>see</c>
+
+00:03:37.589 --> 00:03:37.599 align:start position:0%
+So you guys see
+ 
+
+00:03:37.599 --> 00:03:39.750 align:start position:0%
+So you guys see
+how <00:03:37.925><c>easy </c><00:03:38.251><c>it </c><00:03:38.577><c>is </c><00:03:38.903><c>to </c><00:03:39.229><c>use. </c><00:03:39.555><c>The</c>
+
+00:03:39.750 --> 00:03:39.760 align:start position:0%
+how easy it is to use. The
+ 
+
+00:03:39.760 --> 00:03:41.550 align:start position:0%
+how easy it is to use. The
+tutorial <00:03:40.170><c>will </c><00:03:40.580><c>be </c><00:03:40.990><c>here. </c><00:03:41.400><c>We'll</c>
+
+00:03:41.550 --> 00:03:41.560 align:start position:0%
+tutorial will be here. We'll
+ 
+
+00:03:41.560 --> 00:03:44.470 align:start position:0%
+tutorial will be here. We'll
+write <00:03:41.820><c>the </c><00:03:42.080><c>code </c><00:03:42.340><c>here. </c><00:03:42.600><c>The </c><00:03:42.860><c>output </c><00:03:43.120><c>will </c><00:03:43.380><c>be </c><00:03:43.640><c>here.</c>
+
+00:03:44.470 --> 00:03:44.480 align:start position:0%
+write the code here. The output will be here.
+ 
+
+00:03:44.480 --> 00:03:47.229 align:start position:0%
+write the code here. The output will be here.
+And <00:03:44.857><c>here </c><00:03:45.234><c>will </c><00:03:45.611><c>be </c><00:03:45.988><c>our </c><00:03:46.365><c>video, </c><00:03:46.742><c>which </c><00:03:47.119><c>you</c>
+
+00:03:47.229 --> 00:03:47.239 align:start position:0%
+And here will be our video, which you
+ 
+
+00:03:47.239 --> 00:03:49.110 align:start position:0%
+And here will be our video, which you
+guys <00:03:47.599><c>can </c><00:03:47.959><c>watch. </c><00:03:48.319><c>Now </c><00:03:48.679><c>here </c><00:03:49.039><c>I've</c>
+
+00:03:49.110 --> 00:03:49.120 align:start position:0%
+guys can watch. Now here I've
+ 
+
+00:03:49.120 --> 00:03:51.670 align:start position:0%
+guys can watch. Now here I've
+put <00:03:49.506><c>a </c><00:03:49.892><c>demo </c><00:03:50.278><c>video </c><00:03:50.664><c>for </c><00:03:51.050><c>you </c><00:03:51.436><c>guys,</c>
+
+00:03:51.670 --> 00:03:51.680 align:start position:0%
+put a demo video for you guys,
+ 
+
+00:03:51.680 --> 00:03:53.910 align:start position:0%
+put a demo video for you guys,
+which <00:03:51.872><c>is </c><00:03:52.064><c>our </c><00:03:52.256><c>day </c><00:03:52.448><c>one </c><00:03:52.640><c>video.  </c><00:03:52.832><c>You </c><00:03:53.024><c>will </c><00:03:53.216><c>get </c><00:03:53.408><c>to </c><00:03:53.600><c>see </c><00:03:53.792><c>that.</c>
+
+00:03:53.910 --> 00:03:53.920 align:start position:0%
+which is our day one video.  You will get to see that.
+ 
+
+00:03:53.920 --> 00:03:55.789 align:start position:0%
+which is our day one video.  You will get to see that.
+If <00:03:54.479><c>you </c><00:03:55.038><c>are </c><00:03:55.597><c>wondering</c>
+
+00:03:55.789 --> 00:03:55.799 align:start position:0%
+If you are wondering
+ 
+
+00:03:55.799 --> 00:03:57.309 align:start position:0%
+If you are wondering
+how <00:03:55.954><c>I </c><00:03:56.109><c>did </c><00:03:56.264><c>this, </c><00:03:56.419><c>then </c><00:03:56.574><c>I </c><00:03:56.729><c>will </c><00:03:56.884><c>also </c><00:03:57.039><c>give </c><00:03:57.194><c>you</c>
+
+00:03:57.309 --> 00:03:57.319 align:start position:0%
+how I did this, then I will also give you
+ 
+
+00:03:57.319 --> 00:03:59.069 align:start position:0%
+how I did this, then I will also give you
+a <00:03:57.592><c>link </c><00:03:57.865><c>in </c><00:03:58.138><c>the </c><00:03:58.411><c>description. </c><00:03:58.684><c>You </c><00:03:58.957><c>will</c>
+
+00:03:59.069 --> 00:03:59.079 align:start position:0%
+a link in the description. You will
+ 
+
+00:03:59.079 --> 00:04:01.030 align:start position:0%
+a link in the description. You will
+know <00:03:59.423><c>how </c><00:03:59.767><c>to </c><00:04:00.111><c>do </c><00:04:00.455><c>this. </c><00:04:00.799><c>In</c>
+
+00:04:01.030 --> 00:04:01.040 align:start position:0%
+know how to do this. In
+ 
+
+00:04:01.040 --> 00:04:03.149 align:start position:0%
+know how to do this. In
+case <00:04:01.294><c>a </c><00:04:01.548><c>teacher </c><00:04:01.802><c>or </c><00:04:02.056><c>something </c><00:04:02.310><c>is </c><00:04:02.564><c>watching </c><00:04:02.818><c>this, </c><00:04:03.072><c>then</c>
+
+00:04:03.149 --> 00:04:03.159 align:start position:0%
+case a teacher or something is watching this, then
+ 
+
+00:04:03.159 --> 00:04:29.830 align:start position:0%
+case a teacher or something is watching this, then
+
+
+00:04:29.830 --> 00:04:29.840 align:start position:0%
+ 
+ 
+
+00:04:29.840 --> 00:04:31.710 align:start position:0%
+ 
+why <00:04:30.068><c>should </c><00:04:30.296><c>I </c><00:04:30.524><c>use </c><00:04:30.752><c>a </c><00:04:30.980><c>calculator? </c><00:04:31.208><c>But </c><00:04:31.436><c>how</c>
+
+00:04:31.710 --> 00:04:31.720 align:start position:0%
+why should I use a calculator? But how
+ 
+
+00:04:31.720 --> 00:04:36.310 align:start position:0%
+why should I use a calculator? But how
+about <00:04:32.213><c>2 </c><00:04:32.706><c>3 </c><00:04:33.199><c>45 </c><00:04:33.692><c>3 </c><00:04:34.185><c>453 </c><00:04:34.678><c>* </c><00:04:35.171><c>56 </c><00:04:35.664><c>456? </c><00:04:36.157><c>You</c>
+
+00:04:36.310 --> 00:04:36.320 align:start position:0%
+about 2 3 45 3 453 * 56 456? You
+ 
+
+00:04:36.320 --> 00:04:37.950 align:start position:0%
+about 2 3 45 3 453 * 56 456? You
+can <00:04:36.679><c>calculate </c><00:04:37.038><c>this, </c><00:04:37.397><c>but </c><00:04:37.756><c>you</c>
+
+00:04:37.950 --> 00:04:37.960 align:start position:0%
+can calculate this, but you
+ 
+
+00:04:37.960 --> 00:04:39.670 align:start position:0%
+can calculate this, but you
+cannot <00:04:38.149><c>do </c><00:04:38.338><c>it </c><00:04:38.527><c>as </c><00:04:38.716><c>fast </c><00:04:38.905><c>as </c><00:04:39.094><c>a </c><00:04:39.283><c>computer </c><00:04:39.472><c>can.</c>
+
+00:04:39.670 --> 00:04:39.680 align:start position:0%
+cannot do it as fast as a computer can.
+ 
+
+00:04:39.680 --> 00:04:42.110 align:start position:0%
+cannot do it as fast as a computer can.
+So, <00:04:39.979><c>in </c><00:04:40.278><c>such </c><00:04:40.577><c>a </c><00:04:40.876><c>situation, </c><00:04:41.175><c>proper </c><00:04:41.474><c>communication</c>
+
+00:04:42.110 --> 00:04:42.120 align:start position:0%
+So, in such a situation, proper communication
+ 
+
+00:04:42.120 --> 00:04:44.070 align:start position:0%
+So, in such a situation, proper communication
+with <00:04:42.496><c>the </c><00:04:42.872><c>computer </c><00:04:43.248><c>becomes </c><00:04:43.624><c>very </c><00:04:44.000><c>important</c>
+
+00:04:44.070 --> 00:04:44.080 align:start position:0%
+with the computer becomes very important
+ 
+
+00:04:44.080 --> 00:04:45.710 align:start position:0%
+with the computer becomes very important
+and <00:04:44.429><c>for </c><00:04:44.778><c>this, </c><00:04:45.127><c>we </c><00:04:45.476><c>use</c>
+
+00:04:45.710 --> 00:04:45.720 align:start position:0%
+and for this, we use
+ 
+
+00:04:45.720 --> 00:04:47.670 align:start position:0%
+and for this, we use
+programming. <00:04:46.020><c>Just </c><00:04:46.320><c>like </c><00:04:46.620><c>you </c><00:04:46.920><c>and </c><00:04:47.220><c>I </c><00:04:47.520><c>are</c>
+
+00:04:47.670 --> 00:04:47.680 align:start position:0%
+programming. Just like you and I are
+ 
+
+00:04:47.680 --> 00:04:49.110 align:start position:0%
+programming. Just like you and I are
+talking <00:04:47.920><c>in </c><00:04:48.160><c>Hindi, </c><00:04:48.400><c>you </c><00:04:48.640><c>might </c><00:04:48.880><c>be</c>
+
+00:04:49.110 --> 00:04:49.120 align:start position:0%
+talking in Hindi, you might be
+ 
+
+00:04:49.120 --> 00:04:50.510 align:start position:0%
+talking in Hindi, you might be
+talking <00:04:49.360><c>to </c><00:04:49.600><c>your </c><00:04:49.840><c>friends </c><00:04:50.080><c>in </c><00:04:50.320><c>English,</c>
+
+00:04:50.510 --> 00:04:50.520 align:start position:0%
+talking to your friends in English,
+ 
+
+00:04:50.520 --> 00:04:52.830 align:start position:0%
+talking to your friends in English,
+Spanish <00:04:52.639><c>or</c>
+
+00:04:52.830 --> 00:04:52.840 align:start position:0%
+Spanish or
+ 
+
+00:04:52.840 --> 00:04:54.590 align:start position:0%
+Spanish or
+any <00:04:53.620><c>other </c><00:04:54.400><c>language.</c>
+
+00:04:54.590 --> 00:04:54.600 align:start position:0%
+any other language.
+ 
+
+00:04:54.600 --> 00:04:56.629 align:start position:0%
+any other language.
+We
+
+00:04:56.629 --> 00:04:56.639 align:start position:0%
+We
+ 
+
+00:04:56.639 --> 00:04:58.350 align:start position:0%
+We
+use <00:04:56.856><c>programming </c><00:04:57.073><c>languages ​​</c><00:04:57.290><c>to </c><00:04:57.507><c>talk </c><00:04:57.724><c>to </c><00:04:57.941><c>the </c><00:04:58.158><c>computer,</c>
+
+00:04:58.350 --> 00:04:58.360 align:start position:0%
+use programming languages ​​to talk to the computer,
+ 
+
+00:04:58.360 --> 00:04:59.710 align:start position:0%
+use programming languages ​​to talk to the computer,
+like
+
+00:04:59.710 --> 00:04:59.720 align:start position:0%
+like
+ 
+
+00:04:59.720 --> 00:05:03.189 align:start position:0%
+like
+C, <00:05:00.095><c>C++, </c><00:05:00.470><c>Java </c><00:05:00.845><c>and </c><00:05:01.220><c>there </c><00:05:01.595><c>are </c><00:05:01.970><c>many </c><00:05:02.345><c>other </c><00:05:02.720><c>programming</c>
+
+00:05:03.189 --> 00:05:03.199 align:start position:0%
+C, C++, Java and there are many other programming
+ 
+
+00:05:03.199 --> 00:05:04.950 align:start position:0%
+C, C++, Java and there are many other programming
+languages ​​<00:05:03.404><c>in </c><00:05:03.609><c>the </c><00:05:03.814><c>market, </c><00:05:04.019><c>but </c><00:05:04.224><c>in </c><00:05:04.429><c>this </c><00:05:04.634><c>course,</c>
+
+00:05:04.950 --> 00:05:04.960 align:start position:0%
+languages ​​in the market, but in this course,
+ 
+
+00:05:04.960 --> 00:05:29.830 align:start position:0%
+languages ​​in the market, but in this course,
+which <00:05:05.180><c>is </c><00:05:05.400><c>pythonanywhere.com,</c>
+
+00:05:29.830 --> 00:05:29.840 align:start position:0%
+ 
+ 
+
+00:05:29.840 --> 00:05:31.830 align:start position:0%
+ 
+we <00:05:30.024><c>are </c><00:05:30.208><c>going </c><00:05:30.392><c>to </c><00:05:30.576><c>learn </c><00:05:30.760><c>it. </c><00:05:30.944><c>It </c><00:05:31.128><c>is </c><00:05:31.312><c>an</c>
+
+00:05:31.830 --> 00:05:31.840 align:start position:0%
+we are going to learn it. It is an
+ 
+
+00:05:31.840 --> 00:05:34.029 align:start position:0%
+we are going to learn it. It is an
+interpreted, <00:05:32.700><c>high-level </c><00:05:33.560><c>programming</c>
+
+00:05:34.029 --> 00:05:34.039 align:start position:0%
+interpreted, high-level programming
+ 
+
+00:05:34.039 --> 00:05:37.189 align:start position:0%
+interpreted, high-level programming
+language <00:05:34.343><c>and </c><00:05:34.647><c>Gado </c><00:05:34.951><c>Van </c><00:05:35.255><c>Rasam </c><00:05:35.559><c>created </c><00:05:35.863><c>it </c><00:05:36.167><c>in </c><00:05:36.471><c>1989.  </c><00:05:36.775><c>I </c><00:05:37.079><c>had</c>
+
+00:05:37.189 --> 00:05:37.199 align:start position:0%
+language and Gado Van Rasam created it in 1989.  I had
+ 
+
+00:05:37.199 --> 00:05:39.309 align:start position:0%
+language and Gado Van Rasam created it in 1989.  I had
+started <00:05:37.456><c>working </c><00:05:37.713><c>on </c><00:05:37.970><c>it. </c><00:05:38.227><c>Now </c><00:05:38.484><c>many </c><00:05:38.741><c>people </c><00:05:38.998><c>ask</c>
+
+00:05:39.309 --> 00:05:39.319 align:start position:0%
+started working on it. Now many people ask
+ 
+
+00:05:39.319 --> 00:05:44.390 align:start position:0%
+started working on it. Now many people ask
+that
+
+00:05:44.390 --> 00:05:44.400 align:start position:0%
+ 
+ 
+
+00:05:44.400 --> 00:05:46.629 align:start position:0%
+ 
+starting <00:05:44.570><c>from </c><00:05:44.740><c>Python </c><00:05:44.910><c>2, </c><00:05:45.080><c>over </c><00:05:45.250><c>the </c><00:05:45.420><c>period </c><00:05:45.590><c>of </c><00:05:45.760><c>years, </c><00:05:45.930><c>one </c><00:05:46.100><c>year </c><00:05:46.270><c>old </c><00:05:46.440><c>person</c>
+
+00:05:46.629 --> 00:05:46.639 align:start position:0%
+starting from Python 2, over the period of years, one year old person
+ 
+
+00:05:46.639 --> 00:05:49.150 align:start position:0%
+starting from Python 2, over the period of years, one year old person
+created <00:05:47.219><c>it. </c><00:05:47.799><c>So, </c><00:05:48.379><c>at </c><00:05:48.959><c>many</c>
+
+00:05:49.150 --> 00:05:49.160 align:start position:0%
+created it. So, at many
+ 
+
+00:05:49.160 --> 00:05:51.309 align:start position:0%
+created it. So, at many
+places <00:05:49.377><c>you </c><00:05:49.594><c>will </c><00:05:49.811><c>find </c><00:05:50.028><c>1991, </c><00:05:50.245><c>at </c><00:05:50.462><c>many </c><00:05:50.679><c>places </c><00:05:50.896><c>you </c><00:05:51.113><c>will</c>
+
+00:05:51.309 --> 00:05:51.319 align:start position:0%
+places you will find 1991, at many places you will
+ 
+
+00:05:51.319 --> 00:05:53.469 align:start position:0%
+places you will find 1991, at many places you will
+find <00:05:51.550><c>1992, </c><00:05:51.781><c>at </c><00:05:52.012><c>many </c><00:05:52.243><c>places </c><00:05:52.474><c>you </c><00:05:52.705><c>will </c><00:05:52.936><c>find </c><00:05:53.167><c>89 </c><00:05:53.398><c>also,</c>
+
+00:05:53.469 --> 00:05:53.479 align:start position:0%
+find 1992, at many places you will find 89 also,
+ 
+
+00:05:53.479 --> 00:05:56.510 align:start position:0%
+find 1992, at many places you will find 89 also,
+but <00:05:53.879><c>the </c><00:05:54.279><c>truth </c><00:05:54.679><c>is </c><00:05:55.079><c>that </c><00:05:55.479><c>starting </c><00:05:55.879><c>from </c><00:05:56.279><c>89,</c>
+
+00:05:56.510 --> 00:05:56.520 align:start position:0%
+but the truth is that starting from 89,
+ 
+
+00:05:56.520 --> 00:05:58.029 align:start position:0%
+but the truth is that starting from 89,
+it <00:05:56.697><c>was </c><00:05:56.874><c>created </c><00:05:57.051><c>over </c><00:05:57.228><c>the </c><00:05:57.405><c>period </c><00:05:57.582><c>of </c><00:05:57.759><c>years.</c>
+
+00:05:58.029 --> 00:05:58.039 align:start position:0%
+it was created over the period of years.
+ 
+
+00:05:58.039 --> 00:05:59.710 align:start position:0%
+it was created over the period of years.
+What <00:05:58.279><c>are </c><00:05:58.519><c>the </c><00:05:58.759><c>features </c><00:05:58.999><c>of </c><00:05:59.239><c>Python? </c><00:05:59.479><c>The</c>
+
+00:05:59.710 --> 00:05:59.720 align:start position:0%
+What are the features of Python? The
+ 
+
+00:05:59.720 --> 00:06:02.350 align:start position:0%
+What are the features of Python? The
+first <00:05:59.907><c>thing </c><00:06:00.094><c>I </c><00:06:00.281><c>will </c><00:06:00.468><c>tell </c><00:06:00.655><c>you </c><00:06:00.842><c>is </c><00:06:01.029><c>that </c><00:06:01.216><c>it </c><00:06:01.403><c>is </c><00:06:01.590><c>simple, </c><00:06:01.777><c>it </c><00:06:01.964><c>is </c><00:06:02.151><c>the</c>
+
+00:06:02.350 --> 00:06:02.360 align:start position:0%
+first thing I will tell you is that it is simple, it is the
+ 
+
+00:06:02.360 --> 00:06:04.350 align:start position:0%
+first thing I will tell you is that it is simple, it is the
+simplest <00:06:03.759><c>programming</c>
+
+00:06:04.350 --> 00:06:04.360 align:start position:0%
+simplest programming
+ 
+
+00:06:04.360 --> 00:06:06.710 align:start position:0%
+simplest programming
+language. <00:06:04.549><c>This </c><00:06:04.738><c>seems </c><00:06:04.927><c>to </c><00:06:05.116><c>me </c><00:06:05.305><c>to </c><00:06:05.494><c>be </c><00:06:05.683><c>the </c><00:06:05.872><c>best </c><00:06:06.061><c>feature. </c><00:06:06.250><c>If </c><00:06:06.439><c>you</c>
+
+00:06:06.710 --> 00:06:16.150 align:start position:0%
+language. This seems to me to be the best feature. If you
+ 
+
+00:06:16.150 --> 00:06:16.160 align:start position:0%
+ 
+ 
+
+00:06:16.160 --> 00:06:29.629 align:start position:0%
+ 
+write <00:06:16.445><c>code </c><00:06:16.730><c>in </c><00:06:17.015><c>Python, </c><00:06:17.300><c>you </c><00:06:17.585><c>can </c><00:06:17.870><c>use </c><00:06:18.155><c>it</c>
+
+00:06:29.629 --> 00:06:29.639 align:start position:0%
+ 
+ 
+
+00:06:29.639 --> 00:06:31.029 align:start position:0%
+ 
+because <00:06:29.865><c>I </c><00:06:30.091><c>am </c><00:06:30.317><c>using </c><00:06:30.543><c>the </c><00:06:30.769><c>Rapt </c><00:06:30.995><c>platform.</c>
+
+00:06:31.029 --> 00:06:31.039 align:start position:0%
+because I am using the Rapt platform.
+ 
+
+00:06:31.039 --> 00:06:32.909 align:start position:0%
+because I am using the Rapt platform.
+But <00:06:31.156><c>if </c><00:06:31.273><c>I </c><00:06:31.390><c>had </c><00:06:31.507><c>written </c><00:06:31.624><c>the </c><00:06:31.741><c>code </c><00:06:31.858><c>in </c><00:06:31.975><c>my </c><00:06:32.092><c>Mac </c><00:06:32.209><c>also, </c><00:06:32.326><c>it </c><00:06:32.443><c>would </c><00:06:32.560><c>have </c><00:06:32.677><c>been</c>
+
+00:06:32.909 --> 00:06:35.870 align:start position:0%
+But if I had written the code in my Mac also, it would have been
+ 
+
+00:06:35.870 --> 00:06:35.880 align:start position:0%
+ 
+ 
+
+00:06:35.880 --> 00:06:38.830 align:start position:0%
+ 
+very <00:06:36.168><c>easy </c><00:06:36.456><c>for </c><00:06:36.744><c>you </c><00:06:37.032><c>to </c><00:06:37.320><c>run </c><00:06:37.608><c>it </c><00:06:37.896><c>anywhere. </c><00:06:38.184><c>It </c><00:06:38.472><c>is</c>
+
+00:06:38.830 --> 00:06:38.840 align:start position:0%
+very easy for you to run it anywhere. It is
+ 
+
+00:06:38.840 --> 00:06:40.510 align:start position:0%
+very easy for you to run it anywhere. It is
+an <00:06:39.062><c>open </c><00:06:39.284><c>source </c><00:06:39.506><c>programming </c><00:06:39.728><c>language </c><00:06:39.950><c>for </c><00:06:40.172><c>you. </c><00:06:40.394><c>The</c>
+
+00:06:40.510 --> 00:06:40.520 align:start position:0%
+an open source programming language for you. The
+ 
+
+00:06:40.520 --> 00:06:58.510 align:start position:0%
+an open source programming language for you. The
+biggest <00:06:40.656><c>thing </c><00:06:40.792><c>is </c><00:06:40.928><c>that </c><00:06:41.064><c>you </c><00:06:41.200><c>do </c><00:06:41.336><c>not </c><00:06:41.472><c>have </c><00:06:41.608><c>to </c><00:06:41.744><c>pay </c><00:06:41.880><c>any </c><00:06:42.016><c>money. </c><00:06:42.152><c>The</c>
+
+00:06:58.510 --> 00:06:58.520 align:start position:0%
+ 
+ 
+
+00:06:58.520 --> 00:07:00.790 align:start position:0%
+ 
+code <00:06:58.888><c>is </c><00:06:59.256><c>written </c><00:06:59.624><c>by </c><00:06:59.992><c>pythonanywhere.com. </c><00:07:00.360><c>The</c>
+
+00:07:00.790 --> 00:07:00.800 align:start position:0%
+code is written by pythonanywhere.com. The
+ 
+
+00:07:00.800 --> 00:07:03.309 align:start position:0%
+code is written by pythonanywhere.com. The
+hard <00:07:01.193><c>work </c><00:07:01.586><c>done </c><00:07:01.979><c>by </c><00:07:02.372><c>them. </c><00:07:02.765><c>Maybe </c><00:07:03.158><c>someone</c>
+
+00:07:03.309 --> 00:07:03.319 align:start position:0%
+hard work done by them. Maybe someone
+ 
+
+00:07:03.319 --> 00:07:05.150 align:start position:0%
+hard work done by them. Maybe someone
+created <00:07:03.529><c>something </c><00:07:03.739><c>in </c><00:07:03.949><c>a </c><00:07:04.159><c>year </c><00:07:04.369><c>and </c><00:07:04.579><c>you </c><00:07:04.789><c>get </c><00:07:04.999><c>to</c>
+
+00:07:05.150 --> 00:07:05.160 align:start position:0%
+created something in a year and you get to
+ 
+
+00:07:05.160 --> 00:07:07.629 align:start position:0%
+created something in a year and you get to
+use <00:07:05.368><c>it </c><00:07:05.576><c>in </c><00:07:05.784><c>a </c><00:07:05.992><c>minute. </c><00:07:06.200><c>This </c><00:07:06.408><c>is </c><00:07:06.616><c>quite </c><00:07:06.824><c>great. </c><00:07:07.032><c>Let </c><00:07:07.240><c>me</c>
+
+00:07:07.629 --> 00:07:07.639 align:start position:0%
+use it in a minute. This is quite great. Let me
+ 
+
+00:07:07.639 --> 00:07:09.510 align:start position:0%
+use it in a minute. This is quite great. Let me
+talk <00:07:07.854><c>from </c><00:07:08.069><c>a </c><00:07:08.284><c>learning </c><00:07:08.499><c>point </c><00:07:08.714><c>of </c><00:07:08.929><c>view, </c><00:07:09.144><c>let </c><00:07:09.359><c>me</c>
+
+00:07:09.510 --> 00:07:09.520 align:start position:0%
+talk from a learning point of view, let me
+ 
+
+00:07:09.520 --> 00:07:11.309 align:start position:0%
+talk from a learning point of view, let me
+talk <00:07:09.735><c>from </c><00:07:09.950><c>an </c><00:07:10.165><c>error </c><00:07:10.380><c>point </c><00:07:10.595><c>of </c><00:07:10.810><c>view.  </c><00:07:11.025><c>So </c><00:07:11.240><c>I</c>
+
+00:07:11.309 --> 00:07:11.319 align:start position:0%
+talk from an error point of view.  So I
+ 
+
+00:07:11.319 --> 00:07:14.629 align:start position:0%
+talk from an error point of view.  So I
+would <00:07:11.513><c>say </c><00:07:11.707><c>that </c><00:07:11.901><c>the </c><00:07:12.095><c>error </c><00:07:12.289><c>which </c><00:07:12.483><c>you </c><00:07:12.677><c>are </c><00:07:12.871><c>facing </c><00:07:13.065><c>today </c><00:07:13.259><c>might </c><00:07:13.453><c>have </c><00:07:13.647><c>been </c><00:07:13.841><c>faced </c><00:07:14.035><c>by</c>
+
+00:07:14.629 --> 00:07:14.639 align:start position:0%
+would say that the error which you are facing today might have been faced by
+ 
+
+00:07:14.639 --> 00:07:16.510 align:start position:0%
+would say that the error which you are facing today might have been faced by
+someone <00:07:14.844><c>10 </c><00:07:15.049><c>years </c><00:07:15.254><c>ago </c><00:07:15.459><c>and </c><00:07:15.664><c>he </c><00:07:15.869><c>might </c><00:07:16.074><c>have </c><00:07:16.279><c>solved</c>
+
+00:07:16.510 --> 00:07:16.520 align:start position:0%
+someone 10 years ago and he might have solved
+ 
+
+00:07:16.520 --> 00:07:18.350 align:start position:0%
+someone 10 years ago and he might have solved
+it <00:07:17.919><c>and</c>
+
+00:07:18.350 --> 00:07:18.360 align:start position:0%
+it and
+ 
+
+00:07:18.360 --> 00:07:20.510 align:start position:0%
+it and
+posted <00:07:18.549><c>it </c><00:07:18.738><c>on </c><00:07:18.927><c>a </c><00:07:19.116><c>website </c><00:07:19.305><c>like </c><00:07:19.494><c>Stock </c><00:07:19.683><c>Overflow. </c><00:07:19.872><c>It </c><00:07:20.061><c>will </c><00:07:20.250><c>be </c><00:07:20.439><c>very</c>
+
+00:07:20.510 --> 00:07:20.520 align:start position:0%
+posted it on a website like Stock Overflow. It will be very
+ 
+
+00:07:20.520 --> 00:07:23.589 align:start position:0%
+posted it on a website like Stock Overflow. It will be very
+easy <00:07:20.986><c>for </c><00:07:21.452><c>you </c><00:07:21.918><c>people </c><00:07:22.384><c>to </c><00:07:22.850><c>find </c><00:07:23.316><c>a</c>
+
+00:07:23.589 --> 00:07:26.390 align:start position:0%
+easy for you people to find a
+ 
+
+00:07:26.390 --> 00:07:26.400 align:start position:0%
+ 
+ 
+
+00:07:26.400 --> 00:07:28.589 align:start position:0%
+ 
+solution <00:07:26.733><c>to </c><00:07:27.066><c>that </c><00:07:27.399><c>problem. </c><00:07:27.732><c>Okay, </c><00:07:28.065><c>fine, </c><00:07:28.398><c>it</c>
+
+00:07:28.589 --> 00:07:28.599 align:start position:0%
+solution to that problem. Okay, fine, it
+ 
+
+00:07:28.599 --> 00:07:30.670 align:start position:0%
+solution to that problem. Okay, fine, it
+provides <00:07:28.951><c>support </c><00:07:29.303><c>for </c><00:07:29.655><c>a </c><00:07:30.007><c>huge </c><00:07:30.359><c>library.</c>
+
+00:07:30.670 --> 00:07:30.680 align:start position:0%
+provides support for a huge library.
+ 
+
+00:07:30.680 --> 00:07:32.550 align:start position:0%
+provides support for a huge library.
+After <00:07:31.120><c>that, </c><00:07:31.560><c>it </c><00:07:32.000><c>is</c>
+
+00:07:32.550 --> 00:07:32.560 align:start position:0%
+After that, it is
+ 
+
+00:07:32.560 --> 00:07:34.510 align:start position:0%
+After that, it is
+very <00:07:32.775><c>easy </c><00:07:32.990><c>to </c><00:07:33.205><c>integrate </c><00:07:33.420><c>it </c><00:07:33.635><c>with </c><00:07:33.850><c>other </c><00:07:34.065><c>programming </c><00:07:34.280><c>languages,</c>
+
+00:07:34.510 --> 00:07:34.520 align:start position:0%
+very easy to integrate it with other programming languages,
+ 
+
+00:07:34.520 --> 00:07:36.869 align:start position:0%
+very easy to integrate it with other programming languages,
+like <00:07:34.935><c>C </c><00:07:35.350><c>language. </c><00:07:35.765><c>It </c><00:07:36.180><c>can </c><00:07:36.595><c>be</c>
+
+00:07:36.869 --> 00:07:36.879 align:start position:0%
+like C language. It can be
+ 
+
+00:07:36.879 --> 00:07:38.749 align:start position:0%
+like C language. It can be
+linked <00:07:37.779><c>very </c><00:07:38.679><c>well.</c>
+
+00:07:38.749 --> 00:07:38.759 align:start position:0%
+linked very well.
+ 
+
+00:07:38.759 --> 00:07:40.990 align:start position:0%
+linked very well.
+After <00:07:38.993><c>that, </c><00:07:39.227><c>there </c><00:07:39.461><c>are </c><00:07:39.695><c>some </c><00:07:39.929><c>of </c><00:07:40.163><c>its </c><00:07:40.397><c>applications</c>
+
+00:07:40.990 --> 00:07:41.000 align:start position:0%
+After that, there are some of its applications
+ 
+
+00:07:41.000 --> 00:07:42.270 align:start position:0%
+After that, there are some of its applications
+which <00:07:41.239><c>I </c><00:07:41.478><c>have </c><00:07:41.717><c>written </c><00:07:41.956><c>here </c><00:07:42.195><c>that</c>
+
+00:07:42.270 --> 00:07:42.280 align:start position:0%
+which I have written here that
+ 
+
+00:07:42.280 --> 00:07:44.270 align:start position:0%
+which I have written here that
+brother, <00:07:42.490><c>you </c><00:07:42.700><c>can </c><00:07:42.910><c>also </c><00:07:43.120><c>work </c><00:07:43.330><c>on </c><00:07:43.540><c>database, </c><00:07:43.750><c>you </c><00:07:43.960><c>can</c>
+
+00:07:44.270 --> 00:07:44.280 align:start position:0%
+brother, you can also work on database, you can
+ 
+
+00:07:44.280 --> 00:07:45.909 align:start position:0%
+brother, you can also work on database, you can
+work <00:07:44.432><c>on </c><00:07:44.584><c>data </c><00:07:44.736><c>science, </c><00:07:44.888><c>you </c><00:07:45.040><c>can </c><00:07:45.192><c>work </c><00:07:45.344><c>on </c><00:07:45.496><c>machine </c><00:07:45.648><c>learning, </c><00:07:45.800><c>you</c>
+
+00:07:45.909 --> 00:07:45.919 align:start position:0%
+work on data science, you can work on machine learning, you
+ 
+
+00:07:45.919 --> 00:07:47.830 align:start position:0%
+work on data science, you can work on machine learning, you
+can <00:07:46.492><c>make </c><00:07:47.065><c>web </c><00:07:47.638><c>applications,</c>
+
+00:07:47.830 --> 00:07:47.840 align:start position:0%
+can make web applications,
+ 
+
+00:07:47.840 --> 00:07:49.830 align:start position:0%
+can make web applications,
+very <00:07:49.360><c>serious</c>
+
+00:07:49.830 --> 00:07:49.840 align:start position:0%
+very serious
+ 
+
+00:07:49.840 --> 00:07:52.510 align:start position:0%
+very serious
+complexities <00:07:50.102><c>can </c><00:07:50.364><c>be </c><00:07:50.626><c>made </c><00:07:50.888><c>with </c><00:07:51.150><c>database </c><00:07:51.412><c>and </c><00:07:51.674><c>to </c><00:07:51.936><c>take </c><00:07:52.198><c>your</c>
+
+00:07:52.510 --> 00:07:52.520 align:start position:0%
+complexities can be made with database and to take your
+ 
+
+00:07:52.520 --> 00:07:55.309 align:start position:0%
+complexities can be made with database and to take your
+business <00:07:52.953><c>forward, </c><00:07:53.386><c>you </c><00:07:53.819><c>people </c><00:07:54.252><c>can </c><00:07:54.685><c>do </c><00:07:55.118><c>many</c>
+
+00:07:55.309 --> 00:07:55.319 align:start position:0%
+business forward, you people can do many
+ 
+
+00:07:55.319 --> 00:07:59.550 align:start position:0%
+business forward, you people can do many
+complex <00:07:55.719><c>code </c><00:07:56.119><c>operations. </c><00:07:56.519><c>I </c><00:07:56.919><c>am</c>
+
+00:07:59.550 --> 00:07:59.560 align:start position:0%
+complex code operations. I am
+ 
+
+00:07:59.560 --> 00:08:01.469 align:start position:0%
+complex code operations. I am
+using <00:08:00.020><c>python2 </c><00:08:00.480><c>because </c><00:08:00.940><c>it </c><00:08:01.400><c>is</c>
+
+00:08:01.469 --> 00:08:01.479 align:start position:0%
+using python2 because it is
+ 
+
+00:08:01.479 --> 00:08:18.950 align:start position:0%
+using python2 because it is
+very <00:08:01.935><c>easy </c><00:08:02.391><c>to </c><00:08:02.847><c>share </c><00:08:03.303><c>the </c><00:08:03.759><c>code.</c>
+
+00:08:18.950 --> 00:08:18.960 align:start position:0%
+ 
+ 
+
+00:08:18.960 --> 00:08:22.670 align:start position:0%
+ 
+If <00:08:19.133><c>you </c><00:08:19.306><c>have </c><00:08:19.479><c>python2 </c><00:08:19.652><c>locally, </c><00:08:19.825><c>then </c><00:08:19.998><c>you </c><00:08:20.171><c>people </c><00:08:20.344><c>should </c><00:08:20.517><c>keep </c><00:08:20.690><c>in </c><00:08:20.863><c>mind </c><00:08:21.036><c>that</c>
+
+00:08:22.670 --> 00:08:22.680 align:start position:0%
+If you have python2 locally, then you people should keep in mind that
+ 
+
+00:08:22.680 --> 00:08:24.749 align:start position:0%
+If you have python2 locally, then you people should keep in mind that
+if <00:08:23.639><c>you </c><00:08:24.598><c>are</c>
+
+00:08:24.749 --> 00:08:24.759 align:start position:0%
+if you are
+ 
+
+00:08:24.759 --> 00:08:26.749 align:start position:0%
+if you are
+installing <00:08:24.999><c>python2 </c><00:08:25.239><c>in </c><00:08:25.479><c>your </c><00:08:25.719><c>computer,  </c><00:08:25.959><c>You </c><00:08:26.199><c>guys</c>
+
+00:08:26.749 --> 00:08:29.550 align:start position:0%
+installing python2 in your computer,  You guys
+ 
+
+00:08:29.550 --> 00:08:31.510 align:start position:0%
+ 
+ 
+
+00:08:31.510 --> 00:08:31.520 align:start position:0%
+ 
+ 
+
+00:08:31.520 --> 00:08:33.709 align:start position:0%
+ 
+must <00:08:31.627><c>check </c><00:08:31.734><c>the </c><00:08:31.841><c>path </c><00:08:31.948><c>variable </c><00:08:32.055><c>to </c><00:08:32.162><c>python3, </c><00:08:32.269><c>whatever </c><00:08:32.376><c>version </c><00:08:32.483><c>it </c><00:08:32.590><c>is, </c><00:08:32.697><c>there </c><00:08:32.804><c>is </c><00:08:32.911><c>an </c><00:08:33.018><c>option </c><00:08:33.125><c>called </c><00:08:33.232><c>to </c><00:08:33.339><c>path </c><00:08:33.446><c>because </c><00:08:33.553><c>if</c>
+
+00:08:33.709 --> 00:08:33.719 align:start position:0%
+must check the path variable to python3, whatever version it is, there is an option called to path because if
+ 
+
+00:08:33.719 --> 00:08:36.509 align:start position:0%
+must check the path variable to python3, whatever version it is, there is an option called to path because if
+you <00:08:34.239><c>don't </c><00:08:34.759><c>check </c><00:08:35.279><c>it </c><00:08:35.799><c>then </c><00:08:36.319><c>maybe</c>
+
+00:08:36.509 --> 00:08:59.430 align:start position:0%
+you don't check it then maybe
+ 
+
+00:08:59.430 --> 00:08:59.440 align:start position:0%
+ 
+ 
+
+00:08:59.440 --> 00:09:01.949 align:start position:0%
+ 
+you <00:08:59.625><c>guys </c><00:08:59.810><c>will </c><00:08:59.995><c>get </c><00:09:00.180><c>to </c><00:09:00.365><c>see </c><00:09:00.550><c>Python's </c><00:09:00.735><c>Ripple </c><00:09:00.920><c>here </c><00:09:01.105><c>at </c><00:09:01.290><c>pythonanywhere.com, </c><00:09:01.475><c>the</c>
+
+00:09:01.949 --> 00:09:01.959 align:start position:0%
+you guys will get to see Python's Ripple here at pythonanywhere.com, the
+ 
+
+00:09:01.959 --> 00:09:03.949 align:start position:0%
+you guys will get to see Python's Ripple here at pythonanywhere.com, the
+full <00:09:02.585><c>form </c><00:09:03.211><c>of </c><00:09:03.837><c>Ripple</c>
+
+00:09:03.949 --> 00:09:03.959 align:start position:0%
+full form of Ripple
+ 
+
+00:09:03.959 --> 00:09:06.150 align:start position:0%
+full form of Ripple
+is <00:09:04.224><c>Read </c><00:09:04.489><c>Evaluate </c><00:09:04.754><c>Print </c><00:09:05.019><c>Loop </c><00:09:05.284><c>and </c><00:09:05.549><c>here </c><00:09:05.814><c>you </c><00:09:06.079><c>can</c>
+
+00:09:06.150 --> 00:09:06.160 align:start position:0%
+is Read Evaluate Print Loop and here you can
+ 
+
+00:09:06.160 --> 00:09:08.750 align:start position:0%
+is Read Evaluate Print Loop and here you can
+use <00:09:06.656><c>Python </c><00:09:07.152><c>as </c><00:09:07.648><c>a </c><00:09:08.144><c>calculator, </c><00:09:08.640><c>you</c>
+
+00:09:08.750 --> 00:09:12.110 align:start position:0%
+use Python as a calculator, you
+ 
+
+00:09:12.110 --> 00:09:12.120 align:start position:0%
+ 
+ 
+
+00:09:12.120 --> 00:09:14.310 align:start position:0%
+ 
+can <00:09:12.320><c>run </c><00:09:12.520><c>such </c><00:09:12.720><c>commands, </c><00:09:12.920><c>if </c><00:09:13.120><c>you </c><00:09:13.320><c>guys </c><00:09:13.520><c>don't </c><00:09:13.720><c>know</c>
+
+00:09:14.310 --> 00:09:14.320 align:start position:0%
+can run such commands, if you guys don't know
+ 
+
+00:09:14.320 --> 00:09:15.910 align:start position:0%
+can run such commands, if you guys don't know
+what <00:09:14.450><c>this </c><00:09:14.580><c>print </c><00:09:14.710><c>statement </c><00:09:14.840><c>is, </c><00:09:14.970><c>then </c><00:09:15.100><c>we </c><00:09:15.230><c>are </c><00:09:15.360><c>going </c><00:09:15.490><c>to </c><00:09:15.620><c>read </c><00:09:15.750><c>it</c>
+
+00:09:15.910 --> 00:09:15.920 align:start position:0%
+what this print statement is, then we are going to read it
+ 
+
+00:09:15.920 --> 00:09:17.670 align:start position:0%
+what this print statement is, then we are going to read it
+over <00:09:16.300><c>the </c><00:09:16.680><c>period </c><00:09:17.060><c>of </c><00:09:17.440><c>days,</c>
+
+00:09:17.670 --> 00:09:17.680 align:start position:0%
+over the period of days,
+ 
+
+00:09:17.680 --> 00:09:19.430 align:start position:0%
+over the period of days,
+but <00:09:17.807><c>I </c><00:09:17.934><c>want </c><00:09:18.061><c>you </c><00:09:18.188><c>to </c><00:09:18.315><c>digest </c><00:09:18.442><c>things </c><00:09:18.569><c>day </c><00:09:18.696><c>by </c><00:09:18.823><c>day </c><00:09:18.950><c>slowly, </c><00:09:19.077><c>so</c>
+
+00:09:19.430 --> 00:09:21.430 align:start position:0%
+but I want you to digest things day by day slowly, so
+ 
+
+00:09:21.430 --> 00:09:21.440 align:start position:0%
+ 
+ 
+
+00:09:21.440 --> 00:09:23.790 align:start position:0%
+ 
+if <00:09:21.620><c>you </c><00:09:21.800><c>guys </c><00:09:21.980><c>want </c><00:09:22.160><c>to </c><00:09:22.340><c>come </c><00:09:22.520><c>out </c><00:09:22.700><c>of </c><00:09:22.880><c>Ripple, </c><00:09:23.060><c>that </c><00:09:23.240><c>is, </c><00:09:23.420><c>if </c><00:09:23.600><c>you</c>
+
+00:09:23.790 --> 00:09:25.870 align:start position:0%
+if you guys want to come out of Ripple, that is, if you
+ 
+
+00:09:25.870 --> 00:09:25.880 align:start position:0%
+ 
+ 
+
+00:09:25.880 --> 00:09:27.389 align:start position:0%
+ 
+want <00:09:26.010><c>to </c><00:09:26.140><c>come </c><00:09:26.270><c>out </c><00:09:26.400><c>of </c><00:09:26.530><c>this </c><00:09:26.660><c>Read </c><00:09:26.790><c>Evaluate </c><00:09:26.920><c>Print </c><00:09:27.050><c>Loop, </c><00:09:27.180><c>then </c><00:09:27.310><c>you</c>
+
+00:09:27.389 --> 00:09:27.399 align:start position:0%
+want to come out of this Read Evaluate Print Loop, then you
+ 
+
+00:09:27.399 --> 00:09:30.310 align:start position:0%
+want to come out of this Read Evaluate Print Loop, then you
+guys <00:09:27.799><c>can </c><00:09:28.199><c>exit </c><00:09:28.599><c>and </c><00:09:28.999><c>you </c><00:09:29.399><c>will </c><00:09:29.799><c>come </c><00:09:30.199><c>out,</c>
+
+00:09:30.310 --> 00:09:30.320 align:start position:0%
+guys can exit and you will come out,
+ 
+
+00:09:30.320 --> 00:09:32.190 align:start position:0%
+guys can exit and you will come out,
+but <00:09:30.515><c>you </c><00:09:30.710><c>know </c><00:09:30.905><c>what </c><00:09:31.100><c>I </c><00:09:31.295><c>am </c><00:09:31.490><c>going </c><00:09:31.685><c>to </c><00:09:31.880><c>do </c><00:09:32.075><c>here,</c>
+
+00:09:32.190 --> 00:09:32.200 align:start position:0%
+but you know what I am going to do here,
+ 
+
+00:09:32.200 --> 00:09:35.430 align:start position:0%
+but you know what I am going to do here,
+I <00:09:32.696><c>am </c><00:09:33.192><c>going </c><00:09:33.688><c>to </c><00:09:34.184><c>use </c><00:09:34.680><c>Rapple</c>
+
+00:09:35.430 --> 00:09:35.440 align:start position:0%
+I am going to use Rapple
+ 
+
+00:09:35.440 --> 00:09:39.389 align:start position:0%
+I am going to use Rapple
+and <00:09:39.120><c>whatever</c>
+
+00:09:39.389 --> 00:09:39.399 align:start position:0%
+and whatever
+ 
+
+00:09:39.399 --> 00:09:41.430 align:start position:0%
+and whatever
+files <00:09:39.603><c>and </c><00:09:39.807><c>projects </c><00:09:40.011><c>we </c><00:09:40.215><c>create </c><00:09:40.419><c>inside </c><00:09:40.623><c>Rapple </c><00:09:40.827><c>here, </c><00:09:41.031><c>it </c><00:09:41.235><c>is</c>
+
+00:09:41.430 --> 00:09:41.440 align:start position:0%
+files and projects we create inside Rapple here, it is
+ 
+
+00:09:41.440 --> 00:09:44.269 align:start position:0%
+files and projects we create inside Rapple here, it is
+called <00:09:41.828><c>Ripple </c><00:09:42.216><c>and </c><00:09:42.604><c>this </c><00:09:42.992><c>Rapple </c><00:09:43.380><c>which  </c><00:09:43.768><c>The </c><00:09:44.156><c>name</c>
+
+00:09:44.269 --> 00:09:44.279 align:start position:0%
+called Ripple and this Rapple which  The name
+ 
+
+00:09:44.279 --> 00:09:46.030 align:start position:0%
+called Ripple and this Rapple which  The name
+comes <00:09:44.669><c>from </c><00:09:45.059><c>the </c><00:09:45.449><c>re-evaluate </c><00:09:45.839><c>print</c>
+
+00:09:46.030 --> 00:09:46.040 align:start position:0%
+comes from the re-evaluate print
+ 
+
+00:09:46.040 --> 00:09:48.230 align:start position:0%
+comes from the re-evaluate print
+loop, <00:09:46.290><c>which </c><00:09:46.540><c>is </c><00:09:46.790><c>used </c><00:09:47.040><c>in </c><00:09:47.290><c>Python </c><00:09:47.540><c>or </c><00:09:47.790><c>many </c><00:09:48.040><c>other</c>
+
+00:09:48.230 --> 00:09:48.240 align:start position:0%
+loop, which is used in Python or many other
+ 
+
+00:09:48.240 --> 00:09:50.069 align:start position:0%
+loop, which is used in Python or many other
+programming <00:09:49.839><c>languages.</c>
+
+00:09:50.069 --> 00:09:50.079 align:start position:0%
+programming languages.
+ 
+
+00:09:50.079 --> 00:09:51.550 align:start position:0%
+programming languages.
+This <00:09:50.299><c>name </c><00:09:50.519><c>is </c><00:09:50.739><c>derived </c><00:09:50.959><c>from </c><00:09:51.179><c>there. </c><00:09:51.399><c>So,</c>
+
+00:09:51.550 --> 00:09:51.560 align:start position:0%
+This name is derived from there. So,
+ 
+
+00:09:51.560 --> 00:09:54.230 align:start position:0%
+This name is derived from there. So,
+if <00:09:51.973><c>I </c><00:09:52.386><c>type </c><00:09:52.799><c>"hello" </c><00:09:53.212><c>here </c><00:09:53.625><c>and </c><00:09:54.038><c>then</c>
+
+00:09:54.230 --> 00:09:54.240 align:start position:0%
+if I type "hello" here and then
+ 
+
+00:09:54.240 --> 00:09:56.670 align:start position:0%
+if I type "hello" here and then
+click <00:09:54.440><c>on </c><00:09:54.640><c>"run," </c><00:09:54.840><c>you </c><00:09:55.040><c>will </c><00:09:55.240><c>see </c><00:09:55.440><c>that </c><00:09:55.640><c>running </c><00:09:55.840><c>it </c><00:09:56.040><c>is </c><00:09:56.240><c>so </c><00:09:56.440><c>easy.</c>
+
+00:09:56.670 --> 00:09:56.680 align:start position:0%
+click on "run," you will see that running it is so easy.
+ 
+
+00:09:56.680 --> 00:09:59.630 align:start position:0%
+click on "run," you will see that running it is so easy.
+I
+
+00:09:59.630 --> 00:09:59.640 align:start position:0%
+I
+ 
+
+00:09:59.640 --> 00:10:01.870 align:start position:0%
+I
+would <00:09:59.937><c>like </c><00:10:00.234><c>to </c><00:10:00.531><c>see </c><00:10:00.828><c>its </c><00:10:01.125><c>output </c><00:10:01.422><c>here. </c><00:10:01.719><c>And</c>
+
+00:10:01.870 --> 00:10:01.880 align:start position:0%
+would like to see its output here. And
+ 
+
+00:10:01.880 --> 00:10:04.110 align:start position:0%
+would like to see its output here. And
+why <00:10:02.069><c>hasn't </c><00:10:02.258><c>the </c><00:10:02.447><c>output </c><00:10:02.636><c>come </c><00:10:02.825><c>yet? </c><00:10:03.014><c>The </c><00:10:03.203><c>word </c><00:10:03.392><c>"hello" </c><00:10:03.581><c>has </c><00:10:03.770><c>come. </c><00:10:03.959><c>Okay,</c>
+
+00:10:04.110 --> 00:10:04.120 align:start position:0%
+why hasn't the output come yet? The word "hello" has come. Okay,
+ 
+
+00:10:04.120 --> 00:10:07.509 align:start position:0%
+why hasn't the output come yet? The word "hello" has come. Okay,
+now <00:10:04.653><c>if </c><00:10:05.186><c>I </c><00:10:05.719><c>type </c><00:10:06.252><c>"print </c><00:10:06.785><c>seven" </c><00:10:07.318><c>here</c>
+
+00:10:07.509 --> 00:10:07.519 align:start position:0%
+now if I type "print seven" here
+ 
+
+00:10:07.519 --> 00:10:09.150 align:start position:0%
+now if I type "print seven" here
+or <00:10:07.730><c>"five" </c><00:10:07.941><c>here </c><00:10:08.152><c>and </c><00:10:08.363><c>run </c><00:10:08.574><c>it, </c><00:10:08.785><c>it </c><00:10:08.996><c>will</c>
+
+00:10:09.150 --> 00:10:09.160 align:start position:0%
+or "five" here and run it, it will
+ 
+
+00:10:09.160 --> 00:10:11.110 align:start position:0%
+or "five" here and run it, it will
+run <00:10:10.920><c>and</c>
+
+00:10:11.110 --> 00:10:11.120 align:start position:0%
+run and
+ 
+
+00:10:11.120 --> 00:10:13.350 align:start position:0%
+run and
+after <00:10:11.365><c>this </c><00:10:11.610><c>I </c><00:10:11.855><c>will </c><00:10:12.100><c>see </c><00:10:12.345><c>"five" </c><00:10:12.590><c>here. </c><00:10:12.835><c>So</c>
+
+00:10:13.350 --> 00:10:13.360 align:start position:0%
+after this I will see "five" here. So
+ 
+
+00:10:13.360 --> 00:10:15.110 align:start position:0%
+after this I will see "five" here. So
+basically, <00:10:13.555><c>what </c><00:10:13.750><c>is </c><00:10:13.945><c>happening </c><00:10:14.140><c>here </c><00:10:14.335><c>is </c><00:10:14.530><c>that </c><00:10:14.725><c>I </c><00:10:14.920><c>am</c>
+
+00:10:15.110 --> 00:10:15.120 align:start position:0%
+basically, what is happening here is that I am
+ 
+
+00:10:15.120 --> 00:10:17.069 align:start position:0%
+basically, what is happening here is that I am
+writing <00:10:15.345><c>the </c><00:10:15.570><c>code </c><00:10:15.795><c>here, </c><00:10:16.020><c>but </c><00:10:16.245><c>the </c><00:10:16.470><c>code </c><00:10:16.695><c>is </c><00:10:16.920><c>being</c>
+
+00:10:17.069 --> 00:10:17.079 align:start position:0%
+writing the code here, but the code is being
+ 
+
+00:10:17.079 --> 00:10:19.350 align:start position:0%
+writing the code here, but the code is being
+executed <00:10:17.619><c>on </c><00:10:18.159><c>the </c><00:10:18.699><c>relay </c><00:10:19.239><c>servers,</c>
+
+00:10:19.350 --> 00:10:19.360 align:start position:0%
+executed on the relay servers,
+ 
+
+00:10:19.360 --> 00:10:20.710 align:start position:0%
+executed on the relay servers,
+and <00:10:19.537><c>I </c><00:10:19.714><c>can </c><00:10:19.891><c>see </c><00:10:20.068><c>its </c><00:10:20.245><c>output </c><00:10:20.422><c>here. </c><00:10:20.599><c>In</c>
+
+00:10:20.710 --> 00:10:20.720 align:start position:0%
+and I can see its output here. In
+ 
+
+00:10:20.720 --> 00:10:22.790 align:start position:0%
+and I can see its output here. In
+such <00:10:21.046><c>a </c><00:10:21.372><c>situation, </c><00:10:21.698><c>even </c><00:10:22.024><c>if </c><00:10:22.350><c>my </c><00:10:22.676><c>computer</c>
+
+00:10:22.790 --> 00:10:22.800 align:start position:0%
+such a situation, even if my computer
+ 
+
+00:10:22.800 --> 00:10:29.310 align:start position:0%
+such a situation, even if my computer
+is <00:10:23.506><c>slow, </c><00:10:24.212><c>I </c><00:10:24.918><c>can</c>
+
+00:10:29.310 --> 00:10:29.320 align:start position:0%
+ 
+ 
+
+00:10:29.320 --> 00:10:31.230 align:start position:0%
+ 
+open <00:10:29.786><c>new </c><00:10:30.252><c>files </c><00:10:30.718><c>here</c>
+
+00:10:31.230 --> 00:10:31.240 align:start position:0%
+open new files here
+ 
+
+00:10:31.240 --> 00:10:33.670 align:start position:0%
+open new files here
+and <00:10:31.530><c>read </c><00:10:31.820><c>this </c><00:10:32.110><c>text </c><00:10:32.400><c>here. </c><00:10:32.690><c>I </c><00:10:32.980><c>can </c><00:10:33.270><c>watch </c><00:10:33.560><c>this</c>
+
+00:10:33.670 --> 00:10:33.680 align:start position:0%
+and read this text here. I can watch this
+ 
+
+00:10:33.680 --> 00:10:35.550 align:start position:0%
+and read this text here. I can watch this
+video <00:10:34.079><c>very </c><00:10:34.478><c>well. </c><00:10:34.877><c>I </c><00:10:35.276><c>can</c>
+
+00:10:35.550 --> 00:10:35.560 align:start position:0%
+video very well. I can
+ 
+
+00:10:35.560 --> 00:10:37.590 align:start position:0%
+video very well. I can
+place <00:10:35.777><c>it </c><00:10:35.994><c>wherever </c><00:10:36.211><c>I </c><00:10:36.428><c>want, </c><00:10:36.645><c>up, </c><00:10:36.862><c>down, </c><00:10:37.079><c>forward, </c><00:10:37.296><c>backward. </c><00:10:37.513><c>Or</c>
+
+00:10:37.590 --> 00:10:37.600 align:start position:0%
+place it wherever I want, up, down, forward, backward. Or
+ 
+
+00:10:37.600 --> 00:10:39.750 align:start position:0%
+place it wherever I want, up, down, forward, backward. Or
+if <00:10:37.803><c>I </c><00:10:38.006><c>don't </c><00:10:38.209><c>want </c><00:10:38.412><c>to </c><00:10:38.615><c>watch </c><00:10:38.818><c>this </c><00:10:39.021><c>video, </c><00:10:39.224><c>I </c><00:10:39.427><c>can </c><00:10:39.630><c>do</c>
+
+00:10:39.750 --> 00:10:39.760 align:start position:0%
+if I don't want to watch this video, I can do
+ 
+
+00:10:39.760 --> 00:10:41.069 align:start position:0%
+if I don't want to watch this video, I can do
+some <00:10:39.872><c>of </c><00:10:39.984><c>my </c><00:10:40.096><c>practice.  </c><00:10:40.208><c>I </c><00:10:40.320><c>am </c><00:10:40.432><c>doing </c><00:10:40.544><c>it, </c><00:10:40.656><c>so </c><00:10:40.768><c>make </c><00:10:40.880><c>it</c>
+
+00:10:41.069 --> 00:10:41.079 align:start position:0%
+some of my practice.  I am doing it, so make it
+ 
+
+00:10:41.079 --> 00:10:44.230 align:start position:0%
+some of my practice.  I am doing it, so make it
+small, <00:10:44.079><c>make</c>
+
+00:10:44.230 --> 00:10:44.240 align:start position:0%
+small, make
+ 
+
+00:10:44.240 --> 00:10:46.269 align:start position:0%
+small, make
+it <00:10:44.533><c>like </c><00:10:44.826><c>Munnu, </c><00:10:45.119><c>and </c><00:10:45.412><c>place </c><00:10:45.705><c>it </c><00:10:45.998><c>here,</c>
+
+00:10:46.269 --> 00:10:46.279 align:start position:0%
+it like Munnu, and place it here,
+ 
+
+00:10:46.279 --> 00:10:47.870 align:start position:0%
+it like Munnu, and place it here,
+park <00:10:46.464><c>it </c><00:10:46.649><c>here, </c><00:10:46.834><c>and </c><00:10:47.019><c>then </c><00:10:47.204><c>whenever </c><00:10:47.389><c>you </c><00:10:47.574><c>want </c><00:10:47.759><c>to</c>
+
+00:10:47.870 --> 00:10:47.880 align:start position:0%
+park it here, and then whenever you want to
+ 
+
+00:10:47.880 --> 00:10:49.470 align:start position:0%
+park it here, and then whenever you want to
+see <00:10:48.003><c>it, </c><00:10:48.126><c>make </c><00:10:48.249><c>it </c><00:10:48.372><c>bigger </c><00:10:48.495><c>like </c><00:10:48.618><c>this, </c><00:10:48.741><c>it </c><00:10:48.864><c>is </c><00:10:48.987><c>going </c><00:10:49.110><c>to </c><00:10:49.233><c>be </c><00:10:49.356><c>a</c>
+
+00:10:49.470 --> 00:10:49.480 align:start position:0%
+see it, make it bigger like this, it is going to be a
+ 
+
+00:10:49.480 --> 00:10:51.069 align:start position:0%
+see it, make it bigger like this, it is going to be a
+very <00:10:49.840><c>good </c><00:10:50.200><c>learning </c><00:10:50.560><c>experience </c><00:10:50.920><c>for</c>
+
+00:10:51.069 --> 00:10:51.079 align:start position:0%
+very good learning experience for
+ 
+
+00:10:51.079 --> 00:10:53.310 align:start position:0%
+very good learning experience for
+you <00:10:51.314><c>all, </c><00:10:51.549><c>so </c><00:10:51.784><c>I </c><00:10:52.019><c>would </c><00:10:52.254><c>request </c><00:10:52.489><c>you </c><00:10:52.724><c>all </c><00:10:52.959><c>that </c><00:10:53.194><c>you</c>
+
+00:10:53.310 --> 00:10:59.389 align:start position:0%
+you all, so I would request you all that you
+ 
+
+00:10:59.389 --> 00:10:59.399 align:start position:0%
+ 
+ 
+
+00:10:59.399 --> 00:11:01.550 align:start position:0%
+ 
+must <00:10:59.775><c>access </c><00:11:00.151><c>it, </c><00:11:00.527><c>like </c><00:11:00.903><c>the </c><00:11:01.279><c>video,</c>
+
+00:11:01.550 --> 00:11:01.560 align:start position:0%
+must access it, like the video,
+ 
+
+00:11:01.560 --> 00:11:03.470 align:start position:0%
+must access it, like the video,
+subscribe <00:11:01.765><c>to </c><00:11:01.970><c>the </c><00:11:02.175><c>channel </c><00:11:02.380><c>so </c><00:11:02.585><c>that </c><00:11:02.790><c>you </c><00:11:02.995><c>guys </c><00:11:03.200><c>do</c>
+
+00:11:03.470 --> 00:11:03.480 align:start position:0%
+subscribe to the channel so that you guys do
+ 
+
+00:11:03.480 --> 00:11:05.949 align:start position:0%
+subscribe to the channel so that you guys do
+not <00:11:03.680><c>miss </c><00:11:03.880><c>any </c><00:11:04.080><c>day, </c><00:11:04.280><c>in </c><00:11:04.480><c>this </c><00:11:04.680><c>journey </c><00:11:04.880><c>of </c><00:11:05.080><c>100 </c><00:11:05.280><c>days </c><00:11:05.480><c>of </c><00:11:05.680><c>quotes,</c>
+
+00:11:05.949 --> 00:11:05.959 align:start position:0%
+not miss any day, in this journey of 100 days of quotes,
+ 
+
+00:11:05.959 --> 00:11:07.430 align:start position:0%
+not miss any day, in this journey of 100 days of quotes,
+I <00:11:06.412><c>do </c><00:11:06.865><c>not </c><00:11:07.318><c>want</c>
+
+00:11:07.430 --> 00:11:07.440 align:start position:0%
+I do not want
+ 
+
+00:11:07.440 --> 00:11:25.710 align:start position:0%
+I do not want
+you <00:11:07.672><c>guys </c><00:11:07.904><c>to </c><00:11:08.136><c>miss </c><00:11:08.368><c>any </c><00:11:08.600><c>day</c>
+
+00:11:25.710 --> 00:11:25.720 align:start position:0%
+ 
+ 
+
+00:11:25.720 --> 00:11:28.110 align:start position:0%
+ 
+python-tk <00:11:26.034><c>you </c><00:11:26.348><c>so </c><00:11:26.662><c>much </c><00:11:26.976><c>guys </c><00:11:27.290><c>for </c><00:11:27.604><c>watching </c><00:11:27.918><c>this</c>
+
+00:11:28.110 --> 00:11:28.120 align:start position:0%
+python-tk you so much guys for watching this
+ 
+
+00:11:28.120 --> 00:11:32.010 align:start position:0%
+python-tk you so much guys for watching this
+video <00:11:28.457><c>and </c><00:11:28.794><c>I </c><00:11:29.131><c>will </c><00:11:29.468><c>see </c><00:11:29.805><c>you </c><00:11:30.142><c>next </c><00:11:30.479><c>time</c>
+
+00:11:32.010 --> 00:11:32.020 align:start position:0%
+video and I will see you next time
+ 
+
+00:11:32.020 --> 00:11:51.489 align:start position:0%
+video and I will see you next time
+[Music]
+
