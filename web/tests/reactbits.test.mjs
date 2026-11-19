@@ -204,3 +204,66 @@ describe("player page — no title card, button in the player footer, short scro
     assert.ok(page.includes("[&::-webkit-scrollbar]:hidden"), "the container must hide its scrollbar (Chrome)");
   });
 });
+
+describe("courses hub — ChromaGrid + tilt on every creator card", () => {
+  test("ChromaGrid and Tilt are vendored (ChromaGrid from React Bits, tilt extracted from ProfileCard)", () => {
+    for (const file of ["src/components/ChromaGrid.tsx", "src/components/ChromaGrid.css", "src/components/Tilt.tsx"]) {
+      assert.ok(existsSync(path.join(root, file)), `${file} must exist`);
+    }
+    const grid = read("src/components/ChromaGrid.tsx");
+    assert.ok(!grid.includes("framer-motion"), "ChromaGrid must not need framer-motion");
+    const tilt = read("src/components/Tilt.tsx");
+    assert.ok(!tilt.includes("framer-motion"), "Tilt must not need framer-motion");
+    assert.ok(tilt.includes("perspective(1000px)"), "tilt must use a 1000px perspective like ProfileCard");
+    assert.ok(tilt.includes("rotateX(var(--tilt-rx"), "tilt must write rotateX from the spring");
+    assert.ok(tilt.includes("rotateY(var(--tilt-ry"), "tilt must write rotateY from the spring");
+    assert.ok(tilt.includes("prefers-reduced-motion"), "tilt must respect reduced motion");
+  });
+
+  test("ChromaGrid keeps internal links client-side and supports card details + tilt", () => {
+    const grid = read("src/components/ChromaGrid.tsx");
+    assert.ok(grid.includes("next/link"), "internal card urls must go through Next Link, not a full reload");
+    assert.ok(grid.includes("target=\"_blank\""), "external card urls must still open a new tab");
+    assert.equal(
+      (grid.match(/target="_blank"/g) || []).length,
+      1,
+      "target=\"_blank\" must appear exactly once — only the external branch may open a new tab, never the internal Link"
+    );
+    assert.ok(grid.includes("startsWith('/')"), "the internal/external split must be by leading slash");
+    assert.ok(grid.includes("details?: ReactNode"), "items must accept extra card content (tagline + counts)");
+    assert.ok(grid.includes("chroma-details"), "the details must render inside the card");
+    assert.ok(grid.includes("enableTilt"), "the grid must be able to tilt its cards");
+    assert.ok(grid.includes("<Tilt"), "tilted cards must be wrapped in the Tilt effect");
+    assert.ok(grid.includes("tiltStrength"), "the tilt strength must be configurable");
+  });
+
+  test("the courses hub renders all three creators through ChromaGrid with tilt", () => {
+    const hub = read("src/app/courses/page.tsx");
+    assert.ok(hub.includes("ChromaGrid"), "the hub must render ChromaGrid");
+    assert.ok(hub.includes("COURSE_CREATORS.map"), "every creator must become a Chroma item");
+    assert.ok(hub.includes("url: `/courses/${creator.slug}`"), "each card must link to its creator page");
+    assert.ok(hub.includes("aspectRatio=\"1 / 1\""), "the square avatar must not be cropped to 3/2");
+    assert.ok(hub.includes("reveal=\"card\""), "the whole card must reveal color on hover");
+    assert.ok(hub.includes("enableTilt"), "the hub cards must tilt toward the cursor");
+    assert.ok(hub.includes("tiltStrength={8}"), "the tilt must use the usage example's strength of 8");
+    assert.ok(hub.includes("details:"), "the tagline + counts must survive inside the Chroma card");
+    assert.ok(hub.includes("creatorTagline(creator, t)"), "the tagline must still render");
+    assert.ok(hub.includes("creatorTotalSeconds(creator)"), "the total duration must still render");
+    assert.ok(!hub.includes("function CreatorCard"), "the old plain card must be gone");
+    assert.ok(!hub.includes("grid gap-4 sm:grid-cols-2 lg:grid-cols-3"), "the old grid must be gone — ChromaGrid lays the cards out");
+  });
+
+  test("creator avatars are 512px so the large Chroma image stays sharp", () => {
+    const data = read("src/lib/courses/data.ts");
+    assert.ok(!data.includes("=s176-"), "no avatar may stay at 176px — it would blur at card size");
+    assert.equal((data.match(/=s512-c-k-/g) || []).length, 3, "all three avatars must be 512px");
+  });
+
+  test("the hub container keeps its full max-w-4xl width (no shrink-wrap)", () => {
+    const hub = read("src/app/courses/page.tsx");
+    assert.ok(
+      hub.includes("mx-auto w-full max-w-4xl"),
+      "the hub container must have w-full: it is a flex item of a flex-col parent and mx-auto stops it stretching, so without w-full it shrink-wraps to the grid's intrinsic width and shows two cards per row instead of three"
+    );
+  });
+});

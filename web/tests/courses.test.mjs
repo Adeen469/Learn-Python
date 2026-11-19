@@ -139,12 +139,15 @@ test("a dead thumbnail or avatar never shows a broken-image icon", () => {
     creator.includes("onError={() => setAvatarFailed(true)}"),
     "a failed avatar must fall back to the initial letter"
   );
-  const hub = read(hubPath);
-  assert.ok(hub.includes("avatarFailed"), "the hub card must track a failed avatar too");
+  // The hub card is a ChromaGrid card now, so the avatar fallback
+  // lives in ChromaGrid: a dead image swaps to the initial letter.
+  const grid = read("src/components/ChromaGrid.tsx");
+  assert.ok(grid.includes("failedImages"), "the Chroma card must track a failed image too");
   assert.ok(
-    hub.includes("onError={() => setAvatarFailed(true)}"),
-    "the hub avatar must fall back to the initial letter too"
+    grid.includes("onError={() => markImageFailed(index)}"),
+    "a failed Chroma image must fall back to the initial letter too"
   );
+  assert.ok(grid.includes("charAt(0)"), "the fallback must be the item's initial letter");
 });
 
 test("video lengths read h:m:s once past an hour, m:ss below", () => {

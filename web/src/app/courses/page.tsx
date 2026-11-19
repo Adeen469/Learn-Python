@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ChevronRight, MonitorPlay } from "lucide-react";
+import { MonitorPlay } from "lucide-react";
 import { fetchSessionUser } from "@/lib/auth-client";
 import { AppNavbar } from "@/components/AppNavbar";
+import ChromaGrid from "@/components/ChromaGrid";
 import { useLanguage, type Strings } from "@/lib/i18n";
 import { COURSE_CREATORS, totalCourseVideos, type CourseCreator } from "@/lib/courses/data";
 
@@ -40,60 +40,12 @@ function creatorVideoCount(creator: CourseCreator): number {
   );
 }
 
-function CreatorCard({ creator }: { creator: CourseCreator }) {
-  const { t } = useLanguage();
-  // A dead avatar URL shows the initial letter, never a broken-image icon.
-  const [avatarFailed, setAvatarFailed] = useState(false);
-  return (
-    <Link
-      href={`/courses/${creator.slug}`}
-      className="group block rounded-2xl border border-neutral-800 bg-neutral-950 p-5 transition hover:border-neutral-600 hover:bg-neutral-900/60 sm:p-6"
-    >
-      <div className="flex items-start justify-between gap-4">
-        {avatarFailed ? (
-          <div
-            className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-neutral-900 text-xl font-bold text-white ring-1 ring-neutral-800"
-            aria-label={t.coursesPage.channelPictureAlt(creator.name)}
-          >
-            {creator.name.charAt(0)}
-          </div>
-        ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={creator.avatarUrl}
-            alt={t.coursesPage.channelPictureAlt(creator.name)}
-            width={64}
-            height={64}
-            onError={() => setAvatarFailed(true)}
-            className="h-16 w-16 shrink-0 rounded-full object-cover ring-1 ring-neutral-800"
-          />
-        )}
-        <ChevronRight className="h-5 w-5 shrink-0 self-center text-neutral-600 transition group-hover:text-white" />
-      </div>
-      <div className="mt-4 min-w-0">
-        <h2 className="text-lg font-bold text-white transition group-hover:text-neutral-100">
-          {creator.name}
-        </h2>
-        <p className="mt-0.5 text-sm text-neutral-500">{creator.handle}</p>
-        <p className="mt-1 text-xs text-neutral-400">
-          {creator.subscribers} • {creator.language}
-        </p>
-      </div>
-      <p className="mt-4 text-sm leading-relaxed text-neutral-400">
-        {creatorTagline(creator, t)}
-      </p>
-      <p className="mt-4 border-t border-neutral-800/70 pt-3 text-xs text-neutral-500">
-        {creator.playlists.length === 0 ? (
-          <>{t.course.oneShotsHeading} • </>
-        ) : (
-          <>{t.coursesPage.countCourses(creator.playlists.length)} • </>
-        )}
-        {t.courses.countVideos(creatorVideoCount(creator))} •{" "}
-        {t.common.durationTotal(creatorTotalSeconds(creator))}
-      </p>
-    </Link>
-  );
-}
+/** Accent glow per creator, for the ChromaGrid cards. */
+const CREATOR_ACCENTS: Record<string, string> = {
+  codewithharry: "#ff8a4c",
+  "code-with-mosh": "#3fb8ff",
+  "apna-college": "#ffd23f",
+};
 
 /**
  * Video Courses — three teachers, one card each. Tap a card to see
@@ -126,7 +78,14 @@ export default function CoursesPage() {
   return (
     <div className="min-h-screen bg-black text-white flex flex-col pb-20 md:pb-0">
       <AppNavbar />
-      <div className="mx-auto max-w-4xl px-4 py-8 sm:py-10">
+      {/*
+        w-full is load-bearing: this div is a flex item of a flex-col
+        parent, and mx-auto (auto cross-axis margins) stops it stretching,
+        so without an explicit width it shrink-wraps to the grid's
+        intrinsic width (470px — two cards per row) instead of the 896px
+        max-w-4xl. w-full gives it a definite width, capped by max-w-4xl.
+      */}
+      <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:py-10">
         <header>
           <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-neutral-500">
             <MonitorPlay className="h-4 w-4 text-neutral-400" />
@@ -151,10 +110,44 @@ export default function CoursesPage() {
             {t.coursesPage.emptyState}
           </p>
         ) : (
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {COURSE_CREATORS.map((creator) => (
-              <CreatorCard key={creator.slug} creator={creator} />
-            ))}
+          <div className="mt-8">
+            <ChromaGrid
+              items={COURSE_CREATORS.map((creator) => ({
+                image: creator.avatarUrl,
+                title: creator.name,
+                subtitle: `${creator.subscribers} • ${creator.language}`,
+                accent: CREATOR_ACCENTS[creator.slug] ?? "#ffffff",
+                url: `/courses/${creator.slug}`,
+                details: (
+                  <>
+                    <p className="mt-1 text-sm leading-relaxed text-neutral-400">
+                      {creatorTagline(creator, t)}
+                    </p>
+                    <p className="mt-3 border-t border-neutral-800/70 pt-3 text-xs text-neutral-500">
+                      {creator.playlists.length === 0 ? (
+                        <>{t.course.oneShotsHeading} • </>
+                      ) : (
+                        <>{t.coursesPage.countCourses(creator.playlists.length)} • </>
+                      )}
+                      {t.courses.countVideos(creatorVideoCount(creator))} •{" "}
+                      {t.common.durationTotal(creatorTotalSeconds(creator))}
+                    </p>
+                  </>
+                ),
+              }))}
+              columns={3}
+              reveal="card"
+              minCardWidth={190}
+              cardRadius={23}
+              radius={260}
+              damping={1.5}
+              dim={0.29}
+              glow={1}
+              aspectRatio="1 / 1"
+              theme="dark"
+              enableTilt
+              tiltStrength={8}
+            />
           </div>
         )}
       </div>
