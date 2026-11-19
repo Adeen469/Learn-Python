@@ -259,3 +259,18 @@ test("the desktop sidebar sticks exactly below the navbar (69px) so it never shi
   assert.ok(sb.includes("h-[calc(100vh-69px)]"), "the sidebar height must use the same 69px");
   assert.ok(!sb.includes("top-[57px]"), "the old 57px offset must be gone");
 });
+
+test("the breadcrumb row carries a Next button to the lesson after the last completed one", () => {
+  // Maalik's order, 2026-11-19: a short "Next" button sits above the
+  // Mark-as-complete button, aligned with the breadcrumb on the right,
+  // and jumps to the lesson after the last completed one (in
+  // curriculum order — no timestamps needed). It hides when there is
+  // no next lesson, or when it would point at the page itself.
+  const page = readFileSync(join(webDir, "src/app/learn/[slug]/page.tsx"), "utf8");
+  assert.ok(page.includes("lastCompletedIdx"), "the page must find the furthest-along completed lesson");
+  assert.ok(page.includes("continueTopic"), "the page must compute the lesson after the last completed one");
+  assert.ok(page.includes("showContinue"), "the button must hide when there is no next lesson or it points at this page");
+  assert.ok(page.includes('className="flex flex-wrap items-center justify-between gap-3"'), "the breadcrumb row must put the button on the right");
+  assert.ok(page.includes("t.lesson.nextLesson"), "the button must reuse the short Next label");
+  assert.ok(page.includes('href={`/learn/${continueTopic.slug}`}'), "the button must link to the next lesson");
+});

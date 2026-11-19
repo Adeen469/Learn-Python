@@ -255,15 +255,42 @@ export default function LearnTopicPage() {
   const nextTopic =
     idx >= 0 && idx < ALL_LEARN_TOPICS.length - 1 ? ALL_LEARN_TOPICS[idx + 1] : null;
 
+  // The lesson after the last completed one, in curriculum order — the
+  // furthest-along completed topic, plus one. No timestamps needed:
+  // the curriculum order IS the progress order. None completed yet
+  // means the first lesson; all completed means there is no next one
+  // (the button hides). Hidden on the page it would point to, since
+  // there is nothing to jump to there.
+  const lastCompletedIdx = completedSlugs.reduce((max, s) => {
+    const i = ALL_LEARN_TOPICS.findIndex((t) => t.slug === s);
+    return i > max ? i : max;
+  }, -1);
+  const continueTopic =
+    lastCompletedIdx < ALL_LEARN_TOPICS.length - 1
+      ? ALL_LEARN_TOPICS[lastCompletedIdx + 1]
+      : null;
+  const showContinue = continueTopic !== null && continueTopic.slug !== slug;
+
   return (
     <article>
       <TextSelectionToolbar
         lessonTitle={tutorial?.title ?? reference?.title ?? tutorialTitle(slug, topic.title)}
       />
-      <nav className="flex items-center gap-1.5 text-xs text-neutral-500">
-        <span>{sectionTitle(t, topic.sectionId, topic.sectionTitle)}</span>
-        <ChevronRight className="h-3.5 w-3.5" />
-        <span className="text-neutral-300">{tutorial?.title ?? reference?.title ?? tutorialTitle(slug, topic.title)}</span>
+      <nav className="flex flex-wrap items-center justify-between gap-3">
+        <span className="flex items-center gap-1.5 text-xs text-neutral-500">
+          <span>{sectionTitle(t, topic.sectionId, topic.sectionTitle)}</span>
+          <ChevronRight className="h-3.5 w-3.5" />
+          <span className="text-neutral-300">{tutorial?.title ?? reference?.title ?? tutorialTitle(slug, topic.title)}</span>
+        </span>
+        {showContinue && continueTopic && (
+          <Link
+            href={`/learn/${continueTopic.slug}`}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-neutral-800 bg-neutral-950 px-2.5 py-1.5 text-xs font-medium text-neutral-200 transition hover:border-neutral-600 hover:text-white"
+          >
+            {t.lesson.nextLesson}{" "}
+            {tutorialTitle(continueTopic.slug, referenceTitle(continueTopic.slug, continueTopic.title))}
+          </Link>
+        )}
       </nav>
 
       <header className="mt-4">
