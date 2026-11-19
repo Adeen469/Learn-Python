@@ -5,6 +5,7 @@ import Script from "next/script";
 import { useRouter } from "next/navigation";
 import Editor from "@monaco-editor/react";
 import { AppNavbar } from "@/components/AppNavbar";
+import BranchedMenu, { type BranchedMenuItem } from "@/components/BranchedMenu";
 import { ModulesPanel } from "@/components/ModulesPanel";
 import { fetchSessionUser } from "@/lib/auth-client";
 import { useLanguage } from "@/lib/i18n";
@@ -22,13 +23,10 @@ import {
   AlertCircle,
   Bug,
   Check,
-  ChevronDown,
-  ChevronRight,
   Code2,
   FileCode,
   Folder,
   FolderPlus,
-  GripVertical,
   Loader2,
   Package,
   Play,
@@ -37,7 +35,6 @@ import {
   Sparkles,
   Square,
   Terminal,
-  Trash2,
   UploadCloud,
   X,
 } from "lucide-react";
@@ -235,19 +232,6 @@ export default function CodeEditorPage() {
   }
   const [needsSaveWarning, setNeedsSaveWarning] = useState<string | null>(null);
   const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({ utils: true });
-
-  // A file/folder is visible only when every ancestor folder is expanded.
-  // The old tree rendered every item flat, so collapsing a folder did
-  // nothing — its files stayed visible. Folders default to expanded
-  // only when explicitly set (utils starts expanded).
-  function isItemVisible(item: WorkspaceItem): boolean {
-    const parts = item.path.split("/");
-    for (let i = 1; i < parts.length; i += 1) {
-      const ancestor = parts.slice(0, i).join("/");
-      if (expandedFolders[ancestor] === false) return false;
-    }
-    return true;
-  }
 
   // Creation dialogs
   const [newFileInput, setNewFileInput] = useState("");
@@ -566,20 +550,6 @@ export default function CodeEditorPage() {
     localStorage.setItem("lp_workspace_tree", JSON.stringify(next));
   }
 
-  function handleDeleteItem(item: WorkspaceItem) {
-    if (items.filter((i) => i.type === "file").length <= 1 && item.type === "file") {
-      alert(t.editorPage.keepOneFileError);
-      return;
-    }
-    const next = items.filter((i) => i.path !== item.path && !i.path.startsWith(item.path + "/"));
-    setItems(next);
-    if (activeFile?.path === item.path) {
-      const remainingFile = next.find((i) => i.type === "file");
-      if (remainingFile) setActiveFilePath(remainingFile.path);
-    }
-    localStorage.setItem("lp_workspace_tree", JSON.stringify(next));
-  }
-
   // --- Drag and Drop: Internal moving between folders ---
   function handleDragStart(e: React.DragEvent, item: WorkspaceItem) {
     e.dataTransfer.setData("text/plain", item.path);
@@ -639,6 +609,82 @@ export default function CodeEditorPage() {
     localStorage.setItem("lp_workspace_tree", JSON.stringify(updated));
     setDraggedItemPath(null);
     setOutput((prev) => prev + `[Moved '${sourceItem.name}' to ${targetFolderPath === "root" ? "root" : targetFolderPath}]\n`);
+  }
+
+  // --- File tree (React Bits BranchedMenu) ---
+  // BranchedMenu supports one folder level: top-level files are
+  // leaves, each top-level folder is a section whose children are the
+  // files under it. A nested folder's files are flattened into the
+  // parent section with their path relative to the folder (e.g.
+  // "sub/file.py"), so every file stays visible and selectable. The
+  // section index ↔ folder path map lets onToggle update
+  // expandedFolders (the single source of truth for fold state).
+  const treeFileIcon = <FileCode className="h-3.5 w-3.5 text-neutral-300 shrink-0" />;
+  const treeFolderIcon = <Folder className="h-3.5 w-3.5 text-neutral-300 shrink-0" />;
+  function treeFileLabel(displayName: string, isSaved: boolean | undefined) {
+    return (
+      <span className="flex min-w-0 items-center gap-1.5">
+        <span className="truncate">{displayName}</span>
+        {!isSaved && (
+          <span className="h-1.5 w-1.5 rounded-full bg-amber-400 shrink-0" title={t.editorPage.unsavedTooltip} />
+        )}
+      </span>
+    );
+  }
+  const treeData = (() => {
+    const menuItems: BranchedMenuItem[] = [];
+    const sectionPathByIndex: string[] = [];
+    for (const item of items) {
+      if (item.type === "file" && !item.path.includes("/")) {
+        menuItems.push({ value: item.path, label: treeFileLabel(item.name, item.isSaved), icon: treeFileIcon });
+      } else if (item.type === "folder" && !item.path.includes("/")) {
+        const children = items
+          .filter((i) => i.type === "file" && i.path.startsWith(item.path + "/"))
+          .map((f) => ({
+            value: f.path,
+            label: treeFileLabel(f.path.slice(item.path.length + 1), f.isSaved),
+            icon: treeFileIcon,
+          }));
+        sectionPathByIndex[menuItems.length] = item.path;
+        menuItems.push({ value: item.path, label: item.name, icon: treeFolderIcon, children });
+      }
+    }
+    return { menuItems, sectionPathByIndex };
+  })();
+  // Controlled open sections: a folder is open unless the user
+  // folded it (expandedFolders[path] === false). Mirrors the old
+  // tree's `expandedFolders[item.path] ?? true` default.
+  const treeOpenSections = treeData.sectionPathByIndex
+    .map((p, i) => ((expandedFolders[p] ?? true) ? i : -1))
+    .filter((i) => i >= 0);
+
+  // BranchedMenu callbacks — the same behaviour the old flat tree
+  // had: picking a file opens it, folding a folder updates
+  // expandedFolders, dragging moves items between folders (only
+  // folders are drop targets), each row has its own delete button.
+  function handleTreeSelect(value: string) {
+    setActiveFilePath(value);
+    setNeedsSaveWarning(null);
+  }
+  function handleTreeToggle(index: number, open: boolean) {
+    const path = treeData.sectionPathByIndex[index];
+    if (path) setExpandedFolders((p) => ({ ...p, [path]: open }));
+  }
+  function handleTreeDragStart(e: React.DragEvent, value: string) {
+    const item = items.find((i) => i.path === value);
+    if (item) handleDragStart(e, item);
+  }
+  function handleTreeDragOver(e: React.DragEvent, value: string) {
+    const item = items.find((i) => i.path === value);
+    if (item?.type === "folder") handleDragOverFolder(e, value);
+  }
+  function handleTreeDragLeave(value: string) {
+    const item = items.find((i) => i.path === value);
+    if (item?.type === "folder") setDragOverTarget(null);
+  }
+  function handleTreeDrop(e: React.DragEvent, value: string) {
+    const item = items.find((i) => i.path === value);
+    if (item?.type === "folder") handleDropOnTarget(e, value);
   }
 
   // --- Drag and Drop: External File Upload from user's Desktop/OS ---
@@ -1091,81 +1137,29 @@ _lp_term_result
               {t.editorPage.workspaceRootDropHint}
             </div>
 
-            {/* Tree Items */}
-            <div className="flex-1 overflow-auto p-2 space-y-1">
-              {items.filter(isItemVisible).map((item) => {
-                const isFolder = item.type === "folder";
-                const depth = item.path.split("/").length - 1;
-                const isSelected = activeFilePath === item.path;
-                const isDragOver = dragOverTarget === item.path;
-
-                return (
-                  <div
-                    key={item.id}
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, item)}
-                    onDragOver={(e) => {
-                      if (isFolder) handleDragOverFolder(e, item.path);
-                    }}
-                    onDragLeave={() => {
-                      if (isFolder) setDragOverTarget(null);
-                    }}
-                    onDrop={(e) => {
-                      if (isFolder) handleDropOnTarget(e, item.path);
-                    }}
-                    style={{ paddingLeft: `${depth * 14 + 6}px` }}
-                    className={`group flex items-center justify-between rounded-md py-1 pr-1.5 text-xs font-mono transition cursor-grab active:cursor-grabbing border ${
-                      isDragOver && isFolder
-                        ? "border-white bg-neutral-800 text-white ring-1 ring-white"
-                        : isSelected && !isFolder
-                        ? "border-neutral-700 bg-neutral-800 text-white font-semibold"
-                        : "border-transparent text-neutral-400 hover:bg-neutral-900 hover:text-white"
-                    }`}
-                  >
-                    <div className="flex items-center gap-1 min-w-0 flex-1 truncate">
-                      <GripVertical className="h-3 w-3 text-neutral-600 opacity-0 group-hover:opacity-100 shrink-0 cursor-grab" />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (!isFolder) {
-                            setActiveFilePath(item.path);
-                            setNeedsSaveWarning(null);
-                          } else {
-                            setExpandedFolders((p) => ({ ...p, [item.path]: !(p[item.path] ?? true) }));
-                          }
-                        }}
-                        className="flex items-center gap-1.5 min-w-0 flex-1 truncate text-left"
-                      >
-                        {isFolder ? (
-                          <>
-                            {(expandedFolders[item.path] ?? true) ? (
-                              <ChevronDown className="h-3 w-3 shrink-0" />
-                            ) : (
-                              <ChevronRight className="h-3 w-3 shrink-0" />
-                            )}
-                            <Folder className="h-3.5 w-3.5 text-neutral-300 shrink-0" />
-                          </>
-                        ) : (
-                          <FileCode className="h-3.5 w-3.5 text-neutral-300 shrink-0" />
-                        )}
-                        <span className="truncate">{item.name}</span>
-                        {!isFolder && !item.isSaved && (
-                          <span className="h-1.5 w-1.5 rounded-full bg-amber-400 shrink-0" title={t.editorPage.unsavedTooltip} />
-                        )}
-                      </button>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteItem(item)}
-                      className="opacity-100 md:opacity-0 md:group-hover:opacity-100 hover:text-red-400 p-0.5 ml-1"
-                      title={t.common.delete}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </button>
-                  </div>
-                );
-              })}
+            {/* Tree Items: React Bits BranchedMenu — top-level files
+                are leaves, folders are sections with branch lines.
+                Selecting a file opens it; folding a folder, dragging
+                files between folders, and the per-row delete button
+                all keep the old tree's behaviour. */}
+            <div className="flex-1 overflow-auto p-2">
+              <BranchedMenu
+                items={treeData.menuItems}
+                activeValue={activeFilePath}
+                openSections={treeOpenSections}
+                onSelect={(value) => handleTreeSelect(value)}
+                onToggle={handleTreeToggle}
+                onRowDragStart={handleTreeDragStart}
+                onRowDragOver={handleTreeDragOver}
+                onRowDragLeave={handleTreeDragLeave}
+                onRowDrop={handleTreeDrop}
+                dragOverValue={dragOverTarget}
+                className="branched-menu--full"
+                color="#f5f5f5"
+                accentColor="#f5f5f5"
+                lineColor="#3f3f46"
+                width={280}
+              />
             </div>
 
             {/* Drag & Drop Hint */}
