@@ -257,7 +257,7 @@ export function LearnSidebar({
   return (
     <>
       {/* Desktop: fixed-width column. */}
-      <aside className="sticky top-[57px] hidden h-[calc(100vh-57px)] w-72 shrink-0 border-r border-neutral-800 bg-black md:block">
+      <aside className="sticky top-[69px] hidden h-[calc(100vh-69px)] w-72 shrink-0 border-r border-neutral-800 bg-black md:block">
         {body}
       </aside>
 

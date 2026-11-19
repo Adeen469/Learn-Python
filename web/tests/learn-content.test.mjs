@@ -202,3 +202,60 @@ test("the lessons route has its own loading skeleton (not the dashboard one)", (
   assert.ok(!loading.includes("aspect-video"), "the lessons skeleton must not show a video area");
   assert.ok(!loading.includes("lg:grid-cols-3"), "the lessons skeleton must not use the dashboard 3-column layout");
 });
+
+test("lesson code blocks are syntax-highlighted and carry a Try-it button", () => {
+  // Every code example must be syntax-highlighted (not plain white
+  // text) and must carry its own "Try it in the editor" button that
+  // opens that exact snippet in the editor — the single top-of-lesson
+  // button is gone (Maalik's order, 2026-11-19).
+  const page = readFileSync(join(webDir, "src/app/learn/[slug]/page.tsx"), "utf8");
+  assert.ok(page.includes("highlightPython"), "the lesson page must use the Python highlighter");
+  assert.ok(page.includes("{highlightPython(code)}"), "each code block must render highlighted code");
+  assert.ok(page.includes('sessionStorage.setItem("lp_try_it_code"'), "the Try-it button must hand the snippet to the editor via sessionStorage");
+  assert.ok(page.includes('href="/editor"'), "each code block must link to the editor");
+  assert.ok(!page.includes('<Code2 className="h-4 w-4" /> {t.learnPage.tryInEditor}'), "the top-of-lesson Try-it button must be gone");
+  const hl = readFileSync(join(webDir, "src/lib/python-highlight.tsx"), "utf8");
+  assert.ok(hl.includes("text-violet-300"), "keywords must be coloured violet");
+  assert.ok(hl.includes("text-emerald-300"), "strings must be coloured green");
+  assert.ok(hl.includes("text-neutral-500"), "comments must be coloured grey");
+  assert.ok(hl.includes("text-orange-300"), "numbers must be coloured orange");
+  assert.ok(hl.includes("text-sky-300"), "builtins and function calls must be coloured blue");
+});
+
+test("the editor opens a Try-it snippet as try-it.py", () => {
+  // A lesson's Try-it button stores the snippet in sessionStorage and
+  // the editor opens it as try-it.py without touching the user's other
+  // workspace files (Maalik's order, 2026-11-19).
+  const editor = readFileSync(join(webDir, "src/app/editor/page.tsx"), "utf8");
+  assert.ok(editor.includes('sessionStorage.getItem("lp_try_it_code")'), "the editor must read the Try-it handoff");
+  assert.ok(editor.includes('sessionStorage.removeItem("lp_try_it_code")'), "the editor must consume the handoff once");
+  assert.ok(editor.includes('"try-it.py"'), "the snippet must open as try-it.py");
+  assert.ok(editor.includes('setActiveFilePath("try-it.py")'), "try-it.py must become the active file");
+});
+
+test("the lesson header puts Mark as complete on the same row as the title (right side)", () => {
+  // Maalik's order, 2026-11-19: the button must sit on the same
+  // vertical line as the lesson name, on the opposite (right) side —
+  // not in a row below the intro.
+  const page = readFileSync(join(webDir, "src/app/learn/[slug]/page.tsx"), "utf8");
+  assert.ok(page.includes('className="flex flex-wrap items-center justify-between gap-3"'), "the header must be a flex row with the title left and the button right");
+  assert.ok(!page.includes('<div className="mt-4 flex flex-wrap items-center gap-2">'), "the old below-the-intro button row must be gone");
+});
+
+test("the code-block output is white, not green", () => {
+  // Maalik's order, 2026-11-19: keep the OUTPUT text white.
+  const page = readFileSync(join(webDir, "src/app/learn/[slug]/page.tsx"), "utf8");
+  assert.ok(page.includes('text-neutral-100">{output}</code>') || page.includes('text-neutral-100">'), "the output must be white");
+  assert.ok(!page.includes('text-emerald-300/90">{output}'), "the output must not be green");
+});
+
+test("the desktop sidebar sticks exactly below the navbar (69px) so it never shifts on scroll", () => {
+  // Maalik's order, 2026-11-19: the sidebar used to slide ~12px when
+  // the lesson scrolled, because it stuck at top-57px while the
+  // navbar is 69px tall. The sticky offset and height must match the
+  // measured navbar height.
+  const sb = readFileSync(join(webDir, "src/components/LearnSidebar.tsx"), "utf8");
+  assert.ok(sb.includes("sticky top-[69px]"), "the sidebar must stick at the real navbar height (69px)");
+  assert.ok(sb.includes("h-[calc(100vh-69px)]"), "the sidebar height must use the same 69px");
+  assert.ok(!sb.includes("top-[57px]"), "the old 57px offset must be gone");
+});

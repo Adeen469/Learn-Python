@@ -428,18 +428,41 @@ export default function CodeEditorPage() {
     }
   }
 
-  // Load from localStorage
+  // Load from localStorage, plus the "Try it" handoff: a lesson code
+  // block stores its snippet in sessionStorage (lp_try_it_code) and
+  // links here — open it as try-it.py so the user's workspace files
+  // are untouched and the snippet is the active file.
   useEffect(() => {
     const saved = localStorage.getItem("lp_workspace_tree");
+    let base = DEFAULT_WORKSPACE;
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setItems(parsed);
-          const firstFile = parsed.find((p: WorkspaceItem) => p.type === "file");
-          if (firstFile) setActiveFilePath(firstFile.path);
-        }
+        if (Array.isArray(parsed) && parsed.length > 0) base = parsed;
       } catch {}
+    }
+    let tryCode: string | null = null;
+    try {
+      tryCode = sessionStorage.getItem("lp_try_it_code");
+      if (tryCode !== null) sessionStorage.removeItem("lp_try_it_code");
+    } catch {}
+    if (tryCode !== null) {
+      const tryFile: WorkspaceItem = {
+        id: "f-try-it",
+        name: "try-it.py",
+        path: "try-it.py",
+        type: "file",
+        content: tryCode,
+        isSaved: false,
+      };
+      setItems([tryFile, ...base.filter((p: WorkspaceItem) => p.path !== "try-it.py")]);
+      setActiveFilePath("try-it.py");
+      return;
+    }
+    if (saved) {
+      setItems(base);
+      const firstFile = base.find((p: WorkspaceItem) => p.type === "file");
+      if (firstFile) setActiveFilePath(firstFile.path);
     }
   }, []);
 

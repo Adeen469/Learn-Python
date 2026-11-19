@@ -28,6 +28,7 @@ import {
   localizeTutorial,
 } from "@/lib/learn/i18n";
 import { useLanguage, type Strings } from "@/lib/i18n";
+import { highlightPython } from "@/lib/python-highlight";
 import { TextSelectionToolbar } from "@/components/TextSelectionToolbar";
 
 const COMPLETED_KEY = "lp_learn_completed";
@@ -89,30 +90,49 @@ function CodeBlock({ code, output, title }: { code: string; output?: string; tit
       // Clipboard unavailable — the code is still visible to type out.
     }
   }
+  // "Try it" hands this exact snippet to the editor: the editor reads
+  // lp_try_it_code from sessionStorage on mount and opens it as
+  // try-it.py, so every code block gets its own Try-it button.
+  function tryIt() {
+    try {
+      sessionStorage.setItem("lp_try_it_code", code);
+    } catch {
+      // sessionStorage unavailable — the editor still opens, just empty.
+    }
+  }
   return (
     <figure className="overflow-hidden rounded-xl border border-neutral-800 bg-black">
       <figcaption className="flex items-center justify-between gap-2 border-b border-neutral-800/70 bg-neutral-950 px-4 py-2">
         <span className="min-w-0 truncate text-xs font-medium text-neutral-400">
           {title ?? t.learnPage.example}
         </span>
-        <button
-          type="button"
-          onClick={copy}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-neutral-800 px-2.5 py-1 text-[11px] font-medium text-neutral-300 transition hover:border-neutral-600 hover:text-white"
-        >
-          {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-          {copied ? t.learnPage.copied : t.learnPage.copy}
-        </button>
+        <span className="flex shrink-0 items-center gap-1.5">
+          <Link
+            href="/editor"
+            onClick={tryIt}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-800 px-2.5 py-1 text-[11px] font-medium text-neutral-300 transition hover:border-neutral-600 hover:text-white"
+          >
+            <Code2 className="h-3.5 w-3.5" /> {t.learnPage.tryInEditor}
+          </Link>
+          <button
+            type="button"
+            onClick={copy}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-neutral-800 px-2.5 py-1 text-[11px] font-medium text-neutral-300 transition hover:border-neutral-600 hover:text-white"
+          >
+            {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+            {copied ? t.learnPage.copied : t.learnPage.copy}
+          </button>
+        </span>
       </figcaption>
       <pre className="overflow-x-auto p-4 font-mono text-[13px] leading-relaxed text-neutral-100">
-        <code>{code}</code>
+        <code>{highlightPython(code)}</code>
       </pre>
       {output !== undefined && (
         <div className="border-t border-neutral-800/70 bg-neutral-950 px-4 py-3">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
             {t.learnPage.output}
           </p>
-          <pre className="mt-1 overflow-x-auto font-mono text-[13px] leading-relaxed text-emerald-300/90">
+          <pre className="mt-1 overflow-x-auto font-mono text-[13px] leading-relaxed text-neutral-100">
             <code>{output}</code>
           </pre>
         </div>
@@ -247,19 +267,14 @@ export default function LearnTopicPage() {
       </nav>
 
       <header className="mt-4">
-        <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-          {tutorial?.title ?? reference?.title ?? tutorialTitle(slug, topic.title)}
-        </h1>
-        {tutorial && (
-          <p className="mt-3 text-[15px] leading-relaxed text-neutral-400 sm:text-base">
-            {tutorial.intro}
-          </p>
-        )}
-        <div className="mt-4 flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+            {tutorial?.title ?? reference?.title ?? tutorialTitle(slug, topic.title)}
+          </h1>
           <button
             type="button"
             onClick={toggleComplete}
-            className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition ${
+            className={`inline-flex shrink-0 items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition ${
               isDone
                 ? "border border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
                 : "bg-white text-black hover:bg-neutral-200"
@@ -275,13 +290,12 @@ export default function LearnTopicPage() {
               </>
             )}
           </button>
-          <Link
-            href="/editor"
-            className="inline-flex items-center gap-2 rounded-xl border border-neutral-800 bg-neutral-950 px-3.5 py-2 text-sm font-medium text-neutral-200 transition hover:border-neutral-600 hover:text-white"
-          >
-            <Code2 className="h-4 w-4" /> {t.learnPage.tryInEditor}
-          </Link>
         </div>
+        {tutorial && (
+          <p className="mt-3 text-[15px] leading-relaxed text-neutral-400 sm:text-base">
+            {tutorial.intro}
+          </p>
+        )}
       </header>
 
       {tutorial ? (
