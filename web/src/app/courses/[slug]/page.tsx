@@ -131,7 +131,7 @@ function CollectionCard({
               · {t.common.watchedPct(pct)}
             </span>
           )}
-          <ChevronRight className="ml-auto h-4 w-4 text-neutral-600 transition group-hover:text-white" />
+          <ChevronRight className="ml-auto h-4 w-4 text-neutral-600 transition group-hover:text-white motion-safe:group-hover:animate-[arrow-pulse_0.9s_ease-in-out_infinite]" />
         </p>
       </div>
     </Link>

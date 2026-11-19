@@ -408,6 +408,20 @@ body {
   }
 }
 
+/* The "go" arrow on the course cards: while its card is hovered the
+   arrow grows and shrinks (scale 1 → 1.35 → 1), so it reads as alive
+   without moving anywhere. The hover trigger lives where the card
+   lives — ChromaGrid.css for the hub card, a group-hover class on
+   the creator page card — and both honour reduced-motion there. */
+@keyframes arrow-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.35);
+  }
+}
+
 .animate-splash-logo {
   animation: splash-logo-in 700ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

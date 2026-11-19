@@ -249,3 +249,14 @@ a.chroma-card:focus-visible {
 .chroma-tilt > .chroma-card {
   flex: 1;
 }
+
+/* The "go" arrow in the details footer: while the card is hovered it
+   grows and shrinks (the arrow-pulse keyframes in globals.css), so
+   the arrow reads as alive without moving anywhere. Only when the
+   user has not asked for reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .chroma-card:hover .chroma-details svg {
+    animation: arrow-pulse 0.9s ease-in-out infinite;
+    transform-origin: center;
+  }
+}

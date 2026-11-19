@@ -279,3 +279,32 @@ test("hub creator cards carry the same bottom-right arrow as the creator page", 
     "the creator page card must keep its bottom-right arrow too"
   );
 });
+
+test("the card arrow pulses (grows and shrinks) while its card is hovered", () => {
+  // The keyframes live in globals.css so both pages share them.
+  const globals = read(join(webDir, "src/app/globals.css"));
+  assert.ok(globals.includes("@keyframes arrow-pulse"), "globals.css must define the arrow-pulse keyframes");
+  assert.ok(globals.includes("transform: scale(1.35)"), "the pulse must grow the arrow to 1.35x at its peak");
+  // Hub: the Chroma card's hover drives the arrow inside its details
+  // footer, and only when the user has not asked for reduced motion.
+  const gridCss = read(join(webDir, "src/components/ChromaGrid.css"));
+  assert.ok(
+    gridCss.includes(".chroma-card:hover .chroma-details svg"),
+    "the hub card's hover must target the arrow in its details footer"
+  );
+  assert.ok(
+    gridCss.includes("animation: arrow-pulse 0.9s ease-in-out infinite"),
+    "the hub arrow must pulse 0.9s, ease-in-out, while hovered"
+  );
+  assert.ok(
+    gridCss.includes("@media (prefers-reduced-motion: no-preference)"),
+    "the hub arrow pulse must respect reduced-motion"
+  );
+  // Creator page: the card is a `group`, so the same pulse runs on
+  // group-hover, again only when motion is safe.
+  const creator = read(creatorPath);
+  assert.ok(
+    creator.includes("motion-safe:group-hover:animate-[arrow-pulse_0.9s_ease-in-out_infinite]"),
+    "the creator card's arrow must pulse on card hover (motion-safe)"
+  );
+});
