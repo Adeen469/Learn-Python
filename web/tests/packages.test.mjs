@@ -611,3 +611,43 @@ test("CSP allows WebAssembly instantiation for the self-hosted Pyodide runtime",
     "the broad 'unsafe-eval' must NOT be used in script-src — 'wasm-unsafe-eval' is the narrow wasm-only permission"
   );
 });
+
+test("numpy install — the build-time fetch self-hosts the wheels loadPackage needs, so a wheel cannot 404 from /pyodide/", () => {
+  const script = read("scripts/fetch-pyodide-runtime.mjs");
+  // The 42-package closure (numpy / pandas / matplotlib + small common libs).
+  for (const pkg of ["numpy", "pandas", "matplotlib", "pillow", "requests", "beautifulsoup4", "pyyaml", "regex", "pytest", "rich", "networkx", "jinja2", "pydantic"]) {
+    assert.ok(script.includes(`"${pkg}"`), `the fetch script must self-host the ${pkg} wheel`);
+  }
+  assert.ok(script.includes("SELF_HOSTED_PACKAGES"), "the wheel list must be a named constant");
+  assert.ok(script.includes("pyodide-lock.json"), "wheel file names + hashes must come from the lockfile");
+  assert.ok(script.includes("sha256"), "each wheel must be verified by sha256, not just size");
+  assert.ok(script.includes("file_name"), "the lockfile file_name is the wheel to download");
+  // scipy / statsmodels / scikit-learn are deliberately NOT self-hosted (too big).
+  assert.ok(!script.includes('"scipy"'), "scipy must NOT be self-hosted (46 MB) — it uses the CDN fallback");
+  assert.ok(!script.includes('"scikit-learn"'), "scikit-learn must NOT be self-hosted — it uses the CDN fallback");
+  // The wheels must actually be present locally after the fetch.
+  const lock = JSON.parse(read("public/pyodide/pyodide-lock.json"));
+  for (const pkg of ["numpy", "pandas", "matplotlib"]) {
+    const fileName = lock.packages[pkg].file_name;
+    assert.ok(existsSync(join(root, "public", "pyodide", fileName)), `${pkg} wheel ${fileName} must be present in public/pyodide/`);
+  }
+});
+
+test("numpy install — installPackageInto detects loadPackage's silent failure and falls back to the CDN wheel via micropip", () => {
+  const src = read("src/lib/pyodide-install.ts");
+  // loadPackage resolves even when the wheel 404s — the code must check it loaded.
+  assert.ok(src.includes("isPackageLoaded(pyodide, name)"), "the install must check the package actually loaded after loadPackage");
+  assert.ok(src.includes("loadedPackages"), "the check must use pyodide.loadedPackages");
+  // The fallback installs the exact CDN wheel via micropip.
+  assert.ok(src.includes("cdnWheelUrlFor(name)"), "the fallback must resolve the CDN wheel URL for the package");
+  assert.ok(src.includes("micropip.install"), "the fallback must install the CDN wheel via micropip");
+  assert.ok(src.includes("PYODIDE_CDN_WHEEL_BASE"), "the CDN wheel base must be a named constant");
+  assert.ok(src.includes("cdn.jsdelivr.net/pyodide/v0.27.2/full/"), "the CDN wheel base must be the jsDelivr full/ directory");
+  assert.ok(src.includes("CDN_WHEEL_INSTALL_TIMEOUT_MS"), "the CDN fallback must have its own (generous) timeout");
+  // cdnWheelUrlFor reads the file_name from the self-hosted lockfile.
+  assert.ok(src.includes("/pyodide/pyodide-lock.json"), "the wheel URL must come from the self-hosted lockfile");
+  assert.ok(src.includes("file_name"), "the lockfile file_name is the wheel name");
+  // The old misleading error is gone: a failed load must say both paths were tried.
+  assert.ok(!src.includes("Could not load '${name}' from Pyodide:"), "the old 'Could not load from Pyodide' message must be replaced");
+  assert.ok(src.includes("tried the wheel hosted on this site"), "the error must say both the self-hosted wheel and the CDN were tried");
+});

@@ -92,6 +92,31 @@ export async function installPackageInto(
         PYODIDE_PACKAGE_LOAD_TIMEOUT_MS,
         `Downloading '${name}' timed out after 2 minutes — check your connection and retry.`
       );
+      // loadPackage RESOLVES even when the wheel fails to load
+      // (Pyodide logs "Failed to load <name>" but does not reject) —
+      // that is exactly how numpy "downloaded" yet `import numpy`
+      // failed (2026-11-19: the wheel was not self-hosted, so it
+      // 404'd from /pyodide/). Check the package actually loaded;
+      // if not, fall back to the CDN wheel via micropip.
+      if (!isPackageLoaded(pyodide, name)) {
+        const wheelUrl = await cdnWheelUrlFor(name);
+        if (!wheelUrl) {
+          return {
+            ok: false,
+            error:
+              `'${name}' is a Pyodide-built package, but its wheel could not be ` +
+              `loaded from this site and no CDN wheel URL is known for it.`,
+          };
+        }
+        await withTimeout(
+          pyodide.runPythonAsync(
+            "import micropip\n" +
+              `await micropip.install(${JSON.stringify(wheelUrl)})`
+          ),
+          CDN_WHEEL_INSTALL_TIMEOUT_MS,
+          `Downloading '${name}' from the Pyodide CDN timed out after 5 minutes — check your connection and retry.`
+        );
+      }
     } else {
       await withTimeout(
         pyodide.runPythonAsync(
@@ -105,7 +130,12 @@ export async function installPackageInto(
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     if (viaPyodide) {
-      return { ok: false, error: `Could not load '${name}' from Pyodide: ${msg}` };
+      return {
+        ok: false,
+        error:
+          `Could not load '${name}' — tried the wheel hosted on this site ` +
+          `and the Pyodide CDN: ${msg}`,
+      };
     }
     return {
       ok: false,
@@ -177,6 +207,64 @@ export const PYODIDE_LOAD_TIMEOUT_MS = 300_000;
 export const PYODIDE_PACKAGE_LOAD_TIMEOUT_MS = 120_000;
 /** How long a micropip install from PyPI may take. */
 export const MICROPIP_INSTALL_TIMEOUT_MS = 180_000;
+/**
+ * How long the CDN-wheel fallback may take. The Pyodide CDN is slow
+ * for the user (~35 KB/s measured 2026-11-19), so a 12 MB wheel needs
+ * ~6 minutes; 5 minutes covers most wheels up to ~10 MB. Larger
+ * wheels (scipy, 46 MB) will still time out here — they belong in the
+ * self-hosted set if the user needs them.
+ */
+export const CDN_WHEEL_INSTALL_TIMEOUT_MS = 300_000;
+/**
+ * Where the CDN fallback fetches a Pyodide-built wheel from. The
+ * wheel file_name comes from the self-hosted pyodide-lock.json, so
+ * the URL is always the exact wheel loadPackage would have fetched.
+ */
+export const PYODIDE_CDN_WHEEL_BASE =
+  "https://cdn.jsdelivr.net/pyodide/v0.27.2/full/";
+
+/**
+ * Did loadPackage actually load this package? loadPackage resolves
+ * even when the wheel 404s, so the promise alone proves nothing —
+ * Pyodide records genuinely loaded packages in `loadedPackages`.
+ */
+export function isPackageLoaded(pyodide: any, packageName: string): boolean {
+  const loaded = pyodide?.loadedPackages as
+    | Record<string, unknown>
+    | undefined;
+  if (!loaded) return false;
+  const norm = normalizePackageName(packageName);
+  return norm in loaded || packageName in loaded;
+}
+
+let lockfileCache: Promise<Record<string, { file_name?: string }> | null> | null = null;
+
+/**
+ * The CDN URL of a Pyodide-built package's wheel, from the
+ * self-hosted pyodide-lock.json (same origin, so the lookup itself
+ * is fast). Returns null when the package has no wheel in the
+ * lockfile. The result is cached for the page lifetime.
+ */
+export async function cdnWheelUrlFor(packageName: string): Promise<string | null> {
+  const norm = normalizePackageName(packageName);
+  if (!lockfileCache) {
+    lockfileCache = (async () => {
+      try {
+        const res = await fetch("/pyodide/pyodide-lock.json");
+        if (!res.ok) return null;
+        const lock = (await res.json()) as {
+          packages?: Record<string, { file_name?: string }>;
+        };
+        return lock.packages ?? null;
+      } catch {
+        return null;
+      }
+    })();
+  }
+  const packages = await lockfileCache;
+  const fileName = packages?.[norm]?.file_name;
+  return fileName ? `${PYODIDE_CDN_WHEEL_BASE}${fileName}` : null;
+}
 
 /**
  * Run a promise with a timeout. loadPyodide() downloads the whole
