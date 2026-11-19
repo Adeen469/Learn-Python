@@ -72,9 +72,32 @@ test("Harry 100-day playlist: 100 videos, MEGA lesson ids in order", () => {
   });
 });
 
-test("no other video carries a MEGA lesson id", () => {
+test("MEGA-mapped videos: 100-day course + 39 uploaded (Apna, Mosh, one-shots)", () => {
   const all = [...data.matchAll(/megaLessonId: "([^"]+)"/g)].map((m) => m[1]);
-  assert.equal(all.length, 100, `only the 100-day course may map to MEGA, got ${all.length}`);
+  // 100 (100-day) + 9 Apna lectures + 3 Apna one-shots + 5 CWH one-shots
+  // + 22 Mosh = 139. The 129-video CWH playlist has no MEGA files yet,
+  // so it stays YouTube-only until Maalik uploads it.
+  assert.equal(all.length, 139, `expected 139 MEGA-mapped videos, got ${all.length}`);
+  assert.equal(new Set(all).size, all.length, "MEGA lesson ids must be unique");
+  const rest = all.filter((id) => !id.startsWith("python-day-"));
+  assert.equal(rest.length, 39, `expected 39 non-100-day MEGA mappings, got ${rest.length}`);
+  for (const id of rest) {
+    assert.ok(
+      /^(apna-lecture-\d{2}|apna-oneshot-\d{2}|cwh-oneshot-\d{2}|mosh-\d{3})$/.test(id),
+      `unexpected MEGA lesson id ${id}`
+    );
+  }
+});
+
+test("every MEGA lesson id resolves to a catalog lesson with a MEGA link", () => {
+  const catalog = read(join(webDir, "src/lib/catalog.ts"));
+  const all = [...data.matchAll(/megaLessonId: "([^"]+)"/g)].map((m) => m[1]);
+  for (const id of all) {
+    const re = new RegExp(
+      `id: "${id}",\\s*\\n\\s*title: "(?:[^"\\\\]|\\\\.)*",\\s*\\n\\s*moduleTitle: "(?:[^"\\\\]|\\\\.)*",\\s*\\n\\s*courseTitle: "(?:[^"\\\\]|\\\\.)*",\\s*\\n\\s*durationSeconds: \\d+,\\s*\\n\\s*videoUrl: "(?:https://mega\\.nz/file/|https://mega\\.nz/folder/[A-Za-z0-9_-]{8}#[A-Za-z0-9_-]{22,43}/file/)[^"]+",\\s*\\n\\s*videoSource: "mega",`
+    );
+    assert.ok(re.test(catalog), `catalog lesson ${id} missing or not a MEGA lesson`);
+  }
 });
 
 test("total video count is 268", () => {

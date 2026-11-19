@@ -1,7 +1,15 @@
 import { Readable } from "node:stream";
 import { File as MegaFile } from "megajs";
 
+// A MEGA video URL is either a standalone public file link
+// (https://mega.nz/file/<handle>#<key>) or a file inside a shared folder
+// (https://mega.nz/folder/<folderHandle>#<folderKey>/file/<handle>).
+// Files shared only as part of a folder have NO standalone public link —
+// their handle alone 404s (MEGA -9 ENOENT) — so the folder form is the
+// only working address for them.
 const MEGA_FILE_URL_RE = /^https:\/\/mega\.nz\/file\/([A-Za-z0-9_-]{8})#([A-Za-z0-9_-]{22,43})$/;
+const MEGA_FOLDER_FILE_URL_RE =
+  /^https:\/\/mega\.nz\/folder\/([A-Za-z0-9_-]{8})#([A-Za-z0-9_-]{22,43})\/file\/([A-Za-z0-9_-]{8})$/;
 
 // A loaded MEGA file object (attributes: name/size) is reusable across
 // downloads, and the browser issues a Range request for every buffer/seek,
@@ -22,12 +30,37 @@ async function loadMegaFile(megaUrl: string): Promise<MegaFile> {
   }
   const file = MegaFile.fromURL(megaUrl);
   await file.loadAttributes();
-  fileCache.set(megaUrl, { file, fetchedAt: Date.now() });
-  return file;
+  // A folder link (…/folder/<id>#<key>/file/<handle>) loads the folder
+  // itself; the video is the child with that handle, found recursively
+  // (the file may sit in a subfolder of the shared folder).
+  const resolved = file.directory ? findChildByHandle(file, file.loadedFile) : file;
+  if (!resolved || resolved.directory) {
+    throw new Error("MEGA file not found in shared folder");
+  }
+  fileCache.set(megaUrl, { file: resolved, fetchedAt: Date.now() });
+  return resolved;
+}
+
+/**
+ * Find the file inside a loaded folder tree whose MEGA handle matches.
+ * A child of a shared folder carries downloadId [folderHandle, fileHandle]
+ * (typed as a string by megajs, an array at runtime).
+ */
+function findChildByHandle(node: MegaFile, handle: string | undefined): MegaFile | null {
+  if (!handle) return null;
+  if (!node.directory) {
+    const downloadId = node.downloadId as unknown;
+    return Array.isArray(downloadId) && downloadId[1] === handle ? node : null;
+  }
+  for (const child of node.children ?? []) {
+    const found = findChildByHandle(child, handle);
+    if (found) return found;
+  }
+  return null;
 }
 
 export function isValidMegaFileUrl(url: string): boolean {
-  return MEGA_FILE_URL_RE.test(url);
+  return MEGA_FILE_URL_RE.test(url) || MEGA_FOLDER_FILE_URL_RE.test(url);
 }
 
 export interface ByteRange {
