@@ -152,3 +152,16 @@ test("Keyboard shortcuts: Space plays/pauses, arrows seek 10 seconds", () => {
   assert.ok(vp.includes("e.target !== e.currentTarget"), "keys must only act when the player itself has focus, not a button inside it");
   assert.ok(vp.includes("t.player.keyboardHint"), "the player must hint the shortcuts under the video");
 });
+
+test("Loading state: a spinner + Loading text shows while the stream loads or re-buffers", () => {
+  const vp = player();
+  assert.ok(vp.includes("isLoading"), "the player must track a loading state");
+  assert.ok(vp.includes('setIsLoading(true)'), "the spinner must start on when a lesson loads");
+  assert.ok(vp.includes('"waiting"'), "the spinner must show when playback stalls on buffering");
+  assert.ok(vp.includes('"playing"'), "the spinner must hide once playback starts");
+  assert.ok(vp.includes('"canplay"'), "the spinner must hide once the video can play");
+  assert.ok(vp.includes('"loadstart"'), "the spinner must show when a new load begins");
+  assert.ok(vp.includes("t.common.loading"), "the spinner must label itself Loading in the user's language");
+  assert.ok(vp.includes("animate-spin"), "the loading indicator must spin");
+  assert.ok(vp.includes("pointer-events-none"), "the spinner must not block taps on the video");
+});

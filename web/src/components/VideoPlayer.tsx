@@ -110,6 +110,11 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
   const [isOnline, setIsOnline] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  // Loading state: true from the moment a lesson is picked until the
+  // video can actually play, and again whenever playback stalls on
+  // buffering — the black screen must never look dead.
+  const [isLoading, setIsLoading] = useState(true);
+
   // Custom control bar (no native controls): one place holding the
   // seek bar and the volume control — the volume slider stays hidden
   // until you hover the speaker icon, then it slides out.
@@ -531,11 +536,29 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
     };
     video.addEventListener("play", onPlay);
     video.addEventListener("pause", onPause);
+    // Loading / buffering: show the spinner while the stream is still
+    // loading or stalls mid-playback, hide it once the video can play
+    // (or fails — a broken stream must not spin forever).
+    const onWaiting = () => setIsLoading(true);
+    const onPlaying = () => setIsLoading(false);
+    const onCanPlay = () => setIsLoading(false);
+    const onLoadStart = () => setIsLoading(true);
+    const onVideoError = () => setIsLoading(false);
+    video.addEventListener("waiting", onWaiting);
+    video.addEventListener("playing", onPlaying);
+    video.addEventListener("canplay", onCanPlay);
+    video.addEventListener("loadstart", onLoadStart);
+    video.addEventListener("error", onVideoError);
     const onFs = () => setIsFullscreen(Boolean(document.fullscreenElement));
     document.addEventListener("fullscreenchange", onFs);
     return () => {
       video.removeEventListener("play", onPlay);
       video.removeEventListener("pause", onPause);
+      video.removeEventListener("waiting", onWaiting);
+      video.removeEventListener("playing", onPlaying);
+      video.removeEventListener("canplay", onCanPlay);
+      video.removeEventListener("loadstart", onLoadStart);
+      video.removeEventListener("error", onVideoError);
       document.removeEventListener("fullscreenchange", onFs);
     };
   }, [src]);
@@ -578,6 +601,7 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
     setCurrentTime(0);
     setDuration(0);
     setPaused(true);
+    setIsLoading(true);
     setDetectedQuality(null);
     setShowControls(true);
     onPlayStateChangeRef.current?.(false);
@@ -726,6 +750,17 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
             />
           )}
         </video>
+
+        {/* Loading state: a spinner + "Loading…" while the stream is
+            still loading or re-buffering, so the black screen never
+            looks dead. Pointer-events pass through, so a tap on the
+            video still toggles play. */}
+        {isLoading && !errorMsg && (
+          <div className="pointer-events-none absolute inset-0 z-[5] flex flex-col items-center justify-center gap-3 bg-black/40">
+            <Loader2 className="h-10 w-10 animate-spin text-white" aria-hidden="true" />
+            <p className="text-sm text-neutral-300">{t.common.loading}</p>
+          </div>
+        )}
 
         {/* Settings menu backdrop — clicking anywhere else closes it. */}
         {settingsOpen && (
