@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { MonitorPlay } from "lucide-react";
+import { ChevronRight, MonitorPlay } from "lucide-react";
 import { fetchSessionUser } from "@/lib/auth-client";
 import { AppNavbar } from "@/components/AppNavbar";
 import ChromaGrid from "@/components/ChromaGrid";
@@ -116,15 +116,20 @@ export default function CoursesPage() {
                     <p className="mt-1 text-sm leading-relaxed text-neutral-400">
                       {creatorTagline(creator, t)}
                     </p>
-                    <p className="mt-3 border-t border-neutral-800/70 pt-3 text-xs text-neutral-500">
-                      {creator.playlists.length === 0 ? (
-                        <>{t.course.oneShotsHeading} • </>
-                      ) : (
-                        <>{t.coursesPage.countCourses(creator.playlists.length)} • </>
-                      )}
-                      {t.courses.countVideos(creatorVideoCount(creator))} •{" "}
-                      {t.common.durationTotal(creatorTotalSeconds(creator))}
-                    </p>
+                    {/* The arrow at the footer's right end, the same
+                        "go" cue the creator page's cards carry. */}
+                    <div className="mt-3 flex items-center gap-2 border-t border-neutral-800/70 pt-3 text-xs text-neutral-500">
+                      <span>
+                        {creator.playlists.length === 0 ? (
+                          <>{t.course.oneShotsHeading} • </>
+                        ) : (
+                          <>{t.coursesPage.countCourses(creator.playlists.length)} • </>
+                        )}
+                        {t.courses.countVideos(creatorVideoCount(creator))} •{" "}
+                        {t.common.durationTotal(creatorTotalSeconds(creator))}
+                      </span>
+                      <ChevronRight className="ml-auto h-4 w-4 shrink-0" />
+                    </div>
                   </>
                 ),
               }))}

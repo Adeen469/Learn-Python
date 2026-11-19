@@ -257,3 +257,25 @@ test("creator cards are black-and-white at rest and tilt, like the hub", () => {
     "the progress bar must keep the creator's accent colour"
   );
 });
+
+test("hub creator cards carry the same bottom-right arrow as the creator page", () => {
+  const hub = read(hubPath);
+  assert.ok(
+    hub.includes('import { ChevronRight, MonitorPlay } from "lucide-react"'),
+    "the hub must import ChevronRight"
+  );
+  assert.ok(
+    hub.includes("<ChevronRight"),
+    "each hub card's footer must render a ChevronRight"
+  );
+  assert.ok(
+    hub.includes('className="ml-auto h-4 w-4 shrink-0"'),
+    "the arrow must sit at the footer's right end (ml-auto)"
+  );
+  // The creator page's card has the same cue in its meta row.
+  const creator = read(creatorPath);
+  assert.ok(
+    creator.includes("<ChevronRight"),
+    "the creator page card must keep its bottom-right arrow too"
+  );
+});
