@@ -178,3 +178,15 @@ test("lesson pages show a text-selection toolbar (Ask to AI, Translate dropdown,
   const en = readFileSync(join(webDir, "src/lib/i18n/en.ts"), "utf8");
   assert.ok(en.includes('askAi: "Ask to AI"'), "the English Ask to AI label must be 'Ask to AI'");
 });
+
+test("lesson pages are full width (no width caps)", () => {
+  // The outer learn container must not cap the width, and the lesson
+  // article must not cap its own width either — the content stretches
+  // to the edges on wide screens (Maalik's order, 2026-11-19).
+  const layout = readFileSync(join(webDir, "src/app/learn/layout.tsx"), "utf8");
+  assert.ok(!layout.includes("max-w-6xl"), "the learn container must not cap the width at max-w-6xl");
+  assert.ok(!layout.includes("max-w-"), "the learn container must not have any max-w cap");
+  const page = readFileSync(join(webDir, "src/app/learn/[slug]/page.tsx"), "utf8");
+  assert.ok(!page.includes("<article className=\"mx-auto max-w-3xl\">"), "the lesson article must not cap the width at max-w-3xl");
+  assert.ok(page.includes("<article>"), "the lesson article must render without a width cap");
+});

@@ -45,7 +45,7 @@ export default function LearnLayout({ children }: { children: React.ReactNode })
   return (
     <div className="min-h-screen bg-black text-white flex flex-col pb-20 md:pb-0">
       <AppNavbar />
-      <div className="mx-auto flex w-full max-w-6xl flex-1">
+      <div className="flex w-full flex-1">
         <LearnSidebar
           activeSlug={activeSlug}
           mobileOpen={mobileOpen}

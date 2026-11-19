@@ -236,7 +236,7 @@ export default function LearnTopicPage() {
     idx >= 0 && idx < ALL_LEARN_TOPICS.length - 1 ? ALL_LEARN_TOPICS[idx + 1] : null;
 
   return (
-    <article className="mx-auto max-w-3xl">
+    <article>
       <TextSelectionToolbar
         lessonTitle={tutorial?.title ?? reference?.title ?? tutorialTitle(slug, topic.title)}
       />
