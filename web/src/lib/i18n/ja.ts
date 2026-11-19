@@ -64,6 +64,11 @@ export const ja: Strings = {
   tabs: {
     learn: "学習",
     courses: "コース",
+    logicBuilder: "Logic Builder",
+  },
+  logicBuilder: {
+    comingSoon: "近日公開",
+    notifyText: "Logic Builderを現在開発中です。準備ができ次第、メールでお知らせします。",
   },
   learn: {
     streakChip: (n: number) => `連続 ${n} 日`,

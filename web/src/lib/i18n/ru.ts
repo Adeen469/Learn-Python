@@ -64,6 +64,11 @@ export const ru: Strings = {
   tabs: {
     learn: "Обучение",
     courses: "Курсы",
+    logicBuilder: "Logic Builder",
+  },
+  logicBuilder: {
+    comingSoon: "Скоро",
+    notifyText: "Мы прямо сейчас создаём Logic Builder. Как только он будет готов, мы сообщим вам по электронной почте.",
   },
   learn: {
     streakChip: (n: number) => `Серия: ${n} ${plural(n, "день", "дня", "дней")}`,

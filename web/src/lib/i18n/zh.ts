@@ -56,6 +56,11 @@ export const zh: Strings = {
   tabs: {
     learn: "学习",
     courses: "课程",
+    logicBuilder: "Logic Builder",
+  },
+  logicBuilder: {
+    comingSoon: "即将推出",
+    notifyText: "我们正在构建 Logic Builder。一旦准备就绪，我们会通过电子邮件通知您。",
   },
   learn: {
     streakChip: (n: number) => `连续学习 ${n} 天`,

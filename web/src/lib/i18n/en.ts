@@ -69,6 +69,11 @@ export const en: Strings = {
   tabs: {
     learn: "Learn",
     courses: "Courses",
+    logicBuilder: "Logic Builder",
+  },
+  logicBuilder: {
+    comingSoon: "Coming Soon",
+    notifyText: "We're building Logic Builder right now. The moment it's ready, we'll let you know by email.",
   },
   learn: {
     streakChip: (n: number) =>

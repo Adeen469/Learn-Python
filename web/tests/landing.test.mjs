@@ -133,3 +133,39 @@ describe("landing page — Get Started uses SpecularButton", () => {
     assert.ok(landing.includes("{t.landing.getStarted}"), "the label must stay the i18n Get Started string");
   });
 });
+
+describe("Logic Builder — Coming Soon page", () => {
+  test("the /logic-builder page exists, is a Coming Soon placeholder, and the navbar links it between Courses and Code Editor", () => {
+    const page = read("src/app/logic-builder/page.tsx");
+    assert.ok(page.includes("AppNavbar"), "the Logic Builder page must render the app navbar");
+    assert.ok(page.includes('router.replace("/")'), "guests must be redirected to the landing page");
+    assert.ok(page.includes("t.logicBuilder.comingSoon"), "the page must show the Coming Soon heading");
+    assert.ok(page.includes("t.logicBuilder.notifyText"), "the page must show the email-notify sentence");
+    assert.ok(page.includes("Blocks"), "the page must use the Blocks icon");
+    const navbar = read("src/components/AppNavbar.tsx");
+    assert.ok(navbar.includes('href: "/logic-builder"'), "the navbar must link to /logic-builder");
+    assert.ok(navbar.includes("t.tabs.logicBuilder"), "the navbar label must come from i18n");
+    const coursesIdx = navbar.indexOf('href: "/courses"');
+    const logicIdx = navbar.indexOf('href: "/logic-builder"');
+    const editorIdx = navbar.indexOf('href: "/editor"');
+    assert.ok(coursesIdx > 0 && logicIdx > coursesIdx && editorIdx > logicIdx, "Logic Builder must sit between Courses and Code Editor in the navbar");
+    assert.ok(navbar.includes('pathname.startsWith("/logic-builder")'), "the navbar must highlight Logic Builder as active on its page");
+    // i18n: the keys must exist in the type and all 11 languages.
+    const index = read("src/lib/i18n/index.tsx");
+    assert.ok(index.includes("logicBuilder: string;"), "the Strings type must have tabs.logicBuilder");
+    assert.ok(index.includes("comingSoon: string;"), "the Strings type must have logicBuilder.comingSoon");
+    assert.ok(index.includes("notifyText: string;"), "the Strings type must have logicBuilder.notifyText");
+    for (const lang of ["en", "hi-roman", "fr", "ja", "ko", "es", "de", "pt", "ru", "ar", "zh"]) {
+      const s = read(`src/lib/i18n/${lang}.ts`);
+      assert.ok(s.includes('logicBuilder: "Logic Builder"'), `${lang} must have the Logic Builder nav label`);
+      assert.ok(s.includes("comingSoon:"), `${lang} must have logicBuilder.comingSoon`);
+      assert.ok(s.includes("notifyText:"), `${lang} must have logicBuilder.notifyText`);
+    }
+    const en = read("src/lib/i18n/en.ts");
+    assert.ok(en.includes('comingSoon: "Coming Soon"'), "the English heading must be 'Coming Soon'");
+    assert.ok(
+      en.includes("we'll let you know by email"),
+      "the English sentence must be the improvised mail line, not the raw 'we will mail you'"
+    );
+  });
+});

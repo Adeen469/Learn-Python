@@ -55,6 +55,11 @@ export const hiRoman: Strings = {
   tabs: {
     learn: "Seekho",
     courses: "Courses",
+    logicBuilder: "Logic Builder",
+  },
+  logicBuilder: {
+    comingSoon: "Jald Aa Raha Hai",
+    notifyText: "Hum Logic Builder abhi bana rahe hain. Jaise hi ye ready hoga, hum aapko email se bata denge.",
   },
   learn: {
     streakChip: (n) => n === 1 ? `Streak: ${n} din` : `Streak: ${n} din`,

@@ -56,6 +56,11 @@ export const pt: Strings = {
   tabs: {
     learn: "Aprender",
     courses: "Cursos",
+    logicBuilder: "Logic Builder",
+  },
+  logicBuilder: {
+    comingSoon: "Em breve",
+    notifyText: "Estamos construindo o Logic Builder agora. Assim que estiver pronto, avisaremos por e-mail.",
   },
   learn: {
     streakChip: (n: number) =>

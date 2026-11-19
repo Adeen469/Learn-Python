@@ -59,6 +59,11 @@ export const ar: Strings = {
   tabs: {
     learn: "تعلّم",
     courses: "الدورات",
+    logicBuilder: "Logic Builder",
+  },
+  logicBuilder: {
+    comingSoon: "قريبًا",
+    notifyText: "نحن نبني Logic Builder الآن. وبمجرد أن يصبح جاهزًا، سنعلمك عبر البريد الإلكتروني.",
   },
   learn: {
     streakChip: (n: number) =>

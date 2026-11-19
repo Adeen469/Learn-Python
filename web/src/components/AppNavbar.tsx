@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowRight, BookOpenText, Code2, Flame, Github, LogOut, Map, MonitorPlay, Settings, User } from "lucide-react";
+import { ArrowRight, Blocks, BookOpenText, Code2, Flame, Github, LogOut, Map, MonitorPlay, Settings, User } from "lucide-react";
 import { useEffect, useState, type CSSProperties } from "react";
 import {
   fetchSessionUser,
@@ -129,12 +129,14 @@ export function AppNavbar() {
   const [roadmapOpen, setRoadmapOpen] = useState(false);
   const [roadmapHintOpen, setRoadmapHintOpen] = useState(false);
 
-  // Three items, everywhere: Learn (the W3Schools-style main page),
-  // Courses (Harry / Apna College / Mosh), Code Editor. Defined here
-  // (not module-level) so the labels can come from `t`.
+  // Four items, everywhere: Learn (the W3Schools-style main page),
+  // Courses (Harry / Apna College / Mosh), Logic Builder (coming
+  // soon), Code Editor. Defined here (not module-level) so the labels
+  // can come from `t`.
   const navLinks = [
     { href: "/learn/python-home", label: t.tabs.learn, icon: BookOpenText, match: "/learn" },
     { href: "/courses", label: t.tabs.courses, icon: MonitorPlay, match: "/courses" },
+    { href: "/logic-builder", label: t.tabs.logicBuilder, icon: Blocks, match: "/logic-builder" },
     { href: "/editor", label: t.editor.title, icon: Code2, match: "/editor" },
   ];
 
@@ -255,9 +257,11 @@ export function AppNavbar() {
     ? "/learn/python-home"
     : pathname.startsWith("/courses")
       ? "/courses"
-      : pathname.startsWith("/editor")
-        ? "/editor"
-        : "";
+      : pathname.startsWith("/logic-builder")
+        ? "/logic-builder"
+        : pathname.startsWith("/editor")
+          ? "/editor"
+          : "";
 
   // Mobile header (right side): the streak chip and the Continue button.
   // Both come from the same stores the pages use — streak from the shared

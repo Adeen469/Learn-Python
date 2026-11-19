@@ -53,6 +53,11 @@ export const ko: Strings = {
   tabs: {
     learn: "학습",
     courses: "강좌",
+    logicBuilder: "Logic Builder",
+  },
+  logicBuilder: {
+    comingSoon: "곧 출시됩니다",
+    notifyText: "지금 Logic Builder를 만들고 있습니다. 준비가 되면 이메일로 알려드리겠습니다.",
   },
   learn: {
     streakChip: (n) => `연속 ${n}일`,

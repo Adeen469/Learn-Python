@@ -152,6 +152,11 @@ export type Strings = {
   tabs: {
     learn: string;
     courses: string;
+    logicBuilder: string;
+  };
+  logicBuilder: {
+    comingSoon: string;
+    notifyText: string;
   };
   learn: {
     streakChip: (n: number) => string;
