@@ -203,6 +203,22 @@ export type Strings = {
     thinking: string;
     askButton: string;
   };
+  selectionToolbar: {
+    askAi: string;
+    translate: string;
+    copy: string;
+    copied: string;
+    aiAnswerTitle: string;
+    translationTitle: (lang: string) => string;
+    thinking: string;
+    translating: string;
+    showOriginal: string;
+    minimize: string;
+    maximize: string;
+    errorGeneric: string;
+    errorSessionExpired: string;
+    close: string;
+  };
   auth: {
     continueWithGoogle: string;
     forgotPassword: string;

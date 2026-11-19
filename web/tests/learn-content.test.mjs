@@ -105,3 +105,76 @@ test("no placeholders in Learn content", () => {
     assert.ok(!/lorem ipsum/i.test(text), `${f}: contains lorem ipsum`);
   }
 });
+
+test("lesson pages show a text-selection toolbar (Ask to AI, Translate dropdown, Copy)", () => {
+  const toolbar = readFileSync(join(webDir, "src/components/TextSelectionToolbar.tsx"), "utf8");
+  // The three actions Maalik asked for.
+  assert.ok(toolbar.includes("t.selectionToolbar.askAi"), "the toolbar must have an Ask to AI action");
+  assert.ok(toolbar.includes("t.selectionToolbar.translate"), "the toolbar must have a Translate action");
+  assert.ok(toolbar.includes("t.selectionToolbar.copy"), "the toolbar must have a Copy action");
+  // Translate is a dropdown of the 11 app languages.
+  assert.ok(toolbar.includes("LANGUAGES.map"), "the Translate dropdown must list the app languages");
+  assert.ok(toolbar.includes("translateOpen"), "the Translate dropdown must open/close");
+  // Ask to AI goes through the existing /api/ai tutor mode.
+  assert.ok(toolbar.includes('"/api/ai"'), "Ask to AI must call the existing /api/ai route");
+  assert.ok(toolbar.includes('mode: "tutor"'), "Ask to AI must use tutor mode");
+  assert.ok(toolbar.includes("Explain this text from the Python lesson"), "Ask to AI must send the selected text with the lesson title");
+  // Translate replaces the selected text IN PLACE in the lesson — never
+  // a separate panel. The translated span restores the original on click.
+  assert.ok(toolbar.includes("Translate this text to"), "Translate must ask the AI to translate the selected text");
+  assert.ok(toolbar.includes("replaceSelectionWithTranslation"), "Translate must replace the selected text in place");
+  assert.ok(toolbar.includes("deleteContents"), "the in-place translation must remove the selected text");
+  assert.ok(toolbar.includes("insertNode"), "the in-place translation must insert the translated text at the selection");
+  assert.ok(toolbar.includes("data-translated"), "the translated text must be marked so it can be restored");
+  assert.ok(toolbar.includes("data-original"), "the translated text must carry the original text for restore");
+  assert.ok(toolbar.includes("t.selectionToolbar.showOriginal"), "the translated text must say clicking it shows the original");
+  assert.ok(toolbar.includes("t.selectionToolbar.translating"), "the toolbar must show a Translating state while the translation loads");
+  // Ask to AI opens a card that is MOVEABLE (drag by header) and can be
+  // MINIMIZED (collapse to the header bar, maximize restores it).
+  assert.ok(toolbar.includes("onCardHeaderPointerDown"), "the AI card must be draggable by its header");
+  assert.ok(toolbar.includes("pointermove"), "dragging the AI card must track pointer movement");
+  assert.ok(toolbar.includes("cardMinimized"), "the AI card must support a minimized state");
+  assert.ok(toolbar.includes("t.selectionToolbar.minimize"), "the AI card must have a minimize action");
+  assert.ok(toolbar.includes("t.selectionToolbar.maximize"), "the AI card must have a maximize action");
+  assert.ok(toolbar.includes("cursor-grab"), "the AI card header must look draggable");
+  // Copy uses the clipboard and shows feedback.
+  assert.ok(toolbar.includes("navigator.clipboard.writeText"), "Copy must write the selected text to the clipboard");
+  assert.ok(toolbar.includes("t.selectionToolbar.copied"), "Copy must show a Copied state");
+  // The toolbar only appears for real text selected inside the lesson article.
+  assert.ok(toolbar.includes('closest("article")'), "the toolbar must only trigger inside the lesson article");
+  assert.ok(toolbar.includes("getSelection"), "the toolbar must read the live text selection");
+  assert.ok(toolbar.includes("getBoundingClientRect"), "the toolbar must position itself above the selection");
+  // A click on the Translate button re-runs the selection check with the
+  // SAME text — the dropdown must stay open (it only closes on a new
+  // selection or when the selection clears).
+  assert.ok(toolbar.includes("sameSelection"), "the toolbar must keep the Translate dropdown open when the same selection is re-confirmed");
+  assert.ok(toolbar.includes("selectionTextRef"), "the toolbar must track the current selection text to detect a new selection");
+  // The Translate dropdown opens BELOW the toolbar (top-full), never
+  // above it — above the toolbar it would clip off the top of the
+  // viewport when the selection is near the top of the page.
+  assert.ok(toolbar.includes("top-full"), "the Translate dropdown must open below the toolbar so it never clips off the top of the viewport");
+  // The AI card shows the answer with its own Copy + Close.
+  assert.ok(toolbar.includes("t.selectionToolbar.aiAnswerTitle"), "the AI card must title AI answers");
+  assert.ok(toolbar.includes("t.selectionToolbar.translationTitle"), "the AI card must title translation errors");
+  assert.ok(toolbar.includes("t.selectionToolbar.thinking"), "the AI card must show a thinking state");
+  // The lesson page renders the toolbar.
+  const page = readFileSync(join(webDir, "src/app/learn/[slug]/page.tsx"), "utf8");
+  assert.ok(page.includes("TextSelectionToolbar"), "the lesson page must render the selection toolbar");
+  assert.ok(page.includes('from "@/components/TextSelectionToolbar"'), "the lesson page must import the toolbar");
+  // i18n: the keys must exist in the type and all 11 languages.
+  const index = readFileSync(join(webDir, "src/lib/i18n/index.tsx"), "utf8");
+  assert.ok(index.includes("selectionToolbar: {"), "the Strings type must have a selectionToolbar section");
+  for (const lang of ["en", "hi-roman", "fr", "ja", "ko", "es", "de", "pt", "ru", "ar", "zh"]) {
+    const s = readFileSync(join(webDir, `src/lib/i18n/${lang}.ts`), "utf8");
+    assert.ok(s.includes("selectionToolbar: {"), `${lang} must have a selectionToolbar section`);
+    assert.ok(s.includes("askAi:"), `${lang} must have selectionToolbar.askAi`);
+    assert.ok(s.includes("translate:"), `${lang} must have selectionToolbar.translate`);
+    assert.ok(s.includes("translationTitle:"), `${lang} must have selectionToolbar.translationTitle`);
+    assert.ok(s.includes("translating:"), `${lang} must have selectionToolbar.translating`);
+    assert.ok(s.includes("showOriginal:"), `${lang} must have selectionToolbar.showOriginal`);
+    assert.ok(s.includes("minimize:"), `${lang} must have selectionToolbar.minimize`);
+    assert.ok(s.includes("maximize:"), `${lang} must have selectionToolbar.maximize`);
+  }
+  const en = readFileSync(join(webDir, "src/lib/i18n/en.ts"), "utf8");
+  assert.ok(en.includes('askAi: "Ask to AI"'), "the English Ask to AI label must be 'Ask to AI'");
+});

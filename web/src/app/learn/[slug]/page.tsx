@@ -28,6 +28,7 @@ import {
   localizeTutorial,
 } from "@/lib/learn/i18n";
 import { useLanguage, type Strings } from "@/lib/i18n";
+import { TextSelectionToolbar } from "@/components/TextSelectionToolbar";
 
 const COMPLETED_KEY = "lp_learn_completed";
 
@@ -236,6 +237,9 @@ export default function LearnTopicPage() {
 
   return (
     <article className="mx-auto max-w-3xl">
+      <TextSelectionToolbar
+        lessonTitle={tutorial?.title ?? reference?.title ?? tutorialTitle(slug, topic.title)}
+      />
       <nav className="flex items-center gap-1.5 text-xs text-neutral-500">
         <span>{sectionTitle(t, topic.sectionId, topic.sectionTitle)}</span>
         <ChevronRight className="h-3.5 w-3.5" />
