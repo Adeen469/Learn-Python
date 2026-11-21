@@ -317,7 +317,7 @@ describe("editor fixes — static checks", () => {
     );
   });
 
-  test("terminal has a command line that runs Python in the live runtime", () => {
+  test("terminal has one VS Code-style command line (file-path prompt, shell commands + Python)", () => {
     const page = read("src/app/editor/page.tsx");
     assert.ok(page.includes("const [terminalInput, setTerminalInput]"), "terminalInput state must exist");
     assert.ok(page.includes("const [terminalBusy, setTerminalBusy]"), "terminalBusy state must exist");
@@ -330,16 +330,30 @@ describe("editor fixes — static checks", () => {
       page.includes("disabled={!pyodideReady || terminalBusy || isRunning}"),
       "the terminal input must stay disabled until the runtime is ready and while a command or file run is in flight"
     );
+    // The Program-input box and the >>> line are gone — one line only.
+    assert.ok(!page.includes("t.editorPage.programInputLabel"), "the Program input box must be gone");
+    assert.ok(!page.includes("t.editorPage.programInputPlaceholder"), "the Program input placeholder must be gone");
+    assert.ok(!page.includes("&gt;&gt;&gt;"), "the >>> prompt must be gone");
+    assert.ok(!page.includes("programInput"), "no programInput state may remain");
+    // The prompt shows the active file path.
+    assert.ok(page.includes('{activeFile?.path ?? "~"} $'), "the prompt must show the active file path");
+    // Shell commands.
+    assert.ok(page.includes('if (head === "clear")'), "'clear' must empty the terminal");
+    assert.ok(page.includes('if (head === "help")'), "'help' must list the commands");
+    assert.ok(page.includes('if (head === "ls")'), "'ls' must list the workspace files");
+    assert.ok(page.includes('if (head === "pwd")'), "'pwd' must show the active file path");
+    assert.ok(page.includes('if (head === "run")'), "'run' must run the active file");
+    assert.ok(page.includes('head === "python"'), "'python <file>' must run a file");
+    assert.ok(page.includes("await compileAndRun(target)"), "python <file> must run the named file");
+    assert.ok(page.includes("can't open file"), "python <file> must report a missing file");
+    assert.ok(page.includes("async function compileAndRun(file?: WorkspaceItem)"), "compileAndRun must accept a file to run");
+    // Anything else is still Python in the live runtime.
     assert.ok(
-      page.includes('if (code === "clear")'),
-      "'clear' must empty the terminal instead of running Python"
-    );
-    assert.ok(
-      page.includes('eval(compile(${JSON.stringify(code)}, "<terminal>", "eval"))'),
+      page.includes('eval(compile(${JSON.stringify(raw)}, "<terminal>", "eval"))'),
       "expressions must run through eval so their repr prints (2 + 2 -> 4)"
     );
     assert.ok(
-      page.includes('exec(compile(${JSON.stringify(code)}, "<terminal>", "exec"))'),
+      page.includes('exec(compile(${JSON.stringify(raw)}, "<terminal>", "exec"))'),
       "statements must fall back to exec when eval raises SyntaxError"
     );
     assert.ok(
@@ -347,23 +361,19 @@ describe("editor fixes — static checks", () => {
       "an expression result must print its repr, not nothing"
     );
     assert.ok(
-      page.includes("t.editorPage.terminalInputPlaceholder"),
-      "the input must use the i18n placeholder when ready"
+      page.includes("t.editorPage.terminalCommandPlaceholder"),
+      "the input must use the new command placeholder when ready"
     );
     assert.ok(
       page.includes("t.editorPage.terminalInputLoadingPlaceholder"),
       "the input must say the runtime is still loading when it is not ready"
-    );
-    assert.ok(
-      page.includes("&gt;&gt;&gt;"),
-      "the input must carry a >>> prompt"
     );
   });
 
   test("terminal input i18n keys exist in the type and every language", () => {
     const type = read("src/lib/i18n/index.tsx");
     for (const key of [
-      "terminalInputPlaceholder: string;",
+      "terminalCommandPlaceholder: string;",
       "terminalInputLoadingPlaceholder: string;",
       "terminalNotReady: string;",
     ]) {
@@ -371,7 +381,7 @@ describe("editor fixes — static checks", () => {
     }
     for (const lang of ["en", "hi-roman", "fr", "de", "es", "pt", "ru", "ja", "ko", "zh", "ar"]) {
       const text = read(`src/lib/i18n/${lang}.ts`);
-      for (const key of ["terminalInputPlaceholder:", "terminalInputLoadingPlaceholder:", "terminalNotReady:"]) {
+      for (const key of ["terminalCommandPlaceholder:", "terminalInputLoadingPlaceholder:", "terminalNotReady:"]) {
         assert.ok(text.includes(key), `${lang}.ts must define ${key}`);
       }
     }

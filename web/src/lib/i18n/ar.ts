@@ -428,6 +428,7 @@ export const ar: Strings = {
     programInputLabel: "مدخلات البرنامج — سطر واحد لكل استدعاء input()",
     programInputPlaceholder: "مثال:\nAdeen\n21",
     terminalInputPlaceholder: "اكتب أمر بايثون، مثال: 2 + 2 — أو 'clear' لمسح الطرفية",
+    terminalCommandPlaceholder: "اكتب أمرًا — python <ملف> أو run أو كود Python…",
     terminalInputLoadingPlaceholder: "بيئة تشغيل بايثون ما زالت تُحمَّل…",
     terminalNotReady: "بيئة تشغيل بايثون ما زالت تُحمَّل — انتظر حتى تنتهي ثم حاول مجددًا.",
     aiExplanation: "شرح الذكاء الاصطناعي",

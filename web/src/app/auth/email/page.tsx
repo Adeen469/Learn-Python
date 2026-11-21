@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/lib/i18n";
+import CodeSlots from "@/components/CodeSlots";
 import {
   AuthError,
   AuthNote,
@@ -28,6 +29,12 @@ export default function EmailAuthPage() {
   const [note, setNote] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState(0);
+  // CodeSlots status: "error" drains the slots on a wrong code,
+  // "success" washes them on a right one.
+  const [slotStatus, setSlotStatus] = useState<"idle" | "error" | "success">("idle");
+  // Guard against a double verify (slots auto-submit on complete AND
+  // the button/Enter can fire in the same tick).
+  const verifyingRef = useRef(false);
 
   // Screenshot / deep-link support: ?step=code&email=... opens the
   // code step prefilled (no code is ever prefilled).
@@ -148,15 +155,16 @@ export default function EmailAuthPage() {
     }
   }
 
-  async function handleVerifyCode(e: React.FormEvent) {
-    e.preventDefault();
+  async function verifyCode(codeToVerify: string) {
+    if (verifyingRef.current) return;
+    verifyingRef.current = true;
     setError(null);
     setNote(null);
     setLoading(true);
     try {
       const { res, data } = await postJson("/api/auth/email/verify-otp", {
         email,
-        code,
+        code: codeToVerify,
         purpose: otpPurpose,
       });
       if (!res.ok) {
@@ -165,8 +173,10 @@ export default function EmailAuthPage() {
             ? data.error
             : t.auth.codeIncorrectOrExpired
         );
+        setSlotStatus("error");
         return;
       }
+      setSlotStatus("success");
       if (data.needs2fa === true) {
         window.location.href = "/auth/2fa";
         return;
@@ -174,7 +184,13 @@ export default function EmailAuthPage() {
       signedIn();
     } finally {
       setLoading(false);
+      verifyingRef.current = false;
     }
+  }
+
+  async function handleVerifyCode(e: React.FormEvent) {
+    e.preventDefault();
+    await verifyCode(code);
   }
 
   const tabClass = (active: boolean) =>
@@ -314,18 +330,23 @@ export default function EmailAuthPage() {
         </>
       ) : (
         <form onSubmit={handleVerifyCode} className="space-y-3">
-          <input
-            type="text"
-            required
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            placeholder={t.common.sixDigitCodeLabel}
-            maxLength={6}
-            value={code}
-            onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-            className={`${INPUT_CLASS} text-center text-lg tracking-[0.4em]`}
-          />
-          <button type="submit" disabled={loading} className={BUTTON_CLASS}>
+          <div className="flex justify-center py-1">
+            <CodeSlots
+              length={6}
+              value={code}
+              onChange={(c) => {
+                setCode(c);
+                // Clear the error tint only once the user starts typing
+                // fresh digits — not while the error drain is clearing.
+                if (slotStatus === "error" && c !== "") setSlotStatus("idle");
+              }}
+              onComplete={(c) => void verifyCode(c)}
+              status={slotStatus}
+              disabled={loading}
+              autoFocus
+            />
+          </div>
+          <button type="submit" disabled={loading || code.length < 6} className={BUTTON_CLASS}>
             {loading ? t.auth.verifying : t.auth.verifyAndContinue}
           </button>
           <p className="text-center text-xs text-neutral-500">
@@ -346,6 +367,7 @@ export default function EmailAuthPage() {
               onClick={() => {
                 setStep("form");
                 setCode("");
+                setSlotStatus("idle");
                 setError(null);
                 setNote(null);
               }}

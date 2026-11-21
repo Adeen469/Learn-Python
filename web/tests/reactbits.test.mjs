@@ -307,3 +307,46 @@ describe("SpecularButton (React Bits) — vendored as TypeScript", () => {
     assert.ok(css.includes("specular-button--lg"), "the CSS must define the lg size");
   });
 });
+
+describe("CodeSlots (React Bits) — vendored as TypeScript, used for every OTP code", () => {
+  test("CodeSlots.tsx + .css exist and carry the slot behaviour", () => {
+    assert.ok(existsSync(path.join(root, "src/components/CodeSlots.tsx")), "CodeSlots.tsx must exist");
+    assert.ok(existsSync(path.join(root, "src/components/CodeSlots.css")), "CodeSlots.css must exist");
+    const src = read("src/components/CodeSlots.tsx");
+    assert.ok(src.includes("'use client'"), "CodeSlots must be a client component");
+    assert.ok(src.includes("export interface CodeSlotsProps"), "the props must be typed");
+    assert.ok(src.includes("from 'motion/react'"), "CodeSlots must animate with motion");
+    assert.ok(src.includes("Tick02Icon"), "the success wash must carry the tick icon");
+    assert.ok(src.includes("status === 'error'"), "an error status must drain the slots");
+    assert.ok(src.includes("status === 'success'"), "a success status must wash the slots");
+    assert.ok(src.includes("onComplete"), "completion must be reported once the last slot fills");
+    const css = read("src/components/CodeSlots.css");
+    assert.ok(css.includes(".code-slots"), "the CSS must define .code-slots");
+    assert.ok(css.includes(".code-slots__slot"), "the CSS must define the slots");
+    assert.ok(css.includes(".code-slots__caret"), "the CSS must define the caret");
+  });
+
+  test("the email-code step verifies through CodeSlots (auto-submit on complete)", () => {
+    const page = read("src/app/auth/email/page.tsx");
+    assert.ok(page.includes('import CodeSlots from "@/components/CodeSlots"'), "the email page must import CodeSlots");
+    assert.ok(page.includes("<CodeSlots"), "the email code step must render CodeSlots");
+    assert.ok(page.includes("length={6}"), "the email code is 6 digits");
+    assert.ok(page.includes("onComplete={(c) => void verifyCode(c)}"), "a completed code must verify immediately");
+    assert.ok(page.includes("status={slotStatus}"), "a wrong code must drain the slots, a right one wash them");
+    assert.ok(page.includes("disabled={loading || code.length < 6}"), "the button must stay disabled until all 6 digits land");
+    assert.ok(!page.includes("t.common.sixDigitCodeLabel"), "the old single code input must be gone");
+  });
+
+  test("2FA uses CodeSlots for TOTP and email codes, keeps a plain input for backup codes", () => {
+    const page = read("src/app/auth/2fa/page.tsx");
+    assert.ok(page.includes('import CodeSlots from "@/components/CodeSlots"'), "the 2FA page must import CodeSlots");
+    assert.ok(page.includes("<CodeSlots"), "the 2FA page must render CodeSlots for TOTP/email codes");
+    assert.ok(page.includes("length={6}"), "TOTP and email codes are 6 digits");
+    assert.ok(page.includes("onComplete={(c) => void verifyCode(c)}"), "a completed code must verify immediately");
+    // Backup codes are letters + a dash (XXXX-XXXX) — CodeSlots only
+    // takes digits, so backup keeps its own text input.
+    assert.ok(page.includes('method === "backup"'), "backup codes must keep the plain text input");
+    assert.ok(page.includes('placeholder="XXXX-XXXX"'), "the backup input must keep its format hint");
+    assert.ok(page.includes("disabled={loading || (method !== \"backup\" && code.length < 6)}"), "the button must stay disabled until a TOTP/email code is complete");
+  });
+});

@@ -428,6 +428,7 @@ export const de: Strings = {
     programInputLabel: "Programmeingabe — eine Zeile pro input()-Aufruf",
     programInputPlaceholder: "z. B.\nAdeen\n21",
     terminalInputPlaceholder: "Python-Befehl eingeben, z. B. 2 + 2 — oder 'clear', um das Terminal zu leeren",
+    terminalCommandPlaceholder: "Befehl eingeben — python <Datei>, run oder Python-Code…",
     terminalInputLoadingPlaceholder: "Die Python-Laufzeit wird noch geladen…",
     terminalNotReady: "Die Python-Laufzeit wird noch geladen — bitte warten, bis sie fertig ist, dann erneut versuchen.",
     aiExplanation: "KI-Erklärung",

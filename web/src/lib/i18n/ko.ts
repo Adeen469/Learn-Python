@@ -379,6 +379,7 @@ export const ko: Strings = {
     programInputLabel: "프로그램 입력 — input() 호출마다 한 줄씩",
     programInputPlaceholder: "예:\nAdeen\n21",
     terminalInputPlaceholder: "Python 명령을 입력하세요. 예: 2 + 2 — 'clear'를 입력하면 터미널이 지워집니다",
+    terminalCommandPlaceholder: "명령 입력 — python <파일>, run 또는 Python 코드…",
     terminalInputLoadingPlaceholder: "Python 런타임을 아직 불러오는 중입니다…",
     terminalNotReady: "Python 런타임을 아직 불러오는 중입니다 — 로딩이 끝날 때까지 기다렸다가 다시 시도하세요.",
     aiExplanation: "AI 설명",

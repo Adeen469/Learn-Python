@@ -438,6 +438,7 @@ export const en: Strings = {
     programInputLabel: "Program input — one line per input() call",
     programInputPlaceholder: "e.g.\nAdeen\n21",
     terminalInputPlaceholder: "Type a Python command, e.g. 2 + 2 — or 'clear' to clear the terminal",
+    terminalCommandPlaceholder: "Type a command — python <file>, run, or Python code…",
     terminalInputLoadingPlaceholder: "Python runtime is still loading…",
     terminalNotReady: "Python runtime is still loading — wait for it to finish, then try again.",
     aiExplanation: "AI explanation",

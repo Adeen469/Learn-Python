@@ -416,6 +416,7 @@ export const zh: Strings = {
     programInputLabel: "程序输入 — 每次 input() 调用占一行",
     programInputPlaceholder: "例如\nAdeen\n21",
     terminalInputPlaceholder: "输入 Python 命令，例如 2 + 2 — 输入 'clear' 可清空终端",
+    terminalCommandPlaceholder: "输入命令 — python <文件>、run 或 Python 代码…",
     terminalInputLoadingPlaceholder: "Python 运行时仍在加载…",
     terminalNotReady: "Python 运行时仍在加载 — 请等待加载完成后再试。",
     aiExplanation: "AI 讲解",

@@ -165,12 +165,10 @@ export default function CodeEditorPage() {
   }
   const [output, setOutput] = useState<string>("Ready. Write or edit code, then 'Compile & Run'.\n");
   const [isRunning, setIsRunning] = useState(false);
-  // Text fed to input() calls, one line per call. Without this, any
-  // program using input() used to hang/fail with no way to type an answer.
-  const [programInput, setProgramInput] = useState<string>("");
-  // Terminal command line: one Python statement/expression per Enter,
-  // run in the live runtime. Disabled while a command or a file run
-  // is in flight — both redirect sys.stdout, so they must not overlap.
+  // Terminal command line: one command per Enter — `python <file>`,
+  // `run`, `ls`, `clear`, `help`, or Python in the live runtime.
+  // Disabled while a command or a file run is in flight — both
+  // redirect sys.stdout, so they must not overlap.
   const [terminalInput, setTerminalInput] = useState<string>("");
   const [terminalBusy, setTerminalBusy] = useState(false);
   const [pyodideError, setPyodideError] = useState<string | null>(null);
@@ -1253,18 +1251,21 @@ export default function CodeEditorPage() {
     }
   }
 
-  async function compileAndRun() {
-    if (!activeFile) return;
+  async function compileAndRun(file?: WorkspaceItem) {
+    // A file may be passed in (the terminal's `python <file>`)
+    // — otherwise the active file runs.
+    const targetFile = file ?? activeFile;
+    if (!targetFile) return;
 
     // Auto-save on Run: the old code refused to run an unsaved file and
     // made the user click Save first. Running now saves first instead.
     const toRun = items.map((it) =>
-      it.path === activeFile.path ? { ...it, content: activeFile.content ?? "", isSaved: true } : it
+      it.path === targetFile.path ? { ...it, content: targetFile.content ?? "", isSaved: true } : it
     );
     setItems(toRun);
     localStorage.setItem("lp_workspace_tree", JSON.stringify(toRun));
     setNeedsSaveWarning(null);
-    const code = activeFile.content ?? "";
+    const code = targetFile.content ?? "";
 
     if (!pyodideRef.current) {
       setOutput((prev) => prev + "Python runtime is loading, please wait...\n");
@@ -1273,7 +1274,7 @@ export default function CodeEditorPage() {
     }
 
     setIsRunning(true);
-    setOutput(`=== Executing ${activeFile.path} ===\n`);
+    setOutput(`=== Executing ${targetFile.path} ===\n`);
 
     try {
       const py = pyodideRef.current;
@@ -1288,9 +1289,8 @@ if "/home/pyodide" not in sys.path:
     sys.path.insert(0, "/home/pyodide")
 `);
 
-      // Capture stdout/stderr and feed input() from the Program input box.
-      // The originals are restored in `finally`, even when the code
-      // crashes or reassigns sys.stdout itself.
+      // Capture stdout/stderr. stdin is empty — the Program-input box
+      // was removed, so a program that calls input() raises EOFError.
       py.runPython(`
 import sys
 import io
@@ -1301,7 +1301,7 @@ class LPOutputBuffer(io.StringIO):
     pass
 sys.stdout = LPOutputBuffer()
 sys.stderr = sys.stdout
-sys.stdin = io.StringIO(${JSON.stringify(programInput)})
+sys.stdin = io.StringIO("")
 `);
 
       await py.runPythonAsync(code);
@@ -1333,29 +1333,80 @@ sys.stdin = io.StringIO(${JSON.stringify(programInput)})
     }
   }
 
-  // Run one terminal command in the live runtime: a single Python
-  // statement or expression per Enter, REPL-style. Expressions print
-  // their repr (2 + 2 -> 4); statements run silently; print() output
-  // is captured too. 'clear' empties the terminal instead of running
-  // Python. stdout is redirected only for the duration of the call
-  // and restored in `finally`, so a crash cannot leave it captured.
+  // What `help` prints in the terminal (plain English, like the
+  // drop-zone labels — not an i18n string).
+  const TERMINAL_HELP = [
+    "python <file.py>  run a file — its output appears here",
+    "run               run the active file",
+    "ls                list the workspace files",
+    "pwd               show the active file path",
+    "clear             clear the terminal",
+    "help              show this list",
+    "<python code>     run Python in the live runtime, e.g. 2 + 2",
+    "",
+  ].join("\n");
+
+  // VS Code-style terminal command line: one line, prompt shows the
+  // active file path. Shell commands first — `python <file>` runs a
+  // file (its output lands here), `run` runs the active file, `ls`
+  // lists the workspace, `pwd` shows the active file, `clear`
+  // empties the terminal, `help` lists all of these — and anything
+  // else runs as Python in the live runtime (REPL-style: expressions
+  // print their repr, statements run silently, print() is captured).
+  // stdout is redirected only for the duration of the call and
+  // restored in `finally`, so a crash cannot leave it captured.
   async function runTerminalCommand() {
-    const code = terminalInput.trim();
-    if (!code || terminalBusy) return;
+    const raw = terminalInput.trim();
+    if (!raw || terminalBusy) return;
     setTerminalInput("");
-    if (code === "clear") {
+    const prompt = `${activeFile?.path ?? "~"} $`;
+    setOutput((prev) => prev + `${prompt} ${raw}\n`);
+    const [head, ...rest] = raw.split(/\s+/);
+    const arg = rest.join(" ").trim();
+    if (head === "clear") {
       setOutput("");
       return;
     }
+    if (head === "help") {
+      setOutput((prev) => prev + TERMINAL_HELP);
+      return;
+    }
+    if (head === "ls") {
+      const files = items.filter((it) => it.type === "file").map((it) => it.path);
+      setOutput((prev) => prev + (files.length > 0 ? files.join("\n") + "\n" : "(no files)\n"));
+      return;
+    }
+    if (head === "pwd") {
+      setOutput((prev) => prev + `${activeFile?.path ?? "~"}\n`);
+      return;
+    }
+    if (head === "run") {
+      await compileAndRun();
+      return;
+    }
+    if (head === "python" || head === "python3" || head === "py") {
+      if (!arg) {
+        setOutput((prev) => prev + "usage: python <file.py>\n");
+        return;
+      }
+      const target = items.find(
+        (it) => it.type === "file" && (it.path === arg || it.path === arg.replace(/^\.\//, ""))
+      );
+      if (!target) {
+        setOutput((prev) => prev + `python: can't open file '${arg}': [Errno 2] No such file or directory\n`);
+        return;
+      }
+      setActiveFilePath(target.path);
+      await compileAndRun(target);
+      return;
+    }
+    // Anything else: Python in the live runtime.
     const py = pyodideRef.current;
     if (!py) {
-      setOutput(
-        (prev) => prev + `>>> ${code}\n${t.editorPage.terminalNotReady}\n`
-      );
+      setOutput((prev) => prev + `${t.editorPage.terminalNotReady}\n`);
       return;
     }
     setTerminalBusy(true);
-    setOutput((prev) => prev + `>>> ${code}\n`);
     try {
       const result = await py.runPythonAsync(`
 import sys, io
@@ -1365,11 +1416,11 @@ sys.stdout = _lp_term_out
 _lp_term_repr = ""
 try:
     try:
-        _lp_term_val = eval(compile(${JSON.stringify(code)}, "<terminal>", "eval"))
+        _lp_term_val = eval(compile(${JSON.stringify(raw)}, "<terminal>", "eval"))
         if _lp_term_val is not None:
             _lp_term_repr = repr(_lp_term_val)
     except SyntaxError:
-        exec(compile(${JSON.stringify(code)}, "<terminal>", "exec"))
+        exec(compile(${JSON.stringify(raw)}, "<terminal>", "exec"))
 finally:
     sys.stdout = _lp_term_old
 _lp_term_result = _lp_term_out.getvalue()
@@ -1651,25 +1702,16 @@ _lp_term_result
         <pre className="flex-1 w-full bg-black p-3.5 font-mono text-xs text-neutral-300 overflow-auto whitespace-pre-wrap selection:bg-neutral-800">
           <HighlightedTerminal output={output} />
         </pre>
-        <div className="border-t border-neutral-800 bg-black/60 px-3.5 py-2">
-          <label className="text-[11px] font-mono text-neutral-500">
-            {t.editorPage.programInputLabel}
-          </label>
-          <textarea
-            value={programInput}
-            onChange={(e) => setProgramInput(e.target.value)}
-            placeholder={t.editorPage.programInputPlaceholder}
-            rows={2}
-            className="mt-1 w-full resize-y rounded border border-neutral-800 bg-neutral-950 px-2 py-1 font-mono text-xs text-white placeholder-neutral-600 focus:border-white focus:outline-none"
-          />
-        </div>
-        {/* Terminal command line: type a Python command, Enter runs
-            it in the live runtime. Disabled until the runtime is
-            ready and while a command or a file run is in flight. */}
+        {/* VS Code-style command line: one line, prompt shows the
+            active file path. `python <file>` / `run` execute a file
+            (output lands here); anything else runs as Python in the
+            live runtime; `clear` / `help` / `ls` are shell commands.
+            The old Program-input box and the separate >>> line are
+            gone — this line is the terminal's only input. */}
         <div className="border-t border-neutral-800 bg-black px-3.5 py-2">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-xs font-semibold text-white shrink-0">
-              &gt;&gt;&gt;
+            <span className="font-mono text-xs text-emerald-400 shrink-0 truncate max-w-[45%]">
+              {activeFile?.path ?? "~"} $
             </span>
             <input
               type="text"
@@ -1681,11 +1723,11 @@ _lp_term_result
               }}
               placeholder={
                 pyodideReady
-                  ? t.editorPage.terminalInputPlaceholder
+                  ? t.editorPage.terminalCommandPlaceholder
                   : t.editorPage.terminalInputLoadingPlaceholder
               }
               disabled={!pyodideReady || terminalBusy || isRunning}
-              className="w-full bg-transparent font-mono text-xs text-white placeholder-neutral-600 focus:outline-none disabled:opacity-50"
+              className="w-full min-w-0 bg-transparent font-mono text-xs text-white placeholder-neutral-600 focus:outline-none disabled:opacity-50"
             />
           </div>
         </div>
@@ -2032,10 +2074,11 @@ _lp_term_result
           </div>
         )}
 
-        {/* VS Code-style layout: Explorer (resizable) | Editor |
-            Terminal (resizable). On mobile the panels stack and the
-            splitters hide; on desktop drag a splitter to resize and
-            double-click it to reset. */}
+        {/* VS Code-style layout: side panels (Explorer / AI) run the
+            full height; the centre column holds the editor on top
+            and the bottom-docked panels (Terminal) under it. On
+            mobile the panels stack and the splitters hide; on desktop
+            drag a splitter to resize and double-click it to reset. */}
         {/* Dockable panels (VS Code-style): Explorer, Terminal and AI
             live in zones — left, right, or bottom. Drag a panel by
             its header onto a zone to move it there; drag a splitter
@@ -2063,12 +2106,35 @@ _lp_term_result
               onDrag={(d) => setExplorerWidth((w) => Math.min(480, Math.max(200, w + d)))}
               onReset={() => setExplorerWidth(280)}
             />
-            {/* Centre: the editor (or the package manager on Modules). */}
-            <div className="flex min-h-[420px] min-w-0 flex-1 flex-col sm:min-h-[480px] md:min-h-0">
-              {editorTab === "files" ? (
-                editorPanel
-              ) : (
-                <ModulesPanel pyodideRef={pyodideRef} ensurePyodide={ensurePyodideReady} />
+            {/* Centre column: the editor (or the package manager on
+                Modules) on top, bottom-docked panels under it — the
+                terminal sits under the editor only, like VS Code, so
+                the side panels keep their full height. */}
+            <div className="flex min-h-[420px] min-w-0 flex-1 flex-col gap-2 sm:min-h-[480px] md:min-h-0">
+              <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+                {editorTab === "files" ? (
+                  editorPanel
+                ) : (
+                  <ModulesPanel pyodideRef={pyodideRef} ensurePyodide={ensurePyodideReady} />
+                )}
+              </div>
+              {/* Bottom zone (under the editor only) */}
+              {bottomPanels.length > 0 && (
+                <>
+                  <EditorSplitter
+                    orientation="horizontal"
+                    label="Resize bottom panels"
+                    onDrag={(d) => setBottomHeight((h) => Math.min(480, Math.max(160, h - d)))}
+                    onReset={() => setBottomHeight(220)}
+                  />
+                  <div className="flex shrink-0 gap-2" style={{ height: bottomHeight }}>
+                    {bottomPanels.map((id) => (
+                      <div key={id} className="flex min-h-0 min-w-0 flex-1 flex-col">
+                        {renderDockPanel(id)}
+                      </div>
+                    ))}
+                  </div>
+                </>
               )}
             </div>
             <EditorSplitter
@@ -2088,38 +2154,20 @@ _lp_term_result
               </div>
             )}
           </div>
-          {/* Bottom zone */}
-          {bottomPanels.length > 0 && (
-            <>
-              <EditorSplitter
-                orientation="horizontal"
-                label="Resize bottom panels"
-                onDrag={(d) => setBottomHeight((h) => Math.min(480, Math.max(160, h - d)))}
-                onReset={() => setBottomHeight(220)}
-              />
-              <div className="flex shrink-0 gap-2" style={{ height: bottomHeight }}>
-                {bottomPanels.map((id) => (
-                  <div key={id} className="flex min-h-0 min-w-0 flex-1 flex-col">
-                    {renderDockPanel(id)}
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
           {/* Drop zones — only while a panel is being dragged. */}
           {draggingPanel && (
             <>
               <div
                 onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setDropZone("left"); }}
                 onDrop={(e) => { e.preventDefault(); movePanelToZone(draggingPanel, "left"); setDraggingPanel(null); setDropZone(null); }}
-                className={`absolute bottom-1/4 left-0 top-0 z-20 flex w-1/4 items-center justify-center border-2 border-dashed ${dropZone === "left" ? "border-white/70 bg-white/10" : "border-white/20 bg-white/[0.03]"}`}
+                className={`absolute bottom-0 left-0 top-0 z-20 flex w-1/4 items-center justify-center border-2 border-dashed ${dropZone === "left" ? "border-white/70 bg-white/10" : "border-white/20 bg-white/[0.03]"}`}
               >
                 <span className="rounded bg-black/70 px-2 py-1 text-[11px] font-medium text-white">Dock left</span>
               </div>
               <div
                 onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setDropZone("right"); }}
                 onDrop={(e) => { e.preventDefault(); movePanelToZone(draggingPanel, "right"); setDraggingPanel(null); setDropZone(null); }}
-                className={`absolute bottom-1/4 right-0 top-0 z-20 flex w-1/4 items-center justify-center border-2 border-dashed ${dropZone === "right" ? "border-white/70 bg-white/10" : "border-white/20 bg-white/[0.03]"}`}
+                className={`absolute bottom-0 right-0 top-0 z-20 flex w-1/4 items-center justify-center border-2 border-dashed ${dropZone === "right" ? "border-white/70 bg-white/10" : "border-white/20 bg-white/[0.03]"}`}
               >
                 <span className="rounded bg-black/70 px-2 py-1 text-[11px] font-medium text-white">Dock right</span>
               </div>
@@ -2130,7 +2178,8 @@ _lp_term_result
                 <div
                   onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setDropZone("bottom"); }}
                   onDrop={(e) => { e.preventDefault(); movePanelToZone(draggingPanel, "bottom"); setDraggingPanel(null); setDropZone(null); }}
-                  className={`absolute bottom-0 left-0 right-0 z-20 flex h-1/4 items-center justify-center border-2 border-dashed ${dropZone === "bottom" ? "border-white/70 bg-white/10" : "border-white/20 bg-white/[0.03]"}`}
+                  style={{ left: leftPanels.length > 0 ? explorerWidth : 0, right: rightPanels.length > 0 ? terminalWidth : 0 }}
+                  className={`absolute bottom-0 z-20 flex h-1/4 items-center justify-center border-2 border-dashed ${dropZone === "bottom" ? "border-white/70 bg-white/10" : "border-white/20 bg-white/[0.03]"}`}
                 >
                   <span className="rounded bg-black/70 px-2 py-1 text-[11px] font-medium text-white">Dock bottom</span>
                 </div>

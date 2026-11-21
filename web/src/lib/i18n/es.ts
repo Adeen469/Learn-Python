@@ -426,6 +426,7 @@ export const es: Strings = {
     programInputLabel: "Entrada del programa: una línea por cada llamada a input()",
     programInputPlaceholder: "p. ej.\nAdeen\n21",
     terminalInputPlaceholder: "Escribe un comando de Python, p. ej. 2 + 2 — o 'clear' para limpiar la terminal",
+    terminalCommandPlaceholder: "Escribe un comando — python <archivo>, run o código Python…",
     terminalInputLoadingPlaceholder: "El runtime de Python aún se está cargando…",
     terminalNotReady: "El runtime de Python aún se está cargando — espera a que termine e inténtalo de nuevo.",
     aiExplanation: "Explicación de la IA",

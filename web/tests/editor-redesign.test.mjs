@@ -156,6 +156,13 @@ test("draggable dock: panels move between zones (AI is side-only, Terminal/Explo
   assert.ok(page.includes('if (z.ai === "bottom") z.ai = "right";'), "a saved AI bottom zone must reset to the right side");
   // Terminal opens at the bottom by default (fresh users).
   assert.ok(page.includes('terminal: "bottom"'), "Terminal must open at the bottom by default");
+  // The bottom zone lives under the editor only (VS Code): the side
+  // panels keep their full height.
+  assert.ok(!page.includes("bottom-1/4"), "side drop overlays must span the full height, not stop at 3/4");
+  assert.ok(page.includes("leftPanels.length > 0 ? explorerWidth : 0"), "bottom drop zone must span the centre column only");
+  const centre = page.slice(page.indexOf("Centre column:"), page.indexOf("Resize right panels"));
+  assert.ok(centre.includes('orientation="horizontal"'), "the bottom zone must sit inside the centre column, under the editor");
+  assert.ok(centre.includes("bottomPanels.length > 0"), "the bottom zone must render inside the centre column");
   // Tight gutters: the dock gaps are gap-2 (8px), not gap-3 (12px).
   assert.ok(!page.includes("gap-3"), "no 12px dock gutter may remain");
   assert.ok(page.includes("flex flex-col gap-2"), "dock columns must use the tight gap");

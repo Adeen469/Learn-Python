@@ -424,6 +424,7 @@ export const ja: Strings = {
     programInputLabel: "プログラムの入力 — input()呼び出しごとに1行",
     programInputPlaceholder: "例：\nAdeen\n21",
     terminalInputPlaceholder: "Pythonコマンドを入力（例：2 + 2）— 'clear' でターミナルを消去",
+    terminalCommandPlaceholder: "コマンドを入力 — python <ファイル>、run、または Python コード…",
     terminalInputLoadingPlaceholder: "Pythonランタイムを読み込み中です…",
     terminalNotReady: "Pythonランタイムを読み込み中です — 終わるまで待ってからもう一度お試しください。",
     aiExplanation: "AIによる説明",

@@ -479,6 +479,7 @@ export type Strings = {
     programInputLabel: string;
     programInputPlaceholder: string;
     terminalInputPlaceholder: string;
+    terminalCommandPlaceholder: string;
     terminalInputLoadingPlaceholder: string;
     terminalNotReady: string;
     aiExplanation: string;

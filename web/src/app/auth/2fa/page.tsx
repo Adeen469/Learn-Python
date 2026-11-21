@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/lib/i18n";
+import CodeSlots from "@/components/CodeSlots";
 import {
   AuthError,
   AuthNote,
@@ -25,6 +26,12 @@ export default function TwoFactorPage() {
   const [loading, setLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [cooldown, setCooldown] = useState(0);
+  // CodeSlots status: "error" drains the slots on a wrong code,
+  // "success" washes them on a right one.
+  const [slotStatus, setSlotStatus] = useState<"idle" | "error" | "success">("idle");
+  // Guard against a double verify (slots auto-submit on complete AND
+  // the button/Enter can fire in the same tick).
+  const verifyingRef = useRef(false);
 
   useEffect(() => {
     fetch("/api/auth/2fa/pending")
@@ -69,8 +76,9 @@ export default function TwoFactorPage() {
     }
   }
 
-  async function handleVerify(e: React.FormEvent) {
-    e.preventDefault();
+  async function verifyCode(codeToVerify: string) {
+    if (verifyingRef.current) return;
+    verifyingRef.current = true;
     setError(null);
     setNote(null);
     setLoading(true);
@@ -78,7 +86,7 @@ export default function TwoFactorPage() {
       const res = await fetch("/api/auth/2fa/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code, method }),
+        body: JSON.stringify({ code: codeToVerify, method }),
       });
       const data: unknown = await res.json().catch(() => null);
       if (!res.ok) {
@@ -87,12 +95,20 @@ export default function TwoFactorPage() {
             ? ((data as Record<string, unknown>).error as string)
             : t.auth.codeIncorrectOrExpired
         );
+        setSlotStatus("error");
         return;
       }
+      setSlotStatus("success");
       window.location.href = "/";
     } finally {
       setLoading(false);
+      verifyingRef.current = false;
     }
+  }
+
+  async function handleVerify(e: React.FormEvent) {
+    e.preventDefault();
+    await verifyCode(code);
   }
 
   if (pending === null) {
@@ -144,6 +160,7 @@ export default function TwoFactorPage() {
           onClick={() => {
             setMethod("totp");
             setCode("");
+            setSlotStatus("idle");
             setError(null);
             setNote(null);
           }}
@@ -157,6 +174,7 @@ export default function TwoFactorPage() {
           onClick={() => {
             setMethod("email");
             setCode("");
+            setSlotStatus("idle");
             setError(null);
             setNote(null);
           }}
@@ -170,6 +188,7 @@ export default function TwoFactorPage() {
           onClick={() => {
             setMethod("backup");
             setCode("");
+            setSlotStatus("idle");
             setError(null);
             setNote(null);
           }}
@@ -196,26 +215,42 @@ export default function TwoFactorPage() {
         </div>
       ) : (
         <form onSubmit={handleVerify} className="space-y-3">
-          <input
-            type="text"
-            required
-            inputMode={method === "backup" ? "text" : "numeric"}
-            autoComplete="one-time-code"
-            placeholder={
-              method === "backup" ? "XXXX-XXXX" : t.common.sixDigitCodeLabel
-            }
-            maxLength={method === "backup" ? 9 : 6}
-            value={code}
-            onChange={(e) =>
-              setCode(
-                method === "backup"
-                  ? e.target.value.toUpperCase()
-                  : e.target.value.replace(/\D/g, "")
-              )
-            }
-            className={`${INPUT_CLASS} text-center text-lg tracking-[0.4em]`}
-          />
-          <button type="submit" disabled={loading} className={BUTTON_CLASS}>
+          {method === "backup" ? (
+            <input
+              type="text"
+              required
+              inputMode="text"
+              autoComplete="one-time-code"
+              placeholder="XXXX-XXXX"
+              maxLength={9}
+              value={code}
+              onChange={(e) => setCode(e.target.value.toUpperCase())}
+              className={`${INPUT_CLASS} text-center text-lg tracking-[0.4em]`}
+            />
+          ) : (
+            <div className="flex justify-center py-1">
+              <CodeSlots
+                length={6}
+                value={code}
+                onChange={(c) => {
+                  setCode(c);
+                  // Clear the error tint only once the user starts
+                  // typing fresh digits — not while the error drain
+                  // is clearing.
+                  if (slotStatus === "error" && c !== "") setSlotStatus("idle");
+                }}
+                onComplete={(c) => void verifyCode(c)}
+                status={slotStatus}
+                disabled={loading}
+                autoFocus
+              />
+            </div>
+          )}
+          <button
+            type="submit"
+            disabled={loading || (method !== "backup" && code.length < 6)}
+            className={BUTTON_CLASS}
+          >
             {loading ? t.auth.verifying : t.auth.verifyAndSignIn}
           </button>
           {method === "email" && (

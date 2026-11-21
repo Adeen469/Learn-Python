@@ -376,6 +376,7 @@ export const hiRoman: Strings = {
     programInputLabel: "Program input — har input() call ke liye ek line",
     programInputPlaceholder: "e.g.\nAdeen\n21",
     terminalInputPlaceholder: "Python command likho, e.g. 2 + 2 — ya terminal saaf karne ke liye 'clear'",
+    terminalCommandPlaceholder: "Command likho — python <file>, run, ya Python code…",
     terminalInputLoadingPlaceholder: "Python runtime abhi load ho raha hai…",
     terminalNotReady: "Python runtime abhi load ho raha hai — khatm hone ka wait karo, phir try karo.",
     aiExplanation: "AI explanation",

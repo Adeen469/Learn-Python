@@ -425,6 +425,7 @@ export const pt: Strings = {
     programInputLabel: "Entrada do programa — uma linha por chamada de input()",
     programInputPlaceholder: "ex.\nAdeen\n21",
     terminalInputPlaceholder: "Digite um comando Python, ex.: 2 + 2 — ou 'clear' para limpar o terminal",
+    terminalCommandPlaceholder: "Digite um comando — python <arquivo>, run ou código Python…",
     terminalInputLoadingPlaceholder: "O runtime Python ainda está carregando…",
     terminalNotReady: "O runtime Python ainda está carregando — aguarde terminar e tente novamente.",
     aiExplanation: "Explicação da IA",

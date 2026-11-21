@@ -398,6 +398,7 @@ export const ru: Strings = {
     programInputLabel: "Входные данные программы — одна строка на каждый вызов input()",
     programInputPlaceholder: "напр.\nAdeen\n21",
     terminalInputPlaceholder: "Введите команду Python, например 2 + 2 — или 'clear', чтобы очистить терминал",
+    terminalCommandPlaceholder: "Введите команду — python <файл>, run или код Python…",
     terminalInputLoadingPlaceholder: "Среда выполнения Python всё ещё загружается…",
     terminalNotReady: "Среда выполнения Python всё ещё загружается — дождитесь окончания и попробуйте снова.",
     aiExplanation: "Объяснение ИИ",
