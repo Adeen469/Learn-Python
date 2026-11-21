@@ -11,6 +11,8 @@ const webDir = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (rel) => readFileSync(join(webDir, rel), "utf8");
 const page = () => read("src/app/github/page.tsx");
 const route = () => read("src/app/api/github/repos/route.ts");
+const lib = () => read("src/lib/github.ts");
+const repoFilesRoute = () => read("src/app/api/github/repo-files/route.ts");
 const en = () => read("src/lib/i18n/en.ts");
 
 test("the form and the server reject the same repo names", () => {
@@ -33,15 +35,54 @@ test("a bad name is caught on the form with a message that names the problem", (
   assert.ok(p.includes("if (repoNameError(newRepoName, t)) return;"), "the submit handler must refuse a bad name even if the button is forced");
 });
 
-test("both create-repo options are checked by default and the user can uncheck them", () => {
+test("both create-repo options are unchecked by default and the user can change them", () => {
   const p = page();
-  assert.ok(p.includes("const [isPublic, setIsPublic] = useState(true)"), "Public must be on by default");
-  assert.ok(p.includes("const [autoInit, setAutoInit] = useState(true)"), "Initialize with README must be on by default");
+  assert.ok(p.includes("const [isPublic, setIsPublic] = useState(false)"), "Public must be off by default (private unless the user opts in)");
+  assert.ok(p.includes("const [autoInit, setAutoInit] = useState(false)"), "Initialize with README must be off by default");
   assert.ok(p.includes('id="isPublic"'), "the public option must be a checkbox the user can change");
   assert.ok(p.includes('id="autoInit"'), "the README option must be a checkbox the user can change");
   assert.ok(p.includes("isPrivate: !isPublic"), "unchecking Public must create a private repo");
   assert.ok(p.includes("autoInit,"), "the README choice must reach the server, not a hardcoded true");
   assert.ok(!p.includes("autoInit: true"), "the README must not be hardcoded on");
+});
+
+test("the form offers GitHub's own .gitignore + license dropdowns (None by default)", () => {
+  const p = page();
+  assert.ok(p.includes("GITIGNORE_TEMPLATES"), "the form must offer .gitignore templates");
+  assert.ok(p.includes('"Python"'), "the .gitignore list must include Python");
+  assert.ok(p.includes("LICENSE_TEMPLATES"), "the form must offer licenses");
+  assert.ok(p.includes('id: "mit"'), "the license list must include MIT");
+  assert.ok(p.includes("t.githubPage.gitignoreLabel"), "the .gitignore dropdown must be labelled");
+  assert.ok(p.includes("t.githubPage.licenseLabel"), "the license dropdown must be labelled");
+  assert.ok(p.includes("gitignoreTemplate: gitignoreTemplate || undefined"), "a picked .gitignore must reach the server");
+  assert.ok(p.includes("licenseTemplate: licenseTemplate || undefined"), "a picked license must reach the server");
+  // The server accepts them and the lib forwards them to GitHub.
+  assert.ok(route().includes("gitignoreTemplate: z.string().max(100).optional()"), "the server must accept a .gitignore template");
+  assert.ok(route().includes("licenseTemplate: z.string().max(100).optional()"), "the server must accept a license template");
+  assert.ok(lib().includes("gitignore_template: params.gitignoreTemplate || undefined"), "the lib must forward the .gitignore template");
+  assert.ok(lib().includes("license_template: params.licenseTemplate || undefined"), "the lib must forward the license template");
+});
+
+test("clicking a repo opens it in the code editor", () => {
+  const p = page();
+  assert.ok(p.includes("openRepoInEditor"), "clicking a repo must open it in the editor");
+  assert.ok(p.includes("/api/github/repo-files?owner="), "the page must fetch the repo's files from the server");
+  assert.ok(p.includes('"lp_open_repo"'), "the page must hand the files to the editor via sessionStorage");
+  assert.ok(p.includes('router.push("/editor")'), "the page must navigate to the editor");
+  assert.ok(p.includes('role="button"'), "the repo card must be clickable");
+  assert.ok(p.includes("onClick={() => openRepoInEditor(r)}"), "the card click must open that repo");
+  assert.ok(p.includes("t.githubPage.openInEditor"), "the card must say it opens in the editor");
+  assert.ok(p.includes("t.githubPage.repoNoFiles"), "an empty repo must explain it has no files to open");
+  assert.ok(p.includes("e.stopPropagation()"), "the external GitHub link must not trigger the card click");
+});
+
+test("the repo-files route returns a repo's files with caps", () => {
+  assert.ok(lib().includes("export async function getRepoFiles"), "the lib must fetch a repo's files");
+  assert.ok(lib().includes("REPO_OPEN_MAX_FILES = 100"), "the fetch must cap the file count");
+  assert.ok(lib().includes("REPO_OPEN_MAX_BYTES = 100_000"), "the fetch must skip big files");
+  assert.ok(lib().includes('recursive: "true"'), "the fetch must walk the whole tree");
+  assert.ok(repoFilesRoute().includes("getRepoFiles"), "the route must serve the repo's files");
+  assert.ok(repoFilesRoute().includes("maxDuration = 60"), "the route must allow time for the blob fetches");
 });
 
 test("the token link opens GitHub with every scope pre-checked", () => {

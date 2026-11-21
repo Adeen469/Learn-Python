@@ -61,6 +61,31 @@ interface RepoItem {
   default_branch: string;
 }
 
+// GitHub's own create-repo dropdowns (the template names are
+// GitHub's canonical ones, so they pass straight to the API). Empty
+// string = None, the same default GitHub shows.
+const GITIGNORE_TEMPLATES = [
+  "Python", "Node", "Java", "C", "C++", "C#", "Go", "Ruby", "Rust",
+  "Swift", "Kotlin", "PHP", "R", "Android", "Django", "Flask",
+  "Laravel", "macOS", "Windows", "Linux", "VisualStudioCode",
+  "JupyterNotebook",
+];
+const LICENSE_TEMPLATES = [
+  { id: "mit", name: "MIT License" },
+  { id: "apache-2.0", name: "Apache License 2.0" },
+  { id: "gpl-3.0", name: "GNU General Public License v3.0" },
+  { id: "gpl-2.0", name: "GNU General Public License v2.0" },
+  { id: "bsd-3-clause", name: "BSD 3-Clause License" },
+  { id: "bsd-2-clause", name: "BSD 2-Clause License" },
+  { id: "mpl-2.0", name: "Mozilla Public License 2.0" },
+  { id: "lgpl-3.0", name: "GNU Lesser General Public License v3.0" },
+  { id: "agpl-3.0", name: "GNU Affero General Public License v3.0" },
+  { id: "unlicense", name: "The Unlicense" },
+  { id: "cc0-1.0", name: "Creative Commons Zero v1.0 Universal" },
+  { id: "epl-2.0", name: "Eclipse Public License 2.0" },
+  { id: "bsl-1.0", name: "Boost Software License 1.0" },
+];
+
 // The repo-name rule, kept identical to the server's
 // (src/app/api/github/repos/route.ts): 1-100 chars, letters, numbers,
 // hyphen, underscore and dot only — no spaces. The form checks it live
@@ -103,13 +128,15 @@ export default function GitHubPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  // New Repo Form — both options are ON by default (the way GitHub
-  // checks `repo` by default on its token page): the user unchecks
-  // to make the repo private or to skip the README.
+  // New Repo Form — both options are OFF by default (the way GitHub
+  // shows them: Public is a choice, README is unchecked). The user
+  // opts in to a public repo or a README instead of opting out.
   const [newRepoName, setNewRepoName] = useState("");
   const [newRepoDesc, setNewRepoDesc] = useState("");
-  const [isPublic, setIsPublic] = useState(true);
-  const [autoInit, setAutoInit] = useState(true);
+  const [isPublic, setIsPublic] = useState(false);
+  const [autoInit, setAutoInit] = useState(false);
+  const [gitignoreTemplate, setGitignoreTemplate] = useState("");
+  const [licenseTemplate, setLicenseTemplate] = useState("");
   const [creating, setCreating] = useState(false);
 
   // Commit File Form
@@ -196,6 +223,8 @@ export default function GitHubPage() {
           description: newRepoDesc.trim(),
           isPrivate: !isPublic,
           autoInit,
+          gitignoreTemplate: gitignoreTemplate || undefined,
+          licenseTemplate: licenseTemplate || undefined,
         }),
       });
       const data = await res.json();
@@ -204,11 +233,48 @@ export default function GitHubPage() {
       setSuccessMsg(t.githubPage.repoCreated(data.repo.full_name));
       setNewRepoName("");
       setNewRepoDesc("");
+      setGitignoreTemplate("");
+      setLicenseTemplate("");
       fetchRepos(savedToken);
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : String(err));
     } finally {
       setCreating(false);
+    }
+  }
+
+  // Open a repo in the code editor, like GitHub's code view: fetch
+  // its files here and hand them to the editor via sessionStorage —
+  // the editor loads them as its workspace (backing the current one
+  // up first). The repo card itself is the button; the small external
+  // link still opens github.com.
+  const [openingRepoId, setOpeningRepoId] = useState<number | null>(null);
+  async function openRepoInEditor(repo: RepoItem) {
+    if (!savedToken || openingRepoId !== null) return;
+    const [owner, name] = repo.full_name.split("/");
+    setOpeningRepoId(repo.id);
+    setErrorMsg(null);
+    setSuccessMsg(null);
+    try {
+      const res = await fetch(
+        `/api/github/repo-files?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(name)}`,
+        { headers: { Authorization: `Bearer ${savedToken}` } }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || t.githubPage.loadReposFailed);
+      if (!data.files || data.files.length === 0) {
+        setErrorMsg(t.githubPage.repoNoFiles);
+        return;
+      }
+      sessionStorage.setItem(
+        "lp_open_repo",
+        JSON.stringify({ repo: repo.full_name, files: data.files })
+      );
+      router.push("/editor");
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : String(err));
+    } finally {
+      setOpeningRepoId(null);
     }
   }
 
@@ -429,6 +495,35 @@ export default function GitHubPage() {
                   </label>
                 </div>
 
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <div>
+                    <label className="text-xs text-neutral-400 block mb-1">{t.githubPage.gitignoreLabel}</label>
+                    <select
+                      value={gitignoreTemplate}
+                      onChange={(e) => setGitignoreTemplate(e.target.value)}
+                      className="w-full rounded-lg border border-neutral-800 bg-black px-3 py-2 text-xs text-white focus:border-white focus:outline-none"
+                    >
+                      <option value="">{t.githubPage.noneOption}</option>
+                      {GITIGNORE_TEMPLATES.map((g) => (
+                        <option key={g} value={g}>{g}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-neutral-400 block mb-1">{t.githubPage.licenseLabel}</label>
+                    <select
+                      value={licenseTemplate}
+                      onChange={(e) => setLicenseTemplate(e.target.value)}
+                      className="w-full rounded-lg border border-neutral-800 bg-black px-3 py-2 text-xs text-white focus:border-white focus:outline-none"
+                    >
+                      <option value="">{t.githubPage.noneOption}</option>
+                      {LICENSE_TEMPLATES.map((l) => (
+                        <option key={l.id} value={l.id}>{l.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
                 <button
                   type="submit"
                   disabled={creating || !!repoNameError(newRepoName, t)}
@@ -532,7 +627,17 @@ export default function GitHubPage() {
                 {repos.map((r) => (
                   <div
                     key={r.id}
-                    className="flex items-center justify-between rounded-lg border border-neutral-800 bg-black p-3 text-xs hover:border-neutral-700 transition"
+                    role="button"
+                    tabIndex={0}
+                    title={t.githubPage.openInEditor}
+                    onClick={() => openRepoInEditor(r)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        openRepoInEditor(r);
+                      }
+                    }}
+                    className="flex cursor-pointer items-center justify-between rounded-lg border border-neutral-800 bg-black p-3 text-xs hover:border-neutral-600 transition"
                   >
                     <div className="min-w-0 pr-2">
                       <div className="flex items-center gap-2">
@@ -540,6 +645,9 @@ export default function GitHubPage() {
                         <span className="text-[10px] px-1.5 py-0.5 rounded border border-neutral-800 text-neutral-400">
                           {r.private ? t.githubPage.visibilityPrivateShort : t.githubPage.visibilityPublicShort}
                         </span>
+                        {openingRepoId === r.id && (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin text-neutral-400" />
+                        )}
                       </div>
                       <p className="text-neutral-500 text-[11px] truncate mt-0.5">
                         {r.description || t.githubPage.noDescription}
@@ -549,6 +657,7 @@ export default function GitHubPage() {
                       href={r.html_url}
                       target="_blank"
                       rel="noreferrer"
+                      onClick={(e) => e.stopPropagation()}
                       className="text-neutral-400 hover:text-white shrink-0 p-1"
                       title={t.githubPage.openOnGitHub}
                     >

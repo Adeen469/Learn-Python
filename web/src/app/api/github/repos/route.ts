@@ -19,6 +19,8 @@ const createRepoSchema = z.object({
   description: z.string().max(350).optional(),
   isPrivate: z.boolean().optional(),
   autoInit: z.boolean().optional(),
+  gitignoreTemplate: z.string().max(100).optional(),
+  licenseTemplate: z.string().max(100).optional(),
 });
 
 function getAuthToken(req: NextRequest): string | null {

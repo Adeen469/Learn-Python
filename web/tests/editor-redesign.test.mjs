@@ -435,6 +435,15 @@ test("status bar: runtime, file, save state, cursor position", () => {
   assert.ok(page.includes("App-only (native APK"), "the app-only menu items must be listed, not built on the website");
 });
 
+test("opening a repo from GitHub loads it as the workspace (with a backup + restore)", () => {
+  assert.ok(page.includes("lp_open_repo"), "the editor must accept a repo handoff from the GitHub page");
+  assert.ok(page.includes("buildRepoWorkspace"), "repo files must become workspace items (folders first)");
+  assert.ok(page.includes("lp_workspace_tree_backup"), "opening a repo must back the current workspace up first");
+  assert.ok(page.includes("restoreWorkspaceBackup"), "the backup must be restorable");
+  assert.ok(page.includes("t.editorPage.restoreWorkspace"), "File menu must offer Restore previous workspace");
+  assert.ok(page.includes("hasWorkspaceBackup"), "Restore must only enable when a backup exists");
+});
+
 test("i18n: the new editor keys exist in English", () => {
   for (const key of [
     "menuFile", "menuEdit", "menuView", "menuRun", "menuTerminal",

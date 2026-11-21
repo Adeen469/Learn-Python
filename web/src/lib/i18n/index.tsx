@@ -495,6 +495,7 @@ export type Strings = {
     menuRun: string;
     menuTerminal: string;
     menuSaveAll: string;
+    restoreWorkspace: string;
     menuRename: string;
     menuDelete: string;
     menuDuplicate: string;
@@ -702,6 +703,11 @@ export type Strings = {
     publicRepo: string;
     privateRepo: string;
     initReadme: string;
+    gitignoreLabel: string;
+    licenseLabel: string;
+    noneOption: string;
+    openInEditor: string;
+    repoNoFiles: string;
     createButton: string;
     commitHeading: string;
     targetRepoLabel: string;

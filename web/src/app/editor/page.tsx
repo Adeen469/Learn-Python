@@ -922,6 +922,38 @@ export default function CodeEditorPage() {
     }
   }
 
+  // Build workspace items from a repo's files (GitHub page handoff):
+  // one folder item per folder, before its children — the same order
+  // DEFAULT_WORKSPACE uses. Files are marked saved: they match the
+  // remote until the user edits them.
+  function buildRepoWorkspace(files: { path: string; content: string }[]): WorkspaceItem[] {
+    const items: WorkspaceItem[] = [];
+    const folders = new Set<string>();
+    files.forEach((f, i) => {
+      const parts = f.path.split("/");
+      let acc = "";
+      for (const part of parts.slice(0, -1)) {
+        acc = acc ? `${acc}/${part}` : part;
+        if (!folders.has(acc)) {
+          folders.add(acc);
+          items.push({ id: `f-repo-dir-${acc}`, name: part, path: acc, type: "folder" });
+        }
+      }
+      items.push({
+        id: `f-repo-${i}`,
+        name: parts[parts.length - 1],
+        path: f.path,
+        type: "file",
+        content: f.content,
+        isSaved: true,
+      });
+    });
+    return items;
+  }
+
+  // Whether a pre-repo workspace backup exists (File → Restore).
+  const [hasWorkspaceBackup, setHasWorkspaceBackup] = useState(false);
+
   // Load from localStorage, plus the "Try it" handoff: a lesson code
   // block stores its snippet in sessionStorage (lp_try_it_code) and
   // links here — open it as try-it.py so the user's workspace files
@@ -934,6 +966,38 @@ export default function CodeEditorPage() {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) base = parsed;
       } catch {}
+    }
+    // Repo handoff: the GitHub page stores a repo's files in
+    // sessionStorage (lp_open_repo) — open them as the workspace,
+    // like GitHub's code view. The workspace being left is backed
+    // up first (File → Restore previous workspace brings it back).
+    let openRepo: { repo: string; files: { path: string; content: string }[] } | null = null;
+    try {
+      const raw = sessionStorage.getItem("lp_open_repo");
+      if (raw !== null) {
+        sessionStorage.removeItem("lp_open_repo");
+        const parsed = JSON.parse(raw);
+        if (
+          parsed &&
+          typeof parsed.repo === "string" &&
+          Array.isArray(parsed.files) &&
+          parsed.files.length > 0
+        ) {
+          openRepo = parsed;
+        }
+      }
+    } catch {}
+    if (openRepo) {
+      try {
+        localStorage.setItem("lp_workspace_tree_backup", JSON.stringify(base));
+        setHasWorkspaceBackup(true);
+      } catch {}
+      const repoItems = buildRepoWorkspace(openRepo.files);
+      persistWorkspace(repoItems);
+      const firstFile = repoItems.find((p: WorkspaceItem) => p.type === "file");
+      if (firstFile) setActiveFilePath(firstFile.path);
+      setOutput((prev) => prev + `[Opened ${openRepo.repo} in the editor — previous workspace backed up, restore it from File → Restore previous workspace.]\n`);
+      return;
     }
     let tryCode: string | null = null;
     try {
@@ -977,6 +1041,23 @@ export default function CodeEditorPage() {
     setItems(next);
     localStorage.setItem("lp_workspace_tree", JSON.stringify(next));
     syncAllFilesToPyodide(next);
+  }
+
+  // Restore the workspace that was backed up when a repo was opened
+  // in the editor (File → Restore previous workspace).
+  function restoreWorkspaceBackup() {
+    try {
+      const raw = localStorage.getItem("lp_workspace_tree_backup");
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as WorkspaceItem[];
+      if (!Array.isArray(parsed) || parsed.length === 0) return;
+      persistWorkspace(parsed);
+      const firstFile = parsed.find((p) => p.type === "file");
+      if (firstFile) setActiveFilePath(firstFile.path);
+      localStorage.removeItem("lp_workspace_tree_backup");
+      setHasWorkspaceBackup(false);
+      setOutput((prev) => prev + "[Restored your previous workspace.]\n");
+    } catch {}
   }
 
   function saveCurrentFile() {
@@ -1913,6 +1994,7 @@ _lp_term_result
         { id: "sep-1", label: "", separator: true },
         { id: "save", label: t.editorPage.saveFileRequired, shortcut: "Ctrl+S", disabled: !activeFile || activeFile.isSaved, action: saveCurrentFile },
         { id: "save-all", label: t.editorPage.menuSaveAll, action: saveAllFiles },
+        { id: "restore-workspace", label: t.editorPage.restoreWorkspace, disabled: !hasWorkspaceBackup, action: restoreWorkspaceBackup },
         { id: "sep-2", label: "", separator: true },
         { id: "rename", label: t.editorPage.menuRename, disabled: !activeFile, action: () => activeFile && startRename(activeFile.path) },
         { id: "duplicate", label: t.editorPage.menuDuplicate, disabled: !activeFile, action: () => activeFile && duplicateItem(activeFile.path) },
