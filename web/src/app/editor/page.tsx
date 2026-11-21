@@ -962,6 +962,28 @@ export default function CodeEditorPage() {
   // workspace). Restored on reload from lp_open_repo_current so lazy
   // files keep working after a refresh.
   const [openRepoState, setOpenRepoState] = useState<{ repo: string; branch: string } | null>(null);
+  // Files changed since the repo was opened (edits, new files, renames,
+  // duplicates, drops) — the Push button commits exactly these, one
+  // commit per file through the existing /api/github/commit route.
+  // Saving to the browser is not pushing to GitHub: the set only
+  // clears for files a push actually sent (or when a different repo
+  // opens / the backup is restored).
+  const changedRepoPathsRef = useRef<Set<string>>(new Set());
+  const [changedRepoCount, setChangedRepoCount] = useState(0);
+  function markRepoChanged(path: string) {
+    if (!openRepoState) return;
+    if (changedRepoPathsRef.current.has(path)) return;
+    changedRepoPathsRef.current.add(path);
+    setChangedRepoCount(changedRepoPathsRef.current.size);
+  }
+  function clearRepoChanged() {
+    changedRepoPathsRef.current.clear();
+    setChangedRepoCount(0);
+  }
+  // Paths the repo had when it was opened — a changed path missing
+  // here is a new file, so the commit-message AI can tell adds
+  // apart from updates.
+  const repoTreePathsRef = useRef<Set<string>>(new Set());
   // Fresh mirror of the workspace for the lazy loader (lets it check
   // whether the file is still untouched before overwriting it).
   const itemsRef = useRef<WorkspaceItem[]>(DEFAULT_WORKSPACE);
@@ -994,6 +1016,8 @@ export default function CodeEditorPage() {
       }
       const repoItems = buildRepoWorkspaceTree(data.files);
       setItems(repoItems);
+      clearRepoChanged();
+      repoTreePathsRef.current = new Set(data.files.map((f: { path: string }) => f.path));
       try {
         localStorage.setItem(
           "lp_open_repo_current",
@@ -1135,6 +1159,7 @@ export default function CodeEditorPage() {
   function handleEditorChange(value: string | undefined) {
     if (!activeFile) return;
     setNeedsSaveWarning(null);
+    markRepoChanged(activeFile.path);
     setItems((prev) =>
       prev.map((it) =>
         it.path === activeFile.path ? { ...it, content: value ?? "", isSaved: false } : it
@@ -1178,6 +1203,8 @@ export default function CodeEditorPage() {
       localStorage.removeItem("lp_workspace_tree_backup");
       localStorage.removeItem("lp_open_repo_current");
       setOpenRepoState(null);
+      clearRepoChanged();
+      repoTreePathsRef.current.clear();
       setHasWorkspaceBackup(false);
       setOutput((prev) => prev + "[Restored your previous workspace.]\n");
     } catch {}
@@ -1208,6 +1235,165 @@ export default function CodeEditorPage() {
     );
     persistWorkspace(updated);
     setNeedsSaveWarning(null);
+  }
+
+  // Push the repo's changes to GitHub: every file changed since the
+  // repo was opened goes up as its own commit through the existing
+  // /api/github/commit route (one commit per file — that route has no
+  // multi-file commit), all sharing the one commit message the user
+  // approved in the push dialog. Nothing pushes on its own: edits
+  // save to the browser only, and Run still saves first exactly as
+  // before. A file that was never opened has no loaded content, so
+  // it is skipped rather than pushed empty.
+  const [pushing, setPushing] = useState(false);
+  function splitChangedFiles() {
+    const changed = [...changedRepoPathsRef.current];
+    const ready = changed.filter((p) => {
+      const it = itemsRef.current.find((x) => x.type === "file" && x.path === p);
+      return it && (!it.lazy || (it.content ?? "") !== "");
+    });
+    return { ready, skipped: changed.filter((p) => !ready.includes(p)) };
+  }
+  function defaultCommitMessage(paths: string[]) {
+    return paths.length === 1
+      ? `Update ${paths[0]} from Learn Python editor`
+      : `Update ${paths.length} files from Learn Python editor`;
+  }
+  async function pushRepoChanges(message: string) {
+    if (!openRepoState || pushing) return;
+    const token = localStorage.getItem("lp_github_token");
+    if (!token) {
+      setOutput((prev) => prev + "[Could not push: GitHub token is missing — reconnect it on the GitHub page.]\n");
+      return;
+    }
+    const [owner, repo] = openRepoState.repo.split("/");
+    const { ready, skipped } = splitChangedFiles();
+    if (ready.length === 0) {
+      setOutput((prev) =>
+        prev +
+        (skipped.length > 0
+          ? `[Nothing to push — ${skipped.length} changed file(s) were never opened, so their content is not loaded yet.]\n`
+          : "[No changes to push.]\n")
+      );
+      return;
+    }
+    setPushing(true);
+    setOutput((prev) => prev + `[Pushing ${ready.length} file(s) to ${openRepoState.repo}...]\n`);
+    let pushed = 0;
+    const failed: string[] = [];
+    for (const path of ready) {
+      const it = itemsRef.current.find((x) => x.type === "file" && x.path === path);
+      if (!it) continue;
+      try {
+        const res = await fetch("/api/github/commit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({
+            owner,
+            repo,
+            path,
+            content: it.content ?? "",
+            message,
+            branch: openRepoState.branch,
+          }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || "Push failed");
+        }
+        pushed++;
+        changedRepoPathsRef.current.delete(path);
+      } catch {
+        failed.push(path);
+      }
+    }
+    setChangedRepoCount(changedRepoPathsRef.current.size);
+    setPushing(false);
+    setOutput(
+      (prev) =>
+        prev +
+        `[Pushed ${pushed} of ${ready.length} file(s) to ${openRepoState.repo}${failed.length > 0 ? ` — failed: ${failed.join(", ")}` : "."}${skipped.length > 0 ? ` Skipped ${skipped.length} unopened file(s).` : ""}]\n`
+    );
+  }
+
+  // Push dialog: the commit message box opens with a plain default
+  // already in it, and the AI refines it in the background (5s cap —
+  // slower than that, or signed out, or no AI keys, and the default
+  // simply stays). Typing in the box wins over the AI: once the user
+  // edits it, an AI reply no longer overwrites it, and clearing the
+  // box falls back to the default at confirm time.
+  const [pushDialogOpen, setPushDialogOpen] = useState(false);
+  const [pushDialogFiles, setPushDialogFiles] = useState<{ ready: string[]; skipped: string[] }>({ ready: [], skipped: [] });
+  const [commitMessage, setCommitMessage] = useState("");
+  const [generatingMessage, setGeneratingMessage] = useState(false);
+  const messageEditedRef = useRef(false);
+  const generationRef = useRef(0);
+  function openPushDialog() {
+    if (!openRepoState || pushing) return;
+    const { ready, skipped } = splitChangedFiles();
+    if (ready.length === 0) {
+      setOutput((prev) =>
+        prev +
+        (skipped.length > 0
+          ? `[Nothing to push — ${skipped.length} changed file(s) were never opened, so their content is not loaded yet.]\n`
+          : "[No changes to push.]\n")
+      );
+      return;
+    }
+    messageEditedRef.current = false;
+    setPushDialogFiles({ ready, skipped });
+    setCommitMessage(defaultCommitMessage(ready));
+    setPushDialogOpen(true);
+    const gen = ++generationRef.current;
+    void generateCommitMessage(ready, gen);
+  }
+  async function generateCommitMessage(paths: string[], gen: number) {
+    const added = paths.filter((p) => !repoTreePathsRef.current.has(p));
+    const updated = paths.filter((p) => repoTreePathsRef.current.has(p));
+    const lines = [
+      ...(added.length > 0 ? [`Added: ${added.join(", ")}`] : []),
+      ...(updated.length > 0 ? [`Updated: ${updated.join(", ")}`] : []),
+    ];
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => controller.abort(), 5000);
+    setGeneratingMessage(true);
+    try {
+      const res = await fetch("/api/ai", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "guide",
+          question: `Write ONLY a short commit message (one line, max 72 characters, conventional-commits style like "feat: ..." or "fix: ...") for these changes in the ${openRepoState?.repo ?? "repo"} repository:\n${lines.join("\n")}\nReply with just the message, nothing else.`,
+          model: "gemini-3.8-flash",
+          effort: "Low",
+          ...(byok ? { byok } : {}),
+        }),
+        signal: controller.signal,
+      });
+      const data: unknown = await res.json().catch(() => null);
+      const reply =
+        typeof data === "object" && data !== null ? (data as { reply?: unknown }).reply : null;
+      if (
+        typeof reply === "string" &&
+        reply.trim() &&
+        gen === generationRef.current &&
+        !messageEditedRef.current
+      ) {
+        setCommitMessage(reply.trim().split("\n")[0].slice(0, 72));
+      }
+    } catch {
+      // AI unavailable, slower than 5s, or not signed in — the default
+      // message is already in the box, so there is nothing to fix.
+    } finally {
+      window.clearTimeout(timer);
+      setGeneratingMessage(false);
+    }
+  }
+  async function confirmPush() {
+    const message = commitMessage.trim() || defaultCommitMessage(pushDialogFiles.ready);
+    setPushDialogOpen(false);
+    await pushRepoChanges(message);
   }
 
   // Auto Save: when the active file is edited and Auto Save is on,
@@ -1323,6 +1509,11 @@ export default function CodeEditorPage() {
       return it;
     });
     persistWorkspace(updated);
+    if (item.type === "file") markRepoChanged(newPath);
+    else
+      updated
+        .filter((it) => it.type === "file" && it.path.startsWith(newPath + "/"))
+        .forEach((it) => markRepoChanged(it.path));
     if (activeFilePath === renamingPath) setActiveFilePath(newPath);
     // Keep the bottom tabs in sync with the rename (a file, or every
     // file under a renamed folder).
@@ -1417,6 +1608,7 @@ export default function CodeEditorPage() {
     }
     const next = [...items, ...copies];
     persistWorkspace(next);
+    copies.filter((c) => c.type === "file").forEach((c) => markRepoChanged(c.path));
     if (item.type === "file") setActiveFilePath(newPath);
     setOutput((prev) => prev + `[Copied '${path}' → '${newPath}']\n`);
   }
@@ -1702,6 +1894,7 @@ export default function CodeEditorPage() {
     };
     const next = [...items, newFile];
     setItems(next);
+    markRepoChanged(normalized);
     setActiveFilePath(normalized);
     setNewFileInput("");
     setShowNewFile(false);
@@ -1897,6 +2090,7 @@ export default function CodeEditorPage() {
     if (newItems.length > 0) {
       const merged = [...items, ...newItems];
       setItems(merged);
+      newItems.forEach((it) => markRepoChanged(it.path));
       setActiveFilePath(newItems[0].path);
       localStorage.setItem("lp_workspace_tree", JSON.stringify(merged));
       setOutput((prev) => prev + `[Imported ${newItems.length} file(s) via drag & drop]\n`);
@@ -3008,6 +3202,21 @@ _lp_term_result
                 <Folder className="h-3.5 w-3.5" />
                 {t.editorPage.explorer}
               </button>
+              <button
+                type="button"
+                onClick={openPushDialog}
+                disabled={!openRepoState || pushing || changedRepoCount === 0}
+                title={openRepoState ? t.editorPage.pushButton : t.editorPage.pushNeedsRepo}
+                className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition ${
+                  !openRepoState || changedRepoCount === 0
+                    ? "text-neutral-600"
+                    : "text-neutral-300 hover:bg-neutral-800 hover:text-white"
+                }`}
+              >
+                <UploadCloud className="h-3.5 w-3.5" />
+                {t.editorPage.pushButton}
+                {changedRepoCount > 0 ? ` (${changedRepoCount})` : ""}
+              </button>
             </>
           }
         />
@@ -3305,6 +3514,76 @@ _lp_term_result
           items={contextMenuItems()}
           onClose={() => setContextMenu(null)}
         />
+      )}
+
+      {/* Push dialog: the commit message, AI-written, editable like
+          GitHub's. The box opens with a plain default; the AI refines
+          it within 5s (or the default stays). Clearing the box falls
+          back to the default — a commit always has a message. */}
+      {pushDialogOpen && openRepoState && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+          onClick={() => setPushDialogOpen(false)}
+        >
+          <div
+            className="w-full max-w-lg rounded-xl border border-neutral-800 bg-neutral-950 p-4 shadow-xl"
+            role="dialog"
+            aria-modal="true"
+            aria-label={t.editorPage.pushDialogTitle}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-sm font-semibold text-white">{t.editorPage.pushDialogTitle}</h2>
+            <p className="mt-1 text-xs text-neutral-400">
+              {t.editorPage.pushDialogSummary(pushDialogFiles.ready.length, pushDialogFiles.skipped.length, openRepoState.repo)}
+            </p>
+            <ul className="mt-2 max-h-32 space-y-0.5 overflow-y-auto rounded-md border border-neutral-800 bg-neutral-900 px-2.5 py-2 font-mono text-xs text-neutral-300">
+              {pushDialogFiles.ready.map((p) => (
+                <li key={p}>{p}</li>
+              ))}
+              {pushDialogFiles.skipped.map((p) => (
+                <li key={p} className="text-neutral-600">
+                  {p} — skipped
+                </li>
+              ))}
+            </ul>
+            <label
+              htmlFor="push-commit-message"
+              className="mt-3 block text-xs font-medium text-neutral-300"
+            >
+              {t.editorPage.pushCommitMessageLabel}
+            </label>
+            <textarea
+              id="push-commit-message"
+              value={commitMessage}
+              onChange={(e) => {
+                messageEditedRef.current = true;
+                setCommitMessage(e.target.value);
+              }}
+              rows={2}
+              className="mt-1 w-full rounded-md border border-neutral-700 bg-neutral-900 px-2.5 py-2 text-sm text-white outline-none focus:border-neutral-500"
+            />
+            {generatingMessage && (
+              <p className="mt-1 text-xs text-neutral-500">{t.editorPage.pushGeneratingMessage}</p>
+            )}
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setPushDialogOpen(false)}
+                className="rounded-md px-3 py-1.5 text-xs font-medium text-neutral-300 hover:bg-neutral-800 hover:text-white"
+              >
+                {t.common.cancel}
+              </button>
+              <button
+                type="button"
+                onClick={() => void confirmPush()}
+                disabled={pushing}
+                className="rounded-md bg-white px-3 py-1.5 text-xs font-medium text-black hover:bg-neutral-200 disabled:text-neutral-600"
+              >
+                {t.editorPage.pushButton}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

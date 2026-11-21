@@ -435,6 +435,26 @@ test("status bar: runtime, file, save state, cursor position", () => {
   assert.ok(page.includes("App-only (native APK"), "the app-only menu items must be listed, not built on the website");
 });
 
+test("Push opens a dialog with an AI-written commit message the user can edit (nothing pushes on its own)", () => {
+  assert.ok(page.includes("openPushDialog"), "the Push button must open a dialog first, not push directly");
+  assert.ok(page.includes("pushRepoChanges"), "the dialog's confirm must run the push");
+  assert.ok(page.includes("/api/github/commit"), "the push must go through the existing commit route");
+  assert.ok(page.includes("changedRepoPathsRef"), "only files changed since the repo opened must push");
+  assert.ok(page.includes("markRepoChanged(activeFile.path)"), "editing a file must mark it changed");
+  assert.ok(page.includes("t.editorPage.pushButton"), "the menu bar must have a Push button");
+  assert.ok(page.includes("UploadCloud"), "the Push button must carry an upload icon");
+  assert.ok(page.includes("disabled={!openRepoState || pushing || changedRepoCount === 0}"), "Push must stay disabled without an open repo, while pushing, or with no changes");
+  assert.ok(page.includes("generateCommitMessage"), "the dialog must ask the AI for a commit message");
+  assert.ok(page.includes("setTimeout(() => controller.abort(), 5000)"), "the AI message must give up after 5 seconds and keep the default");
+  assert.ok(page.includes("messageEditedRef"), "typing in the box must win over a late AI reply");
+  assert.ok(page.includes("push-commit-message"), "the message box must be a labelled, editable field");
+  assert.ok(page.includes("t.editorPage.pushDialogTitle"), "the dialog must have a title");
+  assert.ok(page.includes("t.common.cancel"), "the dialog must offer Cancel");
+  assert.ok(page.includes("No changes to push"), "pushing with no changes must say so instead of calling GitHub");
+  assert.ok(page.includes("never opened, so their content is not loaded yet"), "a changed file that was never opened must be skipped, not pushed empty");
+  assert.ok(page.includes("Auto-save on Run"), "Run must still save first — the push changes nothing about running");
+});
+
 test("opening a repo from GitHub loads its tree lazily (with a backup + restore)", () => {
   assert.ok(page.includes("lp_open_repo"), "the editor must accept a repo handoff from the GitHub page");
   assert.ok(page.includes("buildRepoWorkspaceTree"), "the tree must become workspace items (folders first, files lazy)");

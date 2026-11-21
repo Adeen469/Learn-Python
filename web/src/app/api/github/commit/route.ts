@@ -13,7 +13,7 @@ const commitSchema = z.object({
     .refine((p) => !p.startsWith("/") && !p.includes(".."), {
       message: "Path must not start with '/' or contain '..'",
     }),
-  content: z.string().max(1_000_000),
+  content: z.string().max(4_000_000),
   message: z.string().min(1).max(500),
   branch: z
     .string()

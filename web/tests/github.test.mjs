@@ -76,6 +76,12 @@ test("clicking a repo opens it in the code editor", () => {
   assert.ok(p.includes("e.stopPropagation()"), "the external GitHub link must not trigger the card click");
 });
 
+test("the commit route accepts file contents up to ~4 MB", () => {
+  const r = read("src/app/api/github/commit/route.ts");
+  assert.ok(r.includes("content: z.string().max(4_000_000)"), "a pushed file may be up to ~4 MB (Vercel caps request bodies at 4.5 MB)");
+  assert.ok(r.includes("commitFileToRepo"), "the route must commit through the shared helper");
+});
+
 test("the repo tree + single-file routes serve a repo lazily", () => {
   assert.ok(lib().includes("export async function getRepoTree"), "the lib must fetch a repo's file tree");
   assert.ok(lib().includes("export async function getRepoFileContent"), "the lib must fetch one file's content");

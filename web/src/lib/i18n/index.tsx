@@ -476,6 +476,12 @@ export type Strings = {
     dragFilesHint: string;
     terminalLogs: string;
     terminalButton: string;
+    pushButton: string;
+    pushNeedsRepo: string;
+    pushDialogTitle: string;
+    pushDialogSummary: (ready: number, skipped: number, repo: string) => string;
+    pushCommitMessageLabel: string;
+    pushGeneratingMessage: string;
     programInputLabel: string;
     programInputPlaceholder: string;
     terminalInputPlaceholder: string;
