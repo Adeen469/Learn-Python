@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "Learn Python",
+    "slug": "learn-python",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "scheme": "learnpython",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.learnpython.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#000000"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "plugins": [
+      "expo-router",
+      "expo-video"
+    ]
+  }
+}
