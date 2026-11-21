@@ -721,11 +721,15 @@ export default function PromptBar({
             data-on={plusOpen ? '' : undefined}
             onMouseDown={e => e.preventDefault()}
             onClick={() => {
+              // Focus first: focusing the textarea fires its onFocus
+              // (which closes menus), so focusing AFTER opening would
+              // close the menu just opened. Focused already, this is
+              // a no-op and the toggle works.
+              focusInput();
               setModelOpen(false);
               setEffortOpen(false);
               setActive(0);
               setPlusOpen(v => !v);
-              focusInput();
             }}
           >
             <HugeiconsIcon icon={PlusSignIcon} size={16} strokeWidth={2} />
@@ -739,11 +743,13 @@ export default function PromptBar({
               data-on={modelOpen ? '' : undefined}
               onMouseDown={e => e.preventDefault()}
               onClick={() => {
+                // Focus first (see the + button): focusing after
+                // opening would close the menu just opened.
+                focusInput();
                 setPlusOpen(false);
                 setEffortOpen(false);
                 setActive(Math.max(0, models.indexOf(model)));
                 setModelOpen(v => !v);
-                focusInput();
               }}
             >
               <span>{model.name}</span>
@@ -760,10 +766,12 @@ export default function PromptBar({
               data-max={maxed ? '' : undefined}
               onMouseDown={e => e.preventDefault()}
               onClick={() => {
+                // Focus first (see the + button): focusing after
+                // opening would close the menu just opened.
+                focusInput();
                 setPlusOpen(false);
                 setModelOpen(false);
                 setEffortOpen(v => !v);
-                focusInput();
               }}
             >
               <HugeiconsIcon icon={SparklesIcon} size={13} strokeWidth={2} />

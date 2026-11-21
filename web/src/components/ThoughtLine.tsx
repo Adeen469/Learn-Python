@@ -27,6 +27,9 @@ export interface ThoughtLineProps {
   steps?: string[];
   collapsible?: boolean;
   collapseOnSettle?: boolean;
+  /** Whether the trace starts expanded. False keeps it minimised
+      while thinking — the user taps the header to expand it. */
+  defaultOpen?: boolean;
   color?: string;
   glyphColor?: string;
   fontSize?: number;
@@ -53,6 +56,7 @@ export default function ThoughtLine({
   steps = EMPTY_STEPS,
   collapsible = true,
   collapseOnSettle = true,
+  defaultOpen = true,
   color = 'currentColor',
   glyphColor = '',
   fontSize = 15,
@@ -72,7 +76,7 @@ export default function ThoughtLine({
 }: ThoughtLineProps) {
   const reduce = useReducedMotion();
   const [autoSettled, setAutoSettled] = useState(false);
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(defaultOpen);
   const isWorking = working && !autoSettled;
   const doneText = doneLabel || (showTimer ? 'Thought for' : 'Done thinking');
   const hasTrace = steps.length > 0;
@@ -97,9 +101,12 @@ export default function ThoughtLine({
     if (working) setAutoSettled(false);
   }, [working]);
   useEffect(() => {
-    if (isWorking) setOpen(true);
-    else if (collapseOnSettle) setOpen(false);
-  }, [isWorking, collapseOnSettle]);
+    // While thinking, the trace opens only when it started open —
+    // with defaultOpen=false it stays minimised until the user taps
+    // the header. On settle it collapses, as before.
+    if (isWorking && defaultOpen) setOpen(true);
+    else if (!isWorking && collapseOnSettle) setOpen(false);
+  }, [isWorking, collapseOnSettle, defaultOpen]);
 
   useEffect(() => {
     const glyphEl = glyphRef.current;

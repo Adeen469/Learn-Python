@@ -523,6 +523,7 @@ export type Strings = {
     aiMenuHistory: string;
     aiMenuSettings: string;
     aiBackToChat: string;
+    aiBackToEditor: string;
     aiHistoryTitle: string;
     aiHistoryEmpty: string;
     aiNewChat: string;
@@ -537,6 +538,8 @@ export type Strings = {
     aiByokTitle: string;
     aiByokProvider: string;
     aiByokKey: string;
+    aiByokBaseUrl: string;
+    aiByokModel: string;
     aiByokSave: string;
     aiByokSaved: string;
     aiByokRemove: string;

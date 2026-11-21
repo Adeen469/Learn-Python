@@ -37,6 +37,10 @@
 .prompt-bar__menu[data-kind='model'] {
   right: auto;
   width: 200px;
+  max-height: 288px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #ffffff73 transparent;
   transform-origin: bottom left;
 }
 

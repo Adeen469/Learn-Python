@@ -35,10 +35,16 @@ import { getStoredTranscript } from "@/lib/stored-transcripts";
 // and quiz modes) and the learner's own question/code.
 // Guide mode (editor AI panel) additionally accepts the user's own
 // skills (built-in ids resolved server-side + their custom skills)
-// and a BYOK key for one provider. The BYOK key is used in-memory
-// for that one request only — it is never stored, logged, or echoed
-// back in any response.
+// and a BYOK key for one provider (Gemini, Groq, Anthropic, OpenAI,
+// OpenRouter, or a custom OpenAI-compatible endpoint). The BYOK key
+// is used in-memory for that one request only — it is never stored,
+// logged, or echoed back in any response.
 export const dynamic = "force-dynamic";
+
+// The fallback chain can run past the default 10s serverless budget
+// (Gemini 7s + Groq 8s + Anthropic 15s + …), so allow 60s like the
+// video route does.
+export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   let limit;
@@ -96,12 +102,19 @@ export async function POST(req: NextRequest) {
   const config = getAiConfig();
   // BYOK (guide mode): the user's own key for one provider replaces
   // the server key for that provider, in-memory for this request
-  // only. The other provider keeps its server key as fallback.
-  if (body.byok?.provider === "gemini" && body.byok.key) {
-    config.geminiKey = body.byok.key;
-  }
-  if (body.byok?.provider === "groq" && body.byok.key) {
-    config.groqKey = body.byok.key;
+  // only. The other providers keep their server keys as fallback.
+  // Custom also carries its base URL + model in the BYOK.
+  if (body.byok?.key) {
+    if (body.byok.provider === "gemini") config.geminiKey = body.byok.key;
+    if (body.byok.provider === "groq") config.groqKey = body.byok.key;
+    if (body.byok.provider === "anthropic") config.anthropicKey = body.byok.key;
+    if (body.byok.provider === "openai") config.openaiKey = body.byok.key;
+    if (body.byok.provider === "openrouter") config.openrouterKey = body.byok.key;
+    if (body.byok.provider === "custom") {
+      config.customKey = body.byok.key;
+      config.customBaseUrl = body.byok.baseUrl ?? null;
+      config.customModel = body.byok.model ?? null;
+    }
   }
   if (!hasAiConfig(config)) {
     return NextResponse.json(
@@ -214,8 +227,20 @@ export async function POST(req: NextRequest) {
     config
   );
   if (!result) {
+    // Key presence only (booleans, never values) — enough to tell
+    // "no key configured" from "key present but every call failed".
     console.error(
-      JSON.stringify({ event: "ai_provider_failed", mode: body.mode })
+      JSON.stringify({
+        event: "ai_provider_failed",
+        mode: body.mode,
+        model: body.model ?? null,
+        hasGemini: Boolean(config.geminiKey),
+        hasGroq: Boolean(config.groqKey),
+        hasAnthropic: Boolean(config.anthropicKey),
+        hasOpenai: Boolean(config.openaiKey),
+        hasOpenrouter: Boolean(config.openrouterKey),
+        hasCustom: Boolean(config.customKey),
+      })
     );
     return NextResponse.json(
       { error: "AI is unavailable right now — please try again in a moment." },

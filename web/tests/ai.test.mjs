@@ -6,6 +6,10 @@ import test from "node:test";
 // use an injected mock fetch — no real keys exist in the sandbox.
 
 const GEMINI_MODEL = "gemini-3.8-flash";
+function geminiUrlFor(model) {
+  return `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+}
+const GEMINI_URL = geminiUrlFor(GEMINI_MODEL);
 const GEMINI_FREE_MODELS = [
   "gemini-3.8-flash",
   "gemini-3.6-flash",
@@ -16,29 +20,78 @@ const GEMINI_FREE_MODELS = [
   "gemini-2.0-flash",
   "gemini-2.0-flash-lite",
 ];
+// Groq's current production chat models (free/developer plans).
+const GROQ_MODELS = ["openai/gpt-oss-120b", "openai/gpt-oss-20b"];
+// Groq free-tier chat models (console.groq.com rate limits). Llama
+// 3.1-8b-instant and 3.3-70b-versatile left the free/developer tier on
+// 2026-08-16 (Enterprise only now) — do NOT add them back.
 const GROQ_FREE_MODELS = [
   "openai/gpt-oss-120b",
   "openai/gpt-oss-20b",
   "qwen/qwen3.6-27b",
   "qwen/qwen3.8-27b",
 ];
-const AI_MODEL_IDS = [...GEMINI_FREE_MODELS, ...GROQ_FREE_MODELS];
+// Anthropic's current models (Messages API). claude-sonnet-4-5
+// retired 2026-11-30 — do NOT add it back.
+const ANTHROPIC_MODELS = ["claude-sonnet-5-5", "claude-opus-5-5", "claude-haiku-5-5"];
+// OpenAI's current chat models (Chat Completions API).
+const OPENAI_MODELS = ["gpt-5.5", "gpt-5.4-mini", "gpt-4o", "gpt-4o-mini"];
+// OpenRouter slugs (vendor/model) — one key reaches every vendor.
+const OPENROUTER_MODELS = [
+  "openai/gpt-5.5",
+  "anthropic/claude-sonnet-5-5",
+  "google/gemini-2.5-flash",
+  "meta-llama/llama-3.3-70b-instruct",
+];
+const AI_MODEL_IDS = [
+  ...GEMINI_FREE_MODELS,
+  ...GROQ_FREE_MODELS,
+  ...ANTHROPIC_MODELS,
+  ...OPENAI_MODELS,
+  ...OPENROUTER_MODELS,
+];
+const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
+const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
+const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
+const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 const EFFORTS = ["Low", "Medium", "High", "Extra", "Max"];
+const GEMINI_TIMEOUT_MS = 7000;
+const GROQ_TIMEOUT_MS = 8000;
+const ANTHROPIC_TIMEOUT_MS = 15000;
+const OPENAI_TIMEOUT_MS = 12000;
+const OPENROUTER_TIMEOUT_MS = 12000;
+const CUSTOM_TIMEOUT_MS = 12000;
 const MAX_OUTPUT_TOKENS = 600;
 const MAX_INPUT_CHARS = 8000;
 const MAX_HISTORY_TURNS = 8;
 const MAX_HISTORY_CHARS = 2000;
+const AI_TEMPERATURE = 0.7;
 const AI_MODES = ["tutor", "explain", "debug", "quiz", "guide"];
 
 function getAiConfig(env) {
   return {
     geminiKey: env.GEMINI_API_KEY || null,
     groqKey: env.GROQ_API_KEY || null,
+    anthropicKey: env.ANTHROPIC_API_KEY || null,
+    openaiKey: env.OPENAI_API_KEY || null,
+    openrouterKey: env.OPENROUTER_API_KEY || null,
+    // Custom provider: BYOK only, no env var (base URL + model ride
+    // in the request's BYOK alongside the key).
+    customKey: null,
+    customBaseUrl: null,
+    customModel: null,
   };
 }
 
 function hasAiConfig(config) {
-  return Boolean(config.geminiKey || config.groqKey);
+  return Boolean(
+    config.geminiKey ||
+      config.groqKey ||
+      config.anthropicKey ||
+      config.openaiKey ||
+      config.openrouterKey ||
+      config.customKey
+  );
 }
 
 function validateAiRequest(value) {
@@ -70,9 +123,45 @@ function validateAiRequest(value) {
     body.question = v.question;
   }
   if (v.history !== undefined) body.history = sanitizeHistory(v.history);
+  // BYOK first: the model check below allows a custom model id
+  // only when it matches the custom BYOK in this same request.
+  if (v.byok !== undefined) {
+    const b = v.byok;
+    const providers = ["gemini", "groq", "anthropic", "openai", "openrouter", "custom"];
+    if (
+      typeof b !== "object" ||
+      b === null ||
+      typeof b.provider !== "string" ||
+      !providers.includes(b.provider) ||
+      typeof b.key !== "string" ||
+      b.key.length < 10 ||
+      b.key.length > 200
+    ) {
+      return { ok: false, error: "byok is not valid." };
+    }
+    const byok = { provider: b.provider, key: b.key };
+    if (b.provider === "custom") {
+      if (
+        typeof b.baseUrl !== "string" ||
+        !/^https:\/\/\S{1,200}$/.test(b.baseUrl) ||
+        typeof b.model !== "string" ||
+        b.model.trim().length === 0 ||
+        b.model.length > 100
+      ) {
+        return { ok: false, error: "byok is not valid." };
+      }
+      byok.baseUrl = b.baseUrl;
+      byok.model = b.model.trim();
+    }
+    body.byok = byok;
+  }
   if (v.model !== undefined) {
-    if (typeof v.model !== "string" || !AI_MODEL_IDS.includes(v.model)) {
-      return { ok: false, error: "model is not an available free-tier model." };
+    const customModel = body.byok?.provider === "custom" ? body.byok.model : undefined;
+    if (
+      typeof v.model !== "string" ||
+      !(AI_MODEL_IDS.includes(v.model) || (customModel !== undefined && v.model === customModel))
+    ) {
+      return { ok: false, error: "model is not an available model." };
     }
     body.model = v.model;
   }
@@ -112,20 +201,6 @@ function validateAiRequest(value) {
     }
     body.skills = v.skills.map((s) => ({ name: s.name.trim(), content: s.content.trim() }));
   }
-  if (v.byok !== undefined) {
-    const b = v.byok;
-    if (
-      typeof b !== "object" ||
-      b === null ||
-      (b.provider !== "gemini" && b.provider !== "groq") ||
-      typeof b.key !== "string" ||
-      b.key.length < 10 ||
-      b.key.length > 200
-    ) {
-      return { ok: false, error: "byok is not valid." };
-    }
-    body.byok = { provider: b.provider, key: b.key };
-  }
   if ((mode === "explain" || mode === "debug") && !body.code) {
     return { ok: false, error: "code is required for this mode." };
   }
@@ -151,7 +226,7 @@ function sanitizeHistory(history) {
 }
 
 function temperatureForMode(mode) {
-  return mode === "tutor" || mode === "quiz" ? 0.3 : 0.7;
+  return mode === "tutor" || mode === "quiz" ? 0.3 : AI_TEMPERATURE;
 }
 
 function buildAiSystemPrompt(mode, lesson, transcript, skills) {
@@ -202,6 +277,61 @@ Rules you must follow:
   }
 }
 
+function buildAiUserMessage(args) {
+  if (args.mode === "explain" || args.mode === "debug") {
+    const verb = args.mode === "explain" ? "Explain this code" : "Find the bug in this code";
+    const lessonLine = args.lesson ? ` (from lesson "${args.lesson.title}")` : "";
+    return `${verb}${lessonLine}:\n\`\`\`python\n${args.code ?? ""}\n\`\`\``;
+  }
+  if (args.mode === "quiz") {
+    return args.question?.trim()
+      ? `Draft 3 quiz questions for this lesson. Focus: ${args.question.trim()}`
+      : "Draft 3 quiz questions for this lesson.";
+  }
+  if (args.mode === "guide") {
+    const codePart = args.code
+      ? `\n\nMy current code:\n\`\`\`python\n${args.code}\n\`\`\``
+      : "";
+    return `${args.question ?? ""}${codePart}`;
+  }
+  return args.question ?? "";
+}
+
+function buildGeminiPrompt(args) {
+  // The mock's test args omit history; the real route always sends it.
+  const history = args.history ?? [];
+  const parts = [buildAiSystemPrompt(args.mode, args.lesson, args.transcript, args.skills)];
+  if (history.length > 0) {
+    const convo = history
+      .map((h) => `${h.role === "user" ? "Learner" : "Tutor"}: ${h.text}`)
+      .join("\n");
+    parts.push(`Conversation so far:\n${convo}`);
+  }
+  parts.push(`Learner: ${buildAiUserMessage(args)}\nTutor:`);
+  return parts.join("\n\n");
+}
+
+function buildGroqMessages(args) {
+  // The mock's test args omit history; the real route always sends it.
+  const history = args.history ?? [];
+  return [
+    { role: "system", content: buildAiSystemPrompt(args.mode, args.lesson, args.transcript, args.skills) },
+    ...history.map((h) => ({ role: h.role, content: h.text })),
+    { role: "user", content: buildAiUserMessage(args) },
+  ];
+}
+
+/** Anthropic takes the system prompt as a top-level `system` field,
+    not as a message — the message list is history + the user turn. */
+function buildAnthropicMessages(args) {
+  // The mock's test args omit history; the real route always sends it.
+  const history = args.history ?? [];
+  return [
+    ...history.map((h) => ({ role: h.role, content: h.text })),
+    { role: "user", content: buildAiUserMessage(args) },
+  ];
+}
+
 function parseGeminiText(body) {
   try {
     const parts = body?.candidates?.[0]?.content?.parts;
@@ -222,6 +352,21 @@ function parseGroqText(body) {
   }
 }
 
+function parseAnthropicText(body) {
+  try {
+    const content = body?.content;
+    if (!Array.isArray(content)) return null;
+    const text = content
+      .filter((b) => b?.type === "text" && typeof b.text === "string")
+      .map((b) => b.text)
+      .join("")
+      .trim();
+    return text || null;
+  } catch {
+    return null;
+  }
+}
+
 function sanitizeProviderError(body) {
   let msg = "";
   try {
@@ -235,7 +380,10 @@ function sanitizeProviderError(body) {
   msg = (msg || "provider error").slice(0, 200);
   msg = msg
     .replace(/AIza[0-9A-Za-z\-_]{10,}/g, "[key]")
-    .replace(/gsk_[0-9A-Za-z]{10,}/g, "[key]");
+    .replace(/gsk_[0-9A-Za-z]{10,}/g, "[key]")
+    .replace(/sk-ant-[0-9A-Za-z\-_]{10,}/g, "[key]")
+    .replace(/sk-proj-[0-9A-Za-z\-_]{10,}/g, "[key]")
+    .replace(/sk-[0-9A-Za-z]{10,}/g, "[key]");
   return msg || "provider error";
 }
 
@@ -295,13 +443,16 @@ function mockFetchFactory(script) {
 
 async function callGeminiMock(args, key, fetchImpl, opts = {}) {
   const model = opts.model ?? GEMINI_MODEL;
+  const maxTokens = opts.maxTokens ?? MAX_OUTPUT_TOKENS;
   try {
     const res = await fetchImpl(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`,
+      `${geminiUrlFor(model)}?key=${encodeURIComponent(key)}`,
       {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          generationConfig: { maxOutputTokens: opts.maxTokens ?? MAX_OUTPUT_TOKENS },
+          contents: [{ role: "user", parts: [{ text: buildGeminiPrompt(args) }] }],
+          generationConfig: { temperature: temperatureForMode(args.mode), maxOutputTokens: maxTokens },
         }),
       }
     );
@@ -315,6 +466,7 @@ async function callGeminiMock(args, key, fetchImpl, opts = {}) {
 }
 
 async function callGroqMock(args, key, fetchImpl, opts = {}) {
+  const maxTokens = opts.maxTokens ?? MAX_OUTPUT_TOKENS;
   // Try-list: an explicit list wins (fallback without repeating a
   // model just tried); else the picked model first, then the rest of
   // the free list; else the free list in order.
@@ -326,9 +478,15 @@ async function callGroqMock(args, key, fetchImpl, opts = {}) {
   for (const model of models) {
     let res = null;
     try {
-      res = await fetchImpl("https://api.groq.com/openai/v1/chat/completions", {
+      res = await fetchImpl(GROQ_URL, {
         method: "POST",
-        body: JSON.stringify({ model, max_tokens: opts.maxTokens ?? MAX_OUTPUT_TOKENS }),
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+        body: JSON.stringify({
+          model,
+          messages: buildGroqMessages(args),
+          temperature: temperatureForMode(args.mode),
+          max_tokens: maxTokens,
+        }),
       });
     } catch {
       return null;
@@ -336,6 +494,94 @@ async function callGroqMock(args, key, fetchImpl, opts = {}) {
     if (!res) return null;
     const body = await res.json().catch(() => null);
     if (!res.ok) {
+      if (res.status === 404) continue;
+      return null;
+    }
+    const text = parseGroqText(body);
+    if (text) return text;
+    return null;
+  }
+  return null;
+}
+
+async function callAnthropicMock(args, key, fetchImpl, opts = {}) {
+  const model = opts.model ?? ANTHROPIC_MODELS[0];
+  const maxTokens = opts.maxTokens ?? MAX_OUTPUT_TOKENS;
+  try {
+    const res = await fetchImpl(ANTHROPIC_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": key,
+        // Pin 2023-06-01: the 2026-10-21 version rejects any
+        // non-default temperature / top_p / top_k.
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: maxTokens,
+        temperature: temperatureForMode(args.mode),
+        system: buildAiSystemPrompt(args.mode, args.lesson, args.transcript, args.skills),
+        messages: buildAnthropicMessages(args),
+      }),
+    });
+    if (!res) return null;
+    const body = await res.json().catch(() => null);
+    if (!res.ok) return null;
+    return parseAnthropicText(body);
+  } catch {
+    return null;
+  }
+}
+
+/** Attribution headers for OpenRouter (optional, but they put the
+    app in OpenRouter's rankings under its own name). */
+function openRouterHeaders() {
+  return {
+    "HTTP-Referer": "https://learnpythonprogram.vercel.app",
+    "X-OpenRouter-Title": "Learn Python",
+  };
+}
+
+/** A custom base URL is an OpenAI-compatible root (…/v1) or a full
+    /chat/completions endpoint — normalise to the endpoint. */
+function normalizeCustomUrl(baseUrl) {
+  const base = baseUrl.replace(/\/+$/, "");
+  return base.endsWith("/chat/completions") ? base : `${base}/chat/completions`;
+}
+
+/** One OpenAI-compatible chat-completions call, shared by OpenAI,
+    OpenRouter and custom providers. Tries each model in order; a 404
+    (retired model) moves to the next, any other failure stops. */
+async function callOpenAiCompatibleMock(args, key, fetchImpl, opts) {
+  const maxTokens = opts.maxTokens ?? MAX_OUTPUT_TOKENS;
+  for (const model of opts.models) {
+    let res = null;
+    try {
+      res = await fetchImpl(opts.url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${key}`,
+          ...(opts.extraHeaders ?? {}),
+        },
+        body: JSON.stringify({
+          model,
+          // No temperature: reasoning models (GPT-5.x and friends)
+          // reject non-default sampling values — the default is
+          // safe on every OpenAI-compatible endpoint.
+          messages: buildGroqMessages(args),
+          max_tokens: maxTokens,
+        }),
+      });
+    } catch {
+      return null;
+    }
+    if (!res) return null;
+    const body = await res.json().catch(() => null);
+    if (!res.ok) {
+      // Retired model — try the next one. Any other failure (auth,
+      // rate limit) would fail identically for the next model.
       if (res.status === 404) continue;
       return null;
     }
@@ -361,24 +607,63 @@ function maxTokensForEffort(effort) {
   }
 }
 
+function finishResult(mode, reply, provider) {
+  if (mode !== "quiz") return { reply, provider };
+  const quiz = parseQuizDrafts(reply);
+  return quiz ? { reply, provider, quiz } : { reply, provider };
+}
+
 async function askAiMock(args, config, fetchImpl) {
   const maxTokens = maxTokensForEffort(args.effort);
   const selected = args.model;
   // 1. The model the user picked (editor AI panel).
   if (selected && GEMINI_FREE_MODELS.includes(selected) && config.geminiKey) {
     const reply = await callGeminiMock(args, config.geminiKey, fetchImpl, { model: selected, maxTokens });
-    if (reply) return { reply, provider: "gemini" };
+    if (reply) return finishResult(args.mode, reply, "gemini");
   }
   if (selected && GROQ_FREE_MODELS.includes(selected) && config.groqKey) {
     const reply = await callGroqMock(args, config.groqKey, fetchImpl, { model: selected, maxTokens });
-    if (reply) return { reply, provider: "groq" };
+    if (reply) return finishResult(args.mode, reply, "groq");
   }
-  // 2. Default order. Skip the Gemini default if it was the picked
-  // model (already tried above). For Groq, skip a picked model that
-  // already failed (its call above tried it first).
+  if (selected && ANTHROPIC_MODELS.includes(selected) && config.anthropicKey) {
+    const reply = await callAnthropicMock(args, config.anthropicKey, fetchImpl, { model: selected, maxTokens });
+    if (reply) return finishResult(args.mode, reply, "anthropic");
+  }
+  if (selected && OPENAI_MODELS.includes(selected) && config.openaiKey) {
+    const reply = await callOpenAiCompatibleMock(args, config.openaiKey, fetchImpl, {
+      url: OPENAI_URL,
+      models: [selected],
+      maxTokens,
+    });
+    if (reply) return finishResult(args.mode, reply, "openai");
+  }
+  if (selected && OPENROUTER_MODELS.includes(selected) && config.openrouterKey) {
+    const reply = await callOpenAiCompatibleMock(args, config.openrouterKey, fetchImpl, {
+      url: OPENROUTER_URL,
+      models: [selected],
+      maxTokens,
+      extraHeaders: openRouterHeaders(),
+    });
+    if (reply) return finishResult(args.mode, reply, "openrouter");
+  }
+  if (
+    selected &&
+    config.customKey &&
+    config.customModel &&
+    config.customBaseUrl &&
+    selected === config.customModel
+  ) {
+    const reply = await callOpenAiCompatibleMock(args, config.customKey, fetchImpl, {
+      url: normalizeCustomUrl(config.customBaseUrl),
+      models: [selected],
+      maxTokens,
+    });
+    if (reply) return finishResult(args.mode, reply, "custom");
+  }
+  // 2. Default order. Skip a leg whose model was already tried above.
   if (config.geminiKey && selected !== GEMINI_MODEL) {
     const reply = await callGeminiMock(args, config.geminiKey, fetchImpl, { maxTokens });
-    if (reply) return { reply, provider: "gemini" };
+    if (reply) return finishResult(args.mode, reply, "gemini");
   }
   if (config.groqKey) {
     const fallbackModels =
@@ -386,7 +671,44 @@ async function askAiMock(args, config, fetchImpl) {
         ? GROQ_FREE_MODELS.filter((m) => m !== selected)
         : GROQ_FREE_MODELS;
     const reply = await callGroqMock(args, config.groqKey, fetchImpl, { maxTokens, models: fallbackModels });
-    if (reply) return { reply, provider: "groq" };
+    if (reply) return finishResult(args.mode, reply, "groq");
+  }
+  if (config.anthropicKey && selected !== ANTHROPIC_MODELS[0]) {
+    const reply = await callAnthropicMock(args, config.anthropicKey, fetchImpl, { maxTokens });
+    if (reply) return finishResult(args.mode, reply, "anthropic");
+  }
+  if (config.openaiKey) {
+    const fallbackModels =
+      selected && OPENAI_MODELS.includes(selected)
+        ? OPENAI_MODELS.filter((m) => m !== selected)
+        : OPENAI_MODELS;
+    const reply = await callOpenAiCompatibleMock(args, config.openaiKey, fetchImpl, {
+      url: OPENAI_URL,
+      models: fallbackModels,
+      maxTokens,
+    });
+    if (reply) return finishResult(args.mode, reply, "openai");
+  }
+  if (config.openrouterKey) {
+    const fallbackModels =
+      selected && OPENROUTER_MODELS.includes(selected)
+        ? OPENROUTER_MODELS.filter((m) => m !== selected)
+        : OPENROUTER_MODELS;
+    const reply = await callOpenAiCompatibleMock(args, config.openrouterKey, fetchImpl, {
+      url: OPENROUTER_URL,
+      models: fallbackModels,
+      maxTokens,
+      extraHeaders: openRouterHeaders(),
+    });
+    if (reply) return finishResult(args.mode, reply, "openrouter");
+  }
+  if (config.customKey && config.customModel && config.customBaseUrl && selected !== config.customModel) {
+    const reply = await callOpenAiCompatibleMock(args, config.customKey, fetchImpl, {
+      url: normalizeCustomUrl(config.customBaseUrl),
+      models: [config.customModel],
+      maxTokens,
+    });
+    if (reply) return finishResult(args.mode, reply, "custom");
   }
   return null;
 }
@@ -398,7 +720,29 @@ test("fail-closed: no keys configured means AI unavailable", () => {
   assert.equal(hasAiConfig(getAiConfig({ GEMINI_API_KEY: "" })), false);
   assert.equal(hasAiConfig(getAiConfig({ GROQ_API_KEY: "gsk_x" })), true);
   assert.equal(hasAiConfig(getAiConfig({ GEMINI_API_KEY: "AIza_x" })), true);
-  assert.deepEqual(getAiConfig({}), { geminiKey: null, groqKey: null });
+  assert.equal(hasAiConfig(getAiConfig({ ANTHROPIC_API_KEY: "sk-ant-x" })), true);
+  assert.equal(hasAiConfig(getAiConfig({ OPENAI_API_KEY: "sk-x" })), true);
+  assert.equal(hasAiConfig(getAiConfig({ OPENROUTER_API_KEY: "sk-or-x" })), true);
+  assert.deepEqual(getAiConfig({}), {
+    geminiKey: null,
+    groqKey: null,
+    anthropicKey: null,
+    openaiKey: null,
+    openrouterKey: null,
+    customKey: null,
+    customBaseUrl: null,
+    customModel: null,
+  });
+  assert.deepEqual(getAiConfig({ ANTHROPIC_API_KEY: "sk-ant-abc", OPENAI_API_KEY: "sk-abc" }), {
+    geminiKey: null,
+    groqKey: null,
+    anthropicKey: "sk-ant-abc",
+    openaiKey: "sk-abc",
+    openrouterKey: null,
+    customKey: null,
+    customBaseUrl: null,
+    customModel: null,
+  });
 });
 
 test("validateAiRequest accepts the five modes and enforces caps", () => {
@@ -699,7 +1043,7 @@ test("validateAiRequest: skillIds, custom skills and BYOK are validated", () => 
     validateAiRequest({ ...base, skills: [{ name: "x", content: "y".repeat(8001) }] }).ok,
     false
   );
-  // BYOK: provider must be gemini|groq, key 10–200 chars.
+  // BYOK: provider must be one of the six, key 10–200 chars.
   assert.equal(
     validateAiRequest({ ...base, byok: { provider: "gemini", key: "AIza1234567890" } }).ok,
     true
@@ -709,7 +1053,26 @@ test("validateAiRequest: skillIds, custom skills and BYOK are validated", () => 
     true
   );
   assert.equal(
+    validateAiRequest({ ...base, byok: { provider: "anthropic", key: "sk-ant-1234567890" } }).ok,
+    true
+  );
+  assert.equal(
     validateAiRequest({ ...base, byok: { provider: "openai", key: "sk-1234567890" } }).ok,
+    true
+  );
+  assert.equal(
+    validateAiRequest({ ...base, byok: { provider: "openrouter", key: "sk-or-1234567890" } }).ok,
+    true
+  );
+  assert.equal(
+    validateAiRequest({
+      ...base,
+      byok: { provider: "custom", key: "custom-key-123", baseUrl: "https://example.com/v1", model: "my-model" },
+    }).ok,
+    true
+  );
+  assert.equal(
+    validateAiRequest({ ...base, byok: { provider: "unknown", key: "sk-1234567890" } }).ok,
     false
   );
   assert.equal(validateAiRequest({ ...base, byok: { provider: "gemini", key: "short" } }).ok, false);
@@ -887,4 +1250,394 @@ test("picked Groq model first, and the fallback list skips it", async () => {
   );
   assert.deepEqual(res, { reply: "from gemini", provider: "gemini" });
   assert.equal(m.calls.filter((c) => c.url.includes("api.groq.com")).length, 4);
+});
+
+test("parseAnthropicText extracts text blocks and rejects junk", () => {
+  assert.equal(
+    parseAnthropicText({
+      content: [
+        { type: "text", text: "hello " },
+        { type: "thinking", text: "ignored reasoning" },
+        { type: "tool_use", text: "ignored tool" },
+        { type: "text", text: "world" },
+      ],
+    }),
+    "hello world"
+  );
+  assert.equal(parseAnthropicText({ content: [{ type: "thinking", text: "hmm" }] }), null);
+  assert.equal(parseAnthropicText({ content: [{ type: "text", text: "   " }] }), null);
+  assert.equal(parseAnthropicText({ content: "not an array" }), null);
+  assert.equal(parseAnthropicText({}), null);
+  assert.equal(parseAnthropicText(null), null);
+});
+
+test("message builders: Groq carries system, Anthropic does not, Gemini flattens to text", () => {
+  const args = {
+    mode: "tutor",
+    lesson: null,
+    question: "what is a list?",
+    history: [
+      { role: "user", text: "earlier q" },
+      { role: "assistant", text: "earlier a" },
+    ],
+  };
+  const groq = buildGroqMessages(args);
+  assert.equal(groq[0].role, "system");
+  assert.match(groq[0].content, /AI tutor/);
+  assert.deepEqual(groq[1], { role: "user", content: "earlier q" });
+  assert.deepEqual(groq[2], { role: "assistant", content: "earlier a" });
+  assert.deepEqual(groq[3], { role: "user", content: "what is a list?" });
+
+  const anthropic = buildAnthropicMessages(args);
+  assert.equal(anthropic.length, 3);
+  assert.equal(anthropic.some((m) => m.role === "system"), false);
+  assert.deepEqual(anthropic[0], { role: "user", content: "earlier q" });
+  assert.deepEqual(anthropic[2], { role: "user", content: "what is a list?" });
+
+  const gemini = buildGeminiPrompt(args);
+  assert.match(gemini, /AI tutor/);
+  assert.match(gemini, /Learner: earlier q/);
+  assert.match(gemini, /Tutor: earlier a/);
+  assert.match(gemini, /Learner: what is a list\?\nTutor:$/);
+
+  assert.match(buildAiUserMessage({ mode: "explain", code: "x = 1" }), /^Explain this code:\n```python\nx = 1\n```$/);
+  assert.match(buildAiUserMessage({ mode: "debug", code: "x = 1" }), /^Find the bug in this code:/);
+  assert.equal(buildAiUserMessage({ mode: "quiz" }), "Draft 3 quiz questions for this lesson.");
+  assert.match(
+    buildAiUserMessage({ mode: "guide", question: "fix it", code: "x = 1" }),
+    /My current code:\n```python\nx = 1\n```/
+  );
+});
+
+test("callAnthropic sends the Messages API shape", async () => {
+  const anthropicOk = {
+    match: (url) => url === ANTHROPIC_URL,
+    ok: true,
+    status: 200,
+    body: {
+      content: [
+        { type: "text", text: "hello " },
+        { type: "thinking", text: "ignored" },
+        { type: "text", text: "world" },
+      ],
+    },
+  };
+  let m = mockFetchFactory([anthropicOk]);
+  let text = await callAnthropicMock(
+    { mode: "tutor", question: "what is a list?", history: [] },
+    "sk-ant-testkey123",
+    m.fetchImpl
+  );
+  assert.equal(text, "hello world");
+  assert.equal(m.calls.length, 1);
+  const call = m.calls[0];
+  assert.equal(call.url, "https://api.anthropic.com/v1/messages");
+  assert.equal(call.init.headers["Content-Type"], "application/json");
+  assert.equal(call.init.headers["x-api-key"], "sk-ant-testkey123");
+  assert.equal(call.init.headers["anthropic-version"], "2023-06-01");
+  const sent = JSON.parse(call.init.body);
+  assert.equal(sent.model, "claude-sonnet-5-5"); // default model
+  assert.equal(sent.max_tokens, 600);
+  assert.equal(sent.temperature, 0.3); // tutor runs cool
+  assert.match(sent.system, /AI tutor/);
+  assert.equal(sent.messages.some((msg) => msg.role === "system"), false);
+  assert.deepEqual(sent.messages, [{ role: "user", content: "what is a list?" }]);
+
+  // A picked model is honoured, and a non-OK response returns null.
+  m = mockFetchFactory([anthropicOk]);
+  text = await callAnthropicMock(
+    { mode: "guide", question: "hi", history: [] },
+    "sk-ant-testkey123",
+    m.fetchImpl,
+    { model: "claude-haiku-5-5" }
+  );
+  assert.equal(text, "hello world");
+  assert.equal(JSON.parse(m.calls[0].init.body).model, "claude-haiku-5-5");
+  assert.equal(JSON.parse(m.calls[0].init.body).temperature, 0.7); // guide stays warm
+
+  m = mockFetchFactory([{ ...anthropicOk, ok: false, status: 401, body: { error: "bad key" } }]);
+  text = await callAnthropicMock(
+    { mode: "tutor", question: "hi", history: [] },
+    "sk-ant-testkey123",
+    m.fetchImpl
+  );
+  assert.equal(text, null);
+});
+
+test("callOpenAiCompatible sends no temperature and honours extra headers", async () => {
+  const openai404 = {
+    match: (url, init) => url === OPENAI_URL && JSON.parse(init.body).model === "gpt-5.5",
+    ok: false,
+    status: 404,
+    body: { error: "model not found" },
+  };
+  const openaiOk = {
+    match: (url, init) => url === OPENAI_URL && JSON.parse(init.body).model === "gpt-4o",
+    ok: true,
+    status: 200,
+    body: { choices: [{ message: { content: "from gpt-4o" } }] },
+  };
+  const args = { mode: "guide", question: "hi", history: [] };
+
+  // A 404 on the first model tries the next one; the body carries no
+  // temperature (reasoning models reject non-default sampling).
+  let m = mockFetchFactory([openai404, openaiOk]);
+  let text = await callOpenAiCompatibleMock(args, "sk-openai123", m.fetchImpl, {
+    url: OPENAI_URL,
+    models: ["gpt-5.5", "gpt-4o"],
+  });
+  assert.equal(text, "from gpt-4o");
+  assert.equal(m.calls.length, 2);
+  assert.equal(m.calls[0].url, "https://api.openai.com/v1/chat/completions");
+  assert.equal(m.calls[0].init.headers.Authorization, "Bearer sk-openai123");
+  const sent = JSON.parse(m.calls[0].init.body);
+  assert.equal(sent.model, "gpt-5.5");
+  assert.equal(sent.max_tokens, 600);
+  assert.equal("temperature" in sent, false);
+  assert.equal(sent.messages[0].role, "system");
+
+  // OpenRouter: the attribution headers ride along.
+  const routerOk = {
+    match: (url) => url === OPENROUTER_URL,
+    ok: true,
+    status: 200,
+    body: { choices: [{ message: { content: "from router" } }] },
+  };
+  m = mockFetchFactory([routerOk]);
+  text = await callOpenAiCompatibleMock(args, "sk-or-123", m.fetchImpl, {
+    url: OPENROUTER_URL,
+    models: ["openai/gpt-5.5"],
+    extraHeaders: openRouterHeaders(),
+  });
+  assert.equal(text, "from router");
+  assert.equal(m.calls[0].init.headers["HTTP-Referer"], "https://learnpythonprogram.vercel.app");
+  assert.equal(m.calls[0].init.headers["X-OpenRouter-Title"], "Learn Python");
+  assert.deepEqual(openRouterHeaders(), {
+    "HTTP-Referer": "https://learnpythonprogram.vercel.app",
+    "X-OpenRouter-Title": "Learn Python",
+  });
+
+  // A 401 stops after the first model (same auth failure for the next).
+  const openai401 = {
+    match: (url) => url === OPENAI_URL,
+    ok: false,
+    status: 401,
+    body: { error: "bad key" },
+  };
+  m = mockFetchFactory([openai401, openaiOk]);
+  text = await callOpenAiCompatibleMock(args, "sk-openai123", m.fetchImpl, {
+    url: OPENAI_URL,
+    models: ["gpt-5.5", "gpt-4o"],
+  });
+  assert.equal(text, null);
+  assert.equal(m.calls.length, 1);
+});
+
+test("normalizeCustomUrl appends the endpoint only when missing", () => {
+  assert.equal(normalizeCustomUrl("https://my-llm.example.com/v1"), "https://my-llm.example.com/v1/chat/completions");
+  assert.equal(normalizeCustomUrl("https://my-llm.example.com/v1/"), "https://my-llm.example.com/v1/chat/completions");
+  assert.equal(normalizeCustomUrl("https://my-llm.example.com/v1///"), "https://my-llm.example.com/v1/chat/completions");
+  assert.equal(
+    normalizeCustomUrl("https://my-llm.example.com/v1/chat/completions"),
+    "https://my-llm.example.com/v1/chat/completions"
+  );
+  assert.equal(
+    normalizeCustomUrl("https://my-llm.example.com/v1/chat/completions/"),
+    "https://my-llm.example.com/v1/chat/completions"
+  );
+  assert.equal(normalizeCustomUrl("https://host:8080"), "https://host:8080/chat/completions");
+});
+
+test("validateAiRequest: custom BYOK validation", () => {
+  const base = { mode: "guide", question: "hi" };
+  const customByok = {
+    provider: "custom",
+    key: "custom-key-123",
+    baseUrl: "https://example.com/v1",
+    model: "my-model",
+  };
+  const ok = validateAiRequest({ ...base, byok: customByok });
+  assert.equal(ok.ok, true);
+  assert.deepEqual(ok.body.byok, customByok);
+
+  // Non-https base URL, missing base URL, missing/blank/oversized model.
+  assert.equal(validateAiRequest({ ...base, byok: { ...customByok, baseUrl: "http://example.com/v1" } }).ok, false);
+  assert.equal(validateAiRequest({ ...base, byok: { provider: "custom", key: "custom-key-123", model: "my-model" } }).ok, false);
+  assert.equal(validateAiRequest({ ...base, byok: { ...customByok, model: undefined } }).ok, false);
+  assert.equal(validateAiRequest({ ...base, byok: { ...customByok, model: "   " } }).ok, false);
+  assert.equal(validateAiRequest({ ...base, byok: { ...customByok, model: "m".repeat(101) } }).ok, false);
+  assert.equal(validateAiRequest({ ...base, byok: { ...customByok, baseUrl: "https://exa mple.com/v1" } }).ok, false);
+  // Trailing slash on the base URL is fine (normalised at call time).
+  assert.equal(validateAiRequest({ ...base, byok: { ...customByok, baseUrl: "https://example.com/v1/" } }).ok, true);
+
+  // A model id is accepted only when it matches the custom BYOK model.
+  assert.equal(validateAiRequest({ ...base, model: "my-model", byok: customByok }).ok, true);
+  const mismatch = validateAiRequest({ ...base, model: "other-model", byok: customByok });
+  assert.equal(mismatch.ok, false);
+  assert.equal(mismatch.error, "model is not an available model.");
+  // Same model id with a non-custom BYOK: no custom model to match.
+  assert.equal(
+    validateAiRequest({ ...base, model: "my-model", byok: { provider: "gemini", key: "AIza1234567890" } }).ok,
+    false
+  );
+});
+
+test("validateAiRequest: new provider models accepted, unknown rejected with the new error string", () => {
+  for (const id of [...ANTHROPIC_MODELS, ...OPENAI_MODELS, ...OPENROUTER_MODELS]) {
+    assert.equal(
+      validateAiRequest({ mode: "guide", question: "hi", model: id }).ok,
+      true,
+      `${id} must be accepted`
+    );
+  }
+  const unknown = validateAiRequest({ mode: "guide", question: "hi", model: "gpt-4" });
+  assert.equal(unknown.ok, false);
+  assert.equal(unknown.error, "model is not an available model.");
+  // The retired Anthropic flagship is not in the list either.
+  assert.equal(
+    validateAiRequest({ mode: "guide", question: "hi", model: "claude-sonnet-4-5" }).error,
+    "model is not an available model."
+  );
+  // The old error wording is gone.
+  assert.notEqual(unknown.error, "model is not an available free-tier model.");
+});
+
+test("askAi fallback order across all six providers", async () => {
+  const geminiOk = {
+    match: (url) => url.includes("generativelanguage"),
+    ok: true,
+    status: 200,
+    body: { candidates: [{ content: { parts: [{ text: "from gemini" }] } }] },
+  };
+  const anthropicFail = {
+    match: (url) => url.includes("api.anthropic.com"),
+    ok: false,
+    status: 500,
+    body: { error: "boom" },
+  };
+  const anthropicOk = {
+    match: (url) => url.includes("api.anthropic.com"),
+    ok: true,
+    status: 200,
+    body: { content: [{ type: "text", text: "from anthropic" }] },
+  };
+  const openaiOk = {
+    match: (url) => url.includes("api.openai.com"),
+    ok: true,
+    status: 200,
+    body: { choices: [{ message: { content: "from openai" } }] },
+  };
+  const routerOk = {
+    match: (url) => url.includes("openrouter.ai"),
+    ok: true,
+    status: 200,
+    body: { choices: [{ message: { content: "from router" } }] },
+  };
+  const customOk = {
+    match: (url) => url.includes("my-llm.example.com"),
+    ok: true,
+    status: 200,
+    body: { choices: [{ message: { content: "from custom" } }] },
+  };
+  const groq404All = {
+    match: (url) => url.includes("api.groq.com"),
+    ok: false,
+    status: 404,
+    body: { error: "model not found" },
+  };
+  const noKeys = {
+    geminiKey: null,
+    groqKey: null,
+    anthropicKey: null,
+    openaiKey: null,
+    openrouterKey: null,
+    customKey: null,
+    customBaseUrl: null,
+    customModel: null,
+  };
+
+  // Picked Anthropic fails: falls through to the Gemini default.
+  let m = mockFetchFactory([anthropicFail, geminiOk]);
+  let res = await askAiMock(
+    { mode: "guide", question: "hi", model: "claude-sonnet-5-5" },
+    { ...noKeys, geminiKey: "g-key", anthropicKey: "sk-ant-key" },
+    m.fetchImpl
+  );
+  assert.deepEqual(res, { reply: "from gemini", provider: "gemini" });
+  assert.equal(m.calls.filter((c) => c.url.includes("api.anthropic.com")).length, 1);
+  assert.equal(m.calls.filter((c) => c.url.includes("generativelanguage")).length, 1);
+
+  // Picked Anthropic answers when its key is the only one besides Gemini.
+  m = mockFetchFactory([anthropicOk, geminiOk]);
+  res = await askAiMock(
+    { mode: "guide", question: "hi", model: "claude-opus-5-5" },
+    { ...noKeys, geminiKey: "g-key", anthropicKey: "sk-ant-key" },
+    m.fetchImpl
+  );
+  assert.deepEqual(res, { reply: "from anthropic", provider: "anthropic" });
+  assert.equal(JSON.parse(m.calls[0].init.body).model, "claude-opus-5-5");
+
+  // Picked model with only a custom key works (custom has no env var).
+  m = mockFetchFactory([customOk]);
+  res = await askAiMock(
+    { mode: "guide", question: "hi", model: "my-model" },
+    { ...noKeys, customKey: "ck-1234567890", customBaseUrl: "https://my-llm.example.com/v1/", customModel: "my-model" },
+    m.fetchImpl
+  );
+  assert.deepEqual(res, { reply: "from custom", provider: "custom" });
+  assert.equal(m.calls[0].url, "https://my-llm.example.com/v1/chat/completions");
+
+  // Default order walks Gemini → Groq → Anthropic → OpenAI: the first
+  // three fail, OpenAI answers (first model in its list).
+  m = mockFetchFactory([
+    { ...geminiOk, ok: false, status: 500, body: { error: "boom" } },
+    groq404All,
+    anthropicFail,
+    openaiOk,
+    routerOk,
+    customOk,
+  ]);
+  res = await askAiMock(
+    { mode: "guide", question: "hi" },
+    { ...noKeys, geminiKey: "g-key", groqKey: "q-key", anthropicKey: "sk-ant-key", openaiKey: "sk-key", openrouterKey: "sk-or-key" },
+    m.fetchImpl
+  );
+  assert.deepEqual(res, { reply: "from openai", provider: "openai" });
+  assert.equal(m.calls.filter((c) => c.url.includes("api.groq.com")).length, 4);
+  assert.equal(JSON.parse(m.calls.find((c) => c.url.includes("api.openai.com")).init.body).model, "gpt-5.5");
+
+  // Picked OpenRouter model with only an OpenRouter key: the
+  // attribution headers ride along on the picked call.
+  m = mockFetchFactory([routerOk]);
+  res = await askAiMock(
+    { mode: "guide", question: "hi", model: "openai/gpt-5.5" },
+    { ...noKeys, openrouterKey: "sk-or-key" },
+    m.fetchImpl
+  );
+  assert.deepEqual(res, { reply: "from router", provider: "openrouter" });
+  assert.equal(m.calls[0].init.headers["HTTP-Referer"], "https://learnpythonprogram.vercel.app");
+  assert.equal(m.calls[0].init.headers["X-OpenRouter-Title"], "Learn Python");
+
+  // No keys at all: null, and no fetch happens.
+  m = mockFetchFactory([geminiOk, groq404All, anthropicOk, openaiOk, routerOk, customOk]);
+  res = await askAiMock({ mode: "guide", question: "hi" }, noKeys, m.fetchImpl);
+  assert.equal(res, null);
+  assert.equal(m.calls.length, 0);
+});
+
+test("sanitizeProviderError scrubs Anthropic, project and generic keys", () => {
+  assert.equal(
+    sanitizeProviderError({ error: { message: "bad key sk-ant-api03-abcdefghij1234567890" } }),
+    "bad key [key]"
+  );
+  assert.equal(
+    sanitizeProviderError({ error: "key sk-proj-abcdefghij1234567890 leaked" }),
+    "key [key] leaked"
+  );
+  assert.equal(sanitizeProviderError({ error: "sk-abcdefghij1234567890" }), "[key]");
+  assert.equal(
+    sanitizeProviderError({ error: "AIzaSyAbcdefghij1234567890 and sk-ant-api03-abcdefghij1234567890" }),
+    "[key] and [key]"
+  );
+  assert.equal(sanitizeProviderError({ error: "plain failure" }), "plain failure");
 });

@@ -29,6 +29,7 @@ import {
   AlertCircle,
   ArrowLeft,
   Check,
+  ChevronRight,
   Code2,
   FileCode,
   Folder,
@@ -188,8 +189,13 @@ export default function CodeEditorPage() {
   type AiChatMessage = { role: "user" | "ai"; text: string };
   type AiChat = { id: string; title: string; createdAt: number; messages: AiChatMessage[] };
   type CustomAiSkill = { id: string; name: string; description: string; content: string };
-  type AiByok = { provider: "gemini" | "groq"; key: string };
-  type AiPanelView = "chat" | "history" | "settings";
+  type AiByokProvider = "gemini" | "groq" | "anthropic" | "openai" | "openrouter" | "custom";
+  type AiByok = { provider: AiByokProvider; key: string; baseUrl?: string; model?: string };
+  type AiPanelView = "chat" | "history";
+  /** Centre column view: the editor, or the AI Settings card in the
+      editor's place (not movable — it replaces the editor until the
+      user goes back). */
+  type CentreView = "editor" | "ai-settings";
 
   function readLocalJson<T>(key: string, fallback: T): T {
     try {
@@ -224,9 +230,15 @@ export default function CodeEditorPage() {
   const [aiError, setAiError] = useState<string | null>(null);
   const aiAbortRef = useRef<AbortController | null>(null);
 
-  // AI panel views: chat (default), history, settings — switched from
-  // the ⋮ menu in the panel header.
+  // AI panel views: chat (default) and history — switched from the ⋮
+  // menu in the panel header. Settings opens as a card in the centre
+  // column instead (see centreView below).
   const [aiView, setAiView] = useState<AiPanelView>("chat");
+  const [centreView, setCentreView] = useState<CentreView>("editor");
+  // Drill-down inside the settings card: the card first shows a menu
+  // (Skills / BYOK), tapping one opens that sub-page with a breadcrumb
+  // ("AI Settings > Skills"), and the back arrow returns to the menu.
+  const [settingsSection, setSettingsSection] = useState<"menu" | "skills" | "byok">("menu");
   const [aiMenuOpen, setAiMenuOpen] = useState(false);
   const [aiChats, setAiChats] = useState<AiChat[]>(() =>
     readLocalJson<AiChat[]>("lp_ai_chats", [])
@@ -244,10 +256,12 @@ export default function CodeEditorPage() {
   const [newSkillName, setNewSkillName] = useState("");
   const [newSkillDesc, setNewSkillDesc] = useState("");
   const [newSkillContent, setNewSkillContent] = useState("");
-  const [byokProvider, setByokProvider] = useState<"gemini" | "groq">(
+  const [byokProvider, setByokProvider] = useState<AiByokProvider>(
     () => readLocalJson<AiByok | null>("lp_ai_byok", null)?.provider ?? "gemini"
   );
   const [byokKey, setByokKey] = useState("");
+  const [byokBaseUrl, setByokBaseUrl] = useState("");
+  const [byokModel, setByokModel] = useState("");
 
   // Persist AI panel state to this browser only (never the server).
   useEffect(() => {
@@ -349,18 +363,39 @@ export default function CodeEditorPage() {
 
   // BYOK: the key lives in this browser only and is sent with each
   // /api/ai request; the server uses it in-memory and never stores it.
+  // Custom also needs its base URL + model id.
   function saveByok() {
     const key = byokKey.trim();
     if (key.length < 10) return;
-    setByok({ provider: byokProvider, key });
+    if (byokProvider === "custom") {
+      const baseUrl = byokBaseUrl.trim();
+      const model = byokModel.trim();
+      if (!baseUrl.startsWith("https://") || model.length === 0) return;
+      setByok({ provider: byokProvider, key, baseUrl, model });
+    } else {
+      setByok({ provider: byokProvider, key });
+    }
     setByokKey("");
+    setByokBaseUrl("");
+    setByokModel("");
   }
   function removeByok() {
     setByok(null);
   }
 
-  // PromptBar models: every free-tier Gemini + Groq model the API
-  // accepts. The picker shows the display name + tag.
+  // BYOK provider display names (brand names — same in every language).
+  const BYOK_PROVIDER_NAMES: Record<AiByokProvider, string> = {
+    gemini: "Gemini",
+    groq: "Groq",
+    anthropic: "Anthropic",
+    openai: "OpenAI",
+    openrouter: "OpenRouter",
+    custom: "Custom",
+  };
+
+  // PromptBar models: every model the API accepts. The picker shows
+  // the display name + tag. A saved custom provider adds its own
+  // model to the list.
   const AI_PANEL_MODELS: PromptBarModel[] = [
     { key: "gemini-3.8-flash", name: "Gemini 3.8 Flash", tag: "Flagship" },
     { key: "gemini-3.6-flash", name: "Gemini 3.6 Flash", tag: "Fast" },
@@ -374,6 +409,20 @@ export default function CodeEditorPage() {
     { key: "openai/gpt-oss-20b", name: "GPT-OSS 20B", tag: "Groq Fast" },
     { key: "qwen/qwen3.6-27b", name: "Qwen 3.6 27B", tag: "Groq" },
     { key: "qwen/qwen3.8-27b", name: "Qwen 3.8 27B", tag: "Groq" },
+    { key: "claude-sonnet-5-5", name: "Claude Sonnet 5.5", tag: "Anthropic" },
+    { key: "claude-opus-5-5", name: "Claude Opus 5.5", tag: "Anthropic" },
+    { key: "claude-haiku-5-5", name: "Claude Haiku 5.5", tag: "Anthropic Fast" },
+    { key: "gpt-5.5", name: "GPT-5.5", tag: "OpenAI" },
+    { key: "gpt-5.4-mini", name: "GPT-5.4 Mini", tag: "OpenAI Fast" },
+    { key: "gpt-4o", name: "GPT-4o", tag: "OpenAI" },
+    { key: "gpt-4o-mini", name: "GPT-4o Mini", tag: "OpenAI Fast" },
+    { key: "openai/gpt-5.5", name: "GPT-5.5", tag: "OpenRouter" },
+    { key: "anthropic/claude-sonnet-5-5", name: "Claude Sonnet 5.5", tag: "OpenRouter" },
+    { key: "google/gemini-2.5-flash", name: "Gemini 2.5 Flash", tag: "OpenRouter" },
+    { key: "meta-llama/llama-3.3-70b-instruct", name: "Llama 3.3 70B", tag: "OpenRouter" },
+    ...(byok?.provider === "custom" && byok.model
+      ? [{ key: byok.model, name: byok.model, tag: "Custom" }]
+      : []),
   ];
 
   async function sendAiMessage(
@@ -436,7 +485,14 @@ export default function CodeEditorPage() {
       });
       const data: unknown = await res.json().catch(() => null);
       if (res.status === 503) {
-        setAiError(t.editorPage.aiUnavailableMessage);
+        // Show the server's own reason (no keys vs. every provider
+        // failed) — the old message blamed the keys for every 503,
+        // even when keys were configured and the calls just failed.
+        const serverError =
+          typeof data === "object" && data !== null && typeof (data as { error?: unknown }).error === "string"
+            ? (data as { error: string }).error
+            : null;
+        setAiError(serverError ?? t.editorPage.aiUnavailableMessage);
         return;
       }
       if (res.status === 401) {
@@ -1990,30 +2046,68 @@ _lp_term_result
     </div>
   );
 
-  // AI panel — settings view (⋮ menu → AI Settings): toggle the
-  // built-in skills, add your own skills, and save your own API key
-  // (BYOK) for Gemini or Groq. Everything here lives in this
-  // browser; the server never stores a skill or a key.
-  const aiSettingsView = (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2">
+  // AI Settings card — opened from the ⋮ menu, it takes the code
+  // editor's place in the centre column (not movable, not a dock
+  // panel): a drill-down menu (Skills / BYOK) — each row opens its own
+  // sub-page. Everything here lives in this browser; the server never
+  // stores a skill or a key.
+  const aiSettingsCard = (
+    <div className="min-h-[420px] sm:min-h-[480px] md:min-h-0 flex-1 min-w-0 rounded-xl border border-neutral-800 bg-neutral-950 flex flex-col overflow-hidden">
+      <div className="flex items-center gap-2 border-b border-neutral-800 px-4 py-2 bg-black/60">
         <button
           type="button"
-          onClick={() => setAiView("chat")}
-          aria-label={t.editorPage.aiBackToChat}
-          title={t.editorPage.aiBackToChat}
+          onClick={() => {
+            if (settingsSection === "menu") setCentreView("editor");
+            else setSettingsSection("menu");
+          }}
+          aria-label={t.editorPage.aiBackToEditor}
+          title={t.editorPage.aiBackToEditor}
           className="shrink-0 rounded p-1 text-neutral-400 hover:bg-neutral-800 hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" />
         </button>
         <span className="flex-1 text-sm font-semibold text-neutral-200">
-          {t.editorPage.aiSettingsTitle}
+          {settingsSection === "menu" ? (
+            t.editorPage.aiSettingsTitle
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => setSettingsSection("menu")}
+                className="text-neutral-400 hover:text-white"
+              >
+                {t.editorPage.aiSettingsTitle}
+              </button>
+              <span className="text-neutral-500">{" > "}</span>
+              {settingsSection === "skills" ? t.editorPage.aiSkillsTitle : t.editorPage.aiByokTitle}
+            </>
+          )}
         </span>
       </div>
+      <div className="flex-1 min-h-0 overflow-y-auto p-4">
+        <div className="mx-auto w-full max-w-2xl space-y-4">
+      {settingsSection === "menu" && (
+        <div className="space-y-2">
+          <button
+            type="button"
+            onClick={() => setSettingsSection("skills")}
+            className="flex w-full items-center justify-between rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-3 text-left hover:border-neutral-700"
+          >
+            <span className="text-sm font-medium text-neutral-100">{t.editorPage.aiSkillsTitle}</span>
+            <ChevronRight className="h-4 w-4 shrink-0 text-neutral-400" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setSettingsSection("byok")}
+            className="flex w-full items-center justify-between rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-3 text-left hover:border-neutral-700"
+          >
+            <span className="text-sm font-medium text-neutral-100">{t.editorPage.aiByokTitle}</span>
+            <ChevronRight className="h-4 w-4 shrink-0 text-neutral-400" />
+          </button>
+        </div>
+      )}
+      {settingsSection === "skills" && (
       <div className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
-          {t.editorPage.aiSkillsTitle}
-        </p>
         <p className="text-xs font-medium text-neutral-500">{t.editorPage.aiSkillsBuiltin}</p>
         {BUILTIN_AI_SKILL_META.map((skill) => (
           <label
@@ -2090,6 +2184,8 @@ _lp_term_result
           {t.editorPage.aiSkillAdd}
         </button>
       </div>
+      )}
+      {settingsSection === "byok" && (
       <div className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
           {t.editorPage.aiByokTitle}
@@ -2098,7 +2194,8 @@ _lp_term_result
           <div className="flex items-center gap-2 rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2">
             <KeyRound className="h-4 w-4 shrink-0 text-neutral-400" />
             <span className="min-w-0 flex-1 text-sm text-neutral-200">
-              {byok.provider === "gemini" ? "Gemini" : "Groq"} • {t.editorPage.aiByokSaved}
+              {BYOK_PROVIDER_NAMES[byok.provider]}
+              {byok.provider === "custom" && byok.model ? ` • ${byok.model}` : ""} • {t.editorPage.aiByokSaved}
             </span>
             <button
               type="button"
@@ -2112,13 +2209,37 @@ _lp_term_result
           <>
             <select
               value={byokProvider}
-              onChange={(e) => setByokProvider(e.target.value as "gemini" | "groq")}
+              onChange={(e) => setByokProvider(e.target.value as AiByokProvider)}
               aria-label={t.editorPage.aiByokProvider}
               className="w-full rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-neutral-100 outline-none focus:border-neutral-600"
             >
               <option value="gemini">Gemini</option>
               <option value="groq">Groq</option>
+              <option value="anthropic">Anthropic</option>
+              <option value="openai">OpenAI</option>
+              <option value="openrouter">OpenRouter</option>
+              <option value="custom">Custom</option>
             </select>
+            {byokProvider === "custom" ? (
+              <>
+                <input
+                  type="url"
+                  value={byokBaseUrl}
+                  onChange={(e) => setByokBaseUrl(e.target.value)}
+                  placeholder={t.editorPage.aiByokBaseUrl}
+                  autoComplete="off"
+                  className="w-full rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 font-mono text-sm text-neutral-100 placeholder:text-neutral-600 outline-none focus:border-neutral-600"
+                />
+                <input
+                  type="text"
+                  value={byokModel}
+                  onChange={(e) => setByokModel(e.target.value)}
+                  placeholder={t.editorPage.aiByokModel}
+                  autoComplete="off"
+                  className="w-full rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 font-mono text-sm text-neutral-100 placeholder:text-neutral-600 outline-none focus:border-neutral-600"
+                />
+              </>
+            ) : null}
             <input
               type="password"
               value={byokKey}
@@ -2130,7 +2251,11 @@ _lp_term_result
             <button
               type="button"
               onClick={saveByok}
-              disabled={byokKey.trim().length < 10}
+              disabled={
+                byokKey.trim().length < 10 ||
+                (byokProvider === "custom" &&
+                  (!byokBaseUrl.trim().startsWith("https://") || byokModel.trim().length === 0))
+              }
               className="rounded-lg bg-white px-3 py-2 text-xs font-semibold text-black transition hover:bg-neutral-200 disabled:opacity-40"
             >
               {t.editorPage.aiByokSave}
@@ -2138,6 +2263,9 @@ _lp_term_result
           </>
         )}
         <p className="text-xs text-neutral-500">{t.editorPage.aiByokNote}</p>
+      </div>
+      )}
+        </div>
       </div>
     </div>
   );
@@ -2194,7 +2322,8 @@ _lp_term_result
                     <button
                       type="button"
                       onClick={() => {
-                        setAiView("settings");
+                        setCentreView("ai-settings");
+                        setSettingsSection("menu");
                         setAiMenuOpen(false);
                       }}
                       className="flex w-full items-center gap-2 border-t border-neutral-800 px-3 py-2 text-left text-sm text-neutral-200 hover:bg-neutral-800"
@@ -2219,8 +2348,6 @@ _lp_term_result
       <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3">
         {aiView === "history" ? (
           aiHistoryView
-        ) : aiView === "settings" ? (
-          aiSettingsView
         ) : (
           <>
         {aiMessages.length === 0 && !aiThinking && aiThoughtSeconds === null ? (
@@ -2251,7 +2378,8 @@ _lp_term_result
               t.editorPage.aiStepThinking,
               t.editorPage.aiStepDrafting,
             ]}
-            fontSize={15}
+            fontSize={13}
+            defaultOpen={false}
             onSettle={(seconds) => setAiThoughtSeconds(seconds)}
           />
         ) : null}
@@ -2577,7 +2705,9 @@ _lp_term_result
                 the side panels keep their full height. */}
             <div className="flex min-h-[420px] min-w-0 flex-1 flex-col gap-2 sm:min-h-[480px] md:min-h-0">
               <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-                {editorTab === "files" ? (
+                {centreView === "ai-settings" ? (
+                  aiSettingsCard
+                ) : editorTab === "files" ? (
                   editorPanel
                 ) : (
                   <ModulesPanel pyodideRef={pyodideRef} ensurePyodide={ensurePyodideReady} />

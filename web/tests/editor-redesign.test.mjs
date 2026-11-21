@@ -26,6 +26,7 @@ const splitter = read("src/components/EditorSplitter.tsx");
 const panelHeader = read("src/components/EditorPanelHeader.tsx");
 const branched = read("src/components/BranchedMenu.tsx");
 const promptBar = read("src/components/PromptBar.tsx");
+const promptBarCss = read("src/components/PromptBar.css");
 const thoughtLine = read("src/components/ThoughtLine.tsx");
 const aiLib = read("src/lib/ai.ts");
 const aiRoute = read("src/app/api/ai/route.ts");
@@ -211,19 +212,45 @@ test("AI panel: PromptBar + ThoughtLine wired to guide mode (a real AI, no restr
   );
   assert.ok(page.includes("sendAiMessage"), "AI panel must send through sendAiMessage");
   assert.ok(page.includes('mode: "guide"'), "AI panel must ask in guide mode (a real AI assistant)");
-  assert.ok(page.includes("AI_PANEL_MODELS"), "AI panel must offer the free-model picker");
+  assert.ok(page.includes("AI_PANEL_MODELS"), "AI panel must offer the model picker");
   assert.ok(page.includes('defaultModel="gemini-3.8-flash"'), "Gemini 3.8 Flash must be the default model");
+  // The model menu must scroll: 23 models no longer fit on screen.
+  assert.ok(promptBarCss.includes("max-height: 288px"), "model menu must cap its height so it can scroll");
+  assert.ok(promptBarCss.includes("overflow-y: auto"), "model menu must scroll instead of growing off-screen");
+  // Menu buttons must focus the input BEFORE opening the menu: the
+  // textarea's onFocus closes menus, so focusing after opening would
+  // close the menu just opened (the picker would never appear on a
+  // fresh editor where the input was never focused).
+  const menuButtonOrder = [
+    ['aria-label="Add files and sources"', "setPlusOpen(v => !v)"],
+    ['aria-label="Choose model"', "setModelOpen(v => !v)"],
+    ['aria-label="Choose effort"', "setEffortOpen(v => !v)"],
+  ];
+  for (const [label, toggle] of menuButtonOrder) {
+    const start = promptBar.indexOf(label);
+    assert.ok(start >= 0, `PromptBar must have a ${label} button`);
+    const block = promptBar.slice(start, promptBar.indexOf("</button>", start));
+    assert.ok(
+      block.indexOf("focusInput();") >= 0 && block.indexOf("focusInput();") < block.indexOf(toggle),
+      `${label} must focus the input before toggling its menu open`
+    );
+  }
   assert.ok(page.includes('sparkColor="#8e8e8e"'), "PromptBar must use Maalik's spark colour");
   assert.ok(page.includes("onSend={sendAiMessage}"), "PromptBar send must go to the guide handler");
   assert.ok(page.includes("onStop={stopAi}"), "PromptBar stop must abort the in-flight request");
   assert.ok(page.includes("aiButton"), "menu bar must carry the AI toggle button");
   assert.ok(page.includes('if (id === "ai") return aiPanel'), "the AI panel must dock in the side zones");
   assert.ok(page.includes("clearAiChat"), "AI panel must offer Clear chat");
-  // Every free-tier model Maalik asked for (Gemini + Groq) in the picker.
+  // Every model Maalik asked for (Gemini + Groq + Anthropic + OpenAI
+  // + OpenRouter) in the picker, plus the backend allowlist.
   for (const id of [
     "gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash", "gemini-2.5-pro",
     "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.0-flash", "gemini-2.0-flash-lite",
     "openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3.6-27b", "qwen/qwen3.8-27b",
+    "claude-sonnet-5-5", "claude-opus-5-5", "claude-haiku-5-5",
+    "gpt-5.5", "gpt-5.4-mini", "gpt-4o", "gpt-4o-mini",
+    "openai/gpt-5.5", "anthropic/claude-sonnet-5-5", "google/gemini-2.5-flash",
+    "meta-llama/llama-3.3-70b-instruct",
   ]) {
     assert.ok(page.includes(`"${id}"`), `AI picker must list ${id}`);
     assert.ok(aiLib.includes(`"${id}"`), `backend allowlist must include ${id}`);
@@ -231,6 +258,12 @@ test("AI panel: PromptBar + ThoughtLine wired to guide mode (a real AI, no restr
   // The vendored components carry Maalik's defaults.
   assert.ok(promptBar.includes("sparkColor = '#8e8e8e'"), "PromptBar default spark colour must be #8e8e8e");
   assert.ok(thoughtLine.includes("fontSize = 15"), "ThoughtLine default font size must be 15");
+  // The "Thought for Xs" line must start minimised and small, sized
+  // to the app — the user taps the header to expand it.
+  assert.ok(page.includes("fontSize={13}"), "AI panel must size the ThoughtLine to the app (13px)");
+  assert.ok(page.includes("defaultOpen={false}"), "ThoughtLine must start minimised while thinking");
+  assert.ok(thoughtLine.includes("defaultOpen"), "ThoughtLine must support a defaultOpen prop");
+  assert.ok(thoughtLine.includes("useState(defaultOpen)"), "the trace must start in the defaultOpen state");
   // Guide mode itself: the backend prompt is a real AI assistant —
   // it writes full code when asked, with no restrictions.
   assert.ok(aiLib.includes('case "guide"'), "backend must have a guide mode");
@@ -248,15 +281,35 @@ test("AI panel: PromptBar + ThoughtLine wired to guide mode (a real AI, no restr
   );
 });
 
-test("AI panel ⋮ menu: chat history + AI settings (skills + BYOK)", () => {
+test("AI panel ⋮ menu: chat history + AI settings card (skills + BYOK)", () => {
   // The ⋮ menu in the AI panel header.
   assert.ok(page.includes("MoreVertical"), "AI panel header must carry a ⋮ menu button");
   assert.ok(page.includes("aiMenuHistory"), "⋮ menu must offer Chat History");
   assert.ok(page.includes("aiMenuSettings"), "⋮ menu must offer AI Settings");
-  assert.ok(page.includes("aiView"), "AI panel must switch between chat/history/settings views");
+  assert.ok(page.includes("aiView"), "AI panel must switch between chat/history views");
   assert.ok(page.includes('aiView === "history"'), "history view must exist");
-  assert.ok(page.includes('aiView === "settings"'), "settings view must exist");
-  assert.ok(page.includes("aiBackToChat"), "history/settings views must offer a way back to chat");
+  assert.ok(page.includes("aiBackToChat"), "history view must offer a way back to chat");
+  // AI Settings is NOT a panel view any more — it opens as a separate
+  // card in the code editor's place (not movable, not a dock panel).
+  assert.ok(!page.includes('aiView === "settings"'), "settings must not be an AI panel view any more");
+  assert.ok(page.includes("aiSettingsCard"), "the settings card must exist");
+  assert.ok(page.includes('centreView === "ai-settings"'), "settings must open as a card in the centre");
+  assert.ok(page.includes('setCentreView("ai-settings")'), "⋮ menu AI Settings must open the centre card");
+  assert.ok(page.includes("aiBackToEditor"), "the settings card must offer a way back to the editor");
+  assert.ok(page.includes("max-w-2xl"), "the settings card content must stay readable on wide screens");
+  // Settings is a drill-down menu, not a dropdown: the card first
+  // lists Skills / BYOK, tapping a row opens that sub-page with a
+  // breadcrumb ("AI Settings > Skills"), and the back arrow returns
+  // to the menu.
+  assert.ok(page.includes("settingsSection"), "the settings card must navigate between menu / skills / byok");
+  assert.ok(page.includes('setSettingsSection("skills")'), "the menu must open the Skills sub-page");
+  assert.ok(page.includes('setSettingsSection("byok")'), "the menu must open the BYOK sub-page");
+  assert.ok(page.includes('setSettingsSection("menu")'), "a sub-page must offer a way back to the menu");
+  assert.ok(page.includes('settingsSection === "skills"'), "the skills list must render only on its sub-page");
+  assert.ok(page.includes('settingsSection === "byok"'), "the BYOK form must render only on its sub-page");
+  assert.ok(page.includes('{" > "}'), "a sub-page must show the breadcrumb separator");
+  assert.ok(page.includes("ChevronRight"), "menu rows must show a chevron to the sub-page");
+  assert.ok(!page.includes("showSkills"), "the old dropdown toggle must be gone");
   // Chat history: persisted in this browser, restorable, deletable.
   assert.ok(page.includes("lp_ai_chats"), "past chats must persist in localStorage");
   assert.ok(page.includes("lp_ai_current_chat"), "the in-progress chat must survive a reload");
@@ -276,11 +329,27 @@ test("AI panel ⋮ menu: chat history + AI settings (skills + BYOK)", () => {
   assert.ok(page.includes("aiSkillName"), "add-skill form must ask for a name");
   assert.ok(page.includes("aiSkillContent"), "add-skill form must ask for instructions");
   // BYOK: provider + key, stored in this browser only, sent per request.
+  // Six providers now: Gemini, Groq, Anthropic, OpenAI, OpenRouter and
+  // a custom OpenAI-compatible endpoint (base URL + model + key).
   assert.ok(page.includes("lp_ai_byok"), "the BYOK key must persist in localStorage");
   assert.ok(page.includes("byokProvider"), "BYOK must offer a provider choice");
+  for (const provider of ["gemini", "groq", "anthropic", "openai", "openrouter", "custom"]) {
+    assert.ok(page.includes(`value="${provider}"`), `BYOK must offer ${provider}`);
+  }
+  assert.ok(page.includes("byokBaseUrl"), "custom BYOK must ask for a base URL");
+  assert.ok(page.includes("byokModel"), "custom BYOK must ask for a model");
+  assert.ok(page.includes("aiByokBaseUrl"), "custom BYOK must label the base URL field");
+  assert.ok(page.includes("aiByokModel"), "custom BYOK must label the model field");
   assert.ok(page.includes("saveByok"), "BYOK must be saveable");
   assert.ok(page.includes("removeByok"), "BYOK must be removable");
   assert.ok(page.includes('type="password"'), "the BYOK key field must be a password field");
+  // A 503 must show the server's own reason (no keys vs. every
+  // provider failed) — the old message blamed the keys for every 503,
+  // even when keys were configured and the calls just failed.
+  assert.ok(
+    page.includes("serverError ?? t.editorPage.aiUnavailableMessage"),
+    "a 503 must show the server's own reason, not the generic keys message"
+  );
   // The request must carry skills + BYOK to the API.
   assert.ok(page.includes("skillIds: activeSkillIds"), "the request must send the active built-in skill ids");
   assert.ok(page.includes("skills: customSkills"), "the request must send the active custom skills");
@@ -292,6 +361,13 @@ test("AI panel ⋮ menu: chat history + AI settings (skills + BYOK)", () => {
   assert.ok(aiRoute.includes("body.mode === \"guide\""), "skills must apply to guide mode only");
   assert.ok(aiRoute.includes("config.geminiKey = body.byok.key"), "route must use a Gemini BYOK key when given");
   assert.ok(aiRoute.includes("config.groqKey = body.byok.key"), "route must use a Groq BYOK key when given");
+  assert.ok(aiRoute.includes("config.anthropicKey = body.byok.key"), "route must use an Anthropic BYOK key when given");
+  assert.ok(aiRoute.includes("config.openaiKey = body.byok.key"), "route must use an OpenAI BYOK key when given");
+  assert.ok(aiRoute.includes("config.openrouterKey = body.byok.key"), "route must use an OpenRouter BYOK key when given");
+  assert.ok(aiRoute.includes("config.customKey = body.byok.key"), "route must use a custom BYOK key when given");
+  assert.ok(aiRoute.includes("config.customBaseUrl = body.byok.baseUrl"), "route must use a custom BYOK base URL when given");
+  assert.ok(aiRoute.includes("config.customModel = body.byok.model"), "route must use a custom BYOK model when given");
+  assert.ok(aiRoute.includes("maxDuration = 60"), "route must allow 60s for the multi-provider fallback chain");
   assert.ok(!aiRoute.includes("console.log"), "route must never log request data (a BYOK key must never leak)");
   // The generated skill modules: 7 unique built-in skills (the
   // PONYTAIL_SKILL_1.md duplicate is not shipped twice), ponytail on
@@ -349,11 +425,12 @@ test("i18n: the new editor keys exist in English", () => {
     "aiDragHint",
     // AI panel ⋮ menu: history + settings (skills + BYOK).
     "aiMenuOptions", "aiMenuHistory", "aiMenuSettings", "aiBackToChat",
+    "aiBackToEditor",
     "aiHistoryTitle", "aiHistoryEmpty", "aiNewChat", "aiSettingsTitle",
     "aiSkillsTitle", "aiSkillsBuiltin", "aiSkillsCustom", "aiSkillAdd",
     "aiSkillName", "aiSkillDescription", "aiSkillContent", "aiByokTitle",
     "aiByokProvider", "aiByokKey", "aiByokSave", "aiByokSaved",
-    "aiByokRemove", "aiByokNote",
+    "aiByokRemove", "aiByokNote", "aiByokBaseUrl", "aiByokModel",
   ]) {
     assert.ok(en.includes(`${key}:`), `en.ts must define ${key}`);
   }
