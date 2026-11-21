@@ -6,11 +6,29 @@ import test from "node:test";
 // use an injected mock fetch — no real keys exist in the sandbox.
 
 const GEMINI_MODEL = "gemini-3.8-flash";
-const GROQ_MODELS = ["openai/gpt-oss-120b", "openai/gpt-oss-20b"];
+const GEMINI_FREE_MODELS = [
+  "gemini-3.8-flash",
+  "gemini-3.6-flash",
+  "gemini-3.5-flash",
+  "gemini-2.5-pro",
+  "gemini-2.5-flash",
+  "gemini-2.5-flash-lite",
+  "gemini-2.0-flash",
+  "gemini-2.0-flash-lite",
+];
+const GROQ_FREE_MODELS = [
+  "openai/gpt-oss-120b",
+  "openai/gpt-oss-20b",
+  "qwen/qwen3.6-27b",
+  "qwen/qwen3.8-27b",
+];
+const AI_MODEL_IDS = [...GEMINI_FREE_MODELS, ...GROQ_FREE_MODELS];
+const EFFORTS = ["Low", "Medium", "High", "Extra", "Max"];
+const MAX_OUTPUT_TOKENS = 600;
 const MAX_INPUT_CHARS = 8000;
 const MAX_HISTORY_TURNS = 8;
 const MAX_HISTORY_CHARS = 2000;
-const AI_MODES = ["tutor", "explain", "debug", "quiz"];
+const AI_MODES = ["tutor", "explain", "debug", "quiz", "guide"];
 
 function getAiConfig(env) {
   return {
@@ -52,10 +70,22 @@ function validateAiRequest(value) {
     body.question = v.question;
   }
   if (v.history !== undefined) body.history = sanitizeHistory(v.history);
+  if (v.model !== undefined) {
+    if (typeof v.model !== "string" || !AI_MODEL_IDS.includes(v.model)) {
+      return { ok: false, error: "model is not an available free-tier model." };
+    }
+    body.model = v.model;
+  }
+  if (v.effort !== undefined) {
+    if (typeof v.effort !== "string" || !EFFORTS.includes(v.effort)) {
+      return { ok: false, error: "effort must be Low, Medium, High, Extra or Max." };
+    }
+    body.effort = v.effort;
+  }
   if ((mode === "explain" || mode === "debug") && !body.code) {
     return { ok: false, error: "code is required for this mode." };
   }
-  if (mode === "tutor" && !body.question) {
+  if ((mode === "tutor" || mode === "guide") && !body.question) {
     return { ok: false, error: "question is required for this mode." };
   }
   return { ok: true, body };
@@ -107,6 +137,13 @@ Rules you must follow:
       return `${base}\n\nThe learner pasted code from the editor. Explain what the code does, line by line where it matters, in plain words. Keep it short.`;
     case "debug":
       return `${base}\n\nThe learner pasted code that is not working. Find the bug: say what is wrong, why it breaks, and show the fixed code. If the code looks fine, say so and suggest what to check next.`;
+    case "guide":
+      // Editor AI panel: a learning GUIDE, not a code generator. The
+      // learner is in the editor with their own file (pasted in the
+      // user message). They must write the code themselves — the AI
+      // explains, hints, and points at the bug, but never hands them
+      // the solution.
+      return `${base}\n\nThe learner is in the code editor, working on their own Python file (pasted in the user message). Your job is to help them LEARN — not to write code for them.\n\nThe core rule: NEVER write or generate the code solution for the learner. Do NOT output a full program, function, or corrected code block that solves their problem. The learner must write the code themselves — that is how they learn.\n\nInstead, GUIDE them: explain the concept in plain words, break the problem into small steps, give hints, ask a guiding question, and point to the exact line or idea where they are stuck and WHY it is stuck.\n\nYou MAY show a tiny snippet (1–2 lines) ONLY to illustrate a syntax or concept (for example, what a loop header looks like) — never a full solution and never the corrected version of their code.\n\nIf the learner asks you to "write the code", "give me the answer", or "fix it for me", politely refuse the full code and give them the steps and hints to write it themselves.\n\nIf their code has a bug, say WHERE it is and WHY it breaks, and tell them what to change — but do not write the fixed code for them.\n\nKeep it short and practical — one useful next step at a time.`;
     case "quiz":
       return `${base}\n\nDraft 3 quiz questions for the current lesson, as a JSON array and nothing else — no intro, no markdown fences. Each item: {"question": "...", "options": ["...", "...", "...", "..."], "answer": 0} where answer is the index of the correct option. Exactly 4 options per question, exactly 3 questions, covering the lesson's key ideas as taught in the video transcript above when one is present.`;
   }
@@ -203,11 +240,17 @@ function mockFetchFactory(script) {
   return { fetchImpl, calls };
 }
 
-async function callGeminiMock(args, key, fetchImpl) {
+async function callGeminiMock(args, key, fetchImpl, opts = {}) {
+  const model = opts.model ?? GEMINI_MODEL;
   try {
     const res = await fetchImpl(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(key)}`,
-      { method: "POST" }
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          generationConfig: { maxOutputTokens: opts.maxTokens ?? MAX_OUTPUT_TOKENS },
+        }),
+      }
     );
     if (!res) return null;
     const body = await res.json().catch(() => null);
@@ -218,13 +261,21 @@ async function callGeminiMock(args, key, fetchImpl) {
   }
 }
 
-async function callGroqMock(args, key, fetchImpl) {
-  for (const model of GROQ_MODELS) {
+async function callGroqMock(args, key, fetchImpl, opts = {}) {
+  // Try-list: an explicit list wins (fallback without repeating a
+  // model just tried); else the picked model first, then the rest of
+  // the free list; else the free list in order.
+  const models = opts.models
+    ? opts.models
+    : opts.model
+      ? [opts.model, ...GROQ_FREE_MODELS.filter((m) => m !== opts.model)]
+      : GROQ_FREE_MODELS;
+  for (const model of models) {
     let res = null;
     try {
       res = await fetchImpl("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
-        body: JSON.stringify({ model }),
+        body: JSON.stringify({ model, max_tokens: opts.maxTokens ?? MAX_OUTPUT_TOKENS }),
       });
     } catch {
       return null;
@@ -242,13 +293,46 @@ async function callGroqMock(args, key, fetchImpl) {
   return null;
 }
 
+function maxTokensForEffort(effort) {
+  switch (effort) {
+    case "Low":
+      return 300;
+    case "High":
+      return 900;
+    case "Extra":
+      return 1200;
+    case "Max":
+      return 1500;
+    default:
+      return MAX_OUTPUT_TOKENS; // Medium / unset = 600
+  }
+}
+
 async function askAiMock(args, config, fetchImpl) {
-  if (config.geminiKey) {
-    const reply = await callGeminiMock(args, config.geminiKey, fetchImpl);
+  const maxTokens = maxTokensForEffort(args.effort);
+  const selected = args.model;
+  // 1. The model the user picked (editor AI panel).
+  if (selected && GEMINI_FREE_MODELS.includes(selected) && config.geminiKey) {
+    const reply = await callGeminiMock(args, config.geminiKey, fetchImpl, { model: selected, maxTokens });
+    if (reply) return { reply, provider: "gemini" };
+  }
+  if (selected && GROQ_FREE_MODELS.includes(selected) && config.groqKey) {
+    const reply = await callGroqMock(args, config.groqKey, fetchImpl, { model: selected, maxTokens });
+    if (reply) return { reply, provider: "groq" };
+  }
+  // 2. Default order. Skip the Gemini default if it was the picked
+  // model (already tried above). For Groq, skip a picked model that
+  // already failed (its call above tried it first).
+  if (config.geminiKey && selected !== GEMINI_MODEL) {
+    const reply = await callGeminiMock(args, config.geminiKey, fetchImpl, { maxTokens });
     if (reply) return { reply, provider: "gemini" };
   }
   if (config.groqKey) {
-    const reply = await callGroqMock(args, config.groqKey, fetchImpl);
+    const fallbackModels =
+      selected && GROQ_FREE_MODELS.includes(selected)
+        ? GROQ_FREE_MODELS.filter((m) => m !== selected)
+        : GROQ_FREE_MODELS;
+    const reply = await callGroqMock(args, config.groqKey, fetchImpl, { maxTokens, models: fallbackModels });
     if (reply) return { reply, provider: "groq" };
   }
   return null;
@@ -264,7 +348,7 @@ test("fail-closed: no keys configured means AI unavailable", () => {
   assert.deepEqual(getAiConfig({}), { geminiKey: null, groqKey: null });
 });
 
-test("validateAiRequest accepts the four modes and enforces caps", () => {
+test("validateAiRequest accepts the five modes and enforces caps", () => {
   assert.equal(validateAiRequest({ mode: "tutor", question: "what is a list?" }).ok, true);
   assert.equal(validateAiRequest({ mode: "explain", code: "print(1)" }).ok, true);
   assert.equal(validateAiRequest({ mode: "debug", code: "print(1)" }).ok, true);
@@ -486,4 +570,197 @@ test("temperatureForMode: grounded modes run cool, code modes stay warm", () => 
   assert.equal(temperatureForMode("quiz"), 0.3);
   assert.equal(temperatureForMode("explain"), 0.7);
   assert.equal(temperatureForMode("debug"), 0.7);
+  assert.equal(temperatureForMode("guide"), 0.7);
+});
+
+test("validateAiRequest: guide needs a question, code is optional; model + effort are validated", () => {
+  assert.equal(validateAiRequest({ mode: "guide" }).ok, false); // needs a question
+  assert.equal(validateAiRequest({ mode: "guide", question: "why does this loop never end?" }).ok, true);
+  assert.equal(
+    validateAiRequest({ mode: "guide", question: "explain this", code: "x = 1" }).ok,
+    true
+  );
+  // Model allowlist: every free Gemini + Groq id passes, anything else fails.
+  for (const id of AI_MODEL_IDS) {
+    assert.equal(
+      validateAiRequest({ mode: "guide", question: "hi", model: id }).ok,
+      true,
+      `${id} must be accepted`
+    );
+  }
+  assert.equal(validateAiRequest({ mode: "guide", question: "hi", model: "gpt-4" }).ok, false);
+  assert.equal(
+    validateAiRequest({ mode: "guide", question: "hi", model: "llama-3.1-8b-instant" }).ok,
+    false,
+    "Llama chat models left Groq's free tier in Aug 2026 — must be rejected"
+  );
+  assert.equal(validateAiRequest({ mode: "guide", question: "hi", model: 42 }).ok, false);
+  // Effort steps.
+  for (const e of EFFORTS) {
+    assert.equal(validateAiRequest({ mode: "guide", question: "hi", effort: e }).ok, true);
+  }
+  assert.equal(validateAiRequest({ mode: "guide", question: "hi", effort: "Extreme" }).ok, false);
+  assert.equal(validateAiRequest({ mode: "guide", question: "hi", effort: "" }).ok, false);
+});
+
+test("guide system prompt: a learning guide, never a code generator", () => {
+  const prompt = buildAiSystemPrompt("guide", null);
+  assert.match(prompt, /NEVER write or generate the code solution/);
+  assert.match(prompt, /Do NOT output a full program/);
+  assert.match(prompt, /tiny snippet \(1–2 lines\) ONLY/);
+  assert.match(prompt, /politely refuse the full code/);
+  assert.match(prompt, /say WHERE it is and WHY it breaks/);
+  assert.match(prompt, /one useful next step at a time/);
+  // The guide still carries the shared tutor rules (language, no emojis).
+  assert.match(prompt, /never use emojis/i);
+  assert.match(prompt, /NEVER answer in Devanagari script/);
+});
+
+test("maxTokensForEffort scales the reply length", () => {
+  assert.equal(maxTokensForEffort("Low"), 300);
+  assert.equal(maxTokensForEffort("Medium"), 600);
+  assert.equal(maxTokensForEffort(undefined), 600);
+  assert.equal(maxTokensForEffort("High"), 900);
+  assert.equal(maxTokensForEffort("Extra"), 1200);
+  assert.equal(maxTokensForEffort("Max"), 1500);
+});
+
+test("picked model first: a picked Gemini model is tried before the default", async () => {
+  const pickedOk = {
+    match: (url) => url.includes("gemini-2.5-pro"),
+    ok: true,
+    status: 200,
+    body: { candidates: [{ content: { parts: [{ text: "from 2.5 pro" }] } }] },
+  };
+  const defaultOk = {
+    match: (url) => url.includes("gemini-3.8-flash"),
+    ok: true,
+    status: 200,
+    body: { candidates: [{ content: { parts: [{ text: "from default" }] } }] },
+  };
+  const groqOk = {
+    match: (url) => url.includes("api.groq.com"),
+    ok: true,
+    status: 200,
+    body: { choices: [{ message: { content: "from groq" } }] },
+  };
+
+  // Picked model answers: default Gemini and Groq are never called.
+  let m = mockFetchFactory([pickedOk, defaultOk, groqOk]);
+  let res = await askAiMock(
+    { mode: "guide", question: "hi", model: "gemini-2.5-pro" },
+    { geminiKey: "g-key", groqKey: "q-key" },
+    m.fetchImpl
+  );
+  assert.deepEqual(res, { reply: "from 2.5 pro", provider: "gemini" });
+  assert.equal(m.calls.filter((c) => c.url.includes("gemini-3.8-flash")).length, 0);
+  assert.equal(m.calls.filter((c) => c.url.includes("api.groq.com")).length, 0);
+
+  // Picked model IS the default and it fails: Groq answers, and the
+  // Gemini default is NOT retried (it was already tried).
+  m = mockFetchFactory([
+    { ...defaultOk, ok: false, status: 500, body: { error: "boom" } },
+    groqOk,
+  ]);
+  res = await askAiMock(
+    { mode: "guide", question: "hi", model: "gemini-3.8-flash" },
+    { geminiKey: "g-key", groqKey: "q-key" },
+    m.fetchImpl
+  );
+  assert.deepEqual(res, { reply: "from groq", provider: "groq" });
+  assert.equal(m.calls.filter((c) => c.url.includes("generativelanguage")).length, 1);
+
+  // Picked non-default Gemini fails: the default Gemini IS tried next.
+  m = mockFetchFactory([
+    {
+      match: (url) => url.includes("gemini-2.5-flash") && !url.includes("lite"),
+      ok: false,
+      status: 500,
+      body: { error: "boom" },
+    },
+    defaultOk,
+    groqOk,
+  ]);
+  res = await askAiMock(
+    { mode: "guide", question: "hi", model: "gemini-2.5-flash" },
+    { geminiKey: "g-key", groqKey: "q-key" },
+    m.fetchImpl
+  );
+  assert.deepEqual(res, { reply: "from default", provider: "gemini" });
+  assert.equal(m.calls.filter((c) => c.url.includes("api.groq.com")).length, 0);
+
+  // Effort reaches the provider as max tokens (Max = 1500).
+  m = mockFetchFactory([pickedOk, defaultOk, groqOk]);
+  res = await askAiMock(
+    { mode: "guide", question: "hi", model: "gemini-2.5-pro", effort: "Max" },
+    { geminiKey: "g-key", groqKey: "q-key" },
+    m.fetchImpl
+  );
+  assert.deepEqual(res, { reply: "from 2.5 pro", provider: "gemini" });
+  const sent = JSON.parse(m.calls[0].init.body);
+  assert.equal(sent.generationConfig.maxOutputTokens, 1500);
+});
+
+test("picked Groq model first, and the fallback list skips it", async () => {
+  const groq120b = {
+    match: (url, init) => url.includes("api.groq.com") && JSON.parse(init.body).model === "openai/gpt-oss-120b",
+    ok: true,
+    status: 200,
+    body: { choices: [{ message: { content: "from 120b" } }] },
+  };
+  const groq20b = {
+    match: (url, init) => url.includes("api.groq.com") && JSON.parse(init.body).model === "openai/gpt-oss-20b",
+    ok: true,
+    status: 200,
+    body: { choices: [{ message: { content: "from 20b" } }] },
+  };
+  const geminiOk = {
+    match: (url) => url.includes("generativelanguage"),
+    ok: true,
+    status: 200,
+    body: { candidates: [{ content: { parts: [{ text: "from gemini" }] } }] },
+  };
+
+  // Picked 20b answers: 120b is never tried first.
+  let m = mockFetchFactory([groq120b, groq20b, geminiOk]);
+  let res = await askAiMock(
+    { mode: "guide", question: "hi", model: "openai/gpt-oss-20b" },
+    { geminiKey: "g-key", groqKey: "q-key" },
+    m.fetchImpl
+  );
+  assert.deepEqual(res, { reply: "from 20b", provider: "groq" });
+  assert.equal(
+    m.calls.filter((c) => JSON.parse(c.init.body).model === "openai/gpt-oss-120b").length,
+    0
+  );
+
+  // Picked 120b 404s (retired): 20b answers in the same picked call.
+  m = mockFetchFactory([
+    { ...groq120b, ok: false, status: 404, body: { error: "model not found" } },
+    groq20b,
+    geminiOk,
+  ]);
+  res = await askAiMock(
+    { mode: "guide", question: "hi", model: "openai/gpt-oss-120b" },
+    { geminiKey: null, groqKey: "q-key" },
+    m.fetchImpl
+  );
+  assert.deepEqual(res, { reply: "from 20b", provider: "groq" });
+  assert.equal(m.calls.length, 2);
+
+  // Picked Groq fails on every free model: falls back to Gemini default.
+  const groq404All = {
+    match: (url) => url.includes("api.groq.com"),
+    ok: false,
+    status: 404,
+    body: { error: "model not found" },
+  };
+  m = mockFetchFactory([groq404All, geminiOk]);
+  res = await askAiMock(
+    { mode: "guide", question: "hi", model: "openai/gpt-oss-120b" },
+    { geminiKey: "g-key", groqKey: "q-key" },
+    m.fetchImpl
+  );
+  assert.deepEqual(res, { reply: "from gemini", provider: "gemini" });
+  assert.equal(m.calls.filter((c) => c.url.includes("api.groq.com")).length, 4);
 });

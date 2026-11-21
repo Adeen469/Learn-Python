@@ -15,7 +15,7 @@
 import type { Lesson } from "./catalog";
 import type { Transcript } from "./transcript";
 
-export type AiMode = "tutor" | "explain" | "debug" | "quiz";
+export type AiMode = "tutor" | "explain" | "debug" | "quiz" | "guide";
 
 export interface AiTurn {
   role: "user" | "assistant";
@@ -35,12 +35,59 @@ export interface AiResult {
 }
 
 export const GEMINI_MODEL = "gemini-3.8-flash";
-export const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+export function geminiUrlFor(model: string): string {
+  return `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+}
+export const GEMINI_URL = geminiUrlFor(GEMINI_MODEL);
+// Free-tier text models (Gemini API pricing page, "Free of charge"):
+// the current Flash family plus 2.5 Pro and 2.0 Flash. The editor AI
+// panel lists these in its model picker; the backend only accepts ids
+// from this list (plus the Groq list below), so a client cannot inject
+// an arbitrary model name.
+export const GEMINI_FREE_MODELS = [
+  "gemini-3.8-flash",
+  "gemini-3.6-flash",
+  "gemini-3.5-flash",
+  "gemini-2.5-pro",
+  "gemini-2.5-flash",
+  "gemini-2.5-flash-lite",
+  "gemini-2.0-flash",
+  "gemini-2.0-flash-lite",
+];
 // Groq's current production chat models (free/developer plans). The
 // second is tried only if the first 404s (retired), never on
 // auth/rate-limit errors, which would fail identically for both.
 export const GROQ_MODELS = ["openai/gpt-oss-120b", "openai/gpt-oss-20b"];
+// Groq free-tier chat models (console.groq.com rate limits). Llama
+// 3.1-8b-instant and 3.3-70b-versatile left the free/developer tier on
+// 2026-08-16 (Enterprise only now) — do NOT add them back.
+export const GROQ_FREE_MODELS = [
+  "openai/gpt-oss-120b",
+  "openai/gpt-oss-20b",
+  "qwen/qwen3.6-27b",
+  "qwen/qwen3.8-27b",
+];
+/** Every model id the /api/ai route accepts from a client. */
+export const AI_MODEL_IDS = [...GEMINI_FREE_MODELS, ...GROQ_FREE_MODELS];
 export const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
+// Effort steps from the editor AI panel's PromptBar. They scale the
+// reply length (max output tokens) — higher effort means a longer,
+// more detailed answer.
+export const EFFORTS = ["Low", "Medium", "High", "Extra", "Max"];
+export function maxTokensForEffort(effort?: string): number {
+  switch (effort) {
+    case "Low":
+      return 300;
+    case "High":
+      return 900;
+    case "Extra":
+      return 1200;
+    case "Max":
+      return 1500;
+    default:
+      return MAX_OUTPUT_TOKENS; // Medium / unset = 600
+  }
+}
 // Gemini's leg is kept short on purpose (Loco lesson): gemini-3.8-flash
 // on the free tier consistently takes over 10s, so a shorter budget
 // fails over to Groq sooner and the user still gets a reply.
@@ -61,7 +108,7 @@ export function temperatureForMode(mode: AiMode): number {
   return mode === "tutor" || mode === "quiz" ? 0.3 : AI_TEMPERATURE;
 }
 
-export const AI_MODES: AiMode[] = ["tutor", "explain", "debug", "quiz"];
+export const AI_MODES: AiMode[] = ["tutor", "explain", "debug", "quiz", "guide"];
 
 // ---------------------------------------------------------------------------
 // Env config — fail closed (null when missing)
@@ -94,6 +141,10 @@ export interface AiRequestBody {
   code?: string;
   question?: string;
   history?: AiTurn[];
+  /** Model id from AI_MODEL_IDS (editor AI panel picker). Omit for default. */
+  model?: string;
+  /** Effort step from EFFORTS (editor AI panel). Omit for Medium. */
+  effort?: string;
 }
 
 export type ValidateRequestResult =
@@ -136,14 +187,27 @@ export function validateAiRequest(value: unknown): ValidateRequestResult {
   if (v.history !== undefined) {
     body.history = sanitizeHistory(v.history);
   }
+  if (v.model !== undefined) {
+    if (typeof v.model !== "string" || !AI_MODEL_IDS.includes(v.model)) {
+      return { ok: false, error: "model is not an available free-tier model." };
+    }
+    body.model = v.model;
+  }
+  if (v.effort !== undefined) {
+    if (typeof v.effort !== "string" || !EFFORTS.includes(v.effort)) {
+      return { ok: false, error: "effort must be Low, Medium, High, Extra or Max." };
+    }
+    body.effort = v.effort;
+  }
 
   // Mode requirements: tutor and quiz need a question (quiz may carry it
   // in the question field or default to the lesson); explain and debug
-  // need code.
+  // need code. Guide (editor AI panel) needs a question; the code is
+  // optional context (the active file, sent alongside).
   if ((mode === "explain" || mode === "debug") && !body.code) {
     return { ok: false, error: "code is required for this mode." };
   }
-  if (mode === "tutor" && !body.question) {
+  if ((mode === "tutor" || mode === "guide") && !body.question) {
     return { ok: false, error: "question is required for this mode." };
   }
   return { ok: true, body };
@@ -208,6 +272,13 @@ Rules you must follow:
       return `${base}\n\nThe learner pasted code from the editor. Explain what the code does, line by line where it matters, in plain words. Keep it short.`;
     case "debug":
       return `${base}\n\nThe learner pasted code that is not working. Find the bug: say what is wrong, why it breaks, and show the fixed code. If the code looks fine, say so and suggest what to check next.`;
+    case "guide":
+      // Editor AI panel: a learning GUIDE, not a code generator. The
+      // learner is in the editor with their own file (pasted in the
+      // user message). They must write the code themselves — the AI
+      // explains, hints, and points at the bug, but never hands them
+      // the solution.
+      return `${base}\n\nThe learner is in the code editor, working on their own Python file (pasted in the user message). Your job is to help them LEARN — not to write code for them.\n\nThe core rule: NEVER write or generate the code solution for the learner. Do NOT output a full program, function, or corrected code block that solves their problem. The learner must write the code themselves — that is how they learn.\n\nInstead, GUIDE them: explain the concept in plain words, break the problem into small steps, give hints, ask a guiding question, and point to the exact line or idea where they are stuck and WHY it is stuck.\n\nYou MAY show a tiny snippet (1–2 lines) ONLY to illustrate a syntax or concept (for example, what a loop header looks like) — never a full solution and never the corrected version of their code.\n\nIf the learner asks you to "write the code", "give me the answer", or "fix it for me", politely refuse the full code and give them the steps and hints to write it themselves.\n\nIf their code has a bug, say WHERE it is and WHY it breaks, and tell them what to change — but do not write the fixed code for them.\n\nKeep it short and practical — one useful next step at a time.`;
     case "quiz":
       return `${base}\n\nDraft 3 quiz questions for the current lesson, as a JSON array and nothing else — no intro, no markdown fences. Each item: {"question": "...", "options": ["...", "...", "...", "..."], "answer": 0} where answer is the index of the correct option. Exactly 4 options per question, exactly 3 questions, covering the lesson's key ideas as taught in the video transcript above when one is present.`;
   }
@@ -228,6 +299,12 @@ export function buildAiUserMessage(args: {
     return args.question?.trim()
       ? `Draft 3 quiz questions for this lesson. Focus: ${args.question.trim()}`
       : "Draft 3 quiz questions for this lesson.";
+  }
+  if (args.mode === "guide") {
+    const codePart = args.code
+      ? `\n\nMy current code:\n\`\`\`python\n${args.code}\n\`\`\``
+      : "";
+    return `${args.question ?? ""}${codePart}`;
   }
   return args.question ?? "";
 }
@@ -363,18 +440,21 @@ export async function callGemini(
     history: AiTurn[];
   },
   key: string,
-  fetchImpl: FetchImpl = fetch as unknown as FetchImpl
+  fetchImpl: FetchImpl = fetch as unknown as FetchImpl,
+  opts: { model?: string; maxTokens?: number } = {}
 ): Promise<string | null> {
+  const model = opts.model ?? GEMINI_MODEL;
+  const maxTokens = opts.maxTokens ?? MAX_OUTPUT_TOKENS;
   try {
     const res = await fetchWithTimeout(
       fetchImpl,
-      `${GEMINI_URL}?key=${encodeURIComponent(key)}`,
+      `${geminiUrlFor(model)}?key=${encodeURIComponent(key)}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ role: "user", parts: [{ text: buildGeminiPrompt(args) }] }],
-          generationConfig: { temperature: temperatureForMode(args.mode), maxOutputTokens: MAX_OUTPUT_TOKENS },
+          generationConfig: { temperature: temperatureForMode(args.mode), maxOutputTokens: maxTokens },
         }),
       },
       GEMINI_TIMEOUT_MS
@@ -398,9 +478,19 @@ export async function callGroq(
     history: AiTurn[];
   },
   key: string,
-  fetchImpl: FetchImpl = fetch as unknown as FetchImpl
+  fetchImpl: FetchImpl = fetch as unknown as FetchImpl,
+  opts: { model?: string; models?: string[]; maxTokens?: number } = {}
 ): Promise<string | null> {
-  for (const model of GROQ_MODELS) {
+  const maxTokens = opts.maxTokens ?? MAX_OUTPUT_TOKENS;
+  // Try-list: an explicit list wins (fallback without repeating a
+  // model just tried); else the picked model first, then the rest of
+  // the free list; else the free list in order.
+  const models = opts.models
+    ? opts.models
+    : opts.model
+      ? [opts.model, ...GROQ_FREE_MODELS.filter((m) => m !== opts.model)]
+      : GROQ_FREE_MODELS;
+  for (const model of models) {
     let res: { ok: boolean; status: number; json: () => Promise<unknown> } | null = null;
     try {
       res = await fetchWithTimeout(
@@ -413,7 +503,7 @@ export async function callGroq(
             model,
             messages: buildGroqMessages(args),
             temperature: temperatureForMode(args.mode),
-            max_tokens: MAX_OUTPUT_TOKENS,
+            max_tokens: maxTokens,
           }),
         },
         GROQ_TIMEOUT_MS
@@ -499,16 +589,36 @@ export async function askAi(
     question?: string;
     code?: string;
     history: AiTurn[];
+    model?: string;
+    effort?: string;
   },
   config: AiConfig = getAiConfig(),
   fetchImpl: FetchImpl = fetch as unknown as FetchImpl
 ): Promise<AiResult | null> {
-  if (config.geminiKey) {
-    const reply = await callGemini(args, config.geminiKey, fetchImpl);
+  const maxTokens = maxTokensForEffort(args.effort);
+  const selected = args.model;
+  // 1. The model the user picked (editor AI panel).
+  if (selected && GEMINI_FREE_MODELS.includes(selected) && config.geminiKey) {
+    const reply = await callGemini(args, config.geminiKey, fetchImpl, { model: selected, maxTokens });
+    if (reply) return finishResult(args.mode, reply, "gemini");
+  }
+  if (selected && GROQ_FREE_MODELS.includes(selected) && config.groqKey) {
+    const reply = await callGroq(args, config.groqKey, fetchImpl, { model: selected, maxTokens });
+    if (reply) return finishResult(args.mode, reply, "groq");
+  }
+  // 2. Default order. Skip the Gemini default if it was the picked
+  // model (already tried above). For Groq, skip a picked model that
+  // already failed (its call above tried it first).
+  if (config.geminiKey && selected !== GEMINI_MODEL) {
+    const reply = await callGemini(args, config.geminiKey, fetchImpl, { maxTokens });
     if (reply) return finishResult(args.mode, reply, "gemini");
   }
   if (config.groqKey) {
-    const reply = await callGroq(args, config.groqKey, fetchImpl);
+    const fallbackModels =
+      selected && GROQ_FREE_MODELS.includes(selected)
+        ? GROQ_FREE_MODELS.filter((m) => m !== selected)
+        : GROQ_FREE_MODELS;
+    const reply = await callGroq(args, config.groqKey, fetchImpl, { maxTokens, models: fallbackModels });
     if (reply) return finishResult(args.mode, reply, "groq");
   }
   return null;

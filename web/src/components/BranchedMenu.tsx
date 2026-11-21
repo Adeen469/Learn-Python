@@ -1,6 +1,6 @@
 'use client';
 
-import { isValidElement, useLayoutEffect, useRef, useState, type CSSProperties, type DragEvent, type ReactNode } from 'react';
+import { isValidElement, useLayoutEffect, useRef, useState, type CSSProperties, type DragEvent, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
 import {
@@ -110,6 +110,9 @@ export interface BranchedMenuProps {
   onRowDrop?: (e: DragEvent, value: string, item: BranchedMenuItem) => void;
   /** Value of the row currently dragged over (drop-target highlight). */
   dragOverValue?: string | null;
+  /** Right-click / long-press on a row (both fire `contextmenu`) — the
+      editor opens its VS Code-style context menu for that row. */
+  onRowContextMenu?: (e: ReactMouseEvent, value: string, item: BranchedMenuItem) => void;
 }
 
 const renderIcon = (icon: ReactNode | IconSvgElement) =>
@@ -143,7 +146,8 @@ export default function BranchedMenu({
   onRowDragOver,
   onRowDragLeave,
   onRowDrop,
-  dragOverValue = null
+  dragOverValue = null,
+  onRowContextMenu
 }: BranchedMenuProps) {
   const [openInternal, setOpenInternal] = useState(() => toSet(defaultOpen));
   const open = openSections !== undefined ? toSet(openSections) : openInternal;
@@ -225,6 +229,19 @@ export default function BranchedMenu({
     'data-drag-over': dragOverValue !== null && dragOverValue === value ? '' : undefined,
   });
 
+  // Right-click / long-press on a row. Both fire `contextmenu`, so one
+  // handler covers PC and mobile. preventDefault stops the browser's
+  // own menu (and the mobile callout); the parent opens its menu.
+  const rowContextMenuProps = (value: string, item: BranchedMenuItem) => ({
+    onContextMenu: onRowContextMenu
+      ? (e: ReactMouseEvent) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onRowContextMenu(e, value, item);
+        }
+      : undefined,
+  });
+
   // Wrap a row button with its trailing actions when the parent
   // renders any; otherwise return the button unwrapped (upstream DOM).
   // `key` lands on the wrapper so React's list keys stay correct.
@@ -280,6 +297,7 @@ export default function BranchedMenu({
             data-active={leafActive ? '' : undefined}
             onClick={() => (kids ? toggle(i) : select(leafValue, item))}
             {...rowDragProps(leafValue, item)}
+            {...rowContextMenuProps(leafValue, item)}
           >
             {kids ? (
               isOpen ? (
@@ -332,6 +350,7 @@ export default function BranchedMenu({
                           tabIndex={isOpen ? 0 : -1}
                           onClick={() => select(kidValue, kid)}
                           {...rowDragProps(kidValue, kid)}
+                          {...rowContextMenuProps(kidValue, kid)}
                         >
                           {kid.icon ? (
                             <span className="branched-menu__icon" aria-hidden="true">

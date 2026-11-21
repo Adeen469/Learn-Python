@@ -160,6 +160,8 @@ export async function POST(req: NextRequest) {
       question: body.question,
       code: body.code,
       history: body.history ?? [],
+      model: body.model,
+      effort: body.effort,
     },
     config
   );

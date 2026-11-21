@@ -267,7 +267,7 @@ describe("editor fixes — static checks", () => {
     assert.ok(page.includes("HighlightedTerminal"), "terminal must use the highlighted renderer");
     assert.ok(page.includes("<HighlightedTerminal output={output} />"), "terminal output must go through it");
     assert.ok(page.includes("HighlightedMarkdown"), "AI answers must use the highlighted renderer");
-    assert.ok(page.includes("<HighlightedMarkdown text={aiAnswer} />"), "AI answer text must go through it");
+    assert.ok(page.includes("<HighlightedMarkdown text={m.text} />"), "AI panel messages must go through it");
     assert.ok(
       page.includes('from "@/lib/highlight"'),
       "highlight components must come from the shared lib"

@@ -12,7 +12,7 @@ const read = (rel) => readFileSync(path.join(root, rel), "utf8");
 // AnimatedList for the video list, ElasticSlider for player volume.
 
 describe("react bits install", () => {
-  test("the first six components are vendored with no motion dep; gsap exists only for TextType", () => {
+  test("the first six components are vendored with no motion dep; motion is back only for the AI panel; gsap exists only for TextType", () => {
     for (const file of [
       "src/components/Counter.tsx",
       "src/components/AnimatedList.tsx",
@@ -28,7 +28,14 @@ describe("react bits install", () => {
     }
     const pkg = JSON.parse(read("package.json"));
     assert.ok(!pkg.dependencies["framer-motion"], "no framer-motion dependency");
-    assert.ok(!pkg.dependencies["motion"], "no motion dependency — RotatingText was replaced by TextType");
+    // motion was removed with RotatingText (2026-11-18) and came back
+    // for the editor AI panel (2026-11-21): PromptBar + ThoughtLine
+    // are motion/react components. Nothing else may use it.
+    assert.ok(pkg.dependencies["motion"], "motion is required by the AI panel (PromptBar/ThoughtLine)");
+    for (const file of ["src/components/PromptBar.tsx", "src/components/ThoughtLine.tsx"]) {
+      assert.ok(existsSync(path.join(root, file)), `${file} must exist`);
+      assert.ok(read(file).includes("motion/react"), `${file} must import motion/react`);
+    }
     assert.ok(pkg.dependencies["gsap"], "gsap is required by TextType");
     assert.ok(
       read("src/components/TextType.tsx").includes("from 'gsap'"),

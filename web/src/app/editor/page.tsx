@@ -6,6 +6,10 @@ import { useRouter } from "next/navigation";
 import Editor from "@monaco-editor/react";
 import { AppNavbar } from "@/components/AppNavbar";
 import BranchedMenu, { type BranchedMenuItem } from "@/components/BranchedMenu";
+import { EditorContextMenu, type ContextMenuItem } from "@/components/EditorContextMenu";
+import { EditorMenuBar, type EditorMenu } from "@/components/EditorMenuBar";
+import { EditorPanelHeader } from "@/components/EditorPanelHeader";
+import { EditorSplitter } from "@/components/EditorSplitter";
 import { ModulesPanel } from "@/components/ModulesPanel";
 import { fetchSessionUser } from "@/lib/auth-client";
 import { useLanguage } from "@/lib/i18n";
@@ -19,9 +23,10 @@ import {
   HighlightedMarkdown,
   HighlightedTerminal,
 } from "@/lib/highlight";
+import PromptBar, { type PromptBarModel } from "@/components/PromptBar";
+import ThoughtLine from "@/components/ThoughtLine";
 import {
   AlertCircle,
-  Bug,
   Check,
   Code2,
   FileCode,
@@ -170,44 +175,88 @@ export default function CodeEditorPage() {
   const [terminalBusy, setTerminalBusy] = useState(false);
   const [pyodideError, setPyodideError] = useState<string | null>(null);
 
-  // AI code help (Gemini first, Groq fallback, via POST /api/ai).
-  // The answer lives only in this component's state — nothing is
-  // stored server-side. Long files are truncated to the API's limit.
-  const [aiMode, setAiMode] = useState<"explain" | "debug" | null>(null);
-  const [aiAnswer, setAiAnswer] = useState<string | null>(null);
-  const [aiLoading, setAiLoading] = useState(false);
+  // AI panel chat (guide mode, POST /api/ai). The AI helps the user
+  // write code, build logic, understand code and find bugs — it never
+  // generates the code for them, because the point is learning.
+  // The chat lives only in this component's state — nothing is stored
+  // server-side. Long files are truncated to the API's limit.
+  type AiChatMessage = { role: "user" | "ai"; text: string };
+  const [aiMessages, setAiMessages] = useState<AiChatMessage[]>([]);
+  const [aiThinking, setAiThinking] = useState(false);
+  const [aiThoughtSeconds, setAiThoughtSeconds] = useState<number | null>(null);
   const [aiError, setAiError] = useState<string | null>(null);
-  const [aiUnavailable, setAiUnavailable] = useState(false);
-  const [aiTruncated, setAiTruncated] = useState(false);
+  const aiAbortRef = useRef<AbortController | null>(null);
 
-  async function askEditorAi(mode: "explain" | "debug") {
-    if (!activeFile || aiLoading) return;
-    const code = activeFile.content ?? "";
-    if (!code.trim()) {
-      setAiError(t.editorPage.emptyFileError);
-      setAiMode(mode);
-      setAiAnswer(null);
-      return;
+  // PromptBar models: every free-tier Gemini + Groq model the API
+  // accepts. The picker shows the display name + tag.
+  const AI_PANEL_MODELS: PromptBarModel[] = [
+    { key: "gemini-3.8-flash", name: "Gemini 3.8 Flash", tag: "Flagship" },
+    { key: "gemini-3.6-flash", name: "Gemini 3.6 Flash", tag: "Fast" },
+    { key: "gemini-3.5-flash", name: "Gemini 3.5 Flash", tag: "Fast" },
+    { key: "gemini-2.5-pro", name: "Gemini 2.5 Pro", tag: "Pro" },
+    { key: "gemini-2.5-flash", name: "Gemini 2.5 Flash", tag: "Fast" },
+    { key: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash-Lite", tag: "Fastest" },
+    { key: "gemini-2.0-flash", name: "Gemini 2.0 Flash", tag: "Fast" },
+    { key: "gemini-2.0-flash-lite", name: "Gemini 2.0 Flash-Lite", tag: "Fastest" },
+    { key: "openai/gpt-oss-120b", name: "GPT-OSS 120B", tag: "Groq" },
+    { key: "openai/gpt-oss-20b", name: "GPT-OSS 20B", tag: "Groq Fast" },
+    { key: "qwen/qwen3.6-27b", name: "Qwen 3.6 27B", tag: "Groq" },
+    { key: "qwen/qwen3.8-27b", name: "Qwen 3.8 27B", tag: "Groq" },
+  ];
+
+  async function sendAiMessage(
+    text: string,
+    opts: { model: PromptBarModel | undefined; effort: string },
+  ) {
+    const raw = text.trim();
+    if (!raw || aiThinking) return;
+    // Slash commands from the PromptBar: /explain, /debug, /hint.
+    // The rest of the line is the question; with nothing after the
+    // command the default question for that command is used.
+    let question = raw;
+    if (raw.startsWith("/explain")) {
+      question =
+        raw.slice("/explain".length).trim() ||
+        "Explain this code to me, step by step.";
+    } else if (raw.startsWith("/debug")) {
+      question =
+        raw.slice("/debug".length).trim() ||
+        "Find the bug in this code and explain why it breaks — don't fix it for me, just point at it.";
+    } else if (raw.startsWith("/hint")) {
+      question =
+        raw.slice("/hint".length).trim() ||
+        "Give me a hint for the next step — explain the idea, don't write the code.";
     }
-    setAiMode(mode);
-    setAiAnswer(null);
-    setAiError(null);
-    setAiLoading(true);
+    const code = activeFile?.content ?? "";
     const truncated = code.length > 8000;
-    setAiTruncated(truncated);
+    const history = aiMessages.slice(-8).map((m) => ({
+      role: m.role === "user" ? "user" : "assistant",
+      text: m.text,
+    }));
+    setAiMessages((prev) => [...prev, { role: "user", text: raw }]);
+    setAiError(null);
+    setAiThoughtSeconds(null);
+    setAiThinking(true);
+    const controller = new AbortController();
+    aiAbortRef.current = controller;
     try {
       const res = await fetch("/api/ai", {
         method: "POST",
         credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          mode,
+          mode: "guide",
+          question,
           code: truncated ? code.slice(0, 8000) : code,
+          history,
+          model: opts.model?.key ?? "gemini-3.8-flash",
+          effort: opts.effort,
         }),
+        signal: controller.signal,
       });
       const data: unknown = await res.json().catch(() => null);
       if (res.status === 503) {
-        setAiUnavailable(true);
+        setAiError(t.editorPage.aiUnavailableMessage);
         return;
       }
       if (res.status === 401) {
@@ -223,13 +272,27 @@ export default function CodeEditorPage() {
         setAiError(t.editorPage.aiEmptyReplyError);
         return;
       }
-      setAiAnswer(reply.trim());
+      setAiMessages((prev) => [...prev, { role: "ai", text: reply.trim() }]);
     } catch {
+      if (controller.signal.aborted) return;
       setAiError(t.tutor.errorGeneric);
     } finally {
-      setAiLoading(false);
+      setAiThinking(false);
+      aiAbortRef.current = null;
     }
   }
+
+  function stopAi() {
+    aiAbortRef.current?.abort();
+  }
+
+  function clearAiChat() {
+    stopAi();
+    setAiMessages([]);
+    setAiError(null);
+    setAiThoughtSeconds(null);
+  }
+
   const [needsSaveWarning, setNeedsSaveWarning] = useState<string | null>(null);
   const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({ utils: true });
 
@@ -243,6 +306,108 @@ export default function CodeEditorPage() {
   const [draggedItemPath, setDraggedItemPath] = useState<string | null>(null);
   const [dragOverTarget, setDragOverTarget] = useState<string | null>(null);
   const [isExternalDragOver, setIsExternalDragOver] = useState(false);
+
+  // --- VS Code-style redesign: menu bar, context menus, auto-save,
+  // Format, resizable panels (wabepp: web-only actions here; anything
+  // needing the OS lives in the native APK / Tauri EXE, not the site).
+  // Auto Save: on by default, persisted; an edit auto-saves after a
+  // short debounce instead of waiting for the Save button.
+  const [autoSave, setAutoSave] = useState<boolean>(() =>
+    typeof window === "undefined" ||
+    window.localStorage.getItem("lp_editor_autosave") !== "off"
+  );
+  // Right-click / long-press context menu: position + target.
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    target: { kind: "file" | "folder" | "root"; path: string };
+  } | null>(null);
+  // Inline rename: the item being renamed + its input value.
+  const [renamingPath, setRenamingPath] = useState<string | null>(null);
+  const [renameInput, setRenameInput] = useState("");
+  // Resizable panels (Explorer left, Terminal right): widths in px,
+  // persisted; drag a splitter to resize, double-click to reset.
+  const [explorerWidth, setExplorerWidth] = useState<number>(() => {
+    if (typeof window === "undefined") return 280;
+    const v = Number(window.localStorage.getItem("lp_editor_explorer_w"));
+    return Number.isFinite(v) && v >= 200 && v <= 480 ? v : 280;
+  });
+  const [terminalWidth, setTerminalWidth] = useState<number>(() => {
+    if (typeof window === "undefined") return 320;
+    const v = Number(window.localStorage.getItem("lp_editor_terminal_w"));
+    return Number.isFinite(v) && v >= 240 && v <= 560 ? v : 320;
+  });
+  const [showExplorer, setShowExplorer] = useState(true);
+  const [showTerminal, setShowTerminal] = useState(true);
+  // AI panel (the new AI button toggles it). Visible by default so
+  // the user sees the assistant right away.
+  const [showAi, setShowAi] = useState(true);
+
+  // Draggable panels (VS Code-style docking): each side panel lives
+  // in a zone — left, right, or bottom. Drag a panel by its header
+  // and drop it on a zone to move it there. Persisted, so a reload
+  // keeps the layout. The Editor (Monaco) is the centre and never
+  // moves; ModulesPanel takes the centre when the Modules tab is on.
+  type PanelZone = "left" | "right" | "bottom";
+  type PanelId = "explorer" | "terminal" | "ai";
+  const [panelZones, setPanelZones] = useState<Record<PanelId, PanelZone>>(() => {
+    const fallback: Record<PanelId, PanelZone> = { explorer: "left", terminal: "right", ai: "right" };
+    if (typeof window === "undefined") return fallback;
+    try {
+      const saved = JSON.parse(localStorage.getItem("lp_editor_panel_zones") || "null") as unknown;
+      if (!saved || typeof saved !== "object") return fallback;
+      const z = { ...fallback };
+      for (const id of ["explorer", "terminal", "ai"] as PanelId[]) {
+        const v = (saved as Record<string, unknown>)[id];
+        if (v === "left" || v === "right" || v === "bottom") z[id] = v;
+      }
+      // AI is a side panel only — a saved bottom zone for it is reset.
+      if (z.ai === "bottom") z.ai = "right";
+      return z;
+    } catch {
+      return fallback;
+    }
+  });
+  useEffect(() => {
+    localStorage.setItem("lp_editor_panel_zones", JSON.stringify(panelZones));
+  }, [panelZones]);
+  // Which panel is being dragged + which zone the pointer is over.
+  const [draggingPanel, setDraggingPanel] = useState<PanelId | null>(null);
+  const [dropZone, setDropZone] = useState<PanelZone | null>(null);
+  const dockRef = useRef<HTMLDivElement | null>(null);
+  // Bottom zone height (px), persisted; resized by the horizontal
+  // splitter above it.
+  const [bottomHeight, setBottomHeight] = useState<number>(() => {
+    if (typeof window === "undefined") return 220;
+    const v = Number(window.localStorage.getItem("lp_editor_bottom_h"));
+    return Number.isFinite(v) && v >= 160 && v <= 480 ? v : 220;
+  });
+  useEffect(() => {
+    localStorage.setItem("lp_editor_bottom_h", String(bottomHeight));
+  }, [bottomHeight]);
+
+  function isPanelVisible(id: PanelId): boolean {
+    return id === "explorer" ? showExplorer : id === "terminal" ? showTerminal : showAi;
+  }
+  function setPanelVisible(id: PanelId, v: boolean) {
+    if (id === "explorer") setShowExplorer(v);
+    else if (id === "terminal") setShowTerminal(v);
+    else setShowAi(v);
+  }
+  function movePanelToZone(id: PanelId, zone: PanelZone) {
+    // AI is a side panel only — it never docks at the bottom.
+    if (id === "ai" && zone === "bottom") return;
+    setPanelZones((p) => ({ ...p, [id]: zone }));
+  }
+  // Monaco editor instance (Undo / Redo / Find + cursor position for
+  // the status bar) and the >>> terminal input (Focus Terminal).
+  const editorRef = useRef<any>(null);
+  const [cursorPos, setCursorPos] = useState({ line: 1, col: 1 });
+  const terminalInputRef = useRef<HTMLInputElement | null>(null);
+  // Format (black via micropip): installed once per session, then
+  // reused; formatting is the in-progress flag for the button/menu.
+  const blackReadyRef = useRef(false);
+  const [formatting, setFormatting] = useState(false);
 
   const pyodideRef = useRef<any>(null);
   const [pyodideReady, setPyodideReady] = useState(false);
@@ -476,16 +641,358 @@ export default function CodeEditorPage() {
     );
   }
 
+  // Persist the workspace: state + localStorage + the Pyodide virtual
+  // filesystem, in one place, so every mutation (save, rename, delete,
+  // duplicate, move, create) keeps all three in sync.
+  function persistWorkspace(next: WorkspaceItem[]) {
+    setItems(next);
+    localStorage.setItem("lp_workspace_tree", JSON.stringify(next));
+    syncAllFilesToPyodide(next);
+  }
+
   function saveCurrentFile() {
     if (!activeFile) return;
     const updated = items.map((it) =>
       it.path === activeFile.path ? { ...it, isSaved: true } : it
     );
-    setItems(updated);
-    localStorage.setItem("lp_workspace_tree", JSON.stringify(updated));
+    persistWorkspace(updated);
     setNeedsSaveWarning(null);
-    syncAllFilesToPyodide(updated);
     setOutput((prev) => prev + `[Saved '${activeFile.path}']\n`);
+  }
+
+  // Silent save (used by Auto Save): no terminal spam — the status bar
+  // and the file's saved-dot already show that it saved.
+  function saveFileSilently(path: string) {
+    const updated = items.map((it) =>
+      it.path === path ? { ...it, isSaved: true } : it
+    );
+    persistWorkspace(updated);
+  }
+
+  function saveAllFiles() {
+    const updated = items.map((it) =>
+      it.type === "file" && !it.isSaved ? { ...it, isSaved: true } : it
+    );
+    persistWorkspace(updated);
+    setNeedsSaveWarning(null);
+  }
+
+  // Auto Save: when the active file is edited and Auto Save is on,
+  // save it after a short debounce. The timer resets on every
+  // keystroke, so a burst of typing saves once, after the pause.
+  useEffect(() => {
+    if (!autoSave || !activeFile || activeFile.isSaved) return;
+    const timer = window.setTimeout(() => {
+      saveFileSilently(activeFile.path);
+    }, 1200);
+    return () => window.clearTimeout(timer);
+    // Re-run when the content or the save state changes; the active
+    // path is what gets saved, so it is a dependency too.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoSave, activeFile?.path, activeFile?.content, activeFile?.isSaved]);
+
+  // Persist the resizable panel widths so a reload keeps the layout.
+  useEffect(() => {
+    localStorage.setItem("lp_editor_explorer_w", String(explorerWidth));
+  }, [explorerWidth]);
+  useEffect(() => {
+    localStorage.setItem("lp_editor_terminal_w", String(terminalWidth));
+  }, [terminalWidth]);
+
+  // --- Format (black, via micropip, on demand) ---
+  // black is a pure-Python package, so it installs through the same
+  // micropip path the Modules tab already uses. It installs once per
+  // session (blackReadyRef), then formats in-process — no network on
+  // later formats. A failed install leaves a clear terminal message
+  // instead of silently doing nothing.
+  async function formatCurrentFile() {
+    if (!activeFile || formatting) return;
+    if (!pyodideReady || !pyodideRef.current) {
+      setOutput((prev) => prev + `${t.editorPage.formatNotReady}\n`);
+      return;
+    }
+    setFormatting(true);
+    try {
+      const py = pyodideRef.current;
+      if (!blackReadyRef.current) {
+        setOutput((prev) => prev + "Installing formatter (black)…\n");
+        const micropip = py.pyimport("micropip");
+        await micropip.install("black");
+        blackReadyRef.current = true;
+      }
+      const code = activeFile.content ?? "";
+      py.globals.set("__lp_format_code", code);
+      const formatted = py.runPython(
+        `import black\nblack.format_str(__lp_format_code, mode=black.Mode())`
+      ) as string;
+      if (typeof formatted === "string" && formatted !== code) {
+        setItems((prev) =>
+          prev.map((it) =>
+            it.path === activeFile.path
+              ? { ...it, content: formatted, isSaved: false }
+              : it
+          )
+        );
+        setOutput((prev) => prev + `[Formatted '${activeFile.path}']\n`);
+      } else {
+        setOutput((prev) => prev + `[Already formatted '${activeFile.path}']\n`);
+      }
+    } catch (e) {
+      console.warn("Format failed:", e);
+      setOutput((prev) => prev + `${t.editorPage.formatFailed}\n`);
+    } finally {
+      setFormatting(false);
+    }
+  }
+
+  // --- Rename / Delete / Duplicate / Copy Path (context menu + File menu) ---
+  function startRename(path: string) {
+    const item = items.find((i) => i.path === path);
+    if (!item) return;
+    setRenamingPath(path);
+    setRenameInput(item.name);
+  }
+
+  function submitRename(e: React.FormEvent) {
+    e.preventDefault();
+    if (!renamingPath) return;
+    const item = items.find((i) => i.path === renamingPath);
+    if (!item) {
+      setRenamingPath(null);
+      return;
+    }
+    const clean = renameInput.trim();
+    if (!clean || clean === item.name) {
+      setRenamingPath(null);
+      return;
+    }
+    // A file keeps its extension if the user typed a bare name.
+    const newName =
+      item.type === "file" && !clean.includes(".")
+        ? `${clean}.py`
+        : clean;
+    const parent = renamingPath.includes("/")
+      ? renamingPath.slice(0, renamingPath.lastIndexOf("/"))
+      : "";
+    const newPath = parent ? `${parent}/${newName}` : newName;
+    if (newPath !== renamingPath && items.some((i) => i.path === newPath)) {
+      alert(t.editorPage.fileExistsError);
+      return;
+    }
+    const updated = items.map((it) => {
+      if (it.path === renamingPath) {
+        return { ...it, name: newName, path: newPath, isSaved: false };
+      }
+      if (item.type === "folder" && it.path.startsWith(renamingPath + "/")) {
+        const rel = it.path.slice(renamingPath.length + 1);
+        return { ...it, path: `${newPath}/${rel}`, isSaved: false };
+      }
+      return it;
+    });
+    persistWorkspace(updated);
+    if (activeFilePath === renamingPath) setActiveFilePath(newPath);
+    if (item.type === "folder") {
+      setExpandedFolders((p) => {
+        const next = { ...p };
+        delete next[renamingPath];
+        next[newPath] = true;
+        return next;
+      });
+    }
+    setRenamingPath(null);
+    setOutput((prev) => prev + `[Renamed '${renamingPath}' → '${newPath}']\n`);
+  }
+
+  function deleteItem(path: string) {
+    const item = items.find((i) => i.path === path);
+    if (!item) return;
+    const remaining = items.filter(
+      (it) => it.path !== path && !it.path.startsWith(path + "/")
+    );
+    if (!remaining.some((it) => it.type === "file")) {
+      alert(t.editorPage.keepOneFileError);
+      return;
+    }
+    persistWorkspace(remaining);
+    if (activeFilePath === path || activeFilePath.startsWith(path + "/")) {
+      const first = remaining.find((it) => it.type === "file");
+      if (first) setActiveFilePath(first.path);
+    }
+    setOutput((prev) => prev + `[Deleted '${path}']\n`);
+  }
+
+  // "Copy" in the context menu = Duplicate: a copy of the file (or the
+  // folder with its files) beside the original, opened right away.
+  function duplicateItem(path: string) {
+    const item = items.find((i) => i.path === path);
+    if (!item) return;
+    const parent = path.includes("/") ? path.slice(0, path.lastIndexOf("/")) : "";
+    const stem =
+      item.type === "file"
+        ? item.name.replace(/\.py$/, "")
+        : item.name;
+    const ext = item.type === "file" && item.name.endsWith(".py") ? ".py" : "";
+    let n = 1;
+    let newName = `${stem} copy${ext}`;
+    let newPath = parent ? `${parent}/${newName}` : newName;
+    while (items.some((i) => i.path === newPath)) {
+      n += 1;
+      newName = `${stem} copy ${n}${ext}`;
+      newPath = parent ? `${parent}/${newName}` : newName;
+    }
+    const copies: WorkspaceItem[] = [];
+    if (item.type === "file") {
+      copies.push({
+        id: "f-dup-" + Date.now(),
+        name: newName,
+        path: newPath,
+        type: "file",
+        isSaved: true,
+        content: item.content ?? "",
+      });
+    } else {
+      copies.push({
+        id: "folder-dup-" + Date.now(),
+        name: newName,
+        path: newPath,
+        type: "folder",
+      });
+      for (const child of items.filter(
+        (it) => it.type === "file" && it.path.startsWith(path + "/")
+      )) {
+        const rel = child.path.slice(path.length + 1);
+        copies.push({
+          id: "f-dup-" + Date.now() + "-" + rel,
+          name: child.name,
+          path: `${newPath}/${rel}`,
+          type: "file",
+          isSaved: true,
+          content: child.content ?? "",
+        });
+      }
+    }
+    const next = [...items, ...copies];
+    persistWorkspace(next);
+    if (item.type === "file") setActiveFilePath(newPath);
+    setOutput((prev) => prev + `[Copied '${path}' → '${newPath}']\n`);
+  }
+
+  async function copyPath(path: string) {
+    try {
+      await navigator.clipboard.writeText(path);
+      setOutput((prev) => prev + `[Copied path '${path}']\n`);
+    } catch {
+      setOutput((prev) => prev + `[Could not copy path — clipboard unavailable]\n`);
+    }
+  }
+
+  // --- Context menu (right-click PC / long-press mobile) ---
+  function openRowContextMenu(e: React.MouseEvent, path: string) {
+    const item = items.find((i) => i.path === path);
+    if (!item) return;
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      target: { kind: item.type, path },
+    });
+  }
+
+  function openRootContextMenu(e: React.MouseEvent) {
+    e.preventDefault();
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      target: { kind: "root", path: "" },
+    });
+  }
+
+  function contextMenuItems(): ContextMenuItem[] {
+    if (!contextMenu) return [];
+    const { kind, path } = contextMenu.target;
+    if (kind === "root") {
+      return [
+        {
+          id: "new-file",
+          label: t.editorPage.newFile,
+          action: () => setShowNewFile(true),
+        },
+        {
+          id: "new-folder",
+          label: t.editorPage.newFolder,
+          action: () => setShowNewFolder(true),
+        },
+      ];
+    }
+    const isFile = kind === "file";
+    const items: ContextMenuItem[] = [];
+    if (!isFile) {
+      items.push(
+        {
+          id: "new-file",
+          label: t.editorPage.newFile,
+          action: () => {
+            setActiveFilePath(path);
+            setShowNewFile(true);
+          },
+        },
+        {
+          id: "new-folder",
+          label: t.editorPage.newFolder,
+          action: () => setShowNewFolder(true),
+        },
+        { id: "sep-1", label: "", separator: true }
+      );
+    }
+    if (isFile) {
+      items.push({
+        id: "format",
+        label: t.editorPage.menuFormat,
+        disabled: formatting || !pyodideReady,
+        action: () => formatCurrentFile(),
+      });
+    }
+    items.push(
+      {
+        id: "rename",
+        label: t.editorPage.menuRename,
+        action: () => startRename(path),
+      },
+      {
+        id: "duplicate",
+        label: t.editorPage.menuDuplicate,
+        action: () => duplicateItem(path),
+      },
+      {
+        id: "copy-path",
+        label: t.editorPage.menuCopyPath,
+        action: () => copyPath(path),
+      },
+      { id: "sep-2", label: "", separator: true },
+      {
+        id: "delete",
+        label: t.editorPage.menuDelete,
+        danger: true,
+        action: () => deleteItem(path),
+      }
+    );
+    return items;
+  }
+
+  // --- Menu bar actions (Edit / View / Run / Terminal) ---
+  function undoEdit() {
+    try {
+      editorRef.current?.trigger("keyboard", "undo", null);
+    } catch {}
+  }
+  function redoEdit() {
+    try {
+      editorRef.current?.trigger("keyboard", "redo", null);
+    } catch {}
+  }
+  function findInEditor() {
+    try {
+      editorRef.current?.getAction("actions.find")?.run();
+    } catch {}
   }
 
   // Workspace files are synced into the Pyodide virtual filesystem so
@@ -887,9 +1394,514 @@ _lp_term_result
     }
   }
 
+  // --- Menu bar (VS Code-style header) ---
+  // Web-only actions (wabepp): nothing here needs the OS. The
+  // OS-dependent entries (revealing a file in the OS explorer,
+  // opening the OS terminal, opening a file with another app, and the
+  // debugger entries — starting a debug session, stepping through
+  // code, breakpoints) are app-only (native APK / Tauri EXE) and stay
+  // out of this menu. The
+  // Run menu is therefore just the web-working actions: run the file
+  // and stop it. View and Terminal menus are gone — panels are
+  // shown/hidden and dragged from their own headers now.
+  const menus: EditorMenu[] = [
+    {
+      id: "file",
+      label: t.editorPage.menuFile,
+      items: [
+        { id: "new-file", label: t.editorPage.newFile, action: () => setShowNewFile(true) },
+        { id: "new-folder", label: t.editorPage.newFolder, action: () => setShowNewFolder(true) },
+        { id: "sep-1", label: "", separator: true },
+        { id: "save", label: t.editorPage.saveFileRequired, shortcut: "Ctrl+S", disabled: !activeFile || activeFile.isSaved, action: saveCurrentFile },
+        { id: "save-all", label: t.editorPage.menuSaveAll, action: saveAllFiles },
+        { id: "sep-2", label: "", separator: true },
+        { id: "rename", label: t.editorPage.menuRename, disabled: !activeFile, action: () => activeFile && startRename(activeFile.path) },
+        { id: "duplicate", label: t.editorPage.menuDuplicate, disabled: !activeFile, action: () => activeFile && duplicateItem(activeFile.path) },
+        { id: "copy-path", label: t.editorPage.menuCopyPath, disabled: !activeFile, action: () => activeFile && copyPath(activeFile.path) },
+        { id: "sep-3", label: "", separator: true },
+        { id: "format", label: t.editorPage.menuFormat, disabled: !activeFile || formatting || !pyodideReady, action: () => formatCurrentFile() },
+        { id: "sep-4", label: "", separator: true },
+        {
+          id: "auto-save",
+          label: t.editorPage.menuAutoSave,
+          checked: autoSave,
+          action: () => {
+            const next = !autoSave;
+            setAutoSave(next);
+            localStorage.setItem("lp_editor_autosave", next ? "on" : "off");
+          },
+        },
+      ],
+    },
+    {
+      id: "edit",
+      label: t.editorPage.menuEdit,
+      items: [
+        { id: "undo", label: t.editorPage.menuUndo, shortcut: "Ctrl+Z", disabled: !activeFile, action: undoEdit },
+        { id: "redo", label: t.editorPage.menuRedo, shortcut: "Ctrl+Y", disabled: !activeFile, action: redoEdit },
+        { id: "sep-1", label: "", separator: true },
+        { id: "find", label: t.editorPage.menuFind, shortcut: "Ctrl+F", disabled: !activeFile, action: findInEditor },
+        { id: "format", label: t.editorPage.menuFormat, disabled: !activeFile || formatting || !pyodideReady, action: () => formatCurrentFile() },
+      ],
+    },
+    {
+      id: "run",
+      label: t.editorPage.menuRun,
+      items: [
+        { id: "run", label: t.editorPage.runWithoutDebugging, shortcut: "Ctrl+F5", disabled: isRunning || loadingEngine, action: () => compileAndRun() },
+        { id: "stop", label: t.editorPage.stop, disabled: !isRunning, action: stopRunning },
+      ],
+    },
+  ];
+
   // Guests never see the editor — the gate effect above redirects to /.
   if (!enteredChecked) return null;
 
+
+  // --- Dock panels (zone layout) ---
+  // The side panels as JSX, placed into zones below by
+  // renderDockPanel. The Editor is the centre and never moves.
+  const explorerPanel = (
+      <div
+        onDragOver={(e) => {
+          if (!e.dataTransfer.types.includes("Files")) return;
+          e.preventDefault();
+          setIsExternalDragOver(true);
+        }}
+        onDragLeave={() => setIsExternalDragOver(false)}
+        onDrop={handleExternalDrop}
+        className={`w-full flex-1 min-h-0 rounded-xl border flex flex-col overflow-hidden transition relative ${
+          isExternalDragOver
+            ? "border-white bg-neutral-900 ring-2 ring-white/20"
+            : "border-neutral-800 bg-neutral-950"
+        }`}
+      >
+        <EditorPanelHeader
+          id="explorer"
+          title={<><Folder className="h-3.5 w-3.5 text-neutral-300" /> {t.editorPage.explorer}</>}
+          actions={
+            <>
+              <button
+                type="button"
+                draggable={false}
+                onClick={() => setShowNewFile(!showNewFile)}
+                title={t.editorPage.newFile}
+                className="rounded p-1 hover:bg-neutral-800 text-neutral-400 hover:text-white"
+              >
+                <Plus className="h-3.5 w-3.5" />
+              </button>
+              <button
+                type="button"
+                draggable={false}
+                onClick={() => setShowNewFolder(!showNewFolder)}
+                title={t.editorPage.newFolder}
+                className="rounded p-1 hover:bg-neutral-800 text-neutral-400 hover:text-white"
+              >
+                <FolderPlus className="h-3.5 w-3.5" />
+              </button>
+            </>
+          }
+          onDragStart={setDraggingPanel}
+          onDragEnd={() => { setDraggingPanel(null); setDropZone(null); }}
+          onClose={() => setShowExplorer(false)}
+          closeLabel={t.common.close}
+        />
+        {/* Files / Modules tabs — the switch lives in the Explorer
+            header now (the separate tab bar above the editor is
+            gone). Files shows the tree; Modules opens the package
+            manager in the centre. */}
+        <div className="flex gap-1 border-b border-neutral-800 p-1.5">
+          <button
+            type="button"
+            onClick={() => switchTab("files")}
+            className={`flex-1 rounded-md px-2 py-1 text-xs font-medium transition ${editorTab === "files" ? "bg-white text-black" : "text-neutral-400 hover:text-white"}`}
+          >
+            <Code2 className="mr-1 inline h-3.5 w-3.5" />{t.editorPage.filesTab}
+          </button>
+          <button
+            type="button"
+            onClick={() => switchTab("modules")}
+            className={`flex-1 rounded-md px-2 py-1 text-xs font-medium transition ${editorTab === "modules" ? "bg-white text-black" : "text-neutral-400 hover:text-white"}`}
+          >
+            <Package className="mr-1 inline h-3.5 w-3.5" />{t.editorPage.modulesTab}
+          </button>
+        </div>
+
+        {/* Inline create inputs */}
+        {showNewFile && (
+          <form onSubmit={handleAddFile} className="p-2 border-b border-neutral-800 bg-black">
+            <input
+              type="text"
+              autoFocus
+              placeholder={t.editorPage.newFilePlaceholder}
+              value={newFileInput}
+              onChange={(e) => setNewFileInput(e.target.value)}
+              className="w-full rounded border border-neutral-800 bg-neutral-950 px-2 py-1 text-xs font-mono text-white placeholder-neutral-600 focus:border-white focus:outline-none"
+            />
+          </form>
+        )}
+
+        {showNewFolder && (
+          <form onSubmit={handleAddFolder} className="p-2 border-b border-neutral-800 bg-black">
+            <input
+              type="text"
+              autoFocus
+              placeholder={t.editorPage.newFolderPlaceholder}
+              value={newFolderInput}
+              onChange={(e) => setNewFolderInput(e.target.value)}
+              className="w-full rounded border border-neutral-800 bg-neutral-950 px-2 py-1 text-xs font-mono text-white placeholder-neutral-600 focus:border-white focus:outline-none"
+            />
+          </form>
+        )}
+
+        {/* Inline rename (from the context menu / File menu): the
+            input is pre-filled with the current name. */}
+        {renamingPath && (
+          <form
+            onSubmit={submitRename}
+            className="p-2 border-b border-neutral-800 bg-black"
+          >
+            <input
+              type="text"
+              autoFocus
+              placeholder={t.editorPage.renamePlaceholder}
+              value={renameInput}
+              onChange={(e) => setRenameInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") setRenamingPath(null);
+              }}
+              onBlur={() => setRenamingPath(null)}
+              className="w-full rounded border border-neutral-800 bg-neutral-950 px-2 py-1 text-xs font-mono text-white placeholder-neutral-600 focus:border-white focus:outline-none"
+            />
+          </form>
+        )}
+
+        {/* Root Drop Zone */}
+        <div
+          onDragOver={(e) => handleDragOverFolder(e, "root")}
+          onDragLeave={() => setDragOverTarget(null)}
+          onDrop={(e) => handleDropOnTarget(e, "root")}
+          className={`px-3 py-1 text-[10px] uppercase font-mono tracking-wider transition ${
+            dragOverTarget === "root"
+              ? "bg-white text-black font-semibold rounded mx-2 my-1"
+              : "text-neutral-600"
+          }`}
+        >
+          {t.editorPage.workspaceRootDropHint}
+        </div>
+
+        {/* Tree Items: React Bits BranchedMenu — top-level files
+            are leaves, folders are sections with branch lines.
+            Selecting a file opens it; folding a folder, dragging
+            files between folders, and the per-row delete button
+            all keep the old tree's behaviour. Right-click (or a
+            long-press on mobile) opens the context menu. */}
+        <div
+          className="flex-1 overflow-auto p-2"
+          onContextMenu={openRootContextMenu}
+          style={{ WebkitTouchCallout: "none" }}
+        >
+          <BranchedMenu
+            items={treeData.menuItems}
+            activeValue={activeFilePath}
+            openSections={treeOpenSections}
+            onSelect={(value) => handleTreeSelect(value)}
+            onToggle={handleTreeToggle}
+            onRowDragStart={handleTreeDragStart}
+            onRowDragOver={handleTreeDragOver}
+            onRowDragLeave={handleTreeDragLeave}
+            onRowDrop={handleTreeDrop}
+            onRowContextMenu={(e, value) => openRowContextMenu(e, value)}
+            dragOverValue={dragOverTarget}
+            className="branched-menu--full"
+            color="#f5f5f5"
+            accentColor="#f5f5f5"
+            lineColor="#3f3f46"
+            width={280}
+          />
+        </div>
+
+        {/* Drag & Drop Hint */}
+        <div className="border-t border-neutral-900 p-2.5 text-center text-[10px] text-neutral-500 flex items-center justify-center gap-1.5">
+          <UploadCloud className="h-3.5 w-3.5" />
+          <span>{t.editorPage.dragFilesHint}</span>
+        </div>
+      </div>
+  );
+  const terminalPanel = (
+      <div className="w-full flex-1 min-h-0 rounded-xl border border-neutral-800 bg-neutral-950 flex flex-col overflow-hidden">
+        <EditorPanelHeader
+          id="terminal"
+          title={<><Terminal className="h-3.5 w-3.5 text-white" /> {t.editorPage.terminalLogs}</>}
+          actions={
+            <button
+              type="button"
+              draggable={false}
+              onClick={() => setOutput("")}
+              className="rounded px-1.5 py-0.5 text-[11px] text-neutral-500 hover:bg-neutral-800 hover:text-white transition"
+            >
+              {t.common.clear}
+            </button>
+          }
+          onDragStart={setDraggingPanel}
+          onDragEnd={() => { setDraggingPanel(null); setDropZone(null); }}
+          onClose={() => setShowTerminal(false)}
+          closeLabel={t.common.close}
+        />
+        <pre className="flex-1 w-full bg-black p-3.5 font-mono text-xs text-neutral-300 overflow-auto whitespace-pre-wrap selection:bg-neutral-800">
+          <HighlightedTerminal output={output} />
+        </pre>
+        <div className="border-t border-neutral-800 bg-black/60 px-3.5 py-2">
+          <label className="text-[11px] font-mono text-neutral-500">
+            {t.editorPage.programInputLabel}
+          </label>
+          <textarea
+            value={programInput}
+            onChange={(e) => setProgramInput(e.target.value)}
+            placeholder={t.editorPage.programInputPlaceholder}
+            rows={2}
+            className="mt-1 w-full resize-y rounded border border-neutral-800 bg-neutral-950 px-2 py-1 font-mono text-xs text-white placeholder-neutral-600 focus:border-white focus:outline-none"
+          />
+        </div>
+        {/* Terminal command line: type a Python command, Enter runs
+            it in the live runtime. Disabled until the runtime is
+            ready and while a command or a file run is in flight. */}
+        <div className="border-t border-neutral-800 bg-black px-3.5 py-2">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-xs font-semibold text-white shrink-0">
+              &gt;&gt;&gt;
+            </span>
+            <input
+              type="text"
+              ref={terminalInputRef}
+              value={terminalInput}
+              onChange={(e) => setTerminalInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") runTerminalCommand();
+              }}
+              placeholder={
+                pyodideReady
+                  ? t.editorPage.terminalInputPlaceholder
+                  : t.editorPage.terminalInputLoadingPlaceholder
+              }
+              disabled={!pyodideReady || terminalBusy || isRunning}
+              className="w-full bg-transparent font-mono text-xs text-white placeholder-neutral-600 focus:outline-none disabled:opacity-50"
+            />
+          </div>
+        </div>
+      </div>
+  );
+  const aiPanel = (
+    <div className="w-full flex-1 min-h-0 rounded-xl border border-neutral-800 bg-neutral-950 flex flex-col overflow-hidden">
+      <EditorPanelHeader
+        id="ai"
+        title={
+          <>
+            <Sparkles className="h-4 w-4 text-neutral-400" />
+            <span>{t.editorPage.aiPanelTitle}</span>
+          </>
+        }
+        actions={
+          <button
+            type="button"
+            onClick={clearAiChat}
+            title={t.editorPage.aiClearChat}
+            className="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-neutral-400 hover:bg-neutral-800 hover:text-white transition"
+          >
+            {t.editorPage.aiClearChat}
+          </button>
+        }
+        onDragStart={setDraggingPanel}
+        onDragEnd={() => {
+          setDraggingPanel(null);
+          setDropZone(null);
+        }}
+        onClose={() => setPanelVisible("ai", false)}
+        closeLabel={t.editorPage.aiClosePanel}
+      />
+      <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3">
+        {aiMessages.length === 0 && !aiThinking && aiThoughtSeconds === null ? (
+          <div className="flex min-h-full flex-col justify-center space-y-2">
+            <p className="text-sm text-neutral-300">{t.editorPage.aiWelcome}</p>
+            <p className="text-xs text-neutral-500">{t.editorPage.aiGuideNote}</p>
+          </div>
+        ) : null}
+        {aiMessages.map((m, i) =>
+          m.role === "user" ? (
+            <div key={i} className="flex justify-end">
+              <div className="max-w-[85%] rounded-xl rounded-br-sm bg-neutral-800 px-3 py-2 text-sm text-neutral-100 whitespace-pre-wrap break-words">
+                {m.text}
+              </div>
+            </div>
+          ) : (
+            <div key={i} className="rounded-xl bg-neutral-900 px-3 py-2 text-sm text-neutral-200">
+              <HighlightedMarkdown text={m.text} />
+            </div>
+          ),
+        )}
+        {aiThinking || aiThoughtSeconds !== null || aiMessages.length > 0 ? (
+          <ThoughtLine
+            working={aiThinking}
+            label={t.editorPage.aiThinkingLabel}
+            steps={[
+              t.editorPage.aiStepReading,
+              t.editorPage.aiStepThinking,
+              t.editorPage.aiStepDrafting,
+            ]}
+            fontSize={15}
+            onSettle={(seconds) => setAiThoughtSeconds(seconds)}
+          />
+        ) : null}
+        {aiError ? <p className="text-xs text-red-400">{aiError}</p> : null}
+      </div>
+      <div className="shrink-0 border-t border-neutral-800 p-2">
+        <PromptBar
+          placeholder={t.editorPage.aiPlaceholder}
+          sources={[
+            {
+              key: "files",
+              name: "Current file",
+              description: activeFile ? activeFile.path : "No file open",
+              icon: <Code2 className="h-4 w-4" />,
+              attach: true,
+            },
+          ]}
+          commands={[
+            { key: "explain", name: "/explain", description: "Explain the current file" },
+            { key: "debug", name: "/debug", description: "Find the bug in this code" },
+            { key: "hint", name: "/hint", description: "Hint for the next step" },
+          ]}
+          models={AI_PANEL_MODELS}
+          defaultModel="gemini-3.8-flash"
+          efforts={["Low", "Medium", "High", "Extra", "Max"]}
+          defaultEffort="Medium"
+          busy={aiThinking}
+          onSend={sendAiMessage}
+          onStop={stopAi}
+          onAttach={() => (activeFile ? [activeFile.path] : [])}
+          background="#27272a"
+          color="#f5f5f5"
+          menuBackground="#323236"
+          sparkColor="#8e8e8e"
+          width={400}
+          radius={16}
+          maxRows={5}
+        />
+      </div>
+    </div>
+  );
+
+  const editorPanel = (
+      <div className="min-h-[420px] sm:min-h-[480px] md:min-h-0 flex-1 min-w-0 rounded-xl border border-neutral-800 bg-neutral-950 flex flex-col overflow-hidden">
+        <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-2 bg-black/60">
+          <span className="text-xs font-mono text-neutral-300 flex items-center gap-2 min-w-0">
+            <FileCode className="h-3.5 w-3.5 text-white shrink-0" />
+            <span className="truncate">{activeFile?.path} {!activeFile?.isSaved && t.editorPage.unsavedBadge}</span>
+          </span>
+          {isRunning && (
+            <button
+              type="button"
+              onClick={stopRunning}
+              disabled={!interruptBufferRef.current}
+              title={interruptBufferRef.current ? t.editorPage.stopHint : t.editorPage.stopUnavailableHint}
+              className="flex shrink-0 items-center gap-1 rounded-lg border border-red-500/50 bg-red-500/10 px-2.5 py-1 text-[11px] font-medium text-red-200 hover:bg-red-500/20 transition disabled:opacity-50"
+            >
+              <Square className="h-3 w-3 fill-current" /> {t.editorPage.stop}
+            </button>
+          )}
+          <span className="hidden text-[11px] text-neutral-500 font-mono sm:inline shrink-0 ml-2">
+            Python 3.12 (WASM) • Monaco Editor
+          </span>
+        </div>
+
+        <div className="flex-1 w-full relative">
+          <Editor
+            height="100%"
+            language="python"
+            theme={editorTheme}
+            value={activeFile?.content ?? ""}
+            onChange={handleEditorChange}
+            onMount={(editor) => {
+              editorRef.current = editor;
+              // Cursor position for the status bar (Ln / Col).
+              editor.onDidChangeCursorPosition((e: any) => {
+                setCursorPos({
+                  line: e.position.lineNumber,
+                  col: e.position.column,
+                });
+              });
+            }}
+            beforeMount={(monaco) => {
+              // lp-dark: vs-dark + scrollbars matched to the app's
+              // white-pill scrollbar (same as globals.css).
+              monaco.editor.defineTheme("lp-dark", {
+                base: "vs-dark",
+                inherit: true,
+                rules: [],
+                colors: {
+                  "scrollbarSliderBackground": "#ffffff73",
+                  "scrollbarSliderHoverBackground": "#ffffffe6",
+                  "scrollbarSliderActiveBackground": "#ffffff",
+                  "scrollbarShadow": "#00000000",
+                  "minimapSliderBackground": "#ffffff33",
+                  "minimapSliderHoverBackground": "#ffffff73",
+                  "minimapSliderActiveBackground": "#ffffffbf",
+                },
+              });
+              // lp-light: the same, on the light base — dark pill
+              // on a light editor.
+              monaco.editor.defineTheme("lp-light", {
+                base: "vs",
+                inherit: true,
+                rules: [],
+                colors: {
+                  "scrollbarSliderBackground": "#00000073",
+                  "scrollbarSliderHoverBackground": "#000000e6",
+                  "scrollbarSliderActiveBackground": "#000000",
+                  "scrollbarShadow": "#00000000",
+                  "minimapSliderBackground": "#00000033",
+                  "minimapSliderHoverBackground": "#00000073",
+                  "minimapSliderActiveBackground": "#000000bf",
+                },
+              });
+            }}
+            options={{
+              fontSize: 13,
+              lineNumbers: "on",
+              minimap: { enabled: true, side: "right" },
+              quickSuggestions: true,
+              suggestOnTriggerCharacters: true,
+              parameterHints: { enabled: true },
+              folding: true,
+              automaticLayout: true,
+              scrollBeyondLastLine: false,
+              tabSize: 4,
+              insertSpaces: true,
+              renderWhitespace: "selection",
+              wordWrap: "on",
+              fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+              scrollbar: {
+                verticalScrollbarSize: 8,
+                horizontalScrollbarSize: 8,
+                useShadows: false,
+              },
+            }}
+          />
+        </div>
+      </div>
+  );
+
+  const dockPanels = (["explorer", "terminal", "ai"] as PanelId[]).filter((id) => isPanelVisible(id));
+  const leftPanels = dockPanels.filter((id) => panelZones[id] === "left");
+  const rightPanels = dockPanels.filter((id) => panelZones[id] === "right");
+  const bottomPanels = dockPanels.filter((id) => panelZones[id] === "bottom");
+
+  function renderDockPanel(id: PanelId) {
+    if (id === "explorer") return explorerPanel;
+    if (id === "terminal") return terminalPanel;
+    if (id === "ai") return aiPanel;
+    return null;
+  }
   return (
     // pb-20 clears the mobile bottom nav bar (md:pb-0: PC has no bottom bar).
     <div className="min-h-screen bg-black text-white flex flex-col pb-20 md:pb-0">
@@ -909,123 +1921,56 @@ _lp_term_result
       />
       <AppNavbar />
 
-      <main className="flex-1 max-w-[1600px] w-full mx-auto p-4 flex flex-col gap-3">
-        {/* Files | Modules tabs — Modules lives inside the editor now. */}
-        <div className="flex gap-1.5 self-start rounded-lg border border-neutral-800 bg-neutral-950 p-1 text-xs">
-          <button
-            type="button"
-            onClick={() => switchTab("files")}
-            className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-3.5 py-1.5 font-medium transition ${
-              editorTab === "files" ? "bg-white text-black" : "text-neutral-400 hover:text-white"
-            }`}
-          >
-            <Code2 className="h-3.5 w-3.5" /> {t.editorPage.filesTab}
-          </button>
-          <button
-            type="button"
-            onClick={() => switchTab("modules")}
-            className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-3.5 py-1.5 font-medium transition ${
-              editorTab === "modules" ? "bg-white text-black" : "text-neutral-400 hover:text-white"
-            }`}
-          >
-            <Package className="h-3.5 w-3.5" /> {t.editorPage.modulesTab}
-          </button>
-        </div>
-
-        {editorTab === "files" && (
-          <>
-        {/* Top Control Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-2.5">
-          <div className="flex items-center gap-3">
-            <span className="text-xs uppercase tracking-wider text-neutral-500 font-semibold flex items-center gap-1.5 min-w-0">
-              <FileCode className="h-4 w-4 text-white shrink-0" />
-              {t.editorPage.activeLabel} <span className="text-white font-mono truncate">{activeFile?.path ?? t.editorPage.noActiveFile}</span>
-              {activeFile && !activeFile.isSaved && (
-                <span className="text-amber-400 font-sans text-xs ml-1">{t.editorPage.unsavedBadge}</span>
-              )}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={saveCurrentFile}
-              disabled={!activeFile}
-              className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-medium border transition ${
-                activeFile?.isSaved
-                  ? "border-neutral-800 bg-neutral-900 text-neutral-400 hover:text-white"
-                  : "border-white bg-white text-black font-semibold animate-pulse"
-              }`}
-            >
-              {activeFile?.isSaved ? (
-                <>
-                  <Check className="h-3.5 w-3.5 text-white" /> {t.editorPage.saved}
-                </>
-              ) : (
-                <>
-                  <Save className="h-3.5 w-3.5" /> {t.editorPage.saveFileRequired}
-                </>
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => askEditorAi("explain")}
-              disabled={aiLoading || !activeFile}
-              title={t.editorPage.explainCodeHint}
-              className="flex items-center gap-1.5 rounded-lg border border-neutral-700 bg-neutral-900 px-3.5 py-1.5 text-xs font-medium text-white hover:bg-neutral-800 transition disabled:opacity-50"
-            >
-              <Sparkles className="h-3.5 w-3.5" /> {t.editorPage.explainCode}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => askEditorAi("debug")}
-              disabled={aiLoading || !activeFile}
-              title={t.editorPage.findBugHint}
-              className="flex items-center gap-1.5 rounded-lg border border-neutral-700 bg-neutral-900 px-3.5 py-1.5 text-xs font-medium text-white hover:bg-neutral-800 transition disabled:opacity-50"
-            >
-              <Bug className="h-3.5 w-3.5" /> {t.editorPage.findBug}
-            </button>
-
-            {isRunning && (
+      <main
+        className="flex-1 max-w-[1600px] w-full mx-auto p-4 flex flex-col gap-2"
+        style={
+          {
+            "--explorer-w": `${explorerWidth}px`,
+            "--terminal-w": `${terminalWidth}px`,
+          } as React.CSSProperties
+        }
+      >
+        {/* VS Code-style menu bar (the editor header): File / Edit /
+            View / Run / Terminal. Web-only actions (wabepp). */}
+        <EditorMenuBar
+          menus={menus}
+          right={
+            <>
               <button
                 type="button"
-                onClick={stopRunning}
-                disabled={!interruptBufferRef.current}
-                title={
-                  interruptBufferRef.current
-                    ? t.editorPage.stopHint
-                    : t.editorPage.stopUnavailableHint
-                }
-                className="flex items-center gap-1.5 rounded-lg border border-red-500/50 bg-red-500/10 px-3.5 py-1.5 text-xs font-medium text-red-200 hover:bg-red-500/20 transition disabled:opacity-50"
+                onClick={() => setShowAi((v) => !v)}
+                title={t.editorPage.aiPanelTitle}
+                aria-pressed={showAi}
+                className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition ${
+                  showAi ? "bg-neutral-800 text-white" : "text-neutral-300 hover:bg-neutral-800 hover:text-white"
+                }`}
               >
-                <Square className="h-3.5 w-3.5 fill-current" /> {t.editorPage.stop}
+                <Sparkles className="h-3.5 w-3.5" />
+                {t.editorPage.aiButton}
               </button>
-            )}
-
-            <button
-              type="button"
-              onClick={compileAndRun}
-              disabled={isRunning || loadingEngine}
-              className="flex items-center gap-1.5 rounded-lg bg-white px-4 py-1.5 text-xs font-semibold text-black hover:bg-neutral-200 transition disabled:opacity-50"
+              <button
+                type="button"
+                onClick={() => {
+                  const next = !autoSave;
+                setAutoSave(next);
+                localStorage.setItem("lp_editor_autosave", next ? "on" : "off");
+              }}
+              title={t.editorPage.menuAutoSave}
+              className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-neutral-300 hover:bg-neutral-800 hover:text-white transition"
             >
-              {isRunning ? (
-                <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> {t.editorPage.compiling}
-                </>
-              ) : loadingEngine ? (
-                <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> {t.editorPage.loadingEngine}
-                </>
-              ) : (
-                <>
-                  <Play className="h-3.5 w-3.5 fill-black" /> {t.editorPage.compileAndRun}
-                </>
-              )}
-            </button>
-          </div>
-        </div>
+              <span
+                className={`h-2 w-2 rounded-full ${autoSave ? "bg-emerald-400" : "bg-neutral-600"}`}
+              />
+              {t.editorPage.menuAutoSave}
+              <span className="text-neutral-500">{autoSave ? t.editorPage.saved : t.editorPage.unsavedBadge}</span>
+              </button>
+            </>
+          }
+        />
+
+        {/* Files / Modules now live in the Explorer panel's header
+            (two small tabs there) — the separate tab bar above the
+            editor is gone, so the header is a single bar. */}
 
         {/* Runtime load status: which CDN/step it is on + elapsed time,
             so a slow download reads as "working", not "stuck". */}
@@ -1079,317 +2024,141 @@ _lp_term_result
           </div>
         )}
 
-        {/* 3-Column Layout: File Tree Explorer | Monaco Editor | Output Console */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 flex-1 min-h-[620px]">
-          {/* Column 1: Workspace Folder Tree Explorer with Drag & Drop (3 cols) */}
-          <div
-            onDragOver={(e) => {
-              e.preventDefault();
-              setIsExternalDragOver(true);
-            }}
-            onDragLeave={() => setIsExternalDragOver(false)}
-            onDrop={handleExternalDrop}
-            className={`max-h-[340px] md:col-span-3 md:max-h-none rounded-xl border flex flex-col overflow-hidden transition relative ${
-              isExternalDragOver
-                ? "border-white bg-neutral-900 ring-2 ring-white/20"
-                : "border-neutral-800 bg-neutral-950"
-            }`}
-          >
-            <div className="flex items-center justify-between border-b border-neutral-800 px-3 py-2 bg-black/60">
-              <span className="text-xs uppercase tracking-wider text-neutral-400 font-semibold flex items-center gap-1.5">
-                <Folder className="h-3.5 w-3.5 text-neutral-300" /> {t.editorPage.explorer}
-              </span>
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => setShowNewFile(!showNewFile)}
-                  title={t.editorPage.newFile}
-                  className="rounded p-1 hover:bg-neutral-800 text-neutral-400 hover:text-white"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowNewFolder(!showNewFolder)}
-                  title={t.editorPage.newFolder}
-                  className="rounded p-1 hover:bg-neutral-800 text-neutral-400 hover:text-white"
-                >
-                  <FolderPlus className="h-3.5 w-3.5" />
-                </button>
+        {/* VS Code-style layout: Explorer (resizable) | Editor |
+            Terminal (resizable). On mobile the panels stack and the
+            splitters hide; on desktop drag a splitter to resize and
+            double-click it to reset. */}
+        {/* Dockable panels (VS Code-style): Explorer, Terminal and AI
+            live in zones — left, right, or bottom. Drag a panel by
+            its header onto a zone to move it there; drag a splitter
+            to resize, double-click it to reset. On mobile the panels
+            stack and the splitters hide. */}
+        <div
+          ref={dockRef}
+          className="relative flex min-h-[620px] flex-1 flex-col gap-2"
+          onDragOver={() => setDropZone(null)}
+        >
+          <div className="flex min-h-[620px] flex-1 flex-col gap-2 md:flex-row">
+            {/* Left zone */}
+            {leftPanels.length > 0 && (
+              <div className="flex w-full flex-col gap-2 md:w-[var(--explorer-w)] md:shrink-0">
+                {leftPanels.map((id) => (
+                  <div key={id} className="flex min-h-0 min-w-0 flex-1 flex-col">
+                    {renderDockPanel(id)}
+                  </div>
+                ))}
               </div>
-            </div>
-
-            {/* Inline create inputs */}
-            {showNewFile && (
-              <form onSubmit={handleAddFile} className="p-2 border-b border-neutral-800 bg-black">
-                <input
-                  type="text"
-                  autoFocus
-                  placeholder={t.editorPage.newFilePlaceholder}
-                  value={newFileInput}
-                  onChange={(e) => setNewFileInput(e.target.value)}
-                  className="w-full rounded border border-neutral-800 bg-neutral-950 px-2 py-1 text-xs font-mono text-white placeholder-neutral-600 focus:border-white focus:outline-none"
-                />
-              </form>
             )}
-
-            {showNewFolder && (
-              <form onSubmit={handleAddFolder} className="p-2 border-b border-neutral-800 bg-black">
-                <input
-                  type="text"
-                  autoFocus
-                  placeholder={t.editorPage.newFolderPlaceholder}
-                  value={newFolderInput}
-                  onChange={(e) => setNewFolderInput(e.target.value)}
-                  className="w-full rounded border border-neutral-800 bg-neutral-950 px-2 py-1 text-xs font-mono text-white placeholder-neutral-600 focus:border-white focus:outline-none"
-                />
-              </form>
+            <EditorSplitter
+              disabled={leftPanels.length === 0}
+              label="Resize left panels"
+              onDrag={(d) => setExplorerWidth((w) => Math.min(480, Math.max(200, w + d)))}
+              onReset={() => setExplorerWidth(280)}
+            />
+            {/* Centre: the editor (or the package manager on Modules). */}
+            <div className="flex min-h-[420px] min-w-0 flex-1 flex-col sm:min-h-[480px] md:min-h-0">
+              {editorTab === "files" ? (
+                editorPanel
+              ) : (
+                <ModulesPanel pyodideRef={pyodideRef} ensurePyodide={ensurePyodideReady} />
+              )}
+            </div>
+            <EditorSplitter
+              disabled={rightPanels.length === 0}
+              label="Resize right panels"
+              onDrag={(d) => setTerminalWidth((w) => Math.min(560, Math.max(240, w - d)))}
+              onReset={() => setTerminalWidth(320)}
+            />
+            {/* Right zone */}
+            {rightPanels.length > 0 && (
+              <div className="flex w-full flex-col gap-2 md:w-[var(--terminal-w)] md:shrink-0">
+                {rightPanels.map((id) => (
+                  <div key={id} className="flex min-h-0 min-w-0 flex-1 flex-col">
+                    {renderDockPanel(id)}
+                  </div>
+                ))}
+              </div>
             )}
-
-            {/* Root Drop Zone */}
-            <div
-              onDragOver={(e) => handleDragOverFolder(e, "root")}
-              onDragLeave={() => setDragOverTarget(null)}
-              onDrop={(e) => handleDropOnTarget(e, "root")}
-              className={`px-3 py-1 text-[10px] uppercase font-mono tracking-wider transition ${
-                dragOverTarget === "root"
-                  ? "bg-white text-black font-semibold rounded mx-2 my-1"
-                  : "text-neutral-600"
-              }`}
-            >
-              {t.editorPage.workspaceRootDropHint}
-            </div>
-
-            {/* Tree Items: React Bits BranchedMenu — top-level files
-                are leaves, folders are sections with branch lines.
-                Selecting a file opens it; folding a folder, dragging
-                files between folders, and the per-row delete button
-                all keep the old tree's behaviour. */}
-            <div className="flex-1 overflow-auto p-2">
-              <BranchedMenu
-                items={treeData.menuItems}
-                activeValue={activeFilePath}
-                openSections={treeOpenSections}
-                onSelect={(value) => handleTreeSelect(value)}
-                onToggle={handleTreeToggle}
-                onRowDragStart={handleTreeDragStart}
-                onRowDragOver={handleTreeDragOver}
-                onRowDragLeave={handleTreeDragLeave}
-                onRowDrop={handleTreeDrop}
-                dragOverValue={dragOverTarget}
-                className="branched-menu--full"
-                color="#f5f5f5"
-                accentColor="#f5f5f5"
-                lineColor="#3f3f46"
-                width={280}
-              />
-            </div>
-
-            {/* Drag & Drop Hint */}
-            <div className="border-t border-neutral-900 p-2.5 text-center text-[10px] text-neutral-500 flex items-center justify-center gap-1.5">
-              <UploadCloud className="h-3.5 w-3.5" />
-              <span>{t.editorPage.dragFilesHint}</span>
-            </div>
           </div>
-
-          {/* Column 2: Real Monaco Code Editor (6 cols) */}
-          <div className="min-h-[420px] sm:min-h-[480px] md:col-span-6 md:min-h-0 rounded-xl border border-neutral-800 bg-neutral-950 flex flex-col overflow-hidden">
-            <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-2 bg-black/60">
-              <span className="text-xs font-mono text-neutral-300 flex items-center gap-2 min-w-0">
-                <FileCode className="h-3.5 w-3.5 text-white shrink-0" />
-                <span className="truncate">{activeFile?.path} {!activeFile?.isSaved && t.editorPage.unsavedBadge}</span>
-              </span>
-              <span className="hidden text-[11px] text-neutral-500 font-mono sm:inline shrink-0 ml-2">
-                Python 3.12 (WASM) • Monaco Editor
-              </span>
-            </div>
-
-            <div className="flex-1 w-full relative">
-              <Editor
-                height="100%"
-                language="python"
-                theme={editorTheme}
-                value={activeFile?.content ?? ""}
-                onChange={handleEditorChange}
-                beforeMount={(monaco) => {
-                  // lp-dark: vs-dark + scrollbars matched to the app's
-                  // white-pill scrollbar (same as globals.css).
-                  monaco.editor.defineTheme("lp-dark", {
-                    base: "vs-dark",
-                    inherit: true,
-                    rules: [],
-                    colors: {
-                      "scrollbarSliderBackground": "#ffffff73",
-                      "scrollbarSliderHoverBackground": "#ffffffe6",
-                      "scrollbarSliderActiveBackground": "#ffffff",
-                      "scrollbarShadow": "#00000000",
-                      "minimapSliderBackground": "#ffffff33",
-                      "minimapSliderHoverBackground": "#ffffff73",
-                      "minimapSliderActiveBackground": "#ffffffbf",
-                    },
-                  });
-                  // lp-light: the same, on the light base — dark pill
-                  // on a light editor.
-                  monaco.editor.defineTheme("lp-light", {
-                    base: "vs",
-                    inherit: true,
-                    rules: [],
-                    colors: {
-                      "scrollbarSliderBackground": "#00000073",
-                      "scrollbarSliderHoverBackground": "#000000e6",
-                      "scrollbarSliderActiveBackground": "#000000",
-                      "scrollbarShadow": "#00000000",
-                      "minimapSliderBackground": "#00000033",
-                      "minimapSliderHoverBackground": "#00000073",
-                      "minimapSliderActiveBackground": "#000000bf",
-                    },
-                  });
-                }}
-                options={{
-                  fontSize: 13,
-                  lineNumbers: "on",
-                  minimap: { enabled: true, side: "right" },
-                  quickSuggestions: true,
-                  suggestOnTriggerCharacters: true,
-                  parameterHints: { enabled: true },
-                  folding: true,
-                  automaticLayout: true,
-                  scrollBeyondLastLine: false,
-                  tabSize: 4,
-                  insertSpaces: true,
-                  renderWhitespace: "selection",
-                  wordWrap: "on",
-                  fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-                  scrollbar: {
-                    verticalScrollbarSize: 8,
-                    horizontalScrollbarSize: 8,
-                    useShadows: false,
-                  },
-                }}
+          {/* Bottom zone */}
+          {bottomPanels.length > 0 && (
+            <>
+              <EditorSplitter
+                orientation="horizontal"
+                label="Resize bottom panels"
+                onDrag={(d) => setBottomHeight((h) => Math.min(480, Math.max(160, h - d)))}
+                onReset={() => setBottomHeight(220)}
               />
-            </div>
-          </div>
-
-          {/* Column 3: Terminal Output / Compiler Logs (3 cols) */}
-          <div className="min-h-[180px] md:col-span-3 md:min-h-0 rounded-xl border border-neutral-800 bg-neutral-950 flex flex-col overflow-hidden">
-            <div className="flex items-center justify-between border-b border-neutral-800 px-3.5 py-2 bg-black/60">
-              <span className="text-xs font-mono text-neutral-400 flex items-center gap-1.5">
-                <Terminal className="h-3.5 w-3.5 text-white" /> {t.editorPage.terminalLogs}
-              </span>
-              <button
-                type="button"
-                onClick={() => setOutput("")}
-                className="text-[11px] text-neutral-500 hover:text-white transition"
+              <div className="flex gap-2" style={{ height: bottomHeight }}>
+                {bottomPanels.map((id) => (
+                  <div key={id} className="flex min-h-0 min-w-0 flex-1 flex-col">
+                    {renderDockPanel(id)}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+          {/* Drop zones — only while a panel is being dragged. */}
+          {draggingPanel && (
+            <>
+              <div
+                onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setDropZone("left"); }}
+                onDrop={(e) => { e.preventDefault(); movePanelToZone(draggingPanel, "left"); setDraggingPanel(null); setDropZone(null); }}
+                className={`absolute bottom-1/4 left-0 top-0 z-20 flex w-1/4 items-center justify-center border-2 border-dashed ${dropZone === "left" ? "border-white/70 bg-white/10" : "border-white/20 bg-white/[0.03]"}`}
               >
-                {t.common.clear}
-              </button>
-            </div>
-            <pre className="flex-1 w-full bg-black p-3.5 font-mono text-xs text-neutral-300 overflow-auto whitespace-pre-wrap selection:bg-neutral-800">
-              <HighlightedTerminal output={output} />
-            </pre>
-            <div className="border-t border-neutral-800 bg-black/60 px-3.5 py-2">
-              <label className="text-[11px] font-mono text-neutral-500">
-                {t.editorPage.programInputLabel}
-              </label>
-              <textarea
-                value={programInput}
-                onChange={(e) => setProgramInput(e.target.value)}
-                placeholder={t.editorPage.programInputPlaceholder}
-                rows={2}
-                className="mt-1 w-full resize-y rounded border border-neutral-800 bg-neutral-950 px-2 py-1 font-mono text-xs text-white placeholder-neutral-600 focus:border-white focus:outline-none"
-              />
-            </div>
-            {/* Terminal command line: type a Python command, Enter runs
-                it in the live runtime. Disabled until the runtime is
-                ready and while a command or a file run is in flight. */}
-            <div className="border-t border-neutral-800 bg-black px-3.5 py-2">
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-xs font-semibold text-white shrink-0">
-                  &gt;&gt;&gt;
-                </span>
-                <input
-                  type="text"
-                  value={terminalInput}
-                  onChange={(e) => setTerminalInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") runTerminalCommand();
-                  }}
-                  placeholder={
-                    pyodideReady
-                      ? t.editorPage.terminalInputPlaceholder
-                      : t.editorPage.terminalInputLoadingPlaceholder
-                  }
-                  disabled={!pyodideReady || terminalBusy || isRunning}
-                  className="w-full bg-transparent font-mono text-xs text-white placeholder-neutral-600 focus:outline-none disabled:opacity-50"
-                />
+                <span className="rounded bg-black/70 px-2 py-1 text-[11px] font-medium text-white">Dock left</span>
               </div>
-            </div>
-          </div>
+              <div
+                onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setDropZone("right"); }}
+                onDrop={(e) => { e.preventDefault(); movePanelToZone(draggingPanel, "right"); setDraggingPanel(null); setDropZone(null); }}
+                className={`absolute bottom-1/4 right-0 top-0 z-20 flex w-1/4 items-center justify-center border-2 border-dashed ${dropZone === "right" ? "border-white/70 bg-white/10" : "border-white/20 bg-white/[0.03]"}`}
+              >
+                <span className="rounded bg-black/70 px-2 py-1 text-[11px] font-medium text-white">Dock right</span>
+              </div>
+              {/* The bottom zone is not offered for the AI panel:
+                  AI is a side panel only, so while it is dragged
+                  there is nowhere to drop it at the bottom. */}
+              {draggingPanel !== "ai" && (
+                <div
+                  onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setDropZone("bottom"); }}
+                  onDrop={(e) => { e.preventDefault(); movePanelToZone(draggingPanel, "bottom"); setDraggingPanel(null); setDropZone(null); }}
+                  className={`absolute bottom-0 left-0 right-0 z-20 flex h-1/4 items-center justify-center border-2 border-dashed ${dropZone === "bottom" ? "border-white/70 bg-white/10" : "border-white/20 bg-white/[0.03]"}`}
+                >
+                  <span className="rounded bg-black/70 px-2 py-1 text-[11px] font-medium text-white">Dock bottom</span>
+                </div>
+              )}
+            </>
+          )}
         </div>
-
-        {/* AI code help answer (explain / debug) */}
-        {(aiMode !== null || aiUnavailable) && (
-          <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-4">
-            <div className="flex items-center justify-between gap-3">
-              <span className="flex items-center gap-2 text-sm font-semibold text-white">
-                {aiMode === "explain" ? (
-                  <>
-                    <Sparkles className="h-4 w-4" /> {t.editorPage.aiExplanation}
-                  </>
-                ) : aiMode === "debug" ? (
-                  <>
-                    <Bug className="h-4 w-4" /> {t.editorPage.aiBugCheck}
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-4 w-4" /> {t.editorPage.aiCodeHelp}
-                  </>
-                )}
-              </span>
-              <button
-                type="button"
-                onClick={() => {
-                  setAiMode(null);
-                  setAiAnswer(null);
-                  setAiError(null);
-                }}
-                aria-label={t.editorPage.closeAiAnswer}
-                className="rounded-lg border border-neutral-800 bg-black p-1.5 text-neutral-400 hover:text-white"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            {aiUnavailable ? (
-              <p className="mt-3 rounded-lg border border-neutral-800 bg-black px-4 py-3 text-xs leading-relaxed text-neutral-300">
-                {t.editorPage.aiUnavailableMessage}
-              </p>
-            ) : aiLoading ? (
-              <p className="mt-3 flex items-center gap-2 text-xs text-neutral-400">
-                <Loader2 className="h-3.5 w-3.5 animate-spin" /> {t.editorPage.aiReadingCode}
-              </p>
-            ) : aiError ? (
-              <p className="mt-3 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs text-red-200">
-                {aiError}
-              </p>
-            ) : aiAnswer ? (
-              <>
-                {aiTruncated && (
-                  <p className="mt-3 text-xs text-neutral-500">
-                    {t.editorPage.aiTruncatedNote}
-                  </p>
-                )}
-                <HighlightedMarkdown text={aiAnswer} />
-              </>
-            ) : null}
-          </div>
-        )}
-          </>
-        )}
-
-        {editorTab === "modules" && (
-          <ModulesPanel pyodideRef={pyodideRef} ensurePyodide={ensurePyodideReady} />
-        )}
+        {/* Status bar (VS Code-style): runtime, active file, save state,
+            cursor position. (Auto Save lives in the menu-bar toggle
+            only — repeating it here was a duplicate.) */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-1.5 text-[11px] font-mono text-neutral-400">
+          <span className="flex items-center gap-1.5">
+            <span className={`h-1.5 w-1.5 rounded-full ${pyodideReady ? "bg-emerald-400" : "bg-amber-400"}`} />
+            {t.editorPage.statusPython}
+          </span>
+          <span className="truncate">{activeFile?.path ?? t.editorPage.noActiveFile}</span>
+          <span className="ml-auto flex items-center gap-4">
+            <span>
+              {activeFile?.isSaved ? t.editorPage.saved : t.editorPage.unsavedBadge}
+            </span>
+            <span>
+              Ln {cursorPos.line}, Col {cursorPos.col}
+            </span>
+          </span>
+        </div>
       </main>
+
+      {/* Right-click / long-press context menu (files, folders, root). */}
+      {contextMenu && (
+        <EditorContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          items={contextMenuItems()}
+          onClose={() => setContextMenu(null)}
+        />
+      )}
     </div>
   );
 }

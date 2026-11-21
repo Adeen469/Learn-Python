@@ -1,0 +1,226 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const read = (p) => readFileSync(path.join(root, p), "utf8");
+
+// VS Code-style editor redesign (2026-11-21, Maalik's brief): a menu-bar
+// header (File/Edit/Run — View and Terminal menus were removed in v2),
+// right-click / long-press context menus for files + folders, auto-save,
+// Format (black), rename / delete / duplicate / copy-path, resizable
+// panels (drag + double-click reset), a status bar, draggable dock
+// zones (Explorer / Terminal / AI move between left / right / bottom),
+// and an AI panel (PromptBar + ThoughtLine, guide mode — the AI helps
+// the user learn, never generates the code). Static source checks —
+// the suite mirrors the source so a drift fails loudly instead of
+// shipping a half-wired editor.
+
+const page = read("src/app/editor/page.tsx");
+const menuBar = read("src/components/EditorMenuBar.tsx");
+const contextMenu = read("src/components/EditorContextMenu.tsx");
+const splitter = read("src/components/EditorSplitter.tsx");
+const panelHeader = read("src/components/EditorPanelHeader.tsx");
+const branched = read("src/components/BranchedMenu.tsx");
+const promptBar = read("src/components/PromptBar.tsx");
+const thoughtLine = read("src/components/ThoughtLine.tsx");
+const aiLib = read("src/lib/ai.ts");
+const en = read("src/lib/i18n/en.ts");
+
+test("menu bar: File/Edit/Run only, Run = run without debugging + stop (wabepp)", () => {
+  assert.ok(page.includes("<EditorMenuBar"), "page must render the menu bar");
+  assert.ok(page.includes('id: "file"'), "File menu must exist");
+  assert.ok(page.includes('id: "edit"'), "Edit menu must exist");
+  assert.ok(page.includes('id: "run"'), "Run menu must exist");
+  assert.ok(!page.includes('id: "view"'), "View menu must be gone (panels move by drag, not a menu)");
+  assert.ok(!page.includes('id: "terminal"'), "Terminal menu must be gone (Clear lives in the Terminal panel header)");
+  assert.ok(page.includes("runWithoutDebugging"), "Run menu must offer Run Without Debugging");
+  assert.ok(page.includes('"Ctrl+F5"'), "Run Without Debugging must carry its Ctrl+F5 label");
+  assert.ok(page.includes('id: "stop"'), "Run menu must offer Stop");
+  assert.ok(page.includes("action: stopRunning"), "Run menu Stop must stop the run");
+  assert.ok(menuBar.includes('role="menubar"'), "menu bar must use menubar role");
+  // wabepp: OS-only items must NOT be in the website menu. The VS Code
+  // Run-menu debugger entries are app-only (native APK / Tauri EXE).
+  for (const banned of [
+    "Reveal in File Explorer",
+    "Open in Integrated Terminal",
+    "Open With",
+    "Start Debugging",
+    "Step Over",
+    "Step Into",
+    "Step Out",
+    "Toggle Breakpoint",
+    "Add Configuration",
+    "Open Configurations",
+  ]) {
+    assert.ok(!page.includes(banned), `web menu must not contain "${banned}" (app-only)`);
+    assert.ok(!menuBar.includes(banned), `menu bar must not contain "${banned}" (app-only)`);
+  }
+});
+
+test("control bar + standalone tab bar are gone; Files/Modules live in the Explorer panel", () => {
+  // The old single-shot AI (Explain / Find-bug buttons + answer card)
+  // is gone — the AI panel replaces it.
+  for (const dead of ["askEditorAi", "aiAnswer", "aiMode", "aiLoading", "aiTruncated"]) {
+    assert.ok(!page.includes(dead), `dead single-shot AI state "${dead}" must be removed`);
+  }
+  // Files/Modules tabs now sit inside the Explorer panel header.
+  assert.ok(page.includes('switchTab("files")'), "Explorer panel must offer the Files tab");
+  assert.ok(page.includes('switchTab("modules")'), "Explorer panel must offer the Modules tab");
+  // Stop moved to the Editor panel header (only while a run is live).
+  assert.ok(page.includes("{isRunning && ("), "editor header must show Stop only while running");
+  assert.ok(page.includes("onClick={stopRunning}"), "editor header Stop must stop the run");
+});
+
+test("context menu: component exists, wired to rows + root, web-only items", () => {
+  assert.ok(page.includes("<EditorContextMenu"), "page must render the context menu");
+  assert.ok(page.includes("onRowContextMenu"), "tree rows must open the context menu");
+  assert.ok(branched.includes("onRowContextMenu"), "BranchedMenu must support onRowContextMenu");
+  assert.ok(page.includes("openRootContextMenu"), "empty explorer area must open the root menu");
+  assert.ok(contextMenu.includes("fixed inset-0 z-40"), "menu must have an overlay to close on outside tap");
+  // Items present for files/folders.
+  for (const key of ["menuRename", "menuDuplicate", "menuCopyPath", "menuDelete", "menuFormat"]) {
+    assert.ok(page.includes(key), `context menu / file menu must use ${key}`);
+  }
+  // wabepp: OS-only items must NOT be in the website context menu.
+  assert.ok(!contextMenu.includes("Reveal in File Explorer"), "context menu must not contain OS-only items");
+  assert.ok(!page.includes("Reveal in File Explorer"), "page must not contain OS-only items");
+});
+
+test("auto-save: on by default, persisted, debounced silent save", () => {
+  assert.ok(page.includes("lp_editor_autosave"), "auto-save preference must persist");
+  assert.ok(page.includes("saveFileSilently"), "auto-save must use a silent save (no terminal spam)");
+  assert.ok(page.includes("1200"), "auto-save must debounce (~1.2s)");
+  assert.ok(page.includes("menuAutoSave"), "auto-save must be toggleable from the menu bar");
+});
+
+test("format: black via micropip, installed once per session", () => {
+  assert.ok(page.includes("formatCurrentFile"), "format action must exist");
+  assert.ok(page.includes("black.format_str"), "format must use black");
+  assert.ok(page.includes("micropip"), "black must install via micropip");
+  assert.ok(page.includes("blackReadyRef"), "black must install once per session");
+  assert.ok(en.includes("formatFailed"), "format failure must have a message");
+});
+
+test("rename / delete / duplicate / copy-path actions exist", () => {
+  for (const fn of ["startRename", "submitRename", "deleteItem", "duplicateItem", "copyPath"]) {
+    assert.ok(page.includes(`function ${fn}`), `${fn} must exist`);
+  }
+  assert.ok(page.includes("keepOneFileError"), "delete must refuse to remove the last file");
+  assert.ok(page.includes("navigator.clipboard.writeText"), "copy path must use the clipboard");
+});
+
+test("resizable panels: splitters, persisted widths, double-click reset", () => {
+  assert.ok(page.includes("<EditorSplitter"), "page must render splitters");
+  assert.ok(splitter.includes("onDoubleClick"), "splitter must reset on double-click");
+  assert.ok(splitter.includes("setPointerCapture"), "splitter must use pointer capture (mouse + touch)");
+  assert.ok(splitter.includes("orientation"), "splitter must support a horizontal orientation (bottom zone)");
+  assert.ok(splitter.includes("cursor-row-resize"), "horizontal splitter must use a row-resize cursor");
+  assert.ok(page.includes("lp_editor_explorer_w"), "explorer width must persist");
+  assert.ok(page.includes("lp_editor_terminal_w"), "terminal width must persist");
+  assert.ok(page.includes("lp_editor_bottom_h"), "bottom-zone height must persist");
+  assert.ok(page.includes("? v : 220"), "bottom zone must default to 220px (tight, not 260)");
+  assert.ok(page.includes("var(--explorer-w)"), "explorer width must come from a CSS var (desktop only)");
+  assert.ok(page.includes("var(--terminal-w)"), "terminal width must come from a CSS var (desktop only)");
+  assert.ok(page.includes("showExplorer"), "explorer must be toggleable (panel close)");
+  assert.ok(page.includes("showTerminal"), "terminal must be toggleable (panel close)");
+});
+
+test("draggable dock: panels move between zones (AI is side-only, Terminal/Explorer go anywhere)", () => {
+  assert.ok(page.includes("<EditorPanelHeader"), "panels must render the draggable header");
+  assert.ok(panelHeader.includes("draggable"), "panel header must be draggable");
+  assert.ok(panelHeader.includes("lp-panel:"), "panel drag must carry its id in the drag data");
+  assert.ok(page.includes("lp_editor_panel_zones"), "panel zones must persist");
+  assert.ok(page.includes("movePanelToZone"), "dropping a panel must move it to the zone");
+  assert.ok(page.includes("renderDockPanel"), "zones must render panels through renderDockPanel");
+  assert.ok(page.includes("Dock left"), "left drop zone must exist while dragging");
+  assert.ok(page.includes("Dock right"), "right drop zone must exist while dragging");
+  assert.ok(page.includes("Dock bottom"), "bottom drop zone must exist while dragging");
+  assert.ok(page.includes('const [showAi, setShowAi] = useState(true)'), "AI panel must be visible by default");
+  // AI is a side panel only — it never docks at the bottom.
+  assert.ok(page.includes('if (id === "ai" && zone === "bottom") return;'), "AI must refuse the bottom zone");
+  assert.ok(page.includes('draggingPanel !== "ai"'), "bottom drop zone must hide while dragging AI");
+  assert.ok(page.includes('if (z.ai === "bottom") z.ai = "right";'), "a saved AI bottom zone must reset to the right side");
+  // Tight gutters: the dock gaps are gap-2 (8px), not gap-3 (12px).
+  assert.ok(!page.includes("gap-3"), "no 12px dock gutter may remain");
+  assert.ok(page.includes("flex flex-col gap-2"), "dock columns must use the tight gap");
+  // The AI empty state sits in the middle of the panel, not pinned to
+  // the top with a void below it.
+  assert.ok(page.includes("flex min-h-full flex-col justify-center"), "AI empty state must be vertically centred");
+});
+
+test("AI panel: PromptBar + ThoughtLine wired to guide mode (no code generation)", () => {
+  assert.ok(page.includes("<PromptBar"), "AI panel must render the PromptBar");
+  assert.ok(page.includes("<ThoughtLine"), "AI panel must render the ThoughtLine while thinking");
+  // The ThoughtLine must stay mounted while messages exist: if it
+  // unmounted the moment thinking stopped, its settle effect would
+  // never run and the "Thought for Xs" line would never appear.
+  assert.ok(
+    page.includes("aiMessages.length > 0"),
+    "ThoughtLine must stay mounted while messages exist so it can settle"
+  );
+  assert.ok(page.includes("sendAiMessage"), "AI panel must send through sendAiMessage");
+  assert.ok(page.includes('mode: "guide"'), "AI panel must ask in guide mode (tutor-only, never generates code)");
+  assert.ok(page.includes("AI_PANEL_MODELS"), "AI panel must offer the free-model picker");
+  assert.ok(page.includes('defaultModel="gemini-3.8-flash"'), "Gemini 3.8 Flash must be the default model");
+  assert.ok(page.includes('sparkColor="#8e8e8e"'), "PromptBar must use Maalik's spark colour");
+  assert.ok(page.includes("onSend={sendAiMessage}"), "PromptBar send must go to the guide handler");
+  assert.ok(page.includes("onStop={stopAi}"), "PromptBar stop must abort the in-flight request");
+  assert.ok(page.includes("aiButton"), "menu bar must carry the AI toggle button");
+  assert.ok(page.includes('if (id === "ai") return aiPanel'), "the AI panel must dock in the side zones");
+  assert.ok(page.includes("clearAiChat"), "AI panel must offer Clear chat");
+  // Every free-tier model Maalik asked for (Gemini + Groq) in the picker.
+  for (const id of [
+    "gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash", "gemini-2.5-pro",
+    "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.0-flash", "gemini-2.0-flash-lite",
+    "openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3.6-27b", "qwen/qwen3.8-27b",
+  ]) {
+    assert.ok(page.includes(`"${id}"`), `AI picker must list ${id}`);
+    assert.ok(aiLib.includes(`"${id}"`), `backend allowlist must include ${id}`);
+  }
+  // The vendored components carry Maalik's defaults.
+  assert.ok(promptBar.includes("sparkColor = '#8e8e8e'"), "PromptBar default spark colour must be #8e8e8e");
+  assert.ok(thoughtLine.includes("fontSize = 15"), "ThoughtLine default font size must be 15");
+  // Guide mode itself: the backend prompt forbids handing over code.
+  assert.ok(aiLib.includes('case "guide"'), "backend must have a guide mode");
+  assert.ok(
+    aiLib.includes("NEVER write or generate the code solution"),
+    "guide prompt must forbid generating the code solution"
+  );
+});
+
+test("status bar: runtime, file, save state, cursor position", () => {
+  assert.ok(page.includes("statusPython"), "status bar must show the Python runtime");
+  assert.ok(page.includes("cursorPos"), "status bar must show the cursor position");
+  assert.ok(page.includes("Ln {cursorPos.line}"), "status bar must show line number");
+  assert.ok(page.includes("onMount"), "editor must expose its instance (Undo/Redo/Find + cursor)");
+  assert.ok(page.includes('getAction("actions.find")'), "Find must use Monaco's find action");
+  // Auto Save lives in the menu-bar toggle only — the status bar used
+  // to repeat it ("Auto Save · Saved"), a duplicate.
+  const statusBar = page.slice(
+    page.indexOf("Status bar (VS Code-style)"),
+    page.indexOf("{/* Right-click / long-press context menu")
+  );
+  assert.ok(!statusBar.includes("menuAutoSave"), "status bar must not repeat the Auto Save toggle");
+  assert.ok(statusBar.includes("t.editorPage.saved"), "status bar must still show the saved state");
+});
+
+test("i18n: the new editor keys exist in English", () => {
+  for (const key of [
+    "menuFile", "menuEdit", "menuView", "menuRun", "menuTerminal",
+    "menuSaveAll", "menuRename", "menuDelete", "menuDuplicate",
+    "menuCopyPath", "menuFormat", "menuAutoSave", "menuUndo", "menuRedo",
+    "menuFind", "menuClearTerminal", "menuFocusTerminal", "formatting",
+    "formatFailed", "formatNotReady", "renamePlaceholder", "autoSaved",
+    "statusPython",
+    // v2: Run menu + AI panel + drag hints.
+    "runWithoutDebugging", "aiButton", "aiPanelTitle", "aiPlaceholder",
+    "aiWelcome", "aiClearChat", "aiGuideNote", "aiStepReading",
+    "aiStepThinking", "aiStepDrafting", "aiThinkingLabel", "aiClosePanel",
+    "aiDragHint",
+  ]) {
+    assert.ok(en.includes(`${key}:`), `en.ts must define ${key}`);
+  }
+});
