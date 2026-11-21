@@ -31,11 +31,13 @@ export interface EditorMenu {
 
 interface EditorMenuBarProps {
   menus: EditorMenu[];
+  /** Left-side content after the menus (e.g. the open-repo badge). */
+  left?: ReactNode;
   /** Right-side content (auto-save indicator). */
   right?: ReactNode;
 }
 
-export function EditorMenuBar({ menus, right }: EditorMenuBarProps) {
+export function EditorMenuBar({ menus, left, right }: EditorMenuBarProps) {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const barRef = useRef<HTMLDivElement | null>(null);
 
@@ -126,6 +128,7 @@ export function EditorMenuBar({ menus, right }: EditorMenuBarProps) {
           </div>
         );
       })}
+      {left && <div className="flex items-center gap-2 pl-2">{left}</div>}
       {right && <div className="ml-auto flex items-center gap-2">{right}</div>}
     </div>
   );

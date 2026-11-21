@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getRepoTree, isValidGithubSlug } from "@/lib/github";
+import { resolveSessionGithubToken } from "@/lib/github-token";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 // A repo's file tree for opening it in the editor: paths + sizes +
@@ -14,19 +15,14 @@ const RATE_LIMITED_RESPONSE = (retryAfterSeconds: number) =>
     { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } }
   );
 
-function getAuthToken(req: NextRequest): string | null {
-  const auth = req.headers.get("authorization");
-  if (!auth?.startsWith("Bearer ")) return null;
-  return auth.slice(7).trim();
-}
-
 export async function GET(req: NextRequest) {
   const limit = await checkRateLimit(`github:${getClientIp(req)}`, 30, 60_000);
   if (!limit.allowed) return RATE_LIMITED_RESPONSE(limit.retryAfterSeconds);
-  const token = getAuthToken(req);
-  if (!token) {
-    return NextResponse.json({ error: "Missing GitHub Personal Access Token" }, { status: 401 });
-  }
+  // The token lives on the server (migration 006) — the browser
+  // never sends or sees it.
+  const resolved = await resolveSessionGithubToken(req);
+  if ("response" in resolved) return resolved.response;
+  const token = resolved.token;
   const owner = req.nextUrl.searchParams.get("owner");
   const repo = req.nextUrl.searchParams.get("repo");
   if (!isValidGithubSlug(owner) || !isValidGithubSlug(repo)) {

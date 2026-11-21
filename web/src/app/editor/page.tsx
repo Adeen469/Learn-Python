@@ -962,6 +962,16 @@ export default function CodeEditorPage() {
   // workspace). Restored on reload from lp_open_repo_current so lazy
   // files keep working after a refresh.
   const [openRepoState, setOpenRepoState] = useState<{ repo: string; branch: string } | null>(null);
+  // Success toast after a repo opens: repo name + file count.
+  // The tree is what loads here — file contents load lazily when
+  // each file is opened, so the toast fires on the tree load, not
+  // on every file. It dismisses itself after 5 seconds.
+  const [repoLoadedToast, setRepoLoadedToast] = useState<{ repo: string; count: number } | null>(null);
+  useEffect(() => {
+    if (!repoLoadedToast) return;
+    const timer = setTimeout(() => setRepoLoadedToast(null), 5000);
+    return () => clearTimeout(timer);
+  }, [repoLoadedToast]);
   // Files changed since the repo was opened (edits, new files, renames,
   // duplicates, drops) — the Push button commits exactly these, one
   // commit per file through the existing /api/github/commit route.
@@ -997,16 +1007,12 @@ export default function CodeEditorPage() {
   // GitHub's code view. Files load lazily when opened (see the
   // effect below) — the tree itself is the only thing fetched here.
   async function loadRepoTree(fullName: string) {
-    const token = localStorage.getItem("lp_github_token");
-    if (!token) {
-      setOutput((prev) => prev + `[Could not open ${fullName}: GitHub token is missing — reconnect it on the GitHub page.]\n`);
-      return;
-    }
+    // The server resolves the caller's stored GitHub token from
+    // the session (migration 006) — no token leaves this browser.
     const [owner, name] = fullName.split("/");
     try {
       const res = await fetch(
-        `/api/github/repo-tree?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(name)}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        `/api/github/repo-tree?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(name)}`
       );
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Could not load the repo");
@@ -1025,6 +1031,7 @@ export default function CodeEditorPage() {
         );
       } catch {}
       setOpenRepoState({ repo: data.repo, branch: data.branch });
+      setRepoLoadedToast({ repo: data.repo, count: data.files.length });
       const firstFile = repoItems.find((p: WorkspaceItem) => p.type === "file");
       if (firstFile) setActiveFilePath(firstFile.path);
       setOutput((prev) => prev + `[Opened ${data.repo} in the editor — ${data.files.length} files. Click a file to load it. Previous workspace backed up, restore it from File → Restore previous workspace.]\n`);
@@ -1122,16 +1129,11 @@ export default function CodeEditorPage() {
     const sha = activeFile.sha;
     if (loadingFileRef.current === path) return;
     loadingFileRef.current = path;
-    const token = localStorage.getItem("lp_github_token");
-    if (!token) {
-      loadingFileRef.current = null;
-      setOutput((prev) => prev + `[Could not load ${path}: GitHub token is missing — reconnect it on the GitHub page.]\n`);
-      return;
-    }
+    // The server resolves the caller's stored GitHub token from
+    // the session (migration 006) — no token leaves this browser.
     const [owner, name] = openRepoState.repo.split("/");
     fetch(
-      `/api/github/repo-file?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(name)}&sha=${encodeURIComponent(sha)}&path=${encodeURIComponent(path)}&branch=${encodeURIComponent(openRepoState.branch)}`,
-      { headers: { Authorization: `Bearer ${token}` } }
+      `/api/github/repo-file?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(name)}&sha=${encodeURIComponent(sha)}&path=${encodeURIComponent(path)}&branch=${encodeURIComponent(openRepoState.branch)}`
     )
       .then(async (res) => {
         if (!res.ok) {
@@ -1261,11 +1263,8 @@ export default function CodeEditorPage() {
   }
   async function pushRepoChanges(message: string) {
     if (!openRepoState || pushing) return;
-    const token = localStorage.getItem("lp_github_token");
-    if (!token) {
-      setOutput((prev) => prev + "[Could not push: GitHub token is missing — reconnect it on the GitHub page.]\n");
-      return;
-    }
+    // The server resolves the caller's stored GitHub token from
+    // the session (migration 006) — no token leaves this browser.
     const [owner, repo] = openRepoState.repo.split("/");
     const { ready, skipped } = splitChangedFiles();
     if (ready.length === 0) {
@@ -1287,7 +1286,7 @@ export default function CodeEditorPage() {
       try {
         const res = await fetch("/api/github/commit", {
           method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             owner,
             repo,
@@ -2474,18 +2473,31 @@ _lp_term_result
           </form>
         )}
 
-        {/* Root Drop Zone */}
+        {/* Root Drop Zone — while a repo is open this line is the
+            repo's name (owner/repo, branch in the tooltip), so the
+            repo is named at the top of its file list; otherwise it
+            is the plain-workspace drop hint. The div stays the root
+            drop target either way. */}
         <div
           onDragOver={(e) => handleDragOverFolder(e, "root")}
           onDragLeave={() => setDragOverTarget(null)}
           onDrop={(e) => handleDropOnTarget(e, "root")}
-          className={`px-3 py-1 text-[10px] uppercase font-mono tracking-wider transition ${
+          className={`px-3 py-1 text-[10px] font-mono tracking-wider transition ${
             dragOverTarget === "root"
               ? "bg-white text-black font-semibold rounded mx-2 my-1"
               : "text-neutral-600"
           }`}
         >
-          {t.editorPage.workspaceRootDropHint}
+          {openRepoState ? (
+            <span
+              className="block truncate"
+              title={`${openRepoState.repo} (${openRepoState.branch})`}
+            >
+              {openRepoState.repo}
+            </span>
+          ) : (
+            <span className="uppercase">{t.editorPage.workspaceRootDropHint}</span>
+          )}
         </div>
 
         {/* Tree Items: React Bits BranchedMenu — top-level files
@@ -3164,6 +3176,24 @@ _lp_term_result
             View / Run / Terminal. Web-only actions (wabepp). */}
         <EditorMenuBar
           menus={menus}
+          left={
+            /* Which repo this workspace belongs to — owner/repo,
+               linking out to the repo on GitHub. Left side, after
+               the menus — never beside the Explorer toggle. Shown
+               only while a repo is open; a plain workspace shows
+               nothing. */
+            openRepoState ? (
+              <a
+                href={`https://github.com/${openRepoState.repo}`}
+                target="_blank"
+                rel="noreferrer"
+                title={`${openRepoState.repo} (${openRepoState.branch}) — open on GitHub`}
+                className="flex max-w-56 items-center gap-1.5 truncate rounded-md border border-neutral-800 bg-neutral-900 px-2.5 py-1.5 font-mono text-xs text-neutral-300 transition hover:border-neutral-600 hover:text-white"
+              >
+                {openRepoState.repo}
+              </a>
+            ) : undefined
+          }
           right={
             <>
               <button
@@ -3583,6 +3613,29 @@ _lp_term_result
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Repo-loaded toast: fires when the repo tree loads (file
+          contents load lazily on open, so the toast is about the
+          tree). Bottom-right, above the status bar, gone in 5s. */}
+      {repoLoadedToast && (
+        <div
+          role="status"
+          className="fixed bottom-16 right-4 z-50 flex max-w-sm items-center gap-2.5 rounded-xl border border-emerald-500/40 bg-neutral-950 px-4 py-3 shadow-2xl shadow-black/60"
+        >
+          <Check className="h-4 w-4 shrink-0 text-emerald-400" />
+          <span className="min-w-0 flex-1 truncate text-xs text-neutral-200">
+            {t.editorPage.repoLoadedToast(repoLoadedToast.repo, repoLoadedToast.count)}
+          </span>
+          <button
+            type="button"
+            onClick={() => setRepoLoadedToast(null)}
+            aria-label="Dismiss"
+            className="shrink-0 rounded-md p-1 text-neutral-400 transition hover:bg-neutral-800 hover:text-white"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
         </div>
       )}
     </div>

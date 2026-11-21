@@ -180,3 +180,8 @@ export async function commitFileToRepo(
   return data;
 }
 
+export async function deleteUserRepo(token: string, owner: string, repo: string): Promise<void> {
+  const octokit = getOctokit(token);
+  await octokit.rest.repos.delete({ owner, repo });
+}
+

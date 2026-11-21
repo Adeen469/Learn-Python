@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { commitFileToRepo } from "@/lib/github";
+import { resolveSessionGithubToken } from "@/lib/github-token";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const commitSchema = z.object({
@@ -31,11 +32,9 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const auth = req.headers.get("authorization");
-  if (!auth?.startsWith("Bearer ")) {
-    return NextResponse.json({ error: "Missing GitHub Personal Access Token" }, { status: 401 });
-  }
-  const token = auth.slice(7).trim();
+  const resolved = await resolveSessionGithubToken(req);
+  if ("response" in resolved) return resolved.response;
+  const token = resolved.token;
 
   try {
     const body = await req.json();

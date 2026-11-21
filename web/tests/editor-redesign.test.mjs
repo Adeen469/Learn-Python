@@ -498,3 +498,61 @@ test("i18n: the new editor keys exist in English", () => {
     assert.ok(en.includes(`${key}:`), `en.ts must define ${key}`);
   }
 });
+
+test("the menu bar shows the open repo on the left and has no Delete button", () => {
+  // A repo opened from the GitHub page must be visible at a glance:
+  // the menu bar shows owner/repo on the LEFT, right after the
+  // File/Edit/Run menus — never beside the Explorer toggle — linking
+  // out to the repo on GitHub. Delete does NOT live here anymore:
+  // it moved to the GitHub page's repo right-click menu, so a
+  // permanent action never sits beside Push. Nothing shows for a
+  // plain local workspace (the badge is gated on openRepoState).
+  assert.ok(page.includes("openRepoState.repo"), "the badge must read the open repo");
+  assert.ok(page.includes("https://github.com/${openRepoState.repo}"), "the badge must link to the repo on GitHub");
+  assert.ok(page.includes("left={"), "the badge must be passed as the menu bar's left slot");
+  assert.ok(
+    page.indexOf("https://github.com/${openRepoState.repo}") < page.indexOf("right={"),
+    "the badge must sit before the right-side group in the menu bar"
+  );
+  assert.ok(menuBar.includes("left?: ReactNode"), "the menu bar must accept a left slot");
+  assert.ok(
+    menuBar.indexOf("left &&") < menuBar.indexOf("ml-auto"),
+    "the menu bar must render the left slot before the right group"
+  );
+  assert.ok(!page.includes("deleteRepoButton"), "the editor must not have a Delete repo button anymore");
+  assert.ok(!page.includes("/api/github/delete-repo"), "the editor must not call the delete route anymore");
+});
+
+test("the Explorer names the open repo above its file list", () => {
+  // While a repo is open, the root line above the tree shows the
+  // repo's owner/repo (branch in the tooltip) instead of the plain
+  // workspace drop hint — the repo is always named at the top of
+  // its files. The line stays the root drop target either way, and
+  // the name keeps its case (no uppercase transform).
+  assert.ok(page.includes("openRepoState.repo} (${openRepoState.branch})"), "the Explorer header must show repo + branch");
+  assert.ok(page.includes("workspaceRootDropHint"), "a plain workspace must still show the drop hint");
+});
+
+test("the editor never holds the GitHub token in the browser", () => {
+  // The token lives on the server (migration 006): repo open, lazy
+  // file load and push all go through session-authenticated routes
+  // with no token in the browser and no Authorization header.
+  // (Delete lives on the GitHub page now — same rule there.)
+  assert.ok(!page.includes('localStorage.getItem("lp_github_token")'), "the editor must never read a token from the browser");
+  assert.ok(!page.includes("Authorization"), "no editor GitHub call may send a token");
+  assert.ok(page.includes("/api/github/repo-tree?owner="), "repo open must go through the session route");
+  assert.ok(page.includes("/api/github/repo-file?owner="), "lazy file load must go through the session route");
+});
+
+test("a repo opening shows a success toast with its name and file count", () => {
+  // When the repo tree loads, the editor must pop a toast with the
+  // repo name and how many files it has — the tree is what loads
+  // here, file contents load lazily when each file is opened, so
+  // the toast fires on the tree load, not on every file.
+  assert.ok(page.includes("repoLoadedToast"), "the editor must render a repo-loaded toast");
+  assert.ok(page.includes("setRepoLoadedToast({ repo: data.repo, count: data.files.length })"), "the toast must fire when the tree load succeeds");
+  assert.ok(page.includes("setTimeout(() => setRepoLoadedToast(null), 5000)"), "the toast must dismiss itself after 5 seconds");
+  assert.ok(page.includes('role="status"'), "the toast must be a status region");
+  assert.ok(en.includes("repoLoadedToast: (repo, count)"), "en.ts must define the toast message");
+  assert.ok(en.includes("loaded — ${count} file(s)"), "the toast must name the repo and count its files");
+});

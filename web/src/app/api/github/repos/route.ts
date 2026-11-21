@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createUserRepo, listUserRepos } from "@/lib/github";
+import { resolveSessionGithubToken } from "@/lib/github-token";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const RATE_LIMITED_RESPONSE = (retryAfterSeconds: number) =>
@@ -23,19 +24,15 @@ const createRepoSchema = z.object({
   licenseTemplate: z.string().max(100).optional(),
 });
 
-function getAuthToken(req: NextRequest): string | null {
-  const auth = req.headers.get("authorization");
-  if (!auth?.startsWith("Bearer ")) return null;
-  return auth.slice(7).trim();
-}
-
 export async function GET(req: NextRequest) {
   const blocked = await rateLimited(req);
   if (blocked) return blocked;
-  const token = getAuthToken(req);
-  if (!token) {
-    return NextResponse.json({ error: "Missing GitHub Personal Access Token" }, { status: 401 });
-  }
+  // The token lives on the server (migration 006) — the browser
+  // never sends or sees it. No session or no stored token answers
+  // 401/404 here instead of a GitHub call.
+  const resolved = await resolveSessionGithubToken(req);
+  if ("response" in resolved) return resolved.response;
+  const token = resolved.token;
 
   try {
     const repos = await listUserRepos(token);
@@ -49,10 +46,9 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const blocked = await rateLimited(req);
   if (blocked) return blocked;
-  const token = getAuthToken(req);
-  if (!token) {
-    return NextResponse.json({ error: "Missing GitHub Personal Access Token" }, { status: 401 });
-  }
+  const resolved = await resolveSessionGithubToken(req);
+  if ("response" in resolved) return resolved.response;
+  const token = resolved.token;
 
   try {
     const body = await req.json();
