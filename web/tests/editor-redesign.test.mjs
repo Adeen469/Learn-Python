@@ -79,9 +79,12 @@ test("menu bar: File/Edit/Run only, Run = run without debugging + stop (wabepp)"
 test("control bar + standalone tab bar are gone; Files/Modules live in the Explorer panel", () => {
   // The old single-shot AI (Explain / Find-bug buttons + answer card)
   // is gone — the AI panel replaces it.
-  for (const dead of ["askEditorAi", "aiAnswer", "aiMode", "aiLoading", "aiTruncated"]) {
+  for (const dead of ["askEditorAi", "aiAnswer", "aiLoading", "aiTruncated"]) {
     assert.ok(!page.includes(dead), `dead single-shot AI state "${dead}" must be removed`);
   }
+  // "aiMode" as a bare identifier — the Models settings keys
+  // (aiModelsTitle, …) contain it as a substring and are alive.
+  assert.ok(!/\baiMode\b/.test(page), 'dead single-shot AI state "aiMode" must be removed');
   // Files/Modules tabs now sit inside the Explorer panel header.
   assert.ok(page.includes('switchTab("files")'), "Explorer panel must offer the Files tab");
   assert.ok(page.includes('switchTab("modules")'), "Explorer panel must offer the Modules tab");
@@ -213,7 +216,7 @@ test("AI panel: PromptBar + ThoughtLine wired to guide mode (a real AI, no restr
   assert.ok(page.includes("sendAiMessage"), "AI panel must send through sendAiMessage");
   assert.ok(page.includes('mode: "guide"'), "AI panel must ask in guide mode (a real AI assistant)");
   assert.ok(page.includes("AI_PANEL_MODELS"), "AI panel must offer the model picker");
-  assert.ok(page.includes('defaultModel="gemini-3.8-flash"'), "Gemini 3.8 Flash must be the default model");
+  assert.ok(page.includes('defaultModel="gemini-2.5-pro"'), "Gemini 2.5 Pro must be the default model (best of the four default selector models, BYOK v2)");
   // The model menu must scroll: 23 models no longer fit on screen.
   assert.ok(promptBarCss.includes("max-height: 288px"), "model menu must cap its height so it can scroll");
   assert.ok(promptBarCss.includes("overflow-y: auto"), "model menu must scroll instead of growing off-screen");
@@ -555,4 +558,19 @@ test("a repo opening shows a success toast with its name and file count", () => 
   assert.ok(page.includes('role="status"'), "the toast must be a status region");
   assert.ok(en.includes("repoLoadedToast: (repo, count)"), "en.ts must define the toast message");
   assert.ok(en.includes("loaded — ${count} file(s)"), "the toast must name the repo and count its files");
+});
+
+test("ThoughtLine: the working label is plain text, never a transparent-fill shimmer", () => {
+  // 2026-11-21: on Maalik's screen the 'Thinking…' label was
+  // invisible while the AI thought (only '4.3s' showed), while
+  // 'Thought for 10.1s' showed fine once done. The working label
+  // used a shimmer — transparent text fill over a
+  // background-clip:text gradient — and when that gradient does
+  // not paint, the text stays transparent: invisible. Plain text
+  // with the breathing opacity is the whole effect now.
+  const css = read("src/components/ThoughtLine.css");
+  assert.ok(!css.includes("-webkit-text-fill-color: transparent"), "the working label must never use a transparent text fill");
+  assert.ok(!css.includes("background-clip: text"), "the working label must never depend on a background-clip:text gradient");
+  assert.ok(!css.includes("color-mix"), "the label must not depend on color-mix");
+  assert.ok(css.includes(".thought-line__breath"), "the breath wrapper must still exist for the thinking pulse");
 });

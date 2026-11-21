@@ -26,6 +26,13 @@ import {
 import PromptBar, { type PromptBarModel } from "@/components/PromptBar";
 import ThoughtLine from "@/components/ThoughtLine";
 import {
+  ANTHROPIC_MODELS,
+  GEMINI_FREE_MODELS,
+  GROQ_FREE_MODELS,
+  OPENAI_MODELS,
+  OPENROUTER_MODELS,
+} from "@/lib/ai";
+import {
   AlertCircle,
   ArrowLeft,
   Check,
@@ -197,6 +204,11 @@ export default function CodeEditorPage() {
   type CustomAiSkill = { id: string; name: string; description: string; content: string };
   type AiByokProvider = "gemini" | "groq" | "anthropic" | "openai" | "openrouter" | "custom";
   type AiByok = { provider: AiByokProvider; key: string; baseUrl?: string; model?: string };
+  // One saved key. A user can keep several (one per provider, or
+  // more) and switch each on/off; the master switch decides whether
+  // any of them is used at all.
+  type AiByokEntry = AiByok & { id: string; enabled: boolean };
+  type AiByokStore = { enabled: boolean; entries: AiByokEntry[] };
   type AiPanelView = "chat" | "history";
   /** Centre column view: the editor, or the AI Settings card in the
       editor's place (not movable — it replaces the editor until the
@@ -244,7 +256,7 @@ export default function CodeEditorPage() {
   // Drill-down inside the settings card: the card first shows a menu
   // (Skills / BYOK), tapping one opens that sub-page with a breadcrumb
   // ("AI Settings > Skills"), and the back arrow returns to the menu.
-  const [settingsSection, setSettingsSection] = useState<"menu" | "skills" | "byok">("menu");
+  const [settingsSection, setSettingsSection] = useState<"menu" | "skills" | "models" | "byok">("menu");
   const [aiMenuOpen, setAiMenuOpen] = useState(false);
   const [aiChats, setAiChats] = useState<AiChat[]>(() =>
     readLocalJson<AiChat[]>("lp_ai_chats", [])
@@ -255,15 +267,66 @@ export default function CodeEditorPage() {
   const [activeSkillIds, setActiveSkillIds] = useState<string[]>(() =>
     readLocalJson<string[]>("lp_ai_active_skills", ["ponytail"])
   );
-  const [byok, setByok] = useState<AiByok | null>(() =>
-    readLocalJson<AiByok | null>("lp_ai_byok", null)
+  // BYOK store: a master switch plus a list of keys. A key is used
+  // only when the switch is on AND that key is enabled — otherwise
+  // the request runs on the server keys alone. The old single-key
+  // shape { provider, key } migrates to one enabled entry, so a
+  // saved key keeps working.
+  function readByokStore(): AiByokStore {
+    const raw = readLocalJson<unknown>("lp_ai_byok", null);
+    if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+      const r = raw as Record<string, unknown>;
+      if (Array.isArray(r.entries)) {
+        const entries = (r.entries as unknown[]).filter(
+          (e): e is AiByokEntry =>
+            !!e &&
+            typeof e === "object" &&
+            typeof (e as AiByokEntry).provider === "string" &&
+            typeof (e as AiByokEntry).key === "string" &&
+            typeof (e as AiByokEntry).id === "string" &&
+            typeof (e as AiByokEntry).enabled === "boolean"
+        );
+        return { enabled: r.enabled === true, entries };
+      }
+      if (typeof r.provider === "string" && typeof r.key === "string") {
+        return {
+          enabled: true,
+          entries: [
+            {
+              id: newId(),
+              provider: r.provider as AiByokProvider,
+              key: r.key,
+              ...(typeof r.baseUrl === "string" ? { baseUrl: r.baseUrl } : {}),
+              ...(typeof r.model === "string" ? { model: r.model } : {}),
+              enabled: true,
+            },
+          ],
+        };
+      }
+    }
+    return { enabled: false, entries: [] };
+  }
+  const [byokStore, setByokStore] = useState<AiByokStore>(() => readByokStore());
+  // Models the selector shows by default (no BYOK): two free models
+  // per provider — one best (result first, tokens don't matter) and
+  // one efficient (fewest tokens). Gemini best is the Pro model,
+  // efficient is Flash-Lite; Groq best is the 120B model, efficient
+  // the 20B one.
+  const DEFAULT_SELECTOR_MODELS = [
+    "gemini-2.5-pro",
+    "gemini-2.5-flash-lite",
+    "openai/gpt-oss-120b",
+    "openai/gpt-oss-20b",
+  ];
+  const [selectorModels, setSelectorModels] = useState<string[]>(() =>
+    readLocalJson<string[]>("lp_ai_selector_models", DEFAULT_SELECTOR_MODELS)
   );
   // Add-skill + BYOK form fields (settings view).
   const [newSkillName, setNewSkillName] = useState("");
   const [newSkillDesc, setNewSkillDesc] = useState("");
   const [newSkillContent, setNewSkillContent] = useState("");
   const [byokProvider, setByokProvider] = useState<AiByokProvider>(
-    () => readLocalJson<AiByok | null>("lp_ai_byok", null)?.provider ?? "gemini"
+    () => byokStore.entries[0]?.provider ?? "gemini"
   );
   const [byokKey, setByokKey] = useState("");
   const [byokBaseUrl, setByokBaseUrl] = useState("");
@@ -300,12 +363,20 @@ export default function CodeEditorPage() {
   }, [activeSkillIds]);
   useEffect(() => {
     try {
-      if (byok) localStorage.setItem("lp_ai_byok", JSON.stringify(byok));
+      if (byokStore.entries.length > 0 || byokStore.enabled)
+        localStorage.setItem("lp_ai_byok", JSON.stringify(byokStore));
       else localStorage.removeItem("lp_ai_byok");
     } catch {
       // Storage full — skip.
     }
-  }, [byok]);
+  }, [byokStore]);
+  useEffect(() => {
+    try {
+      localStorage.setItem("lp_ai_selector_models", JSON.stringify(selectorModels));
+    } catch {
+      // Storage full — skip.
+    }
+  }, [selectorModels]);
 
   // Chat history: the current chat is saved into the list (title =
   // first user message) whenever the user starts a new chat, clears,
@@ -367,26 +438,52 @@ export default function CodeEditorPage() {
     setActiveSkillIds((prev) => prev.filter((s) => s !== id));
   }
 
-  // BYOK: the key lives in this browser only and is sent with each
-  // /api/ai request; the server uses it in-memory and never stores it.
-  // Custom also needs its base URL + model id.
-  function saveByok() {
+  // BYOK: keys live in this browser only. Saving adds an entry
+  // (enabled); the master switch + the entry's own switch decide
+  // whether it is ever sent. Only the entry for the picked model's
+  // provider rides along with a request — other saved keys never
+  // leave the browser for that request.
+  function saveByokEntry() {
     const key = byokKey.trim();
     if (key.length < 10) return;
     if (byokProvider === "custom") {
       const baseUrl = byokBaseUrl.trim();
       const model = byokModel.trim();
       if (!baseUrl.startsWith("https://") || model.length === 0) return;
-      setByok({ provider: byokProvider, key, baseUrl, model });
+      setByokStore((prev) => ({
+        ...prev,
+        entries: [...prev.entries, { id: newId(), provider: byokProvider, key, baseUrl, model, enabled: true }],
+      }));
     } else {
-      setByok({ provider: byokProvider, key });
+      setByokStore((prev) => ({
+        ...prev,
+        entries: [...prev.entries, { id: newId(), provider: byokProvider, key, enabled: true }],
+      }));
     }
     setByokKey("");
     setByokBaseUrl("");
     setByokModel("");
   }
-  function removeByok() {
-    setByok(null);
+  function toggleByokEntry(id: string) {
+    setByokStore((prev) => ({
+      ...prev,
+      entries: prev.entries.map((e) => (e.id === id ? { ...e, enabled: !e.enabled } : e)),
+    }));
+  }
+  function removeByokEntry(id: string) {
+    setByokStore((prev) => ({ ...prev, entries: prev.entries.filter((e) => e.id !== id) }));
+  }
+  function setByokMaster(on: boolean) {
+    setByokStore((prev) => ({ ...prev, enabled: on }));
+  }
+
+  // Model selector: which models show (AI Settings > Models).
+  // Never empty — unticking the last one restores the defaults.
+  function toggleSelectorModel(key: string) {
+    setSelectorModels((prev) => {
+      const next = prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key];
+      return next.length === 0 ? DEFAULT_SELECTOR_MODELS : next;
+    });
   }
 
   // BYOK provider display names (brand names — same in every language).
@@ -399,10 +496,42 @@ export default function CodeEditorPage() {
     custom: "Custom",
   };
 
+  // Model id → provider, from the server's allowlists (same ids as
+  // src/lib/ai.ts). Picks which saved BYOK entry (if any) pays for
+  // the picked model.
+  function providerForModelId(model: string, customModels: string[]): AiByokProvider | null {
+    if (GEMINI_FREE_MODELS.includes(model)) return "gemini";
+    if (GROQ_FREE_MODELS.includes(model)) return "groq";
+    if (ANTHROPIC_MODELS.includes(model)) return "anthropic";
+    if (OPENAI_MODELS.includes(model)) return "openai";
+    if (OPENROUTER_MODELS.includes(model)) return "openrouter";
+    if (customModels.includes(model)) return "custom";
+    return null;
+  }
+
+  // Best = best result, tokens don't matter. Efficient = fewest
+  // tokens. These tags mark the curated models in AI Settings >
+  // Models; the rest keep their picker tag.
+  const BEST_MODEL_KEYS = new Set([
+    "gemini-2.5-pro",
+    "openai/gpt-oss-120b",
+    "claude-opus-5-5",
+    "gpt-5.5",
+    "openai/gpt-5.5",
+  ]);
+  const EFFICIENT_MODEL_KEYS = new Set([
+    "gemini-2.5-flash-lite",
+    "openai/gpt-oss-20b",
+    "claude-haiku-5-5",
+    "gpt-5.4-mini",
+    "google/gemini-2.5-flash",
+  ]);
+
   // PromptBar models: every model the API accepts. The picker shows
-  // the display name + tag. A saved custom provider adds its own
-  // model to the list.
-  const AI_PANEL_MODELS: PromptBarModel[] = [
+  // only the models the user chose in AI Settings > Models
+  // (defaults: the four free ones). An enabled custom BYOK entry
+  // adds its own model to the list.
+  const ALL_AI_PANEL_MODELS: PromptBarModel[] = [
     { key: "gemini-3.8-flash", name: "Gemini 3.8 Flash", tag: "Flagship" },
     { key: "gemini-3.6-flash", name: "Gemini 3.6 Flash", tag: "Fast" },
     { key: "gemini-3.5-flash", name: "Gemini 3.5 Flash", tag: "Fast" },
@@ -426,10 +555,59 @@ export default function CodeEditorPage() {
     { key: "anthropic/claude-sonnet-5-5", name: "Claude Sonnet 5.5", tag: "OpenRouter" },
     { key: "google/gemini-2.5-flash", name: "Gemini 2.5 Flash", tag: "OpenRouter" },
     { key: "meta-llama/llama-3.3-70b-instruct", name: "Llama 3.3 70B", tag: "OpenRouter" },
-    ...(byok?.provider === "custom" && byok.model
-      ? [{ key: byok.model, name: byok.model, tag: "Custom" }]
-      : []),
   ];
+  const AI_PANEL_MODELS: PromptBarModel[] = (() => {
+    const visible = ALL_AI_PANEL_MODELS.filter((m) => selectorModels.includes(m.key));
+    const custom = byokStore.enabled
+      ? byokStore.entries
+          .filter((e) => e.enabled && e.provider === "custom" && e.model)
+          .map((e) => ({ key: e.model as string, name: e.model as string, tag: "Custom" }))
+      : [];
+    const list = [...visible, ...custom];
+    return list.length > 0
+      ? list
+      : ALL_AI_PANEL_MODELS.filter((m) => DEFAULT_SELECTOR_MODELS.includes(m.key));
+  })();
+
+  // Models section groups: every allowlisted model, grouped by
+  // provider. A provider without a usable key (no server key and no
+  // enabled BYOK entry) is marked — its models can be ticked into
+  // the selector but cannot answer until a key exists.
+  const MODEL_GROUPS: { provider: AiByokProvider; name: string; needsKey: boolean; models: PromptBarModel[] }[] = (
+    ["gemini", "groq", "anthropic", "openai", "openrouter"] as AiByokProvider[]
+  ).map((provider) => ({
+    provider,
+    name: BYOK_PROVIDER_NAMES[provider],
+    needsKey:
+      provider !== "gemini" &&
+      provider !== "groq" &&
+      !(byokStore.enabled && byokStore.entries.some((e) => e.enabled && e.provider === provider)),
+    models: ALL_AI_PANEL_MODELS.filter((m) => providerForModelId(m.key, []) === provider),
+  }));
+  function modelQualityTag(key: string): string | null {
+    if (BEST_MODEL_KEYS.has(key)) return t.editorPage.aiModelsBest;
+    if (EFFICIENT_MODEL_KEYS.has(key)) return t.editorPage.aiModelsEfficient;
+    return null;
+  }
+
+  // The one BYOK entry (if any) that pays for a request with this
+  // model: BYOK must be enabled, and only the enabled entry for the
+  // model's provider is sent. The server contract is unchanged (one
+  // byok object), so no server change is needed for multi-key support.
+  function byokPayloadFor(modelKey: string): AiByok | undefined {
+    if (!byokStore.enabled) return undefined;
+    const customModels = byokStore.entries
+      .filter((e) => e.enabled && e.provider === "custom" && e.model)
+      .map((e) => e.model as string);
+    const provider = providerForModelId(modelKey, customModels);
+    const entry = provider
+      ? byokStore.entries.find((e) => e.enabled && e.provider === provider)
+      : undefined;
+    if (!entry) return undefined;
+    return entry.provider === "custom"
+      ? { provider: entry.provider, key: entry.key, baseUrl: entry.baseUrl, model: entry.model }
+      : { provider: entry.provider, key: entry.key };
+  }
 
   async function sendAiMessage(
     text: string,
@@ -464,6 +642,7 @@ export default function CodeEditorPage() {
     setAiError(null);
     setAiThoughtSeconds(null);
     setAiThinking(true);
+    const byokPayload = byokPayloadFor(opts.model?.key ?? "gemini-2.5-pro");
     const controller = new AbortController();
     aiAbortRef.current = controller;
     try {
@@ -476,16 +655,18 @@ export default function CodeEditorPage() {
           question,
           code: truncated ? code.slice(0, 8000) : code,
           history,
-          model: opts.model?.key ?? "gemini-3.8-flash",
+          model: opts.model?.key ?? "gemini-2.5-pro",
           effort: opts.effort,
           // Active skills: built-in ids resolve server-side; custom
-          // skills ride along as name + instructions. BYOK (if the
-          // user saved one) is used in-memory for this request only.
+          // skills ride along as name + instructions. BYOK rides
+          // along only when the user enabled it — and only the
+          // enabled entry for the picked model's provider, so every
+          // other saved key stays in this browser.
           skillIds: activeSkillIds,
           skills: customSkills
             .filter((s) => activeSkillIds.includes(s.id))
             .map((s) => ({ name: s.name, content: s.content })),
-          ...(byok ? { byok } : {}),
+          ...(byokPayload ? { byok: byokPayload } : {}),
         }),
         signal: controller.signal,
       });
@@ -1355,6 +1536,7 @@ export default function CodeEditorPage() {
     ];
     const controller = new AbortController();
     const timer = window.setTimeout(() => controller.abort(), 5000);
+    const commitByok = byokPayloadFor("gemini-2.5-flash-lite");
     setGeneratingMessage(true);
     try {
       const res = await fetch("/api/ai", {
@@ -1364,9 +1546,9 @@ export default function CodeEditorPage() {
         body: JSON.stringify({
           mode: "guide",
           question: `Write ONLY a short commit message (one line, max 72 characters, conventional-commits style like "feat: ..." or "fix: ...") for these changes in the ${openRepoState?.repo ?? "repo"} repository:\n${lines.join("\n")}\nReply with just the message, nothing else.`,
-          model: "gemini-3.8-flash",
+          model: "gemini-2.5-flash-lite",
           effort: "Low",
-          ...(byok ? { byok } : {}),
+          ...(commitByok ? { byok: commitByok } : {}),
         }),
         signal: controller.signal,
       });
@@ -2684,7 +2866,11 @@ _lp_term_result
                 {t.editorPage.aiSettingsTitle}
               </button>
               <span className="text-neutral-500">{" > "}</span>
-              {settingsSection === "skills" ? t.editorPage.aiSkillsTitle : t.editorPage.aiByokTitle}
+              {settingsSection === "skills"
+                ? t.editorPage.aiSkillsTitle
+                : settingsSection === "models"
+                  ? t.editorPage.aiModelsTitle
+                  : t.editorPage.aiByokTitle}
             </>
           )}
         </span>
@@ -2699,6 +2885,14 @@ _lp_term_result
             className="flex w-full items-center justify-between rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-3 text-left hover:border-neutral-700"
           >
             <span className="text-sm font-medium text-neutral-100">{t.editorPage.aiSkillsTitle}</span>
+            <ChevronRight className="h-4 w-4 shrink-0 text-neutral-400" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setSettingsSection("models")}
+            className="flex w-full items-center justify-between rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-3 text-left hover:border-neutral-700"
+          >
+            <span className="text-sm font-medium text-neutral-100">{t.editorPage.aiModelsTitle}</span>
             <ChevronRight className="h-4 w-4 shrink-0 text-neutral-400" />
           </button>
           <button
@@ -2790,83 +2984,139 @@ _lp_term_result
         </button>
       </div>
       )}
+      {settingsSection === "models" && (
+      <div className="space-y-3">
+        <p className="text-xs text-neutral-500">{t.editorPage.aiModelsNote}</p>
+        {MODEL_GROUPS.map((group) => (
+          <div key={group.provider}>
+            <p className="mb-1 flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-neutral-400">
+              <span>{group.name}</span>
+              {group.needsKey ? (
+                <span className="font-normal normal-case tracking-normal text-amber-400">
+                  {t.editorPage.aiModelsNeedsKey}
+                </span>
+              ) : null}
+            </p>
+            {group.models.map((m) => (
+              <label
+                key={m.key}
+                className="mb-1 flex cursor-pointer items-center gap-2 rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectorModels.includes(m.key)}
+                  onChange={() => toggleSelectorModel(m.key)}
+                  className="h-3.5 w-3.5 shrink-0 accent-white"
+                />
+                <span className="min-w-0 flex-1 text-sm text-neutral-100">{m.name}</span>
+                <span className="shrink-0 rounded-md bg-neutral-800 px-1.5 py-0.5 text-[10px] font-medium text-neutral-300">
+                  {modelQualityTag(m.key) ?? m.tag}
+                </span>
+              </label>
+            ))}
+          </div>
+        ))}
+      </div>
+      )}
       {settingsSection === "byok" && (
       <div className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
           {t.editorPage.aiByokTitle}
         </p>
-        {byok ? (
-          <div className="flex items-center gap-2 rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2">
+        {/* Master switch: BYOK is used only when this is on. Saved
+            keys stay in this browser either way. */}
+        <label className="flex cursor-pointer items-center justify-between rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2">
+          <span className="text-sm font-medium text-neutral-100">{t.editorPage.aiByokEnable}</span>
+          <input
+            type="checkbox"
+            checked={byokStore.enabled}
+            onChange={(e) => setByokMaster(e.target.checked)}
+            aria-label={t.editorPage.aiByokEnable}
+            className="h-4 w-4 shrink-0 accent-white"
+          />
+        </label>
+        {!byokStore.enabled ? (
+          <p className="text-xs text-neutral-500">{t.editorPage.aiByokOffNote}</p>
+        ) : null}
+        {byokStore.entries.map((entry) => (
+          <div
+            key={entry.id}
+            className="flex items-center gap-2 rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2"
+          >
             <KeyRound className="h-4 w-4 shrink-0 text-neutral-400" />
             <span className="min-w-0 flex-1 text-sm text-neutral-200">
-              {BYOK_PROVIDER_NAMES[byok.provider]}
-              {byok.provider === "custom" && byok.model ? ` • ${byok.model}` : ""} • {t.editorPage.aiByokSaved}
+              {BYOK_PROVIDER_NAMES[entry.provider]}
+              {entry.provider === "custom" && entry.model ? ` • ${entry.model}` : ""} • {t.editorPage.aiByokSaved}
             </span>
+            <input
+              type="checkbox"
+              checked={entry.enabled}
+              onChange={() => toggleByokEntry(entry.id)}
+              aria-label={BYOK_PROVIDER_NAMES[entry.provider]}
+              className="h-3.5 w-3.5 shrink-0 accent-white"
+            />
             <button
               type="button"
-              onClick={removeByok}
+              onClick={() => removeByokEntry(entry.id)}
               className="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-red-300 hover:bg-neutral-800"
             >
               {t.editorPage.aiByokRemove}
             </button>
           </div>
-        ) : (
+        ))}
+        <select
+          value={byokProvider}
+          onChange={(e) => setByokProvider(e.target.value as AiByokProvider)}
+          aria-label={t.editorPage.aiByokProvider}
+          className="w-full rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-neutral-100 outline-none focus:border-neutral-600"
+        >
+          <option value="gemini">Gemini</option>
+          <option value="groq">Groq</option>
+          <option value="anthropic">Anthropic</option>
+          <option value="openai">OpenAI</option>
+          <option value="openrouter">OpenRouter</option>
+          <option value="custom">Custom</option>
+        </select>
+        {byokProvider === "custom" ? (
           <>
-            <select
-              value={byokProvider}
-              onChange={(e) => setByokProvider(e.target.value as AiByokProvider)}
-              aria-label={t.editorPage.aiByokProvider}
-              className="w-full rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-neutral-100 outline-none focus:border-neutral-600"
-            >
-              <option value="gemini">Gemini</option>
-              <option value="groq">Groq</option>
-              <option value="anthropic">Anthropic</option>
-              <option value="openai">OpenAI</option>
-              <option value="openrouter">OpenRouter</option>
-              <option value="custom">Custom</option>
-            </select>
-            {byokProvider === "custom" ? (
-              <>
-                <input
-                  type="url"
-                  value={byokBaseUrl}
-                  onChange={(e) => setByokBaseUrl(e.target.value)}
-                  placeholder={t.editorPage.aiByokBaseUrl}
-                  autoComplete="off"
-                  className="w-full rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 font-mono text-sm text-neutral-100 placeholder:text-neutral-600 outline-none focus:border-neutral-600"
-                />
-                <input
-                  type="text"
-                  value={byokModel}
-                  onChange={(e) => setByokModel(e.target.value)}
-                  placeholder={t.editorPage.aiByokModel}
-                  autoComplete="off"
-                  className="w-full rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 font-mono text-sm text-neutral-100 placeholder:text-neutral-600 outline-none focus:border-neutral-600"
-                />
-              </>
-            ) : null}
             <input
-              type="password"
-              value={byokKey}
-              onChange={(e) => setByokKey(e.target.value)}
-              placeholder={t.editorPage.aiByokKey}
+              type="url"
+              value={byokBaseUrl}
+              onChange={(e) => setByokBaseUrl(e.target.value)}
+              placeholder={t.editorPage.aiByokBaseUrl}
               autoComplete="off"
               className="w-full rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 font-mono text-sm text-neutral-100 placeholder:text-neutral-600 outline-none focus:border-neutral-600"
             />
-            <button
-              type="button"
-              onClick={saveByok}
-              disabled={
-                byokKey.trim().length < 10 ||
-                (byokProvider === "custom" &&
-                  (!byokBaseUrl.trim().startsWith("https://") || byokModel.trim().length === 0))
-              }
-              className="rounded-lg bg-white px-3 py-2 text-xs font-semibold text-black transition hover:bg-neutral-200 disabled:opacity-40"
-            >
-              {t.editorPage.aiByokSave}
-            </button>
+            <input
+              type="text"
+              value={byokModel}
+              onChange={(e) => setByokModel(e.target.value)}
+              placeholder={t.editorPage.aiByokModel}
+              autoComplete="off"
+              className="w-full rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 font-mono text-sm text-neutral-100 placeholder:text-neutral-600 outline-none focus:border-neutral-600"
+            />
           </>
-        )}
+        ) : null}
+        <input
+          type="password"
+          value={byokKey}
+          onChange={(e) => setByokKey(e.target.value)}
+          placeholder={t.editorPage.aiByokKey}
+          autoComplete="off"
+          className="w-full rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 font-mono text-sm text-neutral-100 placeholder:text-neutral-600 outline-none focus:border-neutral-600"
+        />
+        <button
+          type="button"
+          onClick={saveByokEntry}
+          disabled={
+            byokKey.trim().length < 10 ||
+            (byokProvider === "custom" &&
+              (!byokBaseUrl.trim().startsWith("https://") || byokModel.trim().length === 0))
+          }
+          className="rounded-lg bg-white px-3 py-2 text-xs font-semibold text-black transition hover:bg-neutral-200 disabled:opacity-40"
+        >
+          {t.editorPage.aiByokSave}
+        </button>
         <p className="text-xs text-neutral-500">{t.editorPage.aiByokNote}</p>
       </div>
       )}
@@ -3012,7 +3262,7 @@ _lp_term_result
             { key: "hint", name: "/hint", description: "Hint for the next step" },
           ]}
           models={AI_PANEL_MODELS}
-          defaultModel="gemini-3.8-flash"
+          defaultModel="gemini-2.5-pro"
           efforts={["Low", "Medium", "High", "Extra", "Max"]}
           defaultEffort="Medium"
           busy={aiThinking}

@@ -92,28 +92,6 @@
   display: inline-block;
 }
 
-.thought-line[data-working] .thought-line__breath[data-shimmer] {
-  background: linear-gradient(
-    100deg,
-    color-mix(in srgb, var(--tl-color) 50%, transparent) 30%,
-    var(--tl-color) 50%,
-    color-mix(in srgb, var(--tl-color) 50%, transparent) 70%
-  );
-  background-size: 250% 100%;
-  background-position: 125% 0;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  animation: thought-line-shimmer var(--tl-shimmer) linear infinite;
-}
-
-@keyframes thought-line-shimmer {
-  to {
-    background-position: -125% 0;
-  }
-}
-
 .thought-line__timer {
   font-variant-numeric: tabular-nums;
   opacity: var(--tl-timer);

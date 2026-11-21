@@ -1,0 +1,97 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const read = (p) => readFileSync(path.join(root, p), "utf8");
+
+// BYOK v2 + Models section (2026-11-21, Maalik's brief): BYOK is
+// used only when the user enables it; several keys can be saved and
+// each switched on/off; the model selector shows only the models the
+// user chose in AI Settings > Models (defaults: two free Gemini +
+// two free Groq models, one best + one efficient each); only the
+// enabled entry for the picked model's provider ever leaves the
+// browser. The server contract is unchanged (one byok object), so
+// src/lib/ai.ts needs no change for multi-key support.
+
+const page = read("src/app/editor/page.tsx");
+const aiLib = read("src/lib/ai.ts");
+const aiRoute = read("src/app/api/ai/route.ts");
+const en = read("src/lib/i18n/en.ts");
+
+test("BYOK v2: master switch + multiple keys, each switchable, legacy key migrates", () => {
+  // The store is a switch plus a list — not a single key.
+  assert.ok(page.includes("type AiByokStore = { enabled: boolean; entries: AiByokEntry[] };"), "the BYOK store must hold a switch plus a list of keys");
+  assert.ok(page.includes("readByokStore"), "the store must load through one reader");
+  assert.ok(page.includes("setByokMaster"), "the master switch must have a setter");
+  assert.ok(page.includes("saveByokEntry"), "saving must add an entry to the list");
+  assert.ok(page.includes("toggleByokEntry"), "each entry must be switchable on/off");
+  assert.ok(page.includes("removeByokEntry"), "each entry must be removable");
+  // The old single-key shape migrates to one enabled entry, so a
+  // saved key keeps working instead of silently vanishing.
+  assert.ok(page.includes("migrates to one enabled entry"), "the migration must be documented in code");
+  assert.ok(page.includes("enabled: true,"), "the migrated legacy key must start enabled");
+  assert.ok(!page.includes("const [byok, setByok]"), "no single-key state may remain");
+  assert.ok(!page.includes("saveByok()"), "no single-key save may remain");
+});
+
+test("BYOK v2: only the enabled entry for the picked model is ever sent", () => {
+  // The client maps the picked model to its provider, then sends
+  // that provider's enabled entry — and nothing else.
+  assert.ok(page.includes("function providerForModelId"), "the client must map a model id to its provider");
+  assert.ok(page.includes("GEMINI_FREE_MODELS.includes(model)"), "Gemini models must map to Gemini");
+  assert.ok(page.includes("GROQ_FREE_MODELS.includes(model)"), "Groq models must map to Groq");
+  assert.ok(page.includes("function byokPayloadFor"), "one helper must build the per-request BYOK payload");
+  assert.ok(page.includes("if (!byokStore.enabled) return undefined;"), "a disabled master switch must send no key at all");
+  assert.ok(page.includes("entries.find((e) => e.enabled && e.provider === provider)"), "only an enabled entry for the picked provider may be sent");
+  assert.ok(page.includes("byokPayloadFor(opts.model?.key"), "the chat request must use the helper for the picked model");
+  assert.ok(page.includes("byokPayloadFor(\"gemini-2.5-flash-lite\")"), "the commit-message request must use the helper too");
+  // The server still takes exactly one byok object — multi-key is a
+  // client-side selection, not a new server contract.
+  assert.ok(aiLib.includes("byok?: AiByok;"), "the server request type must still carry one BYOK object");
+  assert.ok(aiRoute.includes("if (body.byok?.key) {"), "the route must still apply one BYOK object");
+});
+
+test("Models section: breadcrumb, best models per provider, selector tick state", () => {
+  assert.ok(page.includes('"models"'), "settings must gain a Models section");
+  assert.ok(page.includes("aiModelsTitle"), "the Models section must have a breadcrumb title");
+  assert.ok(page.includes("MODEL_GROUPS"), "models must be grouped by provider");
+  assert.ok(page.includes("aiModelsBest"), "best models must be tagged Best");
+  assert.ok(page.includes("aiModelsEfficient"), "efficient models must be tagged Efficient");
+  assert.ok(page.includes("aiModelsNeedsKey"), "providers without a usable key must be marked");
+  assert.ok(page.includes("toggleSelectorModel"), "each model must be tickable into the selector");
+  assert.ok(page.includes("next.length === 0 ? DEFAULT_SELECTOR_MODELS : next"), "the selector must never end up empty");
+  assert.ok(en.includes("aiModelsTitle:"), "en.ts must define the Models title");
+  assert.ok(en.includes("aiModelsNote:"), "en.ts must define the Models note");
+});
+
+test("default selector: two free Gemini + two free Groq models, best + efficient each", () => {
+  // Best = best result, tokens don't matter. Efficient = fewest
+  // tokens. Gemini best is the Pro model, efficient Flash-Lite;
+  // Groq best is the 120B model, efficient the 20B one.
+  assert.ok(page.includes('"gemini-2.5-pro"'), "Gemini best must be the Pro model");
+  assert.ok(page.includes('"gemini-2.5-flash-lite"'), "Gemini efficient must be Flash-Lite");
+  assert.ok(page.includes('"openai/gpt-oss-120b"'), "Groq best must be the 120B model");
+  assert.ok(page.includes('"openai/gpt-oss-20b"'), "Groq efficient must be the 20B model");
+  assert.ok(page.includes("const DEFAULT_SELECTOR_MODELS = ["), "the four defaults must live in one constant");
+  // The default picked model must be one of the four shown.
+  assert.ok(page.includes('defaultModel="gemini-2.5-pro"'), "the default picked model must be the Gemini best model");
+  assert.ok(page.includes('model: opts.model?.key ?? "gemini-2.5-pro"'), "the request fallback must match the default picked model");
+  // The old default must not survive anywhere as a picked model.
+  assert.ok(!page.includes('defaultModel="gemini-3.8-flash"'), "the old default model must not remain the picker default");
+  // Free-tier guardrails still hold: no retired Llama chat models.
+  assert.ok(!aiLib.includes("llama-3.1-8b-instant") || aiLib.includes("do NOT add them back"), "retired Llama models must stay out");
+  assert.ok(!page.includes("llama-3.1-8b-instant"), "the picker must not list retired Llama models");
+});
+
+test("BYOK v2 keeps the old guarantees: browser-only keys, skills ride along", () => {
+  // Keys are persisted to this browser only, never the server.
+  assert.ok(page.includes('localStorage.setItem("lp_ai_byok", JSON.stringify(byokStore))'), "keys must persist to this browser only");
+  assert.ok(page.includes('localStorage.setItem("lp_ai_selector_models"'), "selector choices must persist to this browser only");
+  // The privacy note must say keys are sent only when BYOK is on.
+  assert.ok(en.includes("only when BYOK is on"), "the privacy note must state the new rule");
+  // Skills still ride along with every guide request.
+  assert.ok(page.includes("skillIds: activeSkillIds"), "skills must still be sent with the request");
+});

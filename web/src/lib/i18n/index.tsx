@@ -570,6 +570,13 @@ export type Strings = {
     aiByokSaved: string;
     aiByokRemove: string;
     aiByokNote: string;
+    aiModelsTitle: string;
+    aiModelsNote: string;
+    aiModelsBest: string;
+    aiModelsEfficient: string;
+    aiModelsNeedsKey: string;
+    aiByokEnable: string;
+    aiByokOffNote: string;
     aiStepReading: string;
     aiStepThinking: string;
     aiStepDrafting: string;

@@ -269,8 +269,9 @@ test("the breadcrumb row carries a Next button to the lesson after the last comp
   const page = readFileSync(join(webDir, "src/app/learn/[slug]/page.tsx"), "utf8");
   assert.ok(page.includes("lastCompletedIdx"), "the page must find the furthest-along completed lesson");
   assert.ok(page.includes("continueTopic"), "the page must compute the lesson after the last completed one");
-  assert.ok(page.includes("showContinue"), "the button must hide when there is no next lesson or it points at this page");
+  assert.ok(page.includes("showContinue"), "the button must hide when there is no next lesson");
+  assert.ok(!page.includes("continueTopic.slug !== slug"), "the button must NOT hide on the page it points to — it shows on every lesson page, completed or not (Maalik, 2026-11-19)");
   assert.ok(page.includes('className="flex flex-wrap items-center justify-between gap-3"'), "the breadcrumb row must put the button on the right");
-  assert.ok(page.includes("t.lesson.nextLesson"), "the button must reuse the short Next label");
+  assert.ok(page.includes("t.lesson.upNext"), "the button must use the short Up Next label (Maalik's pick, 2026-11-19)");
   assert.ok(page.includes('href={`/learn/${continueTopic.slug}`}'), "the button must link to the next lesson");
 });
