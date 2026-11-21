@@ -132,7 +132,9 @@ test("resizable panels: splitters, persisted widths, double-click reset", () => 
   assert.ok(page.includes("lp_editor_explorer_w"), "explorer width must persist");
   assert.ok(page.includes("lp_editor_terminal_w"), "terminal width must persist");
   assert.ok(page.includes("lp_editor_bottom_h"), "bottom-zone height must persist");
-  assert.ok(page.includes("? v : 220"), "bottom zone must default to 220px (tight, not 260)");
+  assert.ok(page.includes("? v : 150"), "bottom zone must default to 150px so the editor stays tall on laptop screens");
+  assert.ok(page.includes("if (v === 220) return 150"), "a saved 220 (old default) must migrate to the new 150 default");
+  assert.ok(page.includes("editorRef.current?.layout()"), "Monaco must be re-laid-out when the dock geometry changes");
   assert.ok(page.includes("var(--explorer-w)"), "explorer width must come from a CSS var (desktop only)");
   assert.ok(page.includes("var(--terminal-w)"), "terminal width must come from a CSS var (desktop only)");
   assert.ok(page.includes("showExplorer"), "explorer must be toggleable (panel close)");

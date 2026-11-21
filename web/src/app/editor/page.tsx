@@ -374,15 +374,29 @@ export default function CodeEditorPage() {
   const [dropZone, setDropZone] = useState<PanelZone | null>(null);
   const dockRef = useRef<HTMLDivElement | null>(null);
   // Bottom zone height (px), persisted; resized by the horizontal
-  // splitter above it.
+  // splitter above it. Default 150: on a laptop-height screen the
+  // editor is only ~300px tall under a 220px terminal (about 13
+  // lines), so the terminal takes less room and the editor shows
+  // ~19 lines instead.
   const [bottomHeight, setBottomHeight] = useState<number>(() => {
-    if (typeof window === "undefined") return 220;
+    if (typeof window === "undefined") return 150;
     const v = Number(window.localStorage.getItem("lp_editor_bottom_h"));
-    return Number.isFinite(v) && v >= 160 && v <= 480 ? v : 220;
+    // 220 was the old default: a saved 220 means the user never
+    // dragged the splitter, so take the new default instead.
+    if (v === 220) return 150;
+    return Number.isFinite(v) && v >= 120 && v <= 480 ? v : 150;
   });
   useEffect(() => {
     localStorage.setItem("lp_editor_bottom_h", String(bottomHeight));
   }, [bottomHeight]);
+
+  // Re-measure Monaco whenever the dock geometry moves (terminal
+  // open/close, drag-resize, panel moves). automaticLayout usually
+  // catches a resize, but a stale layout would clip the bottom
+  // lines of the file — so force a layout pass here as well.
+  useEffect(() => {
+    editorRef.current?.layout();
+  }, [bottomHeight, panelZones, showExplorer, showTerminal, showAi]);
 
   function isPanelVisible(id: PanelId): boolean {
     return id === "explorer" ? showExplorer : id === "terminal" ? showTerminal : showAi;
@@ -2124,8 +2138,8 @@ _lp_term_result
                   <EditorSplitter
                     orientation="horizontal"
                     label="Resize bottom panels"
-                    onDrag={(d) => setBottomHeight((h) => Math.min(480, Math.max(160, h - d)))}
-                    onReset={() => setBottomHeight(220)}
+                    onDrag={(d) => setBottomHeight((h) => Math.min(480, Math.max(120, h - d)))}
+                    onReset={() => setBottomHeight(150)}
                   />
                   <div className="flex shrink-0 gap-2" style={{ height: bottomHeight }}>
                     {bottomPanels.map((id) => (
