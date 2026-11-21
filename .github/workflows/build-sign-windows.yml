@@ -1,0 +1,71 @@
+# Build the Windows installer on a GitHub-hosted runner and sign it with
+# SignPath (free for open source). Manual trigger only.
+#
+# Setup needed once (in SignPath + GitHub), see tauri/README.md:
+#   - SignPath project slug: learn-python
+#   - Signing policy slug: release-signing
+#   - Artifact configuration slug: windows-installer (Portable Executable .exe)
+#   - GitHub secrets: SIGNPATH_API_TOKEN, SIGNPATH_ORGANIZATION_ID
+# Until those exist, the build still runs and uploads the UNSIGNED
+# installer; the sign steps are skipped.
+name: Build + sign Windows installer
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-sign:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install web deps
+        working-directory: web
+        run: npm ci
+
+      - name: Static export (desktop)
+        working-directory: web
+        run: node scripts/build-desktop.mjs
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli
+
+      - name: Build installer
+        working-directory: tauri/src-tauri
+        run: cargo tauri build
+
+      - name: Upload unsigned installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: learn-python-windows-unsigned
+          path: tauri/src-tauri/target/release/bundle/nsis/Learn Python_1.0.0_x64-setup.exe
+
+      - name: Sign with SignPath
+        if: ${{ secrets.SIGNPATH_API_TOKEN != '' }}
+        uses: signpath/github-action-submit-signing-request@v1
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: learn-python
+          signing-policy-slug: release-signing
+          artifact-configuration-slug: windows-installer
+          input-artifact-path: tauri/src-tauri/target/release/bundle/nsis/Learn Python_1.0.0_x64-setup.exe
+          output-artifact-path: tauri/src-tauri/target/release/bundle/nsis/Learn Python_1.0.0_x64-setup-signed.exe
+          wait-for-completion: true
+
+      - name: Upload signed installer
+        if: ${{ secrets.SIGNPATH_API_TOKEN != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: learn-python-windows-signed
+          path: tauri/src-tauri/target/release/bundle/nsis/Learn Python_1.0.0_x64-setup-signed.exe
