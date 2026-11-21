@@ -281,3 +281,69 @@ test("deleting a repo from the menu needs the typed owner/repo name", () => {
     assert.ok(en().includes(`${key}:`), `en.ts must define ${key}`);
   }
 });
+
+test("stored tokens use a dedicated encryption key, with a lazy migration off the session secret", () => {
+  const lib = read("src/lib/github-token.ts");
+  // The key must be a dedicated GITHUB_TOKEN_KEY when set, so a
+  // session-secret leak alone no longer opens the stored tokens.
+  assert.ok(lib.includes("process.env.GITHUB_TOKEN_KEY"), "the token key must prefer a dedicated GITHUB_TOKEN_KEY");
+  assert.ok(lib.includes("getTokenEncryptionSecret"), "the key choice must live in one helper");
+  // A token encrypted under the old SESSION_SECRET key must still
+  // read — then be re-encrypted under the dedicated key, so the
+  // old key stops working for it from here on.
+  assert.ok(lib.includes("decryptTotpSecret(secret, data.token_encrypted)"), "the read must fall back to the session secret for legacy rows");
+  assert.ok(lib.includes("token_encrypted: encryptTotpSecret(key, plain)"), "a legacy row must be re-encrypted under the dedicated key");
+  // Save must encrypt under the dedicated key, and the resolve
+  // helper must hand the caller's email to the audit log too.
+  assert.ok(lib.includes("encryptTotpSecret(getTokenEncryptionSecret(secret), token)"), "save must encrypt under the dedicated key");
+  assert.ok(lib.includes("return { token, email: user.email }"), "the resolver must return the caller's email for auditing");
+});
+
+test("migration 007 audits token use and stores the token expiry", () => {
+  const migration = read("supabase/migrations/007_github_token_audit.sql");
+  assert.ok(migration.includes("lp_github_token_audit"), "007 must create the audit table");
+  assert.ok(migration.includes("user_email text not null"), "the audit must record who");
+  assert.ok(migration.includes("action text not null"), "the audit must record what");
+  assert.ok(migration.includes("row level security"), "the audit table must have RLS");
+  assert.ok(migration.includes("expires_at timestamptz"), "007 must add the expiry column to the token table");
+  const lib = read("src/lib/github-token.ts");
+  assert.ok(lib.includes("logGithubTokenUse"), "the lib must offer an audit writer");
+  assert.ok(lib.includes('.from("lp_github_token_audit").insert'), "the audit writer must insert into the audit table");
+  // The audit write must never break the action it records.
+  assert.ok(lib.includes("catch {}"), "the audit writer must swallow its own failures");
+  // Every mutating route must log after success — reads don't.
+  const tokenRoute = read("src/app/api/github/token/route.ts");
+  assert.ok(tokenRoute.includes('logGithubTokenUse(user.email, "token_saved"'), "saving a token must be audited");
+  assert.ok(tokenRoute.includes('logGithubTokenUse(user.email, "token_deleted"'), "deleting a token must be audited");
+  const deleteRoute = read("src/app/api/github/delete-repo/route.ts");
+  assert.ok(deleteRoute.includes('logGithubTokenUse(email, "repo_deleted"'), "deleting a repo must be audited");
+  const commitRoute = read("src/app/api/github/commit/route.ts");
+  assert.ok(commitRoute.includes('logGithubTokenUse(email, "commit"'), "a commit must be audited");
+  const reposRoute = read("src/app/api/github/repos/route.ts");
+  assert.ok(reposRoute.includes('logGithubTokenUse(email, "repo_created"'), "creating a repo must be audited");
+});
+
+test("saving a token checks it live with GitHub and the page warns before it expires", () => {
+  const lib = read("src/lib/github-token.ts");
+  // The probe asks GitHub whether the token works and reads its
+  // expiry from the authentication-token-expiration header.
+  assert.ok(lib.includes("https://api.github.com/user"), "the probe must call GitHub");
+  assert.ok(lib.includes("github-authentication-token-expiration"), "the probe must read GitHub's expiry header");
+  assert.ok(lib.includes("10_000"), "the probe must time out instead of hanging the save");
+  const tokenRoute = read("src/app/api/github/token/route.ts");
+  assert.ok(tokenRoute.includes("probeGithubToken"), "saving must probe the token first");
+  assert.ok(tokenRoute.includes("GitHub rejected this token"), "a token GitHub rejects must be refused");
+  assert.ok(tokenRoute.includes("probe.expiresAt"), "the expiry must be stored with the token");
+  // The status answer carries the expiry; the page warns at 14
+  // days or less (and says so plainly once it has lapsed).
+  const statusRoute = read("src/app/api/github/token/status/route.ts");
+  assert.ok(statusRoute.includes("expiresAt"), "the status must return the token expiry");
+  const p = page();
+  assert.ok(p.includes("tokenExpiresAt"), "the page must track the token expiry");
+  assert.ok(p.includes("tokenExpiresDaysLeft <= 14"), "the page must warn while there is still time to renew");
+  assert.ok(p.includes("t.githubPage.tokenExpired"), "the page must say plainly once the token has lapsed");
+  assert.ok(p.includes("t.githubPage.tokenExpiringSoon"), "the page must warn before the token lapses");
+  for (const key of ["tokenExpiringSoon", "tokenExpired"]) {
+    assert.ok(en().includes(`${key}:`), `en.ts must define ${key}`);
+  }
+});

@@ -731,6 +731,8 @@ export const de: Strings = {
     repoMenuDelete: "Löschen",
     repoLinkCopied: "Repo-Link kopiert.",
     repoDeleted: (repo) => `${repo} von GitHub gelöscht.`,
+    tokenExpiringSoon: (days) => `Dein GitHub-Token läuft in ${days} Tag${days === 1 ? "" : "en"} ab — erstelle einen neuen auf GitHub und verbinde ihn hier erneut.`,
+    tokenExpired: "Dein GitHub-Token ist abgelaufen — erstelle einen neuen auf GitHub und verbinde ihn hier erneut.",
     yourRepos: (count: number) => `Deine Repositories (${count})`,
     fetchingRepos: "Deine Repositories werden geladen...",
     noRepos: "Keine Repositories gefunden oder Zugriff eingeschränkt.",

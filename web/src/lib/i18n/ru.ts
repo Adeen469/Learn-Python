@@ -682,6 +682,8 @@ export const ru: Strings = {
     repoMenuDelete: "Удалить",
     repoLinkCopied: "Ссылка на репозиторий скопирована.",
     repoDeleted: (repo) => `${repo} удалён с GitHub.`,
+    tokenExpiringSoon: (days) => `Ваш токен GitHub истекает через ${days} дн. — создайте новый на GitHub и подключите его здесь.`,
+    tokenExpired: "Срок действия вашего токена GitHub истёк — создайте новый на GitHub и подключите его здесь.",
     yourRepos: (count: number) => `Ваши репозитории (${count})`,
     fetchingRepos: "Загрузка ваших репозиториев...",
     noRepos: "Репозитории не найдены или доступ ограничен.",

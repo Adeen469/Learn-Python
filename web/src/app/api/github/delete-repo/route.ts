@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { deleteUserRepo, isValidGithubSlug } from "@/lib/github";
-import { resolveSessionGithubToken } from "@/lib/github-token";
+import { logGithubTokenUse, resolveSessionGithubToken } from "@/lib/github-token";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 // Delete a repository the user owns. Destructive on purpose, so the
@@ -28,7 +28,7 @@ export async function DELETE(req: NextRequest) {
 
   const resolved = await resolveSessionGithubToken(req);
   if ("response" in resolved) return resolved.response;
-  const token = resolved.token;
+  const { token, email } = resolved;
 
   try {
     const body = await req.json();
@@ -41,6 +41,7 @@ export async function DELETE(req: NextRequest) {
     }
 
     await deleteUserRepo(token, parsed.data.owner, parsed.data.repo);
+    void logGithubTokenUse(email, "repo_deleted", `${parsed.data.owner}/${parsed.data.repo}`, getClientIp(req));
     return NextResponse.json({ success: true });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "GitHub delete failed";

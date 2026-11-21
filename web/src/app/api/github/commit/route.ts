@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { commitFileToRepo } from "@/lib/github";
-import { resolveSessionGithubToken } from "@/lib/github-token";
+import { logGithubTokenUse, resolveSessionGithubToken } from "@/lib/github-token";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const commitSchema = z.object({
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
   const resolved = await resolveSessionGithubToken(req);
   if ("response" in resolved) return resolved.response;
-  const token = resolved.token;
+  const { token, email } = resolved;
 
   try {
     const body = await req.json();
@@ -44,6 +44,7 @@ export async function POST(req: NextRequest) {
     }
 
     const result = await commitFileToRepo(token, parsed.data);
+    void logGithubTokenUse(email, "commit", `${parsed.data.owner}/${parsed.data.repo}`, getClientIp(req));
     return NextResponse.json({ success: true, result });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "GitHub commit failed";

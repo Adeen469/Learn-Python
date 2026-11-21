@@ -644,6 +644,8 @@ export const ko: Strings = {
     repoMenuDelete: "삭제",
     repoLinkCopied: "리포지토리 링크를 복사했습니다.",
     repoDeleted: (repo) => `${repo}을(를) GitHub에서 삭제했습니다.`,
+    tokenExpiringSoon: (days) => `GitHub 토큰이 ${days}일 후에 만료됩니다 — GitHub에서 새로 만들고 여기에서 다시 연결하세요.`,
+    tokenExpired: "GitHub 토큰이 만료되었습니다 — GitHub에서 새로 만들고 여기에서 다시 연결하세요.",
     yourRepos: (count) => `내 리포지토리 (${count})`,
     fetchingRepos: "리포지토리를 가져오는 중...",
     noRepos: "리포지토리를 찾을 수 없거나 액세스가 제한되었습니다.",

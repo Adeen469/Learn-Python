@@ -675,6 +675,8 @@ export const fr: Strings = {
     repoMenuDelete: "Supprimer",
     repoLinkCopied: "Lien du dépôt copié.",
     repoDeleted: (repo) => `${repo} supprimé de GitHub.`,
+    tokenExpiringSoon: (days) => `Votre jeton GitHub expire dans ${days} jour${days === 1 ? "" : "s"} — créez-en un nouveau sur GitHub et reconnectez-le ici.`,
+    tokenExpired: "Votre jeton GitHub a expiré — créez-en un nouveau sur GitHub et reconnectez-le ici.",
     yourRepos: (count: number) => `Vos dépôts (${count})`,
     fetchingRepos: "Récupération de vos dépôts…",
     noRepos: "Aucun dépôt trouvé ou accès restreint.",

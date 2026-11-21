@@ -745,6 +745,8 @@ export type Strings = {
     repoMenuDelete: string;
     repoLinkCopied: string;
     repoDeleted: (repo: string) => string;
+    tokenExpiringSoon: (days: number) => string;
+    tokenExpired: string;
     yourRepos: (count: number) => string;
     fetchingRepos: string;
     noRepos: string;

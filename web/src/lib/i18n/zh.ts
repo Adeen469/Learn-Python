@@ -697,6 +697,8 @@ export const zh: Strings = {
     repoMenuDelete: "删除",
     repoLinkCopied: "已复制仓库链接。",
     repoDeleted: (repo) => `已从 GitHub 删除 ${repo}。`,
+    tokenExpiringSoon: (days) => `你的 GitHub 令牌将在 ${days} 天后过期 — 请在 GitHub 上创建一个新的并在此重新连接。`,
+    tokenExpired: "你的 GitHub 令牌已过期 — 请在 GitHub 上创建一个新的并在此重新连接。",
     yourRepos: (count: number) => `您的仓库（${count}）`,
     fetchingRepos: "正在获取您的仓库…",
     noRepos: "未找到仓库或访问受限。",

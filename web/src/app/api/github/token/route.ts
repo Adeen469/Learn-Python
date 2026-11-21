@@ -3,18 +3,24 @@ import { z } from "zod";
 import {
   deleteGithubToken,
   isValidGithubTokenFormat,
+  logGithubTokenUse,
+  probeGithubToken,
   saveGithubToken,
 } from "@/lib/github-token";
 import { getAuthPrereqs, getSessionUser } from "@/lib/auth-routes";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
-// The GitHub token, held on the server (migration 006).
+// The GitHub token, held on the server (migration 006; audit +
+// expiry in 007).
 //
 // POST saves the token the user pastes in: it is encrypted with
-// AES-256-GCM (key = SESSION_SECRET) and stored against the
-// signed-in user's email. The plaintext token is never logged and
-// never returned. DELETE removes it. The token is never sent back
-// to the browser — not even here.
+// AES-256-GCM (key = the dedicated GITHUB_TOKEN_KEY when set,
+// SESSION_SECRET otherwise) and stored against the signed-in
+// user's email. Before saving, the token is checked live against
+// GitHub: a rejected token is refused, and GitHub's expiry header
+// is stored so the page can warn before it lapses. The plaintext
+// token is never logged and never returned. DELETE removes it. The
+// token is never sent back to the browser — not even here.
 //
 // Saving a token is sensitive, so the limit is tight (10/min) and
 // the route fails closed: without the service-role key it answers
@@ -58,13 +64,25 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
-  const saved = await saveGithubToken(user.email, parsed.data.token, prereqs.secret);
+  // Check the token live: GitHub must accept it, and its expiry
+  // header (if any) is stored so the page can warn before it
+  // lapses. A network failure does not block the save — the token
+  // is stored with no expiry instead.
+  const probe = await probeGithubToken(parsed.data.token);
+  if (!probe.valid) {
+    return NextResponse.json(
+      { error: "GitHub rejected this token — check it and try again." },
+      { status: 400 }
+    );
+  }
+  const saved = await saveGithubToken(user.email, parsed.data.token, prereqs.secret, probe.expiresAt);
   if (!saved) {
     return NextResponse.json(
       { error: "Could not save the token — token storage is not set up yet." },
       { status: 503 }
     );
   }
+  void logGithubTokenUse(user.email, "token_saved", undefined, getClientIp(req));
   return NextResponse.json({ connected: true });
 }
 
@@ -84,5 +102,6 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: "Sign in to use GitHub" }, { status: 401 });
   }
   await deleteGithubToken(user.email);
+  void logGithubTokenUse(user.email, "token_deleted", undefined, getClientIp(req));
   return NextResponse.json({ connected: false });
 }

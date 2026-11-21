@@ -641,6 +641,8 @@ export const hiRoman: Strings = {
     repoMenuDelete: "Delete karo",
     repoLinkCopied: "Repo ka link copy ho gaya.",
     repoDeleted: (repo) => `${repo} GitHub se delete ho gaya.`,
+    tokenExpiringSoon: (days) => `Tumhara GitHub token ${days} din me expire hoga — GitHub pe naya banao aur yahan dobara connect karo.`,
+    tokenExpired: "Tumhara GitHub token expire ho gaya hai — GitHub pe naya banao aur yahan dobara connect karo.",
     yourRepos: (count) => `Tumhari Repositories (${count})`,
     fetchingRepos: "Tumhari repositories load ho rahi hain...",
     noRepos: "Koi repositories nahi mili ya access restricted hai.",

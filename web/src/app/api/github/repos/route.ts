@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createUserRepo, listUserRepos } from "@/lib/github";
-import { resolveSessionGithubToken } from "@/lib/github-token";
+import { logGithubTokenUse, resolveSessionGithubToken } from "@/lib/github-token";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const RATE_LIMITED_RESPONSE = (retryAfterSeconds: number) =>
@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
   if (blocked) return blocked;
   const resolved = await resolveSessionGithubToken(req);
   if ("response" in resolved) return resolved.response;
-  const token = resolved.token;
+  const { token, email } = resolved;
 
   try {
     const body = await req.json();
@@ -58,6 +58,7 @@ export async function POST(req: NextRequest) {
     }
 
     const repo = await createUserRepo(token, parsed.data);
+    void logGithubTokenUse(email, "repo_created", repo.full_name, getClientIp(req));
     return NextResponse.json({ repo }, { status: 201 });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Could not create repo";

@@ -731,6 +731,8 @@ export const ar: Strings = {
     repoMenuDelete: "حذف",
     repoLinkCopied: "تم نسخ رابط المستودع.",
     repoDeleted: (repo) => `تم حذف ${repo} من GitHub.`,
+    tokenExpiringSoon: (days) => `ستنتهي صلاحية رمز GitHub الخاص بك خلال ${days} يوم — أنشئ رمزًا جديدًا على GitHub وأعد ربطه هنا.`,
+    tokenExpired: "انتهت صلاحية رمز GitHub الخاص بك — أنشئ رمزًا جديدًا على GitHub وأعد ربطه هنا.",
     yourRepos: (count: number) => `مستودعاتك (${count})`,
     fetchingRepos: "جارٍ جلب مستودعاتك...",
     noRepos: "لم يتم العثور على مستودعات أو الوصول مقيد.",

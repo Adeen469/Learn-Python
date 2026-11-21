@@ -728,6 +728,8 @@ export const pt: Strings = {
     repoMenuDelete: "Excluir",
     repoLinkCopied: "Link do repositório copiado.",
     repoDeleted: (repo) => `${repo} excluído do GitHub.`,
+    tokenExpiringSoon: (days) => `Seu token do GitHub expira em ${days} dia${days === 1 ? "" : "s"} — crie um novo no GitHub e reconecte-o aqui.`,
+    tokenExpired: "Seu token do GitHub expirou — crie um novo no GitHub e reconecte-o aqui.",
     yourRepos: (count: number) => `Seus repositórios (${count})`,
     fetchingRepos: "Buscando seus repositórios...",
     noRepos: "Nenhum repositório encontrado ou acesso restrito.",

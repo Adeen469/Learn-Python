@@ -720,6 +720,8 @@ export const ja: Strings = {
     repoMenuDelete: "削除",
     repoLinkCopied: "リポジトリのリンクをコピーしました。",
     repoDeleted: (repo) => `${repo} をGitHubから削除しました。`,
+    tokenExpiringSoon: (days) => `GitHubトークンは${days}日後に期限切れになります — GitHubで新しいものを作成し、ここで再接続してください。`,
+    tokenExpired: "GitHubトークンの有効期限が切れました — GitHubで新しいものを作成し、ここで再接続してください。",
     yourRepos: (count: number) => `あなたのリポジトリ（${count}）`,
     fetchingRepos: "リポジトリを取得中…",
     noRepos: "リポジトリが見つからないか、アクセスが制限されています。",

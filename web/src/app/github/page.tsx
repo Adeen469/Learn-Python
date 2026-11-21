@@ -118,6 +118,14 @@ export default function GitHubPage() {
   // yet (missing service-role key / migration 006): the page shows
   // a setup message instead of the connect form.
   const [tokenConnected, setTokenConnected] = useState(false);
+
+  // The token's expiry as GitHub reported it at save time (null =
+  // no expiry, or unknown). The page warns when it is close.
+  const [tokenExpiresAt, setTokenExpiresAt] = useState<string | null>(null);
+  const tokenExpiresDaysLeft =
+    tokenExpiresAt === null
+      ? null
+      : Math.ceil((new Date(tokenExpiresAt).getTime() - Date.now()) / 86_400_000);
   const [tokenConfigured, setTokenConfigured] = useState(true);
   const [repos, setRepos] = useState<RepoItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -265,6 +273,7 @@ export default function GitHubPage() {
         if (cancelled || !res.ok) return;
         setTokenConfigured(data.configured !== false);
         setTokenConnected(!!data.connected);
+        setTokenExpiresAt(typeof data.expiresAt === "string" ? data.expiresAt : null);
         if (data.connected) {
           // A token already lives on the server — drop any stale
           // plaintext copy from this browser.
@@ -527,11 +536,23 @@ export default function GitHubPage() {
           </div>
         ) : (
           <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3">
-            <div className="flex min-w-0 items-center gap-2 text-xs">
-              <Check className="h-4 w-4 shrink-0 text-emerald-400" />
-              <span className="truncate text-neutral-300">
-                {t.githubPage.connected}
-              </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 text-xs">
+                <Check className="h-4 w-4 shrink-0 text-emerald-400" />
+                <span className="truncate text-neutral-300">
+                  {t.githubPage.connected}
+                </span>
+              </div>
+              {/* A token that lapses soon (or already has) must not
+                  fail silently on the next GitHub call — warn here
+                  while there is still time to renew it. */}
+              {tokenExpiresDaysLeft !== null && tokenExpiresDaysLeft <= 14 && (
+                <p className="mt-1 text-[11px] text-amber-400">
+                  {tokenExpiresDaysLeft <= 0
+                    ? t.githubPage.tokenExpired
+                    : t.githubPage.tokenExpiringSoon(tokenExpiresDaysLeft)}
+                </p>
+              )}
             </div>
             <div className="flex shrink-0 items-center gap-2">
               <button
