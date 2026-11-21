@@ -11,7 +11,12 @@ import {
   getAiConfig,
   hasAiConfig,
   validateAiRequest,
+  type AiSkill,
 } from "@/lib/ai";
+import {
+  BUILTIN_AI_SKILLS,
+  DEFAULT_ACTIVE_SKILL_IDS,
+} from "@/lib/ai-skills.generated";
 import {
   extractYouTubeId,
   fetchTranscript,
@@ -28,6 +33,11 @@ import { getStoredTranscript } from "@/lib/stored-transcripts";
 // No user profile data is ever passed to a model — only the lesson
 // context (title/notes, plus the lesson video transcript for tutor
 // and quiz modes) and the learner's own question/code.
+// Guide mode (editor AI panel) additionally accepts the user's own
+// skills (built-in ids resolved server-side + their custom skills)
+// and a BYOK key for one provider. The BYOK key is used in-memory
+// for that one request only — it is never stored, logged, or echoed
+// back in any response.
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
@@ -84,11 +94,48 @@ export async function POST(req: NextRequest) {
   const body = validated.body;
 
   const config = getAiConfig();
+  // BYOK (guide mode): the user's own key for one provider replaces
+  // the server key for that provider, in-memory for this request
+  // only. The other provider keeps its server key as fallback.
+  if (body.byok?.provider === "gemini" && body.byok.key) {
+    config.geminiKey = body.byok.key;
+  }
+  if (body.byok?.provider === "groq" && body.byok.key) {
+    config.groqKey = body.byok.key;
+  }
   if (!hasAiConfig(config)) {
     return NextResponse.json(
       { error: "AI is not configured yet — the API keys are missing." },
       { status: 503 }
     );
+  }
+
+  // Skills (guide mode only — the lesson tutor keeps its own
+  // transcript-grounded behaviour). Built-in ids resolve against the
+  // server's skill files; an absent list defaults to ponytail. The
+  // catalogue of available built-in skills always rides along, so
+  // the AI knows the sub-skills exist and when to use them.
+  let skills: AiSkill[] = [];
+  if (body.mode === "guide") {
+    const catalogue = BUILTIN_AI_SKILLS.map(
+      (s) => `${s.name} — ${s.description}`
+    ).join("\n");
+    const wanted =
+      body.skillIds && body.skillIds.length > 0
+        ? body.skillIds
+        : DEFAULT_ACTIVE_SKILL_IDS;
+    const builtin: AiSkill[] = BUILTIN_AI_SKILLS.filter((s) =>
+      wanted.includes(s.id)
+    ).map((s) => ({ name: s.name, content: s.content }));
+    const custom: AiSkill[] = (body.skills ?? []).map((s) => ({
+      name: s.name,
+      content: s.content,
+    }));
+    skills = [
+      { name: "Available skills", content: catalogue },
+      ...builtin,
+      ...custom,
+    ];
   }
 
   // Lesson context, server-side (Supabase with seed fallback, same as
@@ -162,6 +209,7 @@ export async function POST(req: NextRequest) {
       history: body.history ?? [],
       model: body.model,
       effort: body.effort,
+      skills,
     },
     config
   );

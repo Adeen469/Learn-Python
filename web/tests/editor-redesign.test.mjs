@@ -13,10 +13,11 @@ const read = (p) => readFileSync(path.join(root, p), "utf8");
 // Format (black), rename / delete / duplicate / copy-path, resizable
 // panels (drag + double-click reset), a status bar, draggable dock
 // zones (Explorer / Terminal / AI move between left / right / bottom),
-// and an AI panel (PromptBar + ThoughtLine, guide mode — the AI helps
-// the user learn, never generates the code). Static source checks —
-// the suite mirrors the source so a drift fails loudly instead of
-// shipping a half-wired editor.
+// and an AI panel (PromptBar + ThoughtLine, guide mode — a real AI
+// assistant with no restrictions, plus a ⋮ menu for chat history and
+// AI settings: skills + BYOK). Static source checks — the suite
+// mirrors the source so a drift fails loudly instead of shipping a
+// half-wired editor.
 
 const page = read("src/app/editor/page.tsx");
 const menuBar = read("src/components/EditorMenuBar.tsx");
@@ -27,6 +28,9 @@ const branched = read("src/components/BranchedMenu.tsx");
 const promptBar = read("src/components/PromptBar.tsx");
 const thoughtLine = read("src/components/ThoughtLine.tsx");
 const aiLib = read("src/lib/ai.ts");
+const aiRoute = read("src/app/api/ai/route.ts");
+const aiSkillsGen = read("src/lib/ai-skills.generated.ts");
+const aiSkillsMeta = read("src/lib/ai-skills-meta.generated.ts");
 const en = read("src/lib/i18n/en.ts");
 const modules = read("src/components/ModulesPanel.tsx");
 
@@ -244,6 +248,76 @@ test("AI panel: PromptBar + ThoughtLine wired to guide mode (a real AI, no restr
   );
 });
 
+test("AI panel ⋮ menu: chat history + AI settings (skills + BYOK)", () => {
+  // The ⋮ menu in the AI panel header.
+  assert.ok(page.includes("MoreVertical"), "AI panel header must carry a ⋮ menu button");
+  assert.ok(page.includes("aiMenuHistory"), "⋮ menu must offer Chat History");
+  assert.ok(page.includes("aiMenuSettings"), "⋮ menu must offer AI Settings");
+  assert.ok(page.includes("aiView"), "AI panel must switch between chat/history/settings views");
+  assert.ok(page.includes('aiView === "history"'), "history view must exist");
+  assert.ok(page.includes('aiView === "settings"'), "settings view must exist");
+  assert.ok(page.includes("aiBackToChat"), "history/settings views must offer a way back to chat");
+  // Chat history: persisted in this browser, restorable, deletable.
+  assert.ok(page.includes("lp_ai_chats"), "past chats must persist in localStorage");
+  assert.ok(page.includes("lp_ai_current_chat"), "the in-progress chat must survive a reload");
+  assert.ok(page.includes("saveCurrentChatToHistory"), "clearing / switching must save the chat first");
+  assert.ok(page.includes("loadAiChat"), "a saved chat must be restorable");
+  assert.ok(page.includes("deleteAiChat"), "a saved chat must be deletable");
+  assert.ok(page.includes("startNewChat"), "history must offer a new chat");
+  // Skills: built-in list from the generated meta module (content-free,
+  // so the skill bodies never ship to the browser), custom skills the
+  // user adds, toggles for both.
+  assert.ok(page.includes("BUILTIN_AI_SKILL_META"), "settings must list the built-in skills from the meta module");
+  assert.ok(page.includes("lp_ai_custom_skills"), "custom skills must persist in localStorage");
+  assert.ok(page.includes("lp_ai_active_skills"), "active skill ids must persist in localStorage");
+  assert.ok(page.includes("toggleSkill"), "each skill must be togglable");
+  assert.ok(page.includes("addCustomSkill"), "the user must be able to add a skill");
+  assert.ok(page.includes("deleteCustomSkill"), "a custom skill must be deletable");
+  assert.ok(page.includes("aiSkillName"), "add-skill form must ask for a name");
+  assert.ok(page.includes("aiSkillContent"), "add-skill form must ask for instructions");
+  // BYOK: provider + key, stored in this browser only, sent per request.
+  assert.ok(page.includes("lp_ai_byok"), "the BYOK key must persist in localStorage");
+  assert.ok(page.includes("byokProvider"), "BYOK must offer a provider choice");
+  assert.ok(page.includes("saveByok"), "BYOK must be saveable");
+  assert.ok(page.includes("removeByok"), "BYOK must be removable");
+  assert.ok(page.includes('type="password"'), "the BYOK key field must be a password field");
+  // The request must carry skills + BYOK to the API.
+  assert.ok(page.includes("skillIds: activeSkillIds"), "the request must send the active built-in skill ids");
+  assert.ok(page.includes("skills: customSkills"), "the request must send the active custom skills");
+  assert.ok(page.includes("byok"), "the request must send the BYOK key when saved");
+  // The server resolves built-in ids (default: ponytail) and applies
+  // BYOK in-memory only — never storing or logging the key.
+  assert.ok(aiRoute.includes("BUILTIN_AI_SKILLS"), "route must resolve built-in skill ids server-side");
+  assert.ok(aiRoute.includes("DEFAULT_ACTIVE_SKILL_IDS"), "route must default to ponytail when no ids are sent");
+  assert.ok(aiRoute.includes("body.mode === \"guide\""), "skills must apply to guide mode only");
+  assert.ok(aiRoute.includes("config.geminiKey = body.byok.key"), "route must use a Gemini BYOK key when given");
+  assert.ok(aiRoute.includes("config.groqKey = body.byok.key"), "route must use a Groq BYOK key when given");
+  assert.ok(!aiRoute.includes("console.log"), "route must never log request data (a BYOK key must never leak)");
+  // The generated skill modules: 7 unique built-in skills (the
+  // PONYTAIL_SKILL_1.md duplicate is not shipped twice), ponytail on
+  // by default; the client meta module carries no skill bodies.
+  for (const id of [
+    "ponytail", "ponytail-audit", "ponytail-debt", "ponytail-gain",
+    "ponytail-help", "ponytail-review", "gstack",
+  ]) {
+    assert.ok(aiSkillsGen.includes(`"id": "${id}"`), `generated skills must include ${id}`);
+    assert.ok(aiSkillsMeta.includes(`"id": "${id}"`), `generated skill meta must include ${id}`);
+  }
+  assert.ok(aiSkillsGen.includes('"id": "ponytail"'), "ponytail must be a built-in skill");
+  assert.ok(aiSkillsGen.includes('DEFAULT_ACTIVE_SKILL_IDS: string[] = ["ponytail"]'), "ponytail must be the default active skill");
+  assert.ok(!aiSkillsMeta.includes("Stop at the first rung"), "the client meta module must not carry skill bodies");
+  assert.ok(aiSkillsGen.includes("Forces the laziest solution"), "the server module must carry the ponytail body");
+  // The /debug default question must ask for the fix (real AI now).
+  assert.ok(
+    page.includes("Find the bug in this code, explain why it breaks, and show me the fixed code."),
+    "/debug must ask for the fixed code, not just a pointer"
+  );
+  assert.ok(
+    !page.includes("don't fix it for me"),
+    "the old don't-fix-it /debug default must be gone"
+  );
+});
+
 test("status bar: runtime, file, save state, cursor position", () => {
   assert.ok(page.includes("statusPython"), "status bar must show the Python runtime");
   assert.ok(page.includes("cursorPos"), "status bar must show the cursor position");
@@ -273,6 +347,13 @@ test("i18n: the new editor keys exist in English", () => {
     "aiWelcome", "aiClearChat", "aiGuideNote", "aiStepReading",
     "aiStepThinking", "aiStepDrafting", "aiThinkingLabel", "aiClosePanel",
     "aiDragHint",
+    // AI panel ⋮ menu: history + settings (skills + BYOK).
+    "aiMenuOptions", "aiMenuHistory", "aiMenuSettings", "aiBackToChat",
+    "aiHistoryTitle", "aiHistoryEmpty", "aiNewChat", "aiSettingsTitle",
+    "aiSkillsTitle", "aiSkillsBuiltin", "aiSkillsCustom", "aiSkillAdd",
+    "aiSkillName", "aiSkillDescription", "aiSkillContent", "aiByokTitle",
+    "aiByokProvider", "aiByokKey", "aiByokSave", "aiByokSaved",
+    "aiByokRemove", "aiByokNote",
   ]) {
     assert.ok(en.includes(`${key}:`), `en.ts must define ${key}`);
   }

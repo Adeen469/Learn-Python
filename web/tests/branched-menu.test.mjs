@@ -105,7 +105,14 @@ test("the editor page renders its file tree as a BranchedMenu", () => {
   // not import the Trash2 icon for a row delete button.
   assert.ok(!page.includes("renderRowActions"), "the tree must not render per-row actions (no delete button)");
   assert.ok(!page.includes("handleDeleteItem"), "the tree must not have a delete handler");
-  assert.ok(!page.includes("Trash2"), "the tree must not use the Trash2 delete icon");
+  // Trash2 is used by the AI panel (delete a saved chat / custom
+  // skill) — the check must be scoped to the Explorer panel, not the
+  // whole page, or the AI panel's delete buttons trip it.
+  const explorerPanel = page.slice(
+    page.indexOf("const explorerPanel"),
+    page.indexOf("const terminalPanel")
+  );
+  assert.ok(!explorerPanel.includes("Trash2"), "the tree must not use the Trash2 delete icon");
   // The unsaved dot stays on file names.
   assert.ok(page.includes("treeFileLabel"), "the tree must build file labels with the unsaved dot");
   assert.ok(page.includes("bg-amber-400"), "the unsaved dot must keep its amber colour");

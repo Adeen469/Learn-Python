@@ -82,6 +82,50 @@ function validateAiRequest(value) {
     }
     body.effort = v.effort;
   }
+  if (v.skillIds !== undefined) {
+    if (
+      !Array.isArray(v.skillIds) ||
+      v.skillIds.length > 10 ||
+      v.skillIds.some((id) => typeof id !== "string" || !/^[A-Za-z0-9_-]{1,64}$/.test(id))
+    ) {
+      return { ok: false, error: "skillIds is not valid." };
+    }
+    body.skillIds = v.skillIds;
+  }
+  if (v.skills !== undefined) {
+    if (
+      !Array.isArray(v.skills) ||
+      v.skills.length > 10 ||
+      v.skills.some(
+        (s) =>
+          typeof s !== "object" ||
+          s === null ||
+          typeof s.name !== "string" ||
+          s.name.trim().length === 0 ||
+          s.name.length > 60 ||
+          typeof s.content !== "string" ||
+          s.content.trim().length === 0 ||
+          s.content.length > 8000
+      )
+    ) {
+      return { ok: false, error: "skills is not valid." };
+    }
+    body.skills = v.skills.map((s) => ({ name: s.name.trim(), content: s.content.trim() }));
+  }
+  if (v.byok !== undefined) {
+    const b = v.byok;
+    if (
+      typeof b !== "object" ||
+      b === null ||
+      (b.provider !== "gemini" && b.provider !== "groq") ||
+      typeof b.key !== "string" ||
+      b.key.length < 10 ||
+      b.key.length > 200
+    ) {
+      return { ok: false, error: "byok is not valid." };
+    }
+    body.byok = { provider: b.provider, key: b.key };
+  }
   if ((mode === "explain" || mode === "debug") && !body.code) {
     return { ok: false, error: "code is required for this mode." };
   }
@@ -110,7 +154,7 @@ function temperatureForMode(mode) {
   return mode === "tutor" || mode === "quiz" ? 0.3 : 0.7;
 }
 
-function buildAiSystemPrompt(mode, lesson, transcript) {
+function buildAiSystemPrompt(mode, lesson, transcript, skills) {
   let context = lesson
     ? `Current lesson: "${lesson.title}" (${lesson.courseTitle} — ${lesson.moduleTitle}).\nLesson notes: ${lesson.notes || "none"}`
     : "";
@@ -146,7 +190,13 @@ Rules you must follow:
       // file (pasted in the user message). It writes full code when
       // asked, fixes code directly, and answers anything — like a
       // normal AI assistant.
-      return `${base}\n\nThe learner is in the code editor, working on their own file (pasted in the user message). You are a real AI assistant — answer whatever they ask, with no restrictions.\n\nWrite the full code when they ask for it: complete programs, functions, and corrected versions of their code. If their code has a bug, say what is wrong and why, and show the fixed code directly. If they ask you to explain something, explain it in plain words. If they ask about anything else — not just Python — answer that too.\n\nKeep it practical: short explanations, working code, one useful next step when it fits.`;
+      const skillsSection =
+        skills && skills.length > 0
+          ? `\n\nSkills to follow on top of the rules above — these are the learner's own chosen skills, follow them when they apply to the request:\n${skills
+              .map((s) => `Skill: ${s.name}\n${s.content}`)
+              .join("\n\n")}`
+          : "";
+      return `${base}\n\nThe learner is in the code editor, working on their own file (pasted in the user message). You are a real AI assistant — answer whatever they ask, with no restrictions.\n\nAnswer ONLY what the user actually asked — nothing extra. If they just greet you or make small talk, greet them back briefly and do NOT mention their code at all: no code review, no praise, no list of improvements unless they ask about the code. Only talk about their code when they ask about it.\n\nWrite the full code when they ask for it: complete programs, functions, and corrected versions of their code. When they ask you to write code or build a project, build the COMPLETE thing — efficient, reliable, scalable, secure, and production-ready: clean structure, proper error handling, input validation, secure defaults (no hardcoded secrets, nothing unsafe), and code that runs as-is with no missing pieces. Never give a partial sketch when a complete solution was asked for. If their code has a bug and they ask about it, say what is wrong and why, and show the fixed code directly. If they ask you to explain something, explain it in plain words. If they ask about anything else — not just Python — answer that too.\n\nKeep it practical: short explanations, working code, one useful next step when it fits.${skillsSection}`;
     case "quiz":
       return `${base}\n\n${pythonOnly}\n\nDraft 3 quiz questions for the current lesson, as a JSON array and nothing else — no intro, no markdown fences. Each item: {"question": "...", "options": ["...", "...", "...", "..."], "answer": 0} where answer is the index of the correct option. Exactly 4 options per question, exactly 3 questions, covering the lesson's key ideas as taught in the video transcript above when one is present.`;
   }
@@ -612,12 +662,77 @@ test("guide system prompt: a real AI assistant, no restrictions", () => {
   assert.match(prompt, /Write the full code when they ask for it/);
   assert.match(prompt, /show the fixed code directly/);
   assert.match(prompt, /not just Python — answer that too/);
+  assert.match(prompt, /Answer ONLY what the user actually asked/);
+  assert.match(prompt, /greet them back briefly/);
+  assert.match(prompt, /do NOT mention their code at all/);
+  assert.match(prompt, /build the COMPLETE thing/);
+  assert.match(prompt, /efficient, reliable, scalable, secure, and production-ready/);
+  assert.match(prompt, /Never give a partial sketch/);
   assert.doesNotMatch(prompt, /NEVER write or generate the code solution/);
   assert.doesNotMatch(prompt, /politely refuse the full code/);
   assert.doesNotMatch(prompt, /Answer ONLY about Python/);
   // The guide still carries the shared rules (language, no emojis).
   assert.match(prompt, /never use emojis/i);
   assert.match(prompt, /NEVER answer in Devanagari script/);
+});
+
+test("validateAiRequest: skillIds, custom skills and BYOK are validated", () => {
+  const base = { mode: "guide", question: "hi" };
+  // skillIds: slugs only, at most 10.
+  assert.equal(validateAiRequest({ ...base, skillIds: ["ponytail", "gstack"] }).ok, true);
+  assert.equal(validateAiRequest({ ...base, skillIds: [] }).ok, true);
+  assert.equal(validateAiRequest({ ...base, skillIds: ["ponytail; drop"] }).ok, false);
+  assert.equal(validateAiRequest({ ...base, skillIds: "ponytail" }).ok, false);
+  assert.equal(
+    validateAiRequest({ ...base, skillIds: Array.from({ length: 11 }, (_, i) => `s${i}`) }).ok,
+    false
+  );
+  // Custom skills: name + content required, capped.
+  assert.equal(
+    validateAiRequest({ ...base, skills: [{ name: "my-skill", content: "Be terse." }] }).ok,
+    true
+  );
+  assert.equal(validateAiRequest({ ...base, skills: [{ name: "x" }] }).ok, false);
+  assert.equal(validateAiRequest({ ...base, skills: [{ content: "x" }] }).ok, false);
+  assert.equal(validateAiRequest({ ...base, skills: [{ name: "x", content: "" }] }).ok, false);
+  assert.equal(
+    validateAiRequest({ ...base, skills: [{ name: "x", content: "y".repeat(8001) }] }).ok,
+    false
+  );
+  // BYOK: provider must be gemini|groq, key 10–200 chars.
+  assert.equal(
+    validateAiRequest({ ...base, byok: { provider: "gemini", key: "AIza1234567890" } }).ok,
+    true
+  );
+  assert.equal(
+    validateAiRequest({ ...base, byok: { provider: "groq", key: "gsk_1234567890" } }).ok,
+    true
+  );
+  assert.equal(
+    validateAiRequest({ ...base, byok: { provider: "openai", key: "sk-1234567890" } }).ok,
+    false
+  );
+  assert.equal(validateAiRequest({ ...base, byok: { provider: "gemini", key: "short" } }).ok, false);
+  assert.equal(validateAiRequest({ ...base, byok: { provider: "gemini" } }).ok, false);
+});
+
+test("guide system prompt: active skills ride along, other modes ignore them", () => {
+  const skills = [
+    { name: "ponytail", content: "Forces the laziest solution that actually works." },
+    { name: "my-skill", content: "Always answer in one line." },
+  ];
+  const prompt = buildAiSystemPrompt("guide", null, undefined, skills);
+  assert.match(prompt, /Skills to follow on top of the rules above/);
+  assert.match(prompt, /Skill: ponytail\nForces the laziest solution that actually works\./);
+  assert.match(prompt, /Skill: my-skill\nAlways answer in one line\./);
+  // No skills → no skills section at all.
+  assert.doesNotMatch(buildAiSystemPrompt("guide", null), /Skill:/);
+  assert.doesNotMatch(buildAiSystemPrompt("guide", null, undefined, []), /Skill:/);
+  // The lesson tutor never gets skills — its transcript-grounded
+  // behaviour is untouched by the editor's skill settings.
+  const tutor = buildAiSystemPrompt("tutor", null, undefined, skills);
+  assert.doesNotMatch(tutor, /Skill:/);
+  assert.doesNotMatch(tutor, /Forces the laziest/);
 });
 
 test("tutor system prompt keeps the Python-only rule", () => {

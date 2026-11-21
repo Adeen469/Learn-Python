@@ -559,10 +559,13 @@ test("the Pyodide runtime is self-hosted on the same origin (CDNs failed for the
   }
   assert.ok(fetchScript.includes("0.27.2"), "fetch script must pin Pyodide 0.27.2");
   const pkg = JSON.parse(read("package.json"));
-  assert.equal(
-    pkg.scripts.prebuild,
-    "node scripts/fetch-pyodide-runtime.mjs",
+  assert.ok(
+    pkg.scripts.prebuild.startsWith("node scripts/fetch-pyodide-runtime.mjs"),
     "prebuild must fetch the Pyodide runtime before every build"
+  );
+  assert.ok(
+    pkg.scripts.prebuild.includes("node scripts/generate-ai-skills.mjs"),
+    "prebuild must regenerate the AI skill module from the skill files"
   );
   const gitignore = read(".gitignore");
   assert.ok(gitignore.includes("public/pyodide/"), "the downloaded runtime must be gitignored (binary, not committed)");

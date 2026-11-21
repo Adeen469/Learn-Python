@@ -27,22 +27,29 @@ import PromptBar, { type PromptBarModel } from "@/components/PromptBar";
 import ThoughtLine from "@/components/ThoughtLine";
 import {
   AlertCircle,
+  ArrowLeft,
   Check,
   Code2,
   FileCode,
   Folder,
   FolderPlus,
+  History,
+  KeyRound,
   Loader2,
+  MoreVertical,
   Package,
   Play,
   Plus,
   Save,
+  Settings,
   Sparkles,
   Square,
   Terminal,
+  Trash2,
   UploadCloud,
   X,
 } from "lucide-react";
+import { BUILTIN_AI_SKILL_META } from "@/lib/ai-skills-meta.generated";
 
 export interface WorkspaceItem {
   id: string;
@@ -173,17 +180,184 @@ export default function CodeEditorPage() {
   const [terminalBusy, setTerminalBusy] = useState(false);
   const [pyodideError, setPyodideError] = useState<string | null>(null);
 
-  // AI panel chat (guide mode, POST /api/ai). The AI helps the user
-  // write code, build logic, understand code and find bugs — it never
-  // generates the code for them, because the point is learning.
-  // The chat lives only in this component's state — nothing is stored
-  // server-side. Long files are truncated to the API's limit.
+  // AI panel chat (guide mode, POST /api/ai). A real AI assistant —
+  // it answers anything, writes full code when asked, and fixes code
+  // directly. Nothing is stored server-side: the current chat, past
+  // chats, custom skills and the BYOK key live in this browser's
+  // localStorage. Long files are truncated to the API's limit.
   type AiChatMessage = { role: "user" | "ai"; text: string };
-  const [aiMessages, setAiMessages] = useState<AiChatMessage[]>([]);
+  type AiChat = { id: string; title: string; createdAt: number; messages: AiChatMessage[] };
+  type CustomAiSkill = { id: string; name: string; description: string; content: string };
+  type AiByok = { provider: "gemini" | "groq"; key: string };
+  type AiPanelView = "chat" | "history" | "settings";
+
+  function readLocalJson<T>(key: string, fallback: T): T {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return fallback;
+      return JSON.parse(raw) as T;
+    } catch {
+      return fallback;
+    }
+  }
+  function readStoredAiMessages(): AiChatMessage[] {
+    const stored = readLocalJson<unknown>("lp_ai_current_chat", []);
+    if (!Array.isArray(stored)) return [];
+    return stored.filter(
+      (m): m is AiChatMessage =>
+        typeof m === "object" &&
+        m !== null &&
+        ((m as AiChatMessage).role === "user" || (m as AiChatMessage).role === "ai") &&
+        typeof (m as AiChatMessage).text === "string"
+    );
+  }
+  function newId(): string {
+    try {
+      return crypto.randomUUID();
+    } catch {
+      return `id-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    }
+  }
+  const [aiMessages, setAiMessages] = useState<AiChatMessage[]>(readStoredAiMessages);
   const [aiThinking, setAiThinking] = useState(false);
   const [aiThoughtSeconds, setAiThoughtSeconds] = useState<number | null>(null);
   const [aiError, setAiError] = useState<string | null>(null);
   const aiAbortRef = useRef<AbortController | null>(null);
+
+  // AI panel views: chat (default), history, settings — switched from
+  // the ⋮ menu in the panel header.
+  const [aiView, setAiView] = useState<AiPanelView>("chat");
+  const [aiMenuOpen, setAiMenuOpen] = useState(false);
+  const [aiChats, setAiChats] = useState<AiChat[]>(() =>
+    readLocalJson<AiChat[]>("lp_ai_chats", [])
+  );
+  const [customSkills, setCustomSkills] = useState<CustomAiSkill[]>(() =>
+    readLocalJson<CustomAiSkill[]>("lp_ai_custom_skills", [])
+  );
+  const [activeSkillIds, setActiveSkillIds] = useState<string[]>(() =>
+    readLocalJson<string[]>("lp_ai_active_skills", ["ponytail"])
+  );
+  const [byok, setByok] = useState<AiByok | null>(() =>
+    readLocalJson<AiByok | null>("lp_ai_byok", null)
+  );
+  // Add-skill + BYOK form fields (settings view).
+  const [newSkillName, setNewSkillName] = useState("");
+  const [newSkillDesc, setNewSkillDesc] = useState("");
+  const [newSkillContent, setNewSkillContent] = useState("");
+  const [byokProvider, setByokProvider] = useState<"gemini" | "groq">(
+    () => readLocalJson<AiByok | null>("lp_ai_byok", null)?.provider ?? "gemini"
+  );
+  const [byokKey, setByokKey] = useState("");
+
+  // Persist AI panel state to this browser only (never the server).
+  useEffect(() => {
+    try {
+      localStorage.setItem("lp_ai_current_chat", JSON.stringify(aiMessages));
+    } catch {
+      // Storage full — skip, the chat still works in memory.
+    }
+  }, [aiMessages]);
+  useEffect(() => {
+    try {
+      localStorage.setItem("lp_ai_chats", JSON.stringify(aiChats));
+    } catch {
+      // Storage full — skip.
+    }
+  }, [aiChats]);
+  useEffect(() => {
+    try {
+      localStorage.setItem("lp_ai_custom_skills", JSON.stringify(customSkills));
+    } catch {
+      // Storage full — skip.
+    }
+  }, [customSkills]);
+  useEffect(() => {
+    try {
+      localStorage.setItem("lp_ai_active_skills", JSON.stringify(activeSkillIds));
+    } catch {
+      // Storage full — skip.
+    }
+  }, [activeSkillIds]);
+  useEffect(() => {
+    try {
+      if (byok) localStorage.setItem("lp_ai_byok", JSON.stringify(byok));
+      else localStorage.removeItem("lp_ai_byok");
+    } catch {
+      // Storage full — skip.
+    }
+  }, [byok]);
+
+  // Chat history: the current chat is saved into the list (title =
+  // first user message) whenever the user starts a new chat, clears,
+  // or opens a saved one — clearing never silently loses a chat.
+  function saveCurrentChatToHistory() {
+    if (aiMessages.length === 0) return;
+    const firstUser = aiMessages.find((m) => m.role === "user");
+    const title =
+      (firstUser?.text ?? "Chat").replace(/\s+/g, " ").trim().slice(0, 60) || "Chat";
+    const chat: AiChat = { id: newId(), title, createdAt: Date.now(), messages: aiMessages };
+    setAiChats((prev) => [chat, ...prev].slice(0, 50));
+  }
+  function startNewChat() {
+    stopAi();
+    saveCurrentChatToHistory();
+    setAiMessages([]);
+    setAiError(null);
+    setAiThoughtSeconds(null);
+    setAiView("chat");
+  }
+  function loadAiChat(chat: AiChat) {
+    stopAi();
+    saveCurrentChatToHistory();
+    setAiChats((prev) => prev.filter((c) => c.id !== chat.id));
+    setAiMessages(chat.messages);
+    setAiError(null);
+    setAiThoughtSeconds(null);
+    setAiView("chat");
+  }
+  function deleteAiChat(id: string) {
+    setAiChats((prev) => prev.filter((c) => c.id !== id));
+  }
+
+  // Skills: toggle a built-in or custom skill on/off; add/delete
+  // custom skills (a new custom skill starts active).
+  function toggleSkill(id: string) {
+    setActiveSkillIds((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
+    );
+  }
+  function addCustomSkill() {
+    const name = newSkillName.trim();
+    const content = newSkillContent.trim();
+    if (!name || !content) return;
+    const skill: CustomAiSkill = {
+      id: `custom-${Date.now()}`,
+      name: name.slice(0, 60),
+      description: newSkillDesc.trim().slice(0, 200),
+      content: content.slice(0, 8000),
+    };
+    setCustomSkills((prev) => [...prev, skill]);
+    setActiveSkillIds((prev) => [...prev, skill.id]);
+    setNewSkillName("");
+    setNewSkillDesc("");
+    setNewSkillContent("");
+  }
+  function deleteCustomSkill(id: string) {
+    setCustomSkills((prev) => prev.filter((s) => s.id !== id));
+    setActiveSkillIds((prev) => prev.filter((s) => s !== id));
+  }
+
+  // BYOK: the key lives in this browser only and is sent with each
+  // /api/ai request; the server uses it in-memory and never stores it.
+  function saveByok() {
+    const key = byokKey.trim();
+    if (key.length < 10) return;
+    setByok({ provider: byokProvider, key });
+    setByokKey("");
+  }
+  function removeByok() {
+    setByok(null);
+  }
 
   // PromptBar models: every free-tier Gemini + Groq model the API
   // accepts. The picker shows the display name + tag.
@@ -219,7 +393,7 @@ export default function CodeEditorPage() {
     } else if (raw.startsWith("/debug")) {
       question =
         raw.slice("/debug".length).trim() ||
-        "Find the bug in this code and explain why it breaks — don't fix it for me, just point at it.";
+        "Find the bug in this code, explain why it breaks, and show me the fixed code.";
     } else if (raw.startsWith("/hint")) {
       question =
         raw.slice("/hint".length).trim() ||
@@ -249,6 +423,14 @@ export default function CodeEditorPage() {
           history,
           model: opts.model?.key ?? "gemini-3.8-flash",
           effort: opts.effort,
+          // Active skills: built-in ids resolve server-side; custom
+          // skills ride along as name + instructions. BYOK (if the
+          // user saved one) is used in-memory for this request only.
+          skillIds: activeSkillIds,
+          skills: customSkills
+            .filter((s) => activeSkillIds.includes(s.id))
+            .map((s) => ({ name: s.name, content: s.content })),
+          ...(byok ? { byok } : {}),
         }),
         signal: controller.signal,
       });
@@ -286,6 +468,8 @@ export default function CodeEditorPage() {
 
   function clearAiChat() {
     stopAi();
+    // Save the chat into history first — clearing never loses it.
+    saveCurrentChatToHistory();
     setAiMessages([]);
     setAiError(null);
     setAiThoughtSeconds(null);
@@ -1747,6 +1931,217 @@ _lp_term_result
         </div>
       </div>
   );
+  // AI panel — history view (⋮ menu → Chat History): past chats,
+  // newest first. Opening one swaps it into the chat; deleting it
+  // removes it for good.
+  const aiHistoryView = (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setAiView("chat")}
+          aria-label={t.editorPage.aiBackToChat}
+          title={t.editorPage.aiBackToChat}
+          className="shrink-0 rounded p-1 text-neutral-400 hover:bg-neutral-800 hover:text-white"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </button>
+        <span className="flex-1 text-sm font-semibold text-neutral-200">
+          {t.editorPage.aiHistoryTitle}
+        </span>
+        <button
+          type="button"
+          onClick={startNewChat}
+          className="shrink-0 rounded-md bg-neutral-800 px-2 py-1 text-xs font-medium text-neutral-200 hover:bg-neutral-700 transition"
+        >
+          {t.editorPage.aiNewChat}
+        </button>
+      </div>
+      {aiChats.length === 0 ? (
+        <p className="text-xs text-neutral-500">{t.editorPage.aiHistoryEmpty}</p>
+      ) : (
+        aiChats.map((chat) => (
+          <div
+            key={chat.id}
+            className="flex items-center gap-2 rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2"
+          >
+            <button
+              type="button"
+              onClick={() => loadAiChat(chat)}
+              className="min-w-0 flex-1 text-left"
+            >
+              <span className="block truncate text-sm text-neutral-100">{chat.title}</span>
+              <span className="block text-[11px] text-neutral-500">
+                {new Date(chat.createdAt).toLocaleDateString()}
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => deleteAiChat(chat.id)}
+              aria-label={t.editorPage.menuDelete}
+              title={t.editorPage.menuDelete}
+              className="shrink-0 rounded p-1 text-neutral-500 hover:bg-neutral-800 hover:text-red-300"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ))
+      )}
+    </div>
+  );
+
+  // AI panel — settings view (⋮ menu → AI Settings): toggle the
+  // built-in skills, add your own skills, and save your own API key
+  // (BYOK) for Gemini or Groq. Everything here lives in this
+  // browser; the server never stores a skill or a key.
+  const aiSettingsView = (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setAiView("chat")}
+          aria-label={t.editorPage.aiBackToChat}
+          title={t.editorPage.aiBackToChat}
+          className="shrink-0 rounded p-1 text-neutral-400 hover:bg-neutral-800 hover:text-white"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </button>
+        <span className="flex-1 text-sm font-semibold text-neutral-200">
+          {t.editorPage.aiSettingsTitle}
+        </span>
+      </div>
+      <div className="space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
+          {t.editorPage.aiSkillsTitle}
+        </p>
+        <p className="text-xs font-medium text-neutral-500">{t.editorPage.aiSkillsBuiltin}</p>
+        {BUILTIN_AI_SKILL_META.map((skill) => (
+          <label
+            key={skill.id}
+            className="flex cursor-pointer items-start gap-2 rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2"
+          >
+            <input
+              type="checkbox"
+              checked={activeSkillIds.includes(skill.id)}
+              onChange={() => toggleSkill(skill.id)}
+              className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-white"
+            />
+            <span className="min-w-0">
+              <span className="block text-sm font-medium text-neutral-100">{skill.name}</span>
+              <span className="block text-xs text-neutral-500">{skill.description}</span>
+            </span>
+          </label>
+        ))}
+        <p className="text-xs font-medium text-neutral-500">{t.editorPage.aiSkillsCustom}</p>
+        {customSkills.map((skill) => (
+          <div
+            key={skill.id}
+            className="flex items-start gap-2 rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2"
+          >
+            <input
+              type="checkbox"
+              checked={activeSkillIds.includes(skill.id)}
+              onChange={() => toggleSkill(skill.id)}
+              aria-label={skill.name}
+              className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-white"
+            />
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-medium text-neutral-100">{skill.name}</span>
+              {skill.description ? (
+                <span className="block text-xs text-neutral-500">{skill.description}</span>
+              ) : null}
+            </span>
+            <button
+              type="button"
+              onClick={() => deleteCustomSkill(skill.id)}
+              aria-label={t.editorPage.menuDelete}
+              title={t.editorPage.menuDelete}
+              className="shrink-0 rounded p-1 text-neutral-500 hover:bg-neutral-800 hover:text-red-300"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ))}
+        <input
+          value={newSkillName}
+          onChange={(e) => setNewSkillName(e.target.value)}
+          placeholder={t.editorPage.aiSkillName}
+          className="w-full rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-600 outline-none focus:border-neutral-600"
+        />
+        <input
+          value={newSkillDesc}
+          onChange={(e) => setNewSkillDesc(e.target.value)}
+          placeholder={t.editorPage.aiSkillDescription}
+          className="w-full rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-600 outline-none focus:border-neutral-600"
+        />
+        <textarea
+          value={newSkillContent}
+          onChange={(e) => setNewSkillContent(e.target.value)}
+          placeholder={t.editorPage.aiSkillContent}
+          rows={4}
+          className="w-full resize-y rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 font-mono text-xs text-neutral-100 placeholder:text-neutral-600 outline-none focus:border-neutral-600"
+        />
+        <button
+          type="button"
+          onClick={addCustomSkill}
+          disabled={!newSkillName.trim() || !newSkillContent.trim()}
+          className="rounded-lg bg-white px-3 py-2 text-xs font-semibold text-black transition hover:bg-neutral-200 disabled:opacity-40"
+        >
+          {t.editorPage.aiSkillAdd}
+        </button>
+      </div>
+      <div className="space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
+          {t.editorPage.aiByokTitle}
+        </p>
+        {byok ? (
+          <div className="flex items-center gap-2 rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2">
+            <KeyRound className="h-4 w-4 shrink-0 text-neutral-400" />
+            <span className="min-w-0 flex-1 text-sm text-neutral-200">
+              {byok.provider === "gemini" ? "Gemini" : "Groq"} • {t.editorPage.aiByokSaved}
+            </span>
+            <button
+              type="button"
+              onClick={removeByok}
+              className="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-red-300 hover:bg-neutral-800"
+            >
+              {t.editorPage.aiByokRemove}
+            </button>
+          </div>
+        ) : (
+          <>
+            <select
+              value={byokProvider}
+              onChange={(e) => setByokProvider(e.target.value as "gemini" | "groq")}
+              aria-label={t.editorPage.aiByokProvider}
+              className="w-full rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-neutral-100 outline-none focus:border-neutral-600"
+            >
+              <option value="gemini">Gemini</option>
+              <option value="groq">Groq</option>
+            </select>
+            <input
+              type="password"
+              value={byokKey}
+              onChange={(e) => setByokKey(e.target.value)}
+              placeholder={t.editorPage.aiByokKey}
+              autoComplete="off"
+              className="w-full rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 font-mono text-sm text-neutral-100 placeholder:text-neutral-600 outline-none focus:border-neutral-600"
+            />
+            <button
+              type="button"
+              onClick={saveByok}
+              disabled={byokKey.trim().length < 10}
+              className="rounded-lg bg-white px-3 py-2 text-xs font-semibold text-black transition hover:bg-neutral-200 disabled:opacity-40"
+            >
+              {t.editorPage.aiByokSave}
+            </button>
+          </>
+        )}
+        <p className="text-xs text-neutral-500">{t.editorPage.aiByokNote}</p>
+      </div>
+    </div>
+  );
+
   const aiPanel = (
     <div className="w-full flex-1 min-h-0 rounded-xl border border-neutral-800 bg-neutral-950 flex flex-col overflow-hidden">
       <EditorPanelHeader
@@ -1758,14 +2153,60 @@ _lp_term_result
           </>
         }
         actions={
-          <button
-            type="button"
-            onClick={clearAiChat}
-            title={t.editorPage.aiClearChat}
-            className="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-neutral-400 hover:bg-neutral-800 hover:text-white transition"
-          >
-            {t.editorPage.aiClearChat}
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={clearAiChat}
+              title={t.editorPage.aiClearChat}
+              className="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-neutral-400 hover:bg-neutral-800 hover:text-white transition"
+            >
+              {t.editorPage.aiClearChat}
+            </button>
+            <div className="relative shrink-0">
+              <button
+                type="button"
+                draggable={false}
+                onClick={() => setAiMenuOpen((o) => !o)}
+                aria-label={t.editorPage.aiMenuOptions}
+                title={t.editorPage.aiMenuOptions}
+                className="rounded p-1 text-neutral-400 hover:bg-neutral-800 hover:text-white"
+              >
+                <MoreVertical className="h-4 w-4" />
+              </button>
+              {aiMenuOpen ? (
+                <>
+                  <div
+                    className="fixed inset-0 z-30"
+                    onClick={() => setAiMenuOpen(false)}
+                  />
+                  <div className="absolute right-0 top-full z-40 mt-1 w-44 overflow-hidden rounded-lg border border-neutral-700 bg-neutral-900 shadow-xl">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAiView("history");
+                        setAiMenuOpen(false);
+                      }}
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-neutral-200 hover:bg-neutral-800"
+                    >
+                      <History className="h-3.5 w-3.5 text-neutral-400" />
+                      {t.editorPage.aiMenuHistory}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAiView("settings");
+                        setAiMenuOpen(false);
+                      }}
+                      className="flex w-full items-center gap-2 border-t border-neutral-800 px-3 py-2 text-left text-sm text-neutral-200 hover:bg-neutral-800"
+                    >
+                      <Settings className="h-3.5 w-3.5 text-neutral-400" />
+                      {t.editorPage.aiMenuSettings}
+                    </button>
+                  </div>
+                </>
+              ) : null}
+            </div>
+          </>
         }
         onDragStart={setDraggingPanel}
         onDragEnd={() => {
@@ -1776,6 +2217,12 @@ _lp_term_result
         closeLabel={t.editorPage.aiClosePanel}
       />
       <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3">
+        {aiView === "history" ? (
+          aiHistoryView
+        ) : aiView === "settings" ? (
+          aiSettingsView
+        ) : (
+          <>
         {aiMessages.length === 0 && !aiThinking && aiThoughtSeconds === null ? (
           <div className="flex min-h-full flex-col justify-center space-y-2">
             <p className="text-sm text-neutral-300">{t.editorPage.aiWelcome}</p>
@@ -1809,7 +2256,10 @@ _lp_term_result
           />
         ) : null}
         {aiError ? <p className="text-xs text-red-400">{aiError}</p> : null}
+          </>
+        )}
       </div>
+      {aiView === "chat" ? (
       <div className="shrink-0 border-t border-neutral-800 p-2">
         <PromptBar
           placeholder={t.editorPage.aiPlaceholder}
@@ -1844,6 +2294,7 @@ _lp_term_result
           maxRows={5}
         />
       </div>
+      ) : null}
     </div>
   );
 

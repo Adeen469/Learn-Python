@@ -10,7 +10,10 @@
 // the route answers 503 (the app still works, the AI panels show an
 // "AI unavailable" state). No user profile data is ever passed to a
 // model — only the lesson context (title/notes, plus the lesson video
-// transcript when one was fetched) and the user's own question/code.
+// transcript when one was fetched), the user's own question/code, and
+// the AI skills the user enabled (built-in or their own, guide mode
+// only). A BYOK key from the request is used in-memory for that one
+// request only — it is never stored or logged server-side.
 
 import type { Lesson } from "./catalog";
 import type { Transcript } from "./transcript";
@@ -20,6 +23,18 @@ export type AiMode = "tutor" | "explain" | "debug" | "quiz" | "guide";
 export interface AiTurn {
   role: "user" | "assistant";
   text: string;
+}
+
+/** One active AI skill (built-in or user-added) for the guide prompt. */
+export interface AiSkill {
+  name: string;
+  content: string;
+}
+
+/** A bring-your-own-key override for one provider (guide mode only). */
+export interface AiByok {
+  provider: "gemini" | "groq";
+  key: string;
 }
 
 export interface AiQuizQuestion {
@@ -145,6 +160,12 @@ export interface AiRequestBody {
   model?: string;
   /** Effort step from EFFORTS (editor AI panel). Omit for Medium. */
   effort?: string;
+  /** Built-in skill ids the editor AI should follow (guide mode only). */
+  skillIds?: string[];
+  /** User-added skills (name + instructions) for the guide prompt. */
+  skills?: AiSkill[];
+  /** Bring-your-own-key override for one provider (guide mode only). */
+  byok?: AiByok;
 }
 
 export type ValidateRequestResult =
@@ -199,6 +220,53 @@ export function validateAiRequest(value: unknown): ValidateRequestResult {
     }
     body.effort = v.effort;
   }
+  if (v.skillIds !== undefined) {
+    if (
+      !Array.isArray(v.skillIds) ||
+      v.skillIds.length > 10 ||
+      v.skillIds.some((id) => typeof id !== "string" || !/^[A-Za-z0-9_-]{1,64}$/.test(id))
+    ) {
+      return { ok: false, error: "skillIds is not valid." };
+    }
+    body.skillIds = v.skillIds as string[];
+  }
+  if (v.skills !== undefined) {
+    if (
+      !Array.isArray(v.skills) ||
+      v.skills.length > 10 ||
+      v.skills.some(
+        (s) =>
+          typeof s !== "object" ||
+          s === null ||
+          typeof (s as AiSkill).name !== "string" ||
+          (s as AiSkill).name.trim().length === 0 ||
+          (s as AiSkill).name.length > 60 ||
+          typeof (s as AiSkill).content !== "string" ||
+          (s as AiSkill).content.trim().length === 0 ||
+          (s as AiSkill).content.length > 8000
+      )
+    ) {
+      return { ok: false, error: "skills is not valid." };
+    }
+    body.skills = (v.skills as AiSkill[]).map((s) => ({
+      name: s.name.trim(),
+      content: s.content.trim(),
+    }));
+  }
+  if (v.byok !== undefined) {
+    const b = v.byok as Record<string, unknown>;
+    if (
+      typeof b !== "object" ||
+      b === null ||
+      (b.provider !== "gemini" && b.provider !== "groq") ||
+      typeof b.key !== "string" ||
+      b.key.length < 10 ||
+      b.key.length > 200
+    ) {
+      return { ok: false, error: "byok is not valid." };
+    }
+    body.byok = { provider: b.provider as "gemini" | "groq", key: b.key };
+  }
 
   // Mode requirements: tutor and quiz need a question (quiz may carry it
   // in the question field or default to the lesson); explain and debug
@@ -252,7 +320,8 @@ function lessonContext(
 export function buildAiSystemPrompt(
   mode: AiMode,
   lesson: Lesson | null,
-  transcript?: Transcript | null
+  transcript?: Transcript | null,
+  skills?: AiSkill[]
 ): string {
   const context = lessonContext(lesson, transcript);
   const base = `You are the AI tutor for LP — Learn Python, a free Python course (CodeWithHarry's 100-day Python for Beginners course in Hindi). The learner is working through the lessons and the code editor.
@@ -280,8 +349,15 @@ Rules you must follow:
       // on answers. The learner is in the editor with their own
       // file (pasted in the user message). It writes full code when
       // asked, fixes code directly, and answers anything — like a
-      // normal AI assistant.
-      return `${base}\n\nThe learner is in the code editor, working on their own file (pasted in the user message). You are a real AI assistant — answer whatever they ask, with no restrictions.\n\nWrite the full code when they ask for it: complete programs, functions, and corrected versions of their code. If their code has a bug, say what is wrong and why, and show the fixed code directly. If they ask you to explain something, explain it in plain words. If they ask about anything else — not just Python — answer that too.\n\nKeep it practical: short explanations, working code, one useful next step when it fits.`;
+      // normal AI assistant. Active skills (the learner's own
+      // choices) ride along at the end, when any are given.
+      const skillsSection =
+        skills && skills.length > 0
+          ? `\n\nSkills to follow on top of the rules above — these are the learner's own chosen skills, follow them when they apply to the request:\n${skills
+              .map((s) => `Skill: ${s.name}\n${s.content}`)
+              .join("\n\n")}`
+          : "";
+      return `${base}\n\nThe learner is in the code editor, working on their own file (pasted in the user message). You are a real AI assistant — answer whatever they ask, with no restrictions.\n\nAnswer ONLY what the user actually asked — nothing extra. If they just greet you or make small talk, greet them back briefly and do NOT mention their code at all: no code review, no praise, no list of improvements unless they ask about the code. Only talk about their code when they ask about it.\n\nWrite the full code when they ask for it: complete programs, functions, and corrected versions of their code. When they ask you to write code or build a project, build the COMPLETE thing — efficient, reliable, scalable, secure, and production-ready: clean structure, proper error handling, input validation, secure defaults (no hardcoded secrets, nothing unsafe), and code that runs as-is with no missing pieces. Never give a partial sketch when a complete solution was asked for. If their code has a bug and they ask about it, say what is wrong and why, and show the fixed code directly. If they ask you to explain something, explain it in plain words. If they ask about anything else — not just Python — answer that too.\n\nKeep it practical: short explanations, working code, one useful next step when it fits.${skillsSection}`;
     case "quiz":
       return `${base}\n\n${pythonOnly}\n\nDraft 3 quiz questions for the current lesson, as a JSON array and nothing else — no intro, no markdown fences. Each item: {"question": "...", "options": ["...", "...", "...", "..."], "answer": 0} where answer is the index of the correct option. Exactly 4 options per question, exactly 3 questions, covering the lesson's key ideas as taught in the video transcript above when one is present.`;
   }
@@ -319,8 +395,9 @@ export function buildGeminiPrompt(args: {
   question?: string;
   code?: string;
   history: AiTurn[];
+  skills?: AiSkill[];
 }): string {
-  const parts = [buildAiSystemPrompt(args.mode, args.lesson, args.transcript)];
+  const parts = [buildAiSystemPrompt(args.mode, args.lesson, args.transcript, args.skills)];
   if (args.history.length > 0) {
     const convo = args.history
       .map((h) => `${h.role === "user" ? "Learner" : "Tutor"}: ${h.text}`)
@@ -338,9 +415,10 @@ export function buildGroqMessages(args: {
   question?: string;
   code?: string;
   history: AiTurn[];
+  skills?: AiSkill[];
 }): Array<{ role: string; content: string }> {
   return [
-    { role: "system", content: buildAiSystemPrompt(args.mode, args.lesson, args.transcript) },
+    { role: "system", content: buildAiSystemPrompt(args.mode, args.lesson, args.transcript, args.skills) },
     ...args.history.map((h) => ({ role: h.role, content: h.text })),
     { role: "user", content: buildAiUserMessage(args) },
   ];
@@ -441,6 +519,7 @@ export async function callGemini(
     question?: string;
     code?: string;
     history: AiTurn[];
+    skills?: AiSkill[];
   },
   key: string,
   fetchImpl: FetchImpl = fetch as unknown as FetchImpl,
@@ -479,6 +558,7 @@ export async function callGroq(
     question?: string;
     code?: string;
     history: AiTurn[];
+    skills?: AiSkill[];
   },
   key: string,
   fetchImpl: FetchImpl = fetch as unknown as FetchImpl,
@@ -594,6 +674,7 @@ export async function askAi(
     history: AiTurn[];
     model?: string;
     effort?: string;
+    skills?: AiSkill[];
   },
   config: AiConfig = getAiConfig(),
   fetchImpl: FetchImpl = fetch as unknown as FetchImpl
