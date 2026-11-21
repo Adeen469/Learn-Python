@@ -67,7 +67,7 @@ export function EditorMenuBar({ menus, right }: EditorMenuBarProps) {
   return (
     <div
       ref={barRef}
-      className="relative flex items-center gap-0.5 rounded-xl border border-neutral-800 bg-neutral-950 px-2 py-1 select-none"
+      className="relative flex shrink-0 items-center gap-0.5 rounded-xl border border-neutral-800 bg-neutral-950 px-2 py-1 select-none"
       role="menubar"
       aria-label="Editor menu"
     >

@@ -475,6 +475,7 @@ export type Strings = {
     unsavedTooltip: string;
     dragFilesHint: string;
     terminalLogs: string;
+    terminalButton: string;
     programInputLabel: string;
     programInputPlaceholder: string;
     terminalInputPlaceholder: string;

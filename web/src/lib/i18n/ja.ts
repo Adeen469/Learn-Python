@@ -420,6 +420,7 @@ export const ja: Strings = {
     unsavedTooltip: "未保存",
     dragFilesHint: "コンピュータからファイルをここにドラッグしてください",
     terminalLogs: "ターミナルログ",
+    terminalButton: "ターミナル",
     programInputLabel: "プログラムの入力 — input()呼び出しごとに1行",
     programInputPlaceholder: "例：\nAdeen\n21",
     terminalInputPlaceholder: "Pythonコマンドを入力（例：2 + 2）— 'clear' でターミナルを消去",

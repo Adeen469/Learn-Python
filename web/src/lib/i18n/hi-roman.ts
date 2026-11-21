@@ -372,6 +372,7 @@ export const hiRoman: Strings = {
     unsavedTooltip: "Save nahi hua",
     dragFilesHint: "Apne computer se files yahan drag karo",
     terminalLogs: "Terminal Logs",
+    terminalButton: "Terminal",
     programInputLabel: "Program input — har input() call ke liye ek line",
     programInputPlaceholder: "e.g.\nAdeen\n21",
     terminalInputPlaceholder: "Python command likho, e.g. 2 + 2 — ya terminal saaf karne ke liye 'clear'",

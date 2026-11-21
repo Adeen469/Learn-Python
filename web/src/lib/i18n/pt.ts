@@ -421,6 +421,7 @@ export const pt: Strings = {
     unsavedTooltip: "Não salvo",
     dragFilesHint: "Arraste arquivos do seu computador para cá",
     terminalLogs: "Logs do terminal",
+    terminalButton: "Terminal",
     programInputLabel: "Entrada do programa — uma linha por chamada de input()",
     programInputPlaceholder: "ex.\nAdeen\n21",
     terminalInputPlaceholder: "Digite um comando Python, ex.: 2 + 2 — ou 'clear' para limpar o terminal",

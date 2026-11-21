@@ -434,6 +434,7 @@ export const en: Strings = {
     unsavedTooltip: "Unsaved",
     dragFilesHint: "Drag files here from your computer",
     terminalLogs: "Terminal Logs",
+    terminalButton: "Terminal",
     programInputLabel: "Program input — one line per input() call",
     programInputPlaceholder: "e.g.\nAdeen\n21",
     terminalInputPlaceholder: "Type a Python command, e.g. 2 + 2 — or 'clear' to clear the terminal",

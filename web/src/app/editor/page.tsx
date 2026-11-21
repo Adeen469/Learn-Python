@@ -325,7 +325,7 @@ export default function CodeEditorPage() {
   // Inline rename: the item being renamed + its input value.
   const [renamingPath, setRenamingPath] = useState<string | null>(null);
   const [renameInput, setRenameInput] = useState("");
-  // Resizable panels (Explorer left, Terminal right): widths in px,
+  // Resizable panels (Explorer left, Terminal bottom): widths in px,
   // persisted; drag a splitter to resize, double-click to reset.
   const [explorerWidth, setExplorerWidth] = useState<number>(() => {
     if (typeof window === "undefined") return 280;
@@ -351,7 +351,7 @@ export default function CodeEditorPage() {
   type PanelZone = "left" | "right" | "bottom";
   type PanelId = "explorer" | "terminal" | "ai";
   const [panelZones, setPanelZones] = useState<Record<PanelId, PanelZone>>(() => {
-    const fallback: Record<PanelId, PanelZone> = { explorer: "left", terminal: "right", ai: "right" };
+    const fallback: Record<PanelId, PanelZone> = { explorer: "left", terminal: "bottom", ai: "right" };
     if (typeof window === "undefined") return fallback;
     try {
       const saved = JSON.parse(localStorage.getItem("lp_editor_panel_zones") || "null") as unknown;
@@ -1904,7 +1904,7 @@ _lp_term_result
   }
   return (
     // pb-20 clears the mobile bottom nav bar (md:pb-0: PC has no bottom bar).
-    <div className="min-h-screen bg-black text-white flex flex-col pb-20 md:pb-0">
+    <div className="min-h-screen bg-black text-white flex flex-col pb-20 md:pb-0 md:h-dvh md:overflow-hidden">
       <Script
         src="/pyodide/pyodide.js"
         // Never pass initPyodide directly: next/script calls onLoad
@@ -1922,7 +1922,7 @@ _lp_term_result
       <AppNavbar />
 
       <main
-        className="flex-1 max-w-[1600px] w-full mx-auto p-4 flex flex-col gap-2"
+        className="flex-1 min-h-0 max-w-[1600px] w-full mx-auto p-4 flex flex-col gap-2"
         style={
           {
             "--explorer-w": `${explorerWidth}px`,
@@ -1950,19 +1950,27 @@ _lp_term_result
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  const next = !autoSave;
-                setAutoSave(next);
-                localStorage.setItem("lp_editor_autosave", next ? "on" : "off");
-              }}
-              title={t.editorPage.menuAutoSave}
-              className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-neutral-300 hover:bg-neutral-800 hover:text-white transition"
-            >
-              <span
-                className={`h-2 w-2 rounded-full ${autoSave ? "bg-emerald-400" : "bg-neutral-600"}`}
-              />
-              {t.editorPage.menuAutoSave}
-              <span className="text-neutral-500">{autoSave ? t.editorPage.saved : t.editorPage.unsavedBadge}</span>
+                onClick={() => setShowTerminal((v) => !v)}
+                title={t.editorPage.terminalLogs}
+                aria-pressed={showTerminal}
+                className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition ${
+                  showTerminal ? "bg-neutral-800 text-white" : "text-neutral-300 hover:bg-neutral-800 hover:text-white"
+                }`}
+              >
+                <Terminal className="h-3.5 w-3.5" />
+                {t.editorPage.terminalButton}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowExplorer((v) => !v)}
+                title={t.editorPage.explorer}
+                aria-pressed={showExplorer}
+                className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition ${
+                  showExplorer ? "bg-neutral-800 text-white" : "text-neutral-300 hover:bg-neutral-800 hover:text-white"
+                }`}
+              >
+                <Folder className="h-3.5 w-3.5" />
+                {t.editorPage.explorer}
               </button>
             </>
           }
@@ -2035,13 +2043,13 @@ _lp_term_result
             stack and the splitters hide. */}
         <div
           ref={dockRef}
-          className="relative flex min-h-[620px] flex-1 flex-col gap-2"
+          className="relative flex min-h-[620px] flex-1 flex-col gap-2 md:min-h-0"
           onDragOver={() => setDropZone(null)}
         >
-          <div className="flex min-h-[620px] flex-1 flex-col gap-2 md:flex-row">
+          <div className="flex min-h-[620px] flex-1 flex-col gap-2 md:flex-row md:min-h-0">
             {/* Left zone */}
             {leftPanels.length > 0 && (
-              <div className="flex w-full flex-col gap-2 md:w-[var(--explorer-w)] md:shrink-0">
+              <div className="flex w-full flex-col gap-2 md:w-[var(--explorer-w)] md:shrink-0 md:min-h-0">
                 {leftPanels.map((id) => (
                   <div key={id} className="flex min-h-0 min-w-0 flex-1 flex-col">
                     {renderDockPanel(id)}
@@ -2071,7 +2079,7 @@ _lp_term_result
             />
             {/* Right zone */}
             {rightPanels.length > 0 && (
-              <div className="flex w-full flex-col gap-2 md:w-[var(--terminal-w)] md:shrink-0">
+              <div className="flex w-full flex-col gap-2 md:w-[var(--terminal-w)] md:shrink-0 md:min-h-0">
                 {rightPanels.map((id) => (
                   <div key={id} className="flex min-h-0 min-w-0 flex-1 flex-col">
                     {renderDockPanel(id)}
@@ -2089,7 +2097,7 @@ _lp_term_result
                 onDrag={(d) => setBottomHeight((h) => Math.min(480, Math.max(160, h - d)))}
                 onReset={() => setBottomHeight(220)}
               />
-              <div className="flex gap-2" style={{ height: bottomHeight }}>
+              <div className="flex shrink-0 gap-2" style={{ height: bottomHeight }}>
                 {bottomPanels.map((id) => (
                   <div key={id} className="flex min-h-0 min-w-0 flex-1 flex-col">
                     {renderDockPanel(id)}
@@ -2133,7 +2141,7 @@ _lp_term_result
         {/* Status bar (VS Code-style): runtime, active file, save state,
             cursor position. (Auto Save lives in the menu-bar toggle
             only — repeating it here was a duplicate.) */}
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-1.5 text-[11px] font-mono text-neutral-400">
+        <div className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-1 rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-1.5 text-[11px] font-mono text-neutral-400">
           <span className="flex items-center gap-1.5">
             <span className={`h-1.5 w-1.5 rounded-full ${pyodideReady ? "bg-emerald-400" : "bg-amber-400"}`} />
             {t.editorPage.statusPython}

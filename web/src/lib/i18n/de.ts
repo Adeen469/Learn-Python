@@ -424,6 +424,7 @@ export const de: Strings = {
     unsavedTooltip: "Ungespeichert",
     dragFilesHint: "Dateien von deinem Computer hierher ziehen",
     terminalLogs: "Terminal-Protokolle",
+    terminalButton: "Terminal",
     programInputLabel: "Programmeingabe — eine Zeile pro input()-Aufruf",
     programInputPlaceholder: "z. B.\nAdeen\n21",
     terminalInputPlaceholder: "Python-Befehl eingeben, z. B. 2 + 2 — oder 'clear', um das Terminal zu leeren",

@@ -384,6 +384,7 @@ export const fr: Strings = {
     unsavedTooltip: "Non enregistré",
     dragFilesHint: "Glissez vos fichiers ici depuis votre ordinateur",
     terminalLogs: "Journaux du terminal",
+    terminalButton: "Terminal",
     programInputLabel: "Entrée du programme — une ligne par appel à input()",
     programInputPlaceholder: "p. ex.\nAdeen\n21",
     terminalInputPlaceholder: "Tapez une commande Python, p. ex. 2 + 2 — ou 'clear' pour effacer le terminal",

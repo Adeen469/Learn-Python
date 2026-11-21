@@ -28,6 +28,7 @@ const promptBar = read("src/components/PromptBar.tsx");
 const thoughtLine = read("src/components/ThoughtLine.tsx");
 const aiLib = read("src/lib/ai.ts");
 const en = read("src/lib/i18n/en.ts");
+const modules = read("src/components/ModulesPanel.tsx");
 
 test("menu bar: File/Edit/Run only, Run = run without debugging + stop (wabepp)", () => {
   assert.ok(page.includes("<EditorMenuBar"), "page must render the menu bar");
@@ -58,6 +59,16 @@ test("menu bar: File/Edit/Run only, Run = run without debugging + stop (wabepp)"
     assert.ok(!page.includes(banned), `web menu must not contain "${banned}" (app-only)`);
     assert.ok(!menuBar.includes(banned), `menu bar must not contain "${banned}" (app-only)`);
   }
+  // Panel toggle buttons live in the menu bar's right side: Terminal
+  // + Explorer (replacing the old Auto Save button — its toggle now
+  // lives in the File menu only). Each reopens its panel after the
+  // header X closed it.
+  const menuRight = page.slice(page.indexOf("right={"), page.indexOf("Files / Modules now live"));
+  assert.ok(menuRight.includes("terminalButton"), "menu bar must offer a Terminal toggle");
+  assert.ok(menuRight.includes("setShowTerminal"), "Terminal toggle must show/hide the Terminal panel");
+  assert.ok(menuRight.includes("t.editorPage.explorer"), "menu bar must offer an Explorer toggle");
+  assert.ok(menuRight.includes("setShowExplorer"), "Explorer toggle must show/hide the Explorer panel");
+  assert.ok(!menuRight.includes("menuAutoSave"), "Auto Save button must be gone from the menu bar (File menu only)");
 });
 
 test("control bar + standalone tab bar are gone; Files/Modules live in the Explorer panel", () => {
@@ -93,7 +104,7 @@ test("auto-save: on by default, persisted, debounced silent save", () => {
   assert.ok(page.includes("lp_editor_autosave"), "auto-save preference must persist");
   assert.ok(page.includes("saveFileSilently"), "auto-save must use a silent save (no terminal spam)");
   assert.ok(page.includes("1200"), "auto-save must debounce (~1.2s)");
-  assert.ok(page.includes("menuAutoSave"), "auto-save must be toggleable from the menu bar");
+  assert.ok(page.includes("menuAutoSave"), "auto-save must be toggleable from the File menu");
 });
 
 test("format: black via micropip, installed once per session", () => {
@@ -143,12 +154,36 @@ test("draggable dock: panels move between zones (AI is side-only, Terminal/Explo
   assert.ok(page.includes('if (id === "ai" && zone === "bottom") return;'), "AI must refuse the bottom zone");
   assert.ok(page.includes('draggingPanel !== "ai"'), "bottom drop zone must hide while dragging AI");
   assert.ok(page.includes('if (z.ai === "bottom") z.ai = "right";'), "a saved AI bottom zone must reset to the right side");
+  // Terminal opens at the bottom by default (fresh users).
+  assert.ok(page.includes('terminal: "bottom"'), "Terminal must open at the bottom by default");
   // Tight gutters: the dock gaps are gap-2 (8px), not gap-3 (12px).
   assert.ok(!page.includes("gap-3"), "no 12px dock gutter may remain");
   assert.ok(page.includes("flex flex-col gap-2"), "dock columns must use the tight gap");
   // The AI empty state sits in the middle of the panel, not pinned to
   // the top with a void below it.
   assert.ok(page.includes("flex min-h-full flex-col justify-center"), "AI empty state must be vertically centred");
+});
+
+test("fit to screen: viewport-height layout on desktop, each panel scrolls on its own", () => {
+  // The page is exactly one viewport tall on desktop (md+) — the
+  // whole page never scrolls; each panel scrolls internally.
+  assert.ok(page.includes("md:h-dvh md:overflow-hidden"), "page root must be exactly viewport height on desktop");
+  assert.ok(page.includes("flex-1 min-h-0 max-w-[1600px]"), "main must shrink inside the viewport-height root");
+  assert.ok(page.includes("relative flex min-h-[620px] flex-1 flex-col gap-2 md:min-h-0"), "dock must shrink on desktop (no 620px floor)");
+  assert.ok(page.includes("flex min-h-[620px] flex-1 flex-col gap-2 md:flex-row md:min-h-0"), "dock row must shrink on desktop");
+  assert.ok(menuBar.includes("shrink-0"), "menu bar must not be squeezed when the viewport is short");
+  // Status bar must not be squeezed either.
+  const statusBar = page.slice(
+    page.indexOf("Status bar (VS Code-style)"),
+    page.indexOf("{/* Right-click / long-press context menu")
+  );
+  assert.ok(statusBar.includes("shrink-0"), "status bar must not be squeezed");
+  // Each panel scrolls on its own: tree, terminal output, AI body,
+  // and the Modules tab inside a single scrolling div.
+  assert.ok(page.includes("flex-1 overflow-auto p-2"), "file tree must scroll inside its panel");
+  assert.ok(page.includes("overflow-auto whitespace-pre-wrap"), "terminal output must scroll inside its panel");
+  assert.ok(page.includes("flex-1 min-h-0 overflow-y-auto p-3"), "AI messages must scroll inside their panel");
+  assert.ok(modules.includes("flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto"), "Modules tab must scroll inside one div");
 });
 
 test("AI panel: PromptBar + ThoughtLine wired to guide mode (no code generation)", () => {

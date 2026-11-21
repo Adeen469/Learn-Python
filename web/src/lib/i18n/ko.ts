@@ -375,6 +375,7 @@ export const ko: Strings = {
     unsavedTooltip: "저장되지 않음",
     dragFilesHint: "컴퓨터에서 파일을 여기로 드래그하세요",
     terminalLogs: "터미널 로그",
+    terminalButton: "터미널",
     programInputLabel: "프로그램 입력 — input() 호출마다 한 줄씩",
     programInputPlaceholder: "예:\nAdeen\n21",
     terminalInputPlaceholder: "Python 명령을 입력하세요. 예: 2 + 2 — 'clear'를 입력하면 터미널이 지워집니다",

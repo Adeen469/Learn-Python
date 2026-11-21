@@ -394,6 +394,7 @@ export const ru: Strings = {
     unsavedTooltip: "Не сохранено",
     dragFilesHint: "Перетащите файлы сюда со своего компьютера",
     terminalLogs: "Журнал терминала",
+    terminalButton: "Терминал",
     programInputLabel: "Входные данные программы — одна строка на каждый вызов input()",
     programInputPlaceholder: "напр.\nAdeen\n21",
     terminalInputPlaceholder: "Введите команду Python, например 2 + 2 — или 'clear', чтобы очистить терминал",

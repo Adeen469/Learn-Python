@@ -412,6 +412,7 @@ export const zh: Strings = {
     unsavedTooltip: "未保存",
     dragFilesHint: "从电脑中拖放文件到此处",
     terminalLogs: "终端日志",
+    terminalButton: "终端",
     programInputLabel: "程序输入 — 每次 input() 调用占一行",
     programInputPlaceholder: "例如\nAdeen\n21",
     terminalInputPlaceholder: "输入 Python 命令，例如 2 + 2 — 输入 'clear' 可清空终端",

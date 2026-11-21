@@ -422,6 +422,7 @@ export const es: Strings = {
     unsavedTooltip: "Sin guardar",
     dragFilesHint: "Arrastra archivos aquí desde tu ordenador",
     terminalLogs: "Registros de la terminal",
+    terminalButton: "Terminal",
     programInputLabel: "Entrada del programa: una línea por cada llamada a input()",
     programInputPlaceholder: "p. ej.\nAdeen\n21",
     terminalInputPlaceholder: "Escribe un comando de Python, p. ej. 2 + 2 — o 'clear' para limpiar la terminal",

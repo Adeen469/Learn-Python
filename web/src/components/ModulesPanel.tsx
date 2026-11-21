@@ -309,7 +309,10 @@ if '${pkgName}' in sys.modules:
   }, [externalQuery, sourceFilter]);
 
   return (
-    <div className="flex flex-col gap-5">
+    // The panel scrolls inside the centre column (its own scrollbar):
+    // a long package list must never push the editor page taller than
+    // the viewport or borrow the page scrollbar.
+    <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto">
       <div>
         <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
           <Package className="h-5 w-5" /> {t.modulesPage.title}

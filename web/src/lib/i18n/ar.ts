@@ -424,6 +424,7 @@ export const ar: Strings = {
     unsavedTooltip: "غير محفوظ",
     dragFilesHint: "اسحب الملفات هنا من جهاز الكمبيوتر",
     terminalLogs: "سجلات الطرفية",
+    terminalButton: "الطرفية",
     programInputLabel: "مدخلات البرنامج — سطر واحد لكل استدعاء input()",
     programInputPlaceholder: "مثال:\nAdeen\n21",
     terminalInputPlaceholder: "اكتب أمر بايثون، مثال: 2 + 2 — أو 'clear' لمسح الطرفية",
