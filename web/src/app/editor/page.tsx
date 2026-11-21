@@ -60,6 +60,11 @@ export interface WorkspaceItem {
   type: "file" | "folder";
   content?: string;
   isSaved?: boolean;
+  // Repo files opened from the GitHub page load lazily: the tree
+  // arrives first (content empty, lazy set), the content is fetched
+  // when the file is opened, using its blob sha.
+  lazy?: boolean;
+  sha?: string;
 }
 
 const DEFAULT_WORKSPACE: WorkspaceItem[] = [
@@ -922,11 +927,11 @@ export default function CodeEditorPage() {
     }
   }
 
-  // Build workspace items from a repo's files (GitHub page handoff):
-  // one folder item per folder, before its children — the same order
-  // DEFAULT_WORKSPACE uses. Files are marked saved: they match the
-  // remote until the user edits them.
-  function buildRepoWorkspace(files: { path: string; content: string }[]): WorkspaceItem[] {
+  // Build workspace items from a repo's file tree (GitHub page
+  // handoff): one folder item per folder, before its children — the
+  // same order DEFAULT_WORKSPACE uses. Files start lazy (empty
+  // content, sha kept) and load when they are opened.
+  function buildRepoWorkspaceTree(files: { path: string; size: number; sha: string }[]): WorkspaceItem[] {
     const items: WorkspaceItem[] = [];
     const folders = new Set<string>();
     files.forEach((f, i) => {
@@ -944,11 +949,64 @@ export default function CodeEditorPage() {
         name: parts[parts.length - 1],
         path: f.path,
         type: "file",
-        content: f.content,
+        content: "",
         isSaved: true,
+        lazy: true,
+        sha: f.sha,
       });
     });
     return items;
+  }
+
+  // Which repo the open workspace belongs to (null = the user's own
+  // workspace). Restored on reload from lp_open_repo_current so lazy
+  // files keep working after a refresh.
+  const [openRepoState, setOpenRepoState] = useState<{ repo: string; branch: string } | null>(null);
+  // Fresh mirror of the workspace for the lazy loader (lets it check
+  // whether the file is still untouched before overwriting it).
+  const itemsRef = useRef<WorkspaceItem[]>(DEFAULT_WORKSPACE);
+  useEffect(() => {
+    itemsRef.current = items;
+  });
+  // Whether the too-big-for-storage warning has been printed once.
+  const persistWarnedRef = useRef(false);
+
+  // Fetch a repo's file tree and open it as the workspace, like
+  // GitHub's code view. Files load lazily when opened (see the
+  // effect below) — the tree itself is the only thing fetched here.
+  async function loadRepoTree(fullName: string) {
+    const token = localStorage.getItem("lp_github_token");
+    if (!token) {
+      setOutput((prev) => prev + `[Could not open ${fullName}: GitHub token is missing — reconnect it on the GitHub page.]\n`);
+      return;
+    }
+    const [owner, name] = fullName.split("/");
+    try {
+      const res = await fetch(
+        `/api/github/repo-tree?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(name)}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Could not load the repo");
+      if (!data.files || data.files.length === 0) {
+        setOutput((prev) => prev + `[${fullName} has no files to open in the editor.]\n`);
+        return;
+      }
+      const repoItems = buildRepoWorkspaceTree(data.files);
+      setItems(repoItems);
+      try {
+        localStorage.setItem(
+          "lp_open_repo_current",
+          JSON.stringify({ repo: data.repo, branch: data.branch })
+        );
+      } catch {}
+      setOpenRepoState({ repo: data.repo, branch: data.branch });
+      const firstFile = repoItems.find((p: WorkspaceItem) => p.type === "file");
+      if (firstFile) setActiveFilePath(firstFile.path);
+      setOutput((prev) => prev + `[Opened ${data.repo} in the editor — ${data.files.length} files. Click a file to load it. Previous workspace backed up, restore it from File → Restore previous workspace.]\n`);
+    } catch (err: unknown) {
+      setOutput((prev) => prev + `[Could not open ${fullName}: ${err instanceof Error ? err.message : String(err)}]\n`);
+    }
   }
 
   // Whether a pre-repo workspace backup exists (File → Restore).
@@ -967,36 +1025,40 @@ export default function CodeEditorPage() {
         if (Array.isArray(parsed) && parsed.length > 0) base = parsed;
       } catch {}
     }
-    // Repo handoff: the GitHub page stores a repo's files in
-    // sessionStorage (lp_open_repo) — open them as the workspace,
-    // like GitHub's code view. The workspace being left is backed
-    // up first (File → Restore previous workspace brings it back).
-    let openRepo: { repo: string; files: { path: string; content: string }[] } | null = null;
+    // A repo opened earlier (reload): its files may still be lazy —
+    // restore which repo they belong to so clicking one loads it.
+    try {
+      const raw = localStorage.getItem("lp_open_repo_current");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed.repo === "string" && typeof parsed.branch === "string") {
+          setOpenRepoState(parsed);
+        }
+      }
+    } catch {}
+    // Repo handoff: the GitHub page stores just the repo's name in
+    // sessionStorage (lp_open_repo) — the tree is fetched here, and
+    // each file loads lazily when opened. The workspace being left
+    // is backed up first (File → Restore previous workspace brings
+    // it back).
+    let openRepoName: string | null = null;
     try {
       const raw = sessionStorage.getItem("lp_open_repo");
       if (raw !== null) {
         sessionStorage.removeItem("lp_open_repo");
         const parsed = JSON.parse(raw);
-        if (
-          parsed &&
-          typeof parsed.repo === "string" &&
-          Array.isArray(parsed.files) &&
-          parsed.files.length > 0
-        ) {
-          openRepo = parsed;
+        if (parsed && typeof parsed.repo === "string") {
+          openRepoName = parsed.repo;
         }
       }
     } catch {}
-    if (openRepo) {
+    if (openRepoName) {
       try {
         localStorage.setItem("lp_workspace_tree_backup", JSON.stringify(base));
         setHasWorkspaceBackup(true);
       } catch {}
-      const repoItems = buildRepoWorkspace(openRepo.files);
-      persistWorkspace(repoItems);
-      const firstFile = repoItems.find((p: WorkspaceItem) => p.type === "file");
-      if (firstFile) setActiveFilePath(firstFile.path);
-      setOutput((prev) => prev + `[Opened ${openRepo.repo} in the editor — previous workspace backed up, restore it from File → Restore previous workspace.]\n`);
+      setOutput((prev) => prev + `[Opening ${openRepoName}...]\n`);
+      void loadRepoTree(openRepoName);
       return;
     }
     let tryCode: string | null = null;
@@ -1024,6 +1086,52 @@ export default function CodeEditorPage() {
     }
   }, []);
 
+  // Lazy file loading: a repo file's content arrives only when the
+  // file is opened. The lazy flag is the real guard (the ref only
+  // stops a second fetch while one is in flight); if the user typed
+  // into the empty file while it was loading, their text wins and
+  // the fetch result is dropped.
+  const loadingFileRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!openRepoState || !activeFile || !activeFile.lazy || !activeFile.sha) return;
+    const path = activeFile.path;
+    const sha = activeFile.sha;
+    if (loadingFileRef.current === path) return;
+    loadingFileRef.current = path;
+    const token = localStorage.getItem("lp_github_token");
+    if (!token) {
+      loadingFileRef.current = null;
+      setOutput((prev) => prev + `[Could not load ${path}: GitHub token is missing — reconnect it on the GitHub page.]\n`);
+      return;
+    }
+    const [owner, name] = openRepoState.repo.split("/");
+    fetch(
+      `/api/github/repo-file?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(name)}&sha=${encodeURIComponent(sha)}&path=${encodeURIComponent(path)}&branch=${encodeURIComponent(openRepoState.branch)}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+      .then(async (res) => {
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || "Could not load file");
+        }
+        return res.text();
+      })
+      .then((content) => {
+        const current = itemsRef.current.find((it) => it.path === path);
+        if (!current || !current.lazy || current.content) return;
+        const next = itemsRef.current.map((it) =>
+          it.path === path ? { ...it, content, lazy: false, isSaved: true } : it
+        );
+        persistWorkspace(next);
+      })
+      .catch((err: unknown) => {
+        setOutput((prev) => prev + `[Could not load ${path}: ${err instanceof Error ? err.message : String(err)}]\n`);
+      })
+      .finally(() => {
+        loadingFileRef.current = null;
+      });
+  }, [activeFile, openRepoState]);
+
   function handleEditorChange(value: string | undefined) {
     if (!activeFile) return;
     setNeedsSaveWarning(null);
@@ -1036,11 +1144,24 @@ export default function CodeEditorPage() {
 
   // Persist the workspace: state + localStorage + the Pyodide virtual
   // filesystem, in one place, so every mutation (save, rename, delete,
-  // duplicate, move, create) keeps all three in sync.
-  function persistWorkspace(next: WorkspaceItem[]) {
+  // duplicate, move, create) keeps all three in sync. The storage
+  // write can fail when a lazily opened repo grows past the browser's
+  // ~5 MB — then the session keeps working (state + Pyodide still
+  // update) and the failure is noted once instead of crashing.
+  function persistWorkspace(next: WorkspaceItem[]): boolean {
     setItems(next);
-    localStorage.setItem("lp_workspace_tree", JSON.stringify(next));
+    let stored = true;
+    try {
+      localStorage.setItem("lp_workspace_tree", JSON.stringify(next));
+    } catch {
+      stored = false;
+      if (!persistWarnedRef.current) {
+        persistWarnedRef.current = true;
+        setOutput((prev) => prev + "[Workspace is too big for the browser's storage — changes are kept for this session only.]\n");
+      }
+    }
     syncAllFilesToPyodide(next);
+    return stored;
   }
 
   // Restore the workspace that was backed up when a repo was opened
@@ -1055,6 +1176,8 @@ export default function CodeEditorPage() {
       const firstFile = parsed.find((p) => p.type === "file");
       if (firstFile) setActiveFilePath(firstFile.path);
       localStorage.removeItem("lp_workspace_tree_backup");
+      localStorage.removeItem("lp_open_repo_current");
+      setOpenRepoState(null);
       setHasWorkspaceBackup(false);
       setOutput((prev) => prev + "[Restored your previous workspace.]\n");
     } catch {}

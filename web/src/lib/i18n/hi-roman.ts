@@ -603,7 +603,6 @@ export const hiRoman: Strings = {
     licenseLabel: "License Chuno",
     noneOption: "Koi Nahi",
     openInEditor: "Editor Me Kholo",
-    repoNoFiles: "Is repo me editor me kholne ke liye koi file nahi hai",
     createButton: "GitHub par Repository banao",
     commitHeading: "Workspace se Code Push / Commit karo",
     targetRepoLabel: "Target Repository *",

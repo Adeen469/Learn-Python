@@ -243,39 +243,16 @@ export default function GitHubPage() {
     }
   }
 
-  // Open a repo in the code editor, like GitHub's code view: fetch
-  // its files here and hand them to the editor via sessionStorage —
-  // the editor loads them as its workspace (backing the current one
-  // up first). The repo card itself is the button; the small external
-  // link still opens github.com.
-  const [openingRepoId, setOpeningRepoId] = useState<number | null>(null);
-  async function openRepoInEditor(repo: RepoItem) {
-    if (!savedToken || openingRepoId !== null) return;
-    const [owner, name] = repo.full_name.split("/");
-    setOpeningRepoId(repo.id);
-    setErrorMsg(null);
-    setSuccessMsg(null);
-    try {
-      const res = await fetch(
-        `/api/github/repo-files?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(name)}`,
-        { headers: { Authorization: `Bearer ${savedToken}` } }
-      );
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || t.githubPage.loadReposFailed);
-      if (!data.files || data.files.length === 0) {
-        setErrorMsg(t.githubPage.repoNoFiles);
-        return;
-      }
-      sessionStorage.setItem(
-        "lp_open_repo",
-        JSON.stringify({ repo: repo.full_name, files: data.files })
-      );
-      router.push("/editor");
-    } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : String(err));
-    } finally {
-      setOpeningRepoId(null);
-    }
+  // Open a repo in the code editor, like GitHub's code view: hand
+  // the editor just the repo's name — it fetches the file tree
+  // itself and loads each file's content lazily when it is opened
+  // (fetching every file up front cannot work: Learn-Python alone
+  // is 357 files / ~17 MB, past Vercel's 4.5 MB response cap and the
+  // browser's ~5 MB storage). The repo card itself is the button;
+  // the small external link still opens github.com.
+  function openRepoInEditor(repo: RepoItem) {
+    sessionStorage.setItem("lp_open_repo", JSON.stringify({ repo: repo.full_name }));
+    router.push("/editor");
   }
 
   async function handleCommitFile(e: React.FormEvent) {
@@ -645,9 +622,6 @@ export default function GitHubPage() {
                         <span className="text-[10px] px-1.5 py-0.5 rounded border border-neutral-800 text-neutral-400">
                           {r.private ? t.githubPage.visibilityPrivateShort : t.githubPage.visibilityPublicShort}
                         </span>
-                        {openingRepoId === r.id && (
-                          <Loader2 className="h-3.5 w-3.5 animate-spin text-neutral-400" />
-                        )}
                       </div>
                       <p className="text-neutral-500 text-[11px] truncate mt-0.5">
                         {r.description || t.githubPage.noDescription}

@@ -693,7 +693,6 @@ export const de: Strings = {
     licenseLabel: "Lizenz wählen",
     noneOption: "Keine",
     openInEditor: "Im Editor öffnen",
-    repoNoFiles: "Dieses Repo enthält keine Dateien zum Öffnen im Editor",
     createButton: "Repository auf GitHub erstellen",
     commitHeading: "Code aus dem Arbeitsbereich pushen / committen",
     targetRepoLabel: "Ziel-Repository *",

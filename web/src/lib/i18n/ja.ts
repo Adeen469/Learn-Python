@@ -682,7 +682,6 @@ export const ja: Strings = {
     licenseLabel: "ライセンスを選択",
     noneOption: "なし",
     openInEditor: "エディターで開く",
-    repoNoFiles: "このリポジトリにはエディターで開くファイルがありません",
     createButton: "GitHubにリポジトリを作成",
     commitHeading: "ワークスペースからコードをプッシュ／コミット",
     targetRepoLabel: "対象リポジトリ *",

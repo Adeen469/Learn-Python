@@ -12,7 +12,8 @@ const read = (rel) => readFileSync(join(webDir, rel), "utf8");
 const page = () => read("src/app/github/page.tsx");
 const route = () => read("src/app/api/github/repos/route.ts");
 const lib = () => read("src/lib/github.ts");
-const repoFilesRoute = () => read("src/app/api/github/repo-files/route.ts");
+const repoTreeRoute = () => read("src/app/api/github/repo-tree/route.ts");
+const repoFileRoute = () => read("src/app/api/github/repo-file/route.ts");
 const en = () => read("src/lib/i18n/en.ts");
 
 test("the form and the server reject the same repo names", () => {
@@ -66,23 +67,26 @@ test("the form offers GitHub's own .gitignore + license dropdowns (None by defau
 test("clicking a repo opens it in the code editor", () => {
   const p = page();
   assert.ok(p.includes("openRepoInEditor"), "clicking a repo must open it in the editor");
-  assert.ok(p.includes("/api/github/repo-files?owner="), "the page must fetch the repo's files from the server");
-  assert.ok(p.includes('"lp_open_repo"'), "the page must hand the files to the editor via sessionStorage");
+  assert.ok(p.includes("JSON.stringify({ repo: repo.full_name })"), "the page must hand the editor just the repo's name (the editor fetches the tree itself)");
+  assert.ok(!p.includes("/api/github/repo-files"), "the page must not fetch the repo's files itself");
   assert.ok(p.includes('router.push("/editor")'), "the page must navigate to the editor");
   assert.ok(p.includes('role="button"'), "the repo card must be clickable");
   assert.ok(p.includes("onClick={() => openRepoInEditor(r)}"), "the card click must open that repo");
   assert.ok(p.includes("t.githubPage.openInEditor"), "the card must say it opens in the editor");
-  assert.ok(p.includes("t.githubPage.repoNoFiles"), "an empty repo must explain it has no files to open");
   assert.ok(p.includes("e.stopPropagation()"), "the external GitHub link must not trigger the card click");
 });
 
-test("the repo-files route returns a repo's files with caps", () => {
-  assert.ok(lib().includes("export async function getRepoFiles"), "the lib must fetch a repo's files");
-  assert.ok(lib().includes("REPO_OPEN_MAX_FILES = 100"), "the fetch must cap the file count");
-  assert.ok(lib().includes("REPO_OPEN_MAX_BYTES = 100_000"), "the fetch must skip big files");
-  assert.ok(lib().includes('recursive: "true"'), "the fetch must walk the whole tree");
-  assert.ok(repoFilesRoute().includes("getRepoFiles"), "the route must serve the repo's files");
-  assert.ok(repoFilesRoute().includes("maxDuration = 60"), "the route must allow time for the blob fetches");
+test("the repo tree + single-file routes serve a repo lazily", () => {
+  assert.ok(lib().includes("export async function getRepoTree"), "the lib must fetch a repo's file tree");
+  assert.ok(lib().includes("export async function getRepoFileContent"), "the lib must fetch one file's content");
+  assert.ok(lib().includes("REPO_OPEN_MAX_BYTES = 50 * 1024 * 1024"), "a file may be up to 50 MB");
+  assert.ok(!lib().includes("REPO_OPEN_MAX_FILES"), "there must be no file-count limit");
+  assert.ok(!lib().includes("export async function getRepoFiles"), "the fetch-everything helper must be gone");
+  assert.ok(lib().includes('recursive: "true"'), "the tree fetch must walk the whole tree");
+  assert.ok(repoTreeRoute().includes("getRepoTree"), "the tree route must serve the repo's tree");
+  assert.ok(repoFileRoute().includes("getRepoFileContent"), "the file route must serve one file's content");
+  assert.ok(repoFileRoute().includes("ReadableStream"), "the file route must stream (Vercel caps buffered responses at 4.5 MB)");
+  assert.ok(repoFileRoute().includes("maxDuration = 60"), "the routes must allow time for the GitHub calls");
 });
 
 test("the token link opens GitHub with every scope pre-checked", () => {

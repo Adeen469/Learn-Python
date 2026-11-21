@@ -691,7 +691,6 @@ export const es: Strings = {
     licenseLabel: "Elegir una licencia",
     noneOption: "Ninguno",
     openInEditor: "Abrir en el editor",
-    repoNoFiles: "Este repositorio no tiene archivos para abrir en el editor",
     createButton: "Crear repositorio en GitHub",
     commitHeading: "Subir / confirmar código desde el espacio de trabajo",
     targetRepoLabel: "Repositorio de destino *",

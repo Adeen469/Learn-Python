@@ -693,7 +693,6 @@ export const ar: Strings = {
     licenseLabel: "اختيار ترخيص",
     noneOption: "لا شيء",
     openInEditor: "فتح في المحرر",
-    repoNoFiles: "لا توجد ملفات في هذا المستودع لفتحها في المحرر",
     createButton: "إنشاء مستودع على GitHub",
     commitHeading: "دفع / تثبيت الأكواد من مساحة العمل",
     targetRepoLabel: "المستودع الهدف *",

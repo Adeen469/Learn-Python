@@ -690,7 +690,6 @@ export const pt: Strings = {
     licenseLabel: "Escolher uma licença",
     noneOption: "Nenhum",
     openInEditor: "Abrir no editor",
-    repoNoFiles: "Este repositório não tem arquivos para abrir no editor",
     createButton: "Criar repositório no GitHub",
     commitHeading: "Enviar / Fazer commit de código do workspace",
     targetRepoLabel: "Repositório de destino *",

@@ -57,22 +57,25 @@ export async function createUserRepo(
   };
 }
 
-// Fetch a repo's files for opening it in the code editor (like
-// GitHub's code view): the recursive tree, then each blob's content.
-// Caps keep it bounded — big binaries and huge repos stay out, and
-// the caller reports how many files were skipped.
-const REPO_OPEN_MAX_FILES = 100;
-const REPO_OPEN_MAX_BYTES = 100_000;
+// Opening a repo in the editor is lazy (Maalik's word 2026-11-21 —
+// no file-count limit, 50 MB per file): the tree arrives first and
+// each file's content is fetched only when it is opened. Fetching
+// every file up front cannot work — Learn-Python alone is 357 files
+// / ~17 MB, while a Vercel function response caps at 4.5 MB and the
+// browser's storage at ~5 MB. The tree is one call; a single file's
+// content stays under the caps (the biggest file in his repos is
+// ~1.2 MB). Files over 50 MB or binary files are refused by the
+// file endpoint, and the tree itself is capped only by GitHub
+// (100k entries).
+const REPO_OPEN_MAX_BYTES = 50 * 1024 * 1024;
 
-export async function getRepoFiles(
+export async function getRepoTree(
   token: string,
   params: { owner: string; repo: string }
 ): Promise<{
   repo: string;
   branch: string;
-  files: { path: string; content: string }[];
-  skipped: number;
-  truncated: boolean;
+  files: { path: string; size: number; sha: string }[];
 }> {
   const octokit = getOctokit(token);
   const { data: repoData } = await octokit.rest.repos.get({
@@ -86,40 +89,30 @@ export async function getRepoFiles(
     tree_sha: branch,
     recursive: "true",
   });
-  const allBlobs = (tree.tree ?? []).filter(
-    (t) => t.type === "blob" && t.path && t.sha
-  );
-  const smallBlobs = allBlobs.filter((t) => (t.size ?? 0) <= REPO_OPEN_MAX_BYTES);
-  const truncated = smallBlobs.length > REPO_OPEN_MAX_FILES || tree.truncated === true;
-  const picked = smallBlobs.slice(0, REPO_OPEN_MAX_FILES);
-  let skipped = allBlobs.length - picked.length;
-  const files: { path: string; content: string }[] = [];
-  // Blobs in small parallel batches — 100 sequential calls would
-  // take too long, 100 at once would trip GitHub's secondary limits.
-  for (let i = 0; i < picked.length; i += 10) {
-    const batch = picked.slice(i, i + 10);
-    const results = await Promise.all(
-      batch.map(async (b) => {
-        try {
-          const { data } = await octokit.rest.git.getBlob({
-            owner: params.owner,
-            repo: params.repo,
-            file_sha: b.sha as string,
-          });
-          const content = Buffer.from(data.content, "base64").toString("utf8");
-          if (content.includes("\0")) return null; // binary
-          return { path: b.path as string, content };
-        } catch {
-          return null;
-        }
-      })
-    );
-    for (const r of results) {
-      if (r) files.push(r);
-      else skipped += 1;
-    }
+  const files = (tree.tree ?? [])
+    .filter((t) => t.type === "blob" && t.path && t.sha)
+    .map((t) => ({ path: t.path as string, size: t.size ?? 0, sha: t.sha as string }));
+  return { repo: repoData.full_name, branch, files };
+}
+
+export async function getRepoFileContent(
+  token: string,
+  params: { owner: string; repo: string; path: string; sha: string }
+): Promise<{ path: string; content: string }> {
+  const octokit = getOctokit(token);
+  const { data } = await octokit.rest.git.getBlob({
+    owner: params.owner,
+    repo: params.repo,
+    file_sha: params.sha,
+  });
+  if ((data.size ?? 0) > REPO_OPEN_MAX_BYTES) {
+    throw new Error(`File is larger than 50 MB (${params.path})`);
   }
-  return { repo: repoData.full_name, branch, files, skipped, truncated };
+  const content = Buffer.from(data.content, "base64").toString("utf8");
+  if (content.includes("\0")) {
+    throw new Error(`Binary file — cannot open as code (${params.path})`);
+  }
+  return { path: params.path, content };
 }
 
 export async function commitFileToRepo(

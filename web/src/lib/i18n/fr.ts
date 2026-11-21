@@ -637,7 +637,6 @@ export const fr: Strings = {
     licenseLabel: "Choisir une licence",
     noneOption: "Aucun",
     openInEditor: "Ouvrir dans l'éditeur",
-    repoNoFiles: "Ce dépôt ne contient aucun fichier à ouvrir dans l'éditeur",
     createButton: "Créer le dépôt sur GitHub",
     commitHeading: "Envoyer / valider du code depuis l’espace de travail",
     targetRepoLabel: "Dépôt cible *",

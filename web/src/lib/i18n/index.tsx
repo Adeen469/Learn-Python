@@ -707,7 +707,6 @@ export type Strings = {
     licenseLabel: string;
     noneOption: string;
     openInEditor: string;
-    repoNoFiles: string;
     createButton: string;
     commitHeading: string;
     targetRepoLabel: string;

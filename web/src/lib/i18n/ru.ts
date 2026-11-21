@@ -644,7 +644,6 @@ export const ru: Strings = {
     licenseLabel: "Выбрать лицензию",
     noneOption: "Нет",
     openInEditor: "Открыть в редакторе",
-    repoNoFiles: "В этом репозитории нет файлов для открытия в редакторе",
     createButton: "Создать репозиторий на GitHub",
     commitHeading: "Отправка / коммит кода из рабочей области",
     targetRepoLabel: "Целевой репозиторий *",

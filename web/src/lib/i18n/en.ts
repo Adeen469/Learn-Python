@@ -703,7 +703,6 @@ export const en: Strings = {
     licenseLabel: "Choose a license",
     noneOption: "None",
     openInEditor: "Open in editor",
-    repoNoFiles: "This repo has no files to open in the editor",
     createButton: "Create Repository on GitHub",
     commitHeading: "Push / Commit Code from Workspace",
     targetRepoLabel: "Target Repository *",

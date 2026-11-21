@@ -659,7 +659,6 @@ export const zh: Strings = {
     licenseLabel: "选择许可证",
     noneOption: "无",
     openInEditor: "在编辑器中打开",
-    repoNoFiles: "此仓库没有可在编辑器中打开的文件",
     createButton: "在 GitHub 上创建仓库",
     commitHeading: "从工作区推送 / 提交代码",
     targetRepoLabel: "目标仓库 *",

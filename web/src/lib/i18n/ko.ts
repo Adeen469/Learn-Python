@@ -606,7 +606,6 @@ export const ko: Strings = {
     licenseLabel: "라이선스 선택",
     noneOption: "없음",
     openInEditor: "편집기에서 열기",
-    repoNoFiles: "이 리포지토리에는 편집기에서 열 파일이 없습니다",
     createButton: "GitHub에 리포지토리 만들기",
     commitHeading: "작업 공간에서 코드 푸시/커밋",
     targetRepoLabel: "대상 리포지토리 *",
