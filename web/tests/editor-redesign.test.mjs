@@ -423,6 +423,16 @@ test("status bar: runtime, file, save state, cursor position", () => {
   assert.ok(page.includes("live.includes(activeFile.path)"), "opening a file must add its tab");
   assert.ok(page.includes("items.some((it) => it.type === \"file\" && it.path === p)"), "deleting a file must drop its tab");
   assert.ok(page.includes('setSettingsTabOpen(true)'), "opening settings must open its tab");
+  // Right-click a bottom tab opens the VS Code-style tab menu (web
+  // actions only, wabepp): closes, copy path, reveal, pin.
+  assert.ok(statusBar.includes("openTabContextMenu"), "a tab must open its context menu on right-click");
+  assert.ok(page.includes('kind === "tab-file"'), "a file tab must have its own menu");
+  assert.ok(page.includes('kind === "tab-settings"'), "the settings tab must have its own menu");
+  assert.ok(page.includes("applyTabClose"), "bulk closes must share one helper (pins + keep-one-tab)");
+  assert.ok(page.includes("pinnedPaths"), "pinned tabs must be tracked (bulk closes skip them)");
+  assert.ok(page.includes("revealInExplorer"), "a file tab must offer Reveal in Explorer View");
+  assert.ok(page.includes("scrollIntoView"), "reveal must scroll the file's tree row into view");
+  assert.ok(page.includes("App-only (native APK"), "the app-only menu items must be listed, not built on the website");
 });
 
 test("i18n: the new editor keys exist in English", () => {
@@ -433,6 +443,10 @@ test("i18n: the new editor keys exist in English", () => {
     "menuFind", "menuClearTerminal", "menuFocusTerminal", "formatting",
     "formatFailed", "formatNotReady", "renamePlaceholder", "autoSaved",
     "statusPython",
+    // Tab menu (right-click a bottom tab).
+    "tabClose", "tabCloseOthers", "tabCloseToRight", "tabCloseSaved",
+    "tabCloseAll", "tabCopyRelativePath", "tabRevealInExplorer",
+    "tabKeepOpen", "tabPin", "tabUnpin",
     // v2: Run menu + AI panel + drag hints.
     "runWithoutDebugging", "aiButton", "aiPanelTitle", "aiPlaceholder",
     "aiWelcome", "aiClearChat", "aiGuideNote", "aiStepReading",

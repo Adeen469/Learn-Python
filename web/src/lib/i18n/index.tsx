@@ -499,6 +499,16 @@ export type Strings = {
     menuDelete: string;
     menuDuplicate: string;
     menuCopyPath: string;
+    tabClose: string;
+    tabCloseOthers: string;
+    tabCloseToRight: string;
+    tabCloseSaved: string;
+    tabCloseAll: string;
+    tabCopyRelativePath: string;
+    tabRevealInExplorer: string;
+    tabKeepOpen: string;
+    tabPin: string;
+    tabUnpin: string;
     menuFormat: string;
     menuAutoSave: string;
     menuUndo: string;

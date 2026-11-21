@@ -40,6 +40,7 @@ import {
   MoreVertical,
   Package,
   Play,
+  Pin,
   Plus,
   Save,
   Settings,
@@ -558,7 +559,7 @@ export default function CodeEditorPage() {
   const [contextMenu, setContextMenu] = useState<{
     x: number;
     y: number;
-    target: { kind: "file" | "folder" | "root"; path: string };
+    target: { kind: "file" | "folder" | "root" | "tab-file" | "tab-settings" | "tab-modules"; path: string };
   } | null>(null);
   // Inline rename: the item being renamed + its input value.
   const [renamingPath, setRenamingPath] = useState<string | null>(null);
@@ -718,6 +719,56 @@ export default function CodeEditorPage() {
     const next = openFilePaths.filter((p) => p !== path);
     if (activeFilePath === path) setActiveFilePath(openFilePaths[idx - 1] ?? next[0]);
     setOpenFilePaths(next);
+  }
+
+  // Pinned file tabs (VS Code-style): bulk closes never touch them,
+  // and the tab shows a pin icon. In-memory, like the open-tabs list.
+  const [pinnedPaths, setPinnedPaths] = useState<string[]>([]);
+
+  // Close several file tabs at once (Close Others / to the Right /
+  // Saved / All). The clicked tab is always kept — at least one file
+  // tab stays open — and pinned tabs are never closed this way. If
+  // the active file closes, the nearest remaining tab to its left
+  // becomes active (else the first remaining tab).
+  function applyTabClose(candidates: string[], keepPath: string) {
+    const closable = candidates.filter((p) => p !== keepPath && !pinnedPaths.includes(p));
+    if (closable.length === 0) return;
+    const next = openFilePaths.filter((p) => !closable.includes(p));
+    if (closable.includes(activeFilePath)) {
+      const idx = openFilePaths.indexOf(activeFilePath);
+      setActiveFilePath(next[Math.max(0, Math.min(idx - 1, next.length - 1))] ?? next[0]);
+    }
+    setOpenFilePaths(next);
+  }
+
+  // Reveal in Explorer View: show the file in the Explorer tree —
+  // switch to the Files tab, open its folders, and scroll its row
+  // into view. (The OS file explorer is app-only, wabepp.)
+  function revealInExplorer(path: string) {
+    setActiveFilePath(path);
+    setCentreView("editor");
+    switchTab("files");
+    setPanelVisible("explorer", true);
+    const folders: Record<string, boolean> = {};
+    let acc = "";
+    for (const part of path.split("/").slice(0, -1)) {
+      acc = acc ? `${acc}/${part}` : part;
+      folders[acc] = true;
+    }
+    setExpandedFolders((p) => ({ ...p, ...folders }));
+    window.setTimeout(() => {
+      document
+        .querySelector(".branched-menu__head[data-active], .branched-menu__item[data-active]")
+        ?.scrollIntoView({ block: "nearest" });
+    }, 120);
+  }
+
+  function openTabContextMenu(
+    e: React.MouseEvent,
+    target: { kind: "tab-file" | "tab-settings" | "tab-modules"; path: string }
+  ) {
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY, target });
   }
 
   // Elapsed-seconds ticker while the runtime loads: the number ticking
@@ -1195,6 +1246,10 @@ export default function CodeEditorPage() {
     });
   }
 
+  // The workspace file list is shadowed by the menu array inside
+  // contextMenuItems, so the tab branch reads it through this alias.
+  const workspaceItems = items;
+
   function contextMenuItems(): ContextMenuItem[] {
     if (!contextMenu) return [];
     const { kind, path } = contextMenu.target;
@@ -1209,6 +1264,108 @@ export default function CodeEditorPage() {
           id: "new-folder",
           label: t.editorPage.newFolder,
           action: () => setShowNewFolder(true),
+        },
+      ];
+    }
+    // Tab menu (right-click a bottom tab, VS Code-style). WABEPP:
+    // only web-compatible actions live here. App-only (native APK /
+    // Tauri EXE, NOT on the website): reopening with an external
+    // editor, revealing in the OS file explorer, split editor,
+    // moving the editor into a new OS window.
+    if (kind === "tab-settings") {
+      return [
+        {
+          id: "tab-close",
+          label: t.editorPage.tabClose,
+          action: () => {
+            setSettingsTabOpen(false);
+            setCentreView("editor");
+          },
+        },
+      ];
+    }
+    if (kind === "tab-modules") {
+      return [
+        {
+          id: "tab-close",
+          label: t.editorPage.tabClose,
+          action: () => switchTab("files"),
+        },
+      ];
+    }
+    if (kind === "tab-file") {
+      const fileIndex = openFilePaths.indexOf(path);
+      const toRight = fileIndex >= 0 ? openFilePaths.slice(fileIndex + 1) : [];
+      const others = openFilePaths.filter((p) => p !== path);
+      const saved = openFilePaths.filter((p) => {
+        const it = workspaceItems.find((w) => w.type === "file" && w.path === p);
+        return it?.isSaved;
+      });
+      const isPinned = pinnedPaths.includes(path);
+      const nothingClosable = (list: string[]) =>
+        list.length === 0 || list.every((p) => p === path || pinnedPaths.includes(p));
+      return [
+        {
+          id: "tab-close",
+          label: t.editorPage.tabClose,
+          action: () => closeFileTab(path),
+        },
+        {
+          id: "tab-close-others",
+          label: t.editorPage.tabCloseOthers,
+          disabled: nothingClosable(others),
+          action: () => applyTabClose(others, path),
+        },
+        {
+          id: "tab-close-right",
+          label: t.editorPage.tabCloseToRight,
+          disabled: nothingClosable(toRight),
+          action: () => applyTabClose(toRight, path),
+        },
+        {
+          id: "tab-close-saved",
+          label: t.editorPage.tabCloseSaved,
+          disabled: nothingClosable(saved),
+          action: () => applyTabClose(saved, path),
+        },
+        {
+          id: "tab-close-all",
+          label: t.editorPage.tabCloseAll,
+          disabled: nothingClosable(others),
+          action: () => applyTabClose(others, path),
+        },
+        { id: "sep-1", label: "", separator: true },
+        {
+          id: "tab-copy-path",
+          label: t.editorPage.menuCopyPath,
+          action: () => copyPath(`${PY_WORKSPACE_ROOT}/${path}`),
+        },
+        {
+          id: "tab-copy-relative-path",
+          label: t.editorPage.tabCopyRelativePath,
+          action: () => copyPath(path),
+        },
+        { id: "sep-2", label: "", separator: true },
+        {
+          id: "tab-reveal",
+          label: t.editorPage.tabRevealInExplorer,
+          action: () => revealInExplorer(path),
+        },
+        { id: "sep-3", label: "", separator: true },
+        // No preview tabs in this editor — every tab is already kept
+        // open, so Keep Open is shown greyed like VS Code shows it.
+        {
+          id: "tab-keep-open",
+          label: t.editorPage.tabKeepOpen,
+          disabled: true,
+        },
+        {
+          id: "tab-pin",
+          label: isPinned ? t.editorPage.tabUnpin : t.editorPage.tabPin,
+          action: () =>
+            setPinnedPaths((prev) =>
+              isPinned ? prev.filter((p) => p !== path) : [...prev, path]
+            ),
         },
       ];
     }
@@ -2839,6 +2996,7 @@ _lp_term_result
               return (
                 <span
                   key={path}
+                  onContextMenu={(e) => openTabContextMenu(e, { kind: "tab-file", path })}
                   className={`flex items-center gap-1.5 rounded-md border px-2 py-0.5 ${isActive ? "border-neutral-700 bg-neutral-800 text-neutral-100" : "border-transparent text-neutral-400 hover:bg-neutral-900 hover:text-neutral-200"}`}
                 >
                   <button
@@ -2851,6 +3009,7 @@ _lp_term_result
                     title={path}
                     className="flex items-center gap-1.5"
                   >
+                    {pinnedPaths.includes(path) && <Pin className="h-3 w-3 shrink-0 text-neutral-300" />}
                     <FileCode className="h-3.5 w-3.5 shrink-0" />
                     <span>{name}</span>
                   </button>
@@ -2869,6 +3028,7 @@ _lp_term_result
             })}
             {settingsTabOpen && (
               <span
+                onContextMenu={(e) => openTabContextMenu(e, { kind: "tab-settings", path: "" })}
                 className={`flex items-center gap-1.5 rounded-md border px-2 py-0.5 ${centreView === "ai-settings" ? "border-neutral-700 bg-neutral-800 text-neutral-100" : "border-transparent text-neutral-400 hover:bg-neutral-900 hover:text-neutral-200"}`}
               >
                 <button
@@ -2895,6 +3055,7 @@ _lp_term_result
             )}
             {editorTab === "modules" && (
               <span
+                onContextMenu={(e) => openTabContextMenu(e, { kind: "tab-modules", path: "" })}
                 className={`flex items-center gap-1.5 rounded-md border px-2 py-0.5 ${centreView === "editor" ? "border-neutral-700 bg-neutral-800 text-neutral-100" : "border-transparent text-neutral-400 hover:bg-neutral-900 hover:text-neutral-200"}`}
               >
                 <button
