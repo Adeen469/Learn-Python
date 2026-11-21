@@ -195,7 +195,7 @@ test("fit to screen: viewport-height layout on desktop, each panel scrolls on it
   assert.ok(modules.includes("flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto"), "Modules tab must scroll inside one div");
 });
 
-test("AI panel: PromptBar + ThoughtLine wired to guide mode (no code generation)", () => {
+test("AI panel: PromptBar + ThoughtLine wired to guide mode (a real AI, no restrictions)", () => {
   assert.ok(page.includes("<PromptBar"), "AI panel must render the PromptBar");
   assert.ok(page.includes("<ThoughtLine"), "AI panel must render the ThoughtLine while thinking");
   // The ThoughtLine must stay mounted while messages exist: if it
@@ -206,7 +206,7 @@ test("AI panel: PromptBar + ThoughtLine wired to guide mode (no code generation)
     "ThoughtLine must stay mounted while messages exist so it can settle"
   );
   assert.ok(page.includes("sendAiMessage"), "AI panel must send through sendAiMessage");
-  assert.ok(page.includes('mode: "guide"'), "AI panel must ask in guide mode (tutor-only, never generates code)");
+  assert.ok(page.includes('mode: "guide"'), "AI panel must ask in guide mode (a real AI assistant)");
   assert.ok(page.includes("AI_PANEL_MODELS"), "AI panel must offer the free-model picker");
   assert.ok(page.includes('defaultModel="gemini-3.8-flash"'), "Gemini 3.8 Flash must be the default model");
   assert.ok(page.includes('sparkColor="#8e8e8e"'), "PromptBar must use Maalik's spark colour");
@@ -227,11 +227,20 @@ test("AI panel: PromptBar + ThoughtLine wired to guide mode (no code generation)
   // The vendored components carry Maalik's defaults.
   assert.ok(promptBar.includes("sparkColor = '#8e8e8e'"), "PromptBar default spark colour must be #8e8e8e");
   assert.ok(thoughtLine.includes("fontSize = 15"), "ThoughtLine default font size must be 15");
-  // Guide mode itself: the backend prompt forbids handing over code.
+  // Guide mode itself: the backend prompt is a real AI assistant —
+  // it writes full code when asked, with no restrictions.
   assert.ok(aiLib.includes('case "guide"'), "backend must have a guide mode");
   assert.ok(
-    aiLib.includes("NEVER write or generate the code solution"),
-    "guide prompt must forbid generating the code solution"
+    aiLib.includes("You are a real AI assistant"),
+    "guide prompt must be a real AI assistant"
+  );
+  assert.ok(
+    aiLib.includes("Write the full code when they ask for it"),
+    "guide prompt must write the full code when asked"
+  );
+  assert.ok(
+    !aiLib.includes("NEVER write or generate the code solution"),
+    "guide prompt must not forbid generating code any more"
   );
 });
 
