@@ -1,0 +1,13 @@
+[package]
+name = "learn-python"
+version = "1.0.0"
+description = "Learn Python, online or off — Windows desktop app"
+authors = ["Adeen469"]
+license = ""
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }

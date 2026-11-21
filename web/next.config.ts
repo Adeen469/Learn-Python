@@ -61,7 +61,10 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   // Produces a minimal self-contained server (.next/standalone/server.js)
   // so the app can run on Fly.io from a plain `node server.js`.
-  output: "standalone",
+  // Desktop (Tauri) builds bundle a static export instead:
+  // LP_DESKTOP_EXPORT=1 switches the output to 'export'. The normal
+  // Vercel build is untouched (output stays 'standalone').
+  output: process.env.LP_DESKTOP_EXPORT === "1" ? "export" : "standalone",
   async headers() {
     return [
       {
