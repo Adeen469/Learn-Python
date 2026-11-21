@@ -694,6 +694,32 @@ export default function CodeEditorPage() {
     items.find((it) => it.type === "file" && it.path === activeFilePath) ||
     items.find((it) => it.type === "file");
 
+  // Open tabs in the bottom bar (VS Code-style): one per file the user
+  // opened, plus AI Settings while it is open. A single effect keeps
+  // the list in sync — every place that activates a file (tree, new
+  // file, try-it, terminal, rename, delete) flows through
+  // activeFile/items, so no call site needs to touch the tabs.
+  const [openFilePaths, setOpenFilePaths] = useState<string[]>(["main.py"]);
+  const [settingsTabOpen, setSettingsTabOpen] = useState(false);
+  useEffect(() => {
+    setOpenFilePaths((prev) => {
+      const live = prev.filter((p) => items.some((it) => it.type === "file" && it.path === p));
+      const next =
+        !activeFile || live.includes(activeFile.path) ? live : [...live, activeFile.path];
+      return next.length === prev.length && next.every((p, i) => p === prev[i]) ? prev : next;
+    });
+  }, [activeFile?.path, items]);
+
+  // Close a file tab. The last file tab cannot close — the editor
+  // always keeps one file open (same rule as Delete).
+  function closeFileTab(path: string) {
+    if (openFilePaths.length <= 1) return;
+    const idx = openFilePaths.indexOf(path);
+    const next = openFilePaths.filter((p) => p !== path);
+    if (activeFilePath === path) setActiveFilePath(openFilePaths[idx - 1] ?? next[0]);
+    setOpenFilePaths(next);
+  }
+
   // Elapsed-seconds ticker while the runtime loads: the number ticking
   // up proves the load is alive (downloading, not frozen).
   useEffect(() => {
@@ -1043,6 +1069,17 @@ export default function CodeEditorPage() {
     });
     persistWorkspace(updated);
     if (activeFilePath === renamingPath) setActiveFilePath(newPath);
+    // Keep the bottom tabs in sync with the rename (a file, or every
+    // file under a renamed folder).
+    setOpenFilePaths((prev) =>
+      prev.map((p) =>
+        p === renamingPath
+          ? newPath
+          : p.startsWith(renamingPath + "/")
+            ? `${newPath}${p.slice(renamingPath.length)}`
+            : p
+      )
+    );
     if (item.type === "folder") {
       setExpandedFolders((p) => {
         const next = { ...p };
@@ -2324,6 +2361,7 @@ _lp_term_result
                       onClick={() => {
                         setCentreView("ai-settings");
                         setSettingsSection("menu");
+                        setSettingsTabOpen(true);
                         setAiMenuOpen(false);
                       }}
                       className="flex w-full items-center gap-2 border-t border-neutral-800 px-3 py-2 text-left text-sm text-neutral-200 hover:bg-neutral-800"
@@ -2537,6 +2575,7 @@ _lp_term_result
     if (id === "ai") return aiPanel;
     return null;
   }
+
   return (
     // pb-20 clears the mobile bottom nav bar (md:pb-0: PC has no bottom bar).
     <div className="min-h-screen bg-black text-white flex flex-col pb-20 md:pb-0 md:h-dvh md:overflow-hidden">
@@ -2782,15 +2821,105 @@ _lp_term_result
             </>
           )}
         </div>
-        {/* Status bar (VS Code-style): runtime, active file, save state,
-            cursor position. (Auto Save lives in the menu-bar toggle
-            only — repeating it here was a duplicate.) */}
+        {/* Status bar (VS Code-style): runtime, open tabs, save state,
+            cursor position. The tabs live here at the bottom — one per
+            open file, plus AI Settings / Modules while those views are
+            open. (Auto Save lives in the menu-bar toggle only —
+            repeating it here was a duplicate.) */}
         <div className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-1 rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-1.5 text-[11px] font-mono text-neutral-400">
           <span className="flex items-center gap-1.5">
             <span className={`h-1.5 w-1.5 rounded-full ${pyodideReady ? "bg-emerald-400" : "bg-amber-400"}`} />
             {t.editorPage.statusPython}
           </span>
-          <span className="truncate">{activeFile?.path ?? t.editorPage.noActiveFile}</span>
+          <span className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
+            {openFilePaths.map((path) => {
+              const name = path.split("/").pop() ?? path;
+              const isActive =
+                centreView === "editor" && editorTab === "files" && activeFile?.path === path;
+              return (
+                <span
+                  key={path}
+                  className={`flex items-center gap-1.5 rounded-md border px-2 py-0.5 ${isActive ? "border-neutral-700 bg-neutral-800 text-neutral-100" : "border-transparent text-neutral-400 hover:bg-neutral-900 hover:text-neutral-200"}`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveFilePath(path);
+                      setCentreView("editor");
+                      switchTab("files");
+                    }}
+                    title={path}
+                    className="flex items-center gap-1.5"
+                  >
+                    <FileCode className="h-3.5 w-3.5 shrink-0" />
+                    <span>{name}</span>
+                  </button>
+                  {openFilePaths.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => closeFileTab(path)}
+                      aria-label={`Close ${name}`}
+                      className="rounded p-0.5 text-neutral-500 hover:bg-neutral-700 hover:text-white"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  )}
+                </span>
+              );
+            })}
+            {settingsTabOpen && (
+              <span
+                className={`flex items-center gap-1.5 rounded-md border px-2 py-0.5 ${centreView === "ai-settings" ? "border-neutral-700 bg-neutral-800 text-neutral-100" : "border-transparent text-neutral-400 hover:bg-neutral-900 hover:text-neutral-200"}`}
+              >
+                <button
+                  type="button"
+                  onClick={() => setCentreView("ai-settings")}
+                  title={t.editorPage.aiSettingsTitle}
+                  className="flex items-center gap-1.5"
+                >
+                  <Settings className="h-3.5 w-3.5 shrink-0" />
+                  <span>{t.editorPage.aiSettingsTitle}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSettingsTabOpen(false);
+                    setCentreView("editor");
+                  }}
+                  aria-label={`Close ${t.editorPage.aiSettingsTitle}`}
+                  className="rounded p-0.5 text-neutral-500 hover:bg-neutral-700 hover:text-white"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            )}
+            {editorTab === "modules" && (
+              <span
+                className={`flex items-center gap-1.5 rounded-md border px-2 py-0.5 ${centreView === "editor" ? "border-neutral-700 bg-neutral-800 text-neutral-100" : "border-transparent text-neutral-400 hover:bg-neutral-900 hover:text-neutral-200"}`}
+              >
+                <button
+                  type="button"
+                  onClick={() => {
+                    switchTab("modules");
+                    setCentreView("editor");
+                  }}
+                  title={t.editorPage.modulesTab}
+                  className="flex items-center gap-1.5"
+                >
+                  <Package className="h-3.5 w-3.5 shrink-0" />
+                  <span>{t.editorPage.modulesTab}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => switchTab("files")}
+                  aria-label={`Close ${t.editorPage.modulesTab}`}
+                  className="rounded p-0.5 text-neutral-500 hover:bg-neutral-700 hover:text-white"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            )}
+          </span>
           <span className="ml-auto flex items-center gap-4">
             <span>
               {activeFile?.isSaved ? t.editorPage.saved : t.editorPage.unsavedBadge}

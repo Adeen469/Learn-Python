@@ -408,6 +408,21 @@ test("status bar: runtime, file, save state, cursor position", () => {
   );
   assert.ok(!statusBar.includes("menuAutoSave"), "status bar must not repeat the Auto Save toggle");
   assert.ok(statusBar.includes("t.editorPage.saved"), "status bar must still show the saved state");
+  // Open tabs live in the status bar at the bottom (VS Code-style):
+  // one per open file, plus AI Settings / Modules while those views
+  // are open. Clicking a tab switches to it, × closes it.
+  assert.ok(statusBar.includes("openFilePaths.map"), "the status bar must render one tab per open file");
+  assert.ok(statusBar.includes("closeFileTab"), "a file tab must offer a close button");
+  assert.ok(statusBar.includes("openFilePaths.length > 1"), "the last file tab must not offer a close button");
+  assert.ok(statusBar.includes("settingsTabOpen"), "AI Settings must appear as a tab while it is open");
+  assert.ok(statusBar.includes('editorTab === "modules"'), "Modules must appear as a tab while it is open");
+  assert.ok(statusBar.includes("FileCode"), "a file tab must show a file icon");
+  // One effect keeps the file tabs in sync: opening a file adds its
+  // tab, deleting one drops it, renaming one follows the new path.
+  assert.ok(page.includes("const [openFilePaths, setOpenFilePaths]"), "open file tabs must be tracked in state");
+  assert.ok(page.includes("live.includes(activeFile.path)"), "opening a file must add its tab");
+  assert.ok(page.includes("items.some((it) => it.type === \"file\" && it.path === p)"), "deleting a file must drop its tab");
+  assert.ok(page.includes('setSettingsTabOpen(true)'), "opening settings must open its tab");
 });
 
 test("i18n: the new editor keys exist in English", () => {
