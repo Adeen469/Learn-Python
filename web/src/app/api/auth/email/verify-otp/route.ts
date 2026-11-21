@@ -28,7 +28,7 @@ export const dynamic = "force-dynamic";
 const GENERIC_CODE_ERROR = "The code is incorrect or has expired.";
 
 export async function POST(req: NextRequest) {
-  const limited = rateLimit(req, "auth-email-verify-otp", 20, 60_000);
+  const limited = await rateLimit(req, "auth-email-verify-otp", 20, 60_000);
   if (limited) return limited;
 
   const prereqs = getAuthPrereqs(req);
@@ -69,7 +69,10 @@ export async function POST(req: NextRequest) {
     if (decision.reason === "invalid") await bumpOtpAttempts(row.id);
     return jsonError(GENERIC_CODE_ERROR, 400);
   }
-  await consumeOtp(row.id);
+  // Atomic claim: a second request presenting the same code at the
+  // same instant loses the claim and gets the generic error.
+  const claimed = await consumeOtp(row.id);
+  if (!claimed) return jsonError(GENERIC_CODE_ERROR, 400);
 
   const patch: { email_verified?: boolean; last_sign_in_at?: string } = {
     last_sign_in_at: new Date().toISOString(),
@@ -92,7 +95,7 @@ export async function POST(req: NextRequest) {
     prereqs.secret,
     { email: user.email, name: user.name, picture: null },
     prereqs.isSecure,
-    { auth: "email", mfa: false }
+    { auth: "email", mfa: false, sv: user.session_version ?? 0 }
   );
   // A stale pending cookie must never survive a fresh sign-in.
   clearPending2fa(res, prereqs.isSecure);

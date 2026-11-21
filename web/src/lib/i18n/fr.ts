@@ -625,9 +625,9 @@ export const fr: Strings = {
     pushed: (filePath: string, fullName: string) =>
       `✓ '${filePath}' envoyé vers ${fullName} !`,
     title: "Intégration GitHub",
-    intro: "Connectez votre compte GitHub à l’aide d’un jeton d’accès personnel (PAT) pour créer des dépôts et valider du code directement depuis LP. Le lien du jeton ci-dessous ouvre GitHub avec toutes les autorisations pré-cochées, afin que le jeton ait un accès complet à votre compte.",
+    intro: "Connectez votre compte GitHub avec un Personal Access Token (PAT) pour créer des dépôts et valider du code directement depuis LP. Le lien du token ci-dessous ouvre GitHub avec seul le scope repo pré-coché : le token ne peut donc que lire et écrire vos dépôts.",
     connectHeading: "Connecter le jeton personnel GitHub",
-    tokenExplainer: "Créez un jeton sur github.com/settings/tokens avec toutes les autorisations pré-cochées — le jeton a un accès complet à votre compte, y compris la suppression de dépôts et la gestion des organisations, alors gardez-le privé. Collez-le ensuite ci-dessous. Votre jeton reste uniquement dans ce navigateur (localStorage). Il n’est envoyé au serveur LP que pour appeler GitHub en votre nom, n’est jamais stocké sur le serveur, et Déconnecter le supprime de ce navigateur.",
+    tokenExplainer: "Créez un token sur github.com/settings/tokens avec seul le scope repo coché — le token ne peut que lire et écrire vos dépôts, gardez-le donc privé. Collez-le ensuite ci-dessous. Votre token reste uniquement dans ce navigateur (localStorage). Il n'est envoyé au serveur LP que pour appeler GitHub en votre nom, n'y est jamais stocké, et Déconnecter le supprime de ce navigateur.",
     connectToken: "Connecter le jeton",
     connected: (tokenPrefix: string) => `Connecté à GitHub • ${tokenPrefix}…`,
     refresh: "Actualiser",

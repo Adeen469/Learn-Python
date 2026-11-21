@@ -669,10 +669,10 @@ export const ja: Strings = {
     pushed: (filePath: string, fullName: string) => `✓ 「${filePath}」を${fullName}にプッシュしました！`,
     title: "GitHub連携",
     intro:
-      "Personal Access Token（PAT）を使ってGitHubアカウントを接続し、LPから直接リポジトリを作成してコードをコミットできます。下のトークンリンクは、GitHubをすべてのスコープが事前にチェックされた状態で開きます。そのため、トークンはアカウントへのフルアクセスを持ちます。",
+      "Personal Access Token（PAT）を使ってGitHubアカウントを接続し、LPから直接リポジトリを作成してコードをコミットできます。下のトークンリンクは、repoスコープのみが事前にチェックされた状態でGitHubを開きます。そのため、トークンはリポジトリの読み書きのみができます。",
     connectHeading: "GitHub Personal Access Tokenを接続",
     tokenExplainer:
-      "github.com/settings/tokensで、すべてのスコープが事前にチェックされた状態のトークンを作成してください — そのトークンは、リポジトリの削除や組織の管理を含むアカウントへのフルアクセスを持つため、非公開に保管してください。次に、下に貼り付けてください。トークンはこのブラウザ（localStorage）にのみ保存されます。GitHubへの呼び出しのため、LPサーバーに送信される場合がありますが、サーバーに保存されることはありません。「接続解除」するとこのブラウザから削除されます。",
+      "github.com/settings/tokensで、repoスコープのみがチェックされたトークンを作成してください — トークンはリポジトリの読み書きのみができるため、非公開に保管してください。次に、下に貼り付けてください。トークンはこのブラウザ（localStorage）にのみ保存されます。GitHubへの呼び出しのため、LPサーバーに送信される場合がありますが、サーバーに保存されることはありません。「接続解除」するとこのブラウザから削除されます。",
     connectToken: "トークンを接続",
     connected: (tokenPrefix: string) => `GitHubに接続済み • ${tokenPrefix}...`,
     refresh: "更新",

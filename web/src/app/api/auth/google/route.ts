@@ -30,7 +30,7 @@ const SERVICE_UNAVAILABLE = () =>
 export async function GET(req: NextRequest) {
   let limit;
   try {
-    limit = checkRateLimit(`auth-google:${getClientIp(req)}`, 20, 60_000);
+    limit = await checkRateLimit(`auth-google:${getClientIp(req)}`, 20, 60_000);
   } catch {
     return NextResponse.json(
       { error: "Sign-in is temporarily unavailable." },

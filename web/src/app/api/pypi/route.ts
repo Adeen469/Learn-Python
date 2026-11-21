@@ -9,7 +9,7 @@ const RATE_LIMITED_RESPONSE = (retryAfterSeconds: number) =>
   );
 
 export async function GET(req: NextRequest) {
-  const limit = checkRateLimit(`pypi:${getClientIp(req)}`, 60, 60_000);
+  const limit = await checkRateLimit(`pypi:${getClientIp(req)}`, 60, 60_000);
   if (!limit.allowed) {
     return RATE_LIMITED_RESPONSE(limit.retryAfterSeconds);
   }
@@ -28,10 +28,18 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const res = await fetch(`https://pypi.org/pypi/${encodeURIComponent(pkg)}/json`, {
-      headers: { "User-Agent": "LP-Learning-Platform/1.0" },
-      next: { revalidate: 3600 },
-    });
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10_000);
+    let res: Response;
+    try {
+      res = await fetch(`https://pypi.org/pypi/${encodeURIComponent(pkg)}/json`, {
+        headers: { "User-Agent": "LP-Learning-Platform/1.0" },
+        next: { revalidate: 3600 },
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timer);
+    }
 
     if (!res.ok) {
       if (res.status === 404) {
@@ -50,11 +58,11 @@ export async function GET(req: NextRequest) {
       home_page: data.info.home_page || data.info.project_urls?.Homepage || `https://pypi.org/project/${pkg}/`,
       requires_python: data.info.requires_python,
     });
-  } catch (err: unknown) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Failed to query PyPI" },
-      { status: 500 }
-    );
+  } catch {
+    // Generic error: the raw fetch message can leak internal detail
+    // (DNS, socket, upstream internals) — the caller only needs to
+    // know the lookup failed.
+    return NextResponse.json({ error: "Failed to query PyPI" }, { status: 500 });
   }
 }
 

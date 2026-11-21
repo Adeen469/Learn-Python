@@ -23,7 +23,7 @@ const commitSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  const limit = checkRateLimit(`github:${getClientIp(req)}`, 30, 60_000);
+  const limit = await checkRateLimit(`github:${getClientIp(req)}`, 30, 60_000);
   if (!limit.allowed) {
     return NextResponse.json(
       { error: "Too many requests — please slow down and retry shortly." },

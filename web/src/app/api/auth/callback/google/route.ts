@@ -27,6 +27,8 @@ import {
   verifyToken,
 } from "@/lib/auth";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { claimUsedToken, getUserByEmail } from "@/lib/auth-store";
+import { sha256Hex } from "@/lib/auth-email";
 
 // Google OAuth callback. Validates the state cookie (CSRF), exchanges the
 // code for tokens server-side, fetches the Google profile, and sets the
@@ -47,7 +49,7 @@ function fetchWithTimeout(url: string, init: RequestInit): Promise<Response> {
 export async function GET(req: NextRequest) {
   let limit;
   try {
-    limit = checkRateLimit(`auth-callback:${getClientIp(req)}`, 20, 60_000);
+    limit = await checkRateLimit(`auth-callback:${getClientIp(req)}`, 20, 60_000);
   } catch {
     return NextResponse.json(
       { error: "Sign-in is temporarily unavailable." },
@@ -126,6 +128,19 @@ export async function GET(req: NextRequest) {
       verified.payload.kind !== APP_STATE_KIND ||
       typeof verified.payload.verifier !== "string"
     ) {
+      console.log(
+        JSON.stringify({ event: "auth_state_mismatch", endpoint: "callback" })
+      );
+      return NextResponse.json(
+        { error: "Invalid sign-in response." },
+        { status: 400 }
+      );
+    }
+    // Single-use state (migration 005): the signed state travels in
+    // the Custom Tab's URL, so a captured copy must not start a
+    // second sign-in within its 10-minute window.
+    const fresh = await claimUsedToken(sha256Hex(state));
+    if (!fresh) {
       console.log(
         JSON.stringify({ event: "auth_state_mismatch", endpoint: "callback" })
       );
@@ -284,6 +299,12 @@ export async function GET(req: NextRequest) {
       : email.split("@")[0];
   const picture = sanitizePictureUrl(profile.picture);
 
+  // The session carries the user's version when they also have an
+  // email account, so a password reset revokes this Google session
+  // too. Pure Google users have no row — sv 0.
+  const row = await getUserByEmail(email);
+  const sv = row?.session_version ?? 0;
+
   if (appVerifier) {
     // App mode: a session cookie set here would land in Chrome's jar,
     // not the app's WebView. Hand the app a short-lived signed
@@ -298,6 +319,7 @@ export async function GET(req: NextRequest) {
       picture,
       auth: "google",
       mfa: false,
+      sv,
       iat: nowSeconds,
       exp: nowSeconds + APP_EXCHANGE_MAX_AGE_SECONDS,
     });
@@ -309,7 +331,7 @@ export async function GET(req: NextRequest) {
 
   const token = await signSession(
     secret,
-    buildSessionPayload({ email, name, picture })
+    buildSessionPayload({ email, name, picture }, Math.floor(Date.now() / 1000), { sv })
   );
   // Same as above: use the public origin, never req.url (0.0.0.0:3000).
   const res = clearOauthCookies(NextResponse.redirect(new URL("/", origin)));

@@ -1,5 +1,29 @@
 import { Octokit } from "@octokit/rest";
 
+// Input validation for the repo routes (same shapes as the commit
+// route's zod schema): owner/repo are GitHub slugs, a blob sha is 40
+// hex chars, and a path never starts with / or contains ...
+export const GITHUB_SLUG_RE = /^[a-zA-Z0-9_.-]{1,100}$/;
+export const GITHUB_SHA_RE = /^[0-9a-f]{40}$/;
+
+export function isValidGithubSlug(value: unknown): value is string {
+  return typeof value === "string" && GITHUB_SLUG_RE.test(value);
+}
+
+export function isValidGithubSha(value: unknown): value is string {
+  return typeof value === "string" && GITHUB_SHA_RE.test(value);
+}
+
+export function isValidGithubPath(value: unknown): value is string {
+  return (
+    typeof value === "string" &&
+    value.length >= 1 &&
+    value.length <= 500 &&
+    !value.startsWith("/") &&
+    !value.includes("..")
+  );
+}
+
 export function getOctokit(token: string): Octokit {
   return new Octokit({ auth: token });
 }

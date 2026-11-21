@@ -95,27 +95,40 @@ test("the repo tree + single-file routes serve a repo lazily", () => {
   assert.ok(repoFileRoute().includes("maxDuration = 60"), "the routes must allow time for the GitHub calls");
 });
 
-test("the token link opens GitHub with every scope pre-checked", () => {
+test("the token link pre-checks ONLY the repo scope", () => {
   const p = page();
-  // Every top-level scope GitHub lists must be in the link, so the
-  // token page opens with all of them checked.
+  // Least privilege (security audit 2026-11-21): the app only reads
+  // and writes repositories, so the link must pre-check exactly one
+  // scope. Extract the scopes list itself — the page's comments
+  // still name the old dangerous scopes, so a whole-file search
+  // would false-positive.
+  const m = p.match(/const GITHUB_TOKEN_SCOPES = \[([^\]]*)\]/);
+  assert.ok(m, "the scopes list must be a literal array");
+  const listed = m[1];
+  assert.ok(listed.includes('"repo"'), "the list must include repo");
   for (const scope of [
-    "repo", "workflow",
-    "write:packages", "read:packages", "delete:packages",
-    "admin:org", "admin:public_key", "admin:repo_hook", "admin:org_hook",
-    "gist", "notifications", "user", "delete_repo",
-    "write:discussion", "read:discussion", "admin:enterprise",
-    "audit_log", "codespace", "copilot",
-    "write:network_configurations", "project",
-    "admin:gpg_key", "admin:ssh_signing_key",
+    "delete_repo", "admin:org", "admin:enterprise", "manage_billing",
+    "admin:gpg_key", "admin:ssh_signing_key", "codespace", "copilot",
+    "workflow", "write:packages", "gist", "admin:public_key",
   ]) {
-    assert.ok(p.includes(scope), `the token link must pre-check ${scope}`);
+    assert.ok(!listed.includes(scope), `the token link must NOT pre-check ${scope}`);
   }
   assert.ok(p.includes("GITHUB_TOKEN_URL"), "the link must be built from the scopes list");
   // The warning text moved to i18n (en.ts githubPage.tokenExplainer);
-  // the page must render that key, and the English value must say the
-  // token has full access and must stay private.
+  // the page must render that key, and the English value must say
+  // only the repo scope is checked and the token must stay private.
   assert.ok(p.includes("t.githubPage.tokenExplainer"), "the page must show the token explainer");
-  assert.ok(en().includes("full access to your account"), "the page must say the token has full access");
+  assert.ok(en().includes("only the repo scope"), "the page must say only the repo scope is checked");
   assert.ok(en().includes("keep it private"), "the page must warn the token must stay private");
+});
+
+test("repo-tree and repo-file validate owner, repo, sha and path", () => {
+  const libSrc = lib();
+  assert.ok(libSrc.includes("isValidGithubSlug"), "lib must export a slug validator");
+  assert.ok(libSrc.includes("isValidGithubSha"), "lib must export a sha validator");
+  assert.ok(libSrc.includes("isValidGithubPath"), "lib must export a path validator");
+  assert.ok(libSrc.includes("/^[0-9a-f]{40}$/"), "a blob sha must be 40 hex chars");
+  assert.ok(repoTreeRoute().includes("isValidGithubSlug"), "repo-tree must validate owner/repo");
+  assert.ok(repoFileRoute().includes("isValidGithubSha"), "repo-file must validate the sha");
+  assert.ok(repoFileRoute().includes("isValidGithubPath"), "repo-file must validate the path");
 });

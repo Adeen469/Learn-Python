@@ -6,6 +6,7 @@ import {
   sha256Hex,
 } from "@/lib/auth-email";
 import {
+  bumpSessionVersion,
   getResetTokenByHash,
   markResetTokenUsed,
   updateUser,
@@ -28,7 +29,7 @@ export const dynamic = "force-dynamic";
 const GENERIC_TOKEN_ERROR = "This reset link is invalid or has expired.";
 
 export async function GET(req: NextRequest) {
-  const limited = rateLimit(req, "auth-email-reset-check", 20, 60_000);
+  const limited = await rateLimit(req, "auth-email-reset-check", 20, 60_000);
   if (limited) return limited;
 
   const prereqs = getAuthPrereqs(req);
@@ -51,7 +52,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const limited = rateLimit(req, "auth-email-reset", 10, 60_000);
+  const limited = await rateLimit(req, "auth-email-reset", 10, 60_000);
   if (limited) return limited;
 
   const prereqs = getAuthPrereqs(req);
@@ -82,11 +83,18 @@ export async function POST(req: NextRequest) {
   );
   if (!decision.ok) return jsonError(GENERIC_TOKEN_ERROR, 400);
 
-  await markResetTokenUsed(row.id);
+  // Atomic claim first: a concurrent reset with the same link loses
+  // the claim and gets the generic error.
+  const claimed = await markResetTokenUsed(row.id);
+  if (!claimed) return jsonError(GENERIC_TOKEN_ERROR, 400);
+
   const passwordHash = await hashPassword(password);
   const updated = await updateUser(row.user_id, { password_hash: passwordHash });
   if (!updated) {
     return jsonError("Could not reset the password. Please try again.", 503);
   }
+  // Revoke every session signed before this reset (migration 005):
+  // the stored version bumps, so older sessions stop verifying.
+  await bumpSessionVersion(row.user_id);
   return NextResponse.json({ ok: true });
 }

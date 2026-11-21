@@ -5,8 +5,8 @@ import {
   isSecureOrigin,
   getRequestOrigin,
   SESSION_COOKIE,
-  verifySession,
 } from "@/lib/auth";
+import { getSessionUser } from "@/lib/auth-routes";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 // Returns the signed-in user from the HttpOnly session cookie, or 401.
@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   let limit;
   try {
-    limit = checkRateLimit(`auth-me:${getClientIp(req)}`, 60, 60_000);
+    limit = await checkRateLimit(`auth-me:${getClientIp(req)}`, 60, 60_000);
   } catch {
     return NextResponse.json(
       { error: "Sign-in is temporarily unavailable." },
@@ -45,13 +45,11 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const token = req.cookies.get(SESSION_COOKIE)?.value;
-  if (!token) {
-    return NextResponse.json({ error: "Not signed in." }, { status: 401 });
-  }
-  const verified = await verifySession(secret, token);
-  if (!verified.ok) {
-    // Tampered or expired: 401 and clear the useless cookie.
+  // getSessionUser also checks the session version: a password reset
+  // revokes sessions signed before it.
+  const user = await getSessionUser(req, secret);
+  if (!user) {
+    // Tampered, expired, or revoked: 401 and clear the useless cookie.
     const origin = getRequestOrigin(req);
     const res = NextResponse.json(
       { error: "Not signed in." },
@@ -64,5 +62,5 @@ export async function GET(req: NextRequest) {
     );
     return res;
   }
-  return NextResponse.json({ user: verified.user });
+  return NextResponse.json({ user });
 }

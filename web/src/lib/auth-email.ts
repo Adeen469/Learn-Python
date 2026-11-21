@@ -215,6 +215,13 @@ export const TOTP_STEP_SECONDS = 30;
 export const TOTP_DIGITS = 6;
 export const TOTP_WINDOW = 1;
 
+/**
+ * Consecutive failed TOTP codes that lock the step-up flow. The lock
+ * clears on a successful backup/email code or a password reset — a
+ * TOTP success itself cannot clear it, or the cap would be useless.
+ */
+export const TOTP_MAX_FAILED_ATTEMPTS = 5;
+
 const BASE32_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 
 export function base32Encode(data: Uint8Array): string {

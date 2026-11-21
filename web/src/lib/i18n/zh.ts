@@ -646,10 +646,10 @@ export const zh: Strings = {
     pushed: (filePath: string, fullName: string) => `✓ 已将“${filePath}”推送至 ${fullName}！`,
     title: "GitHub 集成",
     intro:
-      "使用个人访问令牌（PAT）连接您的 GitHub 账号，直接从 LP 创建仓库并提交代码。下方的令牌链接会在 GitHub 上打开并预先勾选所有权限范围，因此令牌拥有您账号的完整访问权限。",
+      "使用个人访问令牌（PAT）连接你的 GitHub 帐户，直接在 LP 中创建仓库并提交代码。下面的令牌链接会打开 GitHub，且仅预先勾选 repo 权限，因此令牌只能读写你的仓库。",
     connectHeading: "连接 GitHub 个人访问令牌",
     tokenExplainer:
-      "请在 github.com/settings/tokens 上创建一个预先勾选所有权限范围的令牌 — 该令牌拥有您账号的完整访问权限，包括删除仓库和管理组织，因此请妥善保密。然后将令牌粘贴到下方。您的令牌仅保存在此浏览器中（localStorage），仅在代表您调用 GitHub 时发送至 LP 服务器，绝不会存储在服务器上；点击“断开连接”即可将其从此浏览器中移除。",
+      "在 github.com/settings/tokens 上创建一个仅勾选 repo 权限的令牌——令牌只能读写你的仓库，请妥善保密。然后将其粘贴到下方。你的令牌仅保存在此浏览器（localStorage）中。它只会发送到 LP 服务器以代表你调用 GitHub，绝不会存储在服务器上，断开连接会将其从此浏览器中删除。",
     connectToken: "连接令牌",
     connected: (tokenPrefix: string) => `已连接 GitHub • ${tokenPrefix}…`,
     refresh: "刷新",

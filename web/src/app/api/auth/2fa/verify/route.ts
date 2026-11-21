@@ -3,10 +3,13 @@ import {
   decideOtp,
   decryptTotpSecret,
   findBackupCode,
+  sha256Hex,
+  TOTP_MAX_FAILED_ATTEMPTS,
   verifyTotpCode,
 } from "@/lib/auth-email";
 import {
   bumpOtpAttempts,
+  claimUsedToken,
   consumeOtp,
   getLatestOtp,
   getUserByEmail,
@@ -21,6 +24,7 @@ import {
   readJsonBody,
   readPending2fa,
   serviceUnavailable,
+  PENDING_2FA_COOKIE,
 } from "@/lib/auth-routes";
 
 // POST /api/auth/2fa/verify { code, method: "totp" | "email" | "backup" }
@@ -32,7 +36,7 @@ export const dynamic = "force-dynamic";
 const GENERIC_CODE_ERROR = "The code is incorrect or has expired.";
 
 export async function POST(req: NextRequest) {
-  const limited = rateLimit(req, "auth-2fa-verify", 10, 60_000);
+  const limited = await rateLimit(req, "auth-2fa-verify", 10, 60_000);
   if (limited) return limited;
 
   const prereqs = getAuthPrereqs(req);
@@ -60,8 +64,20 @@ export async function POST(req: NextRequest) {
   let verified = false;
   if (method === "totp") {
     if (!user.totp_secret_enc) return jsonError(GENERIC_CODE_ERROR, 400);
+    // Per-account attempt cap (migration 005): 5 consecutive failures
+    // lock the step-up flow. Only a backup/email code success or a
+    // password reset clears it — a TOTP success cannot, or the cap
+    // would be useless. The lock answers with the same generic error.
+    if ((user.totp_failed_attempts ?? 0) >= TOTP_MAX_FAILED_ATTEMPTS) {
+      return jsonError(GENERIC_CODE_ERROR, 400);
+    }
     const secret = decryptTotpSecret(prereqs.secret, user.totp_secret_enc);
     verified = secret !== null && verifyTotpCode(secret, code);
+    if (!verified) {
+      await updateUser(user.id, {
+        totp_failed_attempts: (user.totp_failed_attempts ?? 0) + 1,
+      });
+    }
   } else if (method === "email") {
     const row = await getLatestOtp(email, "2fa");
     if (row) {
@@ -78,8 +94,8 @@ export async function POST(req: NextRequest) {
         Date.now()
       );
       if (decision.ok) {
-        await consumeOtp(row.id);
-        verified = true;
+        // Atomic claim: a second request with the same code loses.
+        verified = await consumeOtp(row.id);
       } else if (decision.reason === "invalid") {
         await bumpOtpAttempts(row.id);
       }
@@ -95,8 +111,18 @@ export async function POST(req: NextRequest) {
   }
   if (!verified) return jsonError(GENERIC_CODE_ERROR, 400);
 
+  // Single-use step-up cookie: a stolen copy cannot be replayed
+  // within its 10-minute window — the first successful use claims
+  // the token hash, and any replay gets the generic error.
+  const pendingToken = req.cookies.get(PENDING_2FA_COOKIE)?.value;
+  if (pendingToken) {
+    const fresh = await claimUsedToken(sha256Hex(pendingToken));
+    if (!fresh) return jsonError(GENERIC_CODE_ERROR, 400);
+  }
+
   await updateUser(user.id, {
     last_sign_in_at: new Date().toISOString(),
+    totp_failed_attempts: 0,
   });
   const res = NextResponse.json({
     user: { email: user.email, name: user.name, picture: null },
@@ -106,7 +132,7 @@ export async function POST(req: NextRequest) {
     prereqs.secret,
     { email: user.email, name: user.name, picture: null },
     prereqs.isSecure,
-    { auth: "email", mfa: true }
+    { auth: "email", mfa: true, sv: user.session_version ?? 0 }
   );
   clearPending2fa(res, prereqs.isSecure);
   return res;

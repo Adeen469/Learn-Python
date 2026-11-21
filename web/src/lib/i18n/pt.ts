@@ -677,10 +677,10 @@ export const pt: Strings = {
       `✓ '${filePath}' enviado para ${fullName}!`,
     title: "Integração com o GitHub",
     intro:
-      "Conecte sua conta do GitHub usando um Personal Access Token (PAT) para criar repositórios e fazer commit de código diretamente do LP. O link do token abaixo abre o GitHub com todos os escopos pré-marcados, para que o token tenha acesso total à sua conta.",
+      "Conecte sua conta do GitHub usando um Personal Access Token (PAT) para criar repositórios e fazer commit de código diretamente do LP. O link do token abaixo abre o GitHub com apenas o escopo repo pré-marcado, para que o token só possa ler e escrever seus repositórios.",
     connectHeading: "Conectar token pessoal do GitHub",
     tokenExplainer:
-      "Crie um token em github.com/settings/tokens com todos os escopos pré-marcados — o token tem acesso total à sua conta, incluindo excluir repositórios e gerenciar organizações, então mantenha-o privado. Depois cole-o abaixo. Seu token fica apenas neste navegador (localStorage). Ele é enviado ao servidor do LP apenas para chamar o GitHub em seu nome, nunca é armazenado no servidor, e Desconectar o remove deste navegador.",
+      "Crie um token em github.com/settings/tokens com apenas o escopo repo marcado — o token só pode ler e escrever seus repositórios, então mantenha-o privado. Depois cole-o abaixo. Seu token vive apenas neste navegador (localStorage). Ele é enviado ao servidor LP somente para chamar o GitHub em seu nome, nunca é armazenado no servidor, e Desconectar o remove deste navegador.",
     connectToken: "Conectar token",
     connected: (tokenPrefix: string) => `Conectado ao GitHub • ${tokenPrefix}...`,
     refresh: "Atualizar",

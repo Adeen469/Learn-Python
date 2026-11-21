@@ -567,3 +567,78 @@ test("the settings page mounts the two-factor section", () => {
   assert.ok(section.includes("/api/auth/2fa/disable"));
   assert.ok(section.includes("/api/auth/2fa/backup-codes"));
 });
+
+// --- Security hardening (audit 2026-11-21) ------------------------------
+// Route-level protections are covered by source assertions (the DB
+// layer needs the service-role key, unset in the sandbox).
+
+test("sessions carry a version and password reset revokes old ones", () => {
+  const authRoutes = read("src/lib/auth-routes.ts");
+  assert.ok(authRoutes.includes("session_version"), "getSessionUser must check the stored version");
+  assert.ok(authRoutes.includes("verified.user.sv"), "the signed version must be compared");
+  const reset = read("src/app/api/auth/email/reset/route.ts");
+  assert.ok(reset.includes("bumpSessionVersion"), "a reset must bump the session version");
+  assert.ok(reset.includes("markResetTokenUsed"), "a reset must claim the token");
+  const store = read("src/lib/auth-store.ts");
+  assert.ok(store.includes("bumpSessionVersion"), "the store must bump the version");
+  assert.ok(store.includes("session_version"), "the user row must carry the version");
+});
+
+test("OTP codes and reset tokens are claimed atomically", () => {
+  const store = read("src/lib/auth-store.ts");
+  // consumeOtp / markResetTokenUsed only mark when still unused and
+  // report whether this caller won the claim.
+  assert.ok(store.includes('.is("consumed_at", null)'), "consumeOtp must be conditional");
+  assert.ok(store.includes('.is("used_at", null)'), "markResetTokenUsed must be conditional");
+  assert.ok(store.includes("consumeOtp(otpId: string): Promise<boolean>"), "consumeOtp must report the claim");
+  assert.ok(store.includes("markResetTokenUsed(tokenId: string): Promise<boolean>"), "markResetTokenUsed must report the claim");
+  const verifyOtp = read("src/app/api/auth/email/verify-otp/route.ts");
+  assert.ok(verifyOtp.includes("claimed = await consumeOtp"), "verify-otp must check the claim");
+  const twoFaVerify = read("src/app/api/auth/2fa/verify/route.ts");
+  assert.ok(twoFaVerify.includes("verified = await consumeOtp"), "2fa email codes must check the claim");
+});
+
+test("TOTP verification has a per-account attempt cap", () => {
+  const lib = read("src/lib/auth-email.ts");
+  assert.ok(lib.includes("TOTP_MAX_FAILED_ATTEMPTS = 5"), "the cap must be 5");
+  const verify = read("src/app/api/auth/2fa/verify/route.ts");
+  assert.ok(verify.includes("TOTP_MAX_FAILED_ATTEMPTS"), "verify must enforce the cap");
+  assert.ok(verify.includes("totp_failed_attempts"), "failures must be counted on the user row");
+});
+
+test("single-use bearer tokens cannot be replayed in their window", () => {
+  const store = read("src/lib/auth-store.ts");
+  assert.ok(store.includes("claimUsedToken"), "the store must claim used tokens");
+  assert.ok(store.includes("lp_auth_used_tokens"), "used tokens must be recorded");
+  const appExchange = read("src/app/api/auth/app-exchange/route.ts");
+  assert.ok(appExchange.includes("claimUsedToken"), "the exchange code must be single-use");
+  const callback = read("src/app/api/auth/callback/google/route.ts");
+  assert.ok(callback.includes("claimUsedToken"), "the app state token must be single-use");
+  const twoFaVerify = read("src/app/api/auth/2fa/verify/route.ts");
+  assert.ok(twoFaVerify.includes("claimUsedToken"), "the step-up cookie must be single-use");
+});
+
+test("password sign-in costs the same for missing accounts", () => {
+  const signin = read("src/app/api/auth/email/signin/route.ts");
+  assert.ok(signin.includes("DUMMY_PASSWORD_HASH"), "a dummy hash must exist");
+  assert.ok(
+    signin.includes("await verifyPassword(password, DUMMY_PASSWORD_HASH)"),
+    "a missing account must still run scrypt"
+  );
+});
+
+test("migration 005 adds revocation, the TOTP cap and used tokens", () => {
+  const migration = read("supabase/migrations/005_security_hardening.sql");
+  assert.ok(migration.includes("session_version"), "005 must add the session version");
+  assert.ok(migration.includes("totp_failed_attempts"), "005 must add the TOTP counter");
+  assert.ok(migration.includes("lp_auth_used_tokens"), "005 must add the used-tokens table");
+  assert.ok(migration.includes("bump_otp_attempts"), "005 must add the atomic OTP bump");
+  assert.ok(migration.includes("row level security"), "the used-tokens table must have RLS");
+});
+
+test("PyPI errors are generic and the fetch has a timeout", () => {
+  const pypi = read("src/app/api/pypi/route.ts");
+  assert.ok(!pypi.includes("err.message"), "the raw fetch error must not leak");
+  assert.ok(pypi.includes("Failed to query PyPI"), "the error must be generic");
+  assert.ok(pypi.includes("AbortController"), "the fetch must time out");
+});

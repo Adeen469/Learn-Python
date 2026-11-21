@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
 export async function POST(req: NextRequest) {
   let limit;
   try {
-    limit = checkRateLimit(`auth-logout:${getClientIp(req)}`, 30, 60_000);
+    limit = await checkRateLimit(`auth-logout:${getClientIp(req)}`, 30, 60_000);
   } catch {
     return NextResponse.json(
       { error: "Sign-out is temporarily unavailable." },

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getRepoTree } from "@/lib/github";
+import { getRepoTree, isValidGithubSlug } from "@/lib/github";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 // A repo's file tree for opening it in the editor: paths + sizes +
@@ -21,7 +21,7 @@ function getAuthToken(req: NextRequest): string | null {
 }
 
 export async function GET(req: NextRequest) {
-  const limit = checkRateLimit(`github:${getClientIp(req)}`, 30, 60_000);
+  const limit = await checkRateLimit(`github:${getClientIp(req)}`, 30, 60_000);
   if (!limit.allowed) return RATE_LIMITED_RESPONSE(limit.retryAfterSeconds);
   const token = getAuthToken(req);
   if (!token) {
@@ -29,8 +29,8 @@ export async function GET(req: NextRequest) {
   }
   const owner = req.nextUrl.searchParams.get("owner");
   const repo = req.nextUrl.searchParams.get("repo");
-  if (!owner || !repo) {
-    return NextResponse.json({ error: "Missing owner or repo" }, { status: 400 });
+  if (!isValidGithubSlug(owner) || !isValidGithubSlug(repo)) {
+    return NextResponse.json({ error: "Invalid owner or repo" }, { status: 400 });
   }
 
   try {

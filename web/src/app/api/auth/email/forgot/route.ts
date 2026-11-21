@@ -25,7 +25,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
-  const limited = rateLimit(req, "auth-email-forgot", 20, 60 * 60 * 1000);
+  const limited = await rateLimit(req, "auth-email-forgot", 20, 60 * 60 * 1000);
   if (limited) return limited;
 
   const prereqs = getAuthPrereqs(req);

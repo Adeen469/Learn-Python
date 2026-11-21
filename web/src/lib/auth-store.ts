@@ -26,6 +26,10 @@ export interface AuthUser {
   created_at: string;
   updated_at: string;
   last_sign_in_at: string | null;
+  // Added by migration 005. Rows read before it runs have these as
+  // undefined — every use site treats undefined as 0.
+  session_version: number;
+  totp_failed_attempts: number;
 }
 
 export interface OtpDbRow {
@@ -61,6 +65,21 @@ export async function getUserByEmail(
     .from("lp_auth_users")
     .select("*")
     .eq("email", normalizeEmail(email))
+    .limit(1)
+    .maybeSingle();
+  if (error || !data) return null;
+  return data as unknown as AuthUser;
+}
+
+export async function getUserById(
+  userId: string
+): Promise<AuthUser | null> {
+  const supabase = getSupabaseAdmin();
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from("lp_auth_users")
+    .select("*")
+    .eq("id", userId)
     .limit(1)
     .maybeSingle();
   if (error || !data) return null;
@@ -108,6 +127,8 @@ export async function updateUser(
     totp_enabled: boolean;
     backup_codes: string[];
     last_sign_in_at: string;
+    session_version: number;
+    totp_failed_attempts: number;
   }>
 ): Promise<boolean> {
   const supabase = getSupabaseAdmin();
@@ -187,6 +208,11 @@ export async function getLatestOtp(
 export async function bumpOtpAttempts(otpId: string): Promise<void> {
   const supabase = getSupabaseAdmin();
   if (!supabase) return;
+  // Atomic increment (migration 005). Two wrong guesses at the same
+  // instant must not both read N and both write N+1. If the function
+  // is missing (migration not run yet), fall back to read-then-write.
+  const { error } = await supabase.rpc("bump_otp_attempts", { p_id: otpId });
+  if (!error) return;
   const { data } = await supabase
     .from("lp_auth_otp")
     .select("attempts")
@@ -199,13 +225,23 @@ export async function bumpOtpAttempts(otpId: string): Promise<void> {
     .eq("id", otpId);
 }
 
-export async function consumeOtp(otpId: string): Promise<void> {
+/**
+ * Atomically claim a code: mark it consumed ONLY if it is still
+ * unconsumed, and report whether this caller won the claim. Two
+ * requests presenting the same code at the same instant cannot both
+ * succeed — the second sees no row updated and must fail.
+ */
+export async function consumeOtp(otpId: string): Promise<boolean> {
   const supabase = getSupabaseAdmin();
-  if (!supabase) return;
-  await supabase
+  if (!supabase) return false;
+  const { data, error } = await supabase
     .from("lp_auth_otp")
     .update({ consumed_at: new Date().toISOString() })
-    .eq("id", otpId);
+    .eq("id", otpId)
+    .is("consumed_at", null)
+    .select("id");
+  if (error || !data) return false;
+  return (data as { id: string }[]).length > 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -243,13 +279,66 @@ export async function getResetTokenByHash(
   return data as unknown as ResetTokenDbRow;
 }
 
-export async function markResetTokenUsed(tokenId: string): Promise<void> {
+export async function markResetTokenUsed(tokenId: string): Promise<boolean> {
   const supabase = getSupabaseAdmin();
-  if (!supabase) return;
-  await supabase
+  if (!supabase) return false;
+  // Atomic claim, same as consumeOtp: two concurrent resets with the
+  // same link cannot both pass — the loser sees no row updated.
+  const { data, error } = await supabase
     .from("lp_auth_reset_tokens")
     .update({ used_at: new Date().toISOString() })
-    .eq("id", tokenId);
+    .eq("id", tokenId)
+    .is("used_at", null)
+    .select("id");
+  if (error || !data) return false;
+  return (data as { id: string }[]).length > 0;
+}
+
+/**
+ * Bump a user's session version (migration 005) and clear the TOTP
+ * failure counter. Used after a password reset: every session signed
+ * before the reset stops verifying, and a locked step-up flow opens
+ * again (the reset link proved email ownership). Best-effort: false
+ * when the row or the column is missing — the password itself is
+ * already changed, revocation just activates with the migration.
+ */
+export async function bumpSessionVersion(userId: string): Promise<boolean> {
+  const user = await getUserById(userId);
+  if (!user) return false;
+  return updateUser(userId, {
+    session_version: (user.session_version ?? 0) + 1,
+    totp_failed_attempts: 0,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Single-use bearer tokens (migration 005: lp_auth_used_tokens)
+// ---------------------------------------------------------------------------
+
+/**
+ * Claim a token hash: true when this caller is the first to present
+ * it, false when it was already used (replay). A missing table
+ * (migration not run yet) returns true — the protection is
+ * best-effort until the migration runs, and a sign-in must never
+ * fail for that reason.
+ */
+export async function claimUsedToken(tokenHash: string): Promise<boolean> {
+  const supabase = getSupabaseAdmin();
+  if (!supabase) return true;
+  const { error } = await supabase
+    .from("lp_auth_used_tokens")
+    .insert({ token_hash: tokenHash });
+  if (!error) {
+    // Opportunistic prune of day-old rows; a failure here is harmless.
+    await supabase
+      .from("lp_auth_used_tokens")
+      .delete()
+      .lt("used_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
+    return true;
+  }
+  // Unique violation = this hash was already claimed.
+  if ((error as { code?: string }).code === "23505") return false;
+  return true;
 }
 
 export async function countRecentResetTokens(

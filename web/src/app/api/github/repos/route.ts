@@ -9,8 +9,8 @@ const RATE_LIMITED_RESPONSE = (retryAfterSeconds: number) =>
     { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } }
   );
 
-function rateLimited(req: NextRequest) {
-  const limit = checkRateLimit(`github:${getClientIp(req)}`, 30, 60_000);
+async function rateLimited(req: NextRequest) {
+  const limit = await checkRateLimit(`github:${getClientIp(req)}`, 30, 60_000);
   return limit.allowed ? null : RATE_LIMITED_RESPONSE(limit.retryAfterSeconds);
 }
 
@@ -30,7 +30,7 @@ function getAuthToken(req: NextRequest): string | null {
 }
 
 export async function GET(req: NextRequest) {
-  const blocked = rateLimited(req);
+  const blocked = await rateLimited(req);
   if (blocked) return blocked;
   const token = getAuthToken(req);
   if (!token) {
@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const blocked = rateLimited(req);
+  const blocked = await rateLimited(req);
   if (blocked) return blocked;
   const token = getAuthToken(req);
   if (!token) {

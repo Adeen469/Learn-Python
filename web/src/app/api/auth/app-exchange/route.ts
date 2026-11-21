@@ -12,6 +12,8 @@ import {
   verifyToken,
 } from "@/lib/auth";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { claimUsedToken } from "@/lib/auth-store";
+import { sha256Hex } from "@/lib/auth-email";
 
 // Completes an Android-app Google sign-in. The app opens this URL in
 // its OWN WebView after Google sends it back through the
@@ -30,7 +32,7 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   let limit;
   try {
-    limit = checkRateLimit(`auth-app-exchange:${getClientIp(req)}`, 20, 60_000);
+    limit = await checkRateLimit(`auth-app-exchange:${getClientIp(req)}`, 20, 60_000);
   } catch {
     return NextResponse.json(
       { error: "Sign-in is temporarily unavailable." },
@@ -78,6 +80,19 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL("/auth/email", origin));
   }
 
+  // Single-use exchange code (migration 005): the code travels in a
+  // deep link, so a captured copy must not mint a second session
+  // within its 5-minute window.
+  if (code) {
+    const fresh = await claimUsedToken(sha256Hex(code));
+    if (!fresh) {
+      console.log(
+        JSON.stringify({ event: "auth_app_exchange_bad_code", endpoint: "app-exchange" })
+      );
+      return NextResponse.redirect(new URL("/auth/email", origin));
+    }
+  }
+
   const user = {
     email: p.email as string,
     name: p.name as string,
@@ -87,7 +102,9 @@ export async function GET(req: NextRequest) {
   };
   const token = await signSession(
     secret,
-    buildSessionPayload(user)
+    buildSessionPayload(user, Math.floor(Date.now() / 1000), {
+      sv: typeof p.sv === "number" ? p.sv : 0,
+    })
   );
   // Native clients (React Native) ask for ?format=json: they fetch
   // this endpoint instead of loading it in a WebView, so a redirect

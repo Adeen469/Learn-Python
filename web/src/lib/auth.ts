@@ -23,11 +23,19 @@ export interface SessionUser {
   auth?: "google" | "email";
   /** True only when two-factor authentication was completed for this session. */
   mfa?: boolean;
+  /**
+   * Session version: the user's lp_auth_users.session_version at
+   * sign-in time. Changing the password bumps the stored version, so
+   * sessions signed with an older version stop verifying (see
+   * getSessionUser in auth-routes). Missing on old sessions = 0.
+   */
+  sv?: number;
 }
 
 export interface SessionPayload extends SessionUser {
   iat: number; // issued-at, seconds since epoch
   exp: number; // expiry, seconds since epoch
+  sv?: number; // session version (see SessionUser.sv)
 }
 
 export const SESSION_COOKIE = "lp_session";
@@ -204,7 +212,9 @@ export async function verifySession(
     typeof p.exp !== "number" ||
     (typeof p.picture !== "string" && p.picture !== null) ||
     (p.auth !== undefined && p.auth !== "google" && p.auth !== "email") ||
-    (p.mfa !== undefined && typeof p.mfa !== "boolean")
+    (p.mfa !== undefined && typeof p.mfa !== "boolean") ||
+    (p.sv !== undefined &&
+      (typeof p.sv !== "number" || !Number.isInteger(p.sv) || p.sv < 0))
   ) {
     return { ok: false, reason: "malformed" };
   }
@@ -220,6 +230,7 @@ export async function verifySession(
       // without a completed second factor.
       auth: (p.auth as "google" | "email" | undefined) ?? "google",
       mfa: (p.mfa as boolean | undefined) ?? false,
+      sv: (p.sv as number | undefined) ?? 0,
     },
   };
 }
@@ -227,7 +238,7 @@ export async function verifySession(
 export function buildSessionPayload(
   user: SessionUser,
   nowSeconds: number = Math.floor(Date.now() / 1000),
-  opts: { auth?: "google" | "email"; mfa?: boolean } = {}
+  opts: { auth?: "google" | "email"; mfa?: boolean; sv?: number } = {}
 ): SessionPayload {
   return {
     email: user.email,
@@ -235,6 +246,7 @@ export function buildSessionPayload(
     picture: user.picture,
     auth: opts.auth ?? user.auth ?? "google",
     mfa: opts.mfa ?? user.mfa ?? false,
+    sv: opts.sv ?? user.sv ?? 0,
     iat: nowSeconds,
     exp: nowSeconds + SESSION_MAX_AGE_SECONDS,
   };

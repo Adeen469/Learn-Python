@@ -690,10 +690,10 @@ export const en: Strings = {
       `✓ Pushed '${filePath}' to ${fullName}!`,
     title: "GitHub Integration",
     intro:
-      "Connect your GitHub account using a Personal Access Token (PAT) to create repositories and commit code directly from LP. The token link below opens GitHub with every scope pre-checked, so the token has full access to your account.",
+      "Connect your GitHub account using a Personal Access Token (PAT) to create repositories and commit code directly from LP. The token link below opens GitHub with only the repo scope pre-checked, so the token can only read and write your repositories.",
     connectHeading: "Connect GitHub Personal Access Token",
     tokenExplainer:
-      "Create a token on github.com/settings/tokens with every scope pre-checked — the token has full access to your account, including deleting repos and managing orgs, so keep it private. Then paste it below. Your token lives only in this browser (localStorage). It is sent to the LP server only to call GitHub on your behalf, is never stored on the server, and Disconnect removes it from this browser.",
+      "Create a token on github.com/settings/tokens with only the repo scope checked — the token can only read and write your repositories, so keep it private. Then paste it below. Your token lives only in this browser (localStorage). It is sent to the LP server only to call GitHub on your behalf, is never stored on the server, and Disconnect removes it from this browser.",
     connectToken: "Connect Token",
     connected: (tokenPrefix: string) => `Connected to GitHub • ${tokenPrefix}...`,
     refresh: "Refresh",

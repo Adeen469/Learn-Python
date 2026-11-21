@@ -100,7 +100,9 @@ async function verifySession(secret, token, nowSeconds) {
     typeof p.exp !== "number" ||
     (typeof p.picture !== "string" && p.picture !== null) ||
     (p.auth !== undefined && p.auth !== "google" && p.auth !== "email") ||
-    (p.mfa !== undefined && typeof p.mfa !== "boolean")
+    (p.mfa !== undefined && typeof p.mfa !== "boolean") ||
+    (p.sv !== undefined &&
+      (typeof p.sv !== "number" || !Number.isInteger(p.sv) || p.sv < 0))
   ) {
     return { ok: false, reason: "malformed" };
   }
@@ -114,6 +116,7 @@ async function verifySession(secret, token, nowSeconds) {
       picture: p.picture,
       auth: p.auth ?? "google",
       mfa: p.mfa ?? false,
+      sv: p.sv ?? 0,
     },
   };
 }
@@ -126,6 +129,7 @@ function buildSessionPayload(user, nowSeconds, opts) {
     picture: user.picture,
     auth: opts?.auth ?? user.auth ?? "google",
     mfa: opts?.mfa ?? user.mfa ?? false,
+    sv: opts?.sv ?? user.sv ?? 0,
     iat: now,
     exp: now + SESSION_MAX_AGE_SECONDS,
   };
@@ -310,7 +314,7 @@ test("a signed session verifies and returns the user", async () => {
   const token = await signSession(SECRET, buildSessionPayload(USER, 1_700_000_000));
   const result = await verifySession(SECRET, token, 1_700_000_100);
   assert.equal(result.ok, true);
-  assert.deepEqual(result.user, { ...USER, auth: "google", mfa: false });
+  assert.deepEqual(result.user, { ...USER, auth: "google", mfa: false, sv: 0 });
 });
 
 test("old sessions without auth/mfa still verify as Google sessions", async () => {
@@ -347,6 +351,40 @@ test("a session with a bad auth value or non-boolean mfa is rejected", async () 
     const token = await signSession(
       SECRET,
       buildSessionPayload(bad, 1_700_000_000)
+    );
+    const result = await verifySession(SECRET, token, 1_700_000_100);
+    assert.equal(result.ok, false);
+    assert.equal(result.reason, "malformed");
+  }
+});
+
+test("the session version round-trips and defaults to 0", async () => {
+  const token = await signSession(
+    SECRET,
+    buildSessionPayload(USER, 1_700_000_000, { sv: 3 })
+  );
+  const result = await verifySession(SECRET, token, 1_700_000_100);
+  assert.equal(result.ok, true);
+  assert.equal(result.user.sv, 3);
+  // A session signed before the version existed verifies with sv 0.
+  const legacy = {
+    email: USER.email,
+    name: USER.name,
+    picture: USER.picture,
+    iat: 1_700_000_000,
+    exp: 1_700_000_000 + SESSION_MAX_AGE_SECONDS,
+  };
+  const legacyToken = await signSession(SECRET, legacy);
+  const legacyResult = await verifySession(SECRET, legacyToken, 1_700_000_100);
+  assert.equal(legacyResult.ok, true);
+  assert.equal(legacyResult.user.sv, 0);
+});
+
+test("a session with a non-integer or negative version is rejected", async () => {
+  for (const badSv of [-1, 1.5, "3"]) {
+    const token = await signSession(
+      SECRET,
+      buildSessionPayload(USER, 1_700_000_000, { sv: badSv })
     );
     const result = await verifySession(SECRET, token, 1_700_000_100);
     assert.equal(result.ok, false);

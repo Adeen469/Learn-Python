@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  SESSION_COOKIE,
-  getSessionSecret,
-  verifySession,
-} from "@/lib/auth";
+import { getSessionSecret } from "@/lib/auth";
+import { getSessionUser } from "@/lib/auth-routes";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { fetchLessonById } from "@/lib/lessons";
 import {
@@ -49,7 +46,7 @@ export const maxDuration = 60;
 export async function POST(req: NextRequest) {
   let limit;
   try {
-    limit = checkRateLimit(`ai:${getClientIp(req)}`, 20, 60_000);
+    limit = await checkRateLimit(`ai:${getClientIp(req)}`, 20, 60_000);
   } catch {
     return NextResponse.json(
       { error: "AI is temporarily unavailable." },
@@ -75,12 +72,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const token = req.cookies.get(SESSION_COOKIE)?.value;
-  if (!token) {
-    return NextResponse.json({ error: "Not signed in." }, { status: 401 });
-  }
-  const verified = await verifySession(secret, token);
-  if (!verified.ok) {
+  // getSessionUser also checks the session version: a password reset
+  // revokes sessions signed before it.
+  const user = await getSessionUser(req, secret);
+  if (!user) {
     return NextResponse.json({ error: "Not signed in." }, { status: 401 });
   }
 

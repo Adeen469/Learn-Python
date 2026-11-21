@@ -24,7 +24,7 @@ export async function GET(
   context: { params: Promise<{ lessonId: string }> }
 ) {
   // Video players make many Range requests, so the video limit is generous.
-  const limit = checkRateLimit(`video:${getClientIp(req)}`, 120, 60_000);
+  const limit = await checkRateLimit(`video:${getClientIp(req)}`, 120, 60_000);
   if (!limit.allowed) {
     return RATE_LIMITED_RESPONSE(limit.retryAfterSeconds);
   }

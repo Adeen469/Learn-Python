@@ -27,28 +27,14 @@ import {
 // scopes can do anything on the account — delete repos, control orgs
 // and billing included — so it must stay in this browser only
 // (localStorage) and never be shared.
-const GITHUB_TOKEN_SCOPES = [
-  "repo", "repo:status", "repo_deployment", "public_repo", "repo:invite", "security_events",
-  "workflow",
-  "write:packages", "read:packages", "delete:packages",
-  "admin:org", "write:org", "read:org", "manage_runners:org",
-  "admin:public_key", "write:public_key", "read:public_key",
-  "admin:repo_hook", "write:repo_hook", "read:repo_hook",
-  "admin:org_hook",
-  "gist",
-  "notifications",
-  "user", "read:user", "user:email", "user:follow",
-  "delete_repo",
-  "write:discussion", "read:discussion",
-  "admin:enterprise", "manage_runners:enterprise", "manage_billing:enterprise", "read:enterprise", "scim:enterprise",
-  "audit_log", "read:audit_log",
-  "codespace", "codespace:secrets",
-  "copilot", "manage_billing:copilot",
-  "write:network_configurations", "read:network_configurations",
-  "project", "read:project",
-  "admin:gpg_key", "write:gpg_key", "read:gpg_key",
-  "admin:ssh_signing_key", "write:ssh_signing_key", "read:ssh_signing_key",
-].join(",");
+// Least privilege: the app only reads/writes repositories (list,
+// create, commit, read tree/blobs) — everything that needs the
+// `repo` scope. The old list pre-checked 57 scopes, including
+// delete_repo, admin:org/enterprise, manage_billing and admin keys:
+// a leaked token would have owned the whole GitHub account. Any
+// token created with the old link still carries those scopes and
+// must be regenerated with only `repo`.
+const GITHUB_TOKEN_SCOPES = ["repo"].join(",");
 const GITHUB_TOKEN_URL = `https://github.com/settings/tokens/new?scopes=${GITHUB_TOKEN_SCOPES}&description=LP+Educational+Platform`;
 
 interface RepoItem {

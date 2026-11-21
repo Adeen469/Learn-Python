@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getRepoFileContent } from "@/lib/github";
+import {
+  getRepoFileContent,
+  isValidGithubPath,
+  isValidGithubSha,
+  isValidGithubSlug,
+} from "@/lib/github";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 // One file's content for the lazily opened repo in the editor.
@@ -21,7 +26,7 @@ function getAuthToken(req: NextRequest): string | null {
 }
 
 export async function GET(req: NextRequest) {
-  const limit = checkRateLimit(`github:${getClientIp(req)}`, 30, 60_000);
+  const limit = await checkRateLimit(`github:${getClientIp(req)}`, 30, 60_000);
   if (!limit.allowed) return RATE_LIMITED_RESPONSE(limit.retryAfterSeconds);
   const token = getAuthToken(req);
   if (!token) {
@@ -31,8 +36,13 @@ export async function GET(req: NextRequest) {
   const repo = req.nextUrl.searchParams.get("repo");
   const sha = req.nextUrl.searchParams.get("sha");
   const path = req.nextUrl.searchParams.get("path");
-  if (!owner || !repo || !sha || !path) {
-    return NextResponse.json({ error: "Missing owner, repo, sha or path" }, { status: 400 });
+  if (
+    !isValidGithubSlug(owner) ||
+    !isValidGithubSlug(repo) ||
+    !isValidGithubSha(sha) ||
+    !isValidGithubPath(path)
+  ) {
+    return NextResponse.json({ error: "Invalid owner, repo, sha or path" }, { status: 400 });
   }
 
   try {

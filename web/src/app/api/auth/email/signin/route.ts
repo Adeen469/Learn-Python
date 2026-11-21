@@ -21,8 +21,16 @@ export const dynamic = "force-dynamic";
 
 const GENERIC_CREDENTIALS_ERROR = "Invalid email or password.";
 
+// Timing oracle guard: a missing account (or one without a password)
+// must cost the same scrypt verification as a real account, or the
+// response time alone reveals whether the email exists. This is a
+// hash of a random password nobody knows — it verifies nothing, it
+// only burns the same ~100ms.
+const DUMMY_PASSWORD_HASH =
+  "scrypt$16384$8$1$gfRCHUJjd6I4GJXlcvywSw$Q7Rnq-KI6CqIaWYUz7p40M3SSU33SMJ15ekdKkWg4GwD7-N5HsTWfNN8Gy1rwGw_xzQk8OnoXqXx2b0v9-YarA";
+
 export async function POST(req: NextRequest) {
-  const limited = rateLimit(req, "auth-email-signin", 10, 60_000);
+  const limited = await rateLimit(req, "auth-email-signin", 10, 60_000);
   if (limited) return limited;
 
   const prereqs = getAuthPrereqs(req);
@@ -38,7 +46,7 @@ export async function POST(req: NextRequest) {
   // Per-email brute-force guard, on top of the per-IP limit above.
   let emailLimit;
   try {
-    emailLimit = checkRateLimit(
+    emailLimit = await checkRateLimit(
       `auth-email-signin-email:${email.toLowerCase()}`,
       5,
       60_000
@@ -58,6 +66,8 @@ export async function POST(req: NextRequest) {
 
   const user = await getUserByEmail(email);
   if (!user || !user.password_hash) {
+    // Same cost as a real check (see DUMMY_PASSWORD_HASH above).
+    await verifyPassword(password, DUMMY_PASSWORD_HASH);
     return jsonError(GENERIC_CREDENTIALS_ERROR, 401);
   }
   const passwordOk = await verifyPassword(password, user.password_hash);
@@ -90,7 +100,7 @@ export async function POST(req: NextRequest) {
     prereqs.secret,
     { email: user.email, name: user.name, picture: null },
     prereqs.isSecure,
-    { auth: "email", mfa: false }
+    { auth: "email", mfa: false, sv: user.session_version ?? 0 }
   );
   return res;
 }

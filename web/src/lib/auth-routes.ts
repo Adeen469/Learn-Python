@@ -40,15 +40,15 @@ export function serviceUnavailable(endpoint: string): NextResponse {
  * a 503 when the limiter itself fails, or null when the request may
  * proceed.
  */
-export function rateLimit(
+export async function rateLimit(
   req: NextRequest,
   key: string,
   limit: number,
   windowMs: number
-): NextResponse | null {
+): Promise<NextResponse | null> {
   let result;
   try {
-    result = checkRateLimit(`${key}:${getClientIp(req)}`, limit, windowMs);
+    result = await checkRateLimit(`${key}:${getClientIp(req)}`, limit, windowMs);
   } catch {
     return jsonError("Sign-in is temporarily unavailable.", 503);
   }
@@ -86,7 +86,7 @@ export async function issueSession(
   secret: string,
   user: SessionUser,
   isSecure: boolean,
-  opts: { auth?: "google" | "email"; mfa?: boolean } = {}
+  opts: { auth?: "google" | "email"; mfa?: boolean; sv?: number } = {}
 ): Promise<void> {
   const token = await signSession(
     secret,
@@ -152,6 +152,16 @@ export async function getSessionUser(
   if (!token) return null;
   const verified = await verifySession(secret, token);
   if (!verified.ok) return null;
+  // Session revocation (migration 005): when the user has a database
+  // row, its session_version must match the one signed into this
+  // session — a password reset bumps the stored version, so every
+  // older session fails here. Google users have no row (they pass),
+  // and a missing row on a database error also passes: the signature
+  // still holds, and a DB blip must not log everyone out.
+  const row = await getUserByEmail(verified.user.email);
+  if (row && (row.session_version ?? 0) !== (verified.user.sv ?? 0)) {
+    return null;
+  }
   return verified.user;
 }
 
@@ -183,6 +193,7 @@ import {
 import {
   countRecentOtps,
   getLatestOtp,
+  getUserByEmail,
   normalizeEmail,
   storeOtp,
 } from "@/lib/auth-store";

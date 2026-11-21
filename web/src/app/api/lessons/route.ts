@@ -13,7 +13,7 @@ const RATE_LIMITED_RESPONSE = (retryAfterSeconds: number) =>
   );
 
 export async function GET(req: NextRequest) {
-  const limit = checkRateLimit(`lessons:${getClientIp(req)}`, 60, 60_000);
+  const limit = await checkRateLimit(`lessons:${getClientIp(req)}`, 60, 60_000);
   if (!limit.allowed) {
     return RATE_LIMITED_RESPONSE(limit.retryAfterSeconds);
   }
