@@ -39,6 +39,10 @@ export default function EmailAuthPage() {
   // code slots stay hidden until then — the user enters the email
   // and sends a code first, instead of staring at empty slots.
   const [codeSent, setCodeSent] = useState(false);
+  // True while a code is being sent. Separate from `loading` (which
+  // belongs to sign-in/sign-up/verify) so the Send button can show
+  // "Sending…" without the Verify button mislabelling a send.
+  const [sending, setSending] = useState(false);
   // Guard against a double verify (slots auto-submit on complete AND
   // the button/Enter can fire in the same tick).
   const verifyingRef = useRef(false);
@@ -84,22 +88,27 @@ export default function EmailAuthPage() {
     // A retry starts clean: a stale error from the last failed
     // send must not keep showing after a valid email succeeds.
     setError(null);
-    const { res, data } = await postJson("/api/auth/email/send-otp", {
-      email: targetEmail,
-      purpose,
-    });
-    if (!res.ok) {
-      setError(
-        typeof data.error === "string"
-          ? data.error
-          : t.auth.couldNotSendCode
-      );
-      return false;
+    setSending(true);
+    try {
+      const { res, data } = await postJson("/api/auth/email/send-otp", {
+        email: targetEmail,
+        purpose,
+      });
+      if (!res.ok) {
+        setError(
+          typeof data.error === "string"
+            ? data.error
+            : t.auth.couldNotSendCode
+        );
+        return false;
+      }
+      setNote(t.auth.codeSentToWithExpiry(targetEmail));
+      setCooldown(60);
+      setCodeSent(true);
+      return true;
+    } finally {
+      setSending(false);
     }
-    setNote(t.auth.codeSentToWithExpiry(targetEmail));
-    setCooldown(60);
-    setCodeSent(true);
-    return true;
   }
 
   async function handleSignin(e: React.FormEvent) {
@@ -397,14 +406,16 @@ export default function EmailAuthPage() {
           <button
             type="button"
             onClick={() => void handleSendCode(email, otpPurpose)}
-            disabled={loading || cooldown > 0}
+            disabled={loading || sending || cooldown > 0}
             className={BUTTON_CLASS}
           >
-            {cooldown > 0
-              ? t.auth.resendCodeIn(cooldown)
-              : !codeSent
-                ? t.auth.sendEmailCode
-                : t.auth.resendCode}
+            {sending
+              ? t.auth.sending
+              : cooldown > 0
+                ? t.auth.resendCodeIn(cooldown)
+                : !codeSent
+                  ? t.auth.sendEmailCode
+                  : t.auth.resendCode}
           </button>
           {codeSent && (
             <>
