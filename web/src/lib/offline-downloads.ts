@@ -27,6 +27,8 @@ export const DOWNLOAD_OFFER_KEY = "lp_offline_download_asked";
 export const WARM_EVENT = "lp-offline-warm";
 // Must match VERSION + PAGES in public/sw.js (tested).
 export const PAGES_CACHE = "lp-sw-v1-pages";
+// Must match VERSION + STATIC in public/sw.js (tested).
+export const STATIC_CACHE = "lp-sw-v1-static";
 // Same cache VideoPlayer's Save Offline flow uses (tested).
 export const VIDEO_CACHE = "lp-offline-videos-v1";
 
@@ -179,6 +181,44 @@ export async function maybeWarmLessonsAuto(): Promise<WarmProgress | null> {
   return maybeWarmLessons();
 }
 
+// Save one page offline WITH the CSS/JS it needs. A page alone
+// renders unstyled offline — its chunks live in /_next/static/
+// and nothing fetches them until the page is actually visited
+// online. Asset failures never fail the page save, and assets
+// already cached are skipped (every lesson shares the same chunks).
+const STATIC_URLS = /\/_next\/static\/[^\s"'\)]+/g;
+
+export async function savePageOffline(url: string): Promise<boolean> {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return false;
+    const html = await res.text();
+    const pages = await caches.open(PAGES_CACHE);
+    await pages.put(
+      url,
+      new Response(html, {
+        headers: { "Content-Type": "text/html; charset=utf-8" },
+      }),
+    );
+    const assets = [...new Set(html.match(STATIC_URLS) ?? [])];
+    if (assets.length === 0) return true;
+    const statics = await caches.open(STATIC_CACHE);
+    const missing = (
+      await Promise.all(
+        assets.map(async (a) =>
+          (await statics.match(a).catch(() => null)) ? null : a,
+        ),
+      )
+    ).filter((a): a is string => a !== null);
+    await Promise.all(
+      missing.map((a) => statics.add(a).catch(() => undefined)),
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 // Warm every lesson page into the SW's pages cache, skipping pages
 // already cached (the cache itself is the progress record, so the job
 // resumes across reloads). Runs in small batches so the page stays
@@ -215,16 +255,7 @@ export async function warmLessons(): Promise<WarmProgress> {
         break;
       }
       const batch = pending.slice(i, i + WARM_BATCH);
-      const results = await Promise.all(
-        batch.map(async (url) => {
-          try {
-            await cache.add(url);
-            return true;
-          } catch {
-            return false;
-          }
-        }),
-      );
+      const results = await Promise.all(batch.map((url) => savePageOffline(url)));
       done += results.filter(Boolean).length;
       progress.done = done;
       writeWarmProgress(progress);

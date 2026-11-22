@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Check, Download, Loader2 } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
-import { PAGES_CACHE, WARM_EVENT } from "@/lib/offline-downloads";
+import { PAGES_CACHE, WARM_EVENT, savePageOffline } from "@/lib/offline-downloads";
 
 type ButtonState =
   | "checking"
@@ -53,8 +53,8 @@ export function LessonOfflineButton({ slug }: { slug: string }) {
     if (state !== "not-saved" && state !== "error") return;
     setState("saving");
     try {
-      const cache = await caches.open(PAGES_CACHE);
-      await cache.add(`/learn/${slug}`);
+      const ok = await savePageOffline(`/learn/${slug}`);
+      if (!ok) throw new Error("save failed");
       setState("saved");
     } catch {
       setState("error");

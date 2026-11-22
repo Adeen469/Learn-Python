@@ -117,15 +117,20 @@ test("Wi-Fi only toggle defaults ON and gates warming", () => {
 
 test("warming skips cached lessons and uses the SW pages cache", () => {
   const src = downloads();
-  // The job matches every URL against the cache first, then adds
-  // only the missing ones.
+  // The job matches every URL against the cache first, then saves
+  // only the missing ones — page AND its static chunks, via the
+  // shared helper (a bare cache.add would leave the page unstyled
+  // offline).
   assert.ok(src.includes(".match(u)"));
-  assert.ok(src.includes("cache.add(url)"));
-  // Same cache the service worker reads for navigations: the lib
-  // holds the literal name, sw.js builds it from VERSION — they must
-  // agree (the literal below is lp-sw-v1-pages, VERSION is "v1").
+  assert.ok(src.includes("savePageOffline(url)"));
+  // Same caches the service worker reads: the lib holds the literal
+  // names, sw.js builds them from VERSION — they must agree (the
+  // literals below are lp-sw-v1-pages / lp-sw-v1-static, VERSION
+  // is "v1").
   assert.ok(src.includes('"lp-sw-v1-pages"'));
+  assert.ok(src.includes('"lp-sw-v1-static"'));
   assert.ok(sw().includes("lp-sw-${VERSION}-pages"));
+  assert.ok(sw().includes("lp-sw-${VERSION}-static"));
   assert.ok(sw().includes('const VERSION = "v1"'));
   // Progress persists so the job resumes across reloads.
   assert.ok(src.includes("WARM_PROGRESS_KEY"));
@@ -358,9 +363,11 @@ test("per-lesson breadcrumb button saves that one lesson offline", () => {
   );
   // Writes the lesson page straight into the SW's pages cache —
   // the same cache the warming job uses, so it works even when the
-  // bulk download never ran.
+  // bulk download never ran. The save goes through the shared
+  // helper, so the page's CSS/JS chunks land in the static cache
+  // with it (a bare cache.add would leave the page unstyled offline).
   assert.ok(btn.includes("PAGES_CACHE"));
-  assert.ok(btn.includes("cache.add(`/learn/${slug}`)"));
+  assert.ok(btn.includes("savePageOffline(`/learn/${slug}`)"));
   // Visible saved state once cached.
   assert.ok(btn.includes("t.offline.lessonSaved"));
   assert.ok(btn.includes("t.offline.saveLesson"));
@@ -419,4 +426,40 @@ test("Settings toggle still starts a download after a No (explicit action)", () 
       .slice(toggle, toggle + 300)
       .includes("maybeWarmLessonsAuto"),
   );
+});
+
+test("saving a page offline also caches its static chunks", () => {
+  const src = downloads();
+  // One helper, used by the warmer and the breadcrumb button.
+  assert.ok(src.includes("export async function savePageOffline"));
+  // The page HTML goes into the pages cache...
+  assert.ok(src.includes("new Response(html"));
+  assert.ok(src.includes('"Content-Type": "text/html'));
+  // ...and every /_next/static/ URL it references goes into the
+  // static cache (deduplicated — the same chunk appears many times
+  // in one page).
+  assert.ok(src.includes("const STATIC_URLS = /"));
+  assert.ok(src.includes("html.match(STATIC_URLS)"));
+  assert.ok(src.includes("STATIC_CACHE"));
+  assert.ok(src.includes("new Set("));
+  // Assets already cached are skipped (all lessons share chunks),
+  // and a failed asset never fails the page save.
+  assert.ok(src.includes("statics.match(a)"));
+  assert.ok(src.includes("statics.add(a).catch(() => undefined)"));
+});
+
+test("service worker precache caches each page's static chunks", () => {
+  const src = sw();
+  // The install step parses each precached page for its chunks.
+  assert.ok(src.includes("precachePage"));
+  assert.ok(src.includes("html.match("));
+  assert.ok(src.includes("new Set("));
+  // Chunks land in the static cache, next to the pages cache.
+  assert.ok(src.includes("caches.open(STATIC)"));
+  assert.ok(src.includes("statics.add(a)"));
+  // Already-cached chunks are skipped; a failed chunk never fails
+  // the page (and only HTML pages are parsed — images skip it).
+  assert.ok(src.includes("statics.match(a)"));
+  assert.ok(src.includes("text/html"));
+  assert.ok(src.includes(".catch(() => undefined)"));
 });

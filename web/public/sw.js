@@ -27,16 +27,42 @@ const STATIC_EXT = /\.(png|jpg|jpeg|webp|avif|gif|svg|ico|woff2?|ttf|otf|css|js)
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches
-      .open(PAGES)
-      .then((cache) =>
+    Promise.all([caches.open(PAGES), caches.open(STATIC)])
+      .then(([pages, statics]) =>
         Promise.all(
-          PRECACHE.map((url) => cache.add(url).catch(() => undefined)),
+          PRECACHE.map((url) => precachePage(pages, statics, url)),
         ),
       )
       .then(() => self.skipWaiting()),
   );
 });
+
+// A precached page alone renders unstyled offline — cache the
+// /_next/static/ chunks its HTML references, too. Asset failures
+// never fail the page; images (logo, icon) have no chunks to parse.
+async function precachePage(cache, statics, url) {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return;
+    await cache.put(url, res.clone());
+    if (!(res.headers.get("content-type") || "").includes("text/html"))
+      return;
+    const html = await res.text();
+    const assets = [
+      ...new Set(html.match(/\/_next\/static\/[^\s"'\)]+/g) || []),
+    ];
+    const missing = [];
+    for (const a of assets) {
+      const hit = await statics.match(a).catch(() => null);
+      if (!hit) missing.push(a);
+    }
+    await Promise.all(
+      missing.map((a) => statics.add(a).catch(() => undefined)),
+    );
+  } catch {
+    // Page stays uncached; the navigation fallback serves /offline.
+  }
+}
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
