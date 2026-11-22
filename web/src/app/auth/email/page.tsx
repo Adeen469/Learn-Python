@@ -354,6 +354,28 @@ export default function EmailAuthPage() {
         </>
       ) : (
         <form onSubmit={handleVerifyCode} className="space-y-3">
+          {/* The code step needs its own email entry: the user may
+              have reached here without a valid email (the "email
+              code instead" link jumps here even when the form email
+              is empty), and then there was no way to fix it. Enter
+              the email, send the code, then enter the digits. */}
+          <input
+            type="email"
+            required
+            placeholder={t.common.emailAddress}
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className={INPUT_CLASS}
+          />
+          <button
+            type="button"
+            onClick={() => void handleSendCode(email, otpPurpose)}
+            disabled={loading}
+            className={BUTTON_CLASS}
+          >
+            {t.auth.resendCode}
+          </button>
           <div className="flex justify-center py-1">
             <CodeSlots
               length={6}

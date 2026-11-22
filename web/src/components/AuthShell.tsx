@@ -1,11 +1,9 @@
 "use client";
 
-import { useLanguage } from "@/lib/i18n";
-
 // Shared shell for the public auth pages (/auth/*): the same slim
 // header as the landing page, a centred card, and nothing else.
-// Guests only — no app navigation, no AppNavbar.
-
+// Guests only — no app navigation, no AppNavbar. Logo only in the
+// header — no wordmark — and the same 48px logo as the app navbar.
 export function AuthShell({
   title,
   subtitle,
@@ -15,25 +13,18 @@ export function AuthShell({
   subtitle?: string;
   children: React.ReactNode;
 }) {
-  const { t } = useLanguage();
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
       <header className="border-b border-neutral-800">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+        <div className="flex w-full items-center justify-between px-4 py-3">
           <a href="/" className="flex items-center gap-2.5">
             <img
               src="/lp-logo.png"
               alt="LP Logo"
-              width={28}
-              height={28}
-              className="h-7 w-7 rounded-md object-contain"
+              width={48}
+              height={48}
+              className="h-12 w-12 rounded-md object-contain"
             />
-            <span className="text-sm font-semibold tracking-tight">
-              LP{" "}
-              <span className="text-xs font-normal text-neutral-500">
-                {t.common.appName}
-              </span>
-            </span>
           </a>
         </div>
       </header>

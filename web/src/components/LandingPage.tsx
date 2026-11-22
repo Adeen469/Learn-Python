@@ -55,14 +55,14 @@ export function LandingPage() {
     <div className="min-h-screen bg-black text-white flex flex-col">
       {/* Slim landing header — no app navigation for guests. */}
       <header className="border-b border-neutral-800">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+        <div className="flex w-full items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2.5">
             <img
               src="/lp-logo.png"
               alt="LP Logo"
-              width={28}
-              height={28}
-              className="h-7 w-7 rounded-md object-contain"
+              width={48}
+              height={48}
+              className="h-12 w-12 rounded-md object-contain"
             />
           </div>
           <a
@@ -74,7 +74,7 @@ export function LandingPage() {
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4">
+      <main className="flex w-full flex-1 flex-col px-4">
         {/* Hero */}
         <section className="flex flex-col items-center py-14 text-center sm:py-20">
           <h1 className="mt-5 max-w-4xl text-3xl font-bold leading-tight tracking-tight sm:text-5xl">
