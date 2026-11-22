@@ -21,6 +21,7 @@ interface CachedMegaFile {
 }
 
 const FILE_CACHE_TTL_MS = 10 * 60 * 1000;
+const FILE_CACHE_MAX = 500;
 const fileCache = new Map<string, CachedMegaFile>();
 
 async function loadMegaFile(megaUrl: string): Promise<MegaFile> {
@@ -38,6 +39,12 @@ async function loadMegaFile(megaUrl: string): Promise<MegaFile> {
     throw new Error("MEGA file not found in shared folder");
   }
   fileCache.set(megaUrl, { file: resolved, fetchedAt: Date.now() });
+  // L11: cap the cache like the transcript cache — evict oldest first.
+  while (fileCache.size > FILE_CACHE_MAX) {
+    const oldest = fileCache.keys().next().value;
+    if (oldest === undefined) break;
+    fileCache.delete(oldest);
+  }
   return resolved;
 }
 

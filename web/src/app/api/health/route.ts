@@ -1,18 +1,15 @@
 import { NextResponse } from "next/server";
-import { fetchLessons, isSupabaseConfigured } from "@/lib/lessons";
 
 // Health endpoint for Fly.io ([[http_service.checks]] in fly.toml) and
-// humans. Uses the cached fetchLessons() result — no fresh DB ping per
-// call. Deliberately NOT rate-limited: Fly probes it every 30s and a
-// limit could make a healthy machine look unhealthy.
+// humans. Deliberately NOT rate-limited: Fly probes it every 30s and a
+// limit could make a healthy machine look unhealthy. The body is a
+// bare { status: "ok" } on purpose (L21): it used to report whether
+// Supabase was configured, which lesson source was live, and the
+// process uptime — deployment facts an unauthenticated caller could
+// poll to fingerprint config and detect restarts/deploys. It does
+// not even call fetchLessons() anymore, so a probe adds no DB load.
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const { source } = await fetchLessons();
-  return NextResponse.json({
-    status: "ok",
-    supabase: isSupabaseConfigured() ? "configured" : "not_configured",
-    lessons: source,
-    uptime_seconds: Math.floor(process.uptime()),
-  });
+  return NextResponse.json({ status: "ok" });
 }

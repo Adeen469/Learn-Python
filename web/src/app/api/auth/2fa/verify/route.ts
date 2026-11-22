@@ -5,15 +5,17 @@ import {
   findBackupCode,
   sha256Hex,
   TOTP_MAX_FAILED_ATTEMPTS,
-  verifyTotpCode,
+  verifyTotpCodeWithStep,
 } from "@/lib/auth-email";
 import {
   bumpOtpAttempts,
   bumpTotpFailedAttempts,
+  claimBackupCode,
   claimUsedToken,
   consumeOtp,
   getLatestOtp,
   getUserByEmail,
+  recordTotpStep,
   updateUser,
 } from "@/lib/auth-store";
 import {
@@ -22,6 +24,7 @@ import {
   issueSession,
   jsonError,
   rateLimit,
+  rateLimitKey,
   readJsonBody,
   readPending2fa,
   serviceUnavailable,
@@ -57,12 +60,21 @@ export async function POST(req: NextRequest) {
     return jsonError("Your sign-in step expired. Please sign in again.", 401);
   }
   const email = pending.email;
+  // Per-email limit (M7): rotating IPs must not buy unlimited
+  // guesses against one account's second factor.
+  const emailLimited = await rateLimitKey(
+    `auth-2fa-verify-email:${email.toLowerCase()}`,
+    10,
+    60_000
+  );
+  if (emailLimited) return emailLimited;
   const user = await getUserByEmail(email);
   if (!user || !user.totp_enabled) {
     return jsonError(GENERIC_CODE_ERROR, 400);
   }
 
   let verified = false;
+  let matchedStep: number | null = null;
   if (method === "totp") {
     if (!user.totp_secret_enc) return jsonError(GENERIC_CODE_ERROR, 400);
     // Per-account attempt cap (migration 005): 5 consecutive failures
@@ -73,7 +85,18 @@ export async function POST(req: NextRequest) {
       return jsonError(GENERIC_CODE_ERROR, 400);
     }
     const secret = decryptUserTotpSecret(prereqs.secret, user.totp_secret_enc);
-    verified = secret !== null && verifyTotpCode(secret, code);
+    const matched = secret ? verifyTotpCodeWithStep(secret, code) : null;
+    // Replay (M4): this exact code was already accepted once for
+    // this step — a second sign-in flow reusing a seen code fails,
+    // even inside the ±1 window. (A legitimate user signing in
+    // twice within one 30-second step waits for the next code.)
+    const replay =
+      matched !== null &&
+      user.totp_last_step !== null &&
+      user.totp_last_step !== undefined &&
+      matched.step === user.totp_last_step;
+    verified = matched !== null && !replay;
+    matchedStep = verified && matched ? matched.step : null;
     if (!verified) {
       // Atomic bump (compare-and-swap in the store): a parallel
       // wrong guess cannot overwrite this one and stall the cap.
@@ -102,12 +125,20 @@ export async function POST(req: NextRequest) {
       }
     }
   } else {
-    // Backup code: single-use — the matched hash leaves the list.
-    const matched = findBackupCode(user.backup_codes, code);
+    // Backup code: single-use, claimed atomically (M3) — the matched
+    // hash leaves the list only if it is still there, so two
+    // parallel requests with the same code cannot both succeed.
+    // Backup attempts share the per-account failure cap (M4).
+    if ((user.totp_failed_attempts ?? 0) >= TOTP_MAX_FAILED_ATTEMPTS) {
+      return jsonError(GENERIC_CODE_ERROR, 400);
+    }
+    const matched = await findBackupCode(user.backup_codes, code);
     if (matched) {
       const remaining = user.backup_codes.filter((h) => h !== matched);
-      const saved = await updateUser(user.id, { backup_codes: remaining });
-      verified = saved;
+      verified = await claimBackupCode(user.id, matched, remaining);
+    }
+    if (!verified) {
+      await bumpTotpFailedAttempts(user.id);
     }
   }
   if (!verified) return jsonError(GENERIC_CODE_ERROR, 400);
@@ -125,6 +156,13 @@ export async function POST(req: NextRequest) {
     last_sign_in_at: new Date().toISOString(),
     totp_failed_attempts: 0,
   });
+  // Record the step this TOTP code was accepted for (M4): the same
+  // code cannot be replayed in a second sign-in flow within its
+  // window. Best-effort — pre-migration the column is missing and
+  // replay protection just activates with migration 008.
+  if (matchedStep !== null) {
+    await recordTotpStep(user.id, matchedStep);
+  }
   const res = NextResponse.json({
     user: { email: user.email, name: user.name, picture: null },
   });

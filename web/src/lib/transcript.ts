@@ -362,6 +362,17 @@ export function pickCaptionTrack(tracks: unknown): CaptionTrack | null {
   return null;
 }
 
+/**
+ * L18: a caption track's baseUrl comes from YouTube's Innertube
+ * response, so it is upstream-controlled — only fetch it when it
+ * points at YouTube/Google's video hosts.
+ */
+export function isAllowedCaptionHost(hostname: string): boolean {
+  return (
+    hostname.endsWith(".youtube.com") || hostname.endsWith(".googlevideo.com")
+  );
+}
+
 /** Parse a timedtext json3 body into plain text. */
 export function parseTimedtextJson3(body: unknown): string | null {
   try {
@@ -475,6 +486,7 @@ async function fetchTranscriptUncached(
   } catch {
     return null;
   }
+  if (!isAllowedCaptionHost(url.hostname)) return null;
   url.searchParams.set("fmt", "json3");
   const timed = await fetchJson(fetchImpl, url.toString(), {}, signal);
   if (!timed) return null;

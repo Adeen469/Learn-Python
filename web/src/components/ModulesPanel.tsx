@@ -34,6 +34,19 @@ interface PyPiInfo {
   home_page: string;
 }
 
+// L15 (client re-check): the server already validates home_page, but
+// the link is rendered from API data — never render a non-https: href.
+// Same check as web/src/app/api/pypi/route.ts, kept local here because
+// lib/validation.ts is out of scope for this track.
+function isSafeHttpsUrl(href: unknown): boolean {
+  if (typeof href !== "string" || !href) return false;
+  try {
+    return new URL(href).protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 interface ExternalEntry {
   name: string;
   desc: string;
@@ -632,14 +645,16 @@ if '${pkgName}' in sys.modules:
                 <div className="mt-3 flex flex-wrap gap-4 text-[11px] text-neutral-400 border-t border-neutral-900 pt-3">
                   <span>{t.modulesPage.licenseLabel} <strong className="text-neutral-200">{pypiResult.license}</strong></span>
                   <span>{t.modulesPage.authorLabel} <strong className="text-neutral-200">{pypiResult.author}</strong></span>
-                  <a
-                    href={pypiResult.home_page}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-white underline inline-flex items-center gap-1"
-                  >
-                    {t.modulesPage.projectHomepage} <ExternalLink className="h-3 w-3" />
-                  </a>
+                  {isSafeHttpsUrl(pypiResult.home_page) ? (
+                    <a
+                      href={pypiResult.home_page}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-white underline inline-flex items-center gap-1"
+                    >
+                      {t.modulesPage.projectHomepage} <ExternalLink className="h-3 w-3" />
+                    </a>
+                  ) : null}
                 </div>
               </div>
             )}

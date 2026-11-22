@@ -140,13 +140,15 @@ export async function logGithubTokenUse(
  * GitHub answers a token's expiry in the
  * `github-authentication-token-expiration` header of any
  * authenticated call (tokens with no expiry send no header).
- * A 401/403 means the token is invalid; a network failure means
- * "cannot tell" — the caller saves the token anyway with no
- * expiry rather than blocking the user on GitHub being down.
+ * A 401/403 means the token is invalid. Anything else that is
+ * not an explicit 2xx — a 429, a 5xx, a network failure — is
+ * `unverified`, NOT valid: the caller must refuse to store the
+ * token and tell the user to try again, instead of persisting a
+ * token GitHub never confirmed (fail closed).
  */
 export async function probeGithubToken(
   token: string
-): Promise<{ valid: boolean; expiresAt: string | null }> {
+): Promise<{ valid: boolean; expiresAt: string | null; unverified?: boolean }> {
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10_000);
@@ -162,6 +164,11 @@ export async function probeGithubToken(
       if (res.status === 401 || res.status === 403) {
         return { valid: false, expiresAt: null };
       }
+      if (!res.ok) {
+        // 429 / 5xx / anything else: GitHub did not confirm the
+        // token — do not treat it as valid.
+        return { valid: false, expiresAt: null, unverified: true };
+      }
       const raw = res.headers.get("github-authentication-token-expiration");
       if (!raw) return { valid: true, expiresAt: null };
       // Header form is "2026-12-18 12:00:00 UTC" — normalise to
@@ -176,7 +183,8 @@ export async function probeGithubToken(
       clearTimeout(timeout);
     }
   } catch {
-    return { valid: true, expiresAt: null };
+    // Network failure / timeout: cannot tell — fail closed.
+    return { valid: false, expiresAt: null, unverified: true };
   }
 }
 

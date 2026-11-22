@@ -10,7 +10,10 @@ import {
   clearCookieOptions,
   getRequestOrigin,
   getSessionSecret,
-  isSecureOrigin,
+  isSecureDeployment,
+  LEGACY_SESSION_COOKIE,
+  OAUTH_STATE_COOKIE,
+  OAUTH_VERIFIER_COOKIE,
   SESSION_COOKIE,
   sessionCookieOptions,
   signSession,
@@ -77,7 +80,8 @@ export function getAuthPrereqs(req: NextRequest): AuthPrereqs | null {
   const supabase = getSupabaseAdmin();
   const origin = getRequestOrigin(req);
   if (!secret || !supabase || !origin) return null;
-  return { secret, supabase, origin, isSecure: isSecureOrigin(origin) };
+  // Secure comes from the deployment, never from request headers.
+  return { secret, supabase, origin, isSecure: isSecureDeployment() };
 }
 
 /** Sign the session and set the lp_session cookie on the response. */
@@ -170,10 +174,8 @@ export async function getSessionUser(
   req: NextRequest,
   secret: string
 ): Promise<SessionUser | null> {
-  const token = req.cookies.get(SESSION_COOKIE)?.value;
-  if (!token) return null;
-  const verified = await verifySession(secret, token);
-  if (!verified.ok) return null;
+  const verified = await getSessionUserRaw(req, secret);
+  if (!verified) return null;
   // Session revocation (migration 005): when the user has a database
   // row, its session_version must match the one signed into this
   // session — a password reset (or logout) bumps the stored version,
@@ -181,12 +183,104 @@ export async function getSessionUser(
   // and passes on the signature alone. But when the version check
   // itself cannot run (no client, query error), the session FAILS —
   // a DB blip must not silently pass a revoked session.
-  const check = await getSessionVersionByEmail(verified.user.email);
+  const check = await getSessionCheckByEmail(verified.email);
   if (!check.ok) return null;
-  if (check.version !== null && check.version !== (verified.user.sv ?? 0)) {
+  if (check.version !== null && check.version !== (verified.sv ?? 0)) {
     return null;
   }
+  // 2FA step-up (H2): a session minted with mfa:false stops working
+  // the moment the user turns TOTP on. Without this, a stolen
+  // pre-2FA session keeps full access forever after 2FA is enabled.
+  if (check.version !== null && check.totpEnabled && verified.mfa !== true) {
+    return null;
+  }
+  return verified;
+}
+
+/**
+ * Signature-only session check: the user from a valid (unexpired,
+ * correctly signed) session cookie, with NO database check. Used
+ * only by logout (M9), which must still attempt revocation by email
+ * when the version check itself fails — a DB blip must not let a
+ * logout silently skip revocation. Never use this to authorise
+ * anything: it cannot tell a revoked session from a live one.
+ */
+export async function getSessionUserRaw(
+  req: NextRequest,
+  secret: string
+): Promise<SessionUser | null> {
+  const token =
+    req.cookies.get(SESSION_COOKIE)?.value ??
+    req.cookies.get(LEGACY_SESSION_COOKIE)?.value;
+  if (!token) return null;
+  const verified = await verifySession(secret, token);
+  if (!verified.ok) return null;
   return verified.user;
+}
+
+/**
+ * Clear every auth cookie a sign-out must kill (M9): the session
+ * (current name + the pre-rename legacy name), the pending-2FA
+ * step-up cookie, and the OAuth state/verifier cookies. A leftover
+ * pending-2FA cookie narrows an attacker's remaining work to just
+ * the second factor.
+ */
+export function clearSessionCookies(
+  res: NextResponse,
+  isSecure: boolean
+): void {
+  res.cookies.set(
+    SESSION_COOKIE,
+    "",
+    clearCookieOptions(isSecure, "/")
+  );
+  if (LEGACY_SESSION_COOKIE !== SESSION_COOKIE) {
+    res.cookies.set(
+      LEGACY_SESSION_COOKIE,
+      "",
+      clearCookieOptions(isSecure, "/")
+    );
+  }
+  clearPending2fa(res, isSecure);
+  res.cookies.set(
+    OAUTH_STATE_COOKIE,
+    "",
+    clearCookieOptions(isSecure, "/api/auth/callback/google")
+  );
+  res.cookies.set(
+    OAUTH_VERIFIER_COOKIE,
+    "",
+    clearCookieOptions(isSecure, "/api/auth/callback/google")
+  );
+}
+
+/**
+ * Sliding-window limit on an explicit key (not the client IP).
+ * Used for per-account / per-email / per-token limits (M7) on top
+ * of the per-IP limit: an attacker rotating IPs still hits the
+ * per-account budget. Same 429/503 shape as rateLimit.
+ */
+export async function rateLimitKey(
+  key: string,
+  limit: number,
+  windowMs: number
+): Promise<NextResponse | null> {
+  let result;
+  try {
+    result = await checkRateLimit(key, limit, windowMs);
+  } catch {
+    return jsonError("Sign-in is temporarily unavailable.", 503);
+  }
+  if (!result.allowed) {
+    return NextResponse.json(
+      { error: "Too many requests — please slow down and retry shortly." },
+      {
+        status: 429,
+        headers: { "Retry-After": String(result.retryAfterSeconds) },
+      }
+    );
+  }
+  return null;
 }
 
 /** Parse a JSON body, or null when it is not valid JSON / not an object. */
@@ -218,7 +312,7 @@ import {
 import {
   countRecentOtps,
   getLatestOtp,
-  getSessionVersionByEmail,
+  getSessionCheckByEmail,
   normalizeEmail,
   storeOtp,
 } from "@/lib/auth-store";
@@ -236,9 +330,12 @@ export type IssueOtpResult =
 
 /**
  * Generate, store (hashed), and email a 6-digit code. Enforces the
- * 60-second resend cooldown and the 5-per-hour cap per email. The
- * caller decides whether a code should be sent at all (e.g. only for
- * an existing account) — this function only does the sending.
+ * 60-second resend cooldown and the 5-per-hour cap PER EMAIL across
+ * all purposes (L6) — a signup code, a sign-in code, and a 2fa code
+ * share one budget, so the cap cannot be tripled by switching
+ * purpose. The caller decides whether a code should be sent at all
+ * (e.g. only for an existing account) — this function only does the
+ * sending.
  */
 export async function issueOtpCode(
   email: string,
@@ -249,7 +346,7 @@ export async function issueOtpCode(
 
   const recent = await countRecentOtps(
     normalized,
-    purpose,
+    null,
     nowMs - 60 * 60 * 1000
   );
   if (recent === null) return { ok: false, reason: "failed" };
@@ -257,7 +354,7 @@ export async function issueOtpCode(
     return { ok: false, reason: "hourly_cap", retryAfterSeconds: 3600 };
   }
 
-  const latest = await getLatestOtp(normalized, purpose);
+  const latest = await getLatestOtp(normalized, null);
   if (latest) {
     const createdMs = new Date(latest.created_at).getTime();
     const waitMs = OTP_RESEND_COOLDOWN_MS - (nowMs - createdMs);

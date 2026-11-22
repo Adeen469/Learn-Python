@@ -19,6 +19,61 @@ const RATE_LIMITED_RESPONSE = (retryAfterSeconds: number) =>
     { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } }
   );
 
+// H7: a request with no Range header must never pull a whole ~37 MB video
+// through the function. The real player always sends Range headers, but a
+// browser's very first media request may not — so instead of refusing it,
+// serve only the first chunk as a 206; the player then continues with
+// Range requests as usual, while a plain curl gets at most 1 MiB.
+const NO_RANGE_CHUNK_BYTES = 1_048_576;
+
+/** Range header actually sent upstream: the client's, or the first chunk. */
+function effectiveRangeHeader(rangeHeader: string | null): string {
+  return rangeHeader ?? `bytes=0-${NO_RANGE_CHUNK_BYTES - 1}`;
+}
+
+// H7: per-IP daily byte cap (in-memory, so per Vercel instance unless a
+// shared store is configured — same caveat as the rate limiter). Bounds
+// bulk harvesting of the whole catalogue through the proxy; a heavy day
+// of real watching stays well under 1 GB.
+const VIDEO_DAILY_BYTE_CAP = 1_000_000_000;
+const dailyBytes = new Map<string, { day: string; bytes: number }>();
+
+function secondsUntilMidnightUtc(): number {
+  const now = new Date();
+  const midnight = new Date(now);
+  midnight.setUTCHours(24, 0, 0, 0);
+  return Math.max(1, Math.ceil((midnight.getTime() - now.getTime()) / 1000));
+}
+
+/**
+ * Charge `chunkLength` bytes to the IP's UTC-day budget. Returns false
+ * when the day's cap would be exceeded (caller answers 429).
+ */
+function chargeDailyBytes(ip: string, chunkLength: number): boolean {
+  const day = new Date().toISOString().slice(0, 10);
+  const entry = dailyBytes.get(ip);
+  if (!entry || entry.day !== day) {
+    dailyBytes.set(ip, { day, bytes: chunkLength });
+  } else {
+    if (entry.bytes + chunkLength > VIDEO_DAILY_BYTE_CAP) return false;
+    entry.bytes += chunkLength;
+  }
+  // The map is keyed by IP, so prune stale days before it grows unbounded.
+  if (dailyBytes.size > 5000) {
+    for (const [key, value] of dailyBytes) {
+      if (value.day !== day) dailyBytes.delete(key);
+    }
+  }
+  return true;
+}
+
+// M21: never echo an upstream-supplied MIME type as Content-Type — a
+// Drive file whose mimeType is text/html would be served same-origin as
+// HTML. Only video/audio pass through; anything else is video/mp4.
+function sanitizeVideoMimeType(mimeType: string): string {
+  return /^(video|audio)\//.test(mimeType) ? mimeType : "video/mp4";
+}
+
 export async function GET(
   req: NextRequest,
   context: { params: Promise<{ lessonId: string }> }
@@ -55,18 +110,27 @@ export async function GET(
     const rangeHeader = req.headers.get("range");
     const result =
       lesson.videoSource === "drive"
-        ? await openDriveStream(lesson.videoUrl, rangeHeader)
-        : await openMegaStream(lesson.videoUrl, rangeHeader);
+        ? await openDriveStream(lesson.videoUrl, effectiveRangeHeader(rangeHeader))
+        : await openMegaStream(lesson.videoUrl, effectiveRangeHeader(rangeHeader));
 
     if (result.status === 416) {
       return new NextResponse(null, {
         status: 416,
-        headers: { "Content-Range": `bytes */${result.totalSize}` },
+        headers: {
+          "Content-Range": `bytes */${result.totalSize}`,
+          "X-Content-Type-Options": "nosniff",
+        },
       });
     }
 
+    if (!chargeDailyBytes(getClientIp(req), result.chunkLength)) {
+      return RATE_LIMITED_RESPONSE(secondsUntilMidnightUtc());
+    }
+
     const headers: Record<string, string> = {
-      "Content-Type": result.mimeType,
+      "Content-Type": sanitizeVideoMimeType(result.mimeType),
+      "Content-Disposition": "inline",
+      "X-Content-Type-Options": "nosniff",
       "Accept-Ranges": "bytes",
       "Content-Length": String(result.chunkLength),
       "Cache-Control": "private, max-age=3600",
@@ -105,18 +169,23 @@ export async function GET(
       })
     );
     console.error("Video stream error:", err);
+    // M13: never return the raw upstream error to the client — Drive
+    // messages disclose config state ("Google Drive API key is invalid
+    // or restricted"). Status codes still distinguish the cases; the
+    // body is always the same generic line. The detail stays in the
+    // server log above.
     if (err instanceof DriveStreamError) {
       if (err.code === "NOT_FOUND") {
-        return NextResponse.json({ error: err.message }, { status: 404 });
+        return NextResponse.json({ error: "Unable to load video stream" }, { status: 404 });
       }
       if (err.code === "NOT_CONFIGURED") {
-        return NextResponse.json({ error: err.message }, { status: 503 });
+        return NextResponse.json({ error: "Unable to load video stream" }, { status: 503 });
       }
       if (err.code === "NOT_DOWNLOADABLE") {
-        return NextResponse.json({ error: err.message }, { status: 422 });
+        return NextResponse.json({ error: "Unable to load video stream" }, { status: 422 });
       }
       if (err.code === "KEY_INVALID") {
-        return NextResponse.json({ error: err.message }, { status: 502 });
+        return NextResponse.json({ error: "Unable to load video stream" }, { status: 502 });
       }
     }
     return NextResponse.json(

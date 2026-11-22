@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { oversizedBodyResponse } from "@/lib/github";
 import {
   deleteGithubToken,
   isValidGithubTokenFormat,
@@ -29,6 +30,9 @@ const saveTokenSchema = z.object({
   token: z.string().min(20).max(255),
 });
 
+// A token paste is a few hundred bytes at most.
+const TOKEN_BODY_MAX_BYTES = 256 * 1024;
+
 export async function POST(req: NextRequest) {
   const limit = await checkRateLimit(`github-token:${getClientIp(req)}`, 10, 60_000);
   if (!limit.allowed) {
@@ -37,6 +41,8 @@ export async function POST(req: NextRequest) {
       { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } }
     );
   }
+  const tooLarge = oversizedBodyResponse(req, TOKEN_BODY_MAX_BYTES);
+  if (tooLarge) return tooLarge;
   const prereqs = getAuthPrereqs(req);
   if (!prereqs) {
     return NextResponse.json(
@@ -66,9 +72,16 @@ export async function POST(req: NextRequest) {
   }
   // Check the token live: GitHub must accept it, and its expiry
   // header (if any) is stored so the page can warn before it
-  // lapses. A network failure does not block the save — the token
-  // is stored with no expiry instead.
+  // lapses. If GitHub cannot be reached or does not answer, the
+  // token is NOT saved — a token GitHub never confirmed must not
+  // be persisted (fail closed); the user tries again instead.
   const probe = await probeGithubToken(parsed.data.token);
+  if (probe.unverified) {
+    return NextResponse.json(
+      { error: "Could not verify the token — GitHub did not answer, try again." },
+      { status: 503 }
+    );
+  }
   if (!probe.valid) {
     return NextResponse.json(
       { error: "GitHub rejected this token — check it and try again." },
@@ -87,6 +100,13 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const limit = await checkRateLimit(`github-token:${getClientIp(req)}`, 10, 60_000);
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: "Too many requests — please slow down and retry shortly." },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } }
+    );
+  }
   const prereqs = getAuthPrereqs(req);
   if (!prereqs) {
     return NextResponse.json(

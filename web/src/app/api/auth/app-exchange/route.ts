@@ -114,7 +114,7 @@ export async function GET(req: NextRequest) {
       JSON.stringify({
         event: "auth_login_2fa_app_exchange",
         endpoint: "app-exchange",
-        email: p.email,
+        emailHash: sha256Hex(p.email),
       })
     );
     return res;
@@ -136,7 +136,7 @@ export async function GET(req: NextRequest) {
       JSON.stringify({
         event: "auth_login_app_exchange",
         endpoint: "app-exchange",
-        email: p.email,
+        emailHash: sha256Hex(p.email),
       })
     );
     return res;
@@ -147,7 +147,7 @@ export async function GET(req: NextRequest) {
     JSON.stringify({
       event: "auth_login_app_exchange",
       endpoint: "app-exchange",
-      email: p.email,
+      emailHash: sha256Hex(p.email),
     })
   );
   return res;

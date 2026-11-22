@@ -172,35 +172,30 @@ export async function installPackageInto(
     so it loads whenever the app itself loads, no CDN needed. */
 export const PYODIDE_SCRIPT_URL = "/pyodide/pyodide.js";
 /**
- * Where the Pyodide runtime is loaded from, in try order. The runtime
- * (~14 MB) is SELF-HOSTED in web/public/pyodide/ and served from the
- * same origin as the app — because BOTH public CDNs failed for the
- * user (2026-11-19: jsDelivr and unpkg each timed out at 300s, so the
- * editor could never load the runtime at all and showed "could not
- * load from jsDelivr or unpkg"). The app itself loads fine from
- * Vercel, so the same-origin runtime loads from the same fast path.
- * jsDelivr and unpkg stay as fallbacks if the self-hosted copy ever
- * fails. (The /pyodide/ base is relative: loadPyodide resolves it
- * against the page origin.)
+ * Where the Pyodide runtime is loaded from. The runtime (~14 MB) is
+ * SELF-HOSTED in web/public/pyodide/ and served from the same origin
+ * as the app — because BOTH public CDNs failed for the user
+ * (2026-11-19: jsDelivr and unpkg each timed out at 300s, so the
+ * editor could never load the runtime at all). The CDN fallbacks
+ * were removed 2026-11-22 (M22): loading executable JS from a CDN
+ * with no SRI runs arbitrary third-party code in full origin
+ * context, and the unpkg entry was CSP-blocked anyway, so the chain
+ * was half-dead. There is exactly one source now: this site.
+ * (The /pyodide/ base is relative: loadPyodide resolves it against
+ * the page origin.)
  */
-export const PYODIDE_CDN_BASES = [
-  "/pyodide/",
-  "https://cdn.jsdelivr.net/pyodide/v0.27.2/full/",
-  "https://unpkg.com/pyodide@0.27.2/",
-];
+export const PYODIDE_CDN_BASES = ["/pyodide/"];
 /**
- * How long one CDN gets to deliver the runtime (~15 MB) per try.
- * Was 60s — but the user's screenshot proved jsDelivr was
- * DOWNLOADING, just slowly: it hit the 60s cap and got abandoned
- * mid-download, then unpkg faced the same cap. A ~15 MB runtime at
- * ~100 KB/s needs ~150s, so 60s killed every attempt before it
- * could finish. Was then 180s — still too short: on the user's
- * connection the download runs closer to ~50-80 KB/s, so 15 MB
- * needs ~190-300s and 180s killed BOTH CDNs mid-download, leaving
- * the editor on "Loading Engine" with no error at all. 5 minutes
- * per CDN gives a slow-but-working download a real chance to
- * finish; the editor now shows the live stage + elapsed seconds
- * the whole way, so a slow load reads as "working", not "stuck".
+ * How long the runtime gets to deliver (~15 MB). Was 60s — but the
+ * user's screenshot proved jsDelivr was DOWNLOADING, just slowly: it
+ * hit the 60s cap and got abandoned mid-download. Was then 180s —
+ * still too short: on the user's connection the download runs closer
+ * to ~50-80 KB/s, so 15 MB needs ~190-300s. 5 minutes gives a
+ * slow-but-working download a real chance to finish; the editor now
+ * shows the live stage + elapsed seconds the whole way, so a slow
+ * load reads as "working", not "stuck". (The CDN history is kept in
+ * this comment only — the runtime is self-hosted now, see
+ * PYODIDE_CDN_BASES.)
  */
 export const PYODIDE_LOAD_TIMEOUT_MS = 300_000;
 /** How long one package's wheel download (loadPackage) may take. */
@@ -307,9 +302,9 @@ export function waitForPyodideScript(timeoutMs = 30000): Promise<boolean> {
 
 /**
  * Load the Pyodide script from the given URL with a fresh <script>
- * tag. The editor's <Script> tag loads it once — but jsDelivr
- * occasionally 404s a single request, and then window.loadPyodide
- * never appears and no Install can ever succeed until a page reload.
+ * tag. The editor's <Script> tag loads it once — but a single
+ * request can occasionally fail, and then window.loadPyodide never
+ * appears and no Install can ever succeed until a page reload.
  * Retrying with a new tag fixes that without a reload. Returns true
  * when loadPyodide is defined afterwards (immediately true when it
  * already is).
@@ -345,15 +340,14 @@ export function loadPyodideScript(
 }
 
 /**
- * Load the Pyodide runtime, trying each CDN base in turn. One slow
- * CDN used to doom the whole install: loadPyodide() has no timeout
- * of its own, and a stalled 15 MB download hung "Installing…"
- * for minutes with no error. Now each CDN gets 5 minutes — jsDelivr
- * first, unpkg second — and a stalled one is abandoned for the
- * next instead of blocking the install. `onStage` reports each
- * step (which CDN is being tried, timeouts, success) so the UI can
- * show WHERE a slow load is stuck instead of a frozen 10%.
- * Throws when no CDN delivers the runtime.
+ * Load the Pyodide runtime from this site. loadPyodide() downloads
+ * the whole runtime and has no timeout of its own — without the
+ * withTimeout wrapper, a stalled 15 MB download hung "Installing…"
+ * for minutes with no error. `onStage` reports each step so the UI
+ * can show WHERE a slow load is stuck instead of a frozen 10%.
+ * There is no CDN fallback anymore (M22): the runtime is
+ * self-hosted, so a failure here means this site could not deliver
+ * it. Throws when the runtime cannot be loaded.
  */
 export async function loadPyodideRuntime(
   onStage?: (stage: string) => void
@@ -361,19 +355,15 @@ export async function loadPyodideRuntime(
   if (typeof window === "undefined") {
     throw new Error("Pyodide can only load in the browser.");
   }
-  // Give the editor's <Script> tag (jsDelivr) a chance first.
+  // Give the editor's <Script> tag a chance first.
   onStage?.("Waiting for Pyodide script…");
   await waitForPyodideScript(10000);
   for (const base of PYODIDE_CDN_BASES) {
-    const cdnName = base.startsWith("/")
-      ? "this site"
-      : base.includes("unpkg")
-        ? "unpkg"
-        : "jsDelivr";
+    const cdnName = "this site";
     if (typeof (window as any).loadPyodide !== "function") {
       const scriptOk = await loadPyodideScript(base + "pyodide.js", 30000);
       if (!scriptOk) {
-        onStage?.(`${cdnName} script did not load — trying the next CDN…`);
+        onStage?.(`${cdnName} script did not load.`);
         continue;
       }
     }
@@ -388,11 +378,11 @@ export async function loadPyodideRuntime(
       return pyodide;
     } catch {
       onStage?.(
-        `${cdnName} timed out after ${PYODIDE_LOAD_TIMEOUT_MS / 1000}s — trying the next CDN…`
+        `${cdnName} timed out after ${PYODIDE_LOAD_TIMEOUT_MS / 1000}s.`
       );
     }
   }
   throw new Error(
-    "Python runtime could not load from this site, jsDelivr or unpkg — check your connection and retry."
+    "Python runtime could not load from this site — check your connection and retry."
   );
 }

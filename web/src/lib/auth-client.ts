@@ -25,50 +25,14 @@ export interface SessionUser {
 
 let cachedUserPromise: Promise<SessionUser | null> | null = null;
 
-// Last-known signed-in user, kept only so the app still opens its
-// gated pages when the device is offline: the live /api/auth/me check
-// cannot run without a network, and the lesson content ships in the
-// client bundle anyway, so this gates nothing the server protects —
-// every API call still needs the real session cookie. Stored on a
-// successful check, cleared on a 401 or an explicit sign-out.
-const LAST_USER_KEY = "lp_last_user";
-
-function readLastUser(): SessionUser | null {
-  try {
-    const raw = localStorage.getItem(LAST_USER_KEY);
-    if (!raw) return null;
-    const u = JSON.parse(raw) as Record<string, unknown>;
-    if (typeof u.email !== "string" || typeof u.name !== "string")
-      return null;
-    return {
-      email: u.email,
-      name: u.name,
-      picture: typeof u.picture === "string" ? u.picture : null,
-      auth: (u.auth === "email" || u.auth === "google"
-        ? u.auth
-        : "google") as "google" | "email",
-      mfa: u.mfa === true,
-    };
-  } catch {
-    return null;
-  }
-}
-
-function storeLastUser(user: SessionUser): void {
-  try {
-    localStorage.setItem(LAST_USER_KEY, JSON.stringify(user));
-  } catch {
-    // Private mode etc. — offline fallback just won't exist.
-  }
-}
-
-function clearLastUser(): void {
-  try {
-    localStorage.removeItem(LAST_USER_KEY);
-  } catch {
-    // Ignore.
-  }
-}
+// No identity is ever cached in localStorage (L16): the old
+// lp_last_user fallback let a signed-out / shared device open gated
+// pages offline as the previous user, and any XSS could read the
+// stored identity. A failed /api/auth/me check now resolves to null
+// — offline the app shows the signed-out state, never a stale user.
+// The server still enforces auth on every API call, and the
+// service worker may serve cached pages offline, but those pages
+// render signed-out without a live session check.
 
 
 export function fetchSessionUser(): Promise<SessionUser | null> {
@@ -76,7 +40,6 @@ export function fetchSessionUser(): Promise<SessionUser | null> {
     cachedUserPromise = fetch("/api/auth/me", { credentials: "same-origin" })
       .then(async (res) => {
         if (!res.ok) {
-          if (res.status === 401) clearLastUser();
           return null;
         }
         const data: unknown = await res.json().catch(() => null);
@@ -102,10 +65,9 @@ export function fetchSessionUser(): Promise<SessionUser | null> {
           ) as "google" | "email",
           mfa: u.mfa === true,
         };
-        storeLastUser(user);
         return user;
       })
-      .catch(() => readLastUser());
+      .catch(() => null);
   }
   return cachedUserPromise;
 }
@@ -115,7 +77,13 @@ export function clearSessionCache(): void {
 }
 
 export async function signOut(): Promise<void> {
-  clearLastUser();
+  // Legacy cleanup: versions before this fix stored the last-known
+  // user under lp_last_user — drop any stale copy on sign-out.
+  try {
+    localStorage.removeItem("lp_last_user");
+  } catch {
+    // Ignore.
+  }
   try {
     await fetch("/api/auth/logout", {
       method: "POST",

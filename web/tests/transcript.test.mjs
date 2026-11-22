@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 // Inline pure helpers for zero-build node --test verification
 // (mirrors web/src/lib/transcript.ts — YouTube transcript fetching
@@ -751,4 +754,33 @@ test("questionKeywords drops stopwords and dedupes", () => {
     "karta",
   ]);
   assert.deepEqual(questionKeywords("kya hai ye"), []);
+});
+
+// --- L18 mirror: caption baseUrl host allowlist (src/lib/transcript.ts) ---
+
+function isAllowedCaptionHost(hostname) {
+  return (
+    hostname.endsWith(".youtube.com") || hostname.endsWith(".googlevideo.com")
+  );
+}
+
+test("L18: caption baseUrl is only fetched from YouTube/Google video hosts", () => {
+  assert.equal(isAllowedCaptionHost("www.youtube.com"), true);
+  assert.equal(isAllowedCaptionHost("youtube.com"), false); // bare host has no leading dot — real timedtext hosts are subdomains
+  assert.equal(isAllowedCaptionHost("r1---sn-abc123.googlevideo.com"), true);
+  assert.equal(isAllowedCaptionHost("googlevideo.com"), false);
+  assert.equal(isAllowedCaptionHost("evil-youtube.com"), false);
+  assert.equal(isAllowedCaptionHost("youtube.com.evil.com"), false);
+  assert.equal(isAllowedCaptionHost("notyoutube.com"), false);
+  assert.equal(isAllowedCaptionHost(""), false);
+});
+
+test("L18: transcript source gates the caption fetch on the allowlist", () => {
+  const src = readFileSync(
+    join(dirname(fileURLToPath(import.meta.url)), "..", "src/lib/transcript.ts"),
+    "utf8"
+  );
+  assert.ok(src.includes("isAllowedCaptionHost(url.hostname)"), "baseUrl fetch must check the host allowlist");
+  assert.ok(src.includes('hostname.endsWith(".youtube.com")'), "allowlist must include .youtube.com");
+  assert.ok(src.includes('hostname.endsWith(".googlevideo.com")'), "allowlist must include .googlevideo.com");
 });

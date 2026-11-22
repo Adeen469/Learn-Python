@@ -38,7 +38,42 @@ export interface SessionPayload extends SessionUser {
   sv?: number; // session version (see SessionUser.sv)
 }
 
-export const SESSION_COOKIE = "lp_session";
+/**
+ * Whether this deployment serves over https. Derived from the
+ * deployment environment, NEVER from request headers — a spoofed
+ * `x-forwarded-proto` must not be able to downgrade the session
+ * cookie's Secure flag (see getRequestOrigin). An explicit APP_URL
+ * wins; otherwise Vercel and NODE_ENV=production mean https.
+ */
+export function isSecureDeployment(): boolean {
+  const appUrl = process.env.APP_URL?.trim();
+  if (appUrl) {
+    try {
+      return new URL(appUrl).protocol === "https:";
+    } catch {
+      return false;
+    }
+  }
+  if (process.env.VERCEL === "1") return true;
+  return process.env.NODE_ENV === "production";
+}
+
+/**
+ * Session cookie name. In a secure deployment (https, production)
+ * the `__Host-` prefix applies: the browser then refuses the cookie
+ * unless it is Secure, Path=/, and has no Domain — so a sibling
+ * subdomain can no longer toss a session cookie at us. In plain
+ * local dev the prefix would make the cookie unsettable, so the
+ * plain name is used there. The name is read from the deployment
+ * environment at module load, so middleware and the Settings gate
+ * (which import this constant) always read the same name the
+ * sign-in routes set. LEGACY_SESSION_COOKIE is only a read
+ * fallback for cookies set before the rename.
+ */
+export const SESSION_COOKIE = isSecureDeployment()
+  ? "__Host-lp_session"
+  : "lp_session";
+export const LEGACY_SESSION_COOKIE = "lp_session";
 export const OAUTH_STATE_COOKIE = "lp_oauth_state";
 export const OAUTH_VERIFIER_COOKIE = "lp_oauth_verifier";
 export const SESSION_MAX_AGE_SECONDS = 30 * 24 * 60 * 60; // 30 days
@@ -396,14 +431,53 @@ export function getGoogleConfig(): {
 }
 
 // ---------------------------------------------------------------------------
-// Origin + redirect URI (derived from the request, never hardcoded)
+// Origin + redirect URI — allowlisted, never taken from request headers
 // ---------------------------------------------------------------------------
 
 /**
- * Public origin of this request: x-forwarded-proto (set by Fly's proxy)
- * + host header. Google only ever redirects back to a URI registered in
- * the OAuth client, so a tampered Host header can only break the flow,
- * never redirect a token somewhere else.
+ * The app's own public origin. APP_URL (Vercel env var, e.g.
+ * https://learnpythonprogram.vercel.app) wins when set; otherwise
+ * the known Vercel domain. A malformed APP_URL falls back to the
+ * known domain rather than failing open.
+ */
+export const APP_URL_DEFAULT = "https://learnpythonprogram.vercel.app";
+
+export function getConfiguredAppOrigin(): string {
+  const raw = process.env.APP_URL?.trim().replace(/\/+$/, "");
+  if (raw) {
+    try {
+      const url = new URL(raw);
+      if (url.protocol === "http:" || url.protocol === "https:") {
+        return url.origin;
+      }
+    } catch {
+      // Fall through to the known domain.
+    }
+  }
+  return APP_URL_DEFAULT;
+}
+
+/**
+ * Origins a request may legitimately claim: the configured origin,
+ * the known Vercel domain, and (outside production) local dev.
+ * Anything else is not us.
+ */
+export function getAllowedOrigins(): string[] {
+  const origins = [getConfiguredAppOrigin(), APP_URL_DEFAULT];
+  if (process.env.NODE_ENV !== "production") {
+    origins.push("http://localhost:3000", "http://127.0.0.1:3000");
+  }
+  return [...new Set(origins)];
+}
+
+/**
+ * Public origin of this request. The header-derived candidate is
+ * returned ONLY when it is on the allowlist; otherwise the
+ * configured origin is used. A tampered Host / X-Forwarded-Host
+ * header can therefore never poison a token-bearing URL (the
+ * emailed password-reset link, the Google redirect_uri) or
+ * downgrade the session cookie — at worst the flow points at our
+ * own domain, where it still works.
  */
 export function getRequestOrigin(req: Request): string | null {
   const forwardedProto = req.headers
@@ -413,11 +487,15 @@ export function getRequestOrigin(req: Request): string | null {
   const host =
     req.headers.get("x-forwarded-host")?.split(",")[0]?.trim() ??
     req.headers.get("host")?.trim();
-  if (!host || /[\s/@]/.test(host)) return null;
-  const proto =
-    forwardedProto || new URL(req.url).protocol.replace(":", "") || "http";
-  if (proto !== "http" && proto !== "https") return null;
-  return `${proto}://${host}`;
+  if (host && !/[\s/@]/.test(host)) {
+    const proto =
+      forwardedProto || new URL(req.url).protocol.replace(":", "") || "http";
+    if (proto === "http" || proto === "https") {
+      const candidate = `${proto}://${host}`;
+      if (getAllowedOrigins().includes(candidate)) return candidate;
+    }
+  }
+  return getConfiguredAppOrigin();
 }
 
 export function getRedirectUri(origin: string): string {

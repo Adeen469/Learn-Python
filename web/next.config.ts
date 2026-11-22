@@ -6,7 +6,16 @@ const csp = [
   // payload as inline <script>self.__next_f.push(...)</script> tags, and a
   // real Chromium render proved hydration is fully blocked without it
   // (28 CSP violations, no client-side rendering). A per-request nonce
-  // via middleware would be the stricter alternative; out of scope here.
+  // via middleware would be the stricter alternative — NOT done here:
+  // the root layout's static theme script (layout.tsx, an inline
+  // <script> via dangerouslySetInnerHTML) would need the nonce passed
+  // to it, and layout.tsx is outside this change; without that, a
+  // nonce CSP would block the theme script. Nonces need: middleware
+  // generates a per-request nonce and sets it on the request/response,
+  // layout.tsx reads it via headers() and puts it on the theme script
+  // (and on Next.js's own inline scripts), then 'unsafe-inline' comes
+  // off script-src/style-src. Until then CSP is a weak backstop, not
+  // an XSS container.
   // 'wasm-unsafe-eval' is required too: Pyodide compiles/instantiates
   // its WebAssembly module via WebAssembly.instantiateStreaming(), and
   // without it the browser refuses with a CompileError ("violates the
@@ -25,6 +34,9 @@ const csp = [
   // lh3.googleusercontent.com serves Google profile pictures (the
   // navbar avatar comes from the signed-in user's Google photo).
   // i.ytimg.com serves YouTube video thumbnails on the Courses page.
+  // data: stays: the 2FA setup QR code is a data: URL rendered in an
+  // <img> (TwoFactorSettings renders the setup route's qrDataUrl),
+  // so dropping data: would break 2FA enrollment.
   "img-src 'self' data: blob: https://lh3.googleusercontent.com https://yt3.googleusercontent.com https://i.ytimg.com",
   "font-src 'self' data:",
   // pypi.org + files.pythonhosted.org: micropip installs PyPI wheels
@@ -41,6 +53,9 @@ const csp = [
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
+  // No framing at all (X-Frame-Options: DENY is kept alongside it
+  // for older browsers that only honour the header).
+  "frame-ancestors 'none'",
 ].join("; ");
 
 const securityHeaders = [

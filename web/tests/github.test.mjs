@@ -355,3 +355,170 @@ test("saving a token checks it live with GitHub and the page warns before it exp
     assert.ok(en().includes(`${key}:`), `en.ts must define ${key}`);
   }
 });
+
+test("M11: GitHub routes check the owner against the token's own identity", () => {
+  const libSrc = lib();
+  // The lib resolves who the token belongs to (GET /user + orgs)
+  // and caches it briefly per token, keyed by a hash — never the
+  // token itself — so the check is not a GitHub call per request.
+  assert.ok(libSrc.includes("getGithubIdentity"), "the lib must resolve the token's GitHub identity");
+  assert.ok(libSrc.includes("users.getAuthenticated"), "the identity must come from GET /user");
+  assert.ok(libSrc.includes("orgs.listForAuthenticatedUser"), "the identity must include the user's orgs");
+  assert.ok(libSrc.includes("createHash"), "the identity cache must be keyed by a hash of the token, not the token");
+  assert.ok(libSrc.includes("IDENTITY_TTL_MS"), "the identity cache must expire (short TTL)");
+  assert.ok(libSrc.includes("assertGithubOwnerAllowed"), "the lib must offer an owner check");
+  assert.ok(libSrc.includes("owner === identity.login"), "the token owner's own login must be allowed");
+  assert.ok(libSrc.includes("identity.orgs.includes(owner)"), "the token owner's orgs must be allowed");
+  // Every route that takes an owner must run the check before it
+  // touches the repo. The repos routes take no owner (list/create
+  // are the token owner's own), so there is nothing to check there.
+  for (const rel of [
+    "src/app/api/github/commit/route.ts",
+    "src/app/api/github/repo-tree/route.ts",
+    "src/app/api/github/repo-file/route.ts",
+    "src/app/api/github/delete-repo/route.ts",
+  ]) {
+    const src = read(rel);
+    assert.ok(src.includes("assertGithubOwnerAllowed"), `${rel} must check the owner against the token identity`);
+    assert.ok(src.includes("only"), `${rel} must refuse an owner outside the token's identity`);
+    assert.ok(src.includes('"You can only'), `${rel} must refuse with a 403`);
+  }
+});
+
+test("M12: repo-file verifies the path points at the SHA before fetching the blob", () => {
+  const libSrc = lib();
+  // The path's metadata (getContent) is fetched first and its SHA
+  // compared, so a blob from another branch or history cannot be
+  // read by SHA alone — and an oversize file is refused on the
+  // metadata size, before the blob is downloaded at all.
+  const getContentAt = libSrc.indexOf("repos.getContent");
+  const getBlobAt = libSrc.indexOf("git.getBlob");
+  assert.ok(getContentAt !== -1, "the file fetch must look up the path first");
+  assert.ok(getBlobAt !== -1, "the file fetch must still fetch the blob");
+  assert.ok(getContentAt < getBlobAt, "the path lookup must run BEFORE the blob fetch");
+  assert.ok(libSrc.includes("meta.sha !== params.sha"), "the path's SHA must match the requested SHA");
+  const sizeCheckAt = libSrc.indexOf("meta.size");
+  assert.ok(sizeCheckAt !== -1 && sizeCheckAt < getBlobAt, "the size must be checked on the metadata, before the blob download");
+  assert.ok(libSrc.includes('githubHttpError(404, "File not found or no access")'), "a SHA mismatch must answer 404, not leak which half was wrong");
+});
+
+test("M13: GitHub routes map Octokit failures to generic statuses, never raw messages", () => {
+  const libSrc = lib();
+  assert.ok(libSrc.includes("mapGithubError"), "the lib must map GitHub errors to generic responses");
+  assert.ok(libSrc.includes('"Repo not found or no access"'), "a 404 must say only 'Repo not found or no access'");
+  assert.ok(libSrc.includes("status === 401"), "a 401 must map to 401");
+  assert.ok(libSrc.includes("status === 403"), "a 403 must map to 403");
+  assert.ok(libSrc.includes("status === 429"), "a 429 must map to 429");
+  assert.ok(libSrc.includes("status: 502"), "an unexpected upstream failure must map to 502");
+  for (const rel of [
+    "src/app/api/github/commit/route.ts",
+    "src/app/api/github/repo-tree/route.ts",
+    "src/app/api/github/repo-file/route.ts",
+    "src/app/api/github/repos/route.ts",
+  ]) {
+    const src = read(rel);
+    assert.ok(src.includes("mapGithubError"), `${rel} must map errors instead of relaying them`);
+    assert.ok(!src.includes("error: msg"), `${rel} must never return a raw error message`);
+  }
+  // delete-repo keeps its two user-actionable 403s (scope vs
+  // owner) but its fallback must be the generic mapper too.
+  const del = read("src/app/api/github/delete-repo/route.ts");
+  assert.ok(del.includes("mapGithubError"), "delete-repo must map unexpected errors generically");
+  assert.ok(del.includes("Resource not accessible by personal access token"), "delete-repo must keep the missing-scope hint");
+  assert.ok(del.includes("Only the repo owner can delete it"), "delete-repo must keep the owner-only hint");
+  assert.ok(!del.includes("return NextResponse.json({ error: msg }"), "delete-repo must not fall back to the raw message");
+});
+
+test("M14: the token probe fails closed — only an explicit 2xx counts as valid", () => {
+  const libSrc = read("src/lib/github-token.ts");
+  assert.ok(libSrc.includes("unverified"), "the probe must distinguish 'could not verify' from 'invalid'");
+  assert.ok(libSrc.includes("if (!res.ok)"), "any non-2xx that is not 401/403 must not count as valid");
+  assert.ok(libSrc.includes("return { valid: false, expiresAt: null, unverified: true }"), "an unverified probe must be invalid");
+  // The network-failure catch must fail closed too — never valid.
+  const catchAt = libSrc.indexOf("Network failure / timeout");
+  assert.ok(catchAt !== -1, "the probe's catch must say it fails closed");
+  assert.ok(libSrc.slice(catchAt).includes("unverified: true"), "the probe's catch must return unverified, not valid");
+  const tokenRoute = read("src/app/api/github/token/route.ts");
+  assert.ok(tokenRoute.includes("probe.unverified"), "saving must check the unverified outcome");
+  assert.ok(tokenRoute.includes("Could not verify the token"), "an unverified probe must tell the user to try again");
+  assert.ok(tokenRoute.includes("status: 503"), "an unverified probe must answer 503, not save the token");
+  // The save must happen only after the probe passes.
+  assert.ok(tokenRoute.indexOf("probe.unverified") < tokenRoute.lastIndexOf("saveGithubToken"), "the probe gate must run before the save");
+});
+
+test("M15: token status and token delete are rate-limited like token save", () => {
+  const status = read("src/app/api/github/token/status/route.ts");
+  assert.ok(status.includes("checkRateLimit"), "token status must be rate-limited");
+  assert.ok(status.includes("github-token:"), "token status must use the token bucket");
+  const tokenRoute = read("src/app/api/github/token/route.ts");
+  const deleteStart = tokenRoute.indexOf("export async function DELETE");
+  assert.ok(deleteStart !== -1, "the token route must have a DELETE handler");
+  const del = tokenRoute.slice(deleteStart);
+  assert.ok(del.includes("checkRateLimit"), "token delete must be rate-limited");
+  assert.ok(del.includes("github-token:"), "token delete must use the token bucket");
+});
+
+test("L9: the repo tree is capped at 5,000 entries with a truncated flag", () => {
+  const libSrc = lib();
+  assert.ok(libSrc.includes("REPO_TREE_MAX_ENTRIES = 5_000"), "the tree must cap at 5,000 entries");
+  assert.ok(libSrc.includes("slice(0, REPO_TREE_MAX_ENTRIES)"), "only the first 5,000 entries may be returned");
+  assert.ok(libSrc.includes("truncated:"), "the tree must say when it was cut short");
+  assert.ok(!libSrc.includes("capped only by GitHub"), "the old 'capped only by GitHub' comment must be gone");
+  assert.ok(repoTreeRoute().includes("getRepoTree"), "the tree route must serve the capped tree");
+});
+
+test("L14: read and write GitHub routes use separate rate-limit buckets", () => {
+  for (const rel of [
+    "src/app/api/github/repo-tree/route.ts",
+    "src/app/api/github/repo-file/route.ts",
+  ]) {
+    const src = read(rel);
+    assert.ok(src.includes("github-read:"), `${rel} must use the read bucket`);
+    assert.ok(!src.includes("github:${"), `${rel} must not share the old github: bucket`);
+  }
+  const reposRoute = route();
+  assert.ok(reposRoute.includes('"github-read"'), "listing repos must use the read bucket");
+  assert.ok(reposRoute.includes('"github-write"'), "creating a repo must use the write bucket");
+  const commitRoute = read("src/app/api/github/commit/route.ts");
+  assert.ok(commitRoute.includes("github-write:"), "committing must use the write bucket");
+  assert.ok(!commitRoute.includes("github:${"), "committing must not share the old github: bucket");
+  // Writes also get a per-user bucket, so one user behind a shared
+  // NAT cannot starve another user's commits.
+  assert.ok(commitRoute.includes("github-write:${email}"), "commits must also be limited per user");
+  assert.ok(reposRoute.includes("github-write:${email}"), "repo creation must also be limited per user");
+});
+
+test("L17: a failed token migration deletes the browser copy and never refills the input", () => {
+  const p = page();
+  assert.ok(p.includes("for (let attempt = 0; attempt < 2; attempt++)"), "the migration must retry once, then give up");
+  // The local copy is removed on every path out of the migration —
+  // success, rejection, and network failure alike.
+  const migrateStart = p.indexOf("async function migrateLocalToken");
+  const migrateEnd = p.indexOf("useEffect(() => {", migrateStart);
+  const migrate = p.slice(migrateStart, migrateEnd);
+  const removals = (migrate.match(/localStorage\.removeItem\("lp_github_token"\)/g) || []).length;
+  assert.ok(removals >= 2, "the migration must delete the browser copy on success and on failure");
+  assert.ok(!p.includes("setToken(stored)"), "the page must never put the stored token back into the paste field");
+});
+
+test("M17: GitHub POST routes reject oversized bodies before parsing them", () => {
+  const libSrc = lib();
+  assert.ok(libSrc.includes("oversizedBodyResponse"), "the lib must offer a pre-parse body-size guard");
+  assert.ok(libSrc.includes('req.headers.get("content-length")'), "the guard must read Content-Length");
+  assert.ok(libSrc.includes("status: 413"), "an oversized body must answer 413");
+  const cases = [
+    ["src/app/api/github/commit/route.ts", "5 * 1024 * 1024"],
+    ["src/app/api/github/token/route.ts", "256 * 1024"],
+    ["src/app/api/github/repos/route.ts", "256 * 1024"],
+    ["src/app/api/github/delete-repo/route.ts", "256 * 1024"],
+  ];
+  for (const [rel, ceiling] of cases) {
+    const src = read(rel);
+    assert.ok(src.includes("oversizedBodyResponse"), `${rel} must check the body size`);
+    assert.ok(src.includes(ceiling), `${rel} must cap bodies at ${ceiling}`);
+    assert.ok(
+      src.indexOf("oversizedBodyResponse") < src.indexOf("await req.json()"),
+      `${rel} must check the size BEFORE parsing the body`
+    );
+  }
+});

@@ -6,6 +6,8 @@
 
 import { createClient } from "@supabase/supabase-js";
 import { getLessons, type Lesson, type QuizQuestion } from "./catalog";
+import { isValidDriveFileId } from "./drive";
+import { isValidMegaFileUrl } from "./mega";
 
 export type LessonSource = "supabase" | "seed";
 
@@ -85,8 +87,11 @@ export function parseQuiz(value: unknown): QuizQuestion[] | undefined {
  * Map one Supabase row to the app Lesson shape. Returns null for rows that
  * cannot be used (bad/missing slug, unknown provider). An empty video URL
  * is allowed — the lesson is "coming soon" and the video route 503s it.
- * Missing module/course titles fall back to generic labels instead of
- * dropping the lesson.
+ * A non-empty video URL must match the provider's pattern (MEGA share
+ * link for mega, bare Drive file ID for drive); anything else is treated
+ * as no video rather than served to the video route, which would fail
+ * closed there anyway. Missing module/course titles fall back to generic
+ * labels instead of dropping the lesson.
  */
 export function mapLessonRow(row: LessonRow): Lesson | null {
   if (!isValidLessonSlug(row.slug)) return null;
@@ -94,7 +99,14 @@ export function mapLessonRow(row: LessonRow): Lesson | null {
   const provider = row.video_provider === "drive" ? "drive" : row.video_provider === "mega" ? "mega" : null;
   if (!provider) return null;
 
-  const videoUrl = typeof row.video_url === "string" ? row.video_url : "";
+  const rawVideoUrl = typeof row.video_url === "string" ? row.video_url : "";
+  const videoUrl =
+    rawVideoUrl === "" ||
+    (provider === "mega"
+      ? isValidMegaFileUrl(rawVideoUrl)
+      : isValidDriveFileId(rawVideoUrl))
+      ? rawVideoUrl
+      : "";
 
   const moduleTitle =
     typeof row.modules?.title === "string" && row.modules.title
@@ -127,6 +139,22 @@ export function shouldFallBackToSeed(outcome: {
   rowCount: number;
 }): boolean {
   return !outcome.configured || outcome.error || outcome.rowCount === 0;
+}
+
+/**
+ * Strict published check: a course is published only when its
+ * is_published flag is explicitly true. Missing, null, or false all
+ * mean unpublished — a draft must never leak because a flag was
+ * forgotten. (The seed catalog has no flag at all and is unaffected:
+ * this only filters Supabase rows. If every row is unpublished the
+ * fetch falls back to the seed catalog, so no lesson disappears for
+ * users — but live courses must carry is_published=true in Supabase
+ * or they silently stop being served from the database.)
+ */
+export function isCoursePublished(course: {
+  is_published?: unknown;
+} | null | undefined): boolean {
+  return course?.is_published === true;
 }
 
 function seedResult(): FetchLessonsResult {
@@ -169,15 +197,19 @@ export async function fetchLessons(): Promise<FetchLessonsResult> {
     if (error) throw new Error(`Supabase lessons query failed: ${error.message}`);
 
     const rows = (data ?? []) as unknown as LessonRow[];
-    // Published-only filter applied here (not in the query) so a missing
-    // is_published flag never hides a lesson by accident: rows without an
-    // explicit false are treated as published.
+    // Published-only filter applied here (not in the query). Strict:
+    // only is_published === true is published; a missing flag means
+    // unpublished, so a draft can never leak by accident.
     const lessons = rows
-      .filter((row) => {
-        const published = (row.modules as { courses?: { is_published?: unknown } | null } | null)
-          ?.courses?.is_published;
-        return published !== false;
-      })
+      .filter((row) =>
+        isCoursePublished(
+          (
+            row.modules as {
+              courses?: { is_published?: unknown } | null;
+            } | null
+          )?.courses
+        )
+      )
       .map(mapLessonRow)
       .filter((lesson): lesson is Lesson => lesson !== null);
 

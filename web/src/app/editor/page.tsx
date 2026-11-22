@@ -203,10 +203,17 @@ export default function CodeEditorPage() {
   type AiChat = { id: string; title: string; createdAt: number; messages: AiChatMessage[] };
   type CustomAiSkill = { id: string; name: string; description: string; content: string };
   type AiByokProvider = "gemini" | "groq" | "anthropic" | "openai" | "openrouter" | "custom";
-  type AiByok = { provider: AiByokProvider; key: string; baseUrl?: string; model?: string };
-  // One saved key. A user can keep several (one per provider, or
-  // more) and switch each on/off; the master switch decides whether
-  // any of them is used at all.
+  // BYOK reference the editor sends: provider (+ base URL/model
+  // for custom) only — NEVER a key. The key lives server-side
+  // (lp_byok_keys, migration 009) and /api/ai loads it by
+  // provider reference.
+  type AiByok = { provider: AiByokProvider; key?: string; baseUrl?: string; model?: string };
+  // One saved provider. Entries carry metadata only — no key lives
+  // in this store anymore (keys are server-side). `key` stays
+  // optional on the type only so a pre-migration localStorage entry
+  // still parses and can be migrated on load (see the migration
+  // effect below); it is stripped from state once the server save
+  // succeeds and never sent in a request.
   type AiByokEntry = AiByok & { id: string; enabled: boolean };
   type AiByokStore = { enabled: boolean; entries: AiByokEntry[] };
   type AiPanelView = "chat" | "history";
@@ -267,11 +274,11 @@ export default function CodeEditorPage() {
   const [activeSkillIds, setActiveSkillIds] = useState<string[]>(() =>
     readLocalJson<string[]>("lp_ai_active_skills", ["ponytail"])
   );
-  // BYOK store: a master switch plus a list of keys. A key is used
-  // only when the switch is on AND that key is enabled — otherwise
-  // the request runs on the server keys alone. The old single-key
-  // shape { provider, key } migrates to one enabled entry, so a
-  // saved key keeps working.
+  // BYOK store: a master switch plus a list of saved providers.
+  // Entries are metadata only (provider + custom base URL/model) —
+  // the keys live server-side. The old single-key shape
+  // { provider, key } migrates to one enabled entry, so a saved key
+  // keeps working (the migration effect POSTs it to the server).
   function readByokStore(): AiByokStore {
     const raw = readLocalJson<unknown>("lp_ai_byok", null);
     if (raw && typeof raw === "object" && !Array.isArray(raw)) {
@@ -282,7 +289,6 @@ export default function CodeEditorPage() {
             !!e &&
             typeof e === "object" &&
             typeof (e as AiByokEntry).provider === "string" &&
-            typeof (e as AiByokEntry).key === "string" &&
             typeof (e as AiByokEntry).id === "string" &&
             typeof (e as AiByokEntry).enabled === "boolean"
         );
@@ -307,6 +313,103 @@ export default function CodeEditorPage() {
     return { enabled: false, entries: [] };
   }
   const [byokStore, setByokStore] = useState<AiByokStore>(() => readByokStore());
+  // BYOK server migration + sync (H8): keys used to live in
+  // localStorage (lp_ai_byok) in plaintext. On first load after
+  // this ships, any keys still there are POSTed once to
+  // /api/byok/save (server-encrypted under BYOK_ENCRYPTION_KEY)
+  // and then dropped from this browser — localStorage keeps only
+  // provider metadata. The raw keys are read synchronously before
+  // the first await, so the persist effect below cannot wipe them
+  // mid-migration. If the server save fails (BYOK not set up yet),
+  // the local copy is left alone and the migration retries on the
+  // next load, so a failed migration never loses a key. The server
+  // list is also merged in, so keys saved on another device show up
+  // here as providers (keys themselves never come back down).
+  const byokSyncRef = useRef(false);
+  useEffect(() => {
+    if (byokSyncRef.current) return;
+    byokSyncRef.current = true;
+    void (async () => {
+      let migrated = true;
+      try {
+        const raw = localStorage.getItem("lp_ai_byok");
+        const parsed: unknown = raw ? JSON.parse(raw) : null;
+        const entries =
+          parsed && typeof parsed === "object" && Array.isArray((parsed as { entries?: unknown }).entries)
+            ? ((parsed as { entries: Array<Record<string, unknown>> }).entries as Array<Record<string, unknown>>)
+            : [];
+        for (const e of entries) {
+          if (typeof e.key !== "string" || e.key.length < 10) continue;
+          if (typeof e.provider !== "string") continue;
+          const res = await fetch("/api/byok/save", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              provider: e.provider,
+              key: e.key,
+              ...(typeof e.baseUrl === "string" ? { baseUrl: e.baseUrl } : {}),
+              ...(typeof e.model === "string" ? { model: e.model } : {}),
+            }),
+          });
+          if (!res.ok) migrated = false;
+        }
+        // Only drop the local keys once every one is safe on the
+        // server — a failed migration keeps them and retries next
+        // load instead of losing them.
+        if (migrated) {
+          try {
+            localStorage.removeItem("lp_ai_byok");
+          } catch {
+            // Storage unavailable — the state strip below still
+            // drops the keys from the next persist.
+          }
+          setByokStore((prev) => ({
+            ...prev,
+            entries: prev.entries.map((e) => ({
+              id: e.id,
+              provider: e.provider,
+              ...(e.baseUrl ? { baseUrl: e.baseUrl } : {}),
+              ...(e.model ? { model: e.model } : {}),
+              enabled: e.enabled,
+            })),
+          }));
+        }
+      } catch {
+        // Migration is best-effort: the old local keys keep working
+        // via the deprecated body fallback until the server store
+        // is ready.
+      }
+      try {
+        const res = await fetch("/api/byok/list", { credentials: "same-origin" });
+        const data: unknown = await res.json().catch(() => null);
+        const keys = (
+          data as { keys?: Array<{ provider?: unknown; baseUrl?: unknown; model?: unknown }> } | null
+        )?.keys;
+        if (res.ok && Array.isArray(keys)) {
+          setByokStore((prev) => {
+            const have = new Set(prev.entries.map((e) => e.provider));
+            const extra = keys
+              .filter((k) => typeof k.provider === "string" && !have.has(k.provider as AiByokProvider))
+              .map((k) => ({
+                id: newId(),
+                provider: k.provider as AiByokProvider,
+                ...(typeof k.baseUrl === "string" && k.baseUrl
+                  ? { baseUrl: k.baseUrl as string }
+                  : {}),
+                ...(typeof k.model === "string" && k.model ? { model: k.model as string } : {}),
+                enabled: true,
+              }));
+            return extra.length > 0
+              ? { ...prev, enabled: true, entries: [...prev.entries, ...extra] }
+              : prev;
+          });
+        }
+      } catch {
+        // Offline or not signed in — the local providers still work.
+      }
+    })();
+  }, []);
   // Models the selector shows by default (no BYOK): two free models
   // per provider — one best (result first, tokens don't matter) and
   // one efficient (fewest tokens). Gemini best is the 3.1 Pro
@@ -438,26 +541,43 @@ export default function CodeEditorPage() {
     setActiveSkillIds((prev) => prev.filter((s) => s !== id));
   }
 
-  // BYOK: keys live in this browser only. Saving adds an entry
-  // (enabled); the master switch + the entry's own switch decide
-  // whether it is ever sent. Only the entry for the picked model's
-  // provider rides along with a request — other saved keys never
-  // leave the browser for that request.
-  function saveByokEntry() {
+  // BYOK: keys live on the SERVER now (encrypted, migration 009).
+  // Saving POSTs the key once to /api/byok/save; this browser keeps
+  // only the provider (+ base URL/model for custom), so the key is
+  // never in localStorage again. A key is used only when the master
+  // switch is on AND that provider is enabled — otherwise the
+  // request runs on the server keys alone. If the server save fails
+  // (BYOK not set up yet, or not signed in), nothing is stored and
+  // the typed key stays in the field for a retry.
+  async function saveByokEntry() {
     const key = byokKey.trim();
     if (key.length < 10) return;
     if (byokProvider === "custom") {
       const baseUrl = byokBaseUrl.trim();
       const model = byokModel.trim();
       if (!baseUrl.startsWith("https://") || model.length === 0) return;
+      const res = await fetch("/api/byok/save", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ provider: byokProvider, key, baseUrl, model }),
+      }).catch(() => null);
+      if (!res || !res.ok) return;
       setByokStore((prev) => ({
         ...prev,
-        entries: [...prev.entries, { id: newId(), provider: byokProvider, key, baseUrl, model, enabled: true }],
+        entries: [...prev.entries, { id: newId(), provider: byokProvider, baseUrl, model, enabled: true }],
       }));
     } else {
+      const res = await fetch("/api/byok/save", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ provider: byokProvider, key }),
+      }).catch(() => null);
+      if (!res || !res.ok) return;
       setByokStore((prev) => ({
         ...prev,
-        entries: [...prev.entries, { id: newId(), provider: byokProvider, key, enabled: true }],
+        entries: [...prev.entries, { id: newId(), provider: byokProvider, enabled: true }],
       }));
     }
     setByokKey("");
@@ -471,6 +591,16 @@ export default function CodeEditorPage() {
     }));
   }
   function removeByokEntry(id: string) {
+    const entry = byokStore.entries.find((e) => e.id === id);
+    if (entry) {
+      // Delete the server-held key too — removing the local entry
+      // alone would leave the key usable. Best-effort: the local
+      // entry is gone either way.
+      void fetch(`/api/byok/delete?provider=${encodeURIComponent(entry.provider)}`, {
+        method: "DELETE",
+        credentials: "same-origin",
+      }).catch(() => {});
+    }
     setByokStore((prev) => ({ ...prev, entries: prev.entries.filter((e) => e.id !== id) }));
   }
   function setByokMaster(on: boolean) {
@@ -586,6 +716,8 @@ export default function CodeEditorPage() {
   // model: BYOK must be enabled, and only the enabled entry for the
   // model's provider is sent. The server contract is unchanged (one
   // byok object), so no server change is needed for multi-key support.
+  // Reference only — the key itself lives server-side and /api/ai
+  // loads it; no key ever leaves this browser anymore.
   function byokPayloadFor(modelKey: string): AiByok | undefined {
     if (!byokStore.enabled) return undefined;
     const customModels = byokStore.entries
@@ -597,8 +729,8 @@ export default function CodeEditorPage() {
       : undefined;
     if (!entry) return undefined;
     return entry.provider === "custom"
-      ? { provider: entry.provider, key: entry.key, baseUrl: entry.baseUrl, model: entry.model }
-      : { provider: entry.provider, key: entry.key };
+      ? { provider: entry.provider, baseUrl: entry.baseUrl, model: entry.model }
+      : { provider: entry.provider };
   }
 
   async function sendAiMessage(
@@ -3015,8 +3147,9 @@ _lp_term_result
         <p className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
           {t.editorPage.aiByokTitle}
         </p>
-        {/* Master switch: BYOK is used only when this is on. Saved
-            keys stay in this browser either way. */}
+        {/* Master switch: BYOK is used only when this is on. Keys
+            live on the server now — this browser keeps only which
+            providers are saved. */}
         <label className="flex cursor-pointer items-center justify-between rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2">
           <span className="text-sm font-medium text-neutral-100">{t.editorPage.aiByokEnable}</span>
           <input

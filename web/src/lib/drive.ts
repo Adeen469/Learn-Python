@@ -58,6 +58,7 @@ interface CachedDriveMeta {
 }
 
 const META_CACHE_TTL_MS = 10 * 60 * 1000;
+const META_CACHE_MAX = 500;
 const metaCache = new Map<string, CachedDriveMeta>();
 
 function getCachedMeta(fileId: string): CachedDriveMeta | null {
@@ -79,9 +80,16 @@ interface DriveMeta {
 async function fetchDriveMeta(fileId: string, apiKey: string): Promise<DriveMeta> {
   let metaRes: Response;
   try {
+    // L19: the API key travels as a header, never in the URL query —
+    // keys in URLs land in proxy/CDN/request logs.
     metaRes = await fetch(
-      `${DRIVE_API_BASE}/${encodeURIComponent(fileId)}?key=${encodeURIComponent(apiKey)}&fields=id,name,mimeType,size`,
-      { headers: { "User-Agent": "LP-Learning-Platform/1.0" } }
+      `${DRIVE_API_BASE}/${encodeURIComponent(fileId)}?fields=id,name,mimeType,size`,
+      {
+        headers: {
+          "X-Goog-Api-Key": apiKey,
+          "User-Agent": "LP-Learning-Platform/1.0",
+        },
+      }
     );
   } catch {
     throw new DriveStreamError("UPSTREAM", "Could not reach Google Drive");
@@ -165,9 +173,10 @@ export async function openDriveStream(
     let mediaRes: Response;
     try {
       mediaRes = await fetch(
-        `${DRIVE_API_BASE}/${encodeURIComponent(fileId)}?alt=media&key=${encodeURIComponent(apiKey)}`,
+        `${DRIVE_API_BASE}/${encodeURIComponent(fileId)}?alt=media`,
         {
           headers: {
+            "X-Goog-Api-Key": apiKey,
             ...(parsedRange ? { Range: `bytes=${start}-${end}` } : {}),
             "User-Agent": "LP-Learning-Platform/1.0",
           },
@@ -210,5 +219,11 @@ export async function openDriveStream(
 
   const fresh = await fetchDriveMeta(fileId, apiKey);
   metaCache.set(fileId, { ...fresh, fetchedAt: Date.now() });
+  // L11: cap the cache like the transcript cache — evict oldest first.
+  while (metaCache.size > META_CACHE_MAX) {
+    const oldest = metaCache.keys().next().value;
+    if (oldest === undefined) break;
+    metaCache.delete(oldest);
+  }
   return streamWithMeta(fresh);
 }

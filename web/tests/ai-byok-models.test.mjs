@@ -49,9 +49,13 @@ test("BYOK v2: only the enabled entry for the picked model is ever sent", () => 
   assert.ok(page.includes("byokPayloadFor(opts.model?.key"), "the chat request must use the helper for the picked model");
   assert.ok(page.includes("byokPayloadFor(\"gemini-3.6-flash\")"), "the commit-message request must use the helper too");
   // The server still takes exactly one byok object — multi-key is a
-  // client-side selection, not a new server contract.
+  // client-side selection, not a new server contract. Since H8 the
+  // key lives server-side (lp_byok_keys): the route loads it by
+  // provider reference and only falls back to a body key for stale
+  // clients that still send one.
   assert.ok(aiLib.includes("byok?: AiByok;"), "the server request type must still carry one BYOK object");
-  assert.ok(aiRoute.includes("if (body.byok?.key) {"), "the route must still apply one BYOK object");
+  assert.ok(aiRoute.includes("getByokKey(user.email, body.byok.provider)"), "the route must load the BYOK key server-side by provider reference");
+  assert.ok(aiRoute.includes("stored?.key ?? body.byok.key"), "the server-stored key wins; a body key is only a deprecated fallback");
 });
 
 test("Models section: breadcrumb, best models per provider, selector tick state", () => {

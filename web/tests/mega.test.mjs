@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 // Inline pure helpers for zero-build node --test verification
 // (mirrors src/lib/mega.ts: a MEGA video URL is either a standalone file
@@ -59,3 +62,9 @@ test("HTTP Range parser handles open-ended, bounded, suffix, and invalid ranges"
   assert.equal(parseHttpRange("bytes=invalid", 5000), null);
 });
 
+
+test("L11: MEGA file cache is capped and evicts oldest first", () => {
+  const src = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "src/lib/mega.ts"), "utf8");
+  assert.ok(src.includes("const FILE_CACHE_MAX = 500;"), "file cache needs a 500-entry cap");
+  assert.ok(src.includes("while (fileCache.size > FILE_CACHE_MAX)"), "file cache must evict oldest when over the cap");
+});

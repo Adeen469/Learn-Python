@@ -1,12 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  clearCookieOptions,
-  getSessionSecret,
-  isSecureOrigin,
-  getRequestOrigin,
-  SESSION_COOKIE,
-} from "@/lib/auth";
-import { getSessionUser } from "@/lib/auth-routes";
+import { getSessionSecret, isSecureDeployment } from "@/lib/auth";
+import { clearSessionCookies, getSessionUser } from "@/lib/auth-routes";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 // Returns the signed-in user from the HttpOnly session cookie, or 401.
@@ -49,17 +43,12 @@ export async function GET(req: NextRequest) {
   // revokes sessions signed before it.
   const user = await getSessionUser(req, secret);
   if (!user) {
-    // Tampered, expired, or revoked: 401 and clear the useless cookie.
-    const origin = getRequestOrigin(req);
+    // Tampered, expired, or revoked: 401 and clear the useless cookies.
     const res = NextResponse.json(
       { error: "Not signed in." },
       { status: 401 }
     );
-    res.cookies.set(
-      SESSION_COOKIE,
-      "",
-      clearCookieOptions(origin ? isSecureOrigin(origin) : false, "/")
-    );
+    clearSessionCookies(res, isSecureDeployment());
     return res;
   }
   return NextResponse.json({ user });

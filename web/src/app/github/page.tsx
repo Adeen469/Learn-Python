@@ -236,32 +236,41 @@ export default function GitHubPage() {
 
   // One-time migration: a token saved in this browser before the
   // server move gets posted once, then deleted from localStorage.
-  // The token is never written to localStorage again.
+  // The token is never written to localStorage again — and if the
+  // move fails (even after one retry) the browser copy is deleted
+  // anyway and the input stays empty, so a plaintext PAT never
+  // lingers in this browser waiting for the next XSS. The user
+  // pastes it fresh instead.
   async function migrateLocalToken(stored: string): Promise<boolean> {
-    try {
-      const res = await fetch("/api/github/token", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: stored.trim() }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const res = await fetch("/api/github/token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: stored.trim() }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok) {
+          try {
+            localStorage.removeItem("lp_github_token");
+          } catch {}
+          setTokenConnected(true);
+          setSuccessMsg(t.githubPage.tokenSaved);
+          fetchRepos();
+          return true;
+        }
         setErrorMsg(
           data.error ||
             "Could not move your saved token to the server — paste it below to connect again."
         );
-        return false;
+      } catch {
+        // Network failure: retry once, then give up below.
       }
-      try {
-        localStorage.removeItem("lp_github_token");
-      } catch {}
-      setTokenConnected(true);
-      setSuccessMsg(t.githubPage.tokenSaved);
-      fetchRepos();
-      return true;
-    } catch {
-      return false;
     }
+    try {
+      localStorage.removeItem("lp_github_token");
+    } catch {}
+    return false;
   }
 
   useEffect(() => {
@@ -287,8 +296,10 @@ export default function GitHubPage() {
             stored = localStorage.getItem("lp_github_token");
           } catch {}
           if (stored) {
-            const migrated = await migrateLocalToken(stored);
-            if (!migrated) setToken(stored);
+            // A failed migration deletes the browser copy and
+            // leaves the input empty — the stored token is never
+            // put back into the paste field.
+            await migrateLocalToken(stored);
           }
         }
       } catch {

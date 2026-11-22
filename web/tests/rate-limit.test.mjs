@@ -46,20 +46,48 @@ async function checkRateLimit(key, limit, windowMs, now = Date.now()) {
   return checkMemoryRateLimit(key, limit, windowMs, now);
 }
 
+function trustProxyHeaders() {
+  return (
+    process.env.VERCEL === "1" ||
+    process.env.TRUST_PROXY_HEADERS === "1"
+  );
+}
+
 function getClientIp(req) {
-  const realIp = req.headers.get("x-real-ip")?.trim();
-  if (realIp) return realIp;
-  const forwarded = req.headers.get("x-forwarded-for");
-  if (forwarded) {
-    const parts = forwarded
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-    const last = parts[parts.length - 1];
-    if (last) return last;
+  if (trustProxyHeaders()) {
+    const realIp = req.headers.get("x-real-ip")?.trim();
+    if (realIp) return realIp;
+    const forwarded = req.headers.get("x-forwarded-for");
+    if (forwarded) {
+      const parts = forwarded
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const last = parts[parts.length - 1];
+      if (last) return last;
+    }
   }
   if (req.ip) return req.ip;
   return "unknown";
+}
+
+// Save/restore the trust env vars around a test: the mirror reads
+// process.env exactly like the source, and tests share one process.
+function withTrustEnv(vars, fn) {
+  const prev = {};
+  for (const k of ["VERCEL", "TRUST_PROXY_HEADERS"]) {
+    prev[k] = process.env[k];
+    if (vars[k] === undefined) delete process.env[k];
+    else process.env[k] = vars[k];
+  }
+  try {
+    return fn();
+  } finally {
+    for (const k of ["VERCEL", "TRUST_PROXY_HEADERS"]) {
+      if (prev[k] === undefined) delete process.env[k];
+      else process.env[k] = prev[k];
+    }
+  }
 }
 
 test("allows requests under the limit", async () => {
@@ -108,26 +136,61 @@ test("different IPs are independent", async () => {
   assert.equal((await checkRateLimit("video:5.6.7.8", 2, 60_000, 4_000_003)).allowed, true);
 });
 
-test("getClientIp trusts x-real-ip, then the last forwarded entry", () => {
+test("getClientIp trusts x-real-ip, then the last forwarded entry (trusted proxy)", () => {
   const headers = (xff, realIp) => ({
     get: (name) =>
       name === "x-forwarded-for" ? xff : name === "x-real-ip" ? realIp : null,
   });
-  // Vercel's edge sets x-real-ip from the connection: it wins over
-  // anything the client sent.
-  assert.equal(
-    getClientIp({ headers: headers("203.0.113.7, 198.51.100.2", "198.51.100.2"), ip: "10.0.0.1" }),
-    "198.51.100.2"
-  );
-  // Without it, the LAST forwarded entry is the one Vercel's proxy
-  // appended — the first entry is client-controlled and must never
-  // be trusted (an attacker could rotate fake IPs to dodge limits).
-  assert.equal(
-    getClientIp({ headers: headers("203.0.113.7, 198.51.100.2", null), ip: "10.0.0.1" }),
-    "198.51.100.2"
-  );
-  assert.equal(getClientIp({ headers: headers(null, null), ip: "10.0.0.1" }), "10.0.0.1");
-  assert.equal(getClientIp({ headers: headers(null, null) }), "unknown");
+  withTrustEnv({ VERCEL: "1" }, () => {
+    // Vercel's edge sets x-real-ip from the connection: it wins over
+    // anything the client sent.
+    assert.equal(
+      getClientIp({ headers: headers("203.0.113.7, 198.51.100.2", "198.51.100.2"), ip: "10.0.0.1" }),
+      "198.51.100.2"
+    );
+    // Without it, the LAST forwarded entry is the one Vercel's proxy
+    // appended — the first entry is client-controlled and must never
+    // be trusted (an attacker could rotate fake IPs to dodge limits).
+    assert.equal(
+      getClientIp({ headers: headers("203.0.113.7, 198.51.100.2", null), ip: "10.0.0.1" }),
+      "198.51.100.2"
+    );
+    assert.equal(getClientIp({ headers: headers(null, null), ip: "10.0.0.1" }), "10.0.0.1");
+    assert.equal(getClientIp({ headers: headers(null, null) }), "unknown");
+  });
+});
+
+test("getClientIp trusts proxy headers with TRUST_PROXY_HEADERS=1", () => {
+  const headers = (xff, realIp) => ({
+    get: (name) =>
+      name === "x-forwarded-for" ? xff : name === "x-real-ip" ? realIp : null,
+  });
+  withTrustEnv({ TRUST_PROXY_HEADERS: "1" }, () => {
+    assert.equal(
+      getClientIp({ headers: headers(null, "198.51.100.2"), ip: "10.0.0.1" }),
+      "198.51.100.2"
+    );
+  });
+});
+
+test("getClientIp ignores proxy headers when the proxy is not trusted", () => {
+  const headers = (xff, realIp) => ({
+    get: (name) =>
+      name === "x-forwarded-for" ? xff : name === "x-real-ip" ? realIp : null,
+  });
+  withTrustEnv({}, () => {
+    // A client-sent x-real-ip / x-forwarded-for must never be
+    // honoured off a trusted proxy — otherwise an attacker rotates
+    // a fresh IP per request and dodges every per-IP limit.
+    assert.equal(
+      getClientIp({ headers: headers("203.0.113.7, 198.51.100.2", "198.51.100.2"), ip: "10.0.0.1" }),
+      "10.0.0.1"
+    );
+    assert.equal(
+      getClientIp({ headers: headers("203.0.113.7", "198.51.100.2") }),
+      "unknown"
+    );
+  });
 });
 
 test("the shared Redis limiter is wired in the source", () => {
@@ -139,4 +202,9 @@ test("the shared Redis limiter is wired in the source", () => {
   assert.ok(src.includes("UPSTASH_REDIS_REST_TOKEN"), "Redis must be configurable");
   assert.ok(src.includes("checkRedisRateLimit"), "the shared window must exist");
   assert.ok(src.includes("x-real-ip"), "the IP must come from x-real-ip first");
+  // M7: proxy headers are only trusted on a deployment known to
+  // overwrite them — Vercel, or an explicit TRUST_PROXY_HEADERS opt-in.
+  assert.ok(src.includes("trustProxyHeaders"), "header trust must be gated");
+  assert.ok(src.includes('process.env.VERCEL === "1"'), "Vercel must mark a trusted proxy");
+  assert.ok(src.includes("TRUST_PROXY_HEADERS"), "an explicit opt-in must exist");
 });

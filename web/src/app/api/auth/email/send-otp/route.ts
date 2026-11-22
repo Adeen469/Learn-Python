@@ -10,7 +10,7 @@ import {
   type OtpPurpose,
 } from "@/lib/auth-routes";
 import { getEmailConfig } from "@/lib/email";
-import { getUserByEmail } from "@/lib/auth-store";
+import { getPendingSignup, getUserByEmail } from "@/lib/auth-store";
 
 // POST /api/auth/email/send-otp { email, purpose: "signup" | "signin" }
 // Resends a verification code. Always returns { sent: true } — the
@@ -37,35 +37,34 @@ export async function POST(req: NextRequest) {
     return jsonError("Enter a valid email address.", 400);
   }
 
-  // Success-shaped either way — enumeration happens nowhere.
+  // Success-shaped either way — enumeration happens nowhere (M1):
+  // a cooldown, an hourly cap, or a mail failure answers exactly
+  // like a sent code. The real reason is logged server-side only,
+  // and the client always shows "code sent".
   const sentResponse = NextResponse.json({ sent: true });
   const user = await getUserByEmail(email);
-  if (!user) return sentResponse;
-  if (purpose === "signup" && user.email_verified) return sentResponse;
-  if (purpose === "signin" && !user.email_verified) return sentResponse;
+  if (purpose === "signup") {
+    // A code is expected for a pending sign-up (L8) or an
+    // unverified legacy account. A verified account, or no account
+    // at all, gets silence — same response, no mail.
+    const pending = await getPendingSignup(email);
+    if (!pending && (!user || user.email_verified)) return sentResponse;
+  } else {
+    if (!user) return sentResponse;
+    if (!user.email_verified) return sentResponse;
+  }
 
   const result = await issueOtpCode(email, purpose as OtpPurpose);
   if (!result.ok) {
-    if (result.reason === "cooldown" || result.reason === "hourly_cap") {
-      return NextResponse.json(
-        {
-          error:
-            result.reason === "cooldown"
-              ? "Please wait a moment before requesting another code."
-              : "Too many codes sent to this email. Please try again later.",
-        },
-        {
-          status: 429,
-          headers: {
-            "Retry-After": String(result.retryAfterSeconds ?? 60),
-          },
-        }
-      );
-    }
     if (result.reason === "not_configured") {
       return serviceUnavailable("send-otp");
     }
-    return jsonError("Could not send the email. Please try again.", 502);
+    console.error(
+      JSON.stringify({
+        event: "auth_send_otp_failed",
+        reason: result.reason,
+      })
+    );
   }
   return sentResponse;
 }

@@ -75,6 +75,9 @@ export default function ResetPasswordPage() {
   if (valid === null) {
     return (
       <AuthShell title={t.auth.resetPassword} subtitle={t.auth.checkingResetLink}>
+        {/* No-referrer (L5): the reset token rides in this page's URL,
+            so nothing on the page may leak it in a Referer header. */}
+        <meta name="referrer" content="no-referrer" />
         <p className="text-center text-sm text-neutral-400">
           {t.common.pleaseWait}
         </p>
@@ -88,6 +91,7 @@ export default function ResetPasswordPage() {
         title={t.auth.resetLinkExpiredTitle}
         subtitle={t.auth.resetLinkExpiredSubtitle}
       >
+        <meta name="referrer" content="no-referrer" />
         <a
           href="/auth/forgot"
           className="block text-center text-xs text-neutral-400 underline hover:text-white"
@@ -103,6 +107,7 @@ export default function ResetPasswordPage() {
       title={t.auth.setNewPasswordTitle}
       subtitle={t.auth.setNewPasswordSubtitle}
     >
+      <meta name="referrer" content="no-referrer" />
       <AuthError message={error} />
       {done ? (
         <>

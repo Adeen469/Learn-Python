@@ -5,8 +5,9 @@
 // convention as web/tests/auth.test.mjs for auth.ts).
 //
 // Storage rules, everywhere in this file:
-// - OTP / reset / backup codes are SHA-256 hashed before storage —
-//   the code itself only ever travels in the email or the request.
+// - OTP / reset codes are SHA-256 hashed before storage — the code
+//   itself only ever travels in the email or the request. Backup
+//   codes are scrypt-hashed (slow, salted), like passwords.
 // - Passwords are scrypt (random 16-byte salt), never plain.
 // - The TOTP secret is AES-256-GCM encrypted with a key derived
 //   from SESSION_SECRET (SHA-256), never stored in the clear.
@@ -111,11 +112,29 @@ export const SCRYPT_R = 8;
 export const SCRYPT_P = 1;
 export const SCRYPT_KEY_LENGTH = 64;
 
+/**
+ * Progressive sign-in lockout (M5): this many consecutive failed
+ * password checks lock the account for SIGNIN_LOCKOUT_MS. The
+ * counter lives on the user row (migration 008); the sign-in route
+ * owns the read/write, this file only holds the policy.
+ */
+export const SIGNIN_LOCKOUT_THRESHOLD = 10;
+export const SIGNIN_LOCKOUT_MS = 15 * 60 * 1000; // 15 minutes
+
+/**
+ * Length alone is not a policy: a password needs an upper- and a
+ * lowercase letter and a digit, so "password" and "12345678" both
+ * fail. Existing (weaker) passwords keep signing in — the rule
+ * only bites when a password is set or reset.
+ */
 export function isValidPassword(password: unknown): password is string {
   return (
     typeof password === "string" &&
     password.length >= PASSWORD_MIN_LENGTH &&
-    password.length <= PASSWORD_MAX_LENGTH
+    password.length <= PASSWORD_MAX_LENGTH &&
+    /[a-z]/.test(password) &&
+    /[A-Z]/.test(password) &&
+    /[0-9]/.test(password)
   );
 }
 
@@ -300,19 +319,33 @@ export function verifyTotpCode(
   code: string,
   nowSeconds: number = Math.floor(Date.now() / 1000)
 ): boolean {
-  if (!/^\d{6}$/.test(code)) return false;
+  return verifyTotpCodeWithStep(secret, code, nowSeconds) !== null;
+}
+
+/**
+ * TOTP check that also reports WHICH step matched, so the caller
+ * can record the last-used step and reject a replay of the same
+ * code in a second sign-in flow within the window (M4). Returns
+ * null when the code matches no step in the ±1 window.
+ */
+export function verifyTotpCodeWithStep(
+  secret: string,
+  code: string,
+  nowSeconds: number = Math.floor(Date.now() / 1000)
+): { step: number } | null {
+  if (!/^\d{6}$/.test(code)) return null;
   const secretBytes = base32Decode(secret);
-  if (!secretBytes || secretBytes.length === 0) return false;
+  if (!secretBytes || secretBytes.length === 0) return null;
   const step = Math.floor(nowSeconds / TOTP_STEP_SECONDS);
   for (let offset = -TOTP_WINDOW; offset <= TOTP_WINDOW; offset++) {
     const expected = totpCodeForCounter(secretBytes, step + offset);
     if (
       timingSafeEqual(Buffer.from(code, "utf8"), Buffer.from(expected, "utf8"))
     ) {
-      return true;
+      return { step: step + offset };
     }
   }
-  return false;
+  return null;
 }
 
 // ---------------------------------------------------------------------------
@@ -324,9 +357,22 @@ export function verifyTotpCode(
  * when set, else the legacy SESSION_SECRET derivation. Splitting the
  * key off SESSION_SECRET means a session-secret leak (or rotation)
  * no longer opens — or wipes — every 2FA secret.
+ *
+ * Fail closed (L3): a dedicated key shorter than 32 chars returns
+ * null — a short operator-set key must never silently weaken
+ * TOTP-secret encryption. Callers treat null as "2FA unavailable".
  */
-export function totpSecretEncryptionKey(sessionSecret: string): string {
-  return process.env.TOTP_ENCRYPTION_KEY ?? sessionSecret;
+export const TOTP_ENCRYPTION_KEY_MIN_LENGTH = 32;
+
+export function totpSecretEncryptionKey(
+  sessionSecret: string
+): string | null {
+  const dedicated = process.env.TOTP_ENCRYPTION_KEY;
+  if (dedicated !== undefined) {
+    if (dedicated.length < TOTP_ENCRYPTION_KEY_MIN_LENGTH) return null;
+    return dedicated;
+  }
+  return sessionSecret;
 }
 
 /**
@@ -341,6 +387,7 @@ export function decryptUserTotpSecret(
   stored: string
 ): string | null {
   const key = totpSecretEncryptionKey(sessionSecret);
+  if (key === null) return null;
   const plain = decryptTotpSecret(key, stored);
   if (plain !== null) return plain;
   if (key !== sessionSecret) {
@@ -406,7 +453,13 @@ export function decryptTotpSecret(
 }
 
 // ---------------------------------------------------------------------------
-// Backup codes (10 single-use codes, SHA-256 hashed, shown once)
+// Backup codes (10 single-use codes, shown once)
+//
+// Stored as scrypt hashes (L2) — the same slow salted hash as
+// passwords — so a database leak does not make offline cracking of
+// all 10 codes feasible. Codes written before this change are plain
+// SHA-256 hex; findBackupCode still accepts those until the user
+// regenerates, so nobody is locked out by the upgrade.
 // ---------------------------------------------------------------------------
 
 export const BACKUP_CODE_COUNT = 10;
@@ -425,25 +478,38 @@ export function generateBackupCodes(): string[] {
   return codes;
 }
 
+/** Scrypt-hash a fresh set of backup codes for storage (one-time cost). */
+export async function hashBackupCodes(codes: string[]): Promise<string[]> {
+  return Promise.all(
+    codes.map((c) => hashPassword(normalizeBackupCode(c)))
+  );
+}
+
 /** Normalise a user-typed backup code (case/space/dash-insensitive). */
 export function normalizeBackupCode(code: string): string {
   return code.toUpperCase().replace(/[^A-Z0-9]/g, "");
 }
 
 /**
- * Find a backup code in a list of stored SHA-256 hashes (constant-time
- * per entry). Returns the matched hash, or null. The caller removes
- * the matched hash from the stored list (single-use).
+ * Find a backup code in a list of stored hashes. New entries are
+ * scrypt hashes (verified with the slow compare); legacy entries
+ * are SHA-256 hex (constant-time). Returns the matched stored hash,
+ * or null. The caller claims the matched hash atomically
+ * (claimBackupCode) — finding it here is not the claim.
  */
-export function findBackupCode(
+export async function findBackupCode(
   storedHashes: string[],
   code: string
-): string | null {
+): Promise<string | null> {
   const normalized = normalizeBackupCode(code);
   if (normalized.length !== 8) return null;
   const hash = sha256Hex(normalized);
   for (const stored of storedHashes) {
-    if (timingSafeEqualHex(hash, stored)) return stored;
+    if (stored.startsWith("scrypt$")) {
+      if (await verifyPassword(normalized, stored)) return stored;
+    } else if (timingSafeEqualHex(hash, stored)) {
+      return stored;
+    }
   }
   return null;
 }

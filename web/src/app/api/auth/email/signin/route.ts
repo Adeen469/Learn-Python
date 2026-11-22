@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isValidEmail } from "@/lib/auth";
 import { verifyPassword } from "@/lib/auth-email";
-import { getUserByEmail, updateUser } from "@/lib/auth-store";
+import {
+  clearSigninFailures,
+  getUserByEmail,
+  recordSigninFailure,
+  updateUser,
+} from "@/lib/auth-store";
 import { checkRateLimit } from "@/lib/rate-limit";
 import {
   getAuthPrereqs,
@@ -43,12 +48,15 @@ export async function POST(req: NextRequest) {
     return jsonError(GENERIC_CREDENTIALS_ERROR, 401);
   }
 
-  // Per-email brute-force guard, on top of the per-IP limit above.
+  // Per-email flood guard, on top of the per-IP limit above.
+  // Generous on purpose (M5): the real brute-force protection is
+  // the per-account lockout below, and a tight per-email cap is a
+  // login-DoS — anyone could 429 a victim's address at will.
   let emailLimit;
   try {
     emailLimit = await checkRateLimit(
       `auth-email-signin-email:${email.toLowerCase()}`,
-      5,
+      30,
       60_000
     );
   } catch {
@@ -70,19 +78,55 @@ export async function POST(req: NextRequest) {
     await verifyPassword(password, DUMMY_PASSWORD_HASH);
     return jsonError(GENERIC_CREDENTIALS_ERROR, 401);
   }
-  const passwordOk = await verifyPassword(password, user.password_hash);
-  if (!passwordOk) {
-    return jsonError(GENERIC_CREDENTIALS_ERROR, 401);
-  }
-  if (!user.email_verified) {
+  // Progressive per-account lockout (M5): 10 consecutive failures
+  // lock the account for 15 minutes. The 429 only ever fires for a
+  // real locked account — a missing account still gets the generic
+  // 401 above, so this is not an enumeration oracle.
+  if (
+    user.signin_locked_until &&
+    new Date(user.signin_locked_until).getTime() > Date.now()
+  ) {
+    const retryAfterSeconds = Math.max(
+      1,
+      Math.ceil(
+        (new Date(user.signin_locked_until).getTime() - Date.now()) / 1000
+      )
+    );
     return NextResponse.json(
       {
-        error: "Please verify your email first.",
-        needsVerification: true,
+        error:
+          "Too many failed sign-in attempts for this email. Try again in a few minutes.",
       },
-      { status: 403 }
+      {
+        status: 429,
+        headers: { "Retry-After": String(retryAfterSeconds) },
+      }
     );
   }
+  const passwordOk = await verifyPassword(password, user.password_hash);
+  if (!passwordOk) {
+    await recordSigninFailure(user.id);
+    return jsonError(GENERIC_CREDENTIALS_ERROR, 401);
+  }
+  await clearSigninFailures(user.id);
+  if (!user.email_verified) {
+    // Same 401 as bad credentials (M1): a distinct 403 here tells
+    // anyone who guesses the password whether the email is
+    // registered and unverified. The sign-in page offers a
+    // "resend verification code" step instead.
+    return jsonError(GENERIC_CREDENTIALS_ERROR, 401);
+  }
+
+  // Session rotation (M6): a fresh password sign-in invalidates
+  // every older token, so a stolen session does not survive the
+  // victim signing in again. The new session carries the bumped
+  // version; the 2FA branch below bumps too, and the verify step
+  // reads the fresh version when it issues the session.
+  const newSessionVersion = (user.session_version ?? 0) + 1;
+  await updateUser(user.id, {
+    last_sign_in_at: new Date().toISOString(),
+    session_version: newSessionVersion,
+  });
 
   const res = NextResponse.json({
     user: { email: user.email, name: user.name, picture: null },
@@ -92,15 +136,12 @@ export async function POST(req: NextRequest) {
     await setPending2fa(res, prereqs.secret, user.email, prereqs.isSecure);
     return res;
   }
-  await updateUser(user.id, {
-    last_sign_in_at: new Date().toISOString(),
-  });
   await issueSession(
     res,
     prereqs.secret,
     { email: user.email, name: user.name, picture: null },
     prereqs.isSecure,
-    { auth: "email", mfa: false, sv: user.session_version ?? 0 }
+    { auth: "email", mfa: false, sv: newSessionVersion }
   );
   return res;
 }

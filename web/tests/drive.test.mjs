@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 // Inline pure helpers for zero-build node --test verification
 const DRIVE_FILE_ID_RE = /^[A-Za-z0-9_-]{10,64}$/;
@@ -43,4 +46,18 @@ test("HTTP Range parser handles open-ended, bounded, suffix, and invalid ranges"
   assert.deepEqual(parseHttpRange("bytes=-500", 5000), { start: 4500, end: 4999 });
   assert.equal(parseHttpRange("bytes=6000-7000", 5000), null);
   assert.equal(parseHttpRange("bytes=invalid", 5000), null);
+});
+
+test("L19: Drive API key is sent as a header, never in the URL query", () => {
+  const src = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "src/lib/drive.ts"), "utf8");
+  assert.ok(!src.includes("?key="), "API key must not appear in a URL query string");
+  assert.ok(!src.includes("key=${"), "API key must not be interpolated into a URL");
+  const headerUses = (src.match(/"X-Goog-Api-Key": apiKey/g) || []).length;
+  assert.equal(headerUses, 2, `expected the key header on both fetches (meta + media), got ${headerUses}`);
+});
+
+test("L11: Drive metadata cache is capped and evicts oldest first", () => {
+  const src = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "src/lib/drive.ts"), "utf8");
+  assert.ok(src.includes("const META_CACHE_MAX = 500;"), "meta cache needs a 500-entry cap");
+  assert.ok(src.includes("while (metaCache.size > META_CACHE_MAX)"), "meta cache must evict oldest when over the cap");
 });

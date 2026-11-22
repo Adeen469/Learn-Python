@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createHash } from "node:crypto";
 import { getSessionSecret } from "@/lib/auth";
 import { getSessionUser } from "@/lib/auth-routes";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { fetchLessonById } from "@/lib/lessons";
+import { getByokKey, isValidByokProvider } from "@/lib/byok-store";
 import {
   askAi,
   getAiConfig,
@@ -33,11 +35,32 @@ import { getStoredTranscript } from "@/lib/stored-transcripts";
 // and quiz modes) and the learner's own question/code.
 // Guide mode (editor AI panel) additionally accepts the user's own
 // skills (built-in ids resolved server-side + their custom skills)
-// and a BYOK key for one provider (Gemini, Groq, Anthropic, OpenAI,
-// OpenRouter, or a custom OpenAI-compatible endpoint). The BYOK key
-// is used in-memory for that one request only — it is never stored,
-// logged, or echoed back in any response.
+// and a BYOK reference for one provider (Gemini, Groq, Anthropic,
+// OpenAI, OpenRouter, or a custom OpenAI-compatible endpoint). The
+// key lives server-side (lp_byok_keys, migration 009, encrypted
+// under BYOK_ENCRYPTION_KEY) and the route loads it by provider
+// reference — the browser never sees it and never sends it. A key
+// in the request body is only a deprecated fallback for stale
+// clients. A resolved BYOK key is used on its own provider's leg
+// ONLY (no fallback to the other providers). Custom skills ride in
+// the user message as a delimited section, never in the system
+// prompt.
 export const dynamic = "force-dynamic";
+
+// Per-user daily quota, on top of the per-IP limit below: the
+// server AI keys are shared, so one signed-in user must not be
+// able to burn the free tier for everyone else. 100 requests/day
+// per session email. Enforced in shared Redis when configured
+// (UPSTASH_REDIS_REST_URL/TOKEN — the binding limit across
+// instances) with the per-instance memory limiter as fallback;
+// configure Upstash Redis in Vercel or the daily cap is only
+// per-instance, like the per-IP limit.
+const AI_DAILY_LIMIT_PER_USER = 100;
+const AI_DAILY_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+// Request-body ceiling, checked BEFORE req.json() parses anything:
+// a huge body is refused without ever being parsed into memory.
+const AI_MAX_BODY_BYTES = 256 * 1024;
 
 // The fallback chain can run past the default 10s serverless budget
 // (Gemini 7s + Groq 8s + Anthropic 15s + …), so allow 60s like the
@@ -80,6 +103,42 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Not signed in." }, { status: 401 });
   }
 
+  // Per-user daily quota (H6), on top of the per-IP limit above.
+  // The key is a hash of the email, never the email itself, so no
+  // address lands in the Redis/memory limiter keys.
+  try {
+    const userKey =
+      "ai-user:" +
+      createHash("sha256").update(user.email.toLowerCase(), "utf8").digest("hex").slice(0, 32);
+    const userLimit = await checkRateLimit(userKey, AI_DAILY_LIMIT_PER_USER, AI_DAILY_WINDOW_MS);
+    if (!userLimit.allowed) {
+      return NextResponse.json(
+        { error: "Daily AI limit reached — please try again tomorrow." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(userLimit.retryAfterSeconds) },
+        }
+      );
+    }
+  } catch {
+    return NextResponse.json(
+      { error: "AI is temporarily unavailable." },
+      { status: 503 }
+    );
+  }
+
+  // Body-size ceiling BEFORE parsing: Content-Length above 256 KB
+  // is refused without ever being parsed. (Chunked bodies carry no
+  // Content-Length, so they cannot be checked this way — the
+  // request caps in validateAiRequest still bound what is used.)
+  const contentLength = Number(req.headers.get("content-length"));
+  if (Number.isFinite(contentLength) && contentLength > AI_MAX_BODY_BYTES) {
+    return NextResponse.json(
+      { error: "Request body is too large." },
+      { status: 413 }
+    );
+  }
+
   let rawBody: unknown;
   try {
     rawBody = await req.json();
@@ -96,20 +155,53 @@ export async function POST(req: NextRequest) {
   const body = validated.body;
 
   const config = getAiConfig();
-  // BYOK (guide mode): the user's own key for one provider replaces
-  // the server key for that provider, in-memory for this request
-  // only. The other providers keep their server keys as fallback.
-  // Custom also carries its base URL + model in the BYOK.
-  if (body.byok?.key) {
-    if (body.byok.provider === "gemini") config.geminiKey = body.byok.key;
-    if (body.byok.provider === "groq") config.groqKey = body.byok.key;
-    if (body.byok.provider === "anthropic") config.anthropicKey = body.byok.key;
-    if (body.byok.provider === "openai") config.openaiKey = body.byok.key;
-    if (body.byok.provider === "openrouter") config.openrouterKey = body.byok.key;
+  // BYOK (guide mode): the key lives server-side (lp_byok_keys,
+  // migration 009) and is loaded here by provider reference — the
+  // browser sends only { provider, baseUrl?, model? }, never the
+  // key. A key in the body is accepted ONLY as a deprecated
+  // fallback for stale clients (the live editor never sends one);
+  // that fallback is a known residual — see the file header.
+  // The resolved key is used on its own provider's leg ONLY:
+  // config.byokProvider makes askAi() skip every other provider,
+  // so a BYOK key is never spent on a leg the user did not pick
+  // and one request can never fan out across all six providers.
+  // Custom also carries its base URL + model, from the body or the
+  // server store — when neither source has them the request is
+  // refused rather than run on a guessed endpoint.
+  if (body.byok) {
+    if (!isValidByokProvider(body.byok.provider)) {
+      return NextResponse.json({ error: "byok is not valid." }, { status: 400 });
+    }
+    const stored = await getByokKey(user.email, body.byok.provider);
+    const key = stored?.key ?? body.byok.key ?? null;
+    if (!key) {
+      return NextResponse.json(
+        {
+          error:
+            "No saved key for this provider — add one in AI Settings > BYOK (keys are stored encrypted on the server).",
+        },
+        { status: 400 }
+      );
+    }
+    config.byokProvider = body.byok.provider;
+    if (body.byok.provider === "gemini") config.geminiKey = key;
+    if (body.byok.provider === "groq") config.groqKey = key;
+    if (body.byok.provider === "anthropic") config.anthropicKey = key;
+    if (body.byok.provider === "openai") config.openaiKey = key;
+    if (body.byok.provider === "openrouter") config.openrouterKey = key;
     if (body.byok.provider === "custom") {
-      config.customKey = body.byok.key;
-      config.customBaseUrl = body.byok.baseUrl ?? null;
-      config.customModel = body.byok.model ?? null;
+      config.customKey = key;
+      config.customBaseUrl = body.byok.baseUrl ?? stored?.baseUrl ?? null;
+      config.customModel = body.byok.model ?? stored?.model ?? null;
+      if (!config.customBaseUrl || !config.customModel) {
+        return NextResponse.json(
+          {
+            error:
+              "Custom BYOK needs a base URL and model — save them in AI Settings > BYOK first.",
+          },
+          { status: 400 }
+        );
+      }
     }
   }
   if (!hasAiConfig(config)) {
@@ -124,7 +216,11 @@ export async function POST(req: NextRequest) {
   // server's skill files; an absent list defaults to ponytail. The
   // catalogue of available built-in skills always rides along, so
   // the AI knows the sub-skills exist and when to use them.
+  // Built-in skills ride in the system prompt; user-added custom
+  // skills ride in the user message as a delimited section, never
+  // in the system prompt (see buildCustomSkillsSection).
   let skills: AiSkill[] = [];
+  let customSkills: AiSkill[] = [];
   if (body.mode === "guide") {
     const catalogue = BUILTIN_AI_SKILLS.map(
       (s) => `${s.name} — ${s.description}`
@@ -136,14 +232,13 @@ export async function POST(req: NextRequest) {
     const builtin: AiSkill[] = BUILTIN_AI_SKILLS.filter((s) =>
       wanted.includes(s.id)
     ).map((s) => ({ name: s.name, content: s.content }));
-    const custom: AiSkill[] = (body.skills ?? []).map((s) => ({
+    customSkills = (body.skills ?? []).map((s) => ({
       name: s.name,
       content: s.content,
     }));
     skills = [
       { name: "Available skills", content: catalogue },
       ...builtin,
-      ...custom,
     ];
   }
 
@@ -219,16 +314,16 @@ export async function POST(req: NextRequest) {
       model: body.model,
       effort: body.effort,
       skills,
+      customSkills,
     },
     config
   );
   if (!result) {
     // Key presence only (booleans, never values) — enough to tell
     // "no key configured" from "key present but every call failed".
-    // The failure detail names the exact cause per leg (sanitized,
-    // never key-shaped). It rides in the 503 message too, so the
-    // editor panel shows it — the server log is not always
-    // reachable from the outside.
+    // Provider failure detail is logged server-side ONLY and never
+    // echoed to the client: a provider error body could contain a
+    // key/token, and the 503 answer is a static message.
     const failures = takeProviderFailures();
     console.error(
       JSON.stringify({
@@ -244,9 +339,8 @@ export async function POST(req: NextRequest) {
         failures,
       })
     );
-    const detail = failures.length ? ` (${failures.join("; ").slice(0, 400)})` : "";
     return NextResponse.json(
-      { error: `AI is unavailable right now — please try again in a moment.${detail}` },
+      { error: "AI is unavailable right now — please try again in a moment." },
       { status: 503 }
     );
   }

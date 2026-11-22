@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { deleteUserRepo, isValidGithubSlug } from "@/lib/github";
+import {
+  assertGithubOwnerAllowed,
+  deleteUserRepo,
+  isValidGithubSlug,
+  mapGithubError,
+  oversizedBodyResponse,
+} from "@/lib/github";
 import { logGithubTokenUse, resolveSessionGithubToken } from "@/lib/github-token";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
@@ -17,6 +23,8 @@ const deleteRepoSchema = z.object({
   repo: z.string().min(1).max(100).regex(/^[a-zA-Z0-9_.-]+$/),
 });
 
+const DELETE_BODY_MAX_BYTES = 256 * 1024;
+
 export async function DELETE(req: NextRequest) {
   const limit = await checkRateLimit(`github-delete:${getClientIp(req)}`, 10, 60_000);
   if (!limit.allowed) {
@@ -25,6 +33,8 @@ export async function DELETE(req: NextRequest) {
       { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } }
     );
   }
+  const tooLarge = oversizedBodyResponse(req, DELETE_BODY_MAX_BYTES);
+  if (tooLarge) return tooLarge;
 
   const resolved = await resolveSessionGithubToken(req);
   if ("response" in resolved) return resolved.response;
@@ -40,26 +50,32 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: "Invalid owner or repo" }, { status: 400 });
     }
 
+    const allowed = await assertGithubOwnerAllowed(token, parsed.data.owner);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: "You can only delete repos owned by you or your GitHub organisations." },
+        { status: 403 }
+      );
+    }
+
     await deleteUserRepo(token, parsed.data.owner, parsed.data.repo);
     void logGithubTokenUse(email, "repo_deleted", `${parsed.data.owner}/${parsed.data.repo}`, getClientIp(req));
     return NextResponse.json({ success: true });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "GitHub delete failed";
+    const msg = err instanceof Error ? err.message : "";
     if (msg.includes("Resource not accessible by personal access token")) {
       return NextResponse.json(
         { error: "Your token needs the delete_repo scope — create a new token from the GitHub page with repo + delete_repo." },
         { status: 403 }
       );
     }
-    if (msg.includes("404") || msg.includes("Not Found")) {
-      return NextResponse.json({ error: "Repo not found or no access" }, { status: 404 });
-    }
-    if (msg.includes("403")) {
+    const mapped = mapGithubError(err);
+    if (mapped.status === 403) {
       return NextResponse.json(
         { error: "Only the repo owner can delete it — collaborators cannot delete a repo they don't own." },
         { status: 403 }
       );
     }
-    return NextResponse.json({ error: msg }, { status: 400 });
+    return NextResponse.json({ error: mapped.message }, { status: mapped.status });
   }
 }

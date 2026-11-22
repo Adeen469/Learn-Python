@@ -11,13 +11,17 @@
 // limiter is the only enforcement (never a 500 — availability wins,
 // the limit just gets weaker).
 //
-// Client IP: Vercel's edge sets `x-real-ip` from the TCP connection,
-// so a client-sent value is overwritten and cannot be spoofed. The
-// old code read the FIRST `x-forwarded-for` entry, which the client
-// controls — an attacker could rotate fake IPs and dodge every
-// per-IP limit. We now read `x-real-ip` first, else the LAST
-// `x-forwarded-for` entry (the one Vercel's proxy appended), else
-// req.ip.
+// Client IP: only trust `x-real-ip` / `x-forwarded-for` when the
+// deployment's front proxy is known to overwrite them from the TCP
+// connection (Vercel's edge does — `VERCEL=1` is set there — or an
+// explicit TRUST_PROXY_HEADERS=1 for a known-proxy host). Anywhere
+// else a client-sent header is honoured verbatim, so an attacker
+// could rotate a fresh X-Real-IP per request and dodge every per-IP
+// limit. Untrusted deployments use the connecting IP (req.ip) only.
+// The old code read the FIRST `x-forwarded-for` entry, which the
+// client controls; on a trusted proxy we read `x-real-ip` first,
+// else the LAST `x-forwarded-for` entry (the one the proxy
+// appended), else req.ip.
 
 export interface RateLimitResult {
   allowed: boolean;
@@ -164,21 +168,40 @@ export async function checkRateLimit(
 }
 
 /**
- * Best-effort client IP: `x-real-ip` (set by Vercel's edge from the
- * connection, not spoofable), else the last `x-forwarded-for` entry
- * (appended by Vercel's proxy), else req.ip, then "unknown".
+ * True only when the front proxy overwrites the client-IP headers
+ * from the TCP connection, so a client-sent value cannot survive.
+ * Vercel sets VERCEL=1 in every deployment; TRUST_PROXY_HEADERS=1
+ * is the explicit opt-in for any other known-proxy host. Everywhere
+ * else (bare Node, Fly — which sets fly-client-ip, not x-real-ip)
+ * the headers are client-controlled and must be ignored.
+ */
+function trustProxyHeaders(): boolean {
+  return (
+    process.env.VERCEL === "1" ||
+    process.env.TRUST_PROXY_HEADERS === "1"
+  );
+}
+
+/**
+ * Best-effort client IP. On a trusted proxy: `x-real-ip` (set by
+ * the edge from the connection, not spoofable), else the last
+ * `x-forwarded-for` entry (appended by the proxy), else req.ip.
+ * Anywhere else: the connecting IP only — proxy headers are ignored
+ * outright, then "unknown".
  */
 export function getClientIp(req: Request): string {
-  const realIp = req.headers.get("x-real-ip")?.trim();
-  if (realIp) return realIp;
-  const forwarded = req.headers.get("x-forwarded-for");
-  if (forwarded) {
-    const parts = forwarded
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-    const last = parts[parts.length - 1];
-    if (last) return last;
+  if (trustProxyHeaders()) {
+    const realIp = req.headers.get("x-real-ip")?.trim();
+    if (realIp) return realIp;
+    const forwarded = req.headers.get("x-forwarded-for");
+    if (forwarded) {
+      const parts = forwarded
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const last = parts[parts.length - 1];
+      if (last) return last;
+    }
   }
   const ip = (req as unknown as { ip?: string }).ip;
   if (ip) return ip;

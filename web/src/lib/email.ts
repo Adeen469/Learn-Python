@@ -84,7 +84,10 @@ export function otpEmail(code: string, purpose: "signup" | "signin"): {
       ? "confirm your Learn Python account"
       : "sign in to Learn Python";
   return {
-    subject: `Your Learn Python code: ${code}`,
+    // Fixed subject (L22): the code rides in notification previews
+    // and inbox lists when it is in the subject line — it belongs
+    // in the body only.
+    subject: "Your Learn Python verification code",
     text:
       `Your Learn Python verification code is ${code}.\n` +
       `Use it to ${action}. The code expires in 10 minutes.` +
@@ -104,7 +107,9 @@ export function twoFaEmail(code: string): {
   html: string;
 } {
   return {
-    subject: `Your Learn Python sign-in code: ${code}`,
+    // Fixed subject (L22): see otpEmail — the code belongs in the
+    // body only, never in a notification preview.
+    subject: "Your Learn Python sign-in code",
     text:
       `Your Learn Python two-factor code is ${code}.\n` +
       `Enter it to finish signing in. The code expires in 10 minutes.` +

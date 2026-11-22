@@ -3,7 +3,10 @@ import { isValidEmail } from "@/lib/auth";
 import { decideOtp } from "@/lib/auth-email";
 import {
   consumeOtp,
+  createEmailUser,
+  deletePendingSignup,
   getLatestOtp,
+  getPendingSignup,
   getUserByEmail,
   updateUser,
   bumpOtpAttempts,
@@ -14,6 +17,7 @@ import {
   issueSession,
   jsonError,
   rateLimit,
+  rateLimitKey,
   readJsonBody,
   serviceUnavailable,
   setPending2fa,
@@ -48,9 +52,24 @@ export async function POST(req: NextRequest) {
 
   const user = await getUserByEmail(email);
   const row = await getLatestOtp(email, purpose);
-  if (!user || !row) return jsonError(GENERIC_CODE_ERROR, 400);
-  if (purpose === "signin" && !user.email_verified) {
+  if (!row) return jsonError(GENERIC_CODE_ERROR, 400);
+  // Per-email limit (M7): rotating IPs must not buy unlimited
+  // guesses against one inbox.
+  const emailLimited = await rateLimitKey(
+    `auth-email-verify-otp-email:${email.toLowerCase()}`,
+    20,
+    60_000
+  );
+  if (emailLimited) return emailLimited;
+  if (purpose === "signin" && (!user || !user.email_verified)) {
     return jsonError(GENERIC_CODE_ERROR, 400);
+  }
+  if (purpose === "signup") {
+    // A sign-up code is only meaningful for a pending sign-up (L8)
+    // or a legacy unverified account — never for a stranger's
+    // address with no pending row and no account.
+    const pending = await getPendingSignup(email);
+    if (!pending && !user) return jsonError(GENERIC_CODE_ERROR, 400);
   }
 
   const decision = decideOtp(
@@ -74,28 +93,95 @@ export async function POST(req: NextRequest) {
   const claimed = await consumeOtp(row.id);
   if (!claimed) return jsonError(GENERIC_CODE_ERROR, 400);
 
-  const patch: { email_verified?: boolean; last_sign_in_at?: string } = {
-    last_sign_in_at: new Date().toISOString(),
-  };
-  if (purpose === "signup") patch.email_verified = true;
-  await updateUser(user.id, patch);
+  if (purpose === "signup") {
+    // The code proved inbox possession: the account is created NOW
+    // (L8), never at sign-up time. A pending sign-up carries the
+    // name + password hash; a legacy account (created at sign-up
+    // before migration 008) just gets verified.
+    const pending = await getPendingSignup(email);
+    if (pending) {
+      if (new Date(pending.expires_at).getTime() < Date.now()) {
+        await deletePendingSignup(email);
+        return jsonError(GENERIC_CODE_ERROR, 400);
+      }
+      if (user?.password_hash) {
+        // A password already exists for this address — a pending
+        // row must never overwrite it.
+        return jsonError(GENERIC_CODE_ERROR, 400);
+      }
+      if (user) {
+        // Google-only row (no password): claim it with the verified
+        // password. The inbox proof is what authorises the claim.
+        await updateUser(user.id, {
+          password_hash: pending.password_hash,
+          name: pending.name,
+          email_verified: true,
+          last_sign_in_at: new Date().toISOString(),
+        });
+      } else {
+        const created = await createEmailUser({
+          email,
+          name: pending.name,
+          passwordHash: pending.password_hash,
+        });
+        if (created.ok) {
+          await updateUser(created.user.id, {
+            email_verified: true,
+            last_sign_in_at: new Date().toISOString(),
+          });
+        } else if (created.reason === "exists") {
+          // Lost a race with another verification: re-read, claim
+          // only when the row still has no password.
+          const raced = await getUserByEmail(email);
+          if (!raced || raced.password_hash) {
+            return jsonError(GENERIC_CODE_ERROR, 400);
+          }
+          await updateUser(raced.id, {
+            password_hash: pending.password_hash,
+            name: pending.name,
+            email_verified: true,
+            last_sign_in_at: new Date().toISOString(),
+          });
+        } else {
+          return jsonError("Could not create the account. Please try again.", 503);
+        }
+      }
+      await deletePendingSignup(email);
+    } else if (user) {
+      await updateUser(user.id, {
+        email_verified: true,
+        last_sign_in_at: new Date().toISOString(),
+      });
+    }
+  } else if (user) {
+    await updateUser(user.id, {
+      last_sign_in_at: new Date().toISOString(),
+    });
+  }
+
+  // Re-read: a fresh sign-up may just have created the row, and the
+  // session below needs the real user (version, 2FA flag).
+  const finalUser = (await getUserByEmail(email)) ?? user;
+  if (!finalUser) {
+    return jsonError("Could not create the account. Please try again.", 503);
+  }
 
   const res = NextResponse.json({
-    user: { email: user.email, name: user.name, picture: null },
-    ...(user.totp_enabled ? { needs2fa: true } : {}),
+    user: { email: finalUser.email, name: finalUser.name, picture: null },
+    ...(finalUser.totp_enabled ? { needs2fa: true } : {}),
   });
-  if (user.totp_enabled) {
+  if (finalUser.totp_enabled) {
     // The code proved email possession; the second factor still has
     // to be completed before any session is issued.
-    await setPending2fa(res, prereqs.secret, user.email, prereqs.isSecure);
+    await setPending2fa(res, prereqs.secret, finalUser.email, prereqs.isSecure);
     return res;
   }
   await issueSession(
     res,
     prereqs.secret,
-    { email: user.email, name: user.name, picture: null },
+    { email: finalUser.email, name: finalUser.name, picture: null },
     prereqs.isSecure,
-    { auth: "email", mfa: false, sv: user.session_version ?? 0 }
+    { auth: "email", mfa: false, sv: finalUser.session_version ?? 0 }
   );
   // A stale pending cookie must never survive a fresh sign-in.
   clearPending2fa(res, prereqs.isSecure);

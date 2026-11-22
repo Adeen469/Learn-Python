@@ -8,6 +8,7 @@ import {
 import {
   bumpSessionVersion,
   getResetTokenByHash,
+  invalidateAllResetTokens,
   markResetTokenUsed,
   updateUser,
 } from "@/lib/auth-store";
@@ -15,6 +16,7 @@ import {
   getAuthPrereqs,
   jsonError,
   rateLimit,
+  rateLimitKey,
   readJsonBody,
   serviceUnavailable,
 } from "@/lib/auth-routes";
@@ -37,6 +39,15 @@ export async function GET(req: NextRequest) {
 
   const token = req.nextUrl.searchParams.get("token");
   if (!token) return NextResponse.json({ valid: false });
+  // Per-token limit (M7): rotating IPs must not buy unlimited
+  // guesses against one link. The key is a hash prefix, never the
+  // token itself.
+  const tokenLimited = await rateLimitKey(
+    `auth-email-reset-check-token:${sha256Hex(token).slice(0, 16)}`,
+    20,
+    60_000
+  );
+  if (tokenLimited) return tokenLimited;
   const row = await getResetTokenByHash(sha256Hex(token));
   if (!row) return NextResponse.json({ valid: false });
   const decision = decideResetToken(
@@ -65,10 +76,17 @@ export async function POST(req: NextRequest) {
     return jsonError(
       isValidPassword(password)
         ? GENERIC_TOKEN_ERROR
-        : "Password must be at least 8 characters.",
+        : "Password must be at least 8 characters and include upper- and lowercase letters and a number.",
       400
     );
   }
+  // Per-token limit (M7), as in GET above.
+  const tokenLimited = await rateLimitKey(
+    `auth-email-reset-token:${sha256Hex(token).slice(0, 16)}`,
+    10,
+    60_000
+  );
+  if (tokenLimited) return tokenLimited;
 
   const row = await getResetTokenByHash(sha256Hex(token));
   if (!row) return jsonError(GENERIC_TOKEN_ERROR, 400);
@@ -93,6 +111,9 @@ export async function POST(req: NextRequest) {
   if (!updated) {
     return jsonError("Could not reset the password. Please try again.", 503);
   }
+  // Retire EVERY reset token for this user (H5), not just the one
+  // presented — any other outstanding link must die with the reset.
+  await invalidateAllResetTokens(row.user_id);
   // Revoke every session signed before this reset (migration 005):
   // the stored version bumps, so older sessions stop verifying.
   await bumpSessionVersion(row.user_id);

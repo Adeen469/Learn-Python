@@ -46,12 +46,21 @@ export default function TwoFactorSettings() {
   const [qr, setQr] = useState<string | null>(null);
   const [secret, setSecret] = useState<string | null>(null);
   const [setupCode, setSetupCode] = useState("");
+  // Password re-entry (H4): setup AND enable both verify it
+  // server-side, so a stolen session alone cannot enroll an
+  // authenticator. Typed once at setup, carried to enable.
+  const [setupPassword, setSetupPassword] = useState("");
   const [backupCodes, setBackupCodes] = useState<string[] | null>(null);
   const [codesSaved, setCodesSaved] = useState(false);
 
   // Disable state.
   const [disablePassword, setDisablePassword] = useState("");
+  const [disableCode, setDisableCode] = useState("");
   const [showDisable, setShowDisable] = useState(false);
+
+  // Backup-code regeneration state.
+  const [regenCode, setRegenCode] = useState("");
+  const [showRegen, setShowRegen] = useState(false);
 
   async function refresh() {
     try {
@@ -71,12 +80,15 @@ export default function TwoFactorSettings() {
     void refresh();
   }, []);
 
-  async function handleSetup() {
+  async function handleSetup(e: React.FormEvent) {
+    e.preventDefault();
     setError(null);
     setNote(null);
     setLoading(true);
     try {
-      const { res, data } = await postJson("/api/auth/2fa/setup");
+      const { res, data } = await postJson("/api/auth/2fa/setup", {
+        password: setupPassword,
+      });
       if (!res.ok) {
         setError(errorMessage(data, t.settings.couldNotStartTwoFactorSetup));
         return;
@@ -96,6 +108,7 @@ export default function TwoFactorSettings() {
     try {
       const { res, data } = await postJson("/api/auth/2fa/enable", {
         code: setupCode,
+        password: setupPassword,
       });
       if (!res.ok) {
         setError(errorMessage(data, t.settings.twoFactorCodeIncorrect));
@@ -109,6 +122,7 @@ export default function TwoFactorSettings() {
       setQr(null);
       setSecret(null);
       setSetupCode("");
+      setSetupPassword("");
       await refresh();
     } finally {
       setLoading(false);
@@ -123,6 +137,7 @@ export default function TwoFactorSettings() {
     try {
       const { res, data } = await postJson("/api/auth/2fa/disable", {
         password: disablePassword,
+        code: disableCode,
       });
       if (!res.ok) {
         setError(errorMessage(data, t.settings.couldNotDisableTwoFactor));
@@ -130,6 +145,7 @@ export default function TwoFactorSettings() {
       }
       setShowDisable(false);
       setDisablePassword("");
+      setDisableCode("");
       setNote(t.settings.twoFactorOff);
       await refresh();
     } finally {
@@ -137,12 +153,15 @@ export default function TwoFactorSettings() {
     }
   }
 
-  async function handleRegenerateBackupCodes() {
+  async function handleRegenerateBackupCodes(e: React.FormEvent) {
+    e.preventDefault();
     setError(null);
     setNote(null);
     setLoading(true);
     try {
-      const { res, data } = await postJson("/api/auth/2fa/backup-codes");
+      const { res, data } = await postJson("/api/auth/2fa/backup-codes", {
+        code: regenCode,
+      });
       if (!res.ok) {
         setError(errorMessage(data, t.settings.couldNotGenerateBackupCodes));
         return;
@@ -150,6 +169,8 @@ export default function TwoFactorSettings() {
       const codes = data.backupCodes;
       setBackupCodes(Array.isArray(codes) ? (codes as string[]) : []);
       setCodesSaved(false);
+      setShowRegen(false);
+      setRegenCode("");
     } finally {
       setLoading(false);
     }
@@ -212,14 +233,27 @@ export default function TwoFactorSettings() {
               {t.settings.twoFactorIntro}
             </p>
             {qr === null ? (
-              <button
-                type="button"
-                onClick={() => void handleSetup()}
-                disabled={loading}
-                className={`mt-3 ${buttonClass}`}
+              <form
+                onSubmit={(e) => void handleSetup(e)}
+                className="mt-3 space-y-2"
               >
-                {loading ? t.settings.twoFactorStarting : t.settings.setUpTwoFactor}
-              </button>
+                <input
+                  type="password"
+                  required
+                  placeholder={t.common.password}
+                  autoComplete="current-password"
+                  value={setupPassword}
+                  onChange={(e) => setSetupPassword(e.target.value)}
+                  className={inputClass}
+                />
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className={buttonClass}
+                >
+                  {loading ? t.settings.twoFactorStarting : t.settings.setUpTwoFactor}
+                </button>
+              </form>
             ) : (
               <form onSubmit={(e) => void handleEnable(e)} className="mt-4 space-y-3">
                 <p className="text-xs leading-relaxed text-neutral-400">
@@ -255,6 +289,15 @@ export default function TwoFactorSettings() {
                   }
                   className={`${inputClass} text-center tracking-[0.4em]`}
                 />
+                <input
+                  type="password"
+                  required
+                  placeholder={t.common.password}
+                  autoComplete="current-password"
+                  value={setupPassword}
+                  onChange={(e) => setSetupPassword(e.target.value)}
+                  className={inputClass}
+                />
                 <button type="submit" disabled={loading} className={buttonClass}>
                   {loading ? t.auth.verifying : t.settings.turnOnTwoFactor}
                 </button>
@@ -279,7 +322,7 @@ export default function TwoFactorSettings() {
             <div className="mt-3 flex flex-wrap gap-2">
               <button
                 type="button"
-                onClick={() => void handleRegenerateBackupCodes()}
+                onClick={() => setShowRegen((v) => !v)}
                 disabled={loading}
                 className="rounded-lg border border-neutral-800 bg-black px-3 py-2 text-xs text-neutral-300 transition hover:text-white"
               >
@@ -295,6 +338,28 @@ export default function TwoFactorSettings() {
                 {t.settings.disable}
               </button>
             </div>
+            {showRegen && (
+              <form
+                onSubmit={(e) => void handleRegenerateBackupCodes(e)}
+                className="mt-3 space-y-2"
+              >
+                <input
+                  type="text"
+                  required
+                  inputMode="numeric"
+                  placeholder={t.common.sixDigitCodeLabel}
+                  maxLength={6}
+                  value={regenCode}
+                  onChange={(e) =>
+                    setRegenCode(e.target.value.replace(/\D/g, ""))
+                  }
+                  className={`${inputClass} text-center tracking-[0.4em]`}
+                />
+                <button type="submit" disabled={loading} className={buttonClass}>
+                  {loading ? t.settings.twoFactorStarting : t.settings.newBackupCodes}
+                </button>
+              </form>
+            )}
             {showDisable && (
               <form
                 onSubmit={(e) => void handleDisable(e)}
@@ -311,6 +376,18 @@ export default function TwoFactorSettings() {
                   value={disablePassword}
                   onChange={(e) => setDisablePassword(e.target.value)}
                   className={inputClass}
+                />
+                <input
+                  type="text"
+                  required
+                  inputMode="numeric"
+                  placeholder={t.common.sixDigitCodeLabel}
+                  maxLength={6}
+                  value={disableCode}
+                  onChange={(e) =>
+                    setDisableCode(e.target.value.replace(/\D/g, ""))
+                  }
+                  className={`${inputClass} text-center tracking-[0.4em]`}
                 />
                 <button type="submit" disabled={loading} className={buttonClass}>
                   {loading ? t.settings.disablingTwoFactor : t.settings.disableTwoFactor}

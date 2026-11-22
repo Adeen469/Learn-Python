@@ -1,4 +1,91 @@
+import { createHash } from "node:crypto";
+import { NextResponse } from "next/server";
 import { Octokit } from "@octokit/rest";
+
+// Map an Octokit (or lib) failure to a status + a generic message
+// for the client: GitHub's own error text is never relayed — it
+// leaks repo existence / permission hints and flattens every
+// failure to 400. Our own validation errors (oversize / binary
+// file) keep their message; everything else is a generic 502.
+export function mapGithubError(err: unknown): { status: number; message: string } {
+  const status = (err as { status?: unknown } | null)?.status;
+  if (typeof status === "number") {
+    if (status === 401)
+      return { status: 401, message: "GitHub rejected the stored token — reconnect it from the GitHub page." };
+    if (status === 403)
+      return { status: 403, message: "GitHub refused this action — the token may lack the needed scope." };
+    if (status === 404) return { status: 404, message: "Repo not found or no access" };
+    if (status === 429)
+      return { status: 429, message: "GitHub is rate-limiting requests — try again shortly." };
+    return { status: 502, message: "GitHub is unavailable right now — try again shortly." };
+  }
+  if (err instanceof Error && (err.message.startsWith("File is larger than 50 MB") || err.message.startsWith("Binary file"))) {
+    return { status: 400, message: err.message };
+  }
+  return { status: 502, message: "GitHub is unavailable right now — try again shortly." };
+}
+
+/** An error carrying an HTTP status, so mapGithubError can map it. */
+export function githubHttpError(status: number, message: string): Error & { status: number } {
+  return Object.assign(new Error(message), { status });
+}
+
+// Reject a request body above `maxBytes` BEFORE it is parsed:
+// req.json() would otherwise parse a 50–100 MB body into memory
+// first and only then let zod reject it. Only the Content-Length
+// header is checked (a missing header means chunked — Vercel caps
+// those at 4.5 MB anyway). Returns a 413 response, or null.
+export function oversizedBodyResponse(req: Request, maxBytes: number): NextResponse | null {
+  const len = Number(req.headers.get("content-length"));
+  if (Number.isFinite(len) && len > maxBytes) {
+    return NextResponse.json({ error: "Request body too large" }, { status: 413 });
+  }
+  return null;
+}
+
+// Who the stored token belongs to, cached briefly per token so the
+// ownership check is not a GET /user on every request. Keyed by a
+// SHA-256 of the token (never the token itself), 5-minute TTL, and
+// capped so the map cannot grow without bound.
+export interface GithubIdentity {
+  login: string;
+  orgs: string[];
+}
+
+const IDENTITY_TTL_MS = 5 * 60_000;
+const IDENTITY_CACHE_MAX = 200;
+const identityCache = new Map<string, { at: number; identity: GithubIdentity }>();
+
+export async function getGithubIdentity(token: string): Promise<GithubIdentity> {
+  const key = createHash("sha256").update(token).digest("hex");
+  const cached = identityCache.get(key);
+  if (cached && Date.now() - cached.at < IDENTITY_TTL_MS) return cached.identity;
+  const octokit = getOctokit(token);
+  const { data: user } = await octokit.rest.users.getAuthenticated();
+  // Orgs are best-effort: a token without read:org cannot list
+  // them, so an org the caller belongs to simply stays
+  // unreachable through the app rather than failing the check.
+  let orgs: string[] = [];
+  try {
+    const { data } = await octokit.rest.orgs.listForAuthenticatedUser();
+    orgs = data.map((o) => o.login);
+  } catch {}
+  const identity: GithubIdentity = { login: user.login, orgs };
+  if (identityCache.size >= IDENTITY_CACHE_MAX) {
+    identityCache.delete(identityCache.keys().next().value as string);
+  }
+  identityCache.set(key, { at: Date.now(), identity });
+  return identity;
+}
+
+// The ownership check (M11): the requested owner must be the
+// token's own login or one of its orgs. A collaborator on someone
+// else's repo is refused — the app proxies the user's own repos,
+// not every repo their token can touch.
+export async function assertGithubOwnerAllowed(token: string, owner: string): Promise<boolean> {
+  const identity = await getGithubIdentity(token);
+  return owner === identity.login || identity.orgs.includes(owner);
+}
 
 // Input validation for the repo routes (same shapes as the commit
 // route's zod schema): owner/repo are GitHub slugs, a blob sha is 40
@@ -89,9 +176,11 @@ export async function createUserRepo(
 // browser's storage at ~5 MB. The tree is one call; a single file's
 // content stays under the caps (the biggest file in his repos is
 // ~1.2 MB). Files over 50 MB or binary files are refused by the
-// file endpoint, and the tree itself is capped only by GitHub
-// (100k entries).
+// file endpoint, and the tree itself is capped at 5,000 entries
+// (truncated:true) — GitHub allows up to 100k, which would be a
+// multi-MB response.
 const REPO_OPEN_MAX_BYTES = 50 * 1024 * 1024;
+const REPO_TREE_MAX_ENTRIES = 5_000;
 
 export async function getRepoTree(
   token: string,
@@ -100,6 +189,7 @@ export async function getRepoTree(
   repo: string;
   branch: string;
   files: { path: string; size: number; sha: string }[];
+  truncated: boolean;
 }> {
   const octokit = getOctokit(token);
   const { data: repoData } = await octokit.rest.repos.get({
@@ -113,10 +203,11 @@ export async function getRepoTree(
     tree_sha: branch,
     recursive: "true",
   });
-  const files = (tree.tree ?? [])
+  const allFiles = (tree.tree ?? [])
     .filter((t) => t.type === "blob" && t.path && t.sha)
     .map((t) => ({ path: t.path as string, size: t.size ?? 0, sha: t.sha as string }));
-  return { repo: repoData.full_name, branch, files };
+  const files = allFiles.slice(0, REPO_TREE_MAX_ENTRIES);
+  return { repo: repoData.full_name, branch, files, truncated: allFiles.length > REPO_TREE_MAX_ENTRIES };
 }
 
 export async function getRepoFileContent(
@@ -124,6 +215,25 @@ export async function getRepoFileContent(
   params: { owner: string; repo: string; path: string; sha: string }
 ): Promise<{ path: string; content: string }> {
   const octokit = getOctokit(token);
+  // A blob SHA alone proves nothing about the path: verify first
+  // that the path in this repo actually points at this blob, or
+  // any blob in the repo's history (a deleted .env included) could
+  // be read by SHA. getContent also reports the size, so an
+  // oversize file is refused BEFORE the blob is downloaded.
+  const { data: meta } = await octokit.rest.repos.getContent({
+    owner: params.owner,
+    repo: params.repo,
+    path: params.path,
+  });
+  if (Array.isArray(meta)) {
+    throw githubHttpError(404, "File not found or no access");
+  }
+  if (meta.sha !== params.sha) {
+    throw githubHttpError(404, "File not found or no access");
+  }
+  if ((meta.size ?? 0) > REPO_OPEN_MAX_BYTES) {
+    throw new Error(`File is larger than 50 MB (${params.path})`);
+  }
   const { data } = await octokit.rest.git.getBlob({
     owner: params.owner,
     repo: params.repo,

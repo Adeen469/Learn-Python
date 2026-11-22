@@ -1,11 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { readFileSync } from "node:fs";
 
 // Inline pure helpers mirroring src/lib/lessons.ts for zero-build
 // node --test verification (row -> Lesson mapping, slug validation,
 // and the seed-fallback decision copied verbatim).
-// NOTE: video URLs here are fake placeholders — mapping logic does not
-// validate the URL pattern, so no real share links are needed.
+// NOTE: video URLs here are real-shaped placeholders — mapping logic
+// validates the URL against the provider's pattern (MEGA share link
+// for mega, bare Drive file ID for drive), so a fake host fails.
 
 function isValidLessonSlug(slug) {
   return typeof slug === "string" && /^[A-Za-z0-9_-]{1,64}$/.test(slug);
@@ -41,6 +43,23 @@ function parseQuiz(value) {
   return questions;
 }
 
+const MEGA_FILE_URL_RE = /^https:\/\/mega\.nz\/file\/([A-Za-z0-9_-]{8})#([A-Za-z0-9_-]{22,43})$/;
+const MEGA_FOLDER_FILE_URL_RE =
+  /^https:\/\/mega\.nz\/folder\/([A-Za-z0-9_-]{8})#([A-Za-z0-9_-]{22,43})\/file\/([A-Za-z0-9_-]{8})$/;
+const DRIVE_FILE_ID_RE = /^[A-Za-z0-9_-]{10,64}$/;
+
+function isValidMegaFileUrl(url) {
+  return MEGA_FILE_URL_RE.test(url) || MEGA_FOLDER_FILE_URL_RE.test(url);
+}
+
+function isValidDriveFileId(fileId) {
+  return DRIVE_FILE_ID_RE.test(fileId);
+}
+
+function isCoursePublished(course) {
+  return course?.is_published === true;
+}
+
 function mapLessonRow(row) {
   if (!isValidLessonSlug(row.slug)) return null;
 
@@ -53,8 +72,16 @@ function mapLessonRow(row) {
   if (!provider) return null;
 
   // Empty video URL is allowed — the lesson is "coming soon" and the
-  // video route 503s it; the row must NOT be dropped.
-  const videoUrl = typeof row.video_url === "string" ? row.video_url : "";
+  // video route 503s it; the row must NOT be dropped. A non-empty URL
+  // that fails the provider's pattern is treated as no video.
+  const rawVideoUrl = typeof row.video_url === "string" ? row.video_url : "";
+  const videoUrl =
+    rawVideoUrl === "" ||
+    (provider === "mega"
+      ? isValidMegaFileUrl(rawVideoUrl)
+      : isValidDriveFileId(rawVideoUrl))
+      ? rawVideoUrl
+      : "";
 
   const moduleTitle =
     typeof row.modules?.title === "string" && row.modules.title
@@ -91,7 +118,7 @@ const fullRow = {
   duration_seconds: 315,
   notes_markdown: "Some notes.",
   video_provider: "mega",
-  video_url: "https://example.invalid/file/abc#key",
+  video_url: "https://mega.nz/file/AbCdEfGh#0123456789abcdefghijklm",
   order_index: 0,
   modules: {
     title: "Module 1: Getting Started",
@@ -107,7 +134,7 @@ test("maps a full Supabase row to a Lesson, id from slug", () => {
     moduleTitle: "Module 1: Getting Started",
     courseTitle: "LP Foundation",
     durationSeconds: 315,
-    videoUrl: "https://example.invalid/file/abc#key",
+    videoUrl: "https://mega.nz/file/AbCdEfGh#0123456789abcdefghijklm",
     videoSource: "mega",
     notes: "Some notes.",
   });
@@ -160,6 +187,56 @@ test("rejects unknown providers but keeps rows with an empty video URL", () => {
   assert.equal(comingSoon.videoUrl, "");
   assert.equal(comingSoon.id, "sample-mega-01");
   assert.equal(mapLessonRow({ ...fullRow, video_url: undefined }).videoUrl, "");
+});
+
+test("a video URL that fails the provider pattern becomes empty, lesson stays listed", () => {
+  // Wrong host / malformed MEGA link: not dropped, just no video.
+  const badMega = mapLessonRow({ ...fullRow, video_url: "https://example.invalid/file/abc#key" });
+  assert.equal(badMega.id, "sample-mega-01");
+  assert.equal(badMega.videoUrl, "");
+  const notAUrl = mapLessonRow({ ...fullRow, video_url: "not a url" });
+  assert.equal(notAUrl.videoUrl, "");
+  // A folder-form MEGA link is valid and passes through.
+  const folder = mapLessonRow({
+    ...fullRow,
+    video_url: "https://mega.nz/folder/AbCdEfGh#0123456789abcdefghijklm/file/XyZ12345",
+  });
+  assert.equal(folder.videoUrl, "https://mega.nz/folder/AbCdEfGh#0123456789abcdefghijklm/file/XyZ12345");
+  // Drive rows carry a bare file ID: a URL or bad characters fail.
+  const badDrive = mapLessonRow({
+    ...fullRow,
+    video_provider: "drive",
+    video_url: "https://drive.google.com/file/d/1AbCdEfGhIjKlMnOp/view",
+  });
+  assert.equal(badDrive.id, "sample-mega-01");
+  assert.equal(badDrive.videoUrl, "");
+  const shortDrive = mapLessonRow({ ...fullRow, video_provider: "drive", video_url: "abc" });
+  assert.equal(shortDrive.videoUrl, "");
+});
+
+test("published is strict: only is_published === true counts", () => {
+  assert.equal(isCoursePublished({ is_published: true }), true);
+  assert.equal(isCoursePublished({ is_published: false }), false);
+  // A missing flag is UNPUBLISHED — a draft must never leak because
+  // the flag was forgotten (the old `!== false` treated this as
+  // published).
+  assert.equal(isCoursePublished({}), false);
+  assert.equal(isCoursePublished({ is_published: undefined }), false);
+  assert.equal(isCoursePublished({ is_published: null }), false);
+  assert.equal(isCoursePublished({ is_published: "true" }), false);
+  assert.equal(isCoursePublished(null), false);
+  assert.equal(isCoursePublished(undefined), false);
+});
+
+test("the source uses the strict published check and validates video URLs", () => {
+  const src = readFileSync(
+    new URL("../src/lib/lessons.ts", import.meta.url),
+    "utf8"
+  );
+  assert.ok(src.includes("is_published === true"), "published must be strict");
+  assert.ok(!src.includes("published !== false"), "the old fail-open filter must be gone");
+  assert.ok(src.includes("isValidMegaFileUrl"), "mega URLs must be validated");
+  assert.ok(src.includes("isValidDriveFileId"), "drive IDs must be validated");
 });
 
 test("passes a valid quiz through and drops invalid ones", () => {

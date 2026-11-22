@@ -28,6 +28,9 @@ export default function EmailAuthPage() {
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  // Offered after a failed password sign-in: the account may exist
+  // but be unverified, and the server no longer says so (M1).
+  const [showVerifyHelp, setShowVerifyHelp] = useState(false);
   const [cooldown, setCooldown] = useState(0);
   // CodeSlots status: "error" drains the slots on a wrong code,
   // "success" washes them on a right one.
@@ -95,6 +98,7 @@ export default function EmailAuthPage() {
     e.preventDefault();
     setError(null);
     setNote(null);
+    setShowVerifyHelp(false);
     setLoading(true);
     try {
       const { res, data } = await postJson("/api/auth/email/signin", {
@@ -102,19 +106,17 @@ export default function EmailAuthPage() {
         password,
       });
       if (!res.ok) {
-        if (data.needsVerification === true) {
-          // The account exists but the email was never verified —
-          // move to the code step (sign-up code) and send it.
-          setOtpPurpose("signup");
-          setStep("code");
-          await handleSendCode(email, "signup");
-          return;
-        }
+        // Unverified email now answers with the same generic 401 as
+        // bad credentials (M1 — the old distinct response told
+        // anyone who guessed the password that the address is
+        // registered and unverified). The user can still reach the
+        // verification step from the link below.
         setError(
           typeof data.error === "string"
             ? data.error
             : t.auth.couldNotSignIn
         );
+        setShowVerifyHelp(true);
         return;
       }
       if (data.needs2fa === true) {
@@ -125,6 +127,17 @@ export default function EmailAuthPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  // The account may exist but be unverified — resend the sign-up
+  // code and move to the code step. The send-otp endpoint answers
+  // { sent: true } either way, so this reveals nothing.
+  async function handleResendVerification() {
+    setError(null);
+    setNote(null);
+    setOtpPurpose("signup");
+    setStep("code");
+    await handleSendCode(email, "signup");
   }
 
   async function handleSignup(e: React.FormEvent) {
@@ -260,6 +273,17 @@ export default function EmailAuthPage() {
               <button type="submit" disabled={loading} className={BUTTON_CLASS}>
                 {loading ? t.auth.signingIn : t.common.signIn}
               </button>
+              {showVerifyHelp && (
+                <p className="text-center text-xs text-neutral-500">
+                  <button
+                    type="button"
+                    onClick={() => void handleResendVerification()}
+                    className="underline hover:text-white"
+                  >
+                    {t.auth.resendCode}
+                  </button>
+                </p>
+              )}
               <p className="text-center text-xs text-neutral-500">
                 <button
                   type="button"

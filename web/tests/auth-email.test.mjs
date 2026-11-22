@@ -71,7 +71,10 @@ function isValidPassword(password) {
   return (
     typeof password === "string" &&
     password.length >= PASSWORD_MIN_LENGTH &&
-    password.length <= PASSWORD_MAX_LENGTH
+    password.length <= PASSWORD_MAX_LENGTH &&
+    /[a-z]/.test(password) &&
+    /[A-Z]/.test(password) &&
+    /[0-9]/.test(password)
   );
 }
 
@@ -192,24 +195,42 @@ function totpCodeForCounter(secretBytes, counter) {
 }
 
 function verifyTotpCode(secret, code, nowSeconds) {
+  return verifyTotpCodeWithStep(secret, code, nowSeconds) !== null;
+}
+
+function verifyTotpCodeWithStep(secret, code, nowSeconds) {
   const now = nowSeconds ?? Math.floor(Date.now() / 1000);
-  if (!/^\d{6}$/.test(code)) return false;
+  if (!/^\d{6}$/.test(code)) return null;
   const secretBytes = base32Decode(secret);
-  if (!secretBytes || secretBytes.length === 0) return false;
+  if (!secretBytes || secretBytes.length === 0) return null;
   const step = Math.floor(now / 30);
   for (let offset = -1; offset <= 1; offset++) {
     const expected = totpCodeForCounter(secretBytes, step + offset);
     if (
       timingSafeEqual(Buffer.from(code, "utf8"), Buffer.from(expected, "utf8"))
     ) {
-      return true;
+      return { step: step + offset };
     }
   }
-  return false;
+  return null;
 }
 
 function totpEncryptionKey(sessionSecret) {
   return createHash("sha256").update(sessionSecret, "utf8").digest();
+}
+
+// Mirror of totpSecretEncryptionKey: the dedicated key must be at
+// least 32 chars, else null (fail closed); unset means the legacy
+// session-secret derivation. `dedicated` stands in for
+// process.env.TOTP_ENCRYPTION_KEY, which the test controls.
+const TOTP_ENCRYPTION_KEY_MIN_LENGTH = 32;
+
+function totpSecretEncryptionKey(sessionSecret, dedicated) {
+  if (dedicated !== undefined) {
+    if (dedicated.length < TOTP_ENCRYPTION_KEY_MIN_LENGTH) return null;
+    return dedicated;
+  }
+  return sessionSecret;
 }
 
 function encryptTotpSecret(sessionSecret, plaintext) {
@@ -275,12 +296,22 @@ function normalizeBackupCode(code) {
   return code.toUpperCase().replace(/[^A-Z0-9]/g, "");
 }
 
-function findBackupCode(storedHashes, code) {
+async function hashBackupCodes(codes) {
+  return Promise.all(
+    codes.map((c) => hashPassword(normalizeBackupCode(c)))
+  );
+}
+
+async function findBackupCode(storedHashes, code) {
   const normalized = normalizeBackupCode(code);
   if (normalized.length !== 8) return null;
   const hash = sha256Hex(normalized);
   for (const stored of storedHashes) {
-    if (timingSafeEqualHex(hash, stored)) return stored;
+    if (stored.startsWith("scrypt$")) {
+      if (await verifyPassword(normalized, stored)) return stored;
+    } else if (timingSafeEqualHex(hash, stored)) {
+      return stored;
+    }
   }
   return null;
 }
@@ -344,11 +375,16 @@ test("scrypt hashes verify the right password and reject the wrong one", async (
   }
 });
 
-test("password validation enforces the 8–128 character rule", () => {
-  assert.equal(isValidPassword("12345678"), true);
-  assert.equal(isValidPassword("1234567"), false);
-  assert.equal(isValidPassword("a".repeat(128)), true);
-  assert.equal(isValidPassword("a".repeat(129)), false);
+test("password validation enforces length plus upper/lower/digit", () => {
+  assert.equal(isValidPassword("Abcdef12"), true);
+  assert.equal(isValidPassword("aB1" + "x".repeat(125)), true); // 128
+  assert.equal(isValidPassword("aB1" + "x".repeat(126)), false); // 129
+  // Length alone is not enough anymore (M5).
+  assert.equal(isValidPassword("12345678"), false); // no letters
+  assert.equal(isValidPassword("abcdefgh"), false); // no upper/digit
+  assert.equal(isValidPassword("ABCDEFGH"), false); // no lower/digit
+  assert.equal(isValidPassword("Abcdefgh"), false); // no digit
+  assert.equal(isValidPassword("Abcdef1"), false); // 7 chars
   assert.equal(isValidPassword(""), false);
   assert.equal(isValidPassword(null), false);
 });
@@ -455,7 +491,7 @@ test("TOTP secrets encrypt and decrypt, and tampering fails closed", () => {
 
 // --- backup codes ---------------------------------------------------------------
 
-test("backup codes are 10 single-use codes, matched case-insensitively", () => {
+test("backup codes are 10 single-use codes, matched case-insensitively", async () => {
   const codes = generateBackupCodes();
   assert.equal(codes.length, 10);
   for (const code of codes) {
@@ -464,16 +500,37 @@ test("backup codes are 10 single-use codes, matched case-insensitively", () => {
   assert.equal(new Set(codes).size, 10);
   const hashes = codes.map((c) => sha256Hex(c.replace("-", "")));
   const first = codes[0];
-  assert.equal(findBackupCode(hashes, first), hashes[0]);
+  assert.equal(await findBackupCode(hashes, first), hashes[0]);
   // Lowercase and dashless input still matches the same hash.
-  assert.equal(findBackupCode(hashes, first.toLowerCase()), hashes[0]);
+  assert.equal(await findBackupCode(hashes, first.toLowerCase()), hashes[0]);
   assert.equal(
-    findBackupCode(hashes, first.replace("-", "")),
+    await findBackupCode(hashes, first.replace("-", "")),
     hashes[0]
   );
-  assert.equal(findBackupCode(hashes, "AAAA-AAAA"), null);
-  assert.equal(findBackupCode(hashes, "short"), null);
-  assert.equal(findBackupCode([], first), null);
+  assert.equal(await findBackupCode(hashes, "AAAA-AAAA"), null);
+  assert.equal(await findBackupCode(hashes, "short"), null);
+  assert.equal(await findBackupCode([], first), null);
+});
+
+test("backup codes are scrypt-hashed now, legacy SHA-256 still verifies", async () => {
+  const codes = generateBackupCodes();
+  const stored = await hashBackupCodes(codes);
+  for (const hash of stored) {
+    assert.match(hash, /^scrypt\$16384\$8\$1\$/);
+  }
+  // Same code, different salt each time.
+  assert.equal(new Set(stored).size, 10);
+  const first = codes[0];
+  assert.equal(await findBackupCode(stored, first), stored[0]);
+  assert.equal(await findBackupCode(stored, first.toLowerCase()), stored[0]);
+  assert.equal(await findBackupCode(stored, "AAAA-AAAA"), null);
+  // Legacy SHA-256 entries keep working until the user regenerates.
+  const legacy = codes.map((c) => sha256Hex(c.replace("-", "")));
+  assert.equal(await findBackupCode(legacy, first), legacy[0]);
+  // Mixed lists (some regenerated, some legacy) work too.
+  const mixed = [stored[0], ...legacy.slice(1)];
+  assert.equal(await findBackupCode(mixed, codes[0]), stored[0]);
+  assert.equal(await findBackupCode(mixed, codes[1]), legacy[1]);
 });
 
 // --- wiring: routes, pages, migration, email -------------------------------------
@@ -575,7 +632,7 @@ test("the settings page mounts the two-factor section", () => {
 test("sessions carry a version and password reset revokes old ones", () => {
   const authRoutes = read("src/lib/auth-routes.ts");
   assert.ok(authRoutes.includes("session_version"), "getSessionUser must check the stored version");
-  assert.ok(authRoutes.includes("verified.user.sv"), "the signed version must be compared");
+  assert.ok(authRoutes.includes("verified.sv"), "the signed version must be compared");
   const reset = read("src/app/api/auth/email/reset/route.ts");
   assert.ok(reset.includes("bumpSessionVersion"), "a reset must bump the session version");
   assert.ok(reset.includes("markResetTokenUsed"), "a reset must claim the token");
@@ -762,4 +819,293 @@ test("PyPI errors are generic and the fetch has a timeout", () => {
   assert.ok(!pypi.includes("err.message"), "the raw fetch error must not leak");
   assert.ok(pypi.includes("Failed to query PyPI"), "the error must be generic");
   assert.ok(pypi.includes("AbortController"), "the fetch must time out");
+});
+
+// --- Security hardening (audit 2026-11-22, Track A) ------------------
+// Pure-function mirrors above, route wiring below (source
+// assertions — the DB layer needs the service-role key, unset in
+// the sandbox).
+
+test("TOTP verification reports the matched step, for replay protection", () => {
+  const secret = base32Encode(new TextEncoder().encode("12345678901234567890"));
+  const now = 1234567890;
+  const step = Math.floor(now / 30);
+  const secretBytes = new TextEncoder().encode("12345678901234567890");
+  const current = totpCodeForCounter(secretBytes, step);
+  const prev = totpCodeForCounter(secretBytes, step - 1);
+  const far = totpCodeForCounter(secretBytes, step + 2);
+  // The step a code was accepted for is what the server records —
+  // a second sign-in presenting the same code in the same step is
+  // a replay, even though the code itself is still "valid".
+  assert.deepEqual(verifyTotpCodeWithStep(secret, current, now), { step });
+  assert.deepEqual(verifyTotpCodeWithStep(secret, prev, now), { step: step - 1 });
+  assert.equal(verifyTotpCodeWithStep(secret, far, now), null);
+  assert.equal(verifyTotpCodeWithStep(secret, "000000", now), null);
+  assert.equal(verifyTotpCode(secret, current, now), true);
+  assert.equal(verifyTotpCode(secret, far, now), false);
+});
+
+test("a short TOTP_ENCRYPTION_KEY fails closed", () => {
+  const sessionSecret = "test-session-secret-0123456789abcdef";
+  assert.equal(totpSecretEncryptionKey(sessionSecret, undefined), sessionSecret);
+  assert.equal(
+    totpSecretEncryptionKey(sessionSecret, "a".repeat(64)),
+    "a".repeat(64)
+  );
+  assert.equal(totpSecretEncryptionKey(sessionSecret, "a".repeat(32)), "a".repeat(32));
+  assert.equal(totpSecretEncryptionKey(sessionSecret, "short"), null);
+  assert.equal(totpSecretEncryptionKey(sessionSecret, ""), null);
+  const lib = read("src/lib/auth-email.ts");
+  assert.ok(lib.includes("TOTP_ENCRYPTION_KEY_MIN_LENGTH = 32"));
+  assert.ok(lib.includes("totpSecretEncryptionKey(\n  sessionSecret: string\n): string | null"));
+  const setup = read("src/app/api/auth/2fa/setup/route.ts");
+  assert.ok(setup.includes("if (!key) return serviceUnavailable"), "setup must fail closed on a short key");
+});
+
+test("H1: the origin is allowlisted, never taken from request headers", () => {
+  const auth = read("src/lib/auth.ts");
+  assert.ok(auth.includes("APP_URL"), "APP_URL must configure the origin");
+  assert.ok(auth.includes("getAllowedOrigins"), "an allowlist must exist");
+  assert.ok(auth.includes("learnpythonprogram.vercel.app"), "the known Vercel domain must be the fallback");
+  assert.ok(auth.includes("getConfiguredAppOrigin"), "a non-allowlisted host must fall back to the configured origin");
+  assert.ok(!auth.includes("return `${proto}://${host}`;"), "the raw header-derived origin must never be returned");
+  const forgot = read("src/app/api/auth/email/forgot/route.ts");
+  assert.ok(forgot.includes("prereqs.origin"), "the reset link must use the allowlisted origin");
+});
+
+test("H2: 2FA enable/disable revokes old sessions and mfa is enforced", () => {
+  const routes = read("src/lib/auth-routes.ts");
+  assert.ok(routes.includes("totpEnabled"), "getSessionUser must read the 2FA flag");
+  assert.ok(routes.includes("verified.mfa !== true"), "a session without mfa must fail once TOTP is on");
+  const enable = read("src/app/api/auth/2fa/enable/route.ts");
+  assert.ok(enable.includes("session_version: newSessionVersion"), "enable must bump the version");
+  assert.ok(enable.includes("mfa: true"), "enable must re-issue the session with mfa:true");
+  const disable = read("src/app/api/auth/2fa/disable/route.ts");
+  assert.ok(disable.includes("session_version: newSessionVersion"), "disable must bump the version");
+  assert.ok(disable.includes("mfa: false"), "disable must re-issue the session with mfa:false");
+});
+
+test("H3: a Google sign-in creates a row, so logout can revoke it", () => {
+  const store = read("src/lib/auth-store.ts");
+  assert.ok(store.includes("createGoogleUser"), "the store must create Google rows");
+  assert.ok(store.includes("password_hash: null"), "a Google row carries no password");
+  assert.ok(store.includes("email_verified: true"), "a Google row is verified by Google");
+  const callback = read("src/app/api/auth/callback/google/route.ts");
+  assert.ok(callback.includes("createGoogleUser({ email, name })"), "the callback must create the row on first sign-in");
+});
+
+test("H4: 2FA setup/enable need the password, backup regen needs a TOTP code", () => {
+  const setup = read("src/app/api/auth/2fa/setup/route.ts");
+  assert.ok(setup.includes("verifyPassword(password, user.password_hash)"), "setup must re-check the password");
+  const enable = read("src/app/api/auth/2fa/enable/route.ts");
+  assert.ok(enable.includes("verifyPassword(password, user.password_hash)"), "enable must re-check the password");
+  const backup = read("src/app/api/auth/2fa/backup-codes/route.ts");
+  assert.ok(backup.includes("verifyTotpCodeWithStep(secret, code)"), "backup regen must check a TOTP code");
+  assert.ok(backup.includes("session_version: newSessionVersion"), "backup regen must bump the version");
+  const section = read("src/components/TwoFactorSettings.tsx");
+  assert.ok(section.includes("password: setupPassword"), "the settings page must send the password at setup/enable");
+  assert.ok(section.includes("code: regenCode"), "the settings page must send a TOTP code for backup regen");
+});
+
+test("H5: a successful reset retires every reset token for the user", () => {
+  const store = read("src/lib/auth-store.ts");
+  assert.ok(store.includes("invalidateAllResetTokens"), "the store must retire all of a user's tokens");
+  assert.ok(store.includes('.eq("user_id", userId)'), "retirement must be scoped to the user");
+  const reset = read("src/app/api/auth/email/reset/route.ts");
+  assert.ok(reset.includes("invalidateAllResetTokens(row.user_id)"), "reset must retire all tokens, not just the presented one");
+});
+
+test("H10: disabling 2FA needs a TOTP (or backup) code", () => {
+  const disable = read("src/app/api/auth/2fa/disable/route.ts");
+  assert.ok(disable.includes("verifyTotpCodeWithStep(secret, code)"), "disable must check a TOTP code");
+  assert.ok(disable.includes("findBackupCode(user.backup_codes, code)"), "disable must also accept a backup code");
+  assert.ok(disable.includes("session_version: newSessionVersion"), "disable must bump the version");
+  const section = read("src/components/TwoFactorSettings.tsx");
+  assert.ok(section.includes("code: disableCode"), "the settings page must send the code when disabling");
+});
+
+test("M1: no endpoint reveals whether an email has an account", () => {
+  const signup = read("src/app/api/auth/email/signup/route.ts");
+  assert.ok(!signup.includes("An account with this email already exists"), "signup must not say the account exists");
+  assert.ok(signup.includes("NextResponse.json({ sent: true, email })"), "signup must answer success-shaped");
+  const signin = read("src/app/api/auth/email/signin/route.ts");
+  assert.ok(!signin.includes("needsVerification"), "signin must not flag unverified accounts");
+  assert.ok(signin.includes("GENERIC_CREDENTIALS_ERROR, 401"), "an unverified sign-in must get the generic 401");
+  const sendOtp = read("src/app/api/auth/email/send-otp/route.ts");
+  assert.ok(!sendOtp.includes("status: 429"), "send-otp must not 429 only when an account exists");
+  assert.ok(!sendOtp.includes("Could not send the email"), "send-otp must not 502 only when an account exists");
+  const forgot = read("src/app/api/auth/email/forgot/route.ts");
+  assert.ok(!forgot.includes("Could not send the email"), "forgot must not 502 only when an account exists");
+  const page = read("src/app/auth/email/page.tsx");
+  assert.ok(!page.includes("needsVerification"), "the sign-in page must not read the removed flag");
+  assert.ok(page.includes("handleResendVerification"), "the page must still offer a verification-code resend");
+});
+
+test("M2: 2FA enable has the same 5-failure cap as verify", () => {
+  const enable = read("src/app/api/auth/2fa/enable/route.ts");
+  assert.ok(enable.includes("TOTP_MAX_FAILED_ATTEMPTS"), "enable must enforce the cap");
+  assert.ok(enable.includes("bumpTotpFailedAttempts(user.id)"), "enable failures must count");
+  assert.ok(enable.includes("totp_pending_enc: null"), "the pending secret must die at the cap");
+});
+
+test("M3: backup codes are claimed atomically", () => {
+  const store = read("src/lib/auth-store.ts");
+  assert.ok(store.includes("claimBackupCode"), "the store must claim backup codes");
+  assert.ok(store.includes('.contains("backup_codes", [matchedHash])'), "the claim must only land while the hash is still stored");
+  const verify = read("src/app/api/auth/2fa/verify/route.ts");
+  assert.ok(verify.includes("verified = await claimBackupCode"), "verify must check the claim");
+  assert.ok(!verify.includes("backup_codes: remaining });\n      verified = saved;"), "verify must not use the old read-then-write claim");
+});
+
+test("M4: backup attempts are capped and TOTP codes cannot be replayed", () => {
+  const verify = read("src/app/api/auth/2fa/verify/route.ts");
+  assert.ok(verify.includes("totp_last_step"), "verify must record and check the last-used step");
+  assert.ok(verify.includes("recordTotpStep(user.id, matchedStep)"), "a successful TOTP code must record its step");
+  assert.ok(verify.includes("replay"), "a reused code in the same step must be rejected");
+  const lib = read("src/lib/auth-email.ts");
+  assert.ok(lib.includes("verifyTotpCodeWithStep"), "the TOTP check must report the matched step");
+  const migration = read("supabase/migrations/008_auth_hardening.sql");
+  assert.ok(migration.includes("totp_last_step"), "008 must add the last-step column");
+});
+
+test("M5: passwords need complexity and sign-in locks out progressively", () => {
+  const lib = read("src/lib/auth-email.ts");
+  assert.ok(lib.includes("/[a-z]/"), "a lowercase letter must be required");
+  assert.ok(lib.includes("/[A-Z]/"), "an uppercase letter must be required");
+  assert.ok(lib.includes("/[0-9]/"), "a digit must be required");
+  assert.ok(lib.includes("SIGNIN_LOCKOUT_THRESHOLD = 10"), "the lockout threshold must be 10");
+  assert.ok(lib.includes("SIGNIN_LOCKOUT_MS = 15 * 60 * 1000"), "the lockout must last 15 minutes");
+  const signin = read("src/app/api/auth/email/signin/route.ts");
+  assert.ok(signin.includes("signin_locked_until"), "signin must refuse a locked account");
+  assert.ok(signin.includes("recordSigninFailure(user.id)"), "a failed password must count");
+  assert.ok(signin.includes("clearSigninFailures(user.id)"), "a good password must clear the counter");
+  assert.ok(signin.includes("30,\n      60_000"), "the per-email throttle must be generous, not a login-DoS");
+  const store = read("src/lib/auth-store.ts");
+  assert.ok(store.includes("recordSigninFailure"), "the failure counter must live in the store");
+  const migration = read("supabase/migrations/008_auth_hardening.sql");
+  assert.ok(migration.includes("signin_failed_attempts"), "008 must add the failure counter");
+  assert.ok(migration.includes("signin_locked_until"), "008 must add the lock timestamp");
+});
+
+test("M6: a fresh password sign-in invalidates older tokens", () => {
+  const signin = read("src/app/api/auth/email/signin/route.ts");
+  assert.ok(signin.includes("newSessionVersion"), "signin must bump the version");
+  assert.ok(signin.includes("sv: newSessionVersion"), "the new session must carry the bumped version");
+});
+
+test("M7 (auth half): verify/reset routes have per-account limits, not just per-IP", () => {
+  const routes = read("src/lib/auth-routes.ts");
+  assert.ok(routes.includes("rateLimitKey"), "a per-key limiter must exist");
+  const verifyOtp = read("src/app/api/auth/email/verify-otp/route.ts");
+  assert.ok(verifyOtp.includes("auth-email-verify-otp-email:"), "verify-otp must limit per email");
+  const reset = read("src/app/api/auth/email/reset/route.ts");
+  assert.ok(reset.includes("auth-email-reset-token:"), "reset must limit per token");
+  const twoFaVerify = read("src/app/api/auth/2fa/verify/route.ts");
+  assert.ok(twoFaVerify.includes("auth-2fa-verify-email:"), "2fa verify must limit per email");
+});
+
+test("M9: logout revokes from the raw token and surfaces failure", () => {
+  const logout = read("src/app/api/auth/logout/route.ts");
+  assert.ok(logout.includes("getSessionUserRaw"), "logout must verify the raw token, not the version-checked session");
+  assert.ok(logout.includes("status: 503"), "a failed revocation must surface, not return ok:true");
+  assert.ok(logout.includes("clearSessionCookies"), "logout must clear the pending-2FA and OAuth cookies too");
+  const routes = read("src/lib/auth-routes.ts");
+  assert.ok(routes.includes("clearSessionCookies"), "the cookie clearing must live in one place");
+  assert.ok(routes.includes("PENDING_2FA_COOKIE"), "the pending-2FA cookie must be cleared");
+  assert.ok(routes.includes("OAUTH_STATE_COOKIE"), "the OAuth state cookie must be cleared");
+});
+
+test("L1: the OAuth state compare is constant-time", () => {
+  const callback = read("src/app/api/auth/callback/google/route.ts");
+  assert.ok(callback.includes("timingSafeEqual"), "the callback must compare state in constant time");
+  assert.ok(callback.includes("statesEqual(stateCookie, state)"), "the state check must use the constant-time helper");
+  assert.ok(!callback.includes("stateCookie !== state"), "no plain === on the state may remain");
+});
+
+test("L2: backup codes are stored scrypt-hashed", () => {
+  const lib = read("src/lib/auth-email.ts");
+  assert.ok(lib.includes("hashBackupCodes"), "fresh codes must be scrypt-hashed");
+  assert.ok(lib.includes('stored.startsWith("scrypt$")'), "verification must handle scrypt entries");
+  const enable = read("src/app/api/auth/2fa/enable/route.ts");
+  assert.ok(enable.includes("hashBackupCodes(backupCodes)"), "enable must store scrypt hashes");
+  assert.ok(!enable.includes("sha256Hex(c)"), "enable must not store plain SHA-256 hashes");
+  const backup = read("src/app/api/auth/2fa/backup-codes/route.ts");
+  assert.ok(backup.includes("hashBackupCodes(backupCodes)"), "regen must store scrypt hashes");
+});
+
+test("L4: the session cookie is __Host- prefixed and Secure from deployment", () => {
+  const auth = read("src/lib/auth.ts");
+  assert.ok(auth.includes("__Host-lp_session"), "the secure cookie name must carry the __Host- prefix");
+  assert.ok(auth.includes("isSecureDeployment"), "Secure must come from the deployment, not headers");
+  assert.ok(auth.includes("sameSite: \"lax\""), "SameSite must stay Lax");
+  const routes = read("src/lib/auth-routes.ts");
+  assert.ok(routes.includes("isSecure: isSecureDeployment()"), "prereqs must use the deployment-derived flag");
+  assert.ok(!routes.includes("isSecureOrigin(origin)"), "no route helper may derive Secure from the origin anymore");
+});
+
+test("L5: the reset page sends no referrer", () => {
+  const page = read("src/app/auth/reset/page.tsx");
+  assert.ok(page.includes('name="referrer"'), "the reset page must set a referrer policy");
+  assert.ok(page.includes('content="no-referrer"'), "the policy must be no-referrer");
+  const reset = read("src/app/api/auth/email/reset/route.ts");
+  assert.ok(reset.includes("body?.token"), "the token must travel in the POST body");
+});
+
+test("L6: OTP caps and cooldowns are per email across purposes", () => {
+  const routes = read("src/lib/auth-routes.ts");
+  assert.ok(routes.includes("countRecentOtps(\n    normalized,\n    null,"), "the hourly cap must count all purposes");
+  assert.ok(routes.includes("getLatestOtp(normalized, null)"), "the cooldown must look at the latest code of any purpose");
+  const store = read("src/lib/auth-store.ts");
+  assert.ok(store.includes("purpose: string | null"), "the store must support a cross-purpose count");
+});
+
+test("L8: sign-up reserves nothing until the code is verified", () => {
+  const store = read("src/lib/auth-store.ts");
+  assert.ok(store.includes("storePendingSignup"), "pending sign-ups must be stored");
+  assert.ok(store.includes("lp_auth_pending_signups"), "pending sign-ups need their own table");
+  assert.ok(store.includes("getPendingSignup"), "verify must read the pending sign-up");
+  assert.ok(store.includes("deletePendingSignup"), "verify must clear the pending sign-up");
+  const signup = read("src/app/api/auth/email/signup/route.ts");
+  assert.ok(signup.includes("storePendingSignup"), "signup must hold the account pending");
+  const verifyOtp = read("src/app/api/auth/email/verify-otp/route.ts");
+  assert.ok(verifyOtp.includes("createEmailUser({"), "verify must create the account after the code");
+  const migration = read("supabase/migrations/008_auth_hardening.sql");
+  assert.ok(migration.includes("lp_auth_pending_signups"), "008 must create the pending-signups table");
+  assert.ok(migration.includes("enable row level security"), "the pending table must have RLS");
+});
+
+test("L22: OTP codes are out of email subjects", () => {
+  const email = read("src/lib/email.ts");
+  assert.ok(email.includes('subject: "Your Learn Python verification code"'), "the OTP subject must be fixed");
+  assert.ok(email.includes('subject: "Your Learn Python sign-in code"'), "the 2FA subject must be fixed");
+  assert.ok(!email.includes("Your Learn Python code: ${code}"), "no code may ride in a subject");
+  assert.ok(!email.includes("Your Learn Python sign-in code: ${code}"), "no 2FA code may ride in a subject");
+  assert.ok(email.includes("Your Learn Python verification code is ${code}"), "the code must still be in the body");
+});
+
+test("L23: sign-in logs carry a hash, never the email address", () => {
+  const callback = read("src/app/api/auth/callback/google/route.ts");
+  assert.ok(callback.includes("emailHash: sha256Hex(email)"), "callback logins must log a hash");
+  assert.ok(!callback.includes('endpoint: "callback", email }'), "no callback login log may carry the address");
+  const exchange = read("src/app/api/auth/app-exchange/route.ts");
+  assert.ok(exchange.includes("emailHash: sha256Hex(p.email)"), "exchange logins must log a hash");
+  assert.ok(!exchange.includes("email: p.email,"), "no exchange login log may carry the address");
+});
+
+test("L24: migration 008 revokes anon EXECUTE on the OTP bump", () => {
+  const migration = read("supabase/migrations/008_auth_hardening.sql");
+  assert.ok(
+    migration.includes("revoke execute on function public.bump_otp_attempts(uuid) from public;"),
+    "008 must revoke the anon EXECUTE grant"
+  );
+  assert.ok(migration.includes("is_admin()"), "008 must record the is_admin() audit");
+  assert.ok(migration.includes("handle_new_user()"), "008 must record the handle_new_user() audit");
+});
+
+test("migration 008 follows the 005 pattern (idempotent, RLS, no policies)", () => {
+  const migration = read("supabase/migrations/008_auth_hardening.sql");
+  assert.ok(migration.includes("add column if not exists totp_last_step"), "columns must be added idempotently");
+  assert.ok(migration.includes("create table if not exists public.lp_auth_pending_signups"), "the table must be created idempotently");
+  assert.ok(migration.includes("alter table public.lp_auth_pending_signups enable row level security"), "the table must have RLS");
+  assert.ok(!/create policy/i.test(migration), "the migration must not create any policy");
 });

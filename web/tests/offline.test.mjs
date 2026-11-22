@@ -91,14 +91,20 @@ test("offline fallback page exists and links back", () => {
   assert.ok(src.includes('href="/"'));
 });
 
-test("session check falls back to the last-known user when offline", () => {
+test("session check never falls back to a stored user when offline", () => {
   const src = readFileSync(join(web, "src", "lib", "auth-client.ts"), "utf8");
-  assert.ok(src.includes("lp_last_user"));
-  // Stored on a successful check, cleared on 401 and on sign-out.
-  assert.ok(src.includes("storeLastUser(user)"));
-  assert.ok(src.includes("clearLastUser()"));
-  // A failed fetch resolves to the stored user instead of rejecting.
-  assert.ok(src.includes(".catch(() => readLastUser())"));
+  // L16: no identity is stored in localStorage at all — a failed
+  // /api/auth/me check resolves to null, so offline the app shows
+  // the signed-out state instead of opening gated pages as the
+  // previous user on a shared device. The only lp_last_user
+  // reference left is the legacy cleanup on sign-out.
+  assert.ok(!src.includes("LAST_USER_KEY"), "no last-user key constant may remain");
+  assert.ok(!src.includes("readLastUser"), "no stored-user fallback may remain");
+  assert.ok(!src.includes("storeLastUser"), "no stored-user write may remain");
+  assert.ok(!src.includes("clearLastUser"), "no stored-user clear helper may remain");
+  assert.ok(src.includes(".catch(() => null)"), "a failed check must resolve to null");
+  // Sign-out still drops any stale copy left by older versions.
+  assert.ok(src.includes('localStorage.removeItem("lp_last_user")'));
 });
 
 const downloads = () =>

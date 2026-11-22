@@ -654,3 +654,48 @@ test("numpy install — installPackageInto detects loadPackage's silent failure 
   assert.ok(!src.includes("Could not load '${name}' from Pyodide:"), "the old 'Could not load from Pyodide' message must be replaced");
   assert.ok(src.includes("tried the wheel hosted on this site"), "the error must say both the self-hosted wheel and the CDN were tried");
 });
+
+// --- L12/L15 mirrors: PyPI response guard + home_page validation ---
+
+// Mirror of web/src/app/api/pypi/route.ts (and the same check in
+// web/src/components/ModulesPanel.tsx): only absolute https: URLs
+// may be rendered as the project-homepage link.
+function isSafeHttpsUrl(href) {
+  if (typeof href !== "string" || !href) return false;
+  try {
+    return new URL(href).protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+test("L15: PyPI home_page allows https: only", () => {
+  assert.equal(isSafeHttpsUrl("https://example.com/"), true);
+  assert.equal(isSafeHttpsUrl("https://pypi.org/project/numpy/"), true);
+  assert.equal(isSafeHttpsUrl("http://example.com/"), false);
+  assert.equal(isSafeHttpsUrl("javascript:alert(1)"), false);
+  assert.equal(isSafeHttpsUrl("data:text/html,<h1>x</h1>"), false);
+  assert.equal(isSafeHttpsUrl("/relative/path"), false);
+  assert.equal(isSafeHttpsUrl("example.com"), false);
+  assert.equal(isSafeHttpsUrl(""), false);
+  assert.equal(isSafeHttpsUrl(null), false);
+  assert.equal(isSafeHttpsUrl(undefined), false);
+});
+
+test("L12/L15: PyPI route caps upstream JSON and validates home_page", () => {
+  const src = read("src/app/api/pypi/route.ts");
+  // L12: Content-Length guard before parsing, plus an info shape check.
+  assert.ok(src.includes("PYPI_MAX_JSON_BYTES"), "missing upstream JSON size cap");
+  assert.ok(src.includes('res.headers.get("content-length")'), "must read Content-Length before parsing");
+  assert.ok(src.includes("PyPI response too large"), "oversize upstream must be refused");
+  assert.ok(src.includes("typeof (data as { info?: unknown }).info !== \"object\""), "must validate data.info is an object");
+  // L15: home_page goes through the https: check, with a PyPI fallback.
+  assert.ok(src.includes("isSafeHttpsUrl(rawHomePage)"), "home_page must be validated server-side");
+  assert.ok(src.includes("https://pypi.org/project/${pkg}/"), "invalid home_page must fall back to the PyPI page");
+});
+
+test("L15: ModulesPanel re-checks home_page before rendering the link", () => {
+  const src = read("src/components/ModulesPanel.tsx");
+  assert.ok(src.includes("function isSafeHttpsUrl"), "ModulesPanel needs its own https: check");
+  assert.ok(src.includes("isSafeHttpsUrl(pypiResult.home_page)"), "the homepage anchor must be gated on the check");
+});

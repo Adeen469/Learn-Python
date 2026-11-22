@@ -38,7 +38,10 @@ export async function POST(req: NextRequest) {
     return jsonError("Enter a valid email address.", 400);
   }
 
-  // Success-shaped either way.
+  // Success-shaped either way (M1): a DB error, a mail failure, or
+  // the hourly cap answers exactly like a sent link. The real reason
+  // is logged server-side only — the old 502 here fired only when a
+  // real user existed, which was the oracle.
   const sentResponse = NextResponse.json({ sent: true });
   const user = await getUserByEmail(email);
   if (!user) return sentResponse;
@@ -49,7 +52,8 @@ export async function POST(req: NextRequest) {
     Date.now() - 60 * 60 * 1000
   );
   if (recent === null) {
-    return jsonError("Could not send the email. Please try again.", 502);
+    console.error(JSON.stringify({ event: "auth_forgot_failed", reason: "db" }));
+    return sentResponse;
   }
   if (recent >= 5) return sentResponse;
 
@@ -60,12 +64,15 @@ export async function POST(req: NextRequest) {
     expiresAtMs: Date.now() + RESET_TOKEN_EXPIRY_MS,
   });
   if (!stored) {
-    return jsonError("Could not send the email. Please try again.", 502);
+    console.error(JSON.stringify({ event: "auth_forgot_failed", reason: "db" }));
+    return sentResponse;
   }
   const link = `${prereqs.origin}/auth/reset?token=${token}`;
   const sent = await sendMail({ to: email, ...resetEmail(link) });
   if (!sent.ok) {
-    return jsonError("Could not send the email. Please try again.", 502);
+    console.error(
+      JSON.stringify({ event: "auth_forgot_failed", reason: sent.reason })
+    );
   }
   return sentResponse;
 }

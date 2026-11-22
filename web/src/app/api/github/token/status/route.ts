@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getGithubToken, getGithubTokenExpiresAt } from "@/lib/github-token";
 import { getAuthPrereqs, getSessionUser } from "@/lib/auth-routes";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 // Whether the signed-in user has a GitHub token stored on the
 // server. Answers { connected, configured, expiresAt } — never the
@@ -11,6 +12,13 @@ import { getAuthPrereqs, getSessionUser } from "@/lib/auth-routes";
 // token was saved (null = no expiry, or unknown) — the page warns
 // when it is close.
 export async function GET(req: NextRequest) {
+  const limit = await checkRateLimit(`github-token:${getClientIp(req)}`, 10, 60_000);
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: "Too many requests — please slow down and retry shortly." },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } }
+    );
+  }
   const prereqs = getAuthPrereqs(req);
   if (!prereqs) {
     return NextResponse.json({ connected: false, configured: false, expiresAt: null });

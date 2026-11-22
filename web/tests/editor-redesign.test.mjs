@@ -333,7 +333,7 @@ test("AI panel ⋮ menu: chat history + AI settings card (skills + BYOK)", () =>
   // BYOK: provider + key, stored in this browser only, sent per request.
   // Six providers now: Gemini, Groq, Anthropic, OpenAI, OpenRouter and
   // a custom OpenAI-compatible endpoint (base URL + model + key).
-  assert.ok(page.includes("lp_ai_byok"), "the BYOK key must persist in localStorage");
+  assert.ok(page.includes("lp_ai_byok"), "BYOK metadata must persist in localStorage (keys live server-side now)");
   assert.ok(page.includes("byokProvider"), "BYOK must offer a provider choice");
   for (const provider of ["gemini", "groq", "anthropic", "openai", "openrouter", "custom"]) {
     assert.ok(page.includes(`value="${provider}"`), `BYOK must offer ${provider}`);
@@ -355,20 +355,22 @@ test("AI panel ⋮ menu: chat history + AI settings card (skills + BYOK)", () =>
   // The request must carry skills + BYOK to the API.
   assert.ok(page.includes("skillIds: activeSkillIds"), "the request must send the active built-in skill ids");
   assert.ok(page.includes("skills: customSkills"), "the request must send the active custom skills");
-  assert.ok(page.includes("byok"), "the request must send the BYOK key when saved");
+  assert.ok(page.includes("byok"), "the request must send the BYOK provider reference when saved");
+  assert.ok(page.includes("{ provider: entry.provider }"), "the BYOK payload must carry only the provider reference, never the key");
   // The server resolves built-in ids (default: ponytail) and applies
   // BYOK in-memory only — never storing or logging the key.
   assert.ok(aiRoute.includes("BUILTIN_AI_SKILLS"), "route must resolve built-in skill ids server-side");
   assert.ok(aiRoute.includes("DEFAULT_ACTIVE_SKILL_IDS"), "route must default to ponytail when no ids are sent");
   assert.ok(aiRoute.includes("body.mode === \"guide\""), "skills must apply to guide mode only");
-  assert.ok(aiRoute.includes("config.geminiKey = body.byok.key"), "route must use a Gemini BYOK key when given");
-  assert.ok(aiRoute.includes("config.groqKey = body.byok.key"), "route must use a Groq BYOK key when given");
-  assert.ok(aiRoute.includes("config.anthropicKey = body.byok.key"), "route must use an Anthropic BYOK key when given");
-  assert.ok(aiRoute.includes("config.openaiKey = body.byok.key"), "route must use an OpenAI BYOK key when given");
-  assert.ok(aiRoute.includes("config.openrouterKey = body.byok.key"), "route must use an OpenRouter BYOK key when given");
-  assert.ok(aiRoute.includes("config.customKey = body.byok.key"), "route must use a custom BYOK key when given");
-  assert.ok(aiRoute.includes("config.customBaseUrl = body.byok.baseUrl"), "route must use a custom BYOK base URL when given");
-  assert.ok(aiRoute.includes("config.customModel = body.byok.model"), "route must use a custom BYOK model when given");
+  assert.ok(aiRoute.includes("const key = stored?.key ?? body.byok.key ?? null;"), "route must prefer the server-stored BYOK key, body key only as deprecated fallback");
+  assert.ok(aiRoute.includes("config.geminiKey = key"), "route must use a Gemini BYOK key when given");
+  assert.ok(aiRoute.includes("config.groqKey = key"), "route must use a Groq BYOK key when given");
+  assert.ok(aiRoute.includes("config.anthropicKey = key"), "route must use an Anthropic BYOK key when given");
+  assert.ok(aiRoute.includes("config.openaiKey = key"), "route must use an OpenAI BYOK key when given");
+  assert.ok(aiRoute.includes("config.openrouterKey = key"), "route must use an OpenRouter BYOK key when given");
+  assert.ok(aiRoute.includes("config.customKey = key"), "route must use a custom BYOK key when given");
+  assert.ok(aiRoute.includes("config.customBaseUrl = body.byok.baseUrl ?? stored?.baseUrl"), "route must use a custom BYOK base URL when given");
+  assert.ok(aiRoute.includes("config.customModel = body.byok.model ?? stored?.model"), "route must use a custom BYOK model when given");
   assert.ok(aiRoute.includes("maxDuration = 60"), "route must allow 60s for the multi-provider fallback chain");
   assert.ok(!aiRoute.includes("console.log"), "route must never log request data (a BYOK key must never leak)");
   // The generated skill modules: 7 unique built-in skills (the

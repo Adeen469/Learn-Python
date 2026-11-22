@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { timingSafeEqual } from "node:crypto";
 import {
   APP_EXCHANGE_KIND,
   APP_EXCHANGE_MAX_AGE_SECONDS,
@@ -12,7 +13,7 @@ import {
   getSessionSecret,
   GOOGLE_TOKEN_URL,
   GOOGLE_USERINFO_URL,
-  isSecureOrigin,
+  isSecureDeployment,
   isValidCode,
   isValidEmail,
   isValidState,
@@ -27,7 +28,11 @@ import {
   verifyToken,
 } from "@/lib/auth";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
-import { claimUsedToken, getUserByEmail } from "@/lib/auth-store";
+import {
+  claimUsedToken,
+  createGoogleUser,
+  getUserByEmail,
+} from "@/lib/auth-store";
 import { setPending2fa } from "@/lib/auth-routes";
 import { sha256Hex } from "@/lib/auth-email";
 
@@ -38,6 +43,18 @@ import { sha256Hex } from "@/lib/auth-email";
 export const dynamic = "force-dynamic";
 
 const FETCH_TIMEOUT_MS = 10_000;
+
+/** Constant-time equality for two state strings (false on bad input). */
+function statesEqual(
+  a: string | null | undefined,
+  b: string | null | undefined
+): boolean {
+  if (typeof a !== "string" || typeof b !== "string") return false;
+  const bufA = Buffer.from(a, "utf8");
+  const bufB = Buffer.from(b, "utf8");
+  if (bufA.length !== bufB.length) return false;
+  return timingSafeEqual(bufA, bufB);
+}
 
 function fetchWithTimeout(url: string, init: RequestInit): Promise<Response> {
   const controller = new AbortController();
@@ -80,7 +97,8 @@ export async function GET(req: NextRequest) {
     );
   }
   const redirectUri = getRedirectUri(origin);
-  const isSecure = isSecureOrigin(origin);
+  // Secure comes from the deployment, never from request headers.
+  const isSecure = isSecureDeployment();
 
   // The one-time OAuth cookies are cleared on every exit path below that
   // passes state validation (single-use by design).
@@ -163,14 +181,18 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  // State must match the cookie exactly (constant-time compare inside
-  // subtle.verify is not needed here — both values are random and the
-  // comparison is a plain equality on secret strings; a mismatch only
-  // ever yields a 400, never a session). Skipped in app mode: the
-  // signed state above IS the validation there.
+  // State must match the cookie exactly. Constant-time compare
+  // (L1): both values are random, so the timing channel is
+  // negligible in practice — but the pattern is the point, and the
+  // comparison must never be a plain === on secret strings.
+  // Skipped in app mode: the signed state above IS the validation
+  // there.
   const stateCookie = req.cookies.get(OAUTH_STATE_COOKIE)?.value;
   const verifier = appVerifier ?? req.cookies.get(OAUTH_VERIFIER_COOKIE)?.value;
-  if (!verifier || (!appVerifier && (!stateCookie || stateCookie !== state))) {
+  if (
+    !verifier ||
+    (!appVerifier && (!stateCookie || !statesEqual(stateCookie, state)))
+  ) {
     console.log(
       JSON.stringify({ event: "auth_state_mismatch", endpoint: "callback" })
     );
@@ -302,8 +324,13 @@ export async function GET(req: NextRequest) {
 
   // The session carries the user's version when they also have an
   // email account, so a password reset revokes this Google session
-  // too. Pure Google users have no row — sv 0.
-  const row = await getUserByEmail(email);
+  // too. First Google sign-in creates the row (H3) — without it,
+  // logout has nothing to revoke for a pure Google user and a
+  // stolen session stays valid for 30 days after logout.
+  let row = await getUserByEmail(email);
+  if (!row) {
+    row = await createGoogleUser({ email, name });
+  }
   const sv = row?.session_version ?? 0;
   // 2FA gate (same as email sign-in): a user with TOTP on never
   // gets a session here — they get the short-lived step-up cookie
@@ -329,7 +356,11 @@ export async function GET(req: NextRequest) {
       exp: nowSeconds + APP_EXCHANGE_MAX_AGE_SECONDS,
     });
     console.log(
-      JSON.stringify({ event: "auth_login_app", endpoint: "callback", email })
+      JSON.stringify({
+        event: "auth_login_app",
+        endpoint: "callback",
+        emailHash: sha256Hex(email),
+      })
     );
     return NextResponse.redirect(buildAppAuthReturnUrl(exchangeCode));
   }
@@ -340,7 +371,11 @@ export async function GET(req: NextRequest) {
     );
     await setPending2fa(res, secret, email, isSecure, "google");
     console.log(
-      JSON.stringify({ event: "auth_login_2fa", endpoint: "callback", email })
+      JSON.stringify({
+        event: "auth_login_2fa",
+        endpoint: "callback",
+        emailHash: sha256Hex(email),
+      })
     );
     return res;
   }
@@ -353,7 +388,11 @@ export async function GET(req: NextRequest) {
   const res = clearOauthCookies(NextResponse.redirect(new URL("/", origin)));
   res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions(isSecure));
   console.log(
-    JSON.stringify({ event: "auth_login", endpoint: "callback", email })
+    JSON.stringify({
+      event: "auth_login",
+      endpoint: "callback",
+      emailHash: sha256Hex(email),
+    })
   );
   return res;
 }
