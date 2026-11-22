@@ -400,7 +400,11 @@ export default function EmailAuthPage() {
             disabled={loading || cooldown > 0}
             className={BUTTON_CLASS}
           >
-            {cooldown > 0 ? t.auth.resendCodeIn(cooldown) : t.auth.resendCode}
+            {cooldown > 0
+              ? t.auth.resendCodeIn(cooldown)
+              : !codeSent
+                ? t.auth.sendEmailCode
+                : t.auth.resendCode}
           </button>
           {codeSent && (
             <>
@@ -426,18 +430,6 @@ export default function EmailAuthPage() {
             </>
           )}
           <p className="text-center text-xs text-neutral-500">
-            {cooldown > 0 ? (
-              <>{t.auth.resendCodeIn(cooldown)}</>
-            ) : (
-              <button
-                type="button"
-                onClick={() => void handleSendCode(email, otpPurpose)}
-                className="underline hover:text-white"
-              >
-                {t.auth.resendCode}
-              </button>
-            )}
-            {" · "}
             <button
               type="button"
               onClick={() => {
