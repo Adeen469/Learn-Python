@@ -297,3 +297,148 @@ test("the breadcrumb row carries a Resume button to the lesson left off — only
   const en = readFileSync(join(webDir, "src/lib/i18n/en.ts"), "utf8");
   assert.ok(en.includes('resume: "Resume:"'), "the Resume label must read Resume:");
 });
+
+// ---- Issue 5: lazy loading (no page ships every language / lesson) ----
+
+const NON_EN_LANGS = ["hi-roman", "fr", "ja", "ko", "es", "de", "pt", "ru", "ar", "zh"];
+const OVERLAY_CHUNKS = [
+  "tutorials-basics-1",
+  "tutorials-basics-2",
+  "tutorials-functions-matplotlib",
+  "tutorials-classes-filemodules",
+  "tutorials-ml-databases-dsa",
+  "references-modules",
+  "references-others",
+];
+
+test("lazy i18n: only English is statically imported; other languages load on demand", () => {
+  // Every page used to ship all 11 UI locales + titles + blurbs.
+  // Now only English (the fallback and the default) is static; each
+  // other language's Strings + titles + blurbs arrive via dynamic
+  // import() when that language becomes active, and the provider
+  // keeps rendering English until the chunk arrives.
+  const index = readFileSync(join(webDir, "src/lib/i18n/index.tsx"), "utf8");
+  for (const lang of NON_EN_LANGS) {
+    assert.ok(!index.includes(`from "./${lang}"`), `must not statically import ./${lang}`);
+    assert.ok(!index.includes(`from "./titles/${lang}"`), `must not statically import ./titles/${lang}`);
+    assert.ok(!index.includes(`from "./blurbs/${lang}"`), `must not statically import ./blurbs/${lang}`);
+    assert.ok(index.includes(`import("./${lang}")`), `must dynamically import ./${lang}`);
+    assert.ok(index.includes(`import("./titles/${lang}")`), `must dynamically import ./titles/${lang}`);
+    assert.ok(index.includes(`import("./blurbs/${lang}")`), `must dynamically import ./blurbs/${lang}`);
+  }
+  assert.ok(index.includes('from "./en"'), "English strings must stay statically imported");
+  assert.ok(index.includes('from "./titles/en"'), "English titles must stay statically imported");
+  assert.ok(index.includes('from "./blurbs/en"'), "English blurbs must stay statically imported");
+  assert.ok(!index.includes('import("./en")'), "English must stay static, never dynamic");
+  assert.ok(index.includes("loadLanguageBundle(lang)"), "the provider must load the active language's bundle");
+  assert.ok(index.includes("EN_BUNDLE"), "English must be the bundle while a locale loads");
+  // Public API unchanged.
+  assert.ok(index.includes("export function getCurrentStrings()"), "getCurrentStrings must stay exported");
+  assert.ok(index.includes("export function useLanguage()"), "useLanguage must stay exported");
+  assert.ok(index.includes("export const LANGUAGES"), "LANGUAGES must stay exported");
+});
+
+test("lazy learn overlays: a language's translation chunks load on demand only", () => {
+  // All ~70 overlay chunks used to be statically imported. Now none
+  // is: loadTranslations(lang) fetches that language's 7 chunks with
+  // dynamic import(), merges them once, and the sync getters keep
+  // returning {} (English fallback) until they arrive.
+  const src = readFileSync(join(webDir, "src/lib/learn/i18n/index.ts"), "utf8");
+  for (const lang of NON_EN_LANGS) {
+    for (const chunk of OVERLAY_CHUNKS) {
+      assert.ok(
+        !src.includes(`} from "./${lang}/${chunk}"`),
+        `must not statically import ./${lang}/${chunk}`
+      );
+      assert.ok(
+        src.includes(`import("./${lang}/${chunk}")`),
+        `must dynamically import ./${lang}/${chunk}`
+      );
+    }
+  }
+  assert.ok(src.includes("export function loadTranslations"), "loadTranslations must be exported");
+  assert.ok(src.includes("export function getTutorialTranslations"), "getTutorialTranslations must stay sync and exported");
+  assert.ok(src.includes("export function getReferenceTranslations"), "getReferenceTranslations must stay sync and exported");
+  assert.ok(src.includes('if (lang === "en") return {};'), "English must still return empty maps");
+});
+
+test("lazy learn corpus: one chunk per slug, resolved from the sidebar", () => {
+  // The whole ~21k-line corpus used to be statically merged into
+  // ALL_TUTORIALS / ALL_REFERENCES. Now no chunk file is statically
+  // imported, the getters are async, and the slug -> chunk map comes
+  // from the sidebar (section + group), which the lesson page already
+  // imports. This test re-resolves every sidebar topic through the
+  // tables in index.ts and checks it lands on the chunk file that
+  // actually contains that slug — so a topic added to a new group, or
+  // a group moved to another file, fails here instead of silently
+  // loading the wrong chunk (or none).
+  const src = readFileSync(join(webDir, "src/lib/learn/index.ts"), "utf8");
+  for (const f of [...TUTORIAL_FILES, ...REFERENCE_FILES]) {
+    const base = f.replace(/\.ts$/, "");
+    assert.ok(!src.includes(`from "./${base}"`), `must not statically import ./${base}`);
+    assert.ok(src.includes(`import("./${base}")`), `must dynamically import ./${base}`);
+  }
+  assert.ok(!src.includes("ALL_TUTORIALS"), "the merged ALL_TUTORIALS array must be gone");
+  assert.ok(!src.includes("ALL_REFERENCES"), "the merged ALL_REFERENCES array must be gone");
+  assert.ok(src.includes("export async function getLearnTutorial"), "getLearnTutorial must be async");
+  assert.ok(src.includes("export async function getLearnReference"), "getLearnReference must be async");
+
+  // Counts must keep working without loading the corpus, and must
+  // match the slugs actually in the chunk files.
+  const tutorialSlugs = TUTORIAL_FILES.flatMap((f) => slugsIn(read(f)));
+  const referenceSlugs = REFERENCE_FILES.flatMap((f) => slugsIn(read(f)));
+  const tCount = Number(src.match(/TUTORIAL_COUNT = (\d+)/)?.[1]);
+  const rCount = Number(src.match(/REFERENCE_COUNT = (\d+)/)?.[1]);
+  assert.equal(tCount, tutorialSlugs.length, `TUTORIAL_COUNT must be ${tutorialSlugs.length}`);
+  assert.equal(rCount, referenceSlugs.length, `REFERENCE_COUNT must be ${referenceSlugs.length}`);
+  assert.ok(src.includes("export function tutorialCount()"), "tutorialCount must stay exported");
+  assert.ok(src.includes("export function referenceCount()"), "referenceCount must stay exported");
+
+  // Parse the routing tables out of index.ts (plain "key": "value" pairs).
+  const table = (name) => {
+    const block = src.match(new RegExp(`const ${name}[^=]*= \\{([\\s\\S]*?)\\n\\};`))?.[1];
+    assert.ok(block, `${name} table must exist in index.ts`);
+    return Object.fromEntries([...block.matchAll(/"([^"]+)":\s*"([^"]+)"/g)].map((m) => [m[1], m[2]]));
+  };
+  const sectionChunk = table("SECTION_CHUNK");
+  const groupChunk = table("GROUP_CHUNK");
+
+  // Sidebar topics in order, tracking the current section + group.
+  const sidebar = read("sidebar.ts");
+  const slugToFile = {};
+  for (const f of [...TUTORIAL_FILES, ...REFERENCE_FILES]) {
+    for (const s of slugsIn(read(f))) slugToFile[s] = f.replace(/\.ts$/, "");
+  }
+  let section = null;
+  let group = null;
+  let checked = 0;
+  for (const line of sidebar.split("\n")) {
+    const id = line.match(/id: "([^"]+)"/);
+    if (id) section = id[1];
+    if (/topics: \[/.test(line)) {
+      group = line.match(/title: "([^"]+)"/)?.[1] ?? null;
+    }
+    // A group line holds all of its topics on one line, so take
+    // every slug on the line, not just the first.
+    for (const m of line.matchAll(/slug: "([^"]+)"/g)) {
+      const slug = m[1];
+      const resolved = groupChunk[`${section}::${group}`] ?? sectionChunk[section];
+      assert.ok(resolved, `${slug}: no chunk for section ${section} / group ${group}`);
+      assert.equal(resolved, slugToFile[slug], `${slug} must resolve to ${slugToFile[slug]}, not ${resolved}`);
+      checked++;
+    }
+  }
+  assert.equal(checked, 812, `must check all 812 sidebar topics, checked ${checked}`);
+});
+
+test("lesson page awaits the lesson chunk and keeps the not-written case", () => {
+  const page = readFileSync(join(webDir, "src/app/learn/[slug]/page.tsx"), "utf8");
+  assert.ok(page.includes("await getLearnTutorial(slug)"), "the page must await the tutorial chunk");
+  assert.ok(page.includes("await getLearnReference(slug)"), "the page must await the reference chunk when there is no tutorial");
+  assert.ok(!page.includes("const rawTutorial = getLearnTutorial(slug)"), "the page must not call the loader synchronously during render");
+  assert.ok(page.includes("contentReady"), "the page must track whether the chunk has arrived");
+  assert.ok(page.includes("animate-pulse"), "the page must show a loading state while the chunk loads");
+  assert.ok(page.includes("t.learnPage.tutorialBeingPrepared"), "the not-written-yet case must stay");
+  assert.ok(page.includes("contentFailed"), "a failed chunk load must be a distinct state, not 'not written yet'");
+  assert.ok(page.includes("t.common.retry"), "a failed chunk load must offer a retry");
+});

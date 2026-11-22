@@ -23,10 +23,11 @@ export async function POST(req: NextRequest) {
   if (!prereqs) return serviceUnavailable("2fa-send-code");
   if (!getEmailConfig()) return serviceUnavailable("2fa-send-code");
 
-  const email = await readPending2fa(req, prereqs.secret);
-  if (!email) {
+  const pending = await readPending2fa(req, prereqs.secret);
+  if (!pending) {
     return jsonError("Your sign-in step expired. Please sign in again.", 401);
   }
+  const email = pending.email;
   const user = await getUserByEmail(email);
   if (!user || !user.totp_enabled || !user.email_verified) {
     return jsonError("Your sign-in step expired. Please sign in again.", 401);

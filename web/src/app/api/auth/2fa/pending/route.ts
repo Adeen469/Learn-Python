@@ -18,6 +18,6 @@ export async function GET(req: NextRequest) {
   const prereqs = getAuthPrereqs(req);
   if (!prereqs) return serviceUnavailable("2fa-pending");
 
-  const email = await readPending2fa(req, prereqs.secret);
-  return NextResponse.json({ pending: email !== null });
+  const pending = await readPending2fa(req, prereqs.secret);
+  return NextResponse.json({ pending: pending !== null });
 }

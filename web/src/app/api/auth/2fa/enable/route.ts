@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  decryptTotpSecret,
+  decryptUserTotpSecret,
   generateBackupCodes,
   sha256Hex,
   verifyTotpCode,
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
   if (!user.totp_pending_enc) {
     return jsonError("Start setup first — scan the QR code in Settings.", 400);
   }
-  const secret = decryptTotpSecret(prereqs.secret, user.totp_pending_enc);
+  const secret = decryptUserTotpSecret(prereqs.secret, user.totp_pending_enc);
   if (!secret || !verifyTotpCode(secret, code)) {
     return jsonError("The code is incorrect. Check your authenticator app and try again.", 400);
   }

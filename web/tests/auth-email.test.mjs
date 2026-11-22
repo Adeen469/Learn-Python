@@ -618,6 +618,108 @@ test("single-use bearer tokens cannot be replayed in their window", () => {
   assert.ok(twoFaVerify.includes("claimUsedToken"), "the step-up cookie must be single-use");
 });
 
+test("Google sign-in with 2FA on stops at the step-up page, never a session", () => {
+  const callback = read("src/app/api/auth/callback/google/route.ts");
+  assert.ok(callback.includes("totp_enabled"), "the callback must check the user's 2FA flag");
+  assert.ok(
+    callback.includes('new URL("/auth/2fa", origin)'),
+    "a 2FA user must be sent to the step-up page instead of a session"
+  );
+  assert.ok(
+    callback.includes('setPending2fa(res, secret, email, isSecure, "google")'),
+    "the step-up cookie must record the Google first factor"
+  );
+  assert.ok(
+    callback.includes("if (needs2fa)"),
+    "the 2FA gate must run before any session is minted"
+  );
+  const appExchange = read("src/app/api/auth/app-exchange/route.ts");
+  assert.ok(appExchange.includes("totp_enabled"), "the exchange must check the user's 2FA flag");
+  assert.ok(
+    appExchange.includes('new URL("/auth/2fa", origin)'),
+    "a 2FA user must finish 2FA inside the WebView instead of a session"
+  );
+  const verify = read("src/app/api/auth/2fa/verify/route.ts");
+  assert.ok(
+    verify.includes("pending.auth"),
+    "verify must issue the session with the recorded first factor, not hardcoded email"
+  );
+});
+
+test("session checks fail closed and logout revokes server-side", () => {
+  const store = read("src/lib/auth-store.ts");
+  assert.ok(
+    store.includes("getSessionVersionByEmail"),
+    "the version check must distinguish a DB error from no row"
+  );
+  const claimStart = store.indexOf("export async function claimUsedToken");
+  const claimEnd = store.indexOf("export async function", claimStart + 10);
+  const claim = store.slice(claimStart, claimEnd === -1 ? undefined : claimEnd);
+  assert.ok(
+    claim.includes("if (!supabase) return false"),
+    "a claim that cannot be recorded must not grant first-use"
+  );
+  assert.ok(
+    claim.includes('if ((error as { code?: string }).code === "23505") return false'),
+    "an already-claimed token must not grant first-use"
+  );
+  assert.ok(
+    claim.includes("  return false;\n}"),
+    "any other claim error must fail closed, not grant first-use"
+  );
+  assert.equal(
+    claim.match(/return true/g)?.length ?? 0,
+    1,
+    "first-use is granted only on the recorded insert"
+  );
+  const routes = read("src/lib/auth-routes.ts");
+  assert.ok(
+    routes.includes("if (!check.ok) return null"),
+    "an unreadable version check must reject the session"
+  );
+  const logout = read("src/app/api/auth/logout/route.ts");
+  assert.ok(
+    logout.includes("updateUser(row.id, {"),
+    "logout must bump the stored session version"
+  );
+  assert.ok(
+    logout.includes("session_version: (row.session_version ?? 0) + 1"),
+    "logout must invalidate the current token server-side"
+  );
+});
+
+test("TOTP and GitHub tokens use dedicated keys, with a legacy read fallback", () => {
+  const lib = read("src/lib/auth-email.ts");
+  assert.ok(lib.includes("TOTP_ENCRYPTION_KEY"), "new TOTP secrets must use the dedicated key");
+  assert.ok(lib.includes("totpSecretEncryptionKey"), "the key choice must live in one place");
+  assert.ok(lib.includes("decryptUserTotpSecret"), "old TOTP secrets must still decrypt under the legacy key");
+  const setup = read("src/app/api/auth/2fa/setup/route.ts");
+  assert.ok(
+    setup.includes("totpSecretEncryptionKey(prereqs.secret)"),
+    "new secrets must be written under the dedicated key"
+  );
+  const verify = read("src/app/api/auth/2fa/verify/route.ts");
+  assert.ok(
+    verify.includes("decryptUserTotpSecret(prereqs.secret, user.totp_secret_enc)"),
+    "verify must try the dedicated key, then the legacy one"
+  );
+  const gh = read("src/lib/github-token.ts");
+  assert.ok(
+    gh.includes("return process.env.GITHUB_TOKEN_KEY ?? null"),
+    "no dedicated key must mean no token storage"
+  );
+  assert.ok(
+    !gh.includes("return dedicated ? dedicated : sessionSecret"),
+    "the SESSION_SECRET fallback for GitHub tokens must be gone"
+  );
+  assert.ok(gh.includes("if (!key) return false"), "saving without the key must fail closed");
+  assert.ok(gh.includes("if (!key) return null"), "reading without the key must fail closed");
+  assert.ok(
+    gh.includes("decryptTotpSecret(secret, data.token_encrypted)"),
+    "tokens encrypted under the old key must still read once, then re-encrypt"
+  );
+});
+
 test("password sign-in costs the same for missing accounts", () => {
   const signin = read("src/app/api/auth/email/signin/route.ts");
   assert.ok(signin.includes("DUMMY_PASSWORD_HASH"), "a dummy hash must exist");

@@ -12,7 +12,8 @@ import {
   verifyToken,
 } from "@/lib/auth";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
-import { claimUsedToken } from "@/lib/auth-store";
+import { claimUsedToken, getUserByEmail } from "@/lib/auth-store";
+import { setPending2fa } from "@/lib/auth-routes";
 import { sha256Hex } from "@/lib/auth-email";
 
 // Completes an Android-app Google sign-in. The app opens this URL in
@@ -100,6 +101,24 @@ export async function GET(req: NextRequest) {
     auth: "google" as const,
     mfa: false,
   };
+  // 2FA gate (same as the browser callback): the exchange code
+  // carries no session, so the check belongs here, where the
+  // session would be minted. A user with TOTP on gets the step-up
+  // cookie instead, and finishes on /auth/2fa inside this same
+  // WebView — the session cookie then lands in the app's jar.
+  const row = await getUserByEmail(p.email);
+  if (row?.totp_enabled) {
+    const res = NextResponse.redirect(new URL("/auth/2fa", origin));
+    await setPending2fa(res, secret, p.email, isSecure, "google");
+    console.log(
+      JSON.stringify({
+        event: "auth_login_2fa_app_exchange",
+        endpoint: "app-exchange",
+        email: p.email,
+      })
+    );
+    return res;
+  }
   const token = await signSession(
     secret,
     buildSessionPayload(user, Math.floor(Date.now() / 1000), {

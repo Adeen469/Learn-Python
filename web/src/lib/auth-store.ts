@@ -86,6 +86,33 @@ export async function getUserById(
   return data as unknown as AuthUser;
 }
 
+/**
+ * Session-version check that distinguishes "no row" from "the
+ * database could not be read". `ok: false` means the check itself
+ * failed — the caller must fail CLOSED (no session), never treat a
+ * DB blip as a user with no row. `version: null` is a genuine
+ * pure-Google user with no row; their session passes on its
+ * signature alone.
+ */
+export async function getSessionVersionByEmail(
+  email: string
+): Promise<{ ok: boolean; version: number | null }> {
+  const supabase = getSupabaseAdmin();
+  if (!supabase) return { ok: false, version: null };
+  const { data, error } = await supabase
+    .from("lp_auth_users")
+    .select("session_version")
+    .eq("email", normalizeEmail(email))
+    .limit(1)
+    .maybeSingle();
+  if (error) return { ok: false, version: null };
+  if (!data) return { ok: true, version: null };
+  return {
+    ok: true,
+    version: (data as { session_version?: number }).session_version ?? 0,
+  };
+}
+
 export async function createEmailUser(args: {
   email: string;
   name: string;
@@ -317,14 +344,16 @@ export async function bumpSessionVersion(userId: string): Promise<boolean> {
 
 /**
  * Claim a token hash: true when this caller is the first to present
- * it, false when it was already used (replay). A missing table
- * (migration not run yet) returns true — the protection is
- * best-effort until the migration runs, and a sign-in must never
- * fail for that reason.
+ * it, false when it was already used (replay) — and false when the
+ * claim itself cannot be recorded. A missing client or a database
+ * error fails CLOSED: single-use protection that cannot be written
+ * down is no protection, so the token must not be honoured. (The
+ * table exists since migration 005; a fresh database without it
+ * refuses these flows until the migration runs.)
  */
 export async function claimUsedToken(tokenHash: string): Promise<boolean> {
   const supabase = getSupabaseAdmin();
-  if (!supabase) return true;
+  if (!supabase) return false;
   const { error } = await supabase
     .from("lp_auth_used_tokens")
     .insert({ token_hash: tokenHash });
@@ -338,7 +367,7 @@ export async function claimUsedToken(tokenHash: string): Promise<boolean> {
   }
   // Unique violation = this hash was already claimed.
   if ((error as { code?: string }).code === "23505") return false;
-  return true;
+  return false;
 }
 
 export async function countRecentResetTokens(

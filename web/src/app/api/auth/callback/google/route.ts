@@ -28,6 +28,7 @@ import {
 } from "@/lib/auth";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { claimUsedToken, getUserByEmail } from "@/lib/auth-store";
+import { setPending2fa } from "@/lib/auth-routes";
 import { sha256Hex } from "@/lib/auth-email";
 
 // Google OAuth callback. Validates the state cookie (CSRF), exchanges the
@@ -304,6 +305,10 @@ export async function GET(req: NextRequest) {
   // too. Pure Google users have no row — sv 0.
   const row = await getUserByEmail(email);
   const sv = row?.session_version ?? 0;
+  // 2FA gate (same as email sign-in): a user with TOTP on never
+  // gets a session here — they get the short-lived step-up cookie
+  // and finish on /auth/2fa, which issues the session with mfa: true.
+  const needs2fa = row?.totp_enabled === true;
 
   if (appVerifier) {
     // App mode: a session cookie set here would land in Chrome's jar,
@@ -327,6 +332,17 @@ export async function GET(req: NextRequest) {
       JSON.stringify({ event: "auth_login_app", endpoint: "callback", email })
     );
     return NextResponse.redirect(buildAppAuthReturnUrl(exchangeCode));
+  }
+
+  if (needs2fa) {
+    const res = clearOauthCookies(
+      NextResponse.redirect(new URL("/auth/2fa", origin))
+    );
+    await setPending2fa(res, secret, email, isSecure, "google");
+    console.log(
+      JSON.stringify({ event: "auth_login_2fa", endpoint: "callback", email })
+    );
+    return res;
   }
 
   const token = await signSession(

@@ -316,8 +316,38 @@ export function verifyTotpCode(
 }
 
 // ---------------------------------------------------------------------------
-// TOTP secret encryption (AES-256-GCM, key = SHA-256 of SESSION_SECRET)
+// TOTP secret encryption (AES-256-GCM, key = SHA-256 of the key material)
 // ---------------------------------------------------------------------------
+
+/**
+ * Key material for NEW TOTP secrets: the dedicated TOTP_ENCRYPTION_KEY
+ * when set, else the legacy SESSION_SECRET derivation. Splitting the
+ * key off SESSION_SECRET means a session-secret leak (or rotation)
+ * no longer opens — or wipes — every 2FA secret.
+ */
+export function totpSecretEncryptionKey(sessionSecret: string): string {
+  return process.env.TOTP_ENCRYPTION_KEY ?? sessionSecret;
+}
+
+/**
+ * Decrypt a TOTP secret: try the dedicated key first, then the
+ * legacy SESSION_SECRET derivation for secrets written before
+ * TOTP_ENCRYPTION_KEY existed. A hard cutover would lock out every
+ * 2FA user; this keeps them working with no migration. New secrets
+ * are always written under the dedicated key (see setup).
+ */
+export function decryptUserTotpSecret(
+  sessionSecret: string,
+  stored: string
+): string | null {
+  const key = totpSecretEncryptionKey(sessionSecret);
+  const plain = decryptTotpSecret(key, stored);
+  if (plain !== null) return plain;
+  if (key !== sessionSecret) {
+    return decryptTotpSecret(sessionSecret, stored);
+  }
+  return null;
+}
 
 function totpEncryptionKey(sessionSecret: string): Buffer {
   return createHash("sha256").update(sessionSecret, "utf8").digest();

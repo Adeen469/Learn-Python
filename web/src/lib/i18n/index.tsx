@@ -37,42 +37,17 @@ import {
   type ReactNode,
 } from "react";
 import { en } from "./en";
-import { hiRoman } from "./hi-roman";
-import { fr } from "./fr";
-import { ja } from "./ja";
-import { ko } from "./ko";
-import { es } from "./es";
-import { de } from "./de";
-import { pt } from "./pt";
-import { ru } from "./ru";
-import { ar } from "./ar";
-import { zh } from "./zh";
 import { titles as titlesEn } from "./titles/en";
-import { titles as titlesHiRoman } from "./titles/hi-roman";
-import { titles as titlesFr } from "./titles/fr";
-import { titles as titlesJa } from "./titles/ja";
-import { titles as titlesKo } from "./titles/ko";
-import { titles as titlesEs } from "./titles/es";
-import { titles as titlesDe } from "./titles/de";
-import { titles as titlesPt } from "./titles/pt";
-import { titles as titlesRu } from "./titles/ru";
-import { titles as titlesAr } from "./titles/ar";
-import { titles as titlesZh } from "./titles/zh";
 import { roadmapBlurbs as blurbsEn } from "./blurbs/en";
-import { roadmapBlurbs as blurbsHiRoman } from "./blurbs/hi-roman";
-import { roadmapBlurbs as blurbsFr } from "./blurbs/fr";
-import { roadmapBlurbs as blurbsJa } from "./blurbs/ja";
-import { roadmapBlurbs as blurbsKo } from "./blurbs/ko";
-import { roadmapBlurbs as blurbsEs } from "./blurbs/es";
-import { roadmapBlurbs as blurbsDe } from "./blurbs/de";
-import { roadmapBlurbs as blurbsPt } from "./blurbs/pt";
-import { roadmapBlurbs as blurbsRu } from "./blurbs/ru";
-import { roadmapBlurbs as blurbsAr } from "./blurbs/ar";
-import { roadmapBlurbs as blurbsZh } from "./blurbs/zh";
 import {
   getReferenceTranslations,
   getTutorialTranslations,
+  loadTranslations,
 } from "../learn/i18n";
+import type {
+  ReferenceTranslations,
+  TutorialTranslations,
+} from "../learn/i18n/types";
 
 export type LanguageCode =
   | "en"
@@ -800,47 +775,139 @@ export type WebTitlesMaps = {
   roadmapNames: Record<string, string>;
 };
 
-const STRINGS: Record<LanguageCode, Strings> = {
-  en,
-  "hi-roman": hiRoman,
-  fr,
-  ja,
-  ko,
-  es,
-  de,
-  pt,
-  ru,
-  ar,
-  zh,
+// LAZY: only English is statically imported — it is the fallback and
+// the default. Every other language's Strings + titles + blurbs are
+// fetched with dynamic import() only when that language becomes
+// active (see loadLanguageBundle), then cached. Until a language's
+// chunk arrives the provider keeps rendering English, exactly as it
+// did while the stored language was still resolving. The imports
+// stay explicit (one import() per file) so the bundler can split
+// each language into its own lazy chunk — a computed import path
+// would defeat that.
+interface LocaleBundle {
+  strings: Strings;
+  titles: WebTitlesMaps;
+  blurbs: Record<string, string>;
+}
+
+const EN_BUNDLE: LocaleBundle = {
+  strings: en,
+  titles: titlesEn,
+  blurbs: blurbsEn,
 };
 
-const TITLES: Record<LanguageCode, WebTitlesMaps> = {
-  en: titlesEn,
-  "hi-roman": titlesHiRoman,
-  fr: titlesFr,
-  ja: titlesJa,
-  ko: titlesKo,
-  es: titlesEs,
-  de: titlesDe,
-  pt: titlesPt,
-  ru: titlesRu,
-  ar: titlesAr,
-  zh: titlesZh,
+const LOADERS: Record<
+  Exclude<LanguageCode, "en">,
+  () => Promise<LocaleBundle>
+> = {
+  "hi-roman": async () => {
+    const [{ hiRoman: strings }, { titles }, { roadmapBlurbs: blurbs }] =
+      await Promise.all([
+        import("./hi-roman"),
+        import("./titles/hi-roman"),
+        import("./blurbs/hi-roman"),
+      ]);
+    return { strings, titles, blurbs };
+  },
+  fr: async () => {
+    const [{ fr: strings }, { titles }, { roadmapBlurbs: blurbs }] =
+      await Promise.all([
+        import("./fr"),
+        import("./titles/fr"),
+        import("./blurbs/fr"),
+      ]);
+    return { strings, titles, blurbs };
+  },
+  ja: async () => {
+    const [{ ja: strings }, { titles }, { roadmapBlurbs: blurbs }] =
+      await Promise.all([
+        import("./ja"),
+        import("./titles/ja"),
+        import("./blurbs/ja"),
+      ]);
+    return { strings, titles, blurbs };
+  },
+  ko: async () => {
+    const [{ ko: strings }, { titles }, { roadmapBlurbs: blurbs }] =
+      await Promise.all([
+        import("./ko"),
+        import("./titles/ko"),
+        import("./blurbs/ko"),
+      ]);
+    return { strings, titles, blurbs };
+  },
+  es: async () => {
+    const [{ es: strings }, { titles }, { roadmapBlurbs: blurbs }] =
+      await Promise.all([
+        import("./es"),
+        import("./titles/es"),
+        import("./blurbs/es"),
+      ]);
+    return { strings, titles, blurbs };
+  },
+  de: async () => {
+    const [{ de: strings }, { titles }, { roadmapBlurbs: blurbs }] =
+      await Promise.all([
+        import("./de"),
+        import("./titles/de"),
+        import("./blurbs/de"),
+      ]);
+    return { strings, titles, blurbs };
+  },
+  pt: async () => {
+    const [{ pt: strings }, { titles }, { roadmapBlurbs: blurbs }] =
+      await Promise.all([
+        import("./pt"),
+        import("./titles/pt"),
+        import("./blurbs/pt"),
+      ]);
+    return { strings, titles, blurbs };
+  },
+  ru: async () => {
+    const [{ ru: strings }, { titles }, { roadmapBlurbs: blurbs }] =
+      await Promise.all([
+        import("./ru"),
+        import("./titles/ru"),
+        import("./blurbs/ru"),
+      ]);
+    return { strings, titles, blurbs };
+  },
+  ar: async () => {
+    const [{ ar: strings }, { titles }, { roadmapBlurbs: blurbs }] =
+      await Promise.all([
+        import("./ar"),
+        import("./titles/ar"),
+        import("./blurbs/ar"),
+      ]);
+    return { strings, titles, blurbs };
+  },
+  zh: async () => {
+    const [{ zh: strings }, { titles }, { roadmapBlurbs: blurbs }] =
+      await Promise.all([
+        import("./zh"),
+        import("./titles/zh"),
+        import("./blurbs/zh"),
+      ]);
+    return { strings, titles, blurbs };
+  },
 };
 
-const BLURBS: Record<LanguageCode, Record<string, string>> = {
-  en: blurbsEn,
-  "hi-roman": blurbsHiRoman,
-  fr: blurbsFr,
-  ja: blurbsJa,
-  ko: blurbsKo,
-  es: blurbsEs,
-  de: blurbsDe,
-  pt: blurbsPt,
-  ru: blurbsRu,
-  ar: blurbsAr,
-  zh: blurbsZh,
-};
+// One in-flight / resolved load per language; a failed load is
+// forgotten so the next attempt retries instead of caching the error.
+const bundleCache = new Map<LanguageCode, Promise<LocaleBundle>>();
+
+function loadLanguageBundle(lang: LanguageCode): Promise<LocaleBundle> {
+  if (lang === "en") return Promise.resolve(EN_BUNDLE);
+  let pending = bundleCache.get(lang);
+  if (!pending) {
+    pending = LOADERS[lang]();
+    pending.catch(() => {
+      bundleCache.delete(lang);
+    });
+    bundleCache.set(lang, pending);
+  }
+  return pending;
+}
 
 const KEY = "lp_language";
 
@@ -907,6 +974,16 @@ export function getCurrentStrings(): Strings {
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<LanguageCode>("en");
+  // The active language's bundle — English until that language's
+  // chunk arrives, then the loaded strings/titles/blurbs.
+  const [bundle, setBundle] = useState<LocaleBundle>(EN_BUNDLE);
+  // The active language's learn overlays (tutorial/reference prose),
+  // loaded the same way; empty while they load or for English, so
+  // title lookups fall back to English meanwhile.
+  const [overlays, setOverlays] = useState<{
+    tutorials: TutorialTranslations;
+    references: ReferenceTranslations;
+  }>({ tutorials: {}, references: {} });
 
   useEffect(() => {
     try {
@@ -916,18 +993,56 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       } else {
         setLangState(defaultLanguage());
       }
+      // Drop the previous language's overlays in the same commit so
+      // no title ever renders in the wrong language while the new
+      // one loads (the load effect below repopulates them).
+      setOverlays({ tutorials: {}, references: {} });
     } catch {
       // Storage/locale unavailable — stay on English.
     }
   }, []);
 
   useEffect(() => {
-    currentStrings = STRINGS[lang];
-    document.documentElement.lang = htmlLang(lang);
+    let cancelled = false;
+    if (lang === "en") {
+      setBundle(EN_BUNDLE);
+    } else {
+      loadLanguageBundle(lang)
+        .then((next) => {
+          if (!cancelled) setBundle(next);
+        })
+        .catch(() => {
+          // Chunk failed — keep rendering English; a later
+          // language switch retries the load.
+        });
+    }
+    loadTranslations(lang)
+      .then(() => {
+        if (!cancelled) {
+          setOverlays({
+            tutorials: getTutorialTranslations(lang),
+            references: getReferenceTranslations(lang),
+          });
+        }
+      })
+      .catch(() => {
+        // Overlays failed — tutorial/reference titles stay English.
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [lang]);
+
+  useEffect(() => {
+    currentStrings = bundle.strings;
+    document.documentElement.lang = htmlLang(lang);
+  }, [lang, bundle]);
 
   const setLang = useCallback((next: LanguageCode) => {
     setLangState(next);
+    // Same-commit reset as the mount effect above: the old
+    // language's overlays must not survive the switch.
+    setOverlays({ tutorials: {}, references: {} });
     try {
       localStorage.setItem(KEY, next);
     } catch {
@@ -937,45 +1052,45 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   const videoTitle = useCallback(
     (videoId: string, fallback: string) =>
-      TITLES[lang].videoTitles[videoId] ?? fallback,
-    [lang]
+      bundle.titles.videoTitles[videoId] ?? fallback,
+    [bundle]
   );
 
   const roadmapName = useCallback(
     (englishName: string) =>
-      TITLES[lang].roadmapNames[englishName] ?? englishName,
-    [lang]
+      bundle.titles.roadmapNames[englishName] ?? englishName,
+    [bundle]
   );
 
   const tutorialTitle = useCallback(
     (slug: string, fallback: string) =>
-      getTutorialTranslations(lang)[slug]?.title ?? fallback,
-    [lang]
+      overlays.tutorials[slug]?.title ?? fallback,
+    [overlays]
   );
 
   const lessonTitle = useCallback(
     (lessonId: string, fallback: string) =>
-      TITLES[lang].lessonTitles[lessonId] ?? fallback,
-    [lang]
+      bundle.titles.lessonTitles[lessonId] ?? fallback,
+    [bundle]
   );
 
   const referenceTitle = useCallback(
     (slug: string, fallback: string) =>
-      getReferenceTranslations(lang)[slug]?.title ?? fallback,
-    [lang]
+      overlays.references[slug]?.title ?? fallback,
+    [overlays]
   );
 
   const roadmapBlurb = useCallback(
     (englishTopic: string) =>
-      BLURBS[lang][englishTopic] ?? BLURBS.en[englishTopic] ?? englishTopic,
-    [lang]
+      bundle.blurbs[englishTopic] ?? blurbsEn[englishTopic] ?? englishTopic,
+    [bundle]
   );
 
   const value = useMemo(
     () => ({
       lang,
       setLang,
-      t: STRINGS[lang],
+      t: bundle.strings,
       videoTitle,
       roadmapName,
       tutorialTitle,
@@ -983,7 +1098,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       referenceTitle,
       roadmapBlurb,
     }),
-    [lang, setLang, videoTitle, roadmapName, tutorialTitle, lessonTitle, referenceTitle, roadmapBlurb]
+    [lang, setLang, bundle, videoTitle, roadmapName, tutorialTitle, lessonTitle, referenceTitle, roadmapBlurb]
   );
 
   return (

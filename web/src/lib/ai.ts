@@ -841,6 +841,90 @@ export function normalizeCustomUrl(baseUrl: string): string {
   return base.endsWith("/chat/completions") ? base : `${base}/chat/completions`;
 }
 
+// ---------------------------------------------------------------------------
+// SSRF guard for the BYOK custom provider.
+//
+// A custom base URL comes from the user, and the server fetches it
+// with the user's key — so a URL pointing at the host itself, the
+// internal network, or the cloud metadata endpoint (169.254.169.254)
+// would turn the AI route into a proxy into the private network.
+// The guard rejects private targets twice: by hostname string, and
+// by resolving the hostname and rejecting when ANY address is
+// private (a public-looking name that resolves inwards — DNS
+// rebinding — is still blocked). A DNS failure fails closed.
+// ---------------------------------------------------------------------------
+
+/** True when an IP address is private, loopback, or link-local. */
+export function isPrivateIp(ip: string): boolean {
+  const v4 = /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/.exec(ip);
+  if (v4) {
+    const a = Number(v4[1]);
+    const b = Number(v4[2]);
+    if (a === 0 || a === 10 || a === 127) return true;
+    if (a === 169 && b === 254) return true;
+    if (a === 172 && b >= 16 && b <= 31) return true;
+    if (a === 192 && b === 168) return true;
+    return false;
+  }
+  // IPv6: only strings with a colon are addresses — anything else is
+  // a hostname and not private by value.
+  const v6 = ip.replace(/^\[|\]$/g, "").split("%")[0].toLowerCase();
+  if (!v6.includes(":")) return false;
+  if (v6 === "::1" || v6 === "::") return true;
+  if (v6.startsWith("::ffff:")) return isPrivateIp(v6.slice("::ffff:".length));
+  const first = v6.split(":")[0];
+  if (/^fe[89ab][0-9a-f]*$/.test(first)) return true; // fe80::/10 link-local
+  if (/^f[cd][0-9a-f]*$/.test(first)) return true; // fc00::/7 unique-local
+  return false;
+}
+
+/** True when a hostname is private by name alone (no DNS needed). */
+export function isPrivateHostname(host: string): boolean {
+  const h = host.toLowerCase().replace(/\.$/, "");
+  if (h === "localhost" || h.endsWith(".localhost") || h.endsWith(".local")) {
+    return true;
+  }
+  return isPrivateIp(h);
+}
+
+export type DnsLookupFn = (
+  hostname: string,
+  opts: { all: true }
+) => Promise<Array<{ address: string; family: number }>>;
+
+/**
+ * Whether a custom base URL is safe to fetch server-side: a public
+ * https host with no credentials in the URL. The lookup is
+ * injectable (like fetchImpl) so tests can stub DNS; when omitted
+ * it is imported lazily — ai.ts is also bundled into the editor
+ * page, so a top-level Node import would break the client build.
+ * webpackIgnore leaves the import alone for the server runtime.
+ */
+export async function isSafeCustomBaseUrl(
+  baseUrl: string,
+  lookupImpl?: DnsLookupFn
+): Promise<boolean> {
+  let url: URL;
+  try {
+    url = new URL(baseUrl);
+  } catch {
+    return false;
+  }
+  if (url.protocol !== "https:" || !url.hostname) return false;
+  if (url.username || url.password) return false;
+  if (isPrivateHostname(url.hostname)) return false;
+  const lookup: DnsLookupFn =
+    lookupImpl ?? (await import(/* webpackIgnore: true */ "node:dns/promises")).lookup;
+  let addresses: Array<{ address: string; family: number }>;
+  try {
+    addresses = await lookup(url.hostname, { all: true });
+  } catch {
+    return false;
+  }
+  if (addresses.length === 0) return false;
+  return !addresses.some((a) => isPrivateIp(a.address));
+}
+
 /** One OpenAI-compatible chat-completions call, shared by OpenAI,
     OpenRouter and custom providers. Tries each model in order; a 404
     (retired model) moves to the next, any other failure stops. */
@@ -862,11 +946,23 @@ export async function callOpenAiCompatible(
     maxTokens?: number;
     extraHeaders?: Record<string, string>;
     timeoutMs?: number;
+    dnsLookup?: DnsLookupFn;
   }
 ): Promise<string | null> {
   const maxTokens = opts.maxTokens ?? MAX_OUTPUT_TOKENS;
   const timeoutMs = opts.timeoutMs ?? OPENAI_TIMEOUT_MS;
   const provider = opts.url === OPENAI_URL ? "openai" : opts.url === OPENROUTER_URL ? "openrouter" : "custom";
+  if (provider === "custom") {
+    // SSRF guard: a BYOK base URL comes from the user — never fetch
+    // a private/loopback/link-local target with the user's key.
+    // Runs before any model in the list is tried, so every custom
+    // call path goes through it.
+    const safe = await isSafeCustomBaseUrl(opts.url, opts.dnsLookup);
+    if (!safe) {
+      recordProviderFailure(provider, opts.models[0] ?? "custom", "unsafe base URL");
+      return null;
+    }
+  }
   for (const model of opts.models) {
     let res: { ok: boolean; status: number; json: () => Promise<unknown> } | null = null;
     try {
@@ -986,7 +1082,8 @@ export async function askAi(
     skills?: AiSkill[];
   },
   config: AiConfig = getAiConfig(),
-  fetchImpl: FetchImpl = fetch as unknown as FetchImpl
+  fetchImpl: FetchImpl = fetch as unknown as FetchImpl,
+  dnsLookupImpl?: DnsLookupFn
 ): Promise<AiResult | null> {
   const maxTokens = maxTokensForEffort(args.effort);
   // Fresh per request: a leg that failed but was followed by a
@@ -1035,6 +1132,7 @@ export async function askAi(
       models: [selected],
       maxTokens,
       timeoutMs: CUSTOM_TIMEOUT_MS,
+      dnsLookup: dnsLookupImpl,
     });
     if (reply) return finishResult(args.mode, reply, "custom");
   }
@@ -1086,6 +1184,7 @@ export async function askAi(
       models: [config.customModel],
       maxTokens,
       timeoutMs: CUSTOM_TIMEOUT_MS,
+      dnsLookup: dnsLookupImpl,
     });
     if (reply) return finishResult(args.mode, reply, "custom");
   }

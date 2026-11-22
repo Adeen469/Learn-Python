@@ -3,6 +3,7 @@ import {
   buildOtpAuthUrl,
   encryptTotpSecret,
   generateTotpSecret,
+  totpSecretEncryptionKey,
 } from "@/lib/auth-email";
 import { getUserByEmail, updateUser } from "@/lib/auth-store";
 import QRCode from "qrcode";
@@ -43,7 +44,7 @@ export async function POST(req: NextRequest) {
   }
 
   const secret = generateTotpSecret();
-  const pendingEnc = encryptTotpSecret(prereqs.secret, secret);
+  const pendingEnc = encryptTotpSecret(totpSecretEncryptionKey(prereqs.secret), secret);
   const saved = await updateUser(user.id, { totp_pending_enc: pendingEnc });
   if (!saved) {
     return jsonError("Could not start setup. Please try again.", 503);

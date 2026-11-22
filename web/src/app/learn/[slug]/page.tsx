@@ -19,6 +19,8 @@ import { ALL_LEARN_TOPICS, getLearnTopic } from "@/lib/learn/sidebar";
 import {
   getLearnReference,
   getLearnTutorial,
+  type LearnReference,
+  type LearnTutorial,
   type TutorialBlock,
 } from "@/lib/learn/index";
 import {
@@ -220,6 +222,15 @@ export default function LearnTopicPage() {
   const { lang, t, tutorialTitle, referenceTitle, roadmapName } = useLanguage();
   const [completedSlugs, setCompletedSlugs] = useState<string[]>([]);
   const [resumeSlug, setResumeSlug] = useState<string | null>(null);
+  // The lesson content loads on demand (one corpus chunk per slug —
+  // see src/lib/learn/index.ts), so it arrives async: null + not
+  // ready yet means "still loading", null + ready means "not written
+  // yet". `contentNonce` re-runs the load for the Retry button.
+  const [rawTutorial, setRawTutorial] = useState<LearnTutorial | null>(null);
+  const [rawReference, setRawReference] = useState<LearnReference | null>(null);
+  const [contentReady, setContentReady] = useState(false);
+  const [contentFailed, setContentFailed] = useState(false);
+  const [contentNonce, setContentNonce] = useState(0);
 
   useEffect(() => {
     setCompletedSlugs(readCompleted());
@@ -237,12 +248,41 @@ export default function LearnTopicPage() {
     }
   }, [slug]);
 
+  // Load this lesson's chunk (tutorial first; a reference entry only
+  // when no tutorial exists for the slug — same lookup as before,
+  // just async). A stale load (navigated away mid-fetch) is dropped.
+  useEffect(() => {
+    let cancelled = false;
+    setRawTutorial(null);
+    setRawReference(null);
+    setContentFailed(false);
+    setContentReady(false);
+    (async () => {
+      try {
+        const tutorial = await getLearnTutorial(slug);
+        if (cancelled) return;
+        setRawTutorial(tutorial);
+        if (!tutorial) {
+          const reference = await getLearnReference(slug);
+          if (cancelled) return;
+          setRawReference(reference);
+        }
+        if (!cancelled) setContentReady(true);
+      } catch {
+        if (cancelled) return;
+        setContentFailed(true);
+        setContentReady(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [slug, contentNonce]);
+
   const topic = getLearnTopic(slug);
-  const rawTutorial = getLearnTutorial(slug);
   const tutorial = rawTutorial
     ? localizeTutorial(rawTutorial, getTutorialTranslations(lang)[rawTutorial.slug])
     : null;
-  const rawReference = !rawTutorial ? getLearnReference(slug) : null;
   const reference = rawReference
     ? localizeReference(rawReference, getReferenceTranslations(lang)[rawReference.slug])
     : null;
@@ -377,7 +417,25 @@ export default function LearnTopicPage() {
         )}
       </header>
 
-      {tutorial ? (
+      {!contentReady ? (
+        <div className="mt-8 animate-pulse" aria-hidden="true">
+          <div className="h-4 w-3/4 rounded bg-neutral-800" />
+          <div className="mt-3 h-4 w-full rounded bg-neutral-800" />
+          <div className="mt-3 h-4 w-5/6 rounded bg-neutral-800" />
+          <div className="mt-6 h-40 rounded-xl bg-neutral-800/60" />
+        </div>
+      ) : contentFailed ? (
+        <p className="mt-8 rounded-xl border border-neutral-800 bg-neutral-950 p-4 text-sm leading-relaxed text-neutral-400">
+          {t.common.genericError}{" "}
+          <button
+            type="button"
+            onClick={() => setContentNonce((n) => n + 1)}
+            className="font-semibold text-white underline underline-offset-2"
+          >
+            {t.common.retry}
+          </button>
+        </p>
+      ) : tutorial ? (
         <>
           <div className="mt-8">
             {tutorial.blocks.map((block, i) => renderBlock(block, i, t))}

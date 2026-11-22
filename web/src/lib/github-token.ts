@@ -13,11 +13,13 @@ import { getSupabaseAdmin } from "./supabase-server";
 // policies, so only the service-role client reaches it.
 //
 // The encryption key is a DEDICATED secret (GITHUB_TOKEN_KEY,
-// Vercel env var) when set, falling back to SESSION_SECRET when
-// it is not — so a session-secret leak alone no longer opens the
-// tokens, and rotating SESSION_SECRET no longer wipes them. A
-// token encrypted under the old key is re-encrypted under the
-// dedicated key the first time it is read (lazy migration).
+// Vercel env var) — and nothing else. There is no SESSION_SECRET
+// fallback for new tokens: if the var is unset, saving and reading
+// tokens fail closed ("no token") instead of silently encrypting
+// under the session secret. A token encrypted under the old
+// SESSION_SECRET key is still readable (legacy fallback in
+// getGithubToken) and re-encrypted under the dedicated key the
+// first time it is read (lazy migration).
 //
 // Every mutating use is written to lp_github_token_audit
 // (migration 007) — token saved/deleted, repo created/deleted,
@@ -31,27 +33,29 @@ import { getSupabaseAdmin } from "./supabase-server";
 
 /**
  * The key that encrypts stored GitHub tokens: the dedicated
- * GITHUB_TOKEN_KEY when set, SESSION_SECRET otherwise. (Both are
- * SHA-256-hashed inside the encrypt/decrypt helpers, so any
- * non-empty value gives a full 256-bit key.)
+ * GITHUB_TOKEN_KEY, or null when it is unset — in which case token
+ * storage is unavailable (fail closed), never silently encrypted
+ * under SESSION_SECRET. (Both keys are SHA-256-hashed inside the
+ * encrypt/decrypt helpers, so any non-empty value gives a full
+ * 256-bit key.)
  */
-export function getTokenEncryptionSecret(sessionSecret: string): string {
-  const dedicated = process.env.GITHUB_TOKEN_KEY;
-  return dedicated ? dedicated : sessionSecret;
+export function getTokenEncryptionSecret(): string | null {
+  return process.env.GITHUB_TOKEN_KEY ?? null;
 }
 
 export async function saveGithubToken(
   email: string,
   token: string,
-  secret: string,
   expiresAt: string | null = null
 ): Promise<boolean> {
   const supabase = getSupabaseAdmin();
   if (!supabase) return false;
+  const key = getTokenEncryptionSecret();
+  if (!key) return false;
   const { error } = await supabase.from("lp_github_tokens").upsert(
     {
       user_email: email,
-      token_encrypted: encryptTotpSecret(getTokenEncryptionSecret(secret), token),
+      token_encrypted: encryptTotpSecret(key, token),
       expires_at: expiresAt,
       updated_at: new Date().toISOString(),
     },
@@ -72,7 +76,8 @@ export async function getGithubToken(
     .eq("user_email", email)
     .maybeSingle();
   if (error || !data) return null;
-  const key = getTokenEncryptionSecret(secret);
+  const key = getTokenEncryptionSecret();
+  if (!key) return null;
   let plain = decryptTotpSecret(key, data.token_encrypted);
   if (plain === null && key !== secret) {
     // Encrypted under the old SESSION_SECRET key: decrypt with it

@@ -293,9 +293,17 @@ test("stored tokens use a dedicated encryption key, with a lazy migration off th
   // old key stops working for it from here on.
   assert.ok(lib.includes("decryptTotpSecret(secret, data.token_encrypted)"), "the read must fall back to the session secret for legacy rows");
   assert.ok(lib.includes("token_encrypted: encryptTotpSecret(key, plain)"), "a legacy row must be re-encrypted under the dedicated key");
-  // Save must encrypt under the dedicated key, and the resolve
-  // helper must hand the caller's email to the audit log too.
-  assert.ok(lib.includes("encryptTotpSecret(getTokenEncryptionSecret(secret), token)"), "save must encrypt under the dedicated key");
+  // Save must encrypt under the dedicated key, and fail closed
+  // when it is unset — never fall back to the session secret.
+  const saveStart = lib.indexOf("export async function saveGithubToken");
+  const saveEnd = lib.indexOf("export async function", saveStart + 10);
+  const save = lib.slice(saveStart, saveEnd === -1 ? undefined : saveEnd);
+  assert.ok(
+    save.includes("const key = getTokenEncryptionSecret();"),
+    "save must read the dedicated key with no session-secret fallback"
+  );
+  assert.ok(save.includes("if (!key) return false"), "save must fail closed when the dedicated key is unset");
+  assert.ok(save.includes("token_encrypted: encryptTotpSecret(key, token)"), "save must encrypt under the dedicated key");
   assert.ok(lib.includes("return { token, email: user.email }"), "the resolver must return the caller's email for auditing");
 });
 

@@ -594,12 +594,97 @@ function normalizeCustomUrl(baseUrl) {
   return base.endsWith("/chat/completions") ? base : `${base}/chat/completions`;
 }
 
+// ---------------------------------------------------------------------------
+// SSRF guard for the BYOK custom provider. Mirror of src/lib/ai.ts:
+// a custom base URL comes from the user, and the server fetches it
+// with the user's key — so a URL pointing at the host itself, the
+// internal network, or the cloud metadata endpoint would turn the AI
+// route into a proxy into the private network. Rejects private
+// targets twice: by hostname string, and by resolving the hostname
+// and rejecting when ANY address is private (DNS rebinding).
+// A DNS failure fails closed.
+// ---------------------------------------------------------------------------
+
+/** True when an IP address is private, loopback, or link-local. */
+function isPrivateIp(ip) {
+  const v4 = /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/.exec(ip);
+  if (v4) {
+    const a = Number(v4[1]);
+    const b = Number(v4[2]);
+    if (a === 0 || a === 10 || a === 127) return true;
+    if (a === 169 && b === 254) return true;
+    if (a === 172 && b >= 16 && b <= 31) return true;
+    if (a === 192 && b === 168) return true;
+    return false;
+  }
+  // IPv6: only strings with a colon are addresses — anything else is
+  // a hostname and not private by value.
+  const v6 = ip.replace(/^\[|\]$/g, "").split("%")[0].toLowerCase();
+  if (!v6.includes(":")) return false;
+  if (v6 === "::1" || v6 === "::") return true;
+  if (v6.startsWith("::ffff:")) return isPrivateIp(v6.slice("::ffff:".length));
+  const first = v6.split(":")[0];
+  if (/^fe[89ab][0-9a-f]*$/.test(first)) return true; // fe80::/10 link-local
+  if (/^f[cd][0-9a-f]*$/.test(first)) return true; // fc00::/7 unique-local
+  return false;
+}
+
+/** True when a hostname is private by name alone (no DNS needed). */
+function isPrivateHostname(host) {
+  const h = host.toLowerCase().replace(/\.$/, "");
+  if (h === "localhost" || h.endsWith(".localhost") || h.endsWith(".local")) {
+    return true;
+  }
+  return isPrivateIp(h);
+}
+
+/**
+ * Whether a custom base URL is safe to fetch server-side: a public
+ * https host with no credentials in the URL. The lookup is
+ * injectable (like fetchImpl) so tests can stub DNS; when omitted
+ * it is imported lazily — ai.ts is also bundled into the editor
+ * page, so a top-level Node import would break the client build.
+ * webpackIgnore leaves the import alone for the server runtime.
+ */
+async function isSafeCustomBaseUrl(baseUrl, lookupImpl) {
+  let url;
+  try {
+    url = new URL(baseUrl);
+  } catch {
+    return false;
+  }
+  if (url.protocol !== "https:" || !url.hostname) return false;
+  if (url.username || url.password) return false;
+  if (isPrivateHostname(url.hostname)) return false;
+  const lookup =
+    lookupImpl ?? (await import(/* webpackIgnore: true */ "node:dns/promises")).lookup;
+  let addresses;
+  try {
+    addresses = await lookup(url.hostname, { all: true });
+  } catch {
+    return false;
+  }
+  if (addresses.length === 0) return false;
+  return !addresses.some((a) => isPrivateIp(a.address));
+}
+
 /** One OpenAI-compatible chat-completions call, shared by OpenAI,
     OpenRouter and custom providers. Tries each model in order; a 404
     (retired model) moves to the next, any other failure stops. */
 async function callOpenAiCompatibleMock(args, key, fetchImpl, opts) {
   const maxTokens = opts.maxTokens ?? MAX_OUTPUT_TOKENS;
   const provider = opts.url === OPENAI_URL ? "openai" : opts.url === OPENROUTER_URL ? "openrouter" : "custom";
+  if (provider === "custom") {
+    // SSRF guard: a BYOK base URL comes from the user — never fetch
+    // a private/loopback/link-local target with the user's key.
+    // Runs before any model in the list is tried, so every custom
+    // call path goes through it.
+    const safe = await isSafeCustomBaseUrl(opts.url, opts.dnsLookup);
+    if (!safe) {
+      recordProviderFailure(provider, opts.models[0] ?? "custom", "unsafe base URL");
+      return null;
+    }
+  }
   for (const model of opts.models) {
     let res = null;
     try {
@@ -666,7 +751,7 @@ function finishResult(mode, reply, provider) {
   return quiz ? { reply, provider, quiz } : { reply, provider };
 }
 
-async function askAiMock(args, config, fetchImpl) {
+async function askAiMock(args, config, fetchImpl, dnsLookupImpl) {
   const maxTokens = maxTokensForEffort(args.effort);
   // Fresh per request: a leg that failed but was followed by a
   // success must not leak its entry into the next failed request.
@@ -713,6 +798,7 @@ async function askAiMock(args, config, fetchImpl) {
       url: normalizeCustomUrl(config.customBaseUrl),
       models: [selected],
       maxTokens,
+      dnsLookup: dnsLookupImpl,
     });
     if (reply) return finishResult(args.mode, reply, "custom");
   }
@@ -763,6 +849,7 @@ async function askAiMock(args, config, fetchImpl) {
       url: normalizeCustomUrl(config.customBaseUrl),
       models: [config.customModel],
       maxTokens,
+      dnsLookup: dnsLookupImpl,
     });
     if (reply) return finishResult(args.mode, reply, "custom");
   }
@@ -1505,6 +1592,96 @@ test("normalizeCustomUrl appends the endpoint only when missing", () => {
   assert.equal(normalizeCustomUrl("https://host:8080"), "https://host:8080/chat/completions");
 });
 
+test("SSRF guard: private IPs and hostnames are rejected without DNS", () => {
+  for (const ip of [
+    "10.0.0.5",
+    "127.0.0.1",
+    "127.53.1.2",
+    "192.168.1.1",
+    "172.16.0.1",
+    "172.31.255.255",
+    "169.254.169.254",
+    "0.0.0.0",
+    "::1",
+    "fe80::1",
+    "fc00::1",
+    "fd00::1",
+    "::ffff:192.168.1.1",
+  ]) {
+    assert.equal(isPrivateIp(ip), true, `${ip} must be private`);
+  }
+  for (const ip of [
+    "8.8.8.8",
+    "93.184.216.34",
+    "1.1.1.1",
+    "172.32.0.1",
+    "2001:4860:4860::8888",
+    "2606:4700:4700::1111",
+  ]) {
+    assert.equal(isPrivateIp(ip), false, `${ip} must be public`);
+  }
+  for (const host of ["localhost", "foo.localhost", "printer.local", "LOCALHOST"]) {
+    assert.equal(isPrivateHostname(host), true, `${host} must be private`);
+  }
+  assert.equal(isPrivateHostname("api.example.com"), false);
+  assert.equal(isPrivateHostname("10.0.0.5"), true);
+  assert.equal(isPrivateHostname("fcode.com"), false);
+});
+
+test("SSRF guard: isSafeCustomBaseUrl blocks private targets and rebinding", async () => {
+  const publicDns = async () => [{ address: "93.184.216.34", family: 4 }];
+  const privateDns = async () => [{ address: "10.1.2.3", family: 4 }];
+  const failingDns = async () => {
+    throw new Error("ENOTFOUND");
+  };
+  assert.equal(await isSafeCustomBaseUrl("https://my-llm.example.com/v1", publicDns), true);
+  assert.equal(
+    await isSafeCustomBaseUrl("https://my-llm.example.com/v1", privateDns),
+    false,
+    "a public name resolving inwards must be blocked"
+  );
+  assert.equal(
+    await isSafeCustomBaseUrl("https://my-llm.example.com/v1", failingDns),
+    false,
+    "a DNS failure must fail closed"
+  );
+  assert.equal(await isSafeCustomBaseUrl("https://localhost:8443/v1", publicDns), false);
+  assert.equal(await isSafeCustomBaseUrl("https://127.0.0.1/v1", publicDns), false);
+  assert.equal(
+    await isSafeCustomBaseUrl("https://169.254.169.254/latest/meta-data/", publicDns),
+    false,
+    "the cloud metadata endpoint must be blocked"
+  );
+  assert.equal(await isSafeCustomBaseUrl("https://192.168.1.1/v1", publicDns), false);
+  assert.equal(await isSafeCustomBaseUrl("http://my-llm.example.com/v1", publicDns), false, "plain http must be rejected");
+  assert.equal(
+    await isSafeCustomBaseUrl("https://user:pass@my-llm.example.com/v1", publicDns),
+    false,
+    "credentials in the URL must be rejected"
+  );
+  assert.equal(await isSafeCustomBaseUrl("not a url", publicDns), false);
+});
+
+test("SSRF guard: a custom provider with a private base URL is never fetched", async () => {
+  const m = mockFetchFactory([]);
+  const res = await askAiMock(
+    { mode: "guide", question: "hi", model: "my-model" },
+    {
+      geminiKey: null,
+      groqKey: null,
+      anthropicKey: null,
+      openaiKey: null,
+      openrouterKey: null,
+      customKey: "ck-1234567890",
+      customBaseUrl: "https://localhost:8443/v1",
+      customModel: "my-model",
+    },
+    m.fetchImpl
+  );
+  assert.equal(res, null);
+  assert.equal(m.calls.length, 0, "no fetch must happen for a private base URL");
+});
+
 test("validateAiRequest: custom BYOK validation", () => {
   const base = { mode: "guide", question: "hi" };
   const customByok = {
@@ -1558,6 +1735,15 @@ test("validateAiRequest: new provider models accepted, unknown rejected with the
   // The old error wording is gone.
   assert.notEqual(unknown.error, "model is not an available free-tier model.");
 });
+
+// Stub DNS for the custom leg: my-llm.example.com resolves public;
+// anything else fails (fail closed, like the real guard).
+const stubPublicDns = async (hostname) => {
+  if (hostname === "my-llm.example.com") {
+    return [{ address: "93.184.216.34", family: 4 }];
+  }
+  throw new Error(`ENOTFOUND ${hostname}`);
+};
 
 test("askAi fallback order across all six providers", async () => {
   const geminiOk = {
@@ -1635,11 +1821,13 @@ test("askAi fallback order across all six providers", async () => {
   assert.equal(JSON.parse(m.calls[0].init.body).model, "claude-opus-5-5");
 
   // Picked model with only a custom key works (custom has no env var).
+  // The SSRF guard runs on the fake host too, so the test stubs DNS.
   m = mockFetchFactory([customOk]);
   res = await askAiMock(
     { mode: "guide", question: "hi", model: "my-model" },
     { ...noKeys, customKey: "ck-1234567890", customBaseUrl: "https://my-llm.example.com/v1/", customModel: "my-model" },
-    m.fetchImpl
+    m.fetchImpl,
+    stubPublicDns
   );
   assert.deepEqual(res, { reply: "from custom", provider: "custom" });
   assert.equal(m.calls[0].url, "https://my-llm.example.com/v1/chat/completions");

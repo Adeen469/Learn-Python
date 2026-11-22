@@ -95,17 +95,25 @@ export async function issueSession(
   res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions(isSecure));
 }
 
-/** Set the short-lived 2FA step-up cookie (HMAC-signed, "v1p." prefix). */
+/**
+ * Set the short-lived 2FA step-up cookie (HMAC-signed, "v1p." prefix).
+ * `auth` records which first factor brought the user here, so the
+ * verify step issues the session with the right method (a Google
+ * sign-in with 2FA on must not come back as an email session).
+ * Defaults to "email" — the email sign-in and OTP flows.
+ */
 export async function setPending2fa(
   res: NextResponse,
   secret: string,
   email: string,
-  isSecure: boolean
+  isSecure: boolean,
+  auth: "google" | "email" = "email"
 ): Promise<void> {
   const now = Math.floor(Date.now() / 1000);
   const token = await signToken(secret, {
     kind: "2fa",
     email,
+    auth,
     iat: now,
     exp: now + PENDING_2FA_MAX_AGE_SECONDS,
   });
@@ -129,18 +137,32 @@ export function clearPending2fa(
   );
 }
 
-/** Read + verify the 2FA step-up cookie. Returns the email, or null. */
+/**
+ * Read + verify the 2FA step-up cookie. Returns the email and the
+ * first-factor method, or null. Tokens issued before the `auth`
+ * field existed verify as "email".
+ */
 export async function readPending2fa(
   req: NextRequest,
   secret: string
-): Promise<string | null> {
+): Promise<{ email: string; auth: "google" | "email" } | null> {
   const token = req.cookies.get(PENDING_2FA_COOKIE)?.value;
   if (!token) return null;
   const verified = await verifyToken(secret, token);
   if (!verified.ok) return null;
   const p = verified.payload;
   if (p.kind !== "2fa" || typeof p.email !== "string") return null;
-  return p.email;
+  if (
+    p.auth !== undefined &&
+    p.auth !== "google" &&
+    p.auth !== "email"
+  ) {
+    return null;
+  }
+  return {
+    email: p.email,
+    auth: (p.auth as "google" | "email" | undefined) ?? "email",
+  };
 }
 
 /** Read + verify the lp_session cookie. Returns the user, or null. */
@@ -154,12 +176,14 @@ export async function getSessionUser(
   if (!verified.ok) return null;
   // Session revocation (migration 005): when the user has a database
   // row, its session_version must match the one signed into this
-  // session — a password reset bumps the stored version, so every
-  // older session fails here. Google users have no row (they pass),
-  // and a missing row on a database error also passes: the signature
-  // still holds, and a DB blip must not log everyone out.
-  const row = await getUserByEmail(verified.user.email);
-  if (row && (row.session_version ?? 0) !== (verified.user.sv ?? 0)) {
+  // session — a password reset (or logout) bumps the stored version,
+  // so every older session fails here. A pure Google user has no row
+  // and passes on the signature alone. But when the version check
+  // itself cannot run (no client, query error), the session FAILS —
+  // a DB blip must not silently pass a revoked session.
+  const check = await getSessionVersionByEmail(verified.user.email);
+  if (!check.ok) return null;
+  if (check.version !== null && check.version !== (verified.user.sv ?? 0)) {
     return null;
   }
   return verified.user;
@@ -179,6 +203,7 @@ export async function readJsonBody(
   return body as Record<string, unknown>;
 }
 
+
 // ---------------------------------------------------------------------------
 // Issuing one-time codes (shared by send-otp, signup, and 2fa/send-code)
 // ---------------------------------------------------------------------------
@@ -193,7 +218,7 @@ import {
 import {
   countRecentOtps,
   getLatestOtp,
-  getUserByEmail,
+  getSessionVersionByEmail,
   normalizeEmail,
   storeOtp,
 } from "@/lib/auth-store";

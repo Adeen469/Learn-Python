@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   decideOtp,
-  decryptTotpSecret,
+  decryptUserTotpSecret,
   findBackupCode,
   sha256Hex,
   TOTP_MAX_FAILED_ATTEMPTS,
@@ -51,11 +51,11 @@ export async function POST(req: NextRequest) {
   ) {
     return jsonError(GENERIC_CODE_ERROR, 400);
   }
-
-  const email = await readPending2fa(req, prereqs.secret);
-  if (!email) {
+  const pending = await readPending2fa(req, prereqs.secret);
+  if (!pending) {
     return jsonError("Your sign-in step expired. Please sign in again.", 401);
   }
+  const email = pending.email;
   const user = await getUserByEmail(email);
   if (!user || !user.totp_enabled) {
     return jsonError(GENERIC_CODE_ERROR, 400);
@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
     if ((user.totp_failed_attempts ?? 0) >= TOTP_MAX_FAILED_ATTEMPTS) {
       return jsonError(GENERIC_CODE_ERROR, 400);
     }
-    const secret = decryptTotpSecret(prereqs.secret, user.totp_secret_enc);
+    const secret = decryptUserTotpSecret(prereqs.secret, user.totp_secret_enc);
     verified = secret !== null && verifyTotpCode(secret, code);
     if (!verified) {
       await updateUser(user.id, {
@@ -132,7 +132,7 @@ export async function POST(req: NextRequest) {
     prereqs.secret,
     { email: user.email, name: user.name, picture: null },
     prereqs.isSecure,
-    { auth: "email", mfa: true, sv: user.session_version ?? 0 }
+    { auth: pending.auth, mfa: true, sv: user.session_version ?? 0 }
   );
   clearPending2fa(res, prereqs.isSecure);
   return res;

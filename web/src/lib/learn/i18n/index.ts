@@ -1,13 +1,21 @@
 // Tutorial/reference translation overlays — loader + merge.
 //
 // Chunk files are owned by the per-language translators; this file
-// only imports and merges them. Each chunk exports
+// only loads and merges them. Each chunk exports
 // `TRANSLATIONS: TutorialTranslations` (tutorials) or
 // `TRANSLATIONS: ReferenceTranslations` (references).
 //
 // English is the source language, so there are no `en` chunks:
 // getTutorialTranslations("en") / getReferenceTranslations("en")
 // return empty maps and every lookup falls back to English.
+//
+// LAZY: no chunk is statically imported — a language's 7 chunks are
+// fetched with dynamic import() only when loadTranslations(lang) runs
+// (the LanguageProvider does this when the language becomes active),
+// then merged once and cached. Until they arrive, the sync getters
+// below return {} and every lookup falls back to English, exactly as
+// it did before the language was selected. A failed load leaves the
+// cache empty (English fallback) and retries on the next call.
 //
 // `blocks` overlays are keyed by 0-based block index; code blocks
 // are never translated and never appear in an overlay.
@@ -19,86 +27,6 @@ import type {
   TranslatedTutorial,
   TutorialTranslations,
 } from "./types";
-
-import { TRANSLATIONS as hi_roman_tutorials_basics_1 } from "./hi-roman/tutorials-basics-1";
-import { TRANSLATIONS as hi_roman_tutorials_basics_2 } from "./hi-roman/tutorials-basics-2";
-import { TRANSLATIONS as hi_roman_tutorials_functions_matplotlib } from "./hi-roman/tutorials-functions-matplotlib";
-import { TRANSLATIONS as hi_roman_tutorials_classes_filemodules } from "./hi-roman/tutorials-classes-filemodules";
-import { TRANSLATIONS as hi_roman_tutorials_ml_databases_dsa } from "./hi-roman/tutorials-ml-databases-dsa";
-import { TRANSLATIONS as hi_roman_references_modules } from "./hi-roman/references-modules";
-import { TRANSLATIONS as hi_roman_references_others } from "./hi-roman/references-others";
-
-import { TRANSLATIONS as fr_tutorials_basics_1 } from "./fr/tutorials-basics-1";
-import { TRANSLATIONS as fr_tutorials_basics_2 } from "./fr/tutorials-basics-2";
-import { TRANSLATIONS as fr_tutorials_functions_matplotlib } from "./fr/tutorials-functions-matplotlib";
-import { TRANSLATIONS as fr_tutorials_classes_filemodules } from "./fr/tutorials-classes-filemodules";
-import { TRANSLATIONS as fr_tutorials_ml_databases_dsa } from "./fr/tutorials-ml-databases-dsa";
-import { TRANSLATIONS as fr_references_modules } from "./fr/references-modules";
-import { TRANSLATIONS as fr_references_others } from "./fr/references-others";
-
-import { TRANSLATIONS as ja_tutorials_basics_1 } from "./ja/tutorials-basics-1";
-import { TRANSLATIONS as ja_tutorials_basics_2 } from "./ja/tutorials-basics-2";
-import { TRANSLATIONS as ja_tutorials_functions_matplotlib } from "./ja/tutorials-functions-matplotlib";
-import { TRANSLATIONS as ja_tutorials_classes_filemodules } from "./ja/tutorials-classes-filemodules";
-import { TRANSLATIONS as ja_tutorials_ml_databases_dsa } from "./ja/tutorials-ml-databases-dsa";
-import { TRANSLATIONS as ja_references_modules } from "./ja/references-modules";
-import { TRANSLATIONS as ja_references_others } from "./ja/references-others";
-
-import { TRANSLATIONS as ko_tutorials_basics_1 } from "./ko/tutorials-basics-1";
-import { TRANSLATIONS as ko_tutorials_basics_2 } from "./ko/tutorials-basics-2";
-import { TRANSLATIONS as ko_tutorials_functions_matplotlib } from "./ko/tutorials-functions-matplotlib";
-import { TRANSLATIONS as ko_tutorials_classes_filemodules } from "./ko/tutorials-classes-filemodules";
-import { TRANSLATIONS as ko_tutorials_ml_databases_dsa } from "./ko/tutorials-ml-databases-dsa";
-import { TRANSLATIONS as ko_references_modules } from "./ko/references-modules";
-import { TRANSLATIONS as ko_references_others } from "./ko/references-others";
-
-import { TRANSLATIONS as es_tutorials_basics_1 } from "./es/tutorials-basics-1";
-import { TRANSLATIONS as es_tutorials_basics_2 } from "./es/tutorials-basics-2";
-import { TRANSLATIONS as es_tutorials_functions_matplotlib } from "./es/tutorials-functions-matplotlib";
-import { TRANSLATIONS as es_tutorials_classes_filemodules } from "./es/tutorials-classes-filemodules";
-import { TRANSLATIONS as es_tutorials_ml_databases_dsa } from "./es/tutorials-ml-databases-dsa";
-import { TRANSLATIONS as es_references_modules } from "./es/references-modules";
-import { TRANSLATIONS as es_references_others } from "./es/references-others";
-
-import { TRANSLATIONS as de_tutorials_basics_1 } from "./de/tutorials-basics-1";
-import { TRANSLATIONS as de_tutorials_basics_2 } from "./de/tutorials-basics-2";
-import { TRANSLATIONS as de_tutorials_functions_matplotlib } from "./de/tutorials-functions-matplotlib";
-import { TRANSLATIONS as de_tutorials_classes_filemodules } from "./de/tutorials-classes-filemodules";
-import { TRANSLATIONS as de_tutorials_ml_databases_dsa } from "./de/tutorials-ml-databases-dsa";
-import { TRANSLATIONS as de_references_modules } from "./de/references-modules";
-import { TRANSLATIONS as de_references_others } from "./de/references-others";
-
-import { TRANSLATIONS as pt_tutorials_basics_1 } from "./pt/tutorials-basics-1";
-import { TRANSLATIONS as pt_tutorials_basics_2 } from "./pt/tutorials-basics-2";
-import { TRANSLATIONS as pt_tutorials_functions_matplotlib } from "./pt/tutorials-functions-matplotlib";
-import { TRANSLATIONS as pt_tutorials_classes_filemodules } from "./pt/tutorials-classes-filemodules";
-import { TRANSLATIONS as pt_tutorials_ml_databases_dsa } from "./pt/tutorials-ml-databases-dsa";
-import { TRANSLATIONS as pt_references_modules } from "./pt/references-modules";
-import { TRANSLATIONS as pt_references_others } from "./pt/references-others";
-
-import { TRANSLATIONS as ru_tutorials_basics_1 } from "./ru/tutorials-basics-1";
-import { TRANSLATIONS as ru_tutorials_basics_2 } from "./ru/tutorials-basics-2";
-import { TRANSLATIONS as ru_tutorials_functions_matplotlib } from "./ru/tutorials-functions-matplotlib";
-import { TRANSLATIONS as ru_tutorials_classes_filemodules } from "./ru/tutorials-classes-filemodules";
-import { TRANSLATIONS as ru_tutorials_ml_databases_dsa } from "./ru/tutorials-ml-databases-dsa";
-import { TRANSLATIONS as ru_references_modules } from "./ru/references-modules";
-import { TRANSLATIONS as ru_references_others } from "./ru/references-others";
-
-import { TRANSLATIONS as ar_tutorials_basics_1 } from "./ar/tutorials-basics-1";
-import { TRANSLATIONS as ar_tutorials_basics_2 } from "./ar/tutorials-basics-2";
-import { TRANSLATIONS as ar_tutorials_functions_matplotlib } from "./ar/tutorials-functions-matplotlib";
-import { TRANSLATIONS as ar_tutorials_classes_filemodules } from "./ar/tutorials-classes-filemodules";
-import { TRANSLATIONS as ar_tutorials_ml_databases_dsa } from "./ar/tutorials-ml-databases-dsa";
-import { TRANSLATIONS as ar_references_modules } from "./ar/references-modules";
-import { TRANSLATIONS as ar_references_others } from "./ar/references-others";
-
-import { TRANSLATIONS as zh_tutorials_basics_1 } from "./zh/tutorials-basics-1";
-import { TRANSLATIONS as zh_tutorials_basics_2 } from "./zh/tutorials-basics-2";
-import { TRANSLATIONS as zh_tutorials_functions_matplotlib } from "./zh/tutorials-functions-matplotlib";
-import { TRANSLATIONS as zh_tutorials_classes_filemodules } from "./zh/tutorials-classes-filemodules";
-import { TRANSLATIONS as zh_tutorials_ml_databases_dsa } from "./zh/tutorials-ml-databases-dsa";
-import { TRANSLATIONS as zh_references_modules } from "./zh/references-modules";
-import { TRANSLATIONS as zh_references_others } from "./zh/references-others";
 
 type Lang =
   | "hi-roman"
@@ -113,42 +41,190 @@ type Lang =
   | "zh"
   | "en";
 
-const TUTORIALS: Record<Exclude<Lang, "en">, TutorialTranslations> = {
-  "hi-roman": { ...hi_roman_tutorials_basics_1, ...hi_roman_tutorials_basics_2, ...hi_roman_tutorials_functions_matplotlib, ...hi_roman_tutorials_classes_filemodules, ...hi_roman_tutorials_ml_databases_dsa },
-  "fr": { ...fr_tutorials_basics_1, ...fr_tutorials_basics_2, ...fr_tutorials_functions_matplotlib, ...fr_tutorials_classes_filemodules, ...fr_tutorials_ml_databases_dsa },
-  "ja": { ...ja_tutorials_basics_1, ...ja_tutorials_basics_2, ...ja_tutorials_functions_matplotlib, ...ja_tutorials_classes_filemodules, ...ja_tutorials_ml_databases_dsa },
-  "ko": { ...ko_tutorials_basics_1, ...ko_tutorials_basics_2, ...ko_tutorials_functions_matplotlib, ...ko_tutorials_classes_filemodules, ...ko_tutorials_ml_databases_dsa },
-  "es": { ...es_tutorials_basics_1, ...es_tutorials_basics_2, ...es_tutorials_functions_matplotlib, ...es_tutorials_classes_filemodules, ...es_tutorials_ml_databases_dsa },
-  "de": { ...de_tutorials_basics_1, ...de_tutorials_basics_2, ...de_tutorials_functions_matplotlib, ...de_tutorials_classes_filemodules, ...de_tutorials_ml_databases_dsa },
-  "pt": { ...pt_tutorials_basics_1, ...pt_tutorials_basics_2, ...pt_tutorials_functions_matplotlib, ...pt_tutorials_classes_filemodules, ...pt_tutorials_ml_databases_dsa },
-  "ru": { ...ru_tutorials_basics_1, ...ru_tutorials_basics_2, ...ru_tutorials_functions_matplotlib, ...ru_tutorials_classes_filemodules, ...ru_tutorials_ml_databases_dsa },
-  "ar": { ...ar_tutorials_basics_1, ...ar_tutorials_basics_2, ...ar_tutorials_functions_matplotlib, ...ar_tutorials_classes_filemodules, ...ar_tutorials_ml_databases_dsa },
-  "zh": { ...zh_tutorials_basics_1, ...zh_tutorials_basics_2, ...zh_tutorials_functions_matplotlib, ...zh_tutorials_classes_filemodules, ...zh_tutorials_ml_databases_dsa },
-};
+type NonEnglishLang = Exclude<Lang, "en">;
 
-const REFERENCES: Record<Exclude<Lang, "en">, ReferenceTranslations> = {
-  "hi-roman": { ...hi_roman_references_modules, ...hi_roman_references_others },
-  "fr": { ...fr_references_modules, ...fr_references_others },
-  "ja": { ...ja_references_modules, ...ja_references_others },
-  "ko": { ...ko_references_modules, ...ko_references_others },
-  "es": { ...es_references_modules, ...es_references_others },
-  "de": { ...de_references_modules, ...de_references_others },
-  "pt": { ...pt_references_modules, ...pt_references_others },
-  "ru": { ...ru_references_modules, ...ru_references_others },
-  "ar": { ...ar_references_modules, ...ar_references_others },
-  "zh": { ...zh_references_modules, ...zh_references_others },
-};
-
-/** Merged tutorial overlays for a language ({} for English). */
-export function getTutorialTranslations(lang: string): TutorialTranslations {
-  if (lang === "en") return {};
-  return TUTORIALS[lang as Exclude<Lang, "en">] ?? {};
+interface LanguageOverlays {
+  tutorials: TutorialTranslations;
+  references: ReferenceTranslations;
 }
 
-/** Merged reference overlays for a language ({} for English). */
+/**
+ * Merge a language's explicit chunk imports into one overlay pair.
+ * The imports stay explicit (one import() per chunk file) so the
+ * bundler can split each chunk into its own lazy chunk — a computed
+ * import path would defeat that.
+ */
+async function mergeLanguage(
+  tutorialChunks: Promise<{ TRANSLATIONS: TutorialTranslations }>[],
+  referenceChunks: Promise<{ TRANSLATIONS: ReferenceTranslations }>[]
+): Promise<LanguageOverlays> {
+  const [tutorials, references] = await Promise.all([
+    Promise.all(tutorialChunks).then((chunks) =>
+      Object.assign({}, ...chunks.map((c) => c.TRANSLATIONS))
+    ),
+    Promise.all(referenceChunks).then((chunks) =>
+      Object.assign({}, ...chunks.map((c) => c.TRANSLATIONS))
+    ),
+  ]);
+  return { tutorials, references };
+}
+
+const LOADERS: Record<NonEnglishLang, () => Promise<LanguageOverlays>> = {
+  "hi-roman": () =>
+    mergeLanguage(
+      [
+        import("./hi-roman/tutorials-basics-1"),
+        import("./hi-roman/tutorials-basics-2"),
+        import("./hi-roman/tutorials-functions-matplotlib"),
+        import("./hi-roman/tutorials-classes-filemodules"),
+        import("./hi-roman/tutorials-ml-databases-dsa"),
+      ],
+      [
+        import("./hi-roman/references-modules"),
+        import("./hi-roman/references-others"),
+      ]
+    ),
+  fr: () =>
+    mergeLanguage(
+      [
+        import("./fr/tutorials-basics-1"),
+        import("./fr/tutorials-basics-2"),
+        import("./fr/tutorials-functions-matplotlib"),
+        import("./fr/tutorials-classes-filemodules"),
+        import("./fr/tutorials-ml-databases-dsa"),
+      ],
+      [import("./fr/references-modules"), import("./fr/references-others")]
+    ),
+  ja: () =>
+    mergeLanguage(
+      [
+        import("./ja/tutorials-basics-1"),
+        import("./ja/tutorials-basics-2"),
+        import("./ja/tutorials-functions-matplotlib"),
+        import("./ja/tutorials-classes-filemodules"),
+        import("./ja/tutorials-ml-databases-dsa"),
+      ],
+      [import("./ja/references-modules"), import("./ja/references-others")]
+    ),
+  ko: () =>
+    mergeLanguage(
+      [
+        import("./ko/tutorials-basics-1"),
+        import("./ko/tutorials-basics-2"),
+        import("./ko/tutorials-functions-matplotlib"),
+        import("./ko/tutorials-classes-filemodules"),
+        import("./ko/tutorials-ml-databases-dsa"),
+      ],
+      [import("./ko/references-modules"), import("./ko/references-others")]
+    ),
+  es: () =>
+    mergeLanguage(
+      [
+        import("./es/tutorials-basics-1"),
+        import("./es/tutorials-basics-2"),
+        import("./es/tutorials-functions-matplotlib"),
+        import("./es/tutorials-classes-filemodules"),
+        import("./es/tutorials-ml-databases-dsa"),
+      ],
+      [import("./es/references-modules"), import("./es/references-others")]
+    ),
+  de: () =>
+    mergeLanguage(
+      [
+        import("./de/tutorials-basics-1"),
+        import("./de/tutorials-basics-2"),
+        import("./de/tutorials-functions-matplotlib"),
+        import("./de/tutorials-classes-filemodules"),
+        import("./de/tutorials-ml-databases-dsa"),
+      ],
+      [import("./de/references-modules"), import("./de/references-others")]
+    ),
+  pt: () =>
+    mergeLanguage(
+      [
+        import("./pt/tutorials-basics-1"),
+        import("./pt/tutorials-basics-2"),
+        import("./pt/tutorials-functions-matplotlib"),
+        import("./pt/tutorials-classes-filemodules"),
+        import("./pt/tutorials-ml-databases-dsa"),
+      ],
+      [import("./pt/references-modules"), import("./pt/references-others")]
+    ),
+  ru: () =>
+    mergeLanguage(
+      [
+        import("./ru/tutorials-basics-1"),
+        import("./ru/tutorials-basics-2"),
+        import("./ru/tutorials-functions-matplotlib"),
+        import("./ru/tutorials-classes-filemodules"),
+        import("./ru/tutorials-ml-databases-dsa"),
+      ],
+      [import("./ru/references-modules"), import("./ru/references-others")]
+    ),
+  ar: () =>
+    mergeLanguage(
+      [
+        import("./ar/tutorials-basics-1"),
+        import("./ar/tutorials-basics-2"),
+        import("./ar/tutorials-functions-matplotlib"),
+        import("./ar/tutorials-classes-filemodules"),
+        import("./ar/tutorials-ml-databases-dsa"),
+      ],
+      [import("./ar/references-modules"), import("./ar/references-others")]
+    ),
+  zh: () =>
+    mergeLanguage(
+      [
+        import("./zh/tutorials-basics-1"),
+        import("./zh/tutorials-basics-2"),
+        import("./zh/tutorials-functions-matplotlib"),
+        import("./zh/tutorials-classes-filemodules"),
+        import("./zh/tutorials-ml-databases-dsa"),
+      ],
+      [import("./zh/references-modules"), import("./zh/references-others")]
+    ),
+};
+
+// Merged overlays per language, once loaded. Empty until
+// loadTranslations(lang) resolves — the sync getters below read
+// this, so lookups fall back to English while a language loads.
+const tutorialCache: Partial<Record<NonEnglishLang, TutorialTranslations>> = {};
+const referenceCache: Partial<Record<NonEnglishLang, ReferenceTranslations>> = {};
+const loadingCache = new Map<NonEnglishLang, Promise<void>>();
+
+/**
+ * Load (once, cached) a language's tutorial + reference overlays.
+ * English is a no-op; unknown codes resolve without loading
+ * anything. A failed load is forgotten so the next call retries,
+ * and the sync getters keep returning {} (English) meanwhile.
+ */
+export function loadTranslations(lang: string): Promise<void> {
+  if (lang === "en" || !(lang in LOADERS)) return Promise.resolve();
+  const code = lang as NonEnglishLang;
+  let pending = loadingCache.get(code);
+  if (!pending) {
+    pending = LOADERS[code]().then(({ tutorials, references }) => {
+      tutorialCache[code] = tutorials;
+      referenceCache[code] = references;
+    });
+    pending.catch(() => {
+      loadingCache.delete(code);
+    });
+    loadingCache.set(code, pending);
+  }
+  return pending;
+}
+
+/** Merged tutorial overlays for a language ({} for English, or while loading). */
+export function getTutorialTranslations(lang: string): TutorialTranslations {
+  if (lang === "en") return {};
+  return tutorialCache[lang as NonEnglishLang] ?? {};
+}
+
+/** Merged reference overlays for a language ({} for English, or while loading). */
 export function getReferenceTranslations(lang: string): ReferenceTranslations {
   if (lang === "en") return {};
-  return REFERENCES[lang as Exclude<Lang, "en">] ?? {};
+  return referenceCache[lang as NonEnglishLang] ?? {};
 }
 
 /**

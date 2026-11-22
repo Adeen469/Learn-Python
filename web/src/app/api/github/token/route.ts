@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
-  const saved = await saveGithubToken(user.email, parsed.data.token, prereqs.secret, probe.expiresAt);
+  const saved = await saveGithubToken(user.email, parsed.data.token, probe.expiresAt);
   if (!saved) {
     return NextResponse.json(
       { error: "Could not save the token — token storage is not set up yet." },
