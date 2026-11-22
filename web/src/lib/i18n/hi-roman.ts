@@ -594,6 +594,7 @@ export const hiRoman: Strings = {
     wifiOnlyHint:
       "Lessons aur videos offline ke liye sirf Wi-Fi par download honge. Browser Wi-Fi aur mobile data me farak nahi kar sakta, isliye connection quality bhi check hoti hai.",
     lessonsLabel: "Offline lessons",
+    lessons: "Lessons",
     lessonsReady: (done: number, total: number) =>
       `${done} / ${total} lessons offline ready`,
     lessonsDownloading: (pct: number) =>
@@ -602,6 +603,11 @@ export const hiRoman: Strings = {
     savedVideos: "Saved videos",
     noSavedVideos: "Abhi koi video offline save nahi hai.",
     removeSaved: "Hatao",
+    savedLessons: "Save ki hui lessons",
+    deleteAll: "Sabhi delete karein",
+    confirmDeleteAll: (total: number) => `Sabhi ${total} lessons delete karein?`,
+    downloadAgain: "Lessons phir se download karein",
+    noSavedLessons: "Abhi koi lesson offline save nahi hai.",
     askTitle: "Lessons offline download karein?",
     askBody: (total: number) => `Saare ${total} lessons is device par save karein taaki bina internet ke padh sakein. Download sirf Wi-Fi par hoga.`,
     askYes: "Haan, download karo",

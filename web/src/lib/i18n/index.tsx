@@ -700,12 +700,18 @@ export type Strings = {
     wifiOnly: string;
     wifiOnlyHint: string;
     lessonsLabel: string;
+    lessons: string;
     lessonsReady: (done: number, total: number) => string;
     lessonsDownloading: (pct: number) => string;
     lessonsWaiting: string;
     savedVideos: string;
     noSavedVideos: string;
     removeSaved: string;
+    savedLessons: string;
+    deleteAll: string;
+    confirmDeleteAll: (total: number) => string;
+    downloadAgain: string;
+    noSavedLessons: string;
     askTitle: string;
     askBody: (total: number) => string;
     askYes: string;

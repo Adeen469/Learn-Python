@@ -648,6 +648,7 @@ export const zh: Strings = {
     wifiOnlyHint:
       "课程和视频仅在 Wi-Fi 下下载以供离线使用。浏览器无法区分 Wi-Fi 和移动数据，因此还会检查连接质量。",
     lessonsLabel: "离线课程",
+    lessons: "课程",
     lessonsReady: (done: number, total: number) =>
       `${done} / ${total} 节课程已离线就绪`,
     lessonsDownloading: (pct: number) => `正在下载课程…${pct}%`,
@@ -655,6 +656,11 @@ export const zh: Strings = {
     savedVideos: "已保存的视频",
     noSavedVideos: "尚未保存任何离线视频。",
     removeSaved: "删除",
+    savedLessons: "已保存的课程",
+    deleteAll: "全部删除",
+    confirmDeleteAll: (total: number) => `删除全部 ${total} 节课程？`,
+    downloadAgain: "重新下载课程",
+    noSavedLessons: "尚未保存任何离线课程。",
     askTitle: "下载课程以供离线使用？",
     askBody: (total: number) => `将全部 ${total} 节课程保存到此设备，无需联网即可阅读。下载仅在 Wi-Fi 下进行。`,
     askYes: "是，下载",

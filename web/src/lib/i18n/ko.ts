@@ -597,6 +597,7 @@ export const ko: Strings = {
     wifiOnlyHint:
       "레슨과 비디오는 Wi-Fi에서만 오프라인용으로 다운로드됩니다. 브라우저는 Wi-Fi와 모바일 데이터를 구분할 수 없어 연결 품질도 함께 확인합니다.",
     lessonsLabel: "오프라인 레슨",
+    lessons: "수업",
     lessonsReady: (done: number, total: number) =>
       `${done} / ${total}개 레슨 오프라인 준비 완료`,
     lessonsDownloading: (pct: number) => `레슨 다운로드 중… ${pct}%`,
@@ -604,6 +605,11 @@ export const ko: Strings = {
     savedVideos: "저장된 비디오",
     noSavedVideos: "아직 오프라인으로 저장된 비디오가 없습니다.",
     removeSaved: "삭제",
+    savedLessons: "저장된 수업",
+    deleteAll: "모두 삭제",
+    confirmDeleteAll: (total: number) => `${total}개의 수업을 모두 삭제할까요?`,
+    downloadAgain: "수업 다시 다운로드",
+    noSavedLessons: "오프라인용으로 저장된 수업이 아직 없습니다.",
     askTitle: "레슨을 오프라인용으로 다운로드할까요？",
     askBody: (total: number) => `전체 ${total}개 레슨을 이 기기에 저장하면 인터넷 없이 읽을 수 있습니다. 다운로드는 Wi-Fi에서만 진행됩니다.`,
     askYes: "예, 다운로드",

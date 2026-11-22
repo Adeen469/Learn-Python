@@ -672,6 +672,7 @@ export const pt: Strings = {
     wifiOnlyHint:
       "Lições e vídeos só são baixados para uso offline no Wi-Fi. Os navegadores não conseguem distinguir Wi-Fi de dados móveis — a qualidade da conexão também é verificada.",
     lessonsLabel: "Lições offline",
+    lessons: "Lições",
     lessonsReady: (done: number, total: number) =>
       `${done} de ${total} lições prontas offline`,
     lessonsDownloading: (pct: number) => `Baixando lições… ${pct} %`,
@@ -679,6 +680,11 @@ export const pt: Strings = {
     savedVideos: "Vídeos salvos",
     noSavedVideos: "Nenhum vídeo salvo offline ainda.",
     removeSaved: "Remover",
+    savedLessons: "Lições salvas",
+    deleteAll: "Excluir tudo",
+    confirmDeleteAll: (total: number) => `Excluir todas as ${total} lições?`,
+    downloadAgain: "Baixar as lições novamente",
+    noSavedLessons: "Nenhuma lição salva para offline ainda.",
     askTitle: "Baixar as lições para offline?",
     askBody: (total: number) => `Salve as ${total} lições neste dispositivo para lê-las sem internet. Os downloads acontecem apenas no Wi-Fi.`,
     askYes: "Sim, baixar",

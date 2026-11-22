@@ -624,6 +624,7 @@ export const fr: Strings = {
     wifiOnlyHint:
       "Les leçons et vidéos ne se téléchargent pour une utilisation hors ligne que sur Wi-Fi. Les navigateurs ne peuvent pas distinguer le Wi-Fi des données mobiles — la qualité de la connexion est aussi vérifiée.",
     lessonsLabel: "Leçons hors ligne",
+    lessons: "Leçons",
     lessonsReady: (done: number, total: number) =>
       `${done} leçons sur ${total} prêtes hors ligne`,
     lessonsDownloading: (pct: number) =>
@@ -632,6 +633,11 @@ export const fr: Strings = {
     savedVideos: "Vidéos enregistrées",
     noSavedVideos: "Aucune vidéo enregistrée hors ligne pour l'instant.",
     removeSaved: "Supprimer",
+    savedLessons: "Leçons enregistrées",
+    deleteAll: "Tout supprimer",
+    confirmDeleteAll: (total: number) => `Supprimer les ${total} leçons ?`,
+    downloadAgain: "Télécharger à nouveau les leçons",
+    noSavedLessons: "Aucune leçon enregistrée hors ligne pour le moment.",
     askTitle: "Télécharger les leçons hors ligne ?",
     askBody: (total: number) => `Enregistrez les ${total} leçons sur cet appareil pour les lire sans internet. Le téléchargement se fait uniquement en Wi-Fi.`,
     askYes: "Oui, télécharger",

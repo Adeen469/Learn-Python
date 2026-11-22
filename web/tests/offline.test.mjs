@@ -206,12 +206,18 @@ test("offline i18n keys exist in the type and every language", () => {
     "wifiOnly",
     "wifiOnlyHint",
     "lessonsLabel",
+    "lessons",
     "lessonsReady",
     "lessonsDownloading",
     "lessonsWaiting",
     "savedVideos",
     "noSavedVideos",
     "removeSaved",
+    "savedLessons",
+    "deleteAll",
+    "confirmDeleteAll",
+    "downloadAgain",
+    "noSavedLessons",
     "askTitle",
     "askBody",
     "askYes",
@@ -402,7 +408,13 @@ test("warm progress counts what is really cached, never double-counts", () => {
   assert.ok(src.includes(".match(u)"));
   assert.ok(src.includes("urls.map((u)"));
   assert.ok(
-    src.includes("const pending = urls.filter((_, i) => !cached[i])"),
+    src.includes("const pending = urls.filter("),
+  );
+  // ...skipping pages already cached AND pages the user deleted
+  // (the blocklist), so a delete is never silently undone.
+  assert.ok(src.includes("const deleted = new Set(getDeletedLessons())"));
+  assert.ok(
+    src.includes("(_, i) => !cached[i] && !deleted.has(ALL_LEARN_TOPICS[i].slug)"),
   );
   assert.ok(
     src.includes("for (let i = 0; i < pending.length; i += WARM_BATCH)"),
@@ -462,4 +474,125 @@ test("service worker precache caches each page's static chunks", () => {
   assert.ok(src.includes("statics.match(a)"));
   assert.ok(src.includes("text/html"));
   assert.ok(src.includes(".catch(() => undefined)"));
+});
+
+test("saved lessons open in a drill-down view with breadcrumbs and are deletable one by one", () => {
+  const src = downloads();
+  // The list shows what is REALLY cached (cache.match per lesson,
+  // like the warmer counts), in curriculum order, with the
+  // breadcrumb parts — section title + lesson title.
+  assert.ok(src.includes("export async function getSavedLessons"));
+  assert.ok(src.includes(".match(`/learn/${t.slug}`)"));
+  assert.ok(src.includes("sectionTitle: t.sectionTitle"));
+  assert.ok(src.includes("title: t.title"));
+  // Deleting one lesson removes only its HTML from the pages cache.
+  assert.ok(src.includes("export async function removeSavedLesson"));
+  assert.ok(src.includes("cache.delete(`/learn/${slug}`)"));
+  // The shared static chunks stay — deleting them would break every
+  // other saved lesson (and the shell pages).
+  assert.ok(!src.includes("statics.delete"));
+  const settings = readFileSync(
+    join(web, "src", "app", "settings", "page.tsx"),
+    "utf8",
+  );
+  // Drill-down, mirroring the editor's AI Settings card: the
+  // "Offline lessons" row is a tappable entry that opens the lessons
+  // view, and the back arrow returns to the overview.
+  assert.ok(settings.includes("lessonsOpen"));
+  assert.ok(settings.includes("setLessonsOpen(true)"));
+  assert.ok(settings.includes("setLessonsOpen(false)"));
+  assert.ok(settings.includes("ArrowLeft"));
+  assert.ok(settings.includes("ChevronRight"));
+  // Breadcrumb at the top of the view: "Offline > Lessons", with
+  // the parent name a button back to the overview.
+  assert.ok(settings.includes("t.offline.heading"));
+  assert.ok(settings.includes('{" > "}'));
+  assert.ok(settings.includes("t.offline.lessons"));
+  // The list and both deletes live INSIDE the lessons view — the
+  // overview shows only the entry row (count + progress bar).
+  assert.ok(
+    settings.indexOf("lessonsOpen ? (") <
+      settings.indexOf("t.offline.savedLessons"),
+    "list must be inside the drill-down view",
+  );
+  assert.ok(
+    settings.indexOf("t.offline.savedLessons") <
+      settings.indexOf("setLessonsOpen(true)"),
+    "entry row lives in the overview, after the view",
+  );
+  assert.ok(settings.includes("t.offline.savedLessons"));
+  assert.ok(settings.includes("getSavedLessons()"));
+  assert.ok(settings.includes("handleRemoveLesson"));
+  assert.ok(settings.includes("removeSavedLesson(slug)"));
+  // Each row shows the breadcrumb trail, same as the lesson page:
+  // section, then lesson title.
+  assert.ok(settings.includes("{l.sectionTitle} ›"));
+  assert.ok(settings.includes("{l.title}"));
+  // A long list scrolls instead of stretching the page.
+  assert.ok(settings.includes("max-h-72"));
+  assert.ok(settings.includes("overflow-y-auto"));
+  // The count + progress bar follow the delete (progress is
+  // recomputed from the real cache and broadcast).
+  assert.ok(src.includes("syncWarmProgress"));
+  assert.ok(src.includes("export async function syncWarmProgress"));
+  // ...and only broadcast when something changed, so a listener
+  // that refreshes on the event cannot loop.
+  assert.ok(src.includes("current.done !== p.done"));
+  assert.ok(settings.includes("syncWarmProgress()"));
+});
+
+test("deleted lessons are not re-warmed until the user saves them again", () => {
+  const src = downloads();
+  // A blocklist in localStorage, not a flag the warmer ignores.
+  assert.ok(src.includes('DELETED_LESSONS_KEY = "lp_offline_deleted_lessons"'));
+  assert.ok(src.includes("export function getDeletedLessons"));
+  assert.ok(src.includes("export function addDeletedLesson"));
+  assert.ok(src.includes("export function removeDeletedLesson"));
+  assert.ok(src.includes("export function clearDeletedLessons"));
+  // The warmer skips blocklisted slugs even when they are missing
+  // from the cache — otherwise a delete would silently undo itself.
+  assert.ok(src.includes("const deleted = new Set(getDeletedLessons())"));
+  assert.ok(src.includes("!deleted.has(ALL_LEARN_TOPICS[i].slug)"));
+  // Deleting a lesson blocklists it; re-saving it from its lesson
+  // page un-blocks it.
+  assert.ok(src.includes("addDeletedLesson(slug)"));
+  const btn = readFileSync(
+    join(web, "src", "components", "LessonOfflineButton.tsx"),
+    "utf8",
+  );
+  assert.ok(btn.includes("removeDeletedLesson(slug)"));
+});
+
+test("bulk delete stops the auto-warmer, confirms twice, and can be undone", () => {
+  const src = downloads();
+  // Clearing all lessons deletes every lesson HTML, blocklists all
+  // slugs, and answers the first-sign-in question "no" — so the
+  // background warmer does not start again on its own.
+  assert.ok(src.includes("export async function clearAllSavedLessons"));
+  assert.ok(src.includes('markDownloadOfferAnswered("no")'));
+  assert.ok(
+    src.includes("writeDeletedLessons(ALL_LEARN_TOPICS.map((t) => t.slug))"),
+  );
+  // Downloading again un-blocks everything, answers Yes, and runs
+  // the explicit start (the same path the Wi-Fi toggle uses).
+  assert.ok(src.includes("export async function downloadLessonsAgain"));
+  assert.ok(src.includes("clearDeletedLessons()"));
+  assert.ok(src.includes('markDownloadOfferAnswered("yes")'));
+  assert.ok(src.includes("return maybeWarmLessons();"));
+  const settings = readFileSync(
+    join(web, "src", "app", "settings", "page.tsx"),
+    "utf8",
+  );
+  // Two taps for 812 lessons: the first arms the confirm, the
+  // second deletes. Cancel backs out.
+  assert.ok(settings.includes("confirmClear"));
+  assert.ok(settings.includes("setConfirmClear(true)"));
+  assert.ok(settings.includes("t.offline.confirmDeleteAll"));
+  assert.ok(settings.includes("t.offline.deleteAll"));
+  assert.ok(settings.includes("t.common.cancel"));
+  assert.ok(settings.includes("handleClearAllLessons"));
+  // After the wipe the empty list offers the way back.
+  assert.ok(settings.includes("t.offline.noSavedLessons"));
+  assert.ok(settings.includes("t.offline.downloadAgain"));
+  assert.ok(settings.includes("handleDownloadAgain"));
 });

@@ -631,6 +631,7 @@ export const ru: Strings = {
     wifiOnlyHint:
       "Уроки и видео загружаются для офлайн-использования только по Wi-Fi. Браузеры не отличают Wi-Fi от мобильных данных, поэтому качество соединения тоже проверяется.",
     lessonsLabel: "Уроки офлайн",
+    lessons: "Уроки",
     lessonsReady: (done: number, total: number) =>
       `${done} из ${total} уроков готовы офлайн`,
     lessonsDownloading: (pct: number) => `Загрузка уроков… ${pct} %`,
@@ -638,6 +639,11 @@ export const ru: Strings = {
     savedVideos: "Сохранённые видео",
     noSavedVideos: "Пока нет видео, сохранённых офлайн.",
     removeSaved: "Удалить",
+    savedLessons: "Сохранённые уроки",
+    deleteAll: "Удалить все",
+    confirmDeleteAll: (total: number) => `Удалить все ${total} уроков?`,
+    downloadAgain: "Скачать уроки снова",
+    noSavedLessons: "Пока нет сохранённых уроков для офлайна.",
     askTitle: "Скачать уроки для офлайн-доступа?",
     askBody: (total: number) => `Сохраните все ${total} уроков на этом устройстве, чтобы читать их без интернета. Загрузка выполняется только по Wi-Fi.`,
     askYes: "Да, скачать",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, ChevronDown, Flame, Languages, Moon, Settings, Sun, Target, Trash2, Wifi } from "lucide-react";
+import { ArrowLeft, Check, ChevronDown, ChevronRight, Download, Flame, Languages, Moon, Settings, Sun, Target, Trash2, Wifi } from "lucide-react";
 import { AppNavbar } from "@/components/AppNavbar";
 import Counter from "@/components/Counter";
 import { LANGUAGES, useLanguage } from "@/lib/i18n";
@@ -33,12 +33,18 @@ import {
 import TwoFactorSettings from "@/components/TwoFactorSettings";
 import {
   WARM_EVENT,
+  clearAllSavedLessons,
+  downloadLessonsAgain,
+  getSavedLessons,
   getSavedVideos,
   isWifiOnlyEnabled,
   maybeWarmLessons,
   readWarmProgress,
+  removeSavedLesson,
   removeSavedVideo,
   setWifiOnlyEnabled,
+  syncWarmProgress,
+  type SavedLesson,
   type SavedVideo,
   type WarmProgress,
 } from "@/lib/offline-downloads";
@@ -86,6 +92,13 @@ export default function SettingsPage() {
   const [wifiOnly, setWifiOnly] = useState<boolean>(() => isWifiOnlyEnabled());
   const [warm, setWarm] = useState<WarmProgress>(() => readWarmProgress());
   const [savedVideos, setSavedVideos] = useState<SavedVideo[]>([]);
+  const [savedLessons, setSavedLessons] = useState<SavedLesson[]>([]);
+  const [confirmClear, setConfirmClear] = useState(false);
+  // Drill-down for the saved lessons, mirroring the editor's AI
+  // Settings card: the "Offline lessons" row opens a lessons view
+  // with an "Offline > Lessons" breadcrumb, and the back arrow
+  // returns to the overview. Only the lessons get this treatment.
+  const [lessonsOpen, setLessonsOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const currentLang = LANGUAGES.find((l) => l.code === lang) ?? LANGUAGES[0];
 
@@ -155,18 +168,34 @@ export default function SettingsPage() {
         if (alive) setSavedVideos(list);
       });
     };
+    const refreshLessons = () => {
+      void getSavedLessons().then((list) => {
+        if (alive) setSavedLessons(list);
+      });
+      // Lessons cached by visiting (not by the warmer) leave the
+      // stored progress stale — reconcile it with the real cache.
+      void syncWarmProgress();
+    };
     const onWarm = (e: Event) => {
       const p = (e as CustomEvent<WarmProgress>).detail;
-      if (p) setWarm(p);
+      if (p) {
+        setWarm(p);
+        // A warming run only finishes once: refresh the list then,
+        // not on every batch (812 cache matches per batch is waste).
+        if (p.state === "done") refreshLessons();
+      }
     };
     setWarm(readWarmProgress());
     refreshSaved();
+    refreshLessons();
     window.addEventListener(WARM_EVENT, onWarm);
     window.addEventListener("focus", refreshSaved);
+    window.addEventListener("focus", refreshLessons);
     return () => {
       alive = false;
       window.removeEventListener(WARM_EVENT, onWarm);
       window.removeEventListener("focus", refreshSaved);
+      window.removeEventListener("focus", refreshLessons);
     };
   }, []);
 
@@ -179,6 +208,28 @@ export default function SettingsPage() {
   async function handleRemoveSaved(lessonId: string) {
     await removeSavedVideo(lessonId);
     setSavedVideos(await getSavedVideos());
+  }
+
+  async function handleRemoveLesson(slug: string) {
+    await removeSavedLesson(slug);
+    setSavedLessons(await getSavedLessons());
+  }
+
+  async function handleClearAllLessons() {
+    await clearAllSavedLessons();
+    setSavedLessons([]);
+    setConfirmClear(false);
+  }
+
+  function handleDownloadAgain() {
+    // Fire and forget: the run takes a while for 812 lessons, and
+    // the warm events update the count + list as it progresses.
+    void downloadLessonsAgain();
+  }
+
+  function closeLessons() {
+    setLessonsOpen(false);
+    setConfirmClear(false);
   }
 
   const warmPct =
@@ -427,74 +478,181 @@ export default function SettingsPage() {
           {t.offline.heading}
         </h2>
         <div className="rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3">
-          <div className="flex items-center justify-between gap-3">
-            <span>
-              <span className="flex items-center gap-2 text-sm text-neutral-300">
-                <Wifi className="h-4 w-4 text-neutral-400" />
-                {t.offline.wifiOnly}
-              </span>
-              <span className="mt-1 block text-xs leading-relaxed text-neutral-400">
-                {t.offline.wifiOnlyHint}
-              </span>
-            </span>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={wifiOnly}
-              aria-label={t.offline.wifiOnly}
-              onClick={() => handleWifiToggle(!wifiOnly)}
-              className={`flex h-6 w-11 shrink-0 items-center rounded-full px-0.5 transition ${
-                wifiOnly ? "bg-white" : "bg-neutral-700"
-              }`}
-            >
-              <span
-                className={`h-5 w-5 rounded-full transition-all ${
-                  wifiOnly ? "ml-auto bg-black" : "bg-white"
-                }`}
-              />
-            </button>
-          </div>
-          <div className="mt-3 border-t border-neutral-800 pt-3">
-            <div className="flex items-center justify-between gap-3 text-sm">
-              <span className="text-neutral-300">{t.offline.lessonsLabel}</span>
-              <span className="font-medium text-white">{warmText}</span>
-            </div>
-            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-neutral-800">
-              <div
-                className="h-full rounded-full bg-white transition-all"
-                style={{ width: `${warmPct}%` }}
-              />
-            </div>
-          </div>
-          <div className="mt-3 border-t border-neutral-800 pt-3">
-            <span className="text-sm text-neutral-300">{t.offline.savedVideos}</span>
-            {savedVideos.length === 0 ? (
-              <p className="mt-1 text-xs text-neutral-400">
-                {t.offline.noSavedVideos}
-              </p>
-            ) : (
-              <div className="mt-2 divide-y divide-neutral-800">
-                {savedVideos.map((v) => (
-                  <div
-                    key={v.lessonId}
-                    className="flex items-center justify-between gap-3 py-2"
+          {lessonsOpen ? (
+            <>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={closeLessons}
+                  aria-label={t.offline.heading}
+                  title={t.offline.heading}
+                  className="shrink-0 rounded p-1 text-neutral-400 hover:bg-neutral-800 hover:text-white"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </button>
+                <span className="flex-1 text-sm font-semibold text-neutral-200">
+                  <button
+                    type="button"
+                    onClick={closeLessons}
+                    className="text-neutral-400 hover:text-white"
                   >
-                    <span className="min-w-0 truncate text-sm text-white">
-                      {v.title}
-                    </span>
+                    {t.offline.heading}
+                  </button>
+                  <span className="text-neutral-500">{" > "}</span>
+                  {t.offline.lessons}
+                </span>
+              </div>
+              <div className="mt-3 border-t border-neutral-800 pt-3">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm text-neutral-300">{t.offline.savedLessons}</span>
+                  {savedLessons.length > 0 &&
+                    (confirmClear ? (
+                      <span className="flex items-center gap-2">
+                        <span className="text-xs text-neutral-400">
+                          {t.offline.confirmDeleteAll(savedLessons.length)}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => void handleClearAllLessons()}
+                          className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-red-500/40 bg-red-500/10 px-2.5 py-1.5 text-xs font-medium text-red-300 transition hover:border-red-500/70 hover:text-red-200"
+                        >
+                          {t.offline.deleteAll}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setConfirmClear(false)}
+                          className="inline-flex shrink-0 items-center rounded-lg border border-neutral-800 bg-black px-2.5 py-1.5 text-xs text-neutral-400 transition hover:border-neutral-600 hover:text-white"
+                        >
+                          {t.common.cancel}
+                        </button>
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setConfirmClear(true)}
+                        className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-neutral-800 bg-black px-2.5 py-1.5 text-xs text-neutral-400 transition hover:border-red-500/40 hover:text-red-300"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        {t.offline.deleteAll}
+                      </button>
+                    ))}
+                </div>
+                {savedLessons.length === 0 ? (
+                  <div className="mt-2">
+                    <p className="text-xs text-neutral-400">{t.offline.noSavedLessons}</p>
                     <button
                       type="button"
-                      onClick={() => void handleRemoveSaved(v.lessonId)}
-                      className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-neutral-800 bg-black px-2.5 py-1.5 text-xs text-neutral-400 transition hover:border-neutral-600 hover:text-white"
+                      onClick={handleDownloadAgain}
+                      className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-black transition hover:bg-neutral-200"
                     >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      {t.offline.removeSaved}
+                      <Download className="h-3.5 w-3.5" />
+                      {t.offline.downloadAgain}
                     </button>
                   </div>
-                ))}
+                ) : (
+                  <div className="mt-2 max-h-72 divide-y divide-neutral-800 overflow-y-auto">
+                    {savedLessons.map((l) => (
+                      <div
+                        key={l.slug}
+                        className="flex items-center justify-between gap-3 py-2"
+                      >
+                        <span className="min-w-0 truncate text-sm">
+                          <span className="text-neutral-500">{l.sectionTitle} › </span>
+                          <span className="text-white">{l.title}</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => void handleRemoveLesson(l.slug)}
+                          className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-neutral-800 bg-black px-2.5 py-1.5 text-xs text-neutral-400 transition hover:border-neutral-600 hover:text-white"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          {t.offline.removeSaved}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center justify-between gap-3">
+                <span>
+                  <span className="flex items-center gap-2 text-sm text-neutral-300">
+                    <Wifi className="h-4 w-4 text-neutral-400" />
+                    {t.offline.wifiOnly}
+                  </span>
+                  <span className="mt-1 block text-xs leading-relaxed text-neutral-400">
+                    {t.offline.wifiOnlyHint}
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={wifiOnly}
+                  aria-label={t.offline.wifiOnly}
+                  onClick={() => handleWifiToggle(!wifiOnly)}
+                  className={`flex h-6 w-11 shrink-0 items-center rounded-full px-0.5 transition ${
+                    wifiOnly ? "bg-white" : "bg-neutral-700"
+                  }`}
+                >
+                  <span
+                    className={`h-5 w-5 rounded-full transition-all ${
+                      wifiOnly ? "ml-auto bg-black" : "bg-white"
+                    }`}
+                  />
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={() => setLessonsOpen(true)}
+                className="mt-3 block w-full border-t border-neutral-800 pt-3 text-left"
+              >
+                <span className="flex items-center justify-between gap-3 text-sm">
+                  <span className="text-neutral-300">{t.offline.lessonsLabel}</span>
+                  <span className="flex items-center gap-2">
+                    <span className="font-medium text-white">{warmText}</span>
+                    <ChevronRight className="h-4 w-4 shrink-0 text-neutral-400" />
+                  </span>
+                </span>
+                <span className="mt-2 block h-1.5 overflow-hidden rounded-full bg-neutral-800">
+                  <span
+                    className="block h-full rounded-full bg-white transition-all"
+                    style={{ width: `${warmPct}%` }}
+                  />
+                </span>
+              </button>
+              <div className="mt-3 border-t border-neutral-800 pt-3">
+                <span className="text-sm text-neutral-300">{t.offline.savedVideos}</span>
+                {savedVideos.length === 0 ? (
+                  <p className="mt-1 text-xs text-neutral-400">
+                    {t.offline.noSavedVideos}
+                  </p>
+                ) : (
+                  <div className="mt-2 divide-y divide-neutral-800">
+                    {savedVideos.map((v) => (
+                      <div
+                        key={v.lessonId}
+                        className="flex items-center justify-between gap-3 py-2"
+                      >
+                        <span className="min-w-0 truncate text-sm text-white">
+                          {v.title}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => void handleRemoveSaved(v.lessonId)}
+                          className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-neutral-800 bg-black px-2.5 py-1.5 text-xs text-neutral-400 transition hover:border-neutral-600 hover:text-white"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          {t.offline.removeSaved}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </div>
 
         <h2 className="mb-3 mt-8 text-xs font-semibold uppercase tracking-wider text-neutral-500">

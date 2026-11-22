@@ -665,6 +665,7 @@ export const ja: Strings = {
     wifiOnlyHint:
       "レッスンと動画はWi-Fi接続時のみオフライン用にダウンロードされます。ブラウザはWi-Fiとモバイルデータを区別できないため、接続品質も確認します。",
     lessonsLabel: "オフラインレッスン",
+    lessons: "レッスン",
     lessonsReady: (done: number, total: number) =>
       `${done} / ${total} レッスンがオフラインで利用可能`,
     lessonsDownloading: (pct: number) =>
@@ -673,6 +674,11 @@ export const ja: Strings = {
     savedVideos: "保存した動画",
     noSavedVideos: "オフライン保存された動画はまだありません。",
     removeSaved: "削除",
+    savedLessons: "保存済みのレッスン",
+    deleteAll: "すべて削除",
+    confirmDeleteAll: (total: number) => `${total}件のレッスンをすべて削除しますか？`,
+    downloadAgain: "レッスンを再度ダウンロード",
+    noSavedLessons: "オフライン用に保存されたレッスンはまだありません。",
     askTitle: "レッスンをオフライン用にダウンロードしますか？",
     askBody: (total: number) => `全${total}レッスンをこのデバイスに保存すれば、インターネットなしで読めます。ダウンロードはWi-Fiのみで行われます。`,
     askYes: "はい、ダウンロード",

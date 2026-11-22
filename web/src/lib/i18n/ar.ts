@@ -675,6 +675,7 @@ export const ar: Strings = {
     wifiOnlyHint:
       "يتم تنزيل الدروس ومقاطع الفيديو للاستخدام دون اتصال عبر Wi-Fi فقط. لا تستطيع المتصفحات التمييز بين Wi-Fi وبيانات الجوال، لذلك يتم التحقق من جودة الاتصال أيضًا.",
     lessonsLabel: "دروس دون اتصال",
+    lessons: "الدروس",
     lessonsReady: (done: number, total: number) =>
       `${done} من ${total} دروس جاهزة دون اتصال`,
     lessonsDownloading: (pct: number) => `جارٍ تنزيل الدروس… ${pct}٪`,
@@ -682,6 +683,11 @@ export const ar: Strings = {
     savedVideos: "مقاطع الفيديو المحفوظة",
     noSavedVideos: "لا توجد مقاطع فيديو محفوظة دون اتصال بعد.",
     removeSaved: "إزالة",
+    savedLessons: "الدروس المحفوظة",
+    deleteAll: "حذف الكل",
+    confirmDeleteAll: (total: number) => `حذف جميع الدروس البالغ عددها ${total}؟`,
+    downloadAgain: "تنزيل الدروس مرة أخرى",
+    noSavedLessons: "لا توجد دروس محفوظة دون اتصال بعد.",
     askTitle: "تنزيل الدروس للاستخدام دون اتصال؟",
     askBody: (total: number) => `احفظ جميع الدروس البالغ عددها ${total} على هذا الجهاز لتقرأها دون إنترنت. يتم التنزيل عبر Wi-Fi فقط.`,
     askYes: "نعم، نزّل",

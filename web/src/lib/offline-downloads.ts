@@ -24,6 +24,9 @@ export const SAVED_VIDEOS_KEY = "lp_offline_saved_videos";
 // later from Settings or a lesson page). Unanswered (null) also
 // means the warmer waits — the popup is the decision point.
 export const DOWNLOAD_OFFER_KEY = "lp_offline_download_asked";
+// Slugs the user deleted in Settings. The warmer skips them, so a
+// deleted lesson is not silently re-downloaded on the next run.
+export const DELETED_LESSONS_KEY = "lp_offline_deleted_lessons";
 export const WARM_EVENT = "lp-offline-warm";
 // Must match VERSION + PAGES in public/sw.js (tested).
 export const PAGES_CACHE = "lp-sw-v1-pages";
@@ -245,7 +248,10 @@ export async function warmLessons(): Promise<WarmProgress> {
       ),
     );
     let done = cached.filter(Boolean).length;
-    const pending = urls.filter((_, i) => !cached[i]);
+    const deleted = new Set(getDeletedLessons());
+    const pending = urls.filter(
+      (_, i) => !cached[i] && !deleted.has(ALL_LEARN_TOPICS[i].slug),
+    );
     progress.done = done;
     writeWarmProgress(progress);
     emitWarm(progress);
@@ -271,6 +277,133 @@ export async function warmLessons(): Promise<WarmProgress> {
     warming = false;
   }
   return progress;
+}
+
+// Slugs the user deleted in Settings. The warmer skips them, so a
+// deleted lesson is not silently re-downloaded the next time the
+// auto-warmer runs.
+export function getDeletedLessons(): string[] {
+  try {
+    const raw = storageGet(DELETED_LESSONS_KEY);
+    if (!raw) return [];
+    const arr = JSON.parse(raw) as unknown;
+    if (!Array.isArray(arr)) return [];
+    return [...new Set(arr.filter((s): s is string => typeof s === "string"))];
+  } catch {
+    return [];
+  }
+}
+
+function writeDeletedLessons(slugs: string[]): void {
+  storageSet(DELETED_LESSONS_KEY, JSON.stringify([...new Set(slugs)]));
+}
+
+export function addDeletedLesson(slug: string): void {
+  writeDeletedLessons([...getDeletedLessons(), slug]);
+}
+
+export function removeDeletedLesson(slug: string): void {
+  writeDeletedLessons(getDeletedLessons().filter((s) => s !== slug));
+}
+
+export function clearDeletedLessons(): void {
+  storageRemove(DELETED_LESSONS_KEY);
+}
+
+export interface SavedLesson {
+  slug: string;
+  sectionTitle: string;
+  title: string;
+}
+
+// Lessons that are REALLY in the pages cache, in curriculum order,
+// with the breadcrumb parts for the Settings list.
+export async function getSavedLessons(): Promise<SavedLesson[]> {
+  if (typeof window === "undefined" || !("caches" in window)) return [];
+  try {
+    const cache = await caches.open(PAGES_CACHE);
+    const hits = await Promise.all(
+      ALL_LEARN_TOPICS.map((t) =>
+        cache
+          .match(`/learn/${t.slug}`)
+          .then((r) => !!r)
+          .catch(() => false),
+      ),
+    );
+    return ALL_LEARN_TOPICS.filter((_, i) => hits[i]).map((t) => ({
+      slug: t.slug,
+      sectionTitle: t.sectionTitle,
+      title: t.title,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+// Recompute warm progress from what is really cached (after a
+// delete, or on a Settings visit where lessons were cached by
+// visiting rather than by the warmer) and broadcast it, so the
+// Settings count + progress bar stay true without another warming
+// run. Emits only when something actually changed, so a listener
+// that refreshes on the event cannot loop.
+export async function syncWarmProgress(): Promise<WarmProgress> {
+  const saved = await getSavedLessons();
+  const total = ALL_LEARN_TOPICS.length;
+  const p: WarmProgress = {
+    done: saved.length,
+    total,
+    state: saved.length >= total ? "done" : "idle",
+  };
+  const current = readWarmProgress();
+  if (current.done !== p.done || current.state !== p.state) {
+    writeWarmProgress(p);
+    emitWarm(p);
+  }
+  return p;
+}
+
+// Delete ONE saved lesson: its HTML only. The static chunks are
+// shared by every lesson and the shell pages, so they stay —
+// deleting them would break every other saved lesson.
+export async function removeSavedLesson(slug: string): Promise<void> {
+  try {
+    if (typeof window !== "undefined" && "caches" in window) {
+      const cache = await caches.open(PAGES_CACHE);
+      await cache.delete(`/learn/${slug}`);
+    }
+  } catch {
+    // The blocklist below still sticks.
+  }
+  addDeletedLesson(slug);
+  await syncWarmProgress();
+}
+
+// Delete ALL saved lessons. The offer answer goes to "no" so the
+// background warmer does not start again on its own, and every slug
+// lands on the blocklist, so even an explicit start skips them
+// until the user taps "Download lessons again".
+export async function clearAllSavedLessons(): Promise<void> {
+  try {
+    if (typeof window !== "undefined" && "caches" in window) {
+      const cache = await caches.open(PAGES_CACHE);
+      await Promise.all(
+        ALL_LEARN_TOPICS.map((t) => cache.delete(`/learn/${t.slug}`)),
+      );
+    }
+  } catch {
+    // The blocklist + offer flag below still stick.
+  }
+  writeDeletedLessons(ALL_LEARN_TOPICS.map((t) => t.slug));
+  markDownloadOfferAnswered("no");
+  await syncWarmProgress();
+}
+
+// Download lessons again after a bulk delete: un-block everything,
+// answer Yes, and run the explicit start.
+export async function downloadLessonsAgain(): Promise<WarmProgress | null> {
+  clearDeletedLessons();
+  markDownloadOfferAnswered("yes");
+  return maybeWarmLessons();
 }
 
 // Saved-videos index (localStorage). The cache is the source of

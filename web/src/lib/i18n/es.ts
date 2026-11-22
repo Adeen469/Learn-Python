@@ -673,6 +673,7 @@ export const es: Strings = {
     wifiOnlyHint:
       "Las lecciones y los videos solo se descargan para uso sin conexión con Wi-Fi. Los navegadores no pueden distinguir el Wi-Fi de los datos móviles, así que también se comprueba la calidad de la conexión.",
     lessonsLabel: "Lecciones sin conexión",
+    lessons: "Lecciones",
     lessonsReady: (done: number, total: number) =>
       `${done} de ${total} lecciones listas sin conexión`,
     lessonsDownloading: (pct: number) =>
@@ -681,6 +682,11 @@ export const es: Strings = {
     savedVideos: "Videos guardados",
     noSavedVideos: "Aún no hay videos guardados sin conexión.",
     removeSaved: "Eliminar",
+    savedLessons: "Lecciones guardadas",
+    deleteAll: "Eliminar todo",
+    confirmDeleteAll: (total: number) => `¿Eliminar las ${total} lecciones?`,
+    downloadAgain: "Descargar las lecciones de nuevo",
+    noSavedLessons: "Aún no hay lecciones guardadas sin conexión.",
     askTitle: "¿Descargar las lecciones sin conexión?",
     askBody: (total: number) => `Guarda las ${total} lecciones en este dispositivo para leerlas sin internet. Las descargas solo se hacen con Wi-Fi.`,
     askYes: "Sí, descargar",

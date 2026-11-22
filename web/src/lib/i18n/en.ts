@@ -685,6 +685,7 @@ export const en: Strings = {
     wifiOnlyHint:
       "Lessons and videos only download for offline use on Wi-Fi. Browsers can't tell Wi-Fi from mobile data, so this also checks your connection quality first.",
     lessonsLabel: "Offline lessons",
+    lessons: "Lessons",
     lessonsReady: (done: number, total: number) =>
       `${done} of ${total} lessons ready offline`,
     lessonsDownloading: (pct: number) => `Downloading lessons… ${pct}%`,
@@ -692,6 +693,11 @@ export const en: Strings = {
     savedVideos: "Saved videos",
     noSavedVideos: "No videos saved for offline yet.",
     removeSaved: "Remove",
+    savedLessons: "Saved lessons",
+    deleteAll: "Delete all",
+    confirmDeleteAll: (total: number) => `Delete all ${total} lessons?`,
+    downloadAgain: "Download lessons again",
+    noSavedLessons: "No lessons saved for offline yet.",
     askTitle: "Download lessons for offline?",
     askBody: (total: number) => `Save all ${total} lessons on this device so you can read them without internet. Downloads run on Wi-Fi only.`,
     askYes: "Yes, download",
