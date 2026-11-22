@@ -668,6 +668,31 @@ export const de: Strings = {
       `Du hast alle ${max} Wiederherstellungen in diesem Monat verbraucht. Deine ${brokenStreak}-Tage-Serie ist abgebrochen — schau dir eine Lektion an, um eine neue Serie zu starten. Wiederherstellungen werden nächsten Monat zurückgesetzt.`,
     accountSecurity: "Kontosicherheit",
   },
+  offline: {
+    heading: "Offline",
+    wifiOnly: "Downloads nur über WLAN",
+    wifiOnlyHint:
+      "Lektionen und Videos werden nur über WLAN für die Offline-Nutzung heruntergeladen. Browser können WLAN nicht von mobilen Daten unterscheiden — die Verbindungsqualität wird zusätzlich geprüft.",
+    lessonsLabel: "Offline-Lektionen",
+    lessonsReady: (done: number, total: number) =>
+      `${done} von ${total} Lektionen offline bereit`,
+    lessonsDownloading: (pct: number) =>
+      `Lektionen werden heruntergeladen… ${pct} %`,
+    lessonsWaiting: "Pausiert — wartet auf WLAN",
+    savedVideos: "Gespeicherte Videos",
+    noSavedVideos: "Noch keine Videos offline gespeichert.",
+    removeSaved: "Entfernen",
+    askTitle: "Lektionen für offline herunterladen?",
+    askBody: (total: number) => `Speichere alle ${total} Lektionen auf diesem Gerät, um sie ohne Internet zu lesen. Downloads laufen nur über WLAN.`,
+    askYes: "Ja, herunterladen",
+    askNo: "Nein, jetzt nicht",
+    askWaitingWifi: "Du bist gerade nicht im WLAN — der Download startet automatisch, sobald du im WLAN bist.",
+    askGotIt: "Verstanden",
+    saveLesson: "Offline speichern",
+    lessonSaved: "Offline gespeichert",
+    savingLesson: "Wird gespeichert…",
+    saveFailed: "Konnte nicht gespeichert werden — Verbindung prüfen",
+  },
   tutorPage: {
     heading: "Frag die KI zu dieser Lektion",
     intro:

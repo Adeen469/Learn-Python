@@ -30,6 +30,7 @@ import {
 import { useLanguage, type Strings } from "@/lib/i18n";
 import { highlightPython } from "@/lib/python-highlight";
 import { TextSelectionToolbar } from "@/components/TextSelectionToolbar";
+import { LessonOfflineButton } from "@/components/LessonOfflineButton";
 
 const COMPLETED_KEY = "lp_learn_completed";
 
@@ -277,10 +278,13 @@ export default function LearnTopicPage() {
         lessonTitle={tutorial?.title ?? reference?.title ?? tutorialTitle(slug, topic.title)}
       />
       <nav className="flex flex-wrap items-center justify-between gap-3">
-        <span className="flex items-center gap-1.5 text-xs text-neutral-500">
-          <span>{sectionTitle(t, topic.sectionId, topic.sectionTitle)}</span>
-          <ChevronRight className="h-3.5 w-3.5" />
-          <span className="text-neutral-300">{tutorial?.title ?? reference?.title ?? tutorialTitle(slug, topic.title)}</span>
+        <span className="flex flex-wrap items-center gap-2">
+          <span className="flex items-center gap-1.5 text-xs text-neutral-500">
+            <span>{sectionTitle(t, topic.sectionId, topic.sectionTitle)}</span>
+            <ChevronRight className="h-3.5 w-3.5" />
+            <span className="text-neutral-300">{tutorial?.title ?? reference?.title ?? tutorialTitle(slug, topic.title)}</span>
+          </span>
+          <LessonOfflineButton slug={slug} />
         </span>
         {showContinue && continueTopic && (
           <Link

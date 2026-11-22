@@ -11,6 +11,8 @@ import {
 } from "@/lib/auth-client";
 import { ROADMAP_SEEN_KEY } from "@/lib/roadmap";
 import { RoadmapHint, RoadmapModal } from "@/components/RoadmapModal";
+import { OfflineDownloadPopup } from "@/components/OfflineDownloadPopup";
+import { getDownloadOfferAnswer } from "@/lib/offline-downloads";
 import {
   PROGRESS_UPDATED_EVENT,
   computeStreak,
@@ -128,6 +130,7 @@ export function AppNavbar() {
   const [user, setUser] = useState<SessionUser | null>(null);
   const [roadmapOpen, setRoadmapOpen] = useState(false);
   const [roadmapHintOpen, setRoadmapHintOpen] = useState(false);
+  const [downloadPopupOpen, setDownloadPopupOpen] = useState(false);
 
   // Four items, everywhere: Learn (the W3Schools-style main page),
   // Courses (Harry / Apna College / Mosh), Logic Builder (coming
@@ -158,11 +161,24 @@ export function AppNavbar() {
     try {
       if (localStorage.getItem(ROADMAP_SEEN_KEY) !== "1") {
         setRoadmapOpen(true);
+      } else {
+        // The roadmap already showed (or was suppressed): still ask
+        // the offline-download question once on this first sign-in.
+        maybeShowDownloadPopup();
       }
     } catch {
       // If storage is unavailable, don't block the page.
     }
   }, [user]);
+
+  // First-sign-in download question: show it once, only if the
+  // user hasn't answered it yet. The answer flag is set by the
+  // popup itself (Yes or No), so an unanswered popup can re-appear
+  // on the next load, but an answered one never nags again.
+  function maybeShowDownloadPopup() {
+    if (getDownloadOfferAnswer() !== null) return;
+    setDownloadPopupOpen(true);
+  }
 
   // Closing the roadmap: the hint is a one-time notice — it appears
   // ONLY the first time the roadmap is closed, and it appears BEFORE
@@ -187,10 +203,12 @@ export function AppNavbar() {
   }
 
   // Dismissing the hint is what finally closes the roadmap (first
-  // close only). After this, the hint never appears again.
+  // close only). After this, the hint never appears again — and the
+  // offline-download question shows once, right after the roadmap.
   function handleRoadmapHintGotIt() {
     setRoadmapHintOpen(false);
     setRoadmapOpen(false);
+    maybeShowDownloadPopup();
   }
 
   // Picking a topic is a navigation, not a close: the modal goes
@@ -438,6 +456,9 @@ export function AppNavbar() {
         <RoadmapModal onClose={handleCloseRoadmap} onNavigate={handleRoadmapNavigate} />
       )}
       {roadmapHintOpen && <RoadmapHint onGotIt={handleRoadmapHintGotIt} />}
+      {downloadPopupOpen && (
+        <OfflineDownloadPopup onClose={() => setDownloadPopupOpen(false)} />
+      )}
     </>
   );
 }

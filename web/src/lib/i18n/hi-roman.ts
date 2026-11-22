@@ -587,6 +587,31 @@ export const hiRoman: Strings = {
     noRestoresLeftBody: (max, brokenStreak) => `Tumne is mahine ke saare ${max} restores use kar liye. Tumhari ${brokenStreak} din ki streak toot gayi — nayi streak shuru karne ke liye ek lesson dekho. Restores agle mahine reset honge.`,
     accountSecurity: "Account ki security",
   },
+  offline: {
+    heading: "Offline",
+    wifiOnly: "Sirf Wi-Fi par download",
+    wifiOnlyHint:
+      "Lessons aur videos offline ke liye sirf Wi-Fi par download honge. Browser Wi-Fi aur mobile data me farak nahi kar sakta, isliye connection quality bhi check hoti hai.",
+    lessonsLabel: "Offline lessons",
+    lessonsReady: (done: number, total: number) =>
+      `${done} / ${total} lessons offline ready`,
+    lessonsDownloading: (pct: number) =>
+      `Lessons download ho rahe hain… ${pct}%`,
+    lessonsWaiting: "Ruka hua — Wi-Fi ka intezar",
+    savedVideos: "Saved videos",
+    noSavedVideos: "Abhi koi video offline save nahi hai.",
+    removeSaved: "Hatao",
+    askTitle: "Lessons offline download karein?",
+    askBody: (total: number) => `Saare ${total} lessons is device par save karein taaki bina internet ke padh sakein. Download sirf Wi-Fi par hoga.`,
+    askYes: "Haan, download karo",
+    askNo: "Nahi, abhi nahi",
+    askWaitingWifi: "Aap abhi Wi-Fi par nahi hain — Wi-Fi milte hi download apne aap shuru ho jayega.",
+    askGotIt: "Samajh gaya",
+    saveLesson: "Offline save karo",
+    lessonSaved: "Offline saved",
+    savingLesson: "Save ho raha hai…",
+    saveFailed: "Save nahi hua — connection check karo",
+  },
   tutorPage: {
     heading: "Is lesson ke baare mein AI se poochho",
     intro: "Doubts, explanations, examples — Hindi ya English mein. Jawab is lesson ke asli video se aate hain, timestamps ke saath, aur jo video mein nahi hai use general knowledge mark kiya jata hai. Chats kahin save nahi hote.",

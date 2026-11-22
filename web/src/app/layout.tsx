@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n";
+import OfflineRegister from "@/components/OfflineRegister";
+import OfflineWarmer from "@/components/OfflineWarmer";
 
 const SITE_URL = "https://learnpython.fly.dev";
 const DESCRIPTION =
@@ -55,7 +57,11 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-black text-white antialiased selection:bg-white selection:text-black">
-        <LanguageProvider>{children}</LanguageProvider>
+        <LanguageProvider>
+          <OfflineRegister />
+          <OfflineWarmer />
+          {children}
+        </LanguageProvider>
       </body>
     </html>
   );

@@ -617,6 +617,31 @@ export const fr: Strings = {
       `Vous avez utilisé vos ${max} restaurations ce mois-ci. Votre série de ${brokenStreak} jours est interrompue — regardez une leçon pour lancer une nouvelle série. Les restaurations se réinitialisent le mois prochain.`,
     accountSecurity: "Sécurité du compte",
   },
+  offline: {
+    heading: "Hors ligne",
+    wifiOnly: "Téléchargements Wi-Fi uniquement",
+    wifiOnlyHint:
+      "Les leçons et vidéos ne se téléchargent pour une utilisation hors ligne que sur Wi-Fi. Les navigateurs ne peuvent pas distinguer le Wi-Fi des données mobiles — la qualité de la connexion est aussi vérifiée.",
+    lessonsLabel: "Leçons hors ligne",
+    lessonsReady: (done: number, total: number) =>
+      `${done} leçons sur ${total} prêtes hors ligne`,
+    lessonsDownloading: (pct: number) =>
+      `Téléchargement des leçons… ${pct} %`,
+    lessonsWaiting: "En pause — en attente du Wi-Fi",
+    savedVideos: "Vidéos enregistrées",
+    noSavedVideos: "Aucune vidéo enregistrée hors ligne pour l'instant.",
+    removeSaved: "Supprimer",
+    askTitle: "Télécharger les leçons hors ligne ?",
+    askBody: (total: number) => `Enregistrez les ${total} leçons sur cet appareil pour les lire sans internet. Le téléchargement se fait uniquement en Wi-Fi.`,
+    askYes: "Oui, télécharger",
+    askNo: "Non, pas maintenant",
+    askWaitingWifi: "Vous n'êtes pas en Wi-Fi pour l'instant — le téléchargement démarrera automatiquement quand vous serez en Wi-Fi.",
+    askGotIt: "Compris",
+    saveLesson: "Enregistrer hors ligne",
+    lessonSaved: "Enregistré hors ligne",
+    savingLesson: "Enregistrement…",
+    saveFailed: "Échec de l'enregistrement — vérifiez votre connexion",
+  },
   tutorPage: {
     heading: "Demander à l’IA à propos de cette leçon",
     intro: "Doutes, explications, exemples — en hindi ou en anglais. Les réponses proviennent de la vidéo réelle de cette leçon, avec des horodatages, et tout ce que la vidéo ne couvre pas est indiqué comme connaissance générale. Les discussions ne sont stockées nulle part.",

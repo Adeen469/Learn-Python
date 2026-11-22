@@ -666,6 +666,31 @@ export const es: Strings = {
       `Usaste las ${max} restauraciones de este mes. Tu racha de ${brokenStreak} días se rompió: mira una lección para empezar una nueva racha. Las restauraciones se renuevan el mes que viene.`,
     accountSecurity: "Seguridad de la cuenta",
   },
+  offline: {
+    heading: "Sin conexión",
+    wifiOnly: "Descargas solo con Wi-Fi",
+    wifiOnlyHint:
+      "Las lecciones y los videos solo se descargan para uso sin conexión con Wi-Fi. Los navegadores no pueden distinguir el Wi-Fi de los datos móviles, así que también se comprueba la calidad de la conexión.",
+    lessonsLabel: "Lecciones sin conexión",
+    lessonsReady: (done: number, total: number) =>
+      `${done} de ${total} lecciones listas sin conexión`,
+    lessonsDownloading: (pct: number) =>
+      `Descargando lecciones… ${pct} %`,
+    lessonsWaiting: "En pausa — esperando Wi-Fi",
+    savedVideos: "Videos guardados",
+    noSavedVideos: "Aún no hay videos guardados sin conexión.",
+    removeSaved: "Eliminar",
+    askTitle: "¿Descargar las lecciones sin conexión?",
+    askBody: (total: number) => `Guarda las ${total} lecciones en este dispositivo para leerlas sin internet. Las descargas solo se hacen con Wi-Fi.`,
+    askYes: "Sí, descargar",
+    askNo: "No, ahora no",
+    askWaitingWifi: "Ahora mismo no estás en Wi-Fi: la descarga empezará automáticamente cuando lo estés.",
+    askGotIt: "Entendido",
+    saveLesson: "Guardar sin conexión",
+    lessonSaved: "Guardado sin conexión",
+    savingLesson: "Guardando…",
+    saveFailed: "No se pudo guardar: revisa tu conexión",
+  },
   tutorPage: {
     heading: "Pregúntale a la IA sobre esta lección",
     intro:

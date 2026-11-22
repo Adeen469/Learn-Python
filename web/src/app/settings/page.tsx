@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, Flame, Languages, Moon, Settings, Sun, Target } from "lucide-react";
+import { Check, Flame, Languages, Moon, Settings, Sun, Target, Trash2, Wifi } from "lucide-react";
 import { AppNavbar } from "@/components/AppNavbar";
 import Counter from "@/components/Counter";
 import { LANGUAGES, useLanguage } from "@/lib/i18n";
@@ -31,6 +31,17 @@ import {
   type Theme,
 } from "@/lib/theme";
 import TwoFactorSettings from "@/components/TwoFactorSettings";
+import {
+  WARM_EVENT,
+  getSavedVideos,
+  isWifiOnlyEnabled,
+  maybeWarmLessons,
+  readWarmProgress,
+  removeSavedVideo,
+  setWifiOnlyEnabled,
+  type SavedVideo,
+  type WarmProgress,
+} from "@/lib/offline-downloads";
 
 /**
  * Settings as its own page (/settings), reached from the profile
@@ -72,6 +83,9 @@ export default function SettingsPage() {
   const [restores, setRestores] = useState<string[]>(initialRestores);
   const [nowMs, setNowMs] = useState(() => Date.now());
   const [restoredNote, setRestoredNote] = useState(false);
+  const [wifiOnly, setWifiOnly] = useState<boolean>(() => isWifiOnlyEnabled());
+  const [warm, setWarm] = useState<WarmProgress>(() => readWarmProgress());
+  const [savedVideos, setSavedVideos] = useState<SavedVideo[]>([]);
 
   useEffect(() => {
     setTheme(getStoredTheme());
@@ -119,6 +133,52 @@ export default function SettingsPage() {
     const timer = window.setInterval(() => setNowMs(Date.now()), 1000);
     return () => window.clearInterval(timer);
   }, [restoreState.status]);
+
+  // Offline section: warming status (live via the warm event) and the
+  // saved-videos list (validated against the real cache).
+  useEffect(() => {
+    let alive = true;
+    const refreshSaved = () => {
+      void getSavedVideos().then((list) => {
+        if (alive) setSavedVideos(list);
+      });
+    };
+    const onWarm = (e: Event) => {
+      const p = (e as CustomEvent<WarmProgress>).detail;
+      if (p) setWarm(p);
+    };
+    setWarm(readWarmProgress());
+    refreshSaved();
+    window.addEventListener(WARM_EVENT, onWarm);
+    window.addEventListener("focus", refreshSaved);
+    return () => {
+      alive = false;
+      window.removeEventListener(WARM_EVENT, onWarm);
+      window.removeEventListener("focus", refreshSaved);
+    };
+  }, []);
+
+  function handleWifiToggle(next: boolean) {
+    setWifiOnlyEnabled(next);
+    setWifiOnly(next);
+    if (next) void maybeWarmLessons();
+  }
+
+  async function handleRemoveSaved(lessonId: string) {
+    await removeSavedVideo(lessonId);
+    setSavedVideos(await getSavedVideos());
+  }
+
+  const warmPct =
+    warm.total > 0 ? Math.round((warm.done / warm.total) * 100) : 0;
+  const warmText =
+    warm.state === "done"
+      ? t.offline.lessonsReady(warm.done, warm.total)
+      : warm.state === "warming"
+        ? t.offline.lessonsDownloading(warmPct)
+        : warm.state === "waiting"
+          ? t.offline.lessonsWaiting
+          : t.offline.lessonsReady(warm.done, warm.total);
 
   // Clear the "restored" note after a while.
   useEffect(() => {
@@ -312,6 +372,80 @@ export default function SettingsPage() {
                 )}
               </button>
             ))}
+          </div>
+        </div>
+
+        <h2 className="mb-3 mt-8 text-xs font-semibold uppercase tracking-wider text-neutral-500">
+          {t.offline.heading}
+        </h2>
+        <div className="rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-3">
+          <div className="flex items-center justify-between gap-3">
+            <span>
+              <span className="flex items-center gap-2 text-sm text-neutral-300">
+                <Wifi className="h-4 w-4 text-neutral-400" />
+                {t.offline.wifiOnly}
+              </span>
+              <span className="mt-1 block text-xs leading-relaxed text-neutral-400">
+                {t.offline.wifiOnlyHint}
+              </span>
+            </span>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={wifiOnly}
+              aria-label={t.offline.wifiOnly}
+              onClick={() => handleWifiToggle(!wifiOnly)}
+              className={`flex h-6 w-11 shrink-0 items-center rounded-full px-0.5 transition ${
+                wifiOnly ? "bg-white" : "bg-neutral-700"
+              }`}
+            >
+              <span
+                className={`h-5 w-5 rounded-full transition-all ${
+                  wifiOnly ? "ml-auto bg-black" : "bg-white"
+                }`}
+              />
+            </button>
+          </div>
+          <div className="mt-3 border-t border-neutral-800 pt-3">
+            <div className="flex items-center justify-between gap-3 text-sm">
+              <span className="text-neutral-300">{t.offline.lessonsLabel}</span>
+              <span className="font-medium text-white">{warmText}</span>
+            </div>
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-neutral-800">
+              <div
+                className="h-full rounded-full bg-white transition-all"
+                style={{ width: `${warmPct}%` }}
+              />
+            </div>
+          </div>
+          <div className="mt-3 border-t border-neutral-800 pt-3">
+            <span className="text-sm text-neutral-300">{t.offline.savedVideos}</span>
+            {savedVideos.length === 0 ? (
+              <p className="mt-1 text-xs text-neutral-400">
+                {t.offline.noSavedVideos}
+              </p>
+            ) : (
+              <div className="mt-2 divide-y divide-neutral-800">
+                {savedVideos.map((v) => (
+                  <div
+                    key={v.lessonId}
+                    className="flex items-center justify-between gap-3 py-2"
+                  >
+                    <span className="min-w-0 truncate text-sm text-white">
+                      {v.title}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => void handleRemoveSaved(v.lessonId)}
+                      className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-neutral-800 bg-black px-2.5 py-1.5 text-xs text-neutral-400 transition hover:border-neutral-600 hover:text-white"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      {t.offline.removeSaved}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

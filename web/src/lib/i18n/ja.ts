@@ -658,6 +658,31 @@ export const ja: Strings = {
       `今月の復旧回数を${max}回すべて使いました。${brokenStreak}日間の連続記録は途切れました — レッスンを視聴して新しい連続記録を始めてください。復旧回数は来月リセットされます。`,
     accountSecurity: "アカウントのセキュリティ",
   },
+  offline: {
+    heading: "オフライン",
+    wifiOnly: "Wi-Fiのみダウンロード",
+    wifiOnlyHint:
+      "レッスンと動画はWi-Fi接続時のみオフライン用にダウンロードされます。ブラウザはWi-Fiとモバイルデータを区別できないため、接続品質も確認します。",
+    lessonsLabel: "オフラインレッスン",
+    lessonsReady: (done: number, total: number) =>
+      `${done} / ${total} レッスンがオフラインで利用可能`,
+    lessonsDownloading: (pct: number) =>
+      `レッスンをダウンロード中… ${pct}%`,
+    lessonsWaiting: "一時停止 — Wi-Fi待機中",
+    savedVideos: "保存した動画",
+    noSavedVideos: "オフライン保存された動画はまだありません。",
+    removeSaved: "削除",
+    askTitle: "レッスンをオフライン用にダウンロードしますか？",
+    askBody: (total: number) => `全${total}レッスンをこのデバイスに保存すれば、インターネットなしで読めます。ダウンロードはWi-Fiのみで行われます。`,
+    askYes: "はい、ダウンロード",
+    askNo: "いいえ、今はしない",
+    askWaitingWifi: "今はWi-Fiに接続していません。Wi-Fiに接続すると自動的にダウンロードが始まります。",
+    askGotIt: "わかった",
+    saveLesson: "オフライン保存",
+    lessonSaved: "オフライン保存済み",
+    savingLesson: "保存中…",
+    saveFailed: "保存できませんでした — 接続を確認してください",
+  },
   tutorPage: {
     heading: "このレッスンについてAIに質問",
     intro:

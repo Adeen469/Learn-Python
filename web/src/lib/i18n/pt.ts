@@ -665,6 +665,30 @@ export const pt: Strings = {
       `Você usou todas as ${max} restaurações deste mês. Sua sequência de ${brokenStreak} dias quebrou — assista a uma aula para começar uma nova sequência. As restaurações zeram no próximo mês.`,
     accountSecurity: "Segurança da conta",
   },
+  offline: {
+    heading: "Offline",
+    wifiOnly: "Downloads só no Wi-Fi",
+    wifiOnlyHint:
+      "Lições e vídeos só são baixados para uso offline no Wi-Fi. Os navegadores não conseguem distinguir Wi-Fi de dados móveis — a qualidade da conexão também é verificada.",
+    lessonsLabel: "Lições offline",
+    lessonsReady: (done: number, total: number) =>
+      `${done} de ${total} lições prontas offline`,
+    lessonsDownloading: (pct: number) => `Baixando lições… ${pct} %`,
+    lessonsWaiting: "Pausado — aguardando Wi-Fi",
+    savedVideos: "Vídeos salvos",
+    noSavedVideos: "Nenhum vídeo salvo offline ainda.",
+    removeSaved: "Remover",
+    askTitle: "Baixar as lições para offline?",
+    askBody: (total: number) => `Salve as ${total} lições neste dispositivo para lê-las sem internet. Os downloads acontecem apenas no Wi-Fi.`,
+    askYes: "Sim, baixar",
+    askNo: "Não, agora não",
+    askWaitingWifi: "Você não está no Wi-Fi agora — o download começará automaticamente quando estiver.",
+    askGotIt: "Entendi",
+    saveLesson: "Salvar offline",
+    lessonSaved: "Salvo offline",
+    savingLesson: "Salvando…",
+    saveFailed: "Não foi possível salvar — verifique sua conexão",
+  },
   tutorPage: {
     heading: "Pergunte à IA sobre esta aula",
     intro:

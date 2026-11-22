@@ -641,6 +641,30 @@ export const zh: Strings = {
     noRestoresLeftBody: (max: number, brokenStreak: number) => `您本月已用完全部 ${max} 次恢复机会，您的 ${brokenStreak} 天连续打卡已中断 — 观看一节课即可开始新的连续打卡，恢复次数将于下月重置。`,
     accountSecurity: "账号安全",
   },
+  offline: {
+    heading: "离线",
+    wifiOnly: "仅 Wi-Fi 下载",
+    wifiOnlyHint:
+      "课程和视频仅在 Wi-Fi 下下载以供离线使用。浏览器无法区分 Wi-Fi 和移动数据，因此还会检查连接质量。",
+    lessonsLabel: "离线课程",
+    lessonsReady: (done: number, total: number) =>
+      `${done} / ${total} 节课程已离线就绪`,
+    lessonsDownloading: (pct: number) => `正在下载课程…${pct}%`,
+    lessonsWaiting: "已暂停——等待 Wi-Fi",
+    savedVideos: "已保存的视频",
+    noSavedVideos: "尚未保存任何离线视频。",
+    removeSaved: "删除",
+    askTitle: "下载课程以供离线使用？",
+    askBody: (total: number) => `将全部 ${total} 节课程保存到此设备，无需联网即可阅读。下载仅在 Wi-Fi 下进行。`,
+    askYes: "是，下载",
+    askNo: "不，暂不下载",
+    askWaitingWifi: "您当前未连接 Wi-Fi，连接 Wi-Fi 后下载将自动开始。",
+    askGotIt: "知道了",
+    saveLesson: "离线保存",
+    lessonSaved: "已离线保存",
+    savingLesson: "保存中…",
+    saveFailed: "无法保存，请检查网络连接",
+  },
   tutorPage: {
     heading: "向 AI 咨询本课内容",
     intro:

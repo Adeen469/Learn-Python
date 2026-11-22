@@ -668,6 +668,30 @@ export const ar: Strings = {
       `استخدمت جميع عمليات الاستعادة الـ ${max} هذا الشهر. انقطعت سلسلتك التي دامت ${brokenStreak} أيام — شاهد درساً لبدء سلسلة جديدة. تُعاد عمليات الاستعادة الشهر القادم.`,
     accountSecurity: "أمان الحساب",
   },
+  offline: {
+    heading: "دون اتصال",
+    wifiOnly: "التنزيل عبر Wi-Fi فقط",
+    wifiOnlyHint:
+      "يتم تنزيل الدروس ومقاطع الفيديو للاستخدام دون اتصال عبر Wi-Fi فقط. لا تستطيع المتصفحات التمييز بين Wi-Fi وبيانات الجوال، لذلك يتم التحقق من جودة الاتصال أيضًا.",
+    lessonsLabel: "دروس دون اتصال",
+    lessonsReady: (done: number, total: number) =>
+      `${done} من ${total} دروس جاهزة دون اتصال`,
+    lessonsDownloading: (pct: number) => `جارٍ تنزيل الدروس… ${pct}٪`,
+    lessonsWaiting: "متوقف مؤقتًا — بانتظار Wi-Fi",
+    savedVideos: "مقاطع الفيديو المحفوظة",
+    noSavedVideos: "لا توجد مقاطع فيديو محفوظة دون اتصال بعد.",
+    removeSaved: "إزالة",
+    askTitle: "تنزيل الدروس للاستخدام دون اتصال؟",
+    askBody: (total: number) => `احفظ جميع الدروس البالغ عددها ${total} على هذا الجهاز لتقرأها دون إنترنت. يتم التنزيل عبر Wi-Fi فقط.`,
+    askYes: "نعم، نزّل",
+    askNo: "لا، ليس الآن",
+    askWaitingWifi: "أنت غير متصل بشبكة Wi-Fi الآن — سيبدأ التنزيل تلقائيًا عند الاتصال بشبكة Wi-Fi.",
+    askGotIt: "فهمت",
+    saveLesson: "حفظ دون اتصال",
+    lessonSaved: "تم الحفظ دون اتصال",
+    savingLesson: "جارٍ الحفظ…",
+    saveFailed: "تعذّر الحفظ — تحقق من اتصالك",
+  },
   tutorPage: {
     heading: "اسأل الذكاء الاصطناعي عن هذا الدرس",
     intro:

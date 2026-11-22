@@ -678,6 +678,30 @@ export const en: Strings = {
       `You used all ${max} restores this month. Your ${brokenStreak}-day streak broke — watch a lesson to start a new streak. Restores reset next month.`,
     accountSecurity: "Account security",
   },
+  offline: {
+    heading: "Offline",
+    wifiOnly: "Wi-Fi only downloads",
+    wifiOnlyHint:
+      "Lessons and videos only download for offline use on Wi-Fi. Browsers can't tell Wi-Fi from mobile data, so this also checks your connection quality first.",
+    lessonsLabel: "Offline lessons",
+    lessonsReady: (done: number, total: number) =>
+      `${done} of ${total} lessons ready offline`,
+    lessonsDownloading: (pct: number) => `Downloading lessons… ${pct}%`,
+    lessonsWaiting: "Paused — waiting for Wi-Fi",
+    savedVideos: "Saved videos",
+    noSavedVideos: "No videos saved for offline yet.",
+    removeSaved: "Remove",
+    askTitle: "Download lessons for offline?",
+    askBody: (total: number) => `Save all ${total} lessons on this device so you can read them without internet. Downloads run on Wi-Fi only.`,
+    askYes: "Yes, download",
+    askNo: "No, not now",
+    askWaitingWifi: "You're not on Wi-Fi right now — the download will start automatically when you are.",
+    askGotIt: "Got it",
+    saveLesson: "Save offline",
+    lessonSaved: "Saved offline",
+    savingLesson: "Saving…",
+    saveFailed: "Couldn't save — check your connection",
+  },
   tutorPage: {
     heading: "Ask AI about this lesson",
     intro:

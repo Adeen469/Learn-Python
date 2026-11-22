@@ -5,8 +5,11 @@ import { Captions, Check, Download, HardDrive, Loader2, Maximize, Minimize, Paus
 import ElasticSlider from "@/components/ElasticSlider";
 import { WATCH_QUALIFY_FRACTION } from "@/lib/progress";
 import { useLanguage } from "@/lib/i18n";
-
-const CACHE_NAME = "lp-offline-videos-v1";
+import {
+  VIDEO_CACHE as CACHE_NAME,
+  forgetSavedVideo,
+  noteSavedVideo,
+} from "@/lib/offline-downloads";
 const VOLUME_KEY = "lp_volume";
 const MUTED_KEY = "lp_muted";
 const PLAYBACK_RATE_KEY = "lp_playback_rate";
@@ -109,6 +112,11 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
   const [downloadProgress, setDownloadProgress] = useState<number>(0);
   const [isOnline, setIsOnline] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Only the latest lesson's save may touch playback state — a slow
+  // download for a lesson the user already left must not swap the
+  // new lesson's source.
+  const saveTokenRef = useRef(0);
 
   // Loading state: true from the moment a lesson is picked until the
   // video can actually play, and again whenever playback stalls on
@@ -674,6 +682,9 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
     setIsLoading(true);
     setDetectedQuality(null);
     setShowControls(true);
+    saveTokenRef.current += 1;
+    setDownloadProgress(0);
+    setIsDownloading(false);
     onPlayStateChangeRef.current?.(false);
     lastTimeRef.current = 0;
     lastReportedCoverageRef.current = -1;
@@ -704,6 +715,10 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
       if (!cancelled) {
         setIsSavedOffline(false);
         setSrc(streamUrl);
+        // Auto-save: selecting a video saves it offline in the
+        // background — no manual tap needed. Online only; the manual
+        // button stays for retrying a failed download.
+        if (navigator.onLine) void handleSaveOffline(true);
       }
     }
 
@@ -716,18 +731,33 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
     };
   }, [lessonId]);
 
-  async function handleSaveOffline() {
+  // Auto-save passes auto=true: the stream keeps playing
+  // uninterrupted and only the saved flag flips. A manual save swaps
+  // the source to the cached file, as before.
+  async function handleSaveOffline(auto = false) {
     if (!("caches" in window)) {
       setErrorMsg(t.player.errorOfflineCacheUnsupported);
       return;
     }
 
+    const mySave = saveTokenRef.current;
+    const apply = () => mySave === saveTokenRef.current;
     setIsDownloading(true);
     setDownloadProgress(0);
     setErrorMsg(null);
 
     try {
       const streamUrl = `/api/video/${lessonId}`;
+      const cache = await caches.open(CACHE_NAME);
+      // Already saved (e.g. auto-save finished first)? Just mark it.
+      if (await cache.match(streamUrl)) {
+        if (apply()) {
+          setIsSavedOffline(true);
+          noteSavedVideo(lessonId, videoTitle(videoId, title));
+        }
+        return;
+      }
+
       const res = await fetch(streamUrl);
       if (!res.ok || !res.body) {
         throw new Error(t.player.errorDownloadFailed(res.status));
@@ -745,14 +775,13 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
         if (value) {
           chunks.push(value);
           received += value.length;
-          if (contentLength > 0) {
+          if (contentLength > 0 && apply()) {
             setDownloadProgress(Math.min(100, Math.round((received / contentLength) * 100)));
           }
         }
       }
 
       const blob = new Blob(chunks as BlobPart[], { type: contentType });
-      const cache = await caches.open(CACHE_NAME);
       await cache.put(
         streamUrl,
         new Response(blob, {
@@ -761,13 +790,20 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
         })
       );
 
-      const objectUrl = URL.createObjectURL(blob);
-      setSrc(objectUrl);
-      setIsSavedOffline(true);
+      // The file is saved either way; only the current lesson's
+      // playback state follows.
+      noteSavedVideo(lessonId, videoTitle(videoId, title));
+      if (apply()) {
+        if (!auto) {
+          const objectUrl = URL.createObjectURL(blob);
+          setSrc(objectUrl);
+        }
+        setIsSavedOffline(true);
+      }
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : t.player.errorSaveOffline);
     } finally {
-      setIsDownloading(false);
+      if (apply()) setIsDownloading(false);
     }
   }
 
@@ -776,6 +812,7 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
     const cache = await caches.open(CACHE_NAME);
     const streamUrl = `/api/video/${lessonId}`;
     await cache.delete(streamUrl);
+    forgetSavedVideo(lessonId);
     setIsSavedOffline(false);
     setSrc(streamUrl);
   }
@@ -1040,11 +1077,28 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
         </div>
       </div>
 
+      {isDownloading && (
+        <div className="border-t border-neutral-800 bg-neutral-950 px-4 py-3">
+          <div className="flex items-center justify-between gap-3 text-xs">
+            <span className="text-neutral-400">{t.lesson.saveOffline}</span>
+            <span className="font-medium text-white">
+              {t.player.savingPct(downloadProgress)}
+            </span>
+          </div>
+          <div className="mt-2 h-1 overflow-hidden rounded-full bg-neutral-800">
+            <div
+              className="h-full rounded-full bg-white transition-all"
+              style={{ width: `${Math.max(downloadProgress, 2)}%` }}
+            />
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-800 px-4 py-3 bg-neutral-950">
         <div className="min-w-0">
           <h2 className="truncate text-sm font-medium text-white">{videoTitle(videoId, title)}</h2>
           <div className="mt-0.5 flex items-center gap-2 text-xs text-neutral-400">
-            {isSavedOffline ? (
+            {src.startsWith("blob:") ? (
               <span className="inline-flex items-center gap-1 text-neutral-200">
                 <HardDrive className="h-3.5 w-3.5" /> {t.player.playingOffline}
               </span>
@@ -1079,7 +1133,7 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
           ) : (
             <button
               type="button"
-              onClick={handleSaveOffline}
+              onClick={() => void handleSaveOffline()}
               disabled={isDownloading || !isOnline}
               className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-1.5 text-xs font-semibold text-black hover:bg-neutral-200 disabled:opacity-50 transition"
             >

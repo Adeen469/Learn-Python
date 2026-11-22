@@ -694,6 +694,28 @@ export type Strings = {
     noRestoresLeftBody: (max: number, brokenStreak: number) => string;
     accountSecurity: string;
   };
+  offline: {
+    heading: string;
+    wifiOnly: string;
+    wifiOnlyHint: string;
+    lessonsLabel: string;
+    lessonsReady: (done: number, total: number) => string;
+    lessonsDownloading: (pct: number) => string;
+    lessonsWaiting: string;
+    savedVideos: string;
+    noSavedVideos: string;
+    removeSaved: string;
+    askTitle: string;
+    askBody: (total: number) => string;
+    askYes: string;
+    askNo: string;
+    askWaitingWifi: string;
+    askGotIt: string;
+    saveLesson: string;
+    lessonSaved: string;
+    savingLesson: string;
+    saveFailed: string;
+  };
   tutorPage: {
     heading: string;
     intro: string;
