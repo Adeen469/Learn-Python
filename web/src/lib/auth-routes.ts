@@ -255,6 +255,36 @@ export function clearSessionCookies(
 }
 
 /**
+ * Clear ONLY the session cookies (current name + the pre-rename
+ * legacy name). Used by /api/auth/me on 401: a caller with no
+ * session is often mid-sign-in — the 2FA step-up cookie or the
+ * OAuth state/verifier cookies ARE the in-progress sign-in, and
+ * wiping them kills it. That is exactly what broke Google+2FA
+ * login: the 2FA page's own load calls /api/auth/me (the app
+ * shell's session check), the 401 cleared lp_2fa_pending, and
+ * every code submit then 401'd "sign-in step expired". A real
+ * sign-out still uses clearSessionCookies above, which kills
+ * everything.
+ */
+export function clearStaleSessionCookies(
+  res: NextResponse,
+  isSecure: boolean
+): void {
+  res.cookies.set(
+    SESSION_COOKIE,
+    "",
+    clearCookieOptions(isSecure, "/")
+  );
+  if (LEGACY_SESSION_COOKIE !== SESSION_COOKIE) {
+    res.cookies.set(
+      LEGACY_SESSION_COOKIE,
+      "",
+      clearCookieOptions(isSecure, "/")
+    );
+  }
+}
+
+/**
  * Sliding-window limit on an explicit key (not the client IP).
  * Used for per-account / per-email / per-token limits (M7) on top
  * of the per-IP limit: an attacker rotating IPs still hits the
