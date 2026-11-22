@@ -7,6 +7,7 @@ import {
   askAi,
   getAiConfig,
   hasAiConfig,
+  takeProviderFailures,
   validateAiRequest,
   type AiSkill,
 } from "@/lib/ai";
@@ -224,6 +225,11 @@ export async function POST(req: NextRequest) {
   if (!result) {
     // Key presence only (booleans, never values) — enough to tell
     // "no key configured" from "key present but every call failed".
+    // The failure detail names the exact cause per leg (sanitized,
+    // never key-shaped). It rides in the 503 message too, so the
+    // editor panel shows it — the server log is not always
+    // reachable from the outside.
+    const failures = takeProviderFailures();
     console.error(
       JSON.stringify({
         event: "ai_provider_failed",
@@ -235,10 +241,12 @@ export async function POST(req: NextRequest) {
         hasOpenai: Boolean(config.openaiKey),
         hasOpenrouter: Boolean(config.openrouterKey),
         hasCustom: Boolean(config.customKey),
+        failures,
       })
     );
+    const detail = failures.length ? ` (${failures.join("; ").slice(0, 400)})` : "";
     return NextResponse.json(
-      { error: "AI is unavailable right now — please try again in a moment." },
+      { error: `AI is unavailable right now — please try again in a moment.${detail}` },
       { status: 503 }
     );
   }

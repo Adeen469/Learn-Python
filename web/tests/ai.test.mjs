@@ -387,6 +387,17 @@ function sanitizeProviderError(body) {
   return msg || "provider error";
 }
 
+// Last provider failures, recorded per request so the caller can say
+// WHY every leg failed instead of a bare "AI is unavailable".
+// Mirror of web/src/lib/ai.ts — keep identical.
+const providerFailures = [];
+function recordProviderFailure(provider, model, detail) {
+  providerFailures.push(`${provider} ${model}: ${detail}`);
+}
+function takeProviderFailures() {
+  return providerFailures.splice(0);
+}
+
 function parseQuizDrafts(reply) {
   const text = reply.trim();
   const candidates = [text];
@@ -456,11 +467,18 @@ async function callGeminiMock(args, key, fetchImpl, opts = {}) {
         }),
       }
     );
-    if (!res) return null;
+    if (!res) {
+      recordProviderFailure("gemini", model, "no response");
+      return null;
+    }
     const body = await res.json().catch(() => null);
-    if (!res.ok) return null;
+    if (!res.ok) {
+      recordProviderFailure("gemini", model, `${res.status} ${sanitizeProviderError(body)}`);
+      return null;
+    }
     return parseGeminiText(body);
   } catch {
+    recordProviderFailure("gemini", model, "request failed");
     return null;
   }
 }
@@ -491,14 +509,22 @@ async function callGroqMock(args, key, fetchImpl, opts = {}) {
     } catch {
       return null;
     }
-    if (!res) return null;
+    if (!res) {
+      recordProviderFailure("groq", model, "no response");
+      return null;
+    }
     const body = await res.json().catch(() => null);
     if (!res.ok) {
-      if (res.status === 404) continue;
+      if (res.status === 404) {
+        recordProviderFailure("groq", model, `404 ${sanitizeProviderError(body)}`);
+        continue;
+      }
+      recordProviderFailure("groq", model, `${res.status} ${sanitizeProviderError(body)}`);
       return null;
     }
     const text = parseGroqText(body);
     if (text) return text;
+    recordProviderFailure("groq", model, "empty reply");
     return null;
   }
   return null;
@@ -525,11 +551,18 @@ async function callAnthropicMock(args, key, fetchImpl, opts = {}) {
         messages: buildAnthropicMessages(args),
       }),
     });
-    if (!res) return null;
+    if (!res) {
+      recordProviderFailure("anthropic", model, "no response");
+      return null;
+    }
     const body = await res.json().catch(() => null);
-    if (!res.ok) return null;
+    if (!res.ok) {
+      recordProviderFailure("anthropic", model, `${res.status} ${sanitizeProviderError(body)}`);
+      return null;
+    }
     return parseAnthropicText(body);
   } catch {
+    recordProviderFailure("anthropic", model, "request failed");
     return null;
   }
 }
@@ -555,6 +588,7 @@ function normalizeCustomUrl(baseUrl) {
     (retired model) moves to the next, any other failure stops. */
 async function callOpenAiCompatibleMock(args, key, fetchImpl, opts) {
   const maxTokens = opts.maxTokens ?? MAX_OUTPUT_TOKENS;
+  const provider = opts.url === OPENAI_URL ? "openai" : opts.url === OPENROUTER_URL ? "openrouter" : "custom";
   for (const model of opts.models) {
     let res = null;
     try {
@@ -577,16 +611,24 @@ async function callOpenAiCompatibleMock(args, key, fetchImpl, opts) {
     } catch {
       return null;
     }
-    if (!res) return null;
+    if (!res) {
+      recordProviderFailure(provider, model, "no response");
+      return null;
+    }
     const body = await res.json().catch(() => null);
     if (!res.ok) {
       // Retired model — try the next one. Any other failure (auth,
       // rate limit) would fail identically for the next model.
-      if (res.status === 404) continue;
+      if (res.status === 404) {
+        recordProviderFailure(provider, model, `404 ${sanitizeProviderError(body)}`);
+        continue;
+      }
+      recordProviderFailure(provider, model, `${res.status} ${sanitizeProviderError(body)}`);
       return null;
     }
     const text = parseGroqText(body);
     if (text) return text;
+    recordProviderFailure(provider, model, "empty reply");
     return null;
   }
   return null;
@@ -615,6 +657,9 @@ function finishResult(mode, reply, provider) {
 
 async function askAiMock(args, config, fetchImpl) {
   const maxTokens = maxTokensForEffort(args.effort);
+  // Fresh per request: a leg that failed but was followed by a
+  // success must not leak its entry into the next failed request.
+  providerFailures.length = 0;
   const selected = args.model;
   // 1. The model the user picked (editor AI panel).
   if (selected && GEMINI_FREE_MODELS.includes(selected) && config.geminiKey) {
@@ -1640,4 +1685,35 @@ test("sanitizeProviderError scrubs Anthropic, project and generic keys", () => {
     "[key] and [key]"
   );
   assert.equal(sanitizeProviderError({ error: "plain failure" }), "plain failure");
+});
+
+test("provider failures are recorded with status + sanitized message", async () => {
+  // Gemini 401 (bad key) on both legs, then Groq 429: askAi returns
+  // null and takeProviderFailures() names every failed leg.
+  const gemini401 = {
+    match: (url) => url.includes("generativelanguage"),
+    ok: false,
+    status: 401,
+    body: { error: { message: "API key not valid. Please pass a valid API key." } },
+  };
+  const groq429 = {
+    match: (url) => url.includes("api.groq.com"),
+    ok: false,
+    status: 429,
+    body: { error: { message: "Rate limit reached" } },
+  };
+  const m = mockFetchFactory([gemini401, groq429]);
+  const res = await askAiMock(
+    { mode: "tutor", model: "gemini-2.5-pro" },
+    { geminiKey: "g-key", groqKey: "q-key" },
+    m.fetchImpl
+  );
+  assert.equal(res, null);
+  assert.deepEqual(takeProviderFailures(), [
+    "gemini gemini-2.5-pro: 401 API key not valid. Please pass a valid API key.",
+    "gemini gemini-3.8-flash: 401 API key not valid. Please pass a valid API key.",
+    "groq openai/gpt-oss-120b: 429 Rate limit reached",
+  ]);
+  // Drained: a second call returns nothing.
+  assert.deepEqual(takeProviderFailures(), []);
 });

@@ -597,6 +597,18 @@ export function sanitizeProviderError(body: unknown): string {
   return msg || "provider error";
 }
 
+// Last provider failures, recorded per request so the route can say
+// WHY every leg failed instead of a bare "AI is unavailable". The
+// route drains this right after askAi() returns null; entries are
+// `provider model: status message` (sanitized, never key-shaped).
+const providerFailures: string[] = [];
+function recordProviderFailure(provider: string, model: string, detail: string): void {
+  providerFailures.push(`${provider} ${model}: ${detail}`);
+}
+export function takeProviderFailures(): string[] {
+  return providerFailures.splice(0);
+}
+
 // ---------------------------------------------------------------------------
 // Provider calls (fetch is injectable so tests can mock it)
 // ---------------------------------------------------------------------------
@@ -659,11 +671,18 @@ export async function callGemini(
       },
       GEMINI_TIMEOUT_MS
     );
-    if (!res) return null;
+    if (!res) {
+      recordProviderFailure("gemini", model, "no response");
+      return null;
+    }
     const body = await res.json().catch(() => null);
-    if (!res.ok) return null;
+    if (!res.ok) {
+      recordProviderFailure("gemini", model, `${res.status} ${sanitizeProviderError(body)}`);
+      return null;
+    }
     return parseGeminiText(body);
   } catch {
+    recordProviderFailure("gemini", model, "request failed");
     return null;
   }
 }
@@ -712,16 +731,24 @@ export async function callGroq(
     } catch {
       return null;
     }
-    if (!res) return null;
+    if (!res) {
+      recordProviderFailure("groq", model, "no response");
+      return null;
+    }
     const body = await res.json().catch(() => null);
     if (!res.ok) {
       // Retired model — try the next one. Any other failure (auth,
       // rate limit) would fail identically for both models.
-      if (res.status === 404) continue;
+      if (res.status === 404) {
+        recordProviderFailure("groq", model, `404 ${sanitizeProviderError(body)}`);
+        continue;
+      }
+      recordProviderFailure("groq", model, `${res.status} ${sanitizeProviderError(body)}`);
       return null;
     }
     const text = parseGroqText(body);
     if (text) return text;
+    recordProviderFailure("groq", model, "empty reply");
     return null;
   }
   return null;
@@ -766,11 +793,18 @@ export async function callAnthropic(
       },
       ANTHROPIC_TIMEOUT_MS
     );
-    if (!res) return null;
+    if (!res) {
+      recordProviderFailure("anthropic", model, "no response");
+      return null;
+    }
     const body = await res.json().catch(() => null);
-    if (!res.ok) return null;
+    if (!res.ok) {
+      recordProviderFailure("anthropic", model, `${res.status} ${sanitizeProviderError(body)}`);
+      return null;
+    }
     return parseAnthropicText(body);
   } catch {
+    recordProviderFailure("anthropic", model, "request failed");
     return null;
   }
 }
@@ -816,6 +850,7 @@ export async function callOpenAiCompatible(
 ): Promise<string | null> {
   const maxTokens = opts.maxTokens ?? MAX_OUTPUT_TOKENS;
   const timeoutMs = opts.timeoutMs ?? OPENAI_TIMEOUT_MS;
+  const provider = opts.url === OPENAI_URL ? "openai" : opts.url === OPENROUTER_URL ? "openrouter" : "custom";
   for (const model of opts.models) {
     let res: { ok: boolean; status: number; json: () => Promise<unknown> } | null = null;
     try {
@@ -843,16 +878,24 @@ export async function callOpenAiCompatible(
     } catch {
       return null;
     }
-    if (!res) return null;
+    if (!res) {
+      recordProviderFailure(provider, model, "no response");
+      return null;
+    }
     const body = await res.json().catch(() => null);
     if (!res.ok) {
       // Retired model — try the next one. Any other failure (auth,
       // rate limit) would fail identically for the next model.
-      if (res.status === 404) continue;
+      if (res.status === 404) {
+        recordProviderFailure(provider, model, `404 ${sanitizeProviderError(body)}`);
+        continue;
+      }
+      recordProviderFailure(provider, model, `${res.status} ${sanitizeProviderError(body)}`);
       return null;
     }
     const text = parseGroqText(body);
     if (text) return text;
+    recordProviderFailure(provider, model, "empty reply");
     return null;
   }
   return null;
@@ -930,6 +973,9 @@ export async function askAi(
   fetchImpl: FetchImpl = fetch as unknown as FetchImpl
 ): Promise<AiResult | null> {
   const maxTokens = maxTokensForEffort(args.effort);
+  // Fresh per request: a leg that failed but was followed by a
+  // success must not leak its entry into the next failed request.
+  providerFailures.length = 0;
   const selected = args.model;
   // 1. The model the user picked (editor AI panel).
   if (selected && GEMINI_FREE_MODELS.includes(selected) && config.geminiKey) {
