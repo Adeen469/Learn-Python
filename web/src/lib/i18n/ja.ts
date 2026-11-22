@@ -689,6 +689,10 @@ export const ja: Strings = {
     lessonSaved: "オフライン保存済み",
     savingLesson: "保存中…",
     saveFailed: "保存できませんでした — 接続を確認してください",
+    hardRefreshTip:
+      "ヒント：オフラインでレッスンを開き直すときは通常の更新（Ctrl+R）を使ってください — ハード更新（Ctrl+Shift+R）では保存済みのコピーが使われず、ブラウザにインターネットエラーが表示されます。",
+    offlineBanner:
+      "オフラインです — 保存済みのレッスンは開けます。通常の更新（Ctrl+R）を使い、ハード更新（Ctrl+Shift+R）は使わないでください。",
   },
   tutorPage: {
     heading: "このレッスンについてAIに質問",

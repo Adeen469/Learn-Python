@@ -648,6 +648,10 @@ export const fr: Strings = {
     lessonSaved: "Enregistré hors ligne",
     savingLesson: "Enregistrement…",
     saveFailed: "Échec de l'enregistrement — vérifiez votre connexion",
+    hardRefreshTip:
+      "Astuce : hors ligne, utilisez un rechargement normal (Ctrl+R) pour rouvrir une leçon — un rechargement forcé (Ctrl+Maj+R) ignore la copie enregistrée et le navigateur affiche une erreur internet.",
+    offlineBanner:
+      "Vous êtes hors ligne — les leçons enregistrées s'ouvrent toujours. Utilisez un rechargement normal (Ctrl+R), pas un rechargement forcé (Ctrl+Maj+R).",
   },
   tutorPage: {
     heading: "Demander à l’IA à propos de cette leçon",

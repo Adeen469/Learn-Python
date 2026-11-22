@@ -620,6 +620,10 @@ export const ko: Strings = {
     lessonSaved: "오프라인 저장됨",
     savingLesson: "저장 중…",
     saveFailed: "저장할 수 없습니다 — 연결을 확인하세요",
+    hardRefreshTip:
+      "팁: 오프라인에서는 일반 새로고침(Ctrl+R)으로 강의를 다시 여세요 — 강력 새로고침(Ctrl+Shift+R)은 저장된 복사본을 건너뛰고 브라우저에 인터넷 오류가 표시됩니다.",
+    offlineBanner:
+      "오프라인 상태입니다 — 저장된 강의는 계속 열립니다. 강력 새로고침(Ctrl+Shift+R)이 아닌 일반 새로고침(Ctrl+R)을 사용하세요.",
   },
   tutorPage: {
     heading: "이 레슨에 대해 AI에게 질문하기",

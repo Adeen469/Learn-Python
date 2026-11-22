@@ -708,6 +708,10 @@ export const en: Strings = {
     lessonSaved: "Saved offline",
     savingLesson: "Saving…",
     saveFailed: "Couldn't save — check your connection",
+    hardRefreshTip:
+      "Tip: while offline, use a normal refresh (Ctrl+R) to reopen a lesson — a hard refresh (Ctrl+Shift+R) skips the saved copy and the browser shows an internet error.",
+    offlineBanner:
+      "You're offline — saved lessons still open. Use a normal refresh (Ctrl+R), not a hard refresh (Ctrl+Shift+R).",
   },
   tutorPage: {
     heading: "Ask AI about this lesson",

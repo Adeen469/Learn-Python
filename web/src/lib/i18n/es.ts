@@ -697,6 +697,10 @@ export const es: Strings = {
     lessonSaved: "Guardado sin conexión",
     savingLesson: "Guardando…",
     saveFailed: "No se pudo guardar: revisa tu conexión",
+    hardRefreshTip:
+      "Consejo: sin conexión, usa una actualización normal (Ctrl+R) para volver a abrir una lección — una actualización forzada (Ctrl+Mayús+R) omite la copia guardada y el navegador muestra un error de internet.",
+    offlineBanner:
+      "Estás sin conexión — las lecciones guardadas siguen abriéndose. Usa una actualización normal (Ctrl+R), no una actualización forzada (Ctrl+Mayús+R).",
   },
   tutorPage: {
     heading: "Pregúntale a la IA sobre esta lección",

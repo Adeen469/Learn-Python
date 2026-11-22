@@ -671,6 +671,10 @@ export const zh: Strings = {
     lessonSaved: "已离线保存",
     savingLesson: "保存中…",
     saveFailed: "无法保存，请检查网络连接",
+    hardRefreshTip:
+      "提示：离线时请用普通刷新（Ctrl+R）重新打开课程——强制刷新（Ctrl+Shift+R）会跳过已保存的副本，浏览器会显示网络错误。",
+    offlineBanner:
+      "您已离线——已保存的课程仍可打开。请使用普通刷新（Ctrl+R），不要使用强制刷新（Ctrl+Shift+R）。",
   },
   tutorPage: {
     heading: "向 AI 咨询本课内容",

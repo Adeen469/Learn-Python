@@ -228,6 +228,8 @@ test("offline i18n keys exist in the type and every language", () => {
     "lessonSaved",
     "savingLesson",
     "saveFailed",
+    "hardRefreshTip",
+    "offlineBanner",
   ];
   for (const k of keys)
     assert.ok(type.includes(`${k}:`), `type must have offline.${k}`);
@@ -602,4 +604,28 @@ test("bulk delete stops the auto-warmer, confirms twice, and can be undone", () 
   assert.ok(settings.includes("Loader2"));
   assert.ok(settings.includes("disabled={reDownloading}"));
   assert.ok(settings.includes("t.offline.lessonsDownloading(warmPct)"));
+});
+
+test("offline hints: Settings hard-refresh tip and an offline-only banner on every page", () => {
+  const settings = readFileSync(
+    join(web, "src", "app", "settings", "page.tsx"),
+    "utf8",
+  );
+  // Under the Wi-Fi toggle in the Offline section.
+  assert.ok(settings.includes("t.offline.hardRefreshTip"));
+  const banner = readFileSync(
+    join(web, "src", "components", "OfflineBanner.tsx"),
+    "utf8",
+  );
+  // Only while offline: initial state from navigator.onLine, and
+  // online/offline listeners that clear it when back online.
+  assert.ok(banner.includes("navigator.onLine"));
+  assert.ok(banner.includes('"online"'));
+  assert.ok(banner.includes('"offline"'));
+  assert.ok(banner.includes("if (!offline) return null;"));
+  assert.ok(banner.includes("t.offline.offlineBanner"));
+  // Mounted in the root layout, next to the other offline pieces.
+  const layout = readFileSync(join(web, "src", "app", "layout.tsx"), "utf8");
+  assert.ok(layout.includes("OfflineBanner"));
+  assert.ok(layout.includes("<OfflineBanner />"));
 });

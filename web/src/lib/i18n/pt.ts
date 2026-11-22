@@ -695,6 +695,10 @@ export const pt: Strings = {
     lessonSaved: "Salvo offline",
     savingLesson: "Salvando…",
     saveFailed: "Não foi possível salvar — verifique sua conexão",
+    hardRefreshTip:
+      "Dica: offline, use uma atualização normal (Ctrl+R) para reabrir uma lição — uma atualização forçada (Ctrl+Shift+R) ignora a cópia salva e o navegador mostra um erro de internet.",
+    offlineBanner:
+      "Você está offline — as lições salvas continuam abrindo. Use uma atualização normal (Ctrl+R), não uma atualização forçada (Ctrl+Shift+R).",
   },
   tutorPage: {
     heading: "Pergunte à IA sobre esta aula",

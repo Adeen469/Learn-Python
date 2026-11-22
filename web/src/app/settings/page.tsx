@@ -624,6 +624,9 @@ export default function SettingsPage() {
                   />
                 </button>
               </div>
+              <p className="mt-3 text-xs leading-relaxed text-neutral-500">
+                {t.offline.hardRefreshTip}
+              </p>
               <button
                 type="button"
                 onClick={() => setLessonsOpen(true)}

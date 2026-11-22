@@ -699,6 +699,10 @@ export const de: Strings = {
     lessonSaved: "Offline gespeichert",
     savingLesson: "Wird gespeichert…",
     saveFailed: "Konnte nicht gespeichert werden — Verbindung prüfen",
+    hardRefreshTip:
+      "Tipp: Öffne eine Lektion offline mit normalem Neuladen (Strg+R) erneut — ein hartes Neuladen (Strg+Umschalt+R) überspringt die gespeicherte Kopie und der Browser zeigt einen Internetfehler.",
+    offlineBanner:
+      "Du bist offline — gespeicherte Lektionen lassen sich weiterhin öffnen. Normales Neuladen (Strg+R) verwenden, kein hartes Neuladen (Strg+Umschalt+R).",
   },
   tutorPage: {
     heading: "Frag die KI zu dieser Lektion",

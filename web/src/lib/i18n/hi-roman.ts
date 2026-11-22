@@ -618,6 +618,10 @@ export const hiRoman: Strings = {
     lessonSaved: "Offline saved",
     savingLesson: "Save ho raha hai…",
     saveFailed: "Save nahi hua — connection check karo",
+    hardRefreshTip:
+      "Tip: offline me lesson phir se kholne ke liye normal refresh (Ctrl+R) use karo — hard refresh (Ctrl+Shift+R) saved copy skip kar deta hai aur browser internet error dikhata hai.",
+    offlineBanner:
+      "Aap offline hain — saved lessons ab bhi khulenge. Normal refresh (Ctrl+R) use karo, hard refresh (Ctrl+Shift+R) nahi.",
   },
   tutorPage: {
     heading: "Is lesson ke baare mein AI se poochho",

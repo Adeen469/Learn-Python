@@ -722,6 +722,8 @@ export type Strings = {
     lessonSaved: string;
     savingLesson: string;
     saveFailed: string;
+    hardRefreshTip: string;
+    offlineBanner: string;
   };
   tutorPage: {
     heading: string;
