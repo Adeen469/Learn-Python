@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n";
-import AppAuthListener from "@/components/AppAuthListener";
 import OfflineRegister from "@/components/OfflineRegister";
 import OfflineBanner from "@/components/OfflineBanner";
 import OfflineWarmer from "@/components/OfflineWarmer";
@@ -60,7 +59,6 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-black text-white antialiased selection:bg-white selection:text-black">
         <LanguageProvider>
-          <AppAuthListener />
           <OfflineRegister />
           <OfflineBanner />
           <OfflineWarmer />
