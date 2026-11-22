@@ -82,6 +82,7 @@ export const zh: Strings = {
     savedOffline: "已离线保存",
     nextLesson: "下一课 →",
     upNext: "接下来：",
+    resume: "继续：",
   },
   course: {
     markAsComplete: "标记为完成",

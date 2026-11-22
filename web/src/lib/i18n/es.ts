@@ -84,6 +84,7 @@ export const es: Strings = {
     savedOffline: "Guardado sin conexión",
     nextLesson: "Siguiente →",
     upNext: "A continuación:",
+    resume: "Continuar:",
   },
   course: {
     markAsComplete: "Marcar como completado",

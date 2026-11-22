@@ -83,6 +83,7 @@ export const pt: Strings = {
     savedOffline: "Salvo offline",
     nextLesson: "Próxima →",
     upNext: "A seguir:",
+    resume: "Continuar:",
   },
   course: {
     markAsComplete: "Marcar como concluído",

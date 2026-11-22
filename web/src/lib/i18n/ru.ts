@@ -90,6 +90,7 @@ export const ru: Strings = {
     savedOffline: "Сохранено офлайн",
     nextLesson: "Далее →",
     upNext: "Далее:",
+    resume: "Продолжить:",
   },
   course: {
     markAsComplete: "Отметить как просмотренное",

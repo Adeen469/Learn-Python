@@ -80,6 +80,7 @@ export const fr: Strings = {
     savedOffline: "Enregistré hors ligne",
     nextLesson: "Suiv. →",
     upNext: "À suivre :",
+    resume: "Reprendre :",
   },
   course: {
     markAsComplete: "Marquer comme terminé",

@@ -90,6 +90,7 @@ export const ja: Strings = {
     savedOffline: "オフライン保存済み",
     nextLesson: "次へ →",
     upNext: "次は：",
+    resume: "続きから：",
   },
   course: {
     markAsComplete: "完了にする",

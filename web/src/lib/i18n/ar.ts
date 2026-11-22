@@ -86,6 +86,7 @@ export const ar: Strings = {
     savedOffline: "تم الحفظ دون اتصال",
     nextLesson: "التالي →",
     upNext: "التالي:",
+    resume: "استئناف:",
   },
   course: {
     markAsComplete: "وضع علامة مكتمل",

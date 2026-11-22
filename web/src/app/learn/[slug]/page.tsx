@@ -33,6 +33,19 @@ import { TextSelectionToolbar } from "@/components/TextSelectionToolbar";
 import { LessonOfflineButton } from "@/components/LessonOfflineButton";
 
 const COMPLETED_KEY = "lp_learn_completed";
+const LAST_VISITED_KEY = "lp_last_visited";
+
+// The lesson the user was on before this one: read on arrival, then
+// record this visit. The value is frozen for this page (the state
+// below), so the Resume button keeps pointing at where the user came
+// from instead of vanishing the moment this page is recorded.
+function readLastVisited(): string | null {
+  try {
+    return localStorage.getItem(LAST_VISITED_KEY);
+  } catch {
+    return null;
+  }
+}
 
 function readCompleted(): string[] {
   try {
@@ -206,10 +219,23 @@ export default function LearnTopicPage() {
   const slug = String(params.slug ?? "");
   const { lang, t, tutorialTitle, referenceTitle, roadmapName } = useLanguage();
   const [completedSlugs, setCompletedSlugs] = useState<string[]>([]);
+  const [resumeSlug, setResumeSlug] = useState<string | null>(null);
 
   useEffect(() => {
     setCompletedSlugs(readCompleted());
   }, []);
+
+  // Record this visit, but keep the previous value as this page's
+  // resume target: the user came FROM that lesson, so Resume must keep
+  // pointing at it while they are here.
+  useEffect(() => {
+    setResumeSlug(readLastVisited());
+    try {
+      localStorage.setItem(LAST_VISITED_KEY, slug);
+    } catch {
+      // Ignore.
+    }
+  }, [slug]);
 
   const topic = getLearnTopic(slug);
   const rawTutorial = getLearnTutorial(slug);
@@ -272,6 +298,17 @@ export default function LearnTopicPage() {
       : null;
   const showContinue = continueTopic !== null;
 
+  const resumeTopic = resumeSlug
+    ? ALL_LEARN_TOPICS.find((t) => t.slug === resumeSlug) ?? null
+    : null;
+  // Resume only when it points somewhere useful: a real lesson that is
+  // neither this page nor the Up Next target (when both point at the
+  // same lesson, Up Next alone is enough).
+  const showResume =
+    resumeTopic !== null &&
+    resumeTopic.slug !== slug &&
+    resumeTopic.slug !== continueTopic?.slug;
+
   return (
     <article>
       <TextSelectionToolbar
@@ -286,15 +323,26 @@ export default function LearnTopicPage() {
           </span>
           <LessonOfflineButton slug={slug} />
         </span>
-        {showContinue && continueTopic && (
-          <Link
-            href={`/learn/${continueTopic.slug}`}
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-neutral-800 bg-neutral-950 px-2.5 py-1.5 text-xs font-medium text-neutral-200 transition hover:border-neutral-600 hover:text-white"
-          >
-            {t.lesson.upNext}{" "}
-            {tutorialTitle(continueTopic.slug, referenceTitle(continueTopic.slug, continueTopic.title))}
-          </Link>
-        )}
+        <span className="flex shrink-0 items-center gap-2">
+          {showResume && resumeTopic && (
+            <Link
+              href={`/learn/${resumeTopic.slug}`}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-white px-2.5 py-1.5 text-xs font-medium text-black transition hover:bg-neutral-200"
+            >
+              {t.lesson.resume}{" "}
+              {tutorialTitle(resumeTopic.slug, referenceTitle(resumeTopic.slug, resumeTopic.title))}
+            </Link>
+          )}
+          {showContinue && continueTopic && (
+            <Link
+              href={`/learn/${continueTopic.slug}`}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-neutral-800 bg-neutral-950 px-2.5 py-1.5 text-xs font-medium text-neutral-200 transition hover:border-neutral-600 hover:text-white"
+            >
+              {t.lesson.upNext}{" "}
+              {tutorialTitle(continueTopic.slug, referenceTitle(continueTopic.slug, continueTopic.title))}
+            </Link>
+          )}
+        </span>
       </nav>
 
       <header className="mt-4">

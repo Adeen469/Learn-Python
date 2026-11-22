@@ -79,6 +79,7 @@ export const ko: Strings = {
     savedOffline: "오프라인 저장됨",
     nextLesson: "다음 →",
     upNext: "다음:",
+    resume: "이어서:",
   },
   course: {
     markAsComplete: "완료로 표시",

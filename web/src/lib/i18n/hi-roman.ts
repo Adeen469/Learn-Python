@@ -81,6 +81,7 @@ export const hiRoman: Strings = {
     savedOffline: "Offline save ho gaya",
     nextLesson: "Agla →",
     upNext: "Agla:",
+    resume: "Resume:",
   },
   course: {
     markAsComplete: "Complete mark karo",

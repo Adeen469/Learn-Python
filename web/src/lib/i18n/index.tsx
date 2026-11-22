@@ -178,6 +178,7 @@ export type Strings = {
     savedOffline: string;
     nextLesson: string;
     upNext: string;
+    resume: string;
   };
   course: {
     markAsComplete: string;

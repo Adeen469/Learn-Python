@@ -275,3 +275,24 @@ test("the breadcrumb row carries a Next button to the lesson after the last comp
   assert.ok(page.includes("t.lesson.upNext"), "the button must use the short Up Next label (Maalik's pick, 2026-11-19)");
   assert.ok(page.includes('href={`/learn/${continueTopic.slug}`}'), "the button must link to the next lesson");
 });
+
+test("the breadcrumb row carries a Resume button to the lesson left off — only when it differs from Up Next", () => {
+  // Maalik's decision, 2026-11-22 (delegated): keep both — Resume
+  // (solid) + Up Next (outline), dynamic names, shown together only
+  // when they point at different lessons. Resume needs last-visited
+  // tracking: the visit is recorded on arrival, but the button keeps
+  // the value from BEFORE this visit, so it never vanishes the moment
+  // the page is recorded.
+  const page = readFileSync(join(webDir, "src/app/learn/[slug]/page.tsx"), "utf8");
+  assert.ok(page.includes("lp_last_visited"), "visits must be recorded under lp_last_visited");
+  assert.ok(page.includes("resumeSlug"), "the page must keep the pre-visit lesson as the resume target");
+  assert.ok(page.includes("resumeTopic"), "the page must resolve the resume slug to a topic");
+  assert.ok(page.includes("showResume"), "Resume must hide when there is nothing useful to resume");
+  assert.ok(page.includes("resumeTopic.slug !== slug"), "Resume must not point at the page itself");
+  assert.ok(page.includes("resumeTopic.slug !== continueTopic?.slug"), "Resume must hide when Up Next already points there");
+  assert.ok(page.includes("t.lesson.resume"), "the button must use the Resume label");
+  assert.ok(page.includes('href={`/learn/${resumeTopic.slug}`}'), "the button must link to the resumed lesson");
+  assert.ok(page.includes("bg-white px-2.5 py-1.5 text-xs font-medium text-black"), "Resume must be the solid button");
+  const en = readFileSync(join(webDir, "src/lib/i18n/en.ts"), "utf8");
+  assert.ok(en.includes('resume: "Resume:"'), "the Resume label must read Resume:");
+});

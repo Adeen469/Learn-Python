@@ -96,6 +96,7 @@ export const en: Strings = {
     savedOffline: "Saved offline",
     nextLesson: "Next →",
     upNext: "Up Next:",
+    resume: "Resume:",
   },
   course: {
     markAsComplete: "Mark as complete",
