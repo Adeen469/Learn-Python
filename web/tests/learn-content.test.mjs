@@ -253,10 +253,11 @@ test("the desktop sidebar sticks exactly below the navbar (69px) so it never shi
   // Maalik's order, 2026-11-19: the sidebar used to slide ~12px when
   // the lesson scrolled, because it stuck at top-57px while the
   // navbar is 69px tall. The sticky offset and height must match the
-  // measured navbar height.
+  // measured navbar height. The offline banner adds its own height on
+  // top when it shows (2026-11-22) — the 69px base never changes.
   const sb = readFileSync(join(webDir, "src/components/LearnSidebar.tsx"), "utf8");
-  assert.ok(sb.includes("sticky top-[69px]"), "the sidebar must stick at the real navbar height (69px)");
-  assert.ok(sb.includes("h-[calc(100vh-69px)]"), "the sidebar height must use the same 69px");
+  assert.ok(sb.includes("top-[calc(69px+var(--offline-banner-h,0px))]"), "the sidebar must stick at the real navbar height (69px) plus the offline banner when it shows");
+  assert.ok(sb.includes("h-[calc(100vh-69px-var(--offline-banner-h,0px))]"), "the sidebar height must use the same 69px plus banner");
   assert.ok(!sb.includes("top-[57px]"), "the old 57px offset must be gone");
 });
 

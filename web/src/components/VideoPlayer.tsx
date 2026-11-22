@@ -715,10 +715,8 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
       if (!cancelled) {
         setIsSavedOffline(false);
         setSrc(streamUrl);
-        // Auto-save: selecting a video saves it offline in the
-        // background — no manual tap needed. Online only; the manual
-        // button stays for retrying a failed download.
-        if (navigator.onLine) void handleSaveOffline(true);
+        // No auto-save: a video saves offline only when the user taps
+        // Save Offline. The button below is the only trigger.
       }
     }
 
@@ -731,10 +729,9 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
     };
   }, [lessonId]);
 
-  // Auto-save passes auto=true: the stream keeps playing
-  // uninterrupted and only the saved flag flips. A manual save swaps
-  // the source to the cached file, as before.
-  async function handleSaveOffline(auto = false) {
+  // Manual save only: tapping Save Offline downloads the video and
+  // swaps playback to the cached file.
+  async function handleSaveOffline() {
     if (!("caches" in window)) {
       setErrorMsg(t.player.errorOfflineCacheUnsupported);
       return;
@@ -749,7 +746,7 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
     try {
       const streamUrl = `/api/video/${lessonId}`;
       const cache = await caches.open(CACHE_NAME);
-      // Already saved (e.g. auto-save finished first)? Just mark it.
+      // Already saved? Just mark it.
       if (await cache.match(streamUrl)) {
         if (apply()) {
           setIsSavedOffline(true);
@@ -794,10 +791,8 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
       // playback state follows.
       noteSavedVideo(lessonId, videoTitle(videoId, title));
       if (apply()) {
-        if (!auto) {
-          const objectUrl = URL.createObjectURL(blob);
-          setSrc(objectUrl);
-        }
+        const objectUrl = URL.createObjectURL(blob);
+        setSrc(objectUrl);
         setIsSavedOffline(true);
       }
     } catch (err) {

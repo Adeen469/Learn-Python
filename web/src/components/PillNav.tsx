@@ -68,8 +68,8 @@ interface PillLinkProps {
 
 const THEMES: Record<'dark' | 'light', Record<string, string>> = {
   dark: {
-    '--pn-surface': 'rgba(38, 35, 46, 0.66)',
-    '--pn-solid': '#26232e',
+    '--pn-surface': 'rgba(23, 23, 23, 0.66)',
+    '--pn-solid': '#171717',
     '--pn-edge': 'rgba(255, 255, 255, 0.08)',
     '--pn-rim': 'rgba(255, 255, 255, 0.07)',
     '--pn-shadow': '0 22px 44px -20px rgba(0, 0, 0, 0.8), 0 6px 16px -8px rgba(0, 0, 0, 0.5)',
@@ -81,7 +81,7 @@ const THEMES: Record<'dark' | 'light', Record<string, string>> = {
     '--pn-dot': '#f4f4f5',
     '--pn-ring': 'rgba(244, 244, 245, 0.55)',
     '--pn-row-hover': 'rgba(255, 255, 255, 0.06)',
-    '--pn-tile': 'linear-gradient(180deg, #3a3644 0%, #27242f 100%)',
+    '--pn-tile': 'linear-gradient(180deg, #262626 0%, #171717 100%)',
     '--pn-tile-rim':
       'inset 0 0 0 1px rgba(255, 255, 255, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 4px 10px -4px rgba(0, 0, 0, 0.7)',
   },

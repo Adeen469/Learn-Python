@@ -158,11 +158,13 @@ test("lessons warm after sign-in, never in Tauri", () => {
   assert.ok(layout.includes("<OfflineWarmer />"));
 });
 
-test("selecting a video auto-saves it offline", () => {
+test("selecting a video does NOT auto-save it offline", () => {
   const src = player();
-  // Auto-save fires from the load-source effect on a cache miss.
-  assert.ok(src.includes("void handleSaveOffline(true)"));
-  assert.ok(src.includes("navigator.onLine"));
+  // No auto-save: selecting a video must not start a download on its
+  // own — the user taps Save Offline. The load-source effect only
+  // checks the cache and plays the stream.
+  assert.ok(!src.includes("handleSaveOffline(true)"));
+  assert.ok(!src.includes("auto = false"));
   // Manual save still exists and swaps to the cached file.
   assert.ok(src.includes("onClick={() => void handleSaveOffline()}"));
 });
@@ -624,6 +626,26 @@ test("offline hints: Settings hard-refresh tip and an offline-only banner on eve
   assert.ok(banner.includes('"offline"'));
   assert.ok(banner.includes("if (!offline) return null;"));
   assert.ok(banner.includes("t.offline.offlineBanner"));
+  // Sticky at the top so it never scrolls away, and it publishes
+  // its own height so the sticky navbar and sidebar stick below it.
+  assert.ok(banner.includes("sticky top-0 z-40"));
+  assert.ok(banner.includes("--offline-banner-h"));
+  assert.ok(banner.includes("ResizeObserver"));
+  assert.ok(banner.includes("offsetHeight"));
+  assert.ok(banner.includes("removeProperty(\"--offline-banner-h\")"));
+  const navbar = readFileSync(
+    join(web, "src", "components", "AppNavbar.tsx"),
+    "utf8",
+  );
+  assert.ok(navbar.includes("top-[var(--offline-banner-h,0px)]"));
+  const sidebar = readFileSync(
+    join(web, "src", "components", "LearnSidebar.tsx"),
+    "utf8",
+  );
+  assert.ok(sidebar.includes("top-[calc(69px+var(--offline-banner-h,0px))]"));
+  assert.ok(
+    sidebar.includes("h-[calc(100vh-69px-var(--offline-banner-h,0px))]")
+  );
   // Mounted in the root layout, next to the other offline pieces.
   const layout = readFileSync(join(web, "src", "app", "layout.tsx"), "utf8");
   assert.ok(layout.includes("OfflineBanner"));

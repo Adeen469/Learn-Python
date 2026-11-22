@@ -23,11 +23,11 @@ import './ChromaGrid.css';
 
 const THEMES: Record<string, Record<string, string>> = {
   dark: {
-    '--chroma-frame': 'rgba(38, 35, 46, 0.66)',
+    '--chroma-frame': 'rgba(23, 23, 23, 0.66)',
     '--chroma-frame-edge': 'rgba(255, 255, 255, 0.08)',
     '--chroma-frame-highlight': 'rgba(255, 255, 255, 0.07)',
     '--chroma-frame-shadow': '0 22px 44px -20px rgba(0, 0, 0, 0.8), 0 6px 16px -8px rgba(0, 0, 0, 0.5)',
-    '--chroma-tile': 'linear-gradient(180deg, #3a3644 0%, #27242f 100%)',
+    '--chroma-tile': 'linear-gradient(180deg, #262626 0%, #171717 100%)',
     '--chroma-tile-edge': 'rgba(255, 255, 255, 0.07)',
     '--chroma-tile-highlight': 'rgba(255, 255, 255, 0.12)',
     '--chroma-tile-shadow': '0 4px 10px -4px rgba(0, 0, 0, 0.7)',
