@@ -595,4 +595,11 @@ test("bulk delete stops the auto-warmer, confirms twice, and can be undone", () 
   assert.ok(settings.includes("t.offline.noSavedLessons"));
   assert.ok(settings.includes("t.offline.downloadAgain"));
   assert.ok(settings.includes("handleDownloadAgain"));
+  // The re-download button shows processing at once and cannot be
+  // double-tapped: busy state, spinner, live % label, disabled.
+  assert.ok(settings.includes("reDownloading"));
+  assert.ok(settings.includes("setReDownloading(true)"));
+  assert.ok(settings.includes("Loader2"));
+  assert.ok(settings.includes("disabled={reDownloading}"));
+  assert.ok(settings.includes("t.offline.lessonsDownloading(warmPct)"));
 });

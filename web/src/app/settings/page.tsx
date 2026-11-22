@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowLeft, Check, ChevronDown, ChevronRight, Download, Flame, Languages, Moon, Settings, Sun, Target, Trash2, Wifi } from "lucide-react";
+import { ArrowLeft, Check, ChevronDown, ChevronRight, Download, Flame, Languages, Loader2, Moon, Settings, Sun, Target, Trash2, Wifi } from "lucide-react";
 import { AppNavbar } from "@/components/AppNavbar";
 import Counter from "@/components/Counter";
 import { LANGUAGES, useLanguage } from "@/lib/i18n";
@@ -99,6 +99,9 @@ export default function SettingsPage() {
   // with an "Offline > Lessons" breadcrumb, and the back arrow
   // returns to the overview. Only the lessons get this treatment.
   const [lessonsOpen, setLessonsOpen] = useState(false);
+  // Re-download in progress: set the instant the button is tapped,
+  // so the user sees processing at once instead of a dead button.
+  const [reDownloading, setReDownloading] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const currentLang = LANGUAGES.find((l) => l.code === lang) ?? LANGUAGES[0];
 
@@ -221,10 +224,18 @@ export default function SettingsPage() {
     setConfirmClear(false);
   }
 
-  function handleDownloadAgain() {
-    // Fire and forget: the run takes a while for 812 lessons, and
-    // the warm events update the count + list as it progresses.
-    void downloadLessonsAgain();
+  async function handleDownloadAgain() {
+    // Show processing AT ONCE: the run takes a while for 812
+    // lessons, and with no feedback the button looked dead, so the
+    // user kept tapping it. The busy state also blocks double taps;
+    // the label carries the live % from the warm events.
+    if (reDownloading) return;
+    setReDownloading(true);
+    try {
+      await downloadLessonsAgain();
+    } finally {
+      setReDownloading(false);
+    }
   }
 
   function closeLessons() {
@@ -543,10 +554,20 @@ export default function SettingsPage() {
                     <button
                       type="button"
                       onClick={handleDownloadAgain}
-                      className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-black transition hover:bg-neutral-200"
+                      disabled={reDownloading}
+                      className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-black transition hover:bg-neutral-200 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-white"
                     >
-                      <Download className="h-3.5 w-3.5" />
-                      {t.offline.downloadAgain}
+                      {reDownloading ? (
+                        <>
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          {t.offline.lessonsDownloading(warmPct)}
+                        </>
+                      ) : (
+                        <>
+                          <Download className="h-3.5 w-3.5" />
+                          {t.offline.downloadAgain}
+                        </>
+                      )}
                     </button>
                   </div>
                 ) : (
