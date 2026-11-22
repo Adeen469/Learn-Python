@@ -9,6 +9,7 @@ import {
 } from "@/lib/auth-email";
 import {
   bumpOtpAttempts,
+  bumpTotpFailedAttempts,
   claimUsedToken,
   consumeOtp,
   getLatestOtp,
@@ -74,9 +75,9 @@ export async function POST(req: NextRequest) {
     const secret = decryptUserTotpSecret(prereqs.secret, user.totp_secret_enc);
     verified = secret !== null && verifyTotpCode(secret, code);
     if (!verified) {
-      await updateUser(user.id, {
-        totp_failed_attempts: (user.totp_failed_attempts ?? 0) + 1,
-      });
+      // Atomic bump (compare-and-swap in the store): a parallel
+      // wrong guess cannot overwrite this one and stall the cap.
+      await bumpTotpFailedAttempts(user.id);
     }
   } else if (method === "email") {
     const row = await getLatestOtp(email, "2fa");

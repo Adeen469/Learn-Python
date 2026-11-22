@@ -153,3 +153,23 @@ describe("settings language: a dropdown, not a flat list", () => {
     assert.ok(page.includes("Escape"), "Escape must close the dropdown");
   });
 });
+
+describe("settings route protection (middleware + server layout)", () => {
+  test("middleware redirects guests away from protected paths", () => {
+    const mw = read("src/middleware.ts");
+    assert.ok(mw.includes("SESSION_COOKIE"), "the cookie name must come from auth.ts, not a guess");
+    assert.ok(mw.includes("req.cookies.get(SESSION_COOKIE)"), "guests are detected by the missing session cookie");
+    assert.ok(mw.includes('new URL("/", req.url)'), "guests go back to the landing page");
+    for (const p of ["/settings", "/editor", "/github", "/courses", "/learn"]) {
+      assert.ok(mw.includes(p), `middleware must cover ${p}`);
+    }
+  });
+
+  test("settings has a real server-side gate", () => {
+    const layout = read("src/app/settings/layout.tsx");
+    assert.ok(!layout.includes('"use client"'), "the gate must run on the server, not in the browser");
+    assert.ok(layout.includes("verifySession"), "the gate must verify the session signature");
+    assert.ok(layout.includes("getSessionVersionByEmail"), "the gate must enforce the session version");
+    assert.ok(layout.includes('redirect("/")'), "guests must be redirected to the landing page");
+  });
+});

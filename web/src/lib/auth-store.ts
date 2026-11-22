@@ -236,20 +236,58 @@ export async function bumpOtpAttempts(otpId: string): Promise<void> {
   const supabase = getSupabaseAdmin();
   if (!supabase) return;
   // Atomic increment (migration 005). Two wrong guesses at the same
-  // instant must not both read N and both write N+1. If the function
-  // is missing (migration not run yet), fall back to read-then-write.
+  // instant must not both read N and both write N+1.
   const { error } = await supabase.rpc("bump_otp_attempts", { p_id: otpId });
   if (!error) return;
-  const { data } = await supabase
-    .from("lp_auth_otp")
-    .select("attempts")
-    .eq("id", otpId)
-    .maybeSingle();
-  const attempts = (data as { attempts?: number } | null)?.attempts ?? 0;
-  await supabase
-    .from("lp_auth_otp")
-    .update({ attempts: attempts + 1 })
-    .eq("id", otpId);
+  // RPC missing (migration not run yet): the same increment as a
+  // compare-and-swap — the UPDATE only lands when the counter is
+  // still the value just read, so a parallel guess wins instead of
+  // silently overwriting it. One retry, then give up.
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const { data: row } = await supabase
+      .from("lp_auth_otp")
+      .select("attempts")
+      .eq("id", otpId)
+      .maybeSingle();
+    const current = (row as { attempts?: number } | null)?.attempts ?? 0;
+    const { data, error: casError } = await supabase
+      .from("lp_auth_otp")
+      .update({ attempts: current + 1 })
+      .eq("id", otpId)
+      .eq("attempts", current)
+      .select("id");
+    if (!casError && data && (data as { id: string }[]).length > 0) return;
+  }
+}
+
+/**
+ * Atomically bump a user's TOTP failure counter (the 2FA step-up
+ * cap). Same compare-and-swap as bumpOtpAttempts: the UPDATE only
+ * lands when the counter is still the value just read, so two
+ * parallel wrong guesses cannot both write N+1 and stall the cap.
+ * One retry on a lost race, then give up (the next guess re-reads).
+ * The column is NOT NULL DEFAULT 0 (migration 005), so the equality
+ * check never has to deal with NULL.
+ */
+export async function bumpTotpFailedAttempts(userId: string): Promise<boolean> {
+  const supabase = getSupabaseAdmin();
+  if (!supabase) return false;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const { data: row } = await supabase
+      .from("lp_auth_users")
+      .select("totp_failed_attempts")
+      .eq("id", userId)
+      .maybeSingle();
+    const current = (row as { totp_failed_attempts?: number } | null)?.totp_failed_attempts ?? 0;
+    const { data, error } = await supabase
+      .from("lp_auth_users")
+      .update({ totp_failed_attempts: current + 1 })
+      .eq("id", userId)
+      .eq("totp_failed_attempts", current)
+      .select("id");
+    if (!error && data && (data as { id: string }[]).length > 0) return true;
+  }
+  return false;
 }
 
 /**

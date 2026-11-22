@@ -690,6 +690,10 @@ async function callOpenAiCompatibleMock(args, key, fetchImpl, opts) {
     try {
       res = await fetchImpl(opts.url, {
         method: "POST",
+        // Custom (BYOK) only: a safe-looking base URL must not be
+        // allowed to 302 to a private IP after the SSRF check —
+        // refuse redirects instead of following them.
+        ...(provider === "custom" ? { redirect: "error" } : {}),
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${key}`,
@@ -1575,6 +1579,36 @@ test("callOpenAiCompatible sends no temperature and honours extra headers", asyn
   });
   assert.equal(text, null);
   assert.equal(m.calls.length, 1);
+});
+
+test("custom BYOK fetches refuse redirects; first-party providers do not", async () => {
+  const ok = {
+    match: () => true,
+    ok: true,
+    status: 200,
+    body: { choices: [{ message: { content: "hi" } }] },
+  };
+  const args = { mode: "guide", question: "hi", history: [] };
+  const publicDns = async () => [{ address: "93.184.216.34", family: 4 }];
+
+  // Custom: a safe-looking base URL must not 302 to a private IP
+  // after the SSRF check, so the fetch refuses redirects outright.
+  let m = mockFetchFactory([ok]);
+  const text = await callOpenAiCompatibleMock(args, "sk-custom", m.fetchImpl, {
+    url: "https://my-llm.example.com/v1/chat/completions",
+    models: ["my-model"],
+    dnsLookup: publicDns,
+  });
+  assert.equal(text, "hi");
+  assert.equal(m.calls[0].init.redirect, "error");
+
+  // OpenAI: first-party endpoint, redirects stay allowed.
+  m = mockFetchFactory([ok]);
+  await callOpenAiCompatibleMock(args, "sk-openai123", m.fetchImpl, {
+    url: OPENAI_URL,
+    models: ["gpt-4o"],
+  });
+  assert.equal(m.calls[0].init.redirect, undefined);
 });
 
 test("normalizeCustomUrl appends the endpoint only when missing", () => {

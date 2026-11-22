@@ -606,6 +606,25 @@ test("TOTP verification has a per-account attempt cap", () => {
   assert.ok(verify.includes("totp_failed_attempts"), "failures must be counted on the user row");
 });
 
+test("TOTP failure counters increment atomically (CAS, not read-then-write)", () => {
+  const store = read("src/lib/auth-store.ts");
+  assert.ok(store.includes("bumpTotpFailedAttempts"), "the counter bump must live in the store");
+  assert.ok(
+    store.includes('.eq("totp_failed_attempts", current)'),
+    "the bump must only land when the counter is still the value read"
+  );
+  assert.ok(
+    !store.includes("attempts: attempts + 1"),
+    "no read-then-write fallback may remain in the OTP bump"
+  );
+  const verify = read("src/app/api/auth/2fa/verify/route.ts");
+  assert.ok(verify.includes("bumpTotpFailedAttempts(user.id)"), "verify must use the atomic bump");
+  assert.ok(
+    !verify.includes("totp_failed_attempts: (user.totp_failed_attempts ?? 0) + 1"),
+    "verify must not increment the counter from a stale read"
+  );
+});
+
 test("single-use bearer tokens cannot be replayed in their window", () => {
   const store = read("src/lib/auth-store.ts");
   assert.ok(store.includes("claimUsedToken"), "the store must claim used tokens");

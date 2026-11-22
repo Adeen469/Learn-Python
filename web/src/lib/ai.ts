@@ -971,6 +971,10 @@ export async function callOpenAiCompatible(
         opts.url,
         {
           method: "POST",
+          // Custom (BYOK) only: a safe-looking base URL must not be
+          // allowed to 302 to a private IP after the SSRF check —
+          // refuse redirects instead of following them.
+          ...(provider === "custom" ? { redirect: "error" as const } : {}),
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${key}`,
