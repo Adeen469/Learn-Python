@@ -1,6 +1,9 @@
 // Auto-offline downloads: warm every lesson page into the service
 // worker's pages cache after sign-in, and keep an index of videos
-// saved offline. Cache API + localStorage only, no new dependency.
+// saved offline. The Settings page and the whole Courses tree are
+// warmed the same way (warmAppPages) — client-side navigation never
+// caches a page's HTML, so without it a playlist page falls back to
+// /offline. Cache API + localStorage only, no new dependency.
 //
 // HONEST LIMIT: web pages cannot truly detect Wi-Fi vs mobile data —
 // no browser API exposes it. The "Wi-Fi only" toggle below is a user
@@ -277,6 +280,69 @@ export async function warmLessons(): Promise<WarmProgress> {
     warming = false;
   }
   return progress;
+}
+
+// App pages for offline (Settings + the whole Courses tree).
+// Maalik's order, 2026-11-22: a playlist page still showed "You're
+// offline" because client-side navigation never caches a page's
+// HTML — the SW only caches full document navigations, and the
+// lessons warmer only covered /learn/*. These pages are saved the
+// same way (savePageOffline: HTML + its /_next/static/ chunks),
+// under the same gates (online, Wi-Fi-only toggle, broadband,
+// signed in) — but NOT the first-sign-in Yes/No answer: that
+// question was about the 812 lessons, and Maalik explicitly ordered
+// these pages cached. The cache itself is the record, so a second
+// call is a no-op once everything is cached. Runs from
+// OfflineWarmer and from the Settings Wi-Fi toggle.
+let warmingAppPages = false;
+
+export async function maybeWarmAppPages(): Promise<boolean> {
+  if (typeof window === "undefined" || !("caches" in window)) return false;
+  if (warmingAppPages) return false;
+  if (!navigator.onLine) return false;
+  if (!isWifiOnlyEnabled()) return false;
+  if (!connectionAllowsWarming()) return false;
+  const user = await fetchSessionUser().catch(() => null);
+  if (!user) return false;
+  return warmAppPages();
+}
+
+export async function warmAppPages(): Promise<boolean> {
+  if (warmingAppPages) return false;
+  if (typeof window === "undefined" || !("caches" in window)) return false;
+  warmingAppPages = true;
+  try {
+    // The courses catalog is ~47KB — dynamic-import it so the
+    // warmer never bloats the shared layout chunk; it loads only
+    // when a warm actually runs.
+    const { COURSE_CREATORS, playlistListId } = await import(
+      "@/lib/courses/data"
+    );
+    const urls = ["/settings", "/courses"];
+    for (const c of COURSE_CREATORS) {
+      urls.push(`/courses/${c.slug}`);
+      for (const p of c.playlists)
+        urls.push(`/courses/${c.slug}/${playlistListId(p.url)}`);
+      if (c.oneShots.length > 0) urls.push(`/courses/${c.slug}/one-shots`);
+    }
+    const cache = await caches.open(PAGES_CACHE);
+    const missing: string[] = [];
+    for (const u of urls) {
+      const hit = await cache.match(u).catch(() => null);
+      if (!hit) missing.push(u);
+    }
+    for (let i = 0; i < missing.length; i += WARM_BATCH) {
+      if (!navigator.onLine) break;
+      await Promise.all(
+        missing.slice(i, i + WARM_BATCH).map((u) => savePageOffline(u)),
+      );
+    }
+    return true;
+  } catch {
+    return false;
+  } finally {
+    warmingAppPages = false;
+  }
 }
 
 // Slugs the user deleted in Settings. The warmer skips them, so a

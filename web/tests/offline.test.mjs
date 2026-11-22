@@ -169,6 +169,37 @@ test("selecting a video does NOT auto-save it offline", () => {
   assert.ok(src.includes("onClick={() => void handleSaveOffline()}"));
 });
 
+test("settings + courses pages are warmed for offline", () => {
+  const src = downloads();
+  // The playlist page fell back to /offline: client-side navigation
+  // never caches a page's HTML, and the lessons warmer only covered
+  // /learn/*. The app pages warm the same way (HTML + chunks).
+  assert.ok(src.includes("warmAppPages"));
+  assert.ok(src.includes("maybeWarmAppPages"));
+  assert.ok(src.includes('"/settings"'));
+  assert.ok(src.includes('"/courses"'));
+  // Playlist + one-shot pages come from the catalog, loaded on
+  // demand so the shared layout chunk stays lean.
+  assert.ok(src.includes("@/lib/courses/data"));
+  assert.ok(src.includes("COURSE_CREATORS"));
+  assert.ok(src.includes("playlistListId"));
+  assert.ok(src.includes("/one-shots"));
+  // Same gates as lessons (online, Wi-Fi, signed in) but NOT the
+  // first-sign-in Yes/No — Maalik ordered these pages cached.
+  assert.ok(src.includes("isWifiOnlyEnabled()"));
+  assert.ok(src.includes("fetchSessionUser"));
+  const warmer = readFileSync(
+    join(web, "src", "components", "OfflineWarmer.tsx"),
+    "utf8",
+  );
+  assert.ok(warmer.includes("maybeWarmAppPages"));
+  const settings = readFileSync(
+    join(web, "src", "app", "settings", "page.tsx"),
+    "utf8",
+  );
+  assert.ok(settings.includes("maybeWarmAppPages"));
+});
+
 test("video download shows a visible progress bar while saving", () => {
   const src = player();
   assert.ok(src.includes("isDownloading"));

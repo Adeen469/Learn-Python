@@ -38,6 +38,7 @@ import {
   getSavedLessons,
   getSavedVideos,
   isWifiOnlyEnabled,
+  maybeWarmAppPages,
   maybeWarmLessons,
   readWarmProgress,
   removeSavedLesson,
@@ -206,6 +207,7 @@ export default function SettingsPage() {
     setWifiOnlyEnabled(next);
     setWifiOnly(next);
     if (next) void maybeWarmLessons();
+    if (next) void maybeWarmAppPages();
   }
 
   async function handleRemoveSaved(lessonId: string) {

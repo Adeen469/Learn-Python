@@ -8,6 +8,7 @@ import {
   connectionAllowsWarming,
   isWifiOnlyEnabled,
   markDownloadOfferAnswered,
+  maybeWarmAppPages,
   maybeWarmLessons,
 } from "@/lib/offline-downloads";
 
@@ -40,6 +41,7 @@ export function OfflineDownloadPopup({ onClose }: { onClose: () => void }) {
       connectionAllowsWarming()
     ) {
       void maybeWarmLessons();
+      void maybeWarmAppPages();
       onClose();
     } else {
       setBlocked(true);
