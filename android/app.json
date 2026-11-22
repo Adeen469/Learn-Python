@@ -6,19 +6,29 @@
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
     "scheme": "learnpython",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "package": "com.learnpython.app",
       "adaptiveIcon": {
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png",
         "backgroundColor": "#000000"
       },
       "predictiveBackGestureEnabled": false
     },
     "plugins": [
       "expo-router",
-      "expo-video"
+      "expo-video",
+      "expo-splash-screen"
     ]
   }
 }
