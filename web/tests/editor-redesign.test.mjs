@@ -216,8 +216,8 @@ test("AI panel: PromptBar + ThoughtLine wired to guide mode (a real AI, no restr
   assert.ok(page.includes("sendAiMessage"), "AI panel must send through sendAiMessage");
   assert.ok(page.includes('mode: "guide"'), "AI panel must ask in guide mode (a real AI assistant)");
   assert.ok(page.includes("AI_PANEL_MODELS"), "AI panel must offer the model picker");
-  assert.ok(page.includes('defaultModel="gemini-2.5-pro"'), "Gemini 2.5 Pro must be the default model (best of the four default selector models, BYOK v2)");
-  // The model menu must scroll: 23 models no longer fit on screen.
+  assert.ok(page.includes('defaultModel="gemini-3.6-flash"'), "Gemini 3.6 Flash must be the default model (proven live; the 3.1 Pro preview is best, not default)");
+  // The model menu must scroll: 15 models no longer fit on screen.
   assert.ok(promptBarCss.includes("max-height: 288px"), "model menu must cap its height so it can scroll");
   assert.ok(promptBarCss.includes("overflow-y: auto"), "model menu must scroll instead of growing off-screen");
   // Menu buttons must focus the input BEFORE opening the menu: the
@@ -247,12 +247,11 @@ test("AI panel: PromptBar + ThoughtLine wired to guide mode (a real AI, no restr
   // Every model Maalik asked for (Gemini + Groq + Anthropic + OpenAI
   // + OpenRouter) in the picker, plus the backend allowlist.
   for (const id of [
-    "gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash", "gemini-2.5-pro",
-    "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.0-flash", "gemini-2.0-flash-lite",
-    "openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3.6-27b", "qwen/qwen3.8-27b",
+    "gemini-3.1-pro-preview", "gemini-3.6-flash",
+    "openai/gpt-oss-120b", "openai/gpt-oss-20b",
     "claude-sonnet-5-5", "claude-opus-5-5", "claude-haiku-5-5",
     "gpt-5.5", "gpt-5.4-mini", "gpt-4o", "gpt-4o-mini",
-    "openai/gpt-5.5", "anthropic/claude-sonnet-5-5", "google/gemini-2.5-flash",
+    "openai/gpt-5.5", "anthropic/claude-sonnet-5-5", "google/gemini-3.6-flash",
     "meta-llama/llama-3.3-70b-instruct",
   ]) {
     assert.ok(page.includes(`"${id}"`), `AI picker must list ${id}`);

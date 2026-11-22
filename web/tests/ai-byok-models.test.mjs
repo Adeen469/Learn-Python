@@ -47,7 +47,7 @@ test("BYOK v2: only the enabled entry for the picked model is ever sent", () => 
   assert.ok(page.includes("if (!byokStore.enabled) return undefined;"), "a disabled master switch must send no key at all");
   assert.ok(page.includes("entries.find((e) => e.enabled && e.provider === provider)"), "only an enabled entry for the picked provider may be sent");
   assert.ok(page.includes("byokPayloadFor(opts.model?.key"), "the chat request must use the helper for the picked model");
-  assert.ok(page.includes("byokPayloadFor(\"gemini-2.5-flash-lite\")"), "the commit-message request must use the helper too");
+  assert.ok(page.includes("byokPayloadFor(\"gemini-3.6-flash\")"), "the commit-message request must use the helper too");
   // The server still takes exactly one byok object — multi-key is a
   // client-side selection, not a new server contract.
   assert.ok(aiLib.includes("byok?: AiByok;"), "the server request type must still carry one BYOK object");
@@ -69,18 +69,20 @@ test("Models section: breadcrumb, best models per provider, selector tick state"
 
 test("default selector: two free Gemini + two free Groq models, best + efficient each", () => {
   // Best = best result, tokens don't matter. Efficient = fewest
-  // tokens. Gemini best is the Pro model, efficient Flash-Lite;
+  // tokens. Gemini best is the 3.1 Pro preview, efficient 3.6 Flash;
   // Groq best is the 120B model, efficient the 20B one.
-  assert.ok(page.includes('"gemini-2.5-pro"'), "Gemini best must be the Pro model");
-  assert.ok(page.includes('"gemini-2.5-flash-lite"'), "Gemini efficient must be Flash-Lite");
+  assert.ok(page.includes('"gemini-3.1-pro-preview"'), "Gemini best must be the 3.1 Pro preview");
+  assert.ok(page.includes('"gemini-3.6-flash"'), "Gemini efficient must be 3.6 Flash");
   assert.ok(page.includes('"openai/gpt-oss-120b"'), "Groq best must be the 120B model");
   assert.ok(page.includes('"openai/gpt-oss-20b"'), "Groq efficient must be the 20B model");
   assert.ok(page.includes("const DEFAULT_SELECTOR_MODELS = ["), "the four defaults must live in one constant");
   // The default picked model must be one of the four shown.
-  assert.ok(page.includes('defaultModel="gemini-2.5-pro"'), "the default picked model must be the Gemini best model");
-  assert.ok(page.includes('model: opts.model?.key ?? "gemini-2.5-pro"'), "the request fallback must match the default picked model");
-  // The old default must not survive anywhere as a picked model.
-  assert.ok(!page.includes('defaultModel="gemini-3.8-flash"'), "the old default model must not remain the picker default");
+  assert.ok(page.includes('defaultModel="gemini-3.6-flash"'), "the default picked model must be 3.6 Flash");
+  assert.ok(page.includes('model: opts.model?.key ?? "gemini-3.6-flash"'), "the request fallback must match the default picked model");
+  // The preview Pro model must not be the picker default (the
+  // proven 3.6 Flash is), and no retired model may survive.
+  assert.ok(!page.includes('defaultModel="gemini-3.1-pro-preview"'), "the preview Pro model must not be the picker default");
+  assert.ok(!page.includes('"gemini-2.5-pro"'), "the retired 2.5 Pro must not survive anywhere");
   // Free-tier guardrails still hold: no retired Llama chat models.
   assert.ok(!aiLib.includes("llama-3.1-8b-instant") || aiLib.includes("do NOT add them back"), "retired Llama models must stay out");
   assert.ok(!page.includes("llama-3.1-8b-instant"), "the picker must not list retired Llama models");

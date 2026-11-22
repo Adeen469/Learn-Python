@@ -61,25 +61,22 @@ export interface AiResult {
   quiz?: AiQuizQuestion[];
 }
 
-export const GEMINI_MODEL = "gemini-3.8-flash";
+export const GEMINI_MODEL = "gemini-3.6-flash";
 export function geminiUrlFor(model: string): string {
   return `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 }
 export const GEMINI_URL = geminiUrlFor(GEMINI_MODEL);
 // Free-tier text models (Gemini API pricing page, "Free of charge"):
-// the current Flash family plus 2.5 Pro and 2.0 Flash. The editor AI
-// panel lists these in its model picker; the backend only accepts ids
-// from this list (plus the Groq list below), so a client cannot inject
-// an arbitrary model name.
+// only models with live proof. The 2.x generation (2.5 Pro/Flash,
+// 2.0 Flash) was retired for new users in Nov 2026 (2.5 Pro 404s),
+// and 3.8/3.5 Flash have no live proof (3.8 timed out) — do NOT
+// add any of them back. The editor AI panel lists these in its
+// model picker; the backend only accepts ids from this list (plus
+// the Groq list below), so a client cannot inject an arbitrary
+// model name.
 export const GEMINI_FREE_MODELS = [
-  "gemini-3.8-flash",
+  "gemini-3.1-pro-preview",
   "gemini-3.6-flash",
-  "gemini-3.5-flash",
-  "gemini-2.5-pro",
-  "gemini-2.5-flash",
-  "gemini-2.5-flash-lite",
-  "gemini-2.0-flash",
-  "gemini-2.0-flash-lite",
 ];
 // Groq's current production chat models (free/developer plans). The
 // second is tried only if the first 404s (retired), never on
@@ -87,12 +84,11 @@ export const GEMINI_FREE_MODELS = [
 export const GROQ_MODELS = ["openai/gpt-oss-120b", "openai/gpt-oss-20b"];
 // Groq free-tier chat models (console.groq.com rate limits). Llama
 // 3.1-8b-instant and 3.3-70b-versatile left the free/developer tier on
-// 2026-08-16 (Enterprise only now) — do NOT add them back.
+// 2026-08-16 (Enterprise only now) — do NOT add them back. Qwen was
+// removed too (no live proof); only GPT-OSS has answered live.
 export const GROQ_FREE_MODELS = [
   "openai/gpt-oss-120b",
   "openai/gpt-oss-20b",
-  "qwen/qwen3.6-27b",
-  "qwen/qwen3.8-27b",
 ];
 // Anthropic's current models (Messages API). claude-sonnet-4-5
 // retired 2026-11-30 — do NOT add it back. Verified against
@@ -106,7 +102,7 @@ export const OPENAI_MODELS = ["gpt-5.5", "gpt-5.4-mini", "gpt-4o", "gpt-4o-mini"
 export const OPENROUTER_MODELS = [
   "openai/gpt-5.5",
   "anthropic/claude-sonnet-5-5",
-  "google/gemini-2.5-flash",
+  "google/gemini-3.6-flash",
   "meta-llama/llama-3.3-70b-instruct",
 ];
 /** Every model id the /api/ai route accepts from a client. */
@@ -139,9 +135,9 @@ export function maxTokensForEffort(effort?: string): number {
       return MAX_OUTPUT_TOKENS; // Medium / unset = 600
   }
 }
-// Gemini's leg is kept short on purpose (Loco lesson): gemini-3.8-flash
-// on the free tier consistently takes over 10s, so a shorter budget
-// fails over to Groq sooner and the user still gets a reply.
+// Gemini's leg is kept short on purpose (Loco lesson): Gemini on the
+// free tier can take over 10s, so a shorter budget fails over to
+// Groq sooner and the user still gets a reply.
 export const GEMINI_TIMEOUT_MS = 7000;
 export const GROQ_TIMEOUT_MS = 8000;
 export const ANTHROPIC_TIMEOUT_MS = 15000;
@@ -149,8 +145,13 @@ export const OPENAI_TIMEOUT_MS = 12000;
 export const OPENROUTER_TIMEOUT_MS = 12000;
 export const CUSTOM_TIMEOUT_MS = 12000;
 export const MAX_INPUT_CHARS = 8000;
-export const MAX_HISTORY_TURNS = 8;
-export const MAX_HISTORY_CHARS = 2000;
+export const MAX_HISTORY_TURNS = 4;
+export const MAX_HISTORY_CHARS = 700;
+// Prompt budget: a fresh "Hi" must stay ~4000 tokens so Groq's 8000
+// TPM never trips and the first leg answers in ~1-3s. The file is
+// already capped at 8000 chars by validation; skills at 6000 chars
+// (ponytail alone is ~17k); history at 4 turns x 700 chars.
+export const MAX_SKILLS_CHARS = 6000;
 export const MAX_OUTPUT_TOKENS = 600;
 export const AI_TEMPERATURE = 0.7;
 
@@ -367,7 +368,7 @@ export function validateAiRequest(value: unknown): ValidateRequestResult {
 // History + prompt building (pure)
 // ---------------------------------------------------------------------------
 
-/** Keep only the last 8 valid turns, each capped in length. */
+/** Keep only the last 4 valid turns, each capped in length. */
 export function sanitizeHistory(history: unknown): AiTurn[] {
   if (!Array.isArray(history)) return [];
   return history
@@ -380,10 +381,16 @@ export function sanitizeHistory(history: unknown): AiTurn[] {
         (h as AiTurn).text.trim().length > 0
     )
     .slice(-MAX_HISTORY_TURNS)
-    .map((h) => ({
-      role: h.role,
-      text: h.text.trim().slice(0, MAX_HISTORY_CHARS),
-    }));
+    .map((h) => {
+      const text = h.text.trim();
+      return {
+        role: h.role,
+        text:
+          text.length > MAX_HISTORY_CHARS
+            ? `${text.slice(0, MAX_HISTORY_CHARS)} [trimmed]`
+            : text,
+      };
+    });
 }
 
 function lessonContext(
@@ -433,12 +440,21 @@ Rules you must follow:
       // asked, fixes code directly, and answers anything — like a
       // normal AI assistant. Active skills (the learner's own
       // choices) ride along at the end, when any are given.
-      const skillsSection =
+      // Skills are long (ponytail alone is ~17k chars) — cap the
+      // joined section so one request stays lean (fresh "Hi" ~4000
+      // tokens). The cut keeps ponytail's ladder, rules and
+      // guardrails; the rest is redundant skill text.
+      const skillsText =
         skills && skills.length > 0
-          ? `\n\nSkills to follow on top of the rules above — these are the learner's own chosen skills, follow them when they apply to the request:\n${skills
-              .map((s) => `Skill: ${s.name}\n${s.content}`)
-              .join("\n\n")}`
+          ? skills.map((s) => `Skill: ${s.name}\n${s.content}`).join("\n\n")
           : "";
+      const skillsSection = skillsText
+        ? `\n\nSkills to follow on top of the rules above — these are the learner's own chosen skills, follow them when they apply to the request:\n${
+            skillsText.length > MAX_SKILLS_CHARS
+              ? `${skillsText.slice(0, MAX_SKILLS_CHARS)} [trimmed]`
+              : skillsText
+          }`
+        : "";
       return `${base}\n\nThe learner is in the code editor, working on their own file (pasted in the user message). You are a real AI assistant — answer whatever they ask, with no restrictions.\n\nAnswer ONLY what the user actually asked — nothing extra. If they just greet you or make small talk, greet them back briefly and do NOT mention their code at all: no code review, no praise, no list of improvements unless they ask about the code. Only talk about their code when they ask about it.\n\nWrite the full code when they ask for it: complete programs, functions, and corrected versions of their code. When they ask you to write code or build a project, build the COMPLETE thing — efficient, reliable, scalable, secure, and production-ready: clean structure, proper error handling, input validation, secure defaults (no hardcoded secrets, nothing unsafe), and code that runs as-is with no missing pieces. Never give a partial sketch when a complete solution was asked for. If their code has a bug and they ask about it, say what is wrong and why, and show the fixed code directly. If they ask you to explain something, explain it in plain words. If they ask about anything else — not just Python — answer that too.\n\nKeep it practical: short explanations, working code, one useful next step when it fits.${skillsSection}`;
     case "quiz":
       return `${base}\n\n${pythonOnly}\n\nDraft 3 quiz questions for the current lesson, as a JSON array and nothing else — no intro, no markdown fences. Each item: {"question": "...", "options": ["...", "...", "...", "..."], "answer": 0} where answer is the index of the correct option. Exactly 4 options per question, exactly 3 questions, covering the lesson's key ideas as taught in the video transcript above when one is present.`;

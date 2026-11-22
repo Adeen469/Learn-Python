@@ -309,12 +309,12 @@ export default function CodeEditorPage() {
   const [byokStore, setByokStore] = useState<AiByokStore>(() => readByokStore());
   // Models the selector shows by default (no BYOK): two free models
   // per provider — one best (result first, tokens don't matter) and
-  // one efficient (fewest tokens). Gemini best is the Pro model,
-  // efficient is Flash-Lite; Groq best is the 120B model, efficient
-  // the 20B one.
+  // one efficient (fewest tokens). Gemini best is the 3.1 Pro
+  // preview, efficient is 3.6 Flash; Groq best is the 120B model,
+  // efficient the 20B one.
   const DEFAULT_SELECTOR_MODELS = [
-    "gemini-2.5-pro",
-    "gemini-2.5-flash-lite",
+    "gemini-3.1-pro-preview",
+    "gemini-3.6-flash",
     "openai/gpt-oss-120b",
     "openai/gpt-oss-20b",
   ];
@@ -513,18 +513,18 @@ export default function CodeEditorPage() {
   // tokens. These tags mark the curated models in AI Settings >
   // Models; the rest keep their picker tag.
   const BEST_MODEL_KEYS = new Set([
-    "gemini-2.5-pro",
+    "gemini-3.1-pro-preview",
     "openai/gpt-oss-120b",
     "claude-opus-5-5",
     "gpt-5.5",
     "openai/gpt-5.5",
   ]);
   const EFFICIENT_MODEL_KEYS = new Set([
-    "gemini-2.5-flash-lite",
+    "gemini-3.6-flash",
     "openai/gpt-oss-20b",
     "claude-haiku-5-5",
     "gpt-5.4-mini",
-    "google/gemini-2.5-flash",
+    "google/gemini-3.6-flash",
   ]);
 
   // PromptBar models: every model the API accepts. The picker shows
@@ -532,18 +532,10 @@ export default function CodeEditorPage() {
   // (defaults: the four free ones). An enabled custom BYOK entry
   // adds its own model to the list.
   const ALL_AI_PANEL_MODELS: PromptBarModel[] = [
-    { key: "gemini-3.8-flash", name: "Gemini 3.8 Flash", tag: "Flagship" },
+    { key: "gemini-3.1-pro-preview", name: "Gemini 3.1 Pro", tag: "Pro" },
     { key: "gemini-3.6-flash", name: "Gemini 3.6 Flash", tag: "Fast" },
-    { key: "gemini-3.5-flash", name: "Gemini 3.5 Flash", tag: "Fast" },
-    { key: "gemini-2.5-pro", name: "Gemini 2.5 Pro", tag: "Pro" },
-    { key: "gemini-2.5-flash", name: "Gemini 2.5 Flash", tag: "Fast" },
-    { key: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash-Lite", tag: "Fastest" },
-    { key: "gemini-2.0-flash", name: "Gemini 2.0 Flash", tag: "Fast" },
-    { key: "gemini-2.0-flash-lite", name: "Gemini 2.0 Flash-Lite", tag: "Fastest" },
     { key: "openai/gpt-oss-120b", name: "GPT-OSS 120B", tag: "Groq" },
     { key: "openai/gpt-oss-20b", name: "GPT-OSS 20B", tag: "Groq Fast" },
-    { key: "qwen/qwen3.6-27b", name: "Qwen 3.6 27B", tag: "Groq" },
-    { key: "qwen/qwen3.8-27b", name: "Qwen 3.8 27B", tag: "Groq" },
     { key: "claude-sonnet-5-5", name: "Claude Sonnet 5.5", tag: "Anthropic" },
     { key: "claude-opus-5-5", name: "Claude Opus 5.5", tag: "Anthropic" },
     { key: "claude-haiku-5-5", name: "Claude Haiku 5.5", tag: "Anthropic Fast" },
@@ -553,7 +545,7 @@ export default function CodeEditorPage() {
     { key: "gpt-4o-mini", name: "GPT-4o Mini", tag: "OpenAI Fast" },
     { key: "openai/gpt-5.5", name: "GPT-5.5", tag: "OpenRouter" },
     { key: "anthropic/claude-sonnet-5-5", name: "Claude Sonnet 5.5", tag: "OpenRouter" },
-    { key: "google/gemini-2.5-flash", name: "Gemini 2.5 Flash", tag: "OpenRouter" },
+    { key: "google/gemini-3.6-flash", name: "Gemini 3.6 Flash", tag: "OpenRouter" },
     { key: "meta-llama/llama-3.3-70b-instruct", name: "Llama 3.3 70B", tag: "OpenRouter" },
   ];
   const AI_PANEL_MODELS: PromptBarModel[] = (() => {
@@ -642,7 +634,7 @@ export default function CodeEditorPage() {
     setAiError(null);
     setAiThoughtSeconds(null);
     setAiThinking(true);
-    const byokPayload = byokPayloadFor(opts.model?.key ?? "gemini-2.5-pro");
+    const byokPayload = byokPayloadFor(opts.model?.key ?? "gemini-3.6-flash");
     const controller = new AbortController();
     aiAbortRef.current = controller;
     try {
@@ -655,7 +647,7 @@ export default function CodeEditorPage() {
           question,
           code: truncated ? code.slice(0, 8000) : code,
           history,
-          model: opts.model?.key ?? "gemini-2.5-pro",
+          model: opts.model?.key ?? "gemini-3.6-flash",
           effort: opts.effort,
           // Active skills: built-in ids resolve server-side; custom
           // skills ride along as name + instructions. BYOK rides
@@ -1536,7 +1528,7 @@ export default function CodeEditorPage() {
     ];
     const controller = new AbortController();
     const timer = window.setTimeout(() => controller.abort(), 5000);
-    const commitByok = byokPayloadFor("gemini-2.5-flash-lite");
+    const commitByok = byokPayloadFor("gemini-3.6-flash");
     setGeneratingMessage(true);
     try {
       const res = await fetch("/api/ai", {
@@ -1546,7 +1538,7 @@ export default function CodeEditorPage() {
         body: JSON.stringify({
           mode: "guide",
           question: `Write ONLY a short commit message (one line, max 72 characters, conventional-commits style like "feat: ..." or "fix: ...") for these changes in the ${openRepoState?.repo ?? "repo"} repository:\n${lines.join("\n")}\nReply with just the message, nothing else.`,
-          model: "gemini-2.5-flash-lite",
+          model: "gemini-3.6-flash",
           effort: "Low",
           ...(commitByok ? { byok: commitByok } : {}),
         }),
@@ -3262,7 +3254,7 @@ _lp_term_result
             { key: "hint", name: "/hint", description: "Hint for the next step" },
           ]}
           models={AI_PANEL_MODELS}
-          defaultModel="gemini-2.5-pro"
+          defaultModel="gemini-3.6-flash"
           efforts={["Low", "Medium", "High", "Extra", "Max"]}
           defaultEffort="Medium"
           busy={aiThinking}

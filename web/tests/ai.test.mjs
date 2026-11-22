@@ -5,20 +5,14 @@ import test from "node:test";
 // node --test verification (mirrors web/src/lib/ai.ts). Provider calls
 // use an injected mock fetch — no real keys exist in the sandbox.
 
-const GEMINI_MODEL = "gemini-3.8-flash";
+const GEMINI_MODEL = "gemini-3.6-flash";
 function geminiUrlFor(model) {
   return `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 }
 const GEMINI_URL = geminiUrlFor(GEMINI_MODEL);
 const GEMINI_FREE_MODELS = [
-  "gemini-3.8-flash",
+  "gemini-3.1-pro-preview",
   "gemini-3.6-flash",
-  "gemini-3.5-flash",
-  "gemini-2.5-pro",
-  "gemini-2.5-flash",
-  "gemini-2.5-flash-lite",
-  "gemini-2.0-flash",
-  "gemini-2.0-flash-lite",
 ];
 // Groq's current production chat models (free/developer plans).
 const GROQ_MODELS = ["openai/gpt-oss-120b", "openai/gpt-oss-20b"];
@@ -28,8 +22,6 @@ const GROQ_MODELS = ["openai/gpt-oss-120b", "openai/gpt-oss-20b"];
 const GROQ_FREE_MODELS = [
   "openai/gpt-oss-120b",
   "openai/gpt-oss-20b",
-  "qwen/qwen3.6-27b",
-  "qwen/qwen3.8-27b",
 ];
 // Anthropic's current models (Messages API). claude-sonnet-4-5
 // retired 2026-11-30 — do NOT add it back.
@@ -40,7 +32,7 @@ const OPENAI_MODELS = ["gpt-5.5", "gpt-5.4-mini", "gpt-4o", "gpt-4o-mini"];
 const OPENROUTER_MODELS = [
   "openai/gpt-5.5",
   "anthropic/claude-sonnet-5-5",
-  "google/gemini-2.5-flash",
+  "google/gemini-3.6-flash",
   "meta-llama/llama-3.3-70b-instruct",
 ];
 const AI_MODEL_IDS = [
@@ -63,8 +55,9 @@ const OPENROUTER_TIMEOUT_MS = 12000;
 const CUSTOM_TIMEOUT_MS = 12000;
 const MAX_OUTPUT_TOKENS = 600;
 const MAX_INPUT_CHARS = 8000;
-const MAX_HISTORY_TURNS = 8;
-const MAX_HISTORY_CHARS = 2000;
+const MAX_HISTORY_TURNS = 4;
+const MAX_HISTORY_CHARS = 700;
+const MAX_SKILLS_CHARS = 6000;
 const AI_TEMPERATURE = 0.7;
 const AI_MODES = ["tutor", "explain", "debug", "quiz", "guide"];
 
@@ -222,7 +215,16 @@ function sanitizeHistory(history) {
         h.text.trim().length > 0
     )
     .slice(-MAX_HISTORY_TURNS)
-    .map((h) => ({ role: h.role, text: h.text.trim().slice(0, MAX_HISTORY_CHARS) }));
+    .map((h) => {
+      const text = h.text.trim();
+      return {
+        role: h.role,
+        text:
+          text.length > MAX_HISTORY_CHARS
+            ? `${text.slice(0, MAX_HISTORY_CHARS)} [trimmed]`
+            : text,
+      };
+    });
 }
 
 function temperatureForMode(mode) {
@@ -265,12 +267,21 @@ Rules you must follow:
       // file (pasted in the user message). It writes full code when
       // asked, fixes code directly, and answers anything — like a
       // normal AI assistant.
-      const skillsSection =
+      // Skills are long (ponytail alone is ~17k chars) — cap the
+      // joined section so one request stays lean (fresh "Hi" ~4000
+      // tokens). The cut keeps ponytail's ladder, rules and
+      // guardrails; the rest is redundant skill text.
+      const skillsText =
         skills && skills.length > 0
-          ? `\n\nSkills to follow on top of the rules above — these are the learner's own chosen skills, follow them when they apply to the request:\n${skills
-              .map((s) => `Skill: ${s.name}\n${s.content}`)
-              .join("\n\n")}`
+          ? skills.map((s) => `Skill: ${s.name}\n${s.content}`).join("\n\n")
           : "";
+      const skillsSection = skillsText
+        ? `\n\nSkills to follow on top of the rules above — these are the learner's own chosen skills, follow them when they apply to the request:\n${
+            skillsText.length > MAX_SKILLS_CHARS
+              ? `${skillsText.slice(0, MAX_SKILLS_CHARS)} [trimmed]`
+              : skillsText
+          }`
+        : "";
       return `${base}\n\nThe learner is in the code editor, working on their own file (pasted in the user message). You are a real AI assistant — answer whatever they ask, with no restrictions.\n\nAnswer ONLY what the user actually asked — nothing extra. If they just greet you or make small talk, greet them back briefly and do NOT mention their code at all: no code review, no praise, no list of improvements unless they ask about the code. Only talk about their code when they ask about it.\n\nWrite the full code when they ask for it: complete programs, functions, and corrected versions of their code. When they ask you to write code or build a project, build the COMPLETE thing — efficient, reliable, scalable, secure, and production-ready: clean structure, proper error handling, input validation, secure defaults (no hardcoded secrets, nothing unsafe), and code that runs as-is with no missing pieces. Never give a partial sketch when a complete solution was asked for. If their code has a bug and they ask about it, say what is wrong and why, and show the fixed code directly. If they ask you to explain something, explain it in plain words. If they ask about anything else — not just Python — answer that too.\n\nKeep it practical: short explanations, working code, one useful next step when it fits.${skillsSection}`;
     case "quiz":
       return `${base}\n\n${pythonOnly}\n\nDraft 3 quiz questions for the current lesson, as a JSON array and nothing else — no intro, no markdown fences. Each item: {"question": "...", "options": ["...", "...", "...", "..."], "answer": 0} where answer is the index of the correct option. Exactly 4 options per question, exactly 3 questions, covering the lesson's key ideas as taught in the video transcript above when one is present.`;
@@ -805,16 +816,17 @@ test("validateAiRequest accepts the five modes and enforces caps", () => {
   assert.equal(validateAiRequest("tutor").ok, false);
 });
 
-test("sanitizeHistory keeps only the last 8 valid turns, capped", () => {
+test("sanitizeHistory keeps only the last 4 valid turns, capped at 700 chars", () => {
   const history = [];
   for (let i = 0; i < 10; i += 1) history.push({ role: "user", text: `q${i}` });
   history.push({ role: "system", text: "ignored" });
   history.push({ role: "user", text: "   " });
   history.push({ role: "assistant", text: "x".repeat(3000) });
   const clean = sanitizeHistory(history);
-  assert.equal(clean.length, 8);
-  assert.equal(clean[0].text, "q3");
-  assert.equal(clean.at(-1).text.length, 2000);
+  assert.equal(clean.length, 4);
+  assert.equal(clean[0].text, "q7");
+  assert.equal(clean.at(-1).text.length, 710);
+  assert.ok(clean.at(-1).text.endsWith("[trimmed]"));
   assert.equal(sanitizeHistory("nope").length, 0);
   assert.equal(sanitizeHistory(null).length, 0);
 });
@@ -1159,13 +1171,13 @@ test("maxTokensForEffort scales the reply length", () => {
 
 test("picked model first: a picked Gemini model is tried before the default", async () => {
   const pickedOk = {
-    match: (url) => url.includes("gemini-2.5-pro"),
+    match: (url) => url.includes("gemini-3.1-pro-preview"),
     ok: true,
     status: 200,
-    body: { candidates: [{ content: { parts: [{ text: "from 2.5 pro" }] } }] },
+    body: { candidates: [{ content: { parts: [{ text: "from 3.1 pro" }] } }] },
   };
   const defaultOk = {
-    match: (url) => url.includes("gemini-3.8-flash"),
+    match: (url) => url.includes("gemini-3.6-flash"),
     ok: true,
     status: 200,
     body: { candidates: [{ content: { parts: [{ text: "from default" }] } }] },
@@ -1180,12 +1192,12 @@ test("picked model first: a picked Gemini model is tried before the default", as
   // Picked model answers: default Gemini and Groq are never called.
   let m = mockFetchFactory([pickedOk, defaultOk, groqOk]);
   let res = await askAiMock(
-    { mode: "guide", question: "hi", model: "gemini-2.5-pro" },
+    { mode: "guide", question: "hi", model: "gemini-3.1-pro-preview" },
     { geminiKey: "g-key", groqKey: "q-key" },
     m.fetchImpl
   );
-  assert.deepEqual(res, { reply: "from 2.5 pro", provider: "gemini" });
-  assert.equal(m.calls.filter((c) => c.url.includes("gemini-3.8-flash")).length, 0);
+  assert.deepEqual(res, { reply: "from 3.1 pro", provider: "gemini" });
+  assert.equal(m.calls.filter((c) => c.url.includes("gemini-3.6-flash")).length, 0);
   assert.equal(m.calls.filter((c) => c.url.includes("api.groq.com")).length, 0);
 
   // Picked model IS the default and it fails: Groq answers, and the
@@ -1195,7 +1207,7 @@ test("picked model first: a picked Gemini model is tried before the default", as
     groqOk,
   ]);
   res = await askAiMock(
-    { mode: "guide", question: "hi", model: "gemini-3.8-flash" },
+    { mode: "guide", question: "hi", model: "gemini-3.6-flash" },
     { geminiKey: "g-key", groqKey: "q-key" },
     m.fetchImpl
   );
@@ -1205,7 +1217,7 @@ test("picked model first: a picked Gemini model is tried before the default", as
   // Picked non-default Gemini fails: the default Gemini IS tried next.
   m = mockFetchFactory([
     {
-      match: (url) => url.includes("gemini-2.5-flash") && !url.includes("lite"),
+      match: (url) => url.includes("gemini-3.1-pro-preview"),
       ok: false,
       status: 500,
       body: { error: "boom" },
@@ -1214,7 +1226,7 @@ test("picked model first: a picked Gemini model is tried before the default", as
     groqOk,
   ]);
   res = await askAiMock(
-    { mode: "guide", question: "hi", model: "gemini-2.5-flash" },
+    { mode: "guide", question: "hi", model: "gemini-3.1-pro-preview" },
     { geminiKey: "g-key", groqKey: "q-key" },
     m.fetchImpl
   );
@@ -1224,11 +1236,11 @@ test("picked model first: a picked Gemini model is tried before the default", as
   // Effort reaches the provider as max tokens (Max = 1500).
   m = mockFetchFactory([pickedOk, defaultOk, groqOk]);
   res = await askAiMock(
-    { mode: "guide", question: "hi", model: "gemini-2.5-pro", effort: "Max" },
+    { mode: "guide", question: "hi", model: "gemini-3.1-pro-preview", effort: "Max" },
     { geminiKey: "g-key", groqKey: "q-key" },
     m.fetchImpl
   );
-  assert.deepEqual(res, { reply: "from 2.5 pro", provider: "gemini" });
+  assert.deepEqual(res, { reply: "from 3.1 pro", provider: "gemini" });
   const sent = JSON.parse(m.calls[0].init.body);
   assert.equal(sent.generationConfig.maxOutputTokens, 1500);
 });
@@ -1294,7 +1306,7 @@ test("picked Groq model first, and the fallback list skips it", async () => {
     m.fetchImpl
   );
   assert.deepEqual(res, { reply: "from gemini", provider: "gemini" });
-  assert.equal(m.calls.filter((c) => c.url.includes("api.groq.com")).length, 4);
+  assert.equal(m.calls.filter((c) => c.url.includes("api.groq.com")).length, 2);
 });
 
 test("parseAnthropicText extracts text blocks and rejects junk", () => {
@@ -1648,7 +1660,7 @@ test("askAi fallback order across all six providers", async () => {
     m.fetchImpl
   );
   assert.deepEqual(res, { reply: "from openai", provider: "openai" });
-  assert.equal(m.calls.filter((c) => c.url.includes("api.groq.com")).length, 4);
+  assert.equal(m.calls.filter((c) => c.url.includes("api.groq.com")).length, 2);
   assert.equal(JSON.parse(m.calls.find((c) => c.url.includes("api.openai.com")).init.body).model, "gpt-5.5");
 
   // Picked OpenRouter model with only an OpenRouter key: the
@@ -1704,16 +1716,46 @@ test("provider failures are recorded with status + sanitized message", async () 
   };
   const m = mockFetchFactory([gemini401, groq429]);
   const res = await askAiMock(
-    { mode: "tutor", model: "gemini-2.5-pro" },
+    { mode: "tutor", model: "gemini-3.1-pro-preview" },
     { geminiKey: "g-key", groqKey: "q-key" },
     m.fetchImpl
   );
   assert.equal(res, null);
   assert.deepEqual(takeProviderFailures(), [
-    "gemini gemini-2.5-pro: 401 API key not valid. Please pass a valid API key.",
-    "gemini gemini-3.8-flash: 401 API key not valid. Please pass a valid API key.",
+    "gemini gemini-3.1-pro-preview: 401 API key not valid. Please pass a valid API key.",
+    "gemini gemini-3.6-flash: 401 API key not valid. Please pass a valid API key.",
     "groq openai/gpt-oss-120b: 429 Rate limit reached",
   ]);
   // Drained: a second call returns nothing.
   assert.deepEqual(takeProviderFailures(), []);
+});
+
+test("prompt trim: guide prompt with huge code + all skills + long history stays lean", () => {
+  // Worst case a user can send: max-size code (8000 chars, the
+  // validation cap), every skill active at its real size (ponytail
+  // ~17.5k chars, gstack ~15.4k), 8 turns of long history. Uncapped
+  // this is ~59000 chars (~15000 tokens) — the shape that 413'd on
+  // Groq. Capped it must stay ~25000 chars (~6000 tokens), and a
+  // fresh "Hi" (no history, small file) lands ~2500 tokens.
+  const skills = [
+    { name: "ponytail", content: "p".repeat(17549) },
+    { name: "gstack", content: "g".repeat(15445) },
+  ];
+  const history = [];
+  for (let i = 0; i < 8; i += 1) {
+    history.push({ role: "user", text: `q${i} ` + "y".repeat(3000) });
+    history.push({ role: "assistant", text: "a".repeat(3000) });
+  }
+  const clean = sanitizeHistory(history);
+  assert.equal(clean.length, 4);
+  const prompt = buildGeminiPrompt({
+    mode: "guide",
+    lesson: null,
+    question: "hi",
+    code: "z".repeat(8000),
+    history: clean,
+    skills,
+  });
+  assert.ok(prompt.length <= 25000, `prompt must stay lean, got ${prompt.length} chars`);
+  assert.ok(prompt.includes("[trimmed]"), "cut text must be marked [trimmed]");
 });
