@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, Flame, Languages, Moon, Settings, Sun, Target, Trash2, Wifi } from "lucide-react";
+import { Check, ChevronDown, Flame, Languages, Moon, Settings, Sun, Target, Trash2, Wifi } from "lucide-react";
 import { AppNavbar } from "@/components/AppNavbar";
 import Counter from "@/components/Counter";
 import { LANGUAGES, useLanguage } from "@/lib/i18n";
@@ -86,6 +86,18 @@ export default function SettingsPage() {
   const [wifiOnly, setWifiOnly] = useState<boolean>(() => isWifiOnlyEnabled());
   const [warm, setWarm] = useState<WarmProgress>(() => readWarmProgress());
   const [savedVideos, setSavedVideos] = useState<SavedVideo[]>([]);
+  const [langOpen, setLangOpen] = useState(false);
+  const currentLang = LANGUAGES.find((l) => l.code === lang) ?? LANGUAGES[0];
+
+  // Close the language dropdown on Escape.
+  useEffect(() => {
+    if (!langOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setLangOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [langOpen]);
 
   useEffect(() => {
     setTheme(getStoredTheme());
@@ -352,26 +364,62 @@ export default function SettingsPage() {
           <p className="mt-1 text-sm text-neutral-400">
             {t.settings.languageHint}
           </p>
-          <div className="mt-3 divide-y divide-neutral-800">
-            {LANGUAGES.map((l) => (
-              <button
-                key={l.code}
-                type="button"
-                onClick={() => setLang(l.code)}
-                aria-pressed={lang === l.code}
-                className="flex w-full items-center justify-between gap-3 py-2 text-left"
-              >
-                <span>
-                  <span className="block text-sm text-white">{l.label}</span>
-                  <span className="block text-xs text-neutral-400">
-                    {l.englishName}
-                  </span>
+          <div className="relative mt-3">
+            <button
+              type="button"
+              onClick={() => setLangOpen((o) => !o)}
+              aria-haspopup="listbox"
+              aria-expanded={langOpen}
+              className="flex w-full items-center justify-between gap-3 rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-left"
+            >
+              <span>
+                <span className="block text-sm text-white">{currentLang.label}</span>
+                <span className="block text-xs text-neutral-400">
+                  {currentLang.englishName}
                 </span>
-                {lang === l.code && (
-                  <Check className="h-4 w-4 shrink-0 text-white" />
-                )}
-              </button>
-            ))}
+              </span>
+              <ChevronDown
+                className={`h-4 w-4 shrink-0 text-neutral-400 transition-transform ${langOpen ? "rotate-180" : ""}`}
+              />
+            </button>
+            {langOpen && (
+              <>
+                <button
+                  type="button"
+                  aria-label="Close language menu"
+                  onClick={() => setLangOpen(false)}
+                  className="fixed inset-0 z-10 cursor-default"
+                />
+                <div
+                  role="listbox"
+                  className="absolute left-0 right-0 top-full z-20 mt-2 max-h-72 overflow-y-auto rounded-xl border border-neutral-800 bg-neutral-950 py-1 shadow-xl"
+                >
+                  {LANGUAGES.map((l) => (
+                    <button
+                      key={l.code}
+                      type="button"
+                      role="option"
+                      aria-selected={lang === l.code}
+                      onClick={() => {
+                        setLang(l.code);
+                        setLangOpen(false);
+                      }}
+                      className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left hover:bg-neutral-900"
+                    >
+                      <span>
+                        <span className="block text-sm text-white">{l.label}</span>
+                        <span className="block text-xs text-neutral-400">
+                          {l.englishName}
+                        </span>
+                      </span>
+                      {lang === l.code && (
+                        <Check className="h-4 w-4 shrink-0 text-white" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
 

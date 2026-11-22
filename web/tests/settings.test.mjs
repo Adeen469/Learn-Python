@@ -131,3 +131,25 @@ describe("theme (lib/theme.ts + layout + globals)", () => {
     assert.ok(editor.includes("editorTheme"), "editor must switch theme from state");
   });
 });
+
+describe("settings language: a dropdown, not a flat list", () => {
+  test("the language section is a dropdown showing the current language", () => {
+    const page = read("src/app/settings/page.tsx");
+    assert.ok(page.includes('aria-haspopup="listbox"'), "language must open as a dropdown (listbox)");
+    assert.ok(page.includes("aria-expanded={langOpen}"), "dropdown must report whether it is open");
+    assert.ok(page.includes("ChevronDown"), "dropdown must show a chevron");
+    assert.ok(page.includes("currentLang.label"), "dropdown button must show the current language");
+    assert.ok(page.includes('role="listbox"'), "options must live in a listbox");
+    // The old flat list is gone: all 11 languages must NOT render at once.
+    assert.ok(!page.includes('className="mt-3 divide-y divide-neutral-800"'), "the flat language list must be gone");
+  });
+
+  test("the dropdown lists all languages and applies one on select", () => {
+    const page = read("src/app/settings/page.tsx");
+    assert.ok(page.includes("LANGUAGES.map"), "dropdown must list the app languages");
+    assert.ok(page.includes("setLang(l.code)"), "picking an option must apply that language");
+    assert.ok(page.includes("setLangOpen(false)"), "picking an option must close the dropdown");
+    assert.ok(page.includes("aria-selected={lang === l.code}"), "the current language must be marked selected");
+    assert.ok(page.includes("Escape"), "Escape must close the dropdown");
+  });
+});
