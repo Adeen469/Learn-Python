@@ -35,6 +35,10 @@ export default function EmailAuthPage() {
   // CodeSlots status: "error" drains the slots on a wrong code,
   // "success" washes them on a right one.
   const [slotStatus, setSlotStatus] = useState<"idle" | "error" | "success">("idle");
+  // True once a code was actually sent for the current email. The
+  // code slots stay hidden until then — the user enters the email
+  // and sends a code first, instead of staring at empty slots.
+  const [codeSent, setCodeSent] = useState(false);
   // Guard against a double verify (slots auto-submit on complete AND
   // the button/Enter can fire in the same tick).
   const verifyingRef = useRef(false);
@@ -77,6 +81,9 @@ export default function EmailAuthPage() {
     targetEmail: string,
     purpose: "signup" | "signin"
   ): Promise<boolean> {
+    // A retry starts clean: a stale error from the last failed
+    // send must not keep showing after a valid email succeeds.
+    setError(null);
     const { res, data } = await postJson("/api/auth/email/send-otp", {
       email: targetEmail,
       purpose,
@@ -91,6 +98,7 @@ export default function EmailAuthPage() {
     }
     setNote(t.auth.codeSentToWithExpiry(targetEmail));
     setCooldown(60);
+    setCodeSent(true);
     return true;
   }
 
@@ -163,6 +171,7 @@ export default function EmailAuthPage() {
       setStep("code");
       setNote(t.auth.codeSentToWithExpiry(email));
       setCooldown(60);
+      setCodeSent(true);
     } finally {
       setLoading(false);
     }
@@ -365,36 +374,57 @@ export default function EmailAuthPage() {
             placeholder={t.common.emailAddress}
             autoComplete="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              // A new email means a new code: the slots (and the
+              // old note/error) belong to the previous address.
+              setEmail(e.target.value);
+              setCodeSent(false);
+              setCode("");
+              setNote(null);
+              setError(null);
+              setSlotStatus("idle");
+            }}
+            onKeyDown={(e) => {
+              // Enter in the email box sends the code — it must not
+              // submit the form and verify an empty code instead.
+              if (e.key === "Enter") {
+                e.preventDefault();
+                void handleSendCode(email, otpPurpose);
+              }
+            }}
             className={INPUT_CLASS}
           />
           <button
             type="button"
             onClick={() => void handleSendCode(email, otpPurpose)}
-            disabled={loading}
+            disabled={loading || cooldown > 0}
             className={BUTTON_CLASS}
           >
-            {t.auth.resendCode}
+            {cooldown > 0 ? t.auth.resendCodeIn(cooldown) : t.auth.resendCode}
           </button>
-          <div className="flex justify-center py-1">
-            <CodeSlots
-              length={6}
-              value={code}
-              onChange={(c) => {
-                setCode(c);
-                // Clear the error tint only once the user starts typing
-                // fresh digits — not while the error drain is clearing.
-                if (slotStatus === "error" && c !== "") setSlotStatus("idle");
-              }}
-              onComplete={(c) => void verifyCode(c)}
-              status={slotStatus}
-              disabled={loading}
-              autoFocus
-            />
-          </div>
-          <button type="submit" disabled={loading || code.length < 6} className={BUTTON_CLASS}>
-            {loading ? t.auth.verifying : t.auth.verifyAndContinue}
-          </button>
+          {codeSent && (
+            <>
+              <div className="flex justify-center py-1">
+                <CodeSlots
+                  length={6}
+                  value={code}
+                  onChange={(c) => {
+                    setCode(c);
+                    // Clear the error tint only once the user starts typing
+                    // fresh digits — not while the error drain is clearing.
+                    if (slotStatus === "error" && c !== "") setSlotStatus("idle");
+                  }}
+                  onComplete={(c) => void verifyCode(c)}
+                  status={slotStatus}
+                  disabled={loading}
+                  autoFocus
+                />
+              </div>
+              <button type="submit" disabled={loading || code.length < 6} className={BUTTON_CLASS}>
+                {loading ? t.auth.verifying : t.auth.verifyAndContinue}
+              </button>
+            </>
+          )}
           <p className="text-center text-xs text-neutral-500">
             {cooldown > 0 ? (
               <>{t.auth.resendCodeIn(cooldown)}</>
@@ -413,6 +443,7 @@ export default function EmailAuthPage() {
               onClick={() => {
                 setStep("form");
                 setCode("");
+                setCodeSent(false);
                 setSlotStatus("idle");
                 setError(null);
                 setNote(null);
