@@ -72,20 +72,39 @@ test("Harry 100-day playlist: 100 videos, MEGA lesson ids in order", () => {
   });
 });
 
-test("MEGA-mapped videos: 100-day course + 39 uploaded (Apna, Mosh, one-shots)", () => {
+test("MEGA-mapped videos: 100-day course + 39 uploaded (Apna, Mosh, one-shots) + 129 CWH playlist", () => {
   const all = [...data.matchAll(/megaLessonId: "([^"]+)"/g)].map((m) => m[1]);
   // 100 (100-day) + 9 Apna lectures + 3 Apna one-shots + 5 CWH one-shots
-  // + 22 Mosh = 139. The 129-video CWH playlist has no MEGA files yet,
-  // so it stays YouTube-only until Maalik uploads it.
-  assert.equal(all.length, 139, `expected 139 MEGA-mapped videos, got ${all.length}`);
+  // + 22 Mosh + 129 CWH "Python Tutorials For Absolute Beginners In Hindi"
+  // (MEGA folder 5N4xiaLZ) = 268. Every video in the catalog is MEGA-wired.
+  assert.equal(all.length, 268, `expected 268 MEGA-mapped videos, got ${all.length}`);
   assert.equal(new Set(all).size, all.length, "MEGA lesson ids must be unique");
   const rest = all.filter((id) => !id.startsWith("python-day-"));
-  assert.equal(rest.length, 39, `expected 39 non-100-day MEGA mappings, got ${rest.length}`);
+  assert.equal(rest.length, 168, `expected 168 non-100-day MEGA mappings, got ${rest.length}`);
   for (const id of rest) {
     assert.ok(
-      /^(apna-lecture-\d{2}|apna-oneshot-\d{2}|cwh-oneshot-\d{2}|mosh-\d{3})$/.test(id),
+      /^(apna-lecture-\d{2}|apna-oneshot-\d{2}|cwh-oneshot-\d{2}|cwh-\d{3}|mosh-\d{3})$/.test(id),
       `unexpected MEGA lesson id ${id}`
     );
+  }
+});
+
+test("Harry 129-video playlist: 129 videos, MEGA lesson ids cwh-000..cwh-128 in order", () => {
+  const start = data.indexOf('title: "Python Tutorials For Absolute Beginners In Hindi"');
+  const end = data.indexOf("\n        ],", start);
+  const block = data.slice(start, end);
+  const lessons = [...block.matchAll(/megaLessonId: "(cwh-\d{3})"/g)].map((m) => m[1]);
+  assert.equal(lessons.length, 129, `expected 129 MEGA-mapped videos, got ${lessons.length}`);
+  lessons.forEach((id, i) => {
+    assert.equal(id, `cwh-${String(i).padStart(3, "0")}`);
+  });
+  // Every cwh id resolves to a catalog lesson on the new MEGA folder.
+  const catalog = read(join(webDir, "src/lib/catalog.ts"));
+  for (const id of lessons) {
+    const re = new RegExp(
+      `id: "${id}",\\s*\\n\\s*title: "(?:[^"\\\\]|\\\\.)*",\\s*\\n\\s*moduleTitle: "CodeWithHarry",\\s*\\n\\s*courseTitle: "Python Tutorials For Absolute Beginners In Hindi",\\s*\\n\\s*durationSeconds: \\d+,\\s*\\n\\s*videoUrl: "https://mega\\.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/[A-Za-z0-9_-]{8}",\\s*\\n\\s*videoSource: "mega",`
+    );
+    assert.ok(re.test(catalog), `catalog lesson ${id} missing or not on the new MEGA folder`);
   }
 });
 

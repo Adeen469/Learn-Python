@@ -1,20 +1,34 @@
-import json, subprocess, sys
+import json, os, re, subprocess, sys
 
 # Dump the current catalog via Bun (imports the TS directly), then generate
 # supabase/seed_lessons.sql mirroring it exactly (titles, durations, video
-# URLs — including the user's Day 1-2 MEGA links — notes, modules, order).
+# URLs, notes, modules, order). The catalog is the source of truth; the
+# seed is what Maalik runs in the Supabase SQL editor so the live app
+# (which reads lessons from Supabase when configured) serves them.
+ROOT = os.path.dirname(os.path.abspath(__file__))
 out = subprocess.run(
     ["bun", "-e",
      "import {getLessons} from './src/lib/catalog.ts'; console.log(JSON.stringify(getLessons()))"],
-    cwd="/home/hatch/workspace/learn-python/web",
+    cwd=os.path.join(ROOT, "web"),
     capture_output=True, text=True, check=True,
 )
 lessons = json.loads(out.stdout)
 print("lessons in catalog:", len(lessons))
-assert len(lessons) == 100, len(lessons)
+# Update these when lessons are added/removed — a wrong count means the
+# dump is stale or the catalog changed without the seed being regenerated.
+assert len(lessons) == 268, len(lessons)
 
 def sql_str(s):
     return "'" + str(s).replace("'", "''") + "'"
+
+def slugify(title):
+    return re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
+
+# Course slugs. The 100-day course keeps its original slug so re-running
+# the seed updates the existing rows instead of creating a second course.
+COURSE_SLUGS = {
+    "Python for Beginners (Full Course)": "python-for-beginners",
+}
 
 # Group by (course, module) preserving first-seen order.
 groups = []
@@ -27,19 +41,31 @@ for i, l in enumerate(lessons):
     groups[seen[key]]["items"].append((i, l))
 
 courses = sorted({g["course"] for g in groups})
-assert len(courses) == 1, courses
-course = courses[0]
+expected_courses = {
+    "Python for Beginners (Full Course)",
+    "Python One-Shots",
+    "Python Tutorials",
+    "Python Full Course",
+    "Python Tutorials For Absolute Beginners In Hindi",
+}
+assert set(courses) == expected_courses, courses
+slugs = {c: COURSE_SLUGS.get(c, slugify(c)) for c in courses}
+assert len(set(slugs.values())) == len(slugs), f"slug collision: {slugs}"
+course_idx = {c: i for i, c in enumerate(courses)}
 
 lines = []
 lines.append("-- LP seed lessons — mirrors web/src/lib/catalog.ts SEED_LESSONS.")
-lines.append("-- CodeWithHarry 100 Days of Code playlist (100 lessons).")
+lines.append("-- 268 lessons: CodeWithHarry 100 Days of Code (100), CWH")
+lines.append("-- 'Python Tutorials For Absolute Beginners In Hindi' (129,")
+lines.append("-- cwh-000..cwh-128, MEGA folder 5N4xiaLZ), Code With Mosh (22),")
+lines.append("-- Apna College lectures (9) + one-shots (3), CWH one-shots (5).")
 lines.append("-- Run in the Supabase SQL editor AFTER 001_initial_schema.sql")
 lines.append("-- (002_public_lessons.sql still worth running for the anon read")
 lines.append("-- policies, but this seed no longer depends on it — see preamble).")
 lines.append("-- Re-runnable: every insert upserts on its unique key")
 lines.append("-- (courses.slug, modules (course_id, title), lessons.slug), so")
 lines.append("-- re-running it only updates the rows in place.")
-lines.append("-- video_url mirrors the catalog (all 100 days carry MEGA links now).")
+lines.append("-- video_url mirrors the catalog (all lessons carry MEGA links).")
 lines.append("-- To add a lesson later, insert one row into public.lessons")
 lines.append("-- (no redeploy; the app re-reads Supabase every 60s).")
 lines.append("")
@@ -60,18 +86,21 @@ lines.append("  on public.lessons (slug);")
 lines.append("")
 lines.append("do $$")
 lines.append("declare")
-lines.append("  v_course_id uuid;")
+for ci in range(len(courses)):
+    lines.append(f"  v_course_id_{ci} uuid;")
 for mi in range(len(groups)):
     lines.append(f"  v_module_id_{mi} uuid;")
 lines.append("begin")
-lines.append("  insert into public.courses (title, slug, is_published)")
-lines.append(f"    values ({sql_str(course)}, 'python-for-beginners', true)")
-lines.append("    on conflict (slug) do update set title = excluded.title, is_published = true")
-lines.append("    returning id into v_course_id;")
-lines.append("")
+for ci, course in enumerate(courses):
+    lines.append("  insert into public.courses (title, slug, is_published)")
+    lines.append(f"    values ({sql_str(course)}, {sql_str(slugs[course])}, true)")
+    lines.append("    on conflict (slug) do update set title = excluded.title, is_published = true")
+    lines.append(f"    returning id into v_course_id_{ci};")
+    lines.append("")
 for mi, g in enumerate(groups):
+    ci = course_idx[g["course"]]
     lines.append("  insert into public.modules (course_id, title, order_index)")
-    lines.append(f"    values (v_course_id, {sql_str(g['module'])}, {mi})")
+    lines.append(f"    values (v_course_id_{ci}, {sql_str(g['module'])}, {mi})")
     lines.append("    on conflict (course_id, title) do update set order_index = excluded.order_index")
     lines.append(f"    returning id into v_module_id_{mi};")
     lines.append("")
@@ -95,7 +124,8 @@ lines.append("delete from public.lessons where slug like 'python-extra-%';")
 lines.append("delete from public.modules where title = 'Extra Videos';")
 lines.append("")
 
-open("/home/hatch/workspace/learn-python/supabase/seed_lessons.sql", "w").write("\n".join(lines))
+open(os.path.join(ROOT, "supabase", "seed_lessons.sql"), "w").write("\n".join(lines))
 print("wrote seed_lessons.sql")
-print("modules:", [(g["module"], len(g["items"])) for g in groups])
+print("courses:", [(c, slugs[c]) for c in courses])
+print("modules:", [(g["course"], g["module"], len(g["items"])) for g in groups])
 print("with video_url:", sum(1 for l in lessons if l["videoUrl"]))

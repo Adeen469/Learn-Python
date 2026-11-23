@@ -1,12 +1,15 @@
 -- LP seed lessons — mirrors web/src/lib/catalog.ts SEED_LESSONS.
--- CodeWithHarry 100 Days of Code playlist (100 lessons).
+-- 268 lessons: CodeWithHarry 100 Days of Code (100), CWH
+-- 'Python Tutorials For Absolute Beginners In Hindi' (129,
+-- cwh-000..cwh-128, MEGA folder 5N4xiaLZ), Code With Mosh (22),
+-- Apna College lectures (9) + one-shots (3), CWH one-shots (5).
 -- Run in the Supabase SQL editor AFTER 001_initial_schema.sql
 -- (002_public_lessons.sql still worth running for the anon read
 -- policies, but this seed no longer depends on it — see preamble).
 -- Re-runnable: every insert upserts on its unique key
 -- (courses.slug, modules (course_id, title), lessons.slug), so
 -- re-running it only updates the rows in place.
--- video_url mirrors the catalog (all 100 days carry MEGA links now).
+-- video_url mirrors the catalog (all lessons carry MEGA links).
 -- To add a lesson later, insert one row into public.lessons
 -- (no redeploy; the app re-reads Supabase every 60s).
 
@@ -27,16 +30,45 @@ create unique index if not exists lessons_slug_key
 
 do $$
 declare
-  v_course_id uuid;
+  v_course_id_0 uuid;
+  v_course_id_1 uuid;
+  v_course_id_2 uuid;
+  v_course_id_3 uuid;
+  v_course_id_4 uuid;
   v_module_id_0 uuid;
+  v_module_id_1 uuid;
+  v_module_id_2 uuid;
+  v_module_id_3 uuid;
+  v_module_id_4 uuid;
+  v_module_id_5 uuid;
 begin
+  insert into public.courses (title, slug, is_published)
+    values ('Python Full Course', 'python-full-course', true)
+    on conflict (slug) do update set title = excluded.title, is_published = true
+    returning id into v_course_id_0;
+
+  insert into public.courses (title, slug, is_published)
+    values ('Python One-Shots', 'python-one-shots', true)
+    on conflict (slug) do update set title = excluded.title, is_published = true
+    returning id into v_course_id_1;
+
+  insert into public.courses (title, slug, is_published)
+    values ('Python Tutorials', 'python-tutorials', true)
+    on conflict (slug) do update set title = excluded.title, is_published = true
+    returning id into v_course_id_2;
+
+  insert into public.courses (title, slug, is_published)
+    values ('Python Tutorials For Absolute Beginners In Hindi', 'python-tutorials-for-absolute-beginners-in-hindi', true)
+    on conflict (slug) do update set title = excluded.title, is_published = true
+    returning id into v_course_id_3;
+
   insert into public.courses (title, slug, is_published)
     values ('Python for Beginners (Full Course)', 'python-for-beginners', true)
     on conflict (slug) do update set title = excluded.title, is_published = true
-    returning id into v_course_id;
+    returning id into v_course_id_4;
 
   insert into public.modules (course_id, title, order_index)
-    values (v_course_id, '100 Days of Code', 0)
+    values (v_course_id_4, '100 Days of Code', 0)
     on conflict (course_id, title) do update set order_index = excluded.order_index
     returning id into v_module_id_0;
 
@@ -636,6 +668,1039 @@ begin
       quiz = excluded.quiz, order_index = excluded.order_index;
   insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
     values (v_module_id_0, 'python-day-100', 'Conclusion and Where to go from here | Python Tutorial - Day #100', 'mega', 'https://mega.nz/file/lEwCmIRB#ob8ikCfrKjqYxpaNaUuQDHDjYsmk1PqLkN0ziKs3Ruk', 999, 'Watch on YouTube: https://www.youtube.com/watch?v=5Pz8WGiMJ_c', null, 99)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.modules (course_id, title, order_index)
+    values (v_course_id_0, 'Apna College', 1)
+    on conflict (course_id, title) do update set order_index = excluded.order_index
+    returning id into v_module_id_1;
+
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_1, 'apna-lecture-01', 'Python Full Course❤️ | Variables & Data Types | Lecture 1', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/8ZoEhBIT', 4939, 'Watch on YouTube: https://www.youtube.com/watch?v=t2_Q2BRzeEE', null, 100)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_1, 'apna-lecture-02', 'Lecture 2 : Strings & Conditional Statements | Python Full Course', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/RIQH3JhI', 3341, 'Watch on YouTube: https://www.youtube.com/watch?v=lIId8IDP6TU', null, 101)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_1, 'apna-lecture-03', 'Lecture 3 : List & Tuple in Python | Python Full Course', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/xAwxlQCS', 2506, 'Watch on YouTube: https://www.youtube.com/watch?v=qVyvmzFxF_o', null, 102)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_1, 'apna-lecture-04', 'Lecture 4 : Dictionary & Set in Python | Python Full Course', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/RQ413aTD', 3272, 'Watch on YouTube: https://www.youtube.com/watch?v=078tYSD7K8E', null, 103)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_1, 'apna-lecture-05', 'Lecture 5 : Loops in Python | While & For Loops | Python Full Course', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/YNhSlDQA', 3831, 'Watch on YouTube: https://www.youtube.com/watch?v=S73thl0AyFU', null, 104)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_1, 'apna-lecture-06', 'Lecture 6 : Functions & Recursion in Python | Python Full Course', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/5AwmFZQD', 3708, 'Watch on YouTube: https://www.youtube.com/watch?v=OvTH-7ESoRA', null, 105)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_1, 'apna-lecture-07', 'Lecture 7 : File Input/Output in Python', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/ZEJzCBpD', 3048, 'Watch on YouTube: https://www.youtube.com/watch?v=jU0cndZziO0', null, 106)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_1, 'apna-lecture-08', 'Lecture 8 : OOPS in Python | Object Oriented Programming | Classes & Objects | Python Full Course', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/BYxl0YBS', 3400, 'Watch on YouTube: https://www.youtube.com/watch?v=HeW-D6KpDwY', null, 107)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_1, 'apna-lecture-09', 'Lecture 9 : OOPS Part 2 | Object Oriented Programming | Python Full Course', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/FcoCzbJK', 4146, 'Watch on YouTube: https://www.youtube.com/watch?v=bAwmZVJeO5s', null, 108)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.modules (course_id, title, order_index)
+    values (v_course_id_1, 'Apna College', 2)
+    on conflict (course_id, title) do update set order_index = excluded.order_index
+    returning id into v_module_id_2;
+
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_2, 'apna-oneshot-03', 'Python Tutorial for Beginners | Learn Python in 1.5 Hours', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/4doUTRwY', 4632, 'Watch on YouTube: https://www.youtube.com/watch?v=vLqTf2b6GZw', null, 109)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_2, 'apna-oneshot-02', 'Python Full Course for Beginners', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/cBhQHLLQ', 7352, 'Watch on YouTube: https://www.youtube.com/watch?v=q3AuP01daL4', null, 110)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_2, 'apna-oneshot-01', 'Python Tutorial for Beginners - Full Course (with Notes & Practice Questions)', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/IAgBBQDB', 37491, 'Watch on YouTube: https://www.youtube.com/watch?v=ERCMXc8x7mc', null, 111)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.modules (course_id, title, order_index)
+    values (v_course_id_1, 'CodeWithHarry', 3)
+    on conflict (course_id, title) do update set order_index = excluded.order_index
+    returning id into v_module_id_3;
+
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_3, 'cwh-oneshot-05', '15 Minute Python Tutorial For Beginners In Hindi (Full & Complete Python Crash Course)', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/5Mp33Dwa', 1057, 'Watch on YouTube: https://www.youtube.com/watch?v=fr1f84rg4Nw', null, 112)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_3, 'cwh-oneshot-02', 'Learn Python In Hindi In One Video - हिंदी में', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/dU41gJiK', 3614, 'Watch on YouTube: https://www.youtube.com/watch?v=qHJjMvHLJdg', null, 113)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_3, 'cwh-oneshot-03', 'Python Tutorial In Hindi 🔥', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/wEpxgB6A', 6303, 'Watch on YouTube: https://www.youtube.com/watch?v=ihk_Xglr164', null, 114)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_3, 'cwh-oneshot-04', 'Python Programming Course in Hindi (Advanced) 🔥', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/dYgxlZaJ', 12230, 'Watch on YouTube: https://www.youtube.com/watch?v=61a7UkDO50s', null, 115)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_3, 'cwh-oneshot-01', 'Python Tutorial For Beginners In Hindi (With Notes) 🔥', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/pRo3zaIb', 42744, 'Watch on YouTube: https://www.youtube.com/watch?v=gfDE2a7MKjA', null, 116)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.modules (course_id, title, order_index)
+    values (v_course_id_2, 'Code With Mosh', 4)
+    on conflict (course_id, title) do update set order_index = excluded.order_index
+    returning id into v_module_id_4;
+
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_4, 'mosh-001', 'Python Full Course for Beginners', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/YVgURKAA', 22447, 'Watch on YouTube: https://www.youtube.com/watch?v=_uQrJ0TkZlc', null, 117)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_4, 'mosh-002', 'Learn Python Programming - Python Course', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/5QoEmIrB', 6485, 'Watch on YouTube: https://www.youtube.com/watch?v=f79MRyMsjrQ', null, 118)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_4, 'mosh-003', 'Python Tutorials for Beginners - Learn Python Online', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/BN5kVIrD', 8753, 'Watch on YouTube: https://www.youtube.com/watch?v=yE9v9rt6ziw', null, 119)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_4, 'mosh-004', 'What is Python? Why Python is So Popular?', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/hJwk0AyJ', 247, 'Watch on YouTube: https://www.youtube.com/watch?v=Y8Tko2YC5hA', null, 120)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_4, 'mosh-005', 'Python Exercises for Beginners - Exercise #1', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/cQ4QhIrL', 138, 'Watch on YouTube: https://www.youtube.com/watch?v=ODjFDZC_TyA', null, 121)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_4, 'mosh-006', 'How to Loop over Lists in Python', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/5QoHFIwb', 201, 'Watch on YouTube: https://www.youtube.com/watch?v=9ueMumuFv6g', null, 122)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_4, 'mosh-007', 'Python For Loops - Python Tutorial for Absolute Beginners', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/1N5wmCSa', 881, 'Watch on YouTube: https://www.youtube.com/watch?v=94UHCEmprCY', null, 123)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_4, 'mosh-008', 'Python Functions | Python Tutorial for Absolute Beginners #1', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/sZgCHCRD', 1833, 'Watch on YouTube: https://www.youtube.com/watch?v=u-OmVr_fT4s', null, 124)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_4, 'mosh-009', 'Control Flow in Python - If Elif Else Statements', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/RM4W2ApA', 968, 'Watch on YouTube: https://www.youtube.com/watch?v=Zp5MuPOtsSY', null, 125)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_4, 'mosh-010', 'How to Use Lists in Python', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/QJxEFYRL', 1128, 'Watch on YouTube: https://www.youtube.com/watch?v=9OeznAkyQz4', null, 126)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_4, 'mosh-011', 'How to Use Strings in Python - Python Tutorial for Beginners', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/dY50mSqA', 1005, 'Watch on YouTube: https://www.youtube.com/watch?v=Ctqi5Y4X-jA', null, 127)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_4, 'mosh-012', 'Python Stacks - Python Tutorial for Absolute Beginners | Mosh', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/pAxEXAKD', 291, 'Watch on YouTube: https://www.youtube.com/watch?v=NKmasqr_Xkw', null, 128)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_4, 'mosh-013', 'What are Sets in Python? Python Tutorial for Absolute Beginners | Mosh', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/UBwHjITI', 270, 'Watch on YouTube: https://www.youtube.com/watch?v=t9j8lCUGZXo', null, 129)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_4, 'mosh-014', 'Map and Filter Functions in Python - Python Tutorial for Absolute Beginners | Mosh', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/wQpknabY', 359, 'Watch on YouTube: https://www.youtube.com/watch?v=2qKQGqpRsks', null, 130)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_4, 'mosh-015', 'How to Sort Lists in Python - Python Tutorial for Absolute Beginners | Mosh', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/AUoUzCyD', 413, 'Watch on YouTube: https://www.youtube.com/watch?v=3Tcq_dBhIrQ', null, 131)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_4, 'mosh-016', 'Python Variables - Python Tutorial for Beginners with Examples | Mosh', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/REoHUS7Y', 395, 'Watch on YouTube: https://www.youtube.com/watch?v=cQT33yu9pY8', null, 132)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_4, 'mosh-017', 'Python Practice - Interview Question - Fizz Buzz | Mosh', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/5RoBnKCA', 374, 'Watch on YouTube: https://www.youtube.com/watch?v=z3-XFI_nXNM', null, 133)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_4, 'mosh-018', 'Python for Beginners - Learn Coding with Python in 1 Hour', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/McwCwY6T', 3606, 'Watch on YouTube: https://www.youtube.com/watch?v=kqtD5dpn9C8', null, 134)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_4, 'mosh-019', 'Python Machine Learning Tutorial (Data Science)', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/9N4GSAba', 2983, 'Watch on YouTube: https://www.youtube.com/watch?v=7eh4d6sabA0', null, 135)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_4, 'mosh-020', 'Django Tutorial for Beginners – Build Powerful Backends', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/cFwWSSiA', 3756, 'Watch on YouTube: https://www.youtube.com/watch?v=rHux0gMZ3Eg', null, 136)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_4, 'mosh-021', 'Python Full Course for Beginners', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/4FxkUATB', 7340, 'Watch on YouTube: https://www.youtube.com/watch?v=K5KVEU3aaeQ', null, 137)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_4, 'mosh-022', 'Python Projects for Beginners – Master Problem-Solving! 🚀', 'mega', 'https://mega.nz/folder/UAxCFDJR#gfTnvRZxT3fbM19jjoJMZg/file/MU5yTQgS', 3180, 'Watch on YouTube: https://www.youtube.com/watch?v=yVl_G-F7m8c', null, 138)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.modules (course_id, title, order_index)
+    values (v_course_id_3, 'CodeWithHarry', 5)
+    on conflict (course_id, title) do update set order_index = excluded.order_index
+    returning id into v_module_id_5;
+
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-000', 'Beginner Friendly Full Python Tutorials(Teaser) | Python Tutorials For Absolute Beginners In Hindi#0', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/RRgTCBhL', 225, 'Watch on YouTube: https://www.youtube.com/watch?v=aqvDTCpNRek', null, 139)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-001', 'What is Programming & Why Learn Python? | Python Tutorials For Absolute Beginners In Hindi #1', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/wZhSFTKS', 666, 'Watch on YouTube: https://www.youtube.com/watch?v=vrQlEhmVFDA', null, 140)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-002', 'Downloading Python and Pycharm Installation | Python Tutorials For Absolute Beginners In Hindi #2', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/FYpTRCQS', 891, 'Watch on YouTube: https://www.youtube.com/watch?v=MoeQlmeJnPg', null, 141)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-003', 'Using Modules & Pip In Python | Python Tutorials For Absolute Beginners In Hindi #3', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/JIgEnRKa', 495, 'Watch on YouTube: https://www.youtube.com/watch?v=0SZodbWUsQU', null, 142)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-004', 'Writing Our First Python Program | Python Tutorials For Absolute Beginners In Hindi #4', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/EVgxnTIJ', 301, 'Watch on YouTube: https://www.youtube.com/watch?v=bfSHM-vx5lA', null, 143)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-005', 'Using Python As A Calculator | Python Tutorials For Absolute Beginners In Hindi #5', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/JNoWmTJI', 264, 'Watch on YouTube: https://www.youtube.com/watch?v=CDb9YzUq_VA', null, 144)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-006', 'Comments, Escape Sequences & Print Statement| Python Tutorials For Absolute Beginners In Hindi #6', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/tBw0GYAb', 787, 'Watch on YouTube: https://www.youtube.com/watch?v=uhUgIT68CoU', null, 145)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-007', 'Variables, Datatypes and Typecasting | Python Tutorials For Absolute Beginners In Hindi #7', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/oZx2TLYb', 1013, 'Watch on YouTube: https://www.youtube.com/watch?v=z1-zfCvxybI', null, 146)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-008', 'String Slicing And Other Functions In Python | Python Tutorials For Absolute Beginners In Hindi #8', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/ZBg0Ebxa', 1076, 'Watch on YouTube: https://www.youtube.com/watch?v=lPZn7zcGXQo', null, 147)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-009', 'Python Lists And List Functions | Python Tutorials For Absolute Beginners In Hindi #9', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/AZ5nhKQa', 1299, 'Watch on YouTube: https://www.youtube.com/watch?v=neTsPE9XFsQ', null, 148)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-010', 'Dictionary & Its Functions Explained | Python Tutorials For Absolute Beginners In Hindi #10', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/cJxCST5D', 789, 'Watch on YouTube: https://www.youtube.com/watch?v=5y1sh0-oKTE', null, 149)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-011', 'Python Exercise 1 - Apni Dictionary | Python Tutorials For Absolute Beginners In Hindi #11', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/xRgxTL4Z', 133, 'Watch on YouTube: https://www.youtube.com/watch?v=y_aRifWZbnY', null, 150)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-012', 'Sets In Python | Python Tutorials For Absolute Beginners In Hindi #12', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/JRpgCA6Q', 382, 'Watch on YouTube: https://www.youtube.com/watch?v=iVJv3zdgkD4', null, 151)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-013', 'If Else & Elif Conditionals In Python | Python Tutorials For Absolute Beginners In Hindi #13', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/1AwTzRSC', 796, 'Watch on YouTube: https://www.youtube.com/watch?v=3VejIihDfwU', null, 152)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-014', 'Exercise 1 - Solution And Your Answers | Python Tutorials For Absolute Beginners In Hindi #14', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/8cxHFRTS', 697, 'Watch on YouTube: https://www.youtube.com/watch?v=6_hq_8FsKkE', null, 153)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-015', 'Python Exercise 2 - Faulty Calculator  | Python Tutorials For Absolute Beginners In Hindi #15', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/hQ5hRBDJ', 237, 'Watch on YouTube: https://www.youtube.com/watch?v=VP8s9NiFToM', null, 154)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-016', 'For Loops In Python | Python Tutorials For Absolute Beginners In Hindi #16', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/8dwyGSgC', 680, 'Watch on YouTube: https://www.youtube.com/watch?v=sSyCRQx5WM0', null, 155)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-017', 'While Loops In Python | Python Tutorials For Absolute Beginners In Hindi #17', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/cRwBFbAD', 234, 'Watch on YouTube: https://www.youtube.com/watch?v=qvWuPZNOeGg', null, 156)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-018', 'Break & Continue Statements In Python | Python Tutorials For Absolute Beginners In Hindi #18', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/BdhWHZZA', 558, 'Watch on YouTube: https://www.youtube.com/watch?v=aXGC1fx6QQo', null, 157)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-019', 'Python Exercise 2: Faulty Calculator Solution| Python Tutorials For Absolute Beginners In Hindi #19', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/9NwWQYKS', 1063, 'Watch on YouTube: https://www.youtube.com/watch?v=s0lxxTHWx6w', null, 158)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-020', 'Python Exercise 3 - Guess The Number | Python Tutorials For Absolute Beginners In Hindi #20', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/RUghjbwL', 211, 'Watch on YouTube: https://www.youtube.com/watch?v=2loUi5KxZ3E', null, 159)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-021', 'Operators In Python | Python Tutorials For Absolute Beginners In Hindi #21', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/sRpTkTAY', 784, 'Watch on YouTube: https://www.youtube.com/watch?v=OlumSBDDR3U', null, 160)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-022', 'Short Hand If Else Notation In Python | Python Tutorials For Absolute Beginners In Hindi #22', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/ZZgT2TwR', 293, 'Watch on YouTube: https://www.youtube.com/watch?v=FsqiWRJeRDQ', null, 161)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-023', 'Functions And Docstrings | Python Tutorials For Absolute Beginners In Hindi #23', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/kU5iCDrK', 781, 'Watch on YouTube: https://www.youtube.com/watch?v=xTmBq-CQTVU', null, 162)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-024', 'Try Except Exception Handling In Python | Python Tutorials For Absolute Beginners In Hindi #24', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/cQoFiJoR', 426, 'Watch on YouTube: https://www.youtube.com/watch?v=A0hmk3wWTXI', null, 163)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-025', 'Python File IO Basics | Python Tutorials For Absolute Beginners In Hindi #25', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/oZwlUZoK', 402, 'Watch on YouTube: https://www.youtube.com/watch?v=MpHo6dC6Ky0', null, 164)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-026', 'Open(), Read() & Readline() For Reading File | Python Tutorials For Absolute Beginners In Hindi #26', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/cVpgxK5C', 783, 'Watch on YouTube: https://www.youtube.com/watch?v=Q9K_wFj5DuQ', null, 165)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-027', 'Python Exercise 3: Solution | Python Tutorials For Absolute Beginners In Hindi #27', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/9Mg0jLoJ', 1385, 'Watch on YouTube: https://www.youtube.com/watch?v=nsJuAUCH-_o', null, 166)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-028', 'Writing And Appending To A File | Python Tutorials For Absolute Beginners In Hindi #28', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/ZUp33b5a', 409, 'Watch on YouTube: https://www.youtube.com/watch?v=ZNIe4Nf-6-c', null, 167)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-029', 'Python Exercise 4: Astrologer''s Stars | Python Tutorials For Absolute Beginners In Hindi #29', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/lUxV1TbS', 200, 'Watch on YouTube: https://www.youtube.com/watch?v=FyvmDqsc8tc', null, 168)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-030', 'Seek(), tell() & More On Python Files | Python Tutorials For Absolute Beginners In Hindi #30', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/gA4FTa5C', 364, 'Watch on YouTube: https://www.youtube.com/watch?v=stcJipumWwY', null, 169)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-031', 'Using With Block To Open Python Files | Python Tutorials For Absolute Beginners In Hindi #31', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/sEgWEboS', 353, 'Watch on YouTube: https://www.youtube.com/watch?v=Mqmq5YwciMg', null, 170)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-032', 'Exercise 5: Health Management System | Python Tutorials For Absolute Beginners In Hindi #32', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/BEpHSDqC', 332, 'Watch on YouTube: https://www.youtube.com/watch?v=OM5hCIwSv1g', null, 171)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-033', 'Scope, Global Variables and Global Keyword | Python Tutorials For Absolute Beginners In Hindi #33', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/YRoxyJ4T', 787, 'Watch on YouTube: https://www.youtube.com/watch?v=im7Z1jKMGao', null, 172)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-034', 'Recursions: Recursive Vs Iterative Approach | Python Tutorials For Absolute Beginners In Hindi #34', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/cBwFBa4K', 948, 'Watch on YouTube: https://www.youtube.com/watch?v=UhCObChYSMc', null, 173)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-035', 'Exercise 4: Solution And First Solver | Python Tutorials For Absolute Beginners In Hindi #35', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/wEpgWSTY', 1086, 'Watch on YouTube: https://www.youtube.com/watch?v=ZXtpX_CRVGM', null, 174)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-036', 'Anonymous/Lambda Functions In Python | Python Tutorials For Absolute Beginners In Hindi #36', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/MBgDUJhY', 400, 'Watch on YouTube: https://www.youtube.com/watch?v=EFjf3cx1N7o', null, 175)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-037', 'Exercise 5: Solution And First Solver | Python Tutorials For Absolute Beginners In Hindi #37', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/ocoknDBS', 945, 'Watch on YouTube: https://www.youtube.com/watch?v=Ft5ksUloEH8', null, 176)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-038', 'Using Python External & Built In Modules | Python Tutorials For Absolute Beginners In Hindi #38', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/VUhlmACT', 677, 'Watch on YouTube: https://www.youtube.com/watch?v=jA5pP2HNRNI', null, 177)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-039', 'F-Strings & String Formatting In Python | Python Tutorials For Absolute Beginners In Hindi #39', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/kdhg0DoD', 448, 'Watch on YouTube: https://www.youtube.com/watch?v=mcK9lEPomMI', null, 178)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-040', 'Exercise 6: Game Development: Snake Water Gun | Python Tutorials For Absolute Beginners In Hindi #40', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/cA4EWIxQ', 317, 'Watch on YouTube: https://www.youtube.com/watch?v=kHYaYbHQOg0', null, 179)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-041', '*args and **kwargs In Python | Python Tutorials For Absolute Beginners In Hindi #41', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/cUpwgaQC', 892, 'Watch on YouTube: https://www.youtube.com/watch?v=0lu2SY3menU', null, 180)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-042', 'Time Module In Python | Python Tutorials For Absolute Beginners In Hindi #42', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/RApUmZIC', 670, 'Watch on YouTube: https://www.youtube.com/watch?v=u9cHEJivgPA', null, 181)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-043', 'Virtual Environment & Requirements.txt | Python Tutorials For Absolute Beginners In Hindi #43', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/8NwwSTwQ', 1308, 'Watch on YouTube: https://www.youtube.com/watch?v=Lah7WGW6exg', null, 182)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-044', 'Enumerate Function | Python Tutorials For Absolute Beginners In Hindi #44', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/kQpmSbCQ', 410, 'Watch on YouTube: https://www.youtube.com/watch?v=NjaKU7eEGt8', null, 183)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-045', 'How Import Works In Python? | Python Tutorials For Absolute Beginners In Hindi #45', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/9EhmlDiT', 773, 'Watch on YouTube: https://www.youtube.com/watch?v=6RfTUiMR-RM', null, 184)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-046', 'If __name__==__main__ usage & necessity | Python Tutorials For Absolute Beginners In Hindi #46', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/dEgRwBhK', 542, 'Watch on YouTube: https://www.youtube.com/watch?v=Gy74MjEpnYw', null, 185)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-047', 'Join Function In Python | Python Tutorials For Absolute Beginners In Hindi #47', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/5JoHQLBQ', 273, 'Watch on YouTube: https://www.youtube.com/watch?v=6VXmyVwPDlE', null, 186)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-048', 'Map, Filter & Reduce | Python Tutorials For Absolute Beginners In Hindi #48', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/9RoxFaIZ', 1119, 'Watch on YouTube: https://www.youtube.com/watch?v=zimHDlOpGXo', null, 187)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-049', 'Exercise 6 Solution & First Solver | Python Tutorials For Absolute Beginners In Hindi #49', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/MVhQnCwA', 2019, 'Watch on YouTube: https://www.youtube.com/watch?v=uRIjZu3d22I', null, 188)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-050', 'Exercise 7: Healthy Programmer | Python Tutorials For Absolute Beginners In Hindi #50', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/MBoSiR7J', 690, 'Watch on YouTube: https://www.youtube.com/watch?v=khKJXOOETzc', null, 189)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-051', 'Decorators In Python | Python Tutorials For Absolute Beginners In Hindi #51', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/QUpjXDba', 622, 'Watch on YouTube: https://www.youtube.com/watch?v=_zTyBMFD4yY', null, 190)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-052', 'Classes & Objects (OOPS) | Python Tutorials For Absolute Beginners In Hindi #52', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/NchDEB4Y', 585, 'Watch on YouTube: https://www.youtube.com/watch?v=o6zPAzl4ZtM', null, 191)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-053', 'Creating Our First Class In Python | Python Tutorials For Absolute Beginners In Hindi #53', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/4ZwUQT5L', 370, 'Watch on YouTube: https://www.youtube.com/watch?v=l2YmwyayVVk', null, 192)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-054', 'Instance & Class Variables | Python Tutorials For Absolute Beginners In Hindi #54', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/JF4S2ZjK', 507, 'Watch on YouTube: https://www.youtube.com/watch?v=Hg7dnmczBTA', null, 193)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-055', 'Self & __init__() (Constructors) | Python Tutorials For Absolute Beginners In Hindi #55', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/QIhGBQJA', 708, 'Watch on YouTube: https://www.youtube.com/watch?v=ya4e4OcCRB4', null, 194)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-056', 'Class Methods In Python | Python Tutorials For Absolute Beginners In Hindi #56', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/NEoFXTYS', 357, 'Watch on YouTube: https://www.youtube.com/watch?v=16K7DvU5Bvw', null, 195)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-057', 'Class Methods As Alternative Constructors | Python Tutorials For Absolute Beginners In Hindi #57', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/oMxGgByR', 505, 'Watch on YouTube: https://www.youtube.com/watch?v=nrCI9HcpVZ8', null, 196)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-058', 'Static Methods In Python | Python Tutorials For Absolute Beginners In Hindi #58', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/pJwQUZoS', 343, 'Watch on YouTube: https://www.youtube.com/watch?v=cO5GBHKJGJw', null, 197)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-059', 'Abstraction & Encapsulation | Python Tutorials For Absolute Beginners In Hindi #59', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/EEhhnTKY', 492, 'Watch on YouTube: https://www.youtube.com/watch?v=wySW_E4XsvE', null, 198)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-060', 'Single Inheritance | Python Tutorials For Absolute Beginners In Hindi #60', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/tR4ASJAS', 750, 'Watch on YouTube: https://www.youtube.com/watch?v=Ynf1GcIEzeo', null, 199)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-061', 'Multiple Inheritance | Python Tutorials For Absolute Beginners In Hindi #61', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/1Yhn0RzC', 726, 'Watch on YouTube: https://www.youtube.com/watch?v=-f5yvt5XtEU', null, 200)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-062', 'Multilevel Inheritance | Python Tutorials For Absolute Beginners In Hindi #62', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/4dx2SJCJ', 542, 'Watch on YouTube: https://www.youtube.com/watch?v=VccLwnrT5hQ', null, 201)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-063', 'Public, Private & Protected Access Specifiers | Python Tutorials For Absolute Beginners In Hindi #63', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/MIxz2Z5J', 460, 'Watch on YouTube: https://www.youtube.com/watch?v=e2dmC0hksVE', null, 202)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-064', 'Polymorphism In Python | Python Tutorials For Absolute Beginners In Hindi #64', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/dIhHXRCa', 252, 'Watch on YouTube: https://www.youtube.com/watch?v=xnb-9TI-BjQ', null, 203)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-065', 'Super() and Overriding In Classes | Python Tutorials For Absolute Beginners In Hindi #65', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/YU5Anbxa', 578, 'Watch on YouTube: https://www.youtube.com/watch?v=HfmFcj0NmHI', null, 204)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-066', 'Diamond Shape Problem In Multiple Inheritance | Python Tutorials For Absolute Beginners In Hindi #66', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/sUwhlYpQ', 367, 'Watch on YouTube: https://www.youtube.com/watch?v=mEF_vVNTPUY', null, 205)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-067', 'Operator Overloading & Dunder Methods | Python Tutorials For Absolute Beginners In Hindi #67', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/RUhWwCjL', 665, 'Watch on YouTube: https://www.youtube.com/watch?v=iYu6KPigfr4', null, 206)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-068', 'Abstract Base Class & @abstractmethod | Python Tutorials For Absolute Beginners In Hindi #68', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/9AoQWBiD', 422, 'Watch on YouTube: https://www.youtube.com/watch?v=Iho_Kgj5kfI', null, 207)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-069', 'Setters & Property Decorators | Python Tutorials For Absolute Beginners In Hindi #69', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/wN4VyabD', 1065, 'Watch on YouTube: https://www.youtube.com/watch?v=O3R_P5j41ns', null, 208)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-070', 'Object Introspection | Python Tutorials For Absolute Beginners In Hindi #70', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/4JgQ3DDT', 386, 'Watch on YouTube: https://www.youtube.com/watch?v=h1CmrQBAifY', null, 209)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-071', 'Python Mini Project #1 | Python Tutorials For Absolute Beginners In Hindi #71', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/4EgCRDoL', 393, 'Watch on YouTube: https://www.youtube.com/watch?v=LH6wWxXLKQ0', null, 210)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-072', 'Generators In Python | Python Tutorials For Absolute Beginners In Hindi #72', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/5dg0zTjT', 792, 'Watch on YouTube: https://www.youtube.com/watch?v=S9d-fwalZ_Q', null, 211)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-073', 'Python Comprehensions | Python Tutorials For Absolute Beginners In Hindi #73', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/1IoBDJBQ', 956, 'Watch on YouTube: https://www.youtube.com/watch?v=D2h_qI6Tx4M', null, 212)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-074', 'Using Else With For Loops | Python Tutorials For Absolute Beginners In Hindi #74', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/lZxGEBCb', 388, 'Watch on YouTube: https://www.youtube.com/watch?v=C0SnZ_DRfUI', null, 213)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-075', 'Function Caching In Python | Python Tutorials For Absolute Beginners In Hindi #75', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/gBgkEDQK', 755, 'Watch on YouTube: https://www.youtube.com/watch?v=34p5CH48hLE', null, 214)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-076', 'Else & Finally In Try Except | Python Tutorials For Absolute Beginners In Hindi #76', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/FFhX2L5C', 624, 'Watch on YouTube: https://www.youtube.com/watch?v=pxEhxWhvIik', null, 215)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-077', 'Coroutines In Python | Python Tutorials For Absolute Beginners In Hindi #77', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/pB510byL', 730, 'Watch on YouTube: https://www.youtube.com/watch?v=T3tmkWfOHa8', null, 216)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-078', 'Exercise 7: Solution & First Solver | Python Tutorials For Absolute Beginners In Hindi #78', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/VBxgVTDR', 1684, 'Watch on YouTube: https://www.youtube.com/watch?v=gDeCfW_Kt0s', null, 217)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-079', 'Os Module | Python Tutorials For Absolute Beginners In Hindi #79', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/MAoXXS6b', 878, 'Watch on YouTube: https://www.youtube.com/watch?v=HHviSDUTtUc', null, 218)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-080', 'Exercise 8: Oh Soldier Prettify My Folder| Python Tutorials For Absolute Beginners In Hindi #80', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/ZUxCiCaR', 327, 'Watch on YouTube: https://www.youtube.com/watch?v=MkgJfmN6dN8', null, 219)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-081', 'Requests Module For HTTP Requests | Python Tutorials For Absolute Beginners In Hindi #81', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/pBxUFDqL', 504, 'Watch on YouTube: https://www.youtube.com/watch?v=u6_aYV-1LAE', null, 220)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-082', 'Json Module | Python Tutorials For Absolute Beginners In Hindi #82', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/EV5Q0LAb', 693, 'Watch on YouTube: https://www.youtube.com/watch?v=9U4dHBOzmaE', null, 221)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-083', 'Exercise 9: Akhbaar Padhke Sunaao | Python Tutorials For Absolute Beginners In Hindi #83', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/5AoTyLRQ', 285, 'Watch on YouTube: https://www.youtube.com/watch?v=9aW-knzZ7p8', null, 222)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-084', 'Pickle Module | Python Tutorials For Absolute Beginners In Hindi #84', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/sJwEFL4D', 595, 'Watch on YouTube: https://www.youtube.com/watch?v=KaurZiP0mhU', null, 223)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-085', 'Exercise 10: Pickling Iris | Python Tutorials For Absolute Beginners In Hindi #85', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/Ad4XSKCQ', 286, 'Watch on YouTube: https://www.youtube.com/watch?v=XEgRSum4Zps', null, 224)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-086', 'Regular Expressions | Python Tutorials For Absolute Beginners In Hindi #86', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/1JoCGTxZ', 1059, 'Watch on YouTube: https://www.youtube.com/watch?v=g8u0wLvvPSs', null, 225)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-087', 'Converting .py to .exe | Python Tutorials For Absolute Beginners In Hindi #87', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/0QoRDTiD', 723, 'Watch on YouTube: https://www.youtube.com/watch?v=oNq9QKX3lMs', null, 226)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-088', 'Python Exercise 8: Solution + Tips | Python Tutorials For Absolute Beginners In Hindi #88', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/xMhAjCYK', 824, 'Watch on YouTube: https://www.youtube.com/watch?v=uw4pvD0Mczw', null, 227)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-089', 'Raise In Python + Examples | Python Tutorials For Absolute Beginners In Hindi #89', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/4VpilapK', 690, 'Watch on YouTube: https://www.youtube.com/watch?v=BGQhccSWYpk', null, 228)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-090', 'Python ''is'' vs ''=='': What''s The Difference? | Python Tutorials For Absolute Beginners In Hindi #90', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/IVhnhbiK', 307, 'Watch on YouTube: https://www.youtube.com/watch?v=Xub80-7g4I8', null, 229)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-091', 'Python 2.x Vs Python 3.x | Python Tutorials For Absolute Beginners In Hindi #91', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/JV5EQRha', 649, 'Watch on YouTube: https://www.youtube.com/watch?v=n39cxF9bQIE', null, 230)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-092', 'Python Exercise 9 Solution + Shoutouts | Python Tutorials For Absolute Beginners In Hindi #92', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/UAwXlDZL', 1419, 'Watch on YouTube: https://www.youtube.com/watch?v=S2kvV91gswo', null, 231)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-093', 'Creating a Command Line Utility In Python | Python Tutorials For Absolute Beginners In Hindi #93', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/oZxCXKQa', 870, 'Watch on YouTube: https://www.youtube.com/watch?v=Qi-8zaBfRWI', null, 232)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-094', 'Exercise 10: Solution + Shoutouts | Python Tutorials For Absolute Beginners In Hindi #94', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/IdhkiTrT', 854, 'Watch on YouTube: https://www.youtube.com/watch?v=tCrRWiEIMec', null, 233)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-095', 'Creating a Python Package Using Setuptools | Python Tutorials For Absolute Beginners In Hindi #95', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/tQh3RDqb', 1182, 'Watch on YouTube: https://www.youtube.com/watch?v=RiWqigGW9cA', null, 234)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-096', 'Python Exercise 11: Regex Email Extractor | Python Tutorials For Absolute Beginners In Hindi #96', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/UR5yhQBQ', 202, 'Watch on YouTube: https://www.youtube.com/watch?v=IvCMglGI4PU', null, 235)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-097', 'Learning Path For Python Web Development | Python Tutorials For Absolute Beginners In Hindi #97', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/FUojWRSI', 402, 'Watch on YouTube: https://www.youtube.com/watch?v=QW7eJbkDvDc', null, 236)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-098', 'Python GUI Development - Learning Path | Python Tutorials For Absolute Beginners In Hindi #98', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/FZwRwQ4D', 889, 'Watch on YouTube: https://www.youtube.com/watch?v=eowHTYzUZhw', null, 237)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-099', 'Machine Learning & Data Science Learning Path | Python Tutorials For Absolute Beginners In Hindi #99', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/1N5ylDAA', 1071, 'Watch on YouTube: https://www.youtube.com/watch?v=nO546sT9PFQ', null, 238)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-100', 'Regex Exercise 11 Solutions | Python Tutorials For Absolute Beginners In Hindi #100', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/QYx0UAAZ', 740, 'Watch on YouTube: https://www.youtube.com/watch?v=-1dH3h-BcVg', null, 239)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-101', 'Mini Project 1 (OOPs Library) Solution | Python Tutorials For Absolute Beginners In Hindi #101', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/5U5CGZRZ', 1560, 'Watch on YouTube: https://www.youtube.com/watch?v=hyZA885xVmc', null, 240)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-102', 'Conclusion & Way Forward | Python Tutorials For Absolute Beginners In Hindi #102', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/dcowUSiD', 995, 'Watch on YouTube: https://www.youtube.com/watch?v=XI6s3-TdU54', null, 241)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-103', 'Practice Problem 1 (Easy) |  Python Tutorials For Absolute Beginners In Hindi #103', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/gM4EmCwb', 557, 'Watch on YouTube: https://www.youtube.com/watch?v=nDWMNCs8TBg', null, 242)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-104', 'Python Practice 1 Solution | Python Tutorials For Absolute Beginners In Hindi #104', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/dJxlhJDK', 1069, 'Watch on YouTube: https://www.youtube.com/watch?v=F6-RRrwWEsQ', null, 243)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-105', 'Practice Problem 2 (Easy) |  Python Tutorials For Absolute Beginners In Hindi #105', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/NN51gDyT', 470, 'Watch on YouTube: https://www.youtube.com/watch?v=VeOPJM6yTIY', null, 244)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-106', 'Python Practice 2 Solution | Python Tutorials For Absolute Beginners In Hindi #106', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/hRgngLRK', 588, 'Watch on YouTube: https://www.youtube.com/watch?v=-aF859WfPoQ', null, 245)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-107', 'Python Practice 3 | Python Tutorials For Absolute Beginners In Hindi #107', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/1FwAVCaA', 500, 'Watch on YouTube: https://www.youtube.com/watch?v=XiXUrvzoTIs', null, 246)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-108', 'Python Problem 3: Solution | Python Tutorials For Absolute Beginners In Hindi #108', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/IJpiDZoa', 1226, 'Watch on YouTube: https://www.youtube.com/watch?v=tx7VofKNnAA', null, 247)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-109', 'Python Problem 4 | Python Tutorials For Absolute Beginners In Hindi #109', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/cFp3kZIL', 385, 'Watch on YouTube: https://www.youtube.com/watch?v=-7IhCwaHb2c', null, 248)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-110', 'Python Problem 4: Solution | Python Tutorials For Absolute Beginners In Hindi #110', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/0NgkSQ7a', 1016, 'Watch on YouTube: https://www.youtube.com/watch?v=o6h2kU2VTkc', null, 249)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-111', 'Python Problem 5 | Python Tutorials For Absolute Beginners In Hindi #111', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/5NohFZ4I', 533, 'Watch on YouTube: https://www.youtube.com/watch?v=H7kH_2YJQVY', null, 250)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-112', 'Python Problem 5: Solution | Python Tutorials For Absolute Beginners In Hindi #112', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/sUwhwBKS', 904, 'Watch on YouTube: https://www.youtube.com/watch?v=-Q57UxpBfV0', null, 251)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-113', 'Python Problem 6 | Python Tutorials For Absolute Beginners In Hindi #113', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/pNwCCBzS', 579, 'Watch on YouTube: https://www.youtube.com/watch?v=3ePMrLWsBps', null, 252)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-114', 'Python Problem 6: Solution | Python Tutorials For Absolute Beginners In Hindi #114', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/5A4zTBpR', 934, 'Watch on YouTube: https://www.youtube.com/watch?v=NRndfnhknSc', null, 253)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-115', 'Python Problem 7: Creating A Search Engine | Python Tutorials For Absolute Beginners In Hindi #115', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/lZgSjT5J', 691, 'Watch on YouTube: https://www.youtube.com/watch?v=sEZW2n2D-Hs', null, 254)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-116', 'Python Problem 7: Solution | Python Tutorials For Absolute Beginners In Hindi #116', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/BJhEyTwa', 1427, 'Watch on YouTube: https://www.youtube.com/watch?v=VkH1B0EAhfU', null, 255)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-117', 'Python Problem 8: Fake Multiplication Tables | Python Tutorials For Absolute Beginners In Hindi #117', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/4doFARwA', 706, 'Watch on YouTube: https://www.youtube.com/watch?v=S-OFpk9IQmU', null, 256)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-118', 'Python Problem 8: Solution | Python Tutorials For Absolute Beginners In Hindi #118', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/4cpiiC7b', 743, 'Watch on YouTube: https://www.youtube.com/watch?v=Dhzp7hlXJFQ', null, 257)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-119', 'Python Problem 9: Jumbled Funny Names | Python Tutorials For Absolute Beginners In Hindi #119', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/wM5HlZhS', 416, 'Watch on YouTube: https://www.youtube.com/watch?v=1glrtDGtjVI', null, 258)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-120', 'Project 1: Iron Man Jarvis AI Desktop Voice Assistant | Python Tutorials For Absolute Beginners #120', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/oIYwBRjJ', 3527, 'Watch on YouTube: https://www.youtube.com/watch?v=Lp9Ftuq2sVI', null, 259)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-121', 'VS Code Tutorial + Python Setup | Python Tutorials For Absolute Beginners In Hindi #121', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/ZJwlHZiI', 3177, 'Watch on YouTube: https://www.youtube.com/watch?v=t90FMQr9WWc', null, 260)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-122', 'Project 2: Coding Flappy Bird Game (With Source Code) | Python Tutorials For Absolute Beginners #122', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/kJwQ2LbB', 7672, 'Watch on YouTube: https://www.youtube.com/watch?v=itB6VsP5UnA', null, 261)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-123', 'Project 3: Third Umpire Decision Review System (DRS Gully Cricket) |Python Tutorials in Hindi #123', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/8V5FFSgZ', 3705, 'Watch on YouTube: https://www.youtube.com/watch?v=Sq9oaVFYUaE', null, 262)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-124', 'Project 4: Indian Railways Announcement Software | Python Tutorials For Absolute Beginners #124', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/xAQGELIR', 3120, 'Watch on YouTube: https://www.youtube.com/watch?v=V-O96C_7xgc', null, 263)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-125', 'CoronaVirus: Python Programming Solution to the Problem', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/sBwUlTST', 5026, 'Watch on YouTube: https://www.youtube.com/watch?v=02eZFXALcl4', null, 264)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-126', 'Covid -19: Creating a Realtime CoronaVirus Outbreak Notification System Using Python Programming', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/xd4ggbCR', 2404, 'Watch on YouTube: https://www.youtube.com/watch?v=h_0lPh7LE_E', null, 265)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-127', 'Django Tutorial In Hindi', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/MIojQApC', 10583, 'Watch on YouTube: https://www.youtube.com/watch?v=JxzZxdht-XY', null, 266)
+    on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
+      video_provider = excluded.video_provider, video_url = excluded.video_url,
+      duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
+      quiz = excluded.quiz, order_index = excluded.order_index;
+  insert into public.lessons (module_id, slug, title, video_provider, video_url, duration_seconds, notes_markdown, quiz, order_index)
+    values (v_module_id_5, 'cwh-128', 'I Automated The Chrome Dinosaur Game Using Python 🔥', 'mega', 'https://mega.nz/folder/5N4xiaLZ#jP8eVtFFUJrd3jJL-JkUtQ/file/hZwmTZhD', 3599, 'Watch on YouTube: https://www.youtube.com/watch?v=PXz2nFNuNJU', null, 267)
     on conflict (slug) do update set module_id = excluded.module_id, title = excluded.title,
       video_provider = excluded.video_provider, video_url = excluded.video_url,
       duration_seconds = excluded.duration_seconds, notes_markdown = excluded.notes_markdown,
