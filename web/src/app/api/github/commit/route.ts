@@ -8,6 +8,7 @@ import {
 } from "@/lib/github";
 import { logGithubTokenUse, resolveSessionGithubToken } from "@/lib/github-token";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { checkUserLimit, validateBody } from "@/lib/api-handler";
 
 const commitSchema = z.object({
   owner: z.string().min(1).max(100).regex(/^[a-zA-Z0-9_.-]+$/),
@@ -49,22 +50,15 @@ export async function POST(req: NextRequest) {
   if ("response" in resolved) return resolved.response;
   const { token, email } = resolved;
 
-  const userLimit = await checkRateLimit(`github-write:${email}`, 30, 60_000);
-  if (!userLimit.allowed) {
-    return NextResponse.json(
-      { error: "Too many requests — please slow down and retry shortly." },
-      { status: 429, headers: { "Retry-After": String(userLimit.retryAfterSeconds) } }
-    );
-  }
+  const userBlocked = await checkUserLimit(email, "github-write", 30, 60_000);
+  if (userBlocked) return userBlocked;
 
   try {
     const body = await req.json();
-    const parsed = commitSchema.safeParse(body);
-    if (!parsed.success) {
-      return NextResponse.json({ error: "Invalid commit parameters", details: parsed.error.issues }, { status: 400 });
-    }
+    const parsed = validateBody(body, commitSchema, "Invalid commit parameters");
+    if (!parsed.ok) return parsed.response;
 
-    const allowed = await assertGithubOwnerAllowed(token, parsed.data.owner);
+    const allowed = await assertGithubOwnerAllowed(token, parsed.data.owner, parsed.data.repo);
     if (!allowed) {
       return NextResponse.json(
         { error: "You can only commit to repos owned by you or your GitHub organisations." },

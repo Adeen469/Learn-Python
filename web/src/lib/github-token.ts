@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { decryptTotpSecret, encryptTotpSecret } from "./auth-email";
+import { normalizeEmail } from "./auth-store";
 import { getAuthPrereqs, getSessionUser } from "./auth-routes";
 import { getSupabaseAdmin } from "./supabase-server";
 
@@ -14,12 +15,15 @@ import { getSupabaseAdmin } from "./supabase-server";
 //
 // The encryption key is a DEDICATED secret (GITHUB_TOKEN_KEY,
 // Vercel env var) — and nothing else. There is no SESSION_SECRET
-// fallback for new tokens: if the var is unset, saving and reading
+// fallback anywhere: if the var is unset, saving and reading
 // tokens fail closed ("no token") instead of silently encrypting
-// under the session secret. A token encrypted under the old
-// SESSION_SECRET key is still readable (legacy fallback in
-// getGithubToken) and re-encrypted under the dedicated key the
-// first time it is read (lazy migration).
+// under the session secret, and a row encrypted under any other
+// key simply does not decrypt ("no token"). That is a hard
+// cutover: tokens stored before the dedicated key existed, under
+// the old SESSION_SECRET key, no longer read — the user reconnects
+// the token from the GitHub page. Keeping a SESSION_SECRET read
+// path would leave the split undone, since any SESSION_SECRET
+// leak would still open every legacy token.
 //
 // Every mutating use is written to lp_github_token_audit
 // (migration 007) — token saved/deleted, repo created/deleted,
@@ -35,12 +39,22 @@ import { getSupabaseAdmin } from "./supabase-server";
  * The key that encrypts stored GitHub tokens: the dedicated
  * GITHUB_TOKEN_KEY, or null when it is unset — in which case token
  * storage is unavailable (fail closed), never silently encrypted
- * under SESSION_SECRET. (Both keys are SHA-256-hashed inside the
- * encrypt/decrypt helpers, so any non-empty value gives a full
- * 256-bit key.)
+ * under SESSION_SECRET.
+ *
+ * Fail closed (R2-L11, same ≥32 rule as TOTP L3): a dedicated key
+ * shorter than 32 chars returns null. SHA-256-hashing the key
+ * inside the encrypt/decrypt helpers makes the *derived* key
+ * 256 bits, but adds no entropy — a short operator-set key is
+ * still brute-forceable offline from a DB dump, so it must never
+ * silently encrypt tokens.
  */
+export const GITHUB_TOKEN_KEY_MIN_LENGTH = 32;
+
 export function getTokenEncryptionSecret(): string | null {
-  return process.env.GITHUB_TOKEN_KEY ?? null;
+  const key = process.env.GITHUB_TOKEN_KEY;
+  if (!key) return null;
+  if (key.length < GITHUB_TOKEN_KEY_MIN_LENGTH) return null;
+  return key;
 }
 
 export async function saveGithubToken(
@@ -54,7 +68,12 @@ export async function saveGithubToken(
   if (!key) return false;
   const { error } = await supabase.from("lp_github_tokens").upsert(
     {
-      user_email: email,
+      // R3-L11: normalised like BYOK — the session email is never
+      // lowercased, so the same account signing in as User@X vs
+      // user@x held two token rows and saw a token under one
+      // sign-in but not the other. Rows keyed by a raw email stay
+      // orphaned; a backfill is a Maalik/DB step, not code.
+      user_email: normalizeEmail(email),
       token_encrypted: encryptTotpSecret(key, token),
       expires_at: expiresAt,
       updated_at: new Date().toISOString(),
@@ -64,37 +83,21 @@ export async function saveGithubToken(
   return !error;
 }
 
-export async function getGithubToken(
-  email: string,
-  secret: string
-): Promise<string | null> {
+export async function getGithubToken(email: string): Promise<string | null> {
   const supabase = getSupabaseAdmin();
   if (!supabase) return null;
   const { data, error } = await supabase
     .from("lp_github_tokens")
     .select("token_encrypted")
-    .eq("user_email", email)
+    .eq("user_email", normalizeEmail(email))
     .maybeSingle();
   if (error || !data) return null;
   const key = getTokenEncryptionSecret();
   if (!key) return null;
-  let plain = decryptTotpSecret(key, data.token_encrypted);
-  if (plain === null && key !== secret) {
-    // Encrypted under the old SESSION_SECRET key: decrypt with it
-    // and re-encrypt under the dedicated key, so the old key
-    // stops working for this token from here on.
-    plain = decryptTotpSecret(secret, data.token_encrypted);
-    if (plain !== null) {
-      void supabase
-        .from("lp_github_tokens")
-        .update({
-          token_encrypted: encryptTotpSecret(key, plain),
-          updated_at: new Date().toISOString(),
-        })
-        .eq("user_email", email);
-    }
-  }
-  return plain;
+  // Dedicated key only — a row encrypted under the old
+  // SESSION_SECRET key (or any other key) does not decrypt and
+  // reads as "no token"; the user reconnects from the GitHub page.
+  return decryptTotpSecret(key, data.token_encrypted);
 }
 
 /** The stored expiry of the user's token, if GitHub reported one. */
@@ -106,7 +109,7 @@ export async function getGithubTokenExpiresAt(
   const { data, error } = await supabase
     .from("lp_github_tokens")
     .select("expires_at")
-    .eq("user_email", email)
+    .eq("user_email", normalizeEmail(email))
     .maybeSingle();
   if (error || !data) return null;
   return (data.expires_at as string | null) ?? null;
@@ -127,7 +130,7 @@ export async function logGithubTokenUse(
     const supabase = getSupabaseAdmin();
     if (!supabase) return;
     await supabase.from("lp_github_token_audit").insert({
-      user_email: email,
+      user_email: normalizeEmail(email),
       action,
       repo: repo ?? null,
       ip: ip ?? null,
@@ -194,7 +197,7 @@ export async function deleteGithubToken(email: string): Promise<boolean> {
   const { error } = await supabase
     .from("lp_github_tokens")
     .delete()
-    .eq("user_email", email);
+    .eq("user_email", normalizeEmail(email));
   return !error;
 }
 
@@ -243,7 +246,7 @@ export async function resolveSessionGithubToken(
       ),
     };
   }
-  const token = await getGithubToken(user.email, prereqs.secret);
+  const token = await getGithubToken(user.email);
   if (!token) {
     return {
       response: NextResponse.json(

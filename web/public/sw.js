@@ -109,17 +109,39 @@ self.addEventListener("fetch", (event) => {
   // Everything else (auth, AI, GitHub, RSC payloads, ...): network only.
 });
 
+// Pages whose HTML must never be cached (R2-M16): authed /
+// session-scoped pages. A cached /settings page served offline
+// would render the previous user's streak/progress on a shared
+// device, and /auth/*, /github, /editor pages carry session-scoped
+// content. They always go to the network; offline they fall back
+// to /offline instead of a stale cached copy (the guard covers
+// copies an older worker cached, too).
+function isNoCacheNav(pathname) {
+  return (
+    pathname.startsWith("/auth/") ||
+    pathname === "/github" ||
+    pathname.startsWith("/github/") ||
+    pathname === "/editor" ||
+    pathname.startsWith("/editor/") ||
+    pathname === "/settings" ||
+    pathname.startsWith("/settings/")
+  );
+}
+
 async function navigate(request) {
+  const noCache = isNoCacheNav(new URL(request.url).pathname);
   try {
     const res = await fetch(request);
-    if (res.ok) {
+    if (res.ok && !noCache) {
       const cache = await caches.open(PAGES);
       cache.put(request, res.clone()).catch(() => undefined);
     }
     return res;
   } catch {
-    const cached = await caches.match(request);
-    if (cached) return cached;
+    if (!noCache) {
+      const cached = await caches.match(request);
+      if (cached) return cached;
+    }
     const offline = await caches.match("/offline");
     if (offline) return offline;
     throw new Error("offline");

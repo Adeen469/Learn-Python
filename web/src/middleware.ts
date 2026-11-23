@@ -11,15 +11,36 @@
 // safe to import into the Edge bundle.
 import { NextRequest, NextResponse } from "next/server";
 import { SESSION_COOKIE } from "@/lib/auth";
+import { buildCspWithNonce } from "../next.config";
+
+// Pages a guest must never reach. The `:path*` patterns are the
+// matcher entries the middleware used to carry; the redirect below
+// checks them as prefixes (pathname === base, or under base/).
+const PROTECTED_PATHS = [
+  "/settings/:path*",
+  "/editor/:path*",
+  "/github/:path*",
+  "/courses/:path*",
+  "/learn/:path*",
+];
+
+function isProtectedPath(pathname: string): boolean {
+  return PROTECTED_PATHS.some((pattern) => {
+    const base = pattern.replace(/\/:path\*$/, "");
+    return pathname === base || pathname.startsWith(`${base}/`);
+  });
+}
 
 export const config = {
   matcher: [
-    "/settings/:path*",
-    "/editor/:path*",
-    "/github/:path*",
-    "/courses/:path*",
-    "/learn/:path*",
     "/api/:path*",
+    // Every other document route (R3-L16): the nonce CSP below is
+    // minted on ALL pages now — landing, /auth/*, /offline,
+    // /logic-builder, /modules — not just the protected ones, so
+    // the auth pages (where credentials are typed) no longer run
+    // under 'unsafe-inline'. Static files, /_next/* and API routes
+    // are excluded: they are not documents and need no nonce.
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)",
   ],
 };
 
@@ -70,8 +91,28 @@ export function middleware(req: NextRequest) {
     }
     return NextResponse.next();
   }
-  if (!req.cookies.get(SESSION_COOKIE)?.value) {
+  // Guests are redirected ONLY from the protected paths — the
+  // landing page, /auth/* and the other public pages are reachable
+  // without a session (they just get the nonce CSP below).
+  if (isProtectedPath(pathname) && !req.cookies.get(SESSION_COOKIE)?.value) {
     return NextResponse.redirect(new URL("/", req.url));
   }
-  return NextResponse.next();
+  // CSP nonce (R2-L17, extended to all documents in R3-L16): one
+  // random nonce per document request. Next reads the nonce from
+  // the CSP *request* header and puts it on its own inline scripts
+  // (RSC streaming payloads); layout.tsx reads `x-nonce` for the
+  // theme script; the *response* header makes the browser enforce
+  // it. Verified against the scratch build: the response carries
+  // exactly this header — it replaces the config CSP (with
+  // 'unsafe-inline') for these routes, it does not duplicate it.
+  // API routes are untouched (no documents). 'unsafe-inline' now
+  // lives only in the static-export meta fallback (layout.tsx).
+  const nonce = crypto.randomUUID();
+  const nonceCsp = buildCspWithNonce(nonce);
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set("x-nonce", nonce);
+  requestHeaders.set("content-security-policy", nonceCsp);
+  const res = NextResponse.next({ request: { headers: requestHeaders } });
+  res.headers.set("Content-Security-Policy", nonceCsp);
+  return res;
 }

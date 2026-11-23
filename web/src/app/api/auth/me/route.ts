@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionSecret, isSecureDeployment } from "@/lib/auth";
-import { clearStaleSessionCookies, getSessionUser } from "@/lib/auth-routes";
+import { clearStaleSessionCookies, getSessionUser, noStore } from "@/lib/auth-routes";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 // Returns the signed-in user from the HttpOnly session cookie, or 401.
@@ -11,20 +11,30 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   let limit;
   try {
-    limit = await checkRateLimit(`auth-me:${getClientIp(req)}`, 60, 60_000);
+    limit = await checkRateLimit(
+      `auth-me:${getClientIp(req)}`,
+      60,
+      60_000,
+      Date.now(),
+      { failClosed: true }
+    );
   } catch {
-    return NextResponse.json(
-      { error: "Sign-in is temporarily unavailable." },
-      { status: 503 }
+    return noStore(
+      NextResponse.json(
+        { error: "Sign-in is temporarily unavailable." },
+        { status: 503 }
+      )
     );
   }
   if (!limit.allowed) {
-    return NextResponse.json(
-      { error: "Too many requests — please slow down and retry shortly." },
-      {
-        status: 429,
-        headers: { "Retry-After": String(limit.retryAfterSeconds) },
-      }
+    return noStore(
+      NextResponse.json(
+        { error: "Too many requests — please slow down and retry shortly." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(limit.retryAfterSeconds) },
+        }
+      )
     );
   }
 
@@ -33,9 +43,11 @@ export async function GET(req: NextRequest) {
     console.error(
       JSON.stringify({ event: "auth_misconfigured", endpoint: "me" })
     );
-    return NextResponse.json(
-      { error: "Sign-in is not configured yet." },
-      { status: 503 }
+    return noStore(
+      NextResponse.json(
+        { error: "Sign-in is not configured yet." },
+        { status: 503 }
+      )
     );
   }
 
@@ -48,12 +60,11 @@ export async function GET(req: NextRequest) {
     // caller mid-sign-in (2FA page, OAuth callback) has no session
     // yet by design, and clearing the step-up cookie kills their
     // sign-in (Google+2FA login broke exactly this way).
-    const res = NextResponse.json(
-      { error: "Not signed in." },
-      { status: 401 }
+    const res = noStore(
+      NextResponse.json({ error: "Not signed in." }, { status: 401 })
     );
     clearStaleSessionCookies(res, isSecureDeployment());
     return res;
   }
-  return NextResponse.json({ user });
+  return noStore(NextResponse.json({ user }));
 }

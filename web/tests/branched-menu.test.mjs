@@ -76,15 +76,18 @@ test("BranchedMenu keeps the editor tree's behaviour (controlled, drag)", () => 
 
 test("the editor page renders its file tree as a BranchedMenu", () => {
   const page = read("src/app/editor/page.tsx");
-  assert.ok(page.includes('from "@/components/BranchedMenu"'), "the editor page must import BranchedMenu");
-  assert.ok(page.includes("<BranchedMenu"), "the editor page must render a BranchedMenu");
+  // The tree JSX lives in the Explorer panel component (editor split);
+  // the tree data + handlers stay in the page.
+  const explorerPanel = read("src/app/editor/components/ExplorerPanel.tsx");
+  assert.ok(explorerPanel.includes('from "@/components/BranchedMenu"'), "the explorer panel must import BranchedMenu");
+  assert.ok(explorerPanel.includes("<BranchedMenu"), "the explorer panel must render a BranchedMenu");
   // The tree is built from the flat workspace list: top-level files
   // are leaves, top-level folders are sections.
   assert.ok(page.includes("treeData"), "the editor must build BranchedMenu items from the workspace");
   assert.ok(page.includes("sectionPathByIndex"), "the editor must map section indices back to folder paths");
   assert.ok(page.includes("treeOpenSections"), "the editor must pass controlled open sections");
-  assert.ok(page.includes("activeValue={activeFilePath}"), "the active file must drive BranchedMenu's highlight");
-  assert.ok(page.includes("openSections={treeOpenSections}"), "expandedFolders must drive BranchedMenu's fold state");
+  assert.ok(explorerPanel.includes("activeValue={activeFilePath}"), "the active file must drive BranchedMenu's highlight");
+  assert.ok(explorerPanel.includes("openSections={treeOpenSections}"), "expandedFolders must drive BranchedMenu's fold state");
   // Selecting a file opens it (same as the old tree's click).
   assert.ok(page.includes("handleTreeSelect"), "the editor must handle BranchedMenu selection");
   assert.ok(page.includes("setActiveFilePath(value)"), "selecting a file must open it in the editor");
@@ -94,24 +97,21 @@ test("the editor page renders its file tree as a BranchedMenu", () => {
   assert.ok(page.includes("setExpandedFolders((p) => ({ ...p, [path]: open }))"), "folding must update expandedFolders");
   // Drag & drop is preserved: rows are draggable, only folders are
   // drop targets, the dragged-over folder highlights.
-  assert.ok(page.includes("onRowDragStart={handleTreeDragStart}"), "the tree must wire drag start");
-  assert.ok(page.includes("onRowDragOver={handleTreeDragOver}"), "the tree must wire drag over");
-  assert.ok(page.includes("onRowDrop={handleTreeDrop}"), "the tree must wire drop");
-  assert.ok(page.includes("dragOverValue={dragOverTarget}"), "the tree must pass the drag-over target");
+  assert.ok(explorerPanel.includes("onRowDragStart={handleTreeDragStart}"), "the tree must wire drag start");
+  assert.ok(explorerPanel.includes("onRowDragOver={handleTreeDragOver}"), "the tree must wire drag over");
+  assert.ok(explorerPanel.includes("onRowDrop={handleTreeDrop}"), "the tree must wire drop");
+  assert.ok(explorerPanel.includes("dragOverValue={dragOverTarget}"), "the tree must pass the drag-over target");
   assert.ok(page.includes('if (item?.type === "folder") handleDragOverFolder'), "only folders must be drop targets on drag over");
   assert.ok(page.includes('if (item?.type === "folder") handleDropOnTarget'), "only folders must be drop targets on drop");
   // No delete button in the file tree (Maalik's order): the editor must
   // not pass renderRowActions, must not call handleDeleteItem, and must
   // not import the Trash2 icon for a row delete button.
   assert.ok(!page.includes("renderRowActions"), "the tree must not render per-row actions (no delete button)");
+  assert.ok(!explorerPanel.includes("renderRowActions"), "the explorer panel must not render per-row actions either");
   assert.ok(!page.includes("handleDeleteItem"), "the tree must not have a delete handler");
   // Trash2 is used by the AI panel (delete a saved chat / custom
   // skill) — the check must be scoped to the Explorer panel, not the
   // whole page, or the AI panel's delete buttons trip it.
-  const explorerPanel = page.slice(
-    page.indexOf("const explorerPanel"),
-    page.indexOf("const terminalPanel")
-  );
   assert.ok(!explorerPanel.includes("Trash2"), "the tree must not use the Trash2 delete icon");
   // The unsaved dot stays on file names.
   assert.ok(page.includes("treeFileLabel"), "the tree must build file labels with the unsaved dot");
@@ -119,13 +119,13 @@ test("the editor page renders its file tree as a BranchedMenu", () => {
   // The explorer chrome around the tree is untouched: header with
   // New File / New Folder, the create inputs, the root drop zone,
   // and the drag hint footer.
-  assert.ok(page.includes("t.editorPage.explorer"), "the Explorer header must stay");
-  assert.ok(page.includes("setShowNewFile(!showNewFile)"), "the New File button must stay");
-  assert.ok(page.includes("setShowNewFolder(!showNewFolder)"), "the New Folder button must stay");
+  assert.ok(explorerPanel.includes("t.editorPage.explorer"), "the Explorer header must stay");
+  assert.ok(explorerPanel.includes("setShowNewFile(!showNewFile)"), "the New File button must stay");
+  assert.ok(explorerPanel.includes("setShowNewFolder(!showNewFolder)"), "the New Folder button must stay");
   assert.ok(page.includes("handleAddFile"), "the new-file form must stay");
   assert.ok(page.includes("handleAddFolder"), "the new-folder form must stay");
-  assert.ok(page.includes("t.editorPage.workspaceRootDropHint"), "the root drop zone must stay");
-  assert.ok(page.includes("t.editorPage.dragFilesHint"), "the drag hint footer must stay");
+  assert.ok(explorerPanel.includes("t.editorPage.workspaceRootDropHint"), "the root drop zone must stay");
+  assert.ok(explorerPanel.includes("t.editorPage.dragFilesHint"), "the drag hint footer must stay");
   // The old flat list is gone (and its visibility helper with it).
   assert.ok(!page.includes("isItemVisible"), "the old flat-list visibility helper must be gone");
   assert.ok(!page.includes("items.filter(isItemVisible)"), "the old flat tree list must be gone");

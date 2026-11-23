@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Download, Wifi } from "lucide-react";
-import { ALL_LEARN_TOPICS } from "@/lib/learn/sidebar";
+import { LEARN_TOPIC_COUNT } from "@/lib/learn/topic-slugs";
 import { useLanguage } from "@/lib/i18n";
 import {
   connectionAllowsWarming,
@@ -67,7 +67,7 @@ export function OfflineDownloadPopup({ onClose }: { onClose: () => void }) {
           {t.offline.askTitle}
         </h3>
         <p className="mt-2 text-sm leading-relaxed text-neutral-400">
-          {t.offline.askBody(ALL_LEARN_TOPICS.length)}
+          {t.offline.askBody(LEARN_TOPIC_COUNT)}
         </p>
         {blocked ? (
           <>

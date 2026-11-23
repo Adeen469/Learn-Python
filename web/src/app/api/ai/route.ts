@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createHash } from "node:crypto";
 import { getSessionSecret } from "@/lib/auth";
 import { getSessionUser } from "@/lib/auth-routes";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { perUserRateKey } from "@/lib/api-handler";
 import { fetchLessonById } from "@/lib/lessons";
 import { getByokKey, isValidByokProvider } from "@/lib/byok-store";
 import {
@@ -40,8 +40,9 @@ import { getStoredTranscript } from "@/lib/stored-transcripts";
 // key lives server-side (lp_byok_keys, migration 009, encrypted
 // under BYOK_ENCRYPTION_KEY) and the route loads it by provider
 // reference — the browser never sees it and never sends it. A key
-// in the request body is only a deprecated fallback for stale
-// clients. A resolved BYOK key is used on its own provider's leg
+// in the request body is REJECTED (R2-M1); the stored base URL /
+// model are authoritative for custom (body-supplied ones are
+// ignored). The resolved key is used on its own provider's leg
 // ONLY (no fallback to the other providers). Custom skills ride in
 // the user message as a delimited section, never in the system
 // prompt.
@@ -103,30 +104,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Not signed in." }, { status: 401 });
   }
 
-  // Per-user daily quota (H6), on top of the per-IP limit above.
-  // The key is a hash of the email, never the email itself, so no
-  // address lands in the Redis/memory limiter keys.
-  try {
-    const userKey =
-      "ai-user:" +
-      createHash("sha256").update(user.email.toLowerCase(), "utf8").digest("hex").slice(0, 32);
-    const userLimit = await checkRateLimit(userKey, AI_DAILY_LIMIT_PER_USER, AI_DAILY_WINDOW_MS);
-    if (!userLimit.allowed) {
-      return NextResponse.json(
-        { error: "Daily AI limit reached — please try again tomorrow." },
-        {
-          status: 429,
-          headers: { "Retry-After": String(userLimit.retryAfterSeconds) },
-        }
-      );
-    }
-  } catch {
-    return NextResponse.json(
-      { error: "AI is temporarily unavailable." },
-      { status: 503 }
-    );
-  }
-
   // Body-size ceiling BEFORE parsing: Content-Length above 256 KB
   // is refused without ever being parsed. (Chunked bodies carry no
   // Content-Length, so they cannot be checked this way — the
@@ -158,22 +135,23 @@ export async function POST(req: NextRequest) {
   // BYOK (guide mode): the key lives server-side (lp_byok_keys,
   // migration 009) and is loaded here by provider reference — the
   // browser sends only { provider, baseUrl?, model? }, never the
-  // key. A key in the body is accepted ONLY as a deprecated
-  // fallback for stale clients (the live editor never sends one);
-  // that fallback is a known residual — see the file header.
-  // The resolved key is used on its own provider's leg ONLY:
-  // config.byokProvider makes askAi() skip every other provider,
-  // so a BYOK key is never spent on a leg the user did not pick
-  // and one request can never fan out across all six providers.
-  // Custom also carries its base URL + model, from the body or the
-  // server store — when neither source has them the request is
-  // refused rather than run on a guessed endpoint.
+  // key. A key in the body is rejected by validateAiRequest (R2-M1),
+  // so there is no fallback to honour here: no stored key means
+  // the request is refused. The resolved key is used on its own
+  // provider's leg ONLY: config.byokProvider makes askAi() skip
+  // every other provider, so a BYOK key is never spent on a leg
+  // the user did not pick and one request can never fan out across
+  // all six providers. Custom carries its base URL + model from
+  // the server store ONLY — body-supplied ones are ignored (the
+  // editor still sends them; they change nothing) — and when the
+  // store has neither the request is refused rather than run on a
+  // guessed endpoint.
   if (body.byok) {
     if (!isValidByokProvider(body.byok.provider)) {
       return NextResponse.json({ error: "byok is not valid." }, { status: 400 });
     }
     const stored = await getByokKey(user.email, body.byok.provider);
-    const key = stored?.key ?? body.byok.key ?? null;
+    const key = stored?.key ?? null;
     if (!key) {
       return NextResponse.json(
         {
@@ -191,8 +169,8 @@ export async function POST(req: NextRequest) {
     if (body.byok.provider === "openrouter") config.openrouterKey = key;
     if (body.byok.provider === "custom") {
       config.customKey = key;
-      config.customBaseUrl = body.byok.baseUrl ?? stored?.baseUrl ?? null;
-      config.customModel = body.byok.model ?? stored?.model ?? null;
+      config.customBaseUrl = stored?.baseUrl ?? null;
+      config.customModel = stored?.model ?? null;
       if (!config.customBaseUrl || !config.customModel) {
         return NextResponse.json(
           {
@@ -301,6 +279,34 @@ export async function POST(req: NextRequest) {
         truncated: windowed.truncated,
       };
     }
+  }
+
+  // Per-user daily quota (H6), on top of the per-IP limit above.
+  // R2-M12: counted ONLY after the body parses and validates — a
+  // stolen session must not drain the victim's 100/day with
+  // malformed requests that all 400. R3-L14: charged ONLY once the
+  // request is about to reach askAi — after the BYOK lookup and the
+  // hasAiConfig pass — so a request refused for "no saved key" or
+  // "AI not configured" burns nothing. The key is a hash of the
+  // email, never the email itself, so no address lands in the
+  // Redis/memory limiter keys.
+  try {
+    const userKey = perUserRateKey("ai-user:", user.email);
+    const userLimit = await checkRateLimit(userKey, AI_DAILY_LIMIT_PER_USER, AI_DAILY_WINDOW_MS);
+    if (!userLimit.allowed) {
+      return NextResponse.json(
+        { error: "Daily AI limit reached — please try again tomorrow." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(userLimit.retryAfterSeconds) },
+        }
+      );
+    }
+  } catch {
+    return NextResponse.json(
+      { error: "AI is temporarily unavailable." },
+      { status: 503 }
+    );
   }
 
   const result = await askAi(

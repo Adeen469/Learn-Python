@@ -74,8 +74,17 @@ export const SESSION_COOKIE = isSecureDeployment()
   ? "__Host-lp_session"
   : "lp_session";
 export const LEGACY_SESSION_COOKIE = "lp_session";
-export const OAUTH_STATE_COOKIE = "lp_oauth_state";
-export const OAUTH_VERIFIER_COOKIE = "lp_oauth_verifier";
+// R3-L7: same __Host- treatment as the session cookie — a sibling
+// subdomain can no longer toss a known state/verifier at the
+// callback. __Host- REQUIRES Path=/ (see oauthCookieOptions) and
+// Secure, so in plain local dev the plain names are used, exactly
+// like SESSION_COOKIE above.
+export const OAUTH_STATE_COOKIE = isSecureDeployment()
+  ? "__Host-lp_oauth_state"
+  : "lp_oauth_state";
+export const OAUTH_VERIFIER_COOKIE = isSecureDeployment()
+  ? "__Host-lp_oauth_verifier"
+  : "lp_oauth_verifier";
 export const SESSION_MAX_AGE_SECONDS = 30 * 24 * 60 * 60; // 30 days
 export const OAUTH_COOKIE_MAX_AGE_SECONDS = 10 * 60; // 10 minutes
 export const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
@@ -398,12 +407,22 @@ export function isValidCode(code: unknown): code is string {
   );
 }
 
-/** Google picture URL: must be an https URL (lh3.googleusercontent.com). */
+/** Google picture URL: must be an https URL on lh3.googleusercontent.com
+ * (or another *.googleusercontent.com host). Anything else is rejected —
+ * without the host check any future non-Google auth source (or an
+ * attacker-influenced profile URL) turns every page load into a
+ * request to an attacker-chosen host. */
 export function sanitizePictureUrl(picture: unknown): string | null {
   if (typeof picture !== "string" || picture.length === 0) return null;
   try {
     const url = new URL(picture);
     if (url.protocol !== "https:") return null;
+    if (
+      url.hostname !== "lh3.googleusercontent.com" &&
+      !url.hostname.endsWith(".googleusercontent.com")
+    ) {
+      return null;
+    }
     return picture;
   } catch {
     return null;
@@ -556,7 +575,9 @@ export function oauthCookieOptions(isSecure: boolean): CookieOptions {
     httpOnly: true,
     secure: isSecure,
     sameSite: "lax",
-    path: "/api/auth/callback/google",
+    // R3-L7: __Host- cookies REQUIRE Path=/ — the old callback-only
+    // path would make the browser refuse the cookie entirely.
+    path: "/",
     maxAge: OAUTH_COOKIE_MAX_AGE_SECONDS,
   };
 }

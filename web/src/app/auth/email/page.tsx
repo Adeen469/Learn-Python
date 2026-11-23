@@ -197,6 +197,14 @@ export default function EmailAuthPage() {
         email,
         code: codeToVerify,
         purpose: otpPurpose,
+        // R3-H1 full fix: a signup code completes with the password
+        // the person entering the code chose — never the pending
+        // row's. The password is still in state from the sign-up
+        // form; a deep-linked / refreshed code step has none, and
+        // then the server answers with a "go back and enter your
+        // password" error instead of creating the account. Payload
+        // only — no visible change.
+        ...(otpPurpose === "signup" && password ? { password } : {}),
       });
       if (!res.ok) {
         setError(

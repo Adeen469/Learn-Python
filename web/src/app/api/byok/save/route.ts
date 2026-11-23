@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { getAuthPrereqs, getSessionUser } from "@/lib/auth-routes";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { checkIpLimit, checkUserLimit } from "@/lib/api-handler";
 import {
   getByokEncryptionSecret,
   isValidByokProvider,
   saveByokKey,
   type ByokProvider,
 } from "@/lib/byok-store";
+import { isSafeCustomBaseUrl } from "@/lib/ai";
 
 // Save a BYOK provider key (migration 009).
 //
@@ -23,17 +25,35 @@ import {
 // localStorage fallback anymore.
 export const dynamic = "force-dynamic";
 
+// Request-body ceiling, checked BEFORE req.json() parses anything:
+// a BYOK save body is tiny (provider + key ≤200 chars + an https
+// URL + model), so anything over 64 KB is refused unparsed.
+const BYOK_SAVE_MAX_BODY_BYTES = 64 * 1024;
+
+// zod schema for the body (Phase 3): the key check the route
+// used to do by hand, with the same message. Custom's base URL +
+// model rule stays below — it only applies to custom, and a
+// non-custom request must not be rejected for fields it ignores.
+const saveByokSchema = z.object({
+  key: z
+    .string({ invalid_type_error: "key is not valid." })
+    .min(10, "key is not valid.")
+    .max(200, "key is not valid."),
+  baseUrl: z
+    .string({
+      invalid_type_error: "Custom BYOK needs an https base URL and a model.",
+    })
+    .optional(),
+  model: z
+    .string({
+      invalid_type_error: "Custom BYOK needs an https base URL and a model.",
+    })
+    .optional(),
+});
+
 export async function POST(req: NextRequest) {
-  const limit = await checkRateLimit(`byok:${getClientIp(req)}`, 10, 60_000);
-  if (!limit.allowed) {
-    return NextResponse.json(
-      { error: "Too many requests — please slow down and retry shortly." },
-      {
-        status: 429,
-        headers: { "Retry-After": String(limit.retryAfterSeconds) },
-      }
-    );
-  }
+  const ipBlocked = await checkIpLimit(req, "byok-save", 10, 60_000);
+  if (ipBlocked) return ipBlocked;
   const prereqs = getAuthPrereqs(req);
   if (!prereqs) {
     return NextResponse.json(
@@ -48,6 +68,19 @@ export async function POST(req: NextRequest) {
   if (!user) {
     return NextResponse.json({ error: "Sign in to save a key" }, { status: 401 });
   }
+  // R2-L14: per-user bucket alongside the per-IP one, so listing
+  // keys can no longer starve saves (each op has its own bucket).
+  const userBlocked = await checkUserLimit(user.email, "byok-save", 10, 60_000);
+  if (userBlocked) return userBlocked;
+  // R2-M13: Content-Length pre-check before req.json() — a huge
+  // body is refused without ever being parsed into memory.
+  const contentLength = Number(req.headers.get("content-length"));
+  if (Number.isFinite(contentLength) && contentLength > BYOK_SAVE_MAX_BODY_BYTES) {
+    return NextResponse.json(
+      { error: "Request body is too large." },
+      { status: 413 }
+    );
+  }
   let body: unknown;
   try {
     body = await req.json();
@@ -59,30 +92,47 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "provider is not valid." }, { status: 400 });
   }
   const provider = b.provider as ByokProvider;
-  if (
-    typeof b.key !== "string" ||
-    b.key.length < 10 ||
-    b.key.length > 200
-  ) {
-    return NextResponse.json({ error: "key is not valid." }, { status: 400 });
+  const parsed = saveByokSchema.safeParse(b);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { status: 400 }
+    );
   }
   let baseUrl: string | null = null;
   let model: string | null = null;
   if (provider === "custom") {
     if (
-      typeof b.baseUrl !== "string" ||
-      !/^https:\/\/\S{1,200}$/.test(b.baseUrl) ||
-      typeof b.model !== "string" ||
-      b.model.trim().length === 0 ||
-      b.model.length > 100
+      typeof parsed.data.baseUrl !== "string" ||
+      !/^https:\/\/\S{1,200}$/.test(parsed.data.baseUrl) ||
+      typeof parsed.data.model !== "string" ||
+      parsed.data.model.trim().length === 0 ||
+      parsed.data.model.length > 100
     ) {
       return NextResponse.json(
         { error: "Custom BYOK needs an https base URL and a model." },
         { status: 400 }
       );
     }
-    baseUrl = b.baseUrl;
-    model = b.model.trim();
+    baseUrl = parsed.data.baseUrl;
+    model = parsed.data.model.trim();
+    // R3-C (SSRF): a stored base URL is fetched server-side by
+    // /api/ai, so validate it HERE, before it reaches the store —
+    // https-only, no credentials, no private/loopback/link-local/
+    // reserved target, and no hostname that resolves to one. The
+    // fetch-time guard in lib/ai.ts still re-checks at call time
+    // (a saved answer can rebind between save and fetch), but an
+    // unsafe URL must never be stored in the first place. DNS
+    // failure fails closed: an unverifiable host is not saved.
+    if (!(await isSafeCustomBaseUrl(baseUrl))) {
+      return NextResponse.json(
+        {
+          error:
+            "Custom base URL must be a public https endpoint — private, loopback, or unresolvable hosts are not allowed.",
+        },
+        { status: 400 }
+      );
+    }
   }
   if (!getByokEncryptionSecret()) {
     return NextResponse.json(
@@ -93,7 +143,7 @@ export async function POST(req: NextRequest) {
       { status: 503 }
     );
   }
-  const saved = await saveByokKey(user.email, provider, b.key, baseUrl, model);
+  const saved = await saveByokKey(user.email, provider, parsed.data.key, baseUrl, model);
   if (!saved) {
     return NextResponse.json(
       { error: "Could not save the key — BYOK storage is not set up yet." },

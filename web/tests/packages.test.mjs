@@ -641,15 +641,23 @@ test("numpy install — installPackageInto detects loadPackage's silent failure 
   // loadPackage resolves even when the wheel 404s — the code must check it loaded.
   assert.ok(src.includes("isPackageLoaded(pyodide, name)"), "the install must check the package actually loaded after loadPackage");
   assert.ok(src.includes("loadedPackages"), "the check must use pyodide.loadedPackages");
-  // The fallback installs the exact CDN wheel via micropip.
-  assert.ok(src.includes("cdnWheelUrlFor(name)"), "the fallback must resolve the CDN wheel URL for the package");
+  // The fallback installs the exact CDN wheel via micropip — but
+  // only after verifying its sha256 against the self-hosted
+  // lockfile (R2-L24): the bytes are installed from a blob URL,
+  // never from the CDN URL directly.
+  assert.ok(src.includes("cdnWheelFor(name)"), "the fallback must resolve the CDN wheel for the package");
+  assert.ok(src.includes("fetchVerifiedCdnWheel(wheel)"), "the fallback must verify the CDN wheel before installing it");
+  assert.ok(src.includes("crypto.subtle.digest(\"SHA-256\""), "verification must be a sha256 digest");
+  assert.ok(src.includes("URL.createObjectURL"), "verified bytes must be installed from a blob URL");
+  assert.ok(src.includes("URL.revokeObjectURL(blobUrl)"), "the blob URL must be revoked after install");
   assert.ok(src.includes("micropip.install"), "the fallback must install the CDN wheel via micropip");
   assert.ok(src.includes("PYODIDE_CDN_WHEEL_BASE"), "the CDN wheel base must be a named constant");
   assert.ok(src.includes("cdn.jsdelivr.net/pyodide/v0.27.2/full/"), "the CDN wheel base must be the jsDelivr full/ directory");
   assert.ok(src.includes("CDN_WHEEL_INSTALL_TIMEOUT_MS"), "the CDN fallback must have its own (generous) timeout");
-  // cdnWheelUrlFor reads the file_name from the self-hosted lockfile.
+  // cdnWheelFor reads the file_name + sha256 from the self-hosted lockfile.
   assert.ok(src.includes("/pyodide/pyodide-lock.json"), "the wheel URL must come from the self-hosted lockfile");
   assert.ok(src.includes("file_name"), "the lockfile file_name is the wheel name");
+  assert.ok(src.includes("sha256"), "the lockfile sha256 is the verification hash");
   // The old misleading error is gone: a failed load must say both paths were tried.
   assert.ok(!src.includes("Could not load '${name}' from Pyodide:"), "the old 'Could not load from Pyodide' message must be replaced");
   assert.ok(src.includes("tried the wheel hosted on this site"), "the error must say both the self-hosted wheel and the CDN were tried");
@@ -692,6 +700,18 @@ test("L12/L15: PyPI route caps upstream JSON and validates home_page", () => {
   // L15: home_page goes through the https: check, with a PyPI fallback.
   assert.ok(src.includes("isSafeHttpsUrl(rawHomePage)"), "home_page must be validated server-side");
   assert.ok(src.includes("https://pypi.org/project/${pkg}/"), "invalid home_page must fall back to the PyPI page");
+});
+
+test("R2-M13: PyPI route counts streamed bytes instead of trusting Content-Length", () => {
+  const src = read("src/app/api/pypi/route.ts");
+  // Chunked upstream bodies carry no Content-Length, so the header
+  // check alone lets an unbounded body reach the parser — count
+  // bytes while streaming and stop the read past the cap.
+  assert.ok(src.includes("res.body.getReader()"), "the upstream body must be read as a stream");
+  assert.ok(src.includes("receivedBytes > PYPI_MAX_JSON_BYTES"), "the stream must be capped by counted bytes");
+  assert.ok(src.includes("reader.cancel()"), "an oversize stream must be cancelled, not drained");
+  assert.ok(src.includes("JSON.parse("), "the capped bytes must be parsed as JSON");
+  assert.ok(!src.includes("await res.json()"), "the route must not parse the upstream body unbounded");
 });
 
 test("L15: ModulesPanel re-checks home_page before rendering the link", () => {

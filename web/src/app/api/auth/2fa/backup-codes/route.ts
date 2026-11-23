@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import {
   decryptUserTotpSecret,
   generateBackupCodes,
   hashBackupCodes,
+  TOTP_MAX_FAILED_ATTEMPTS,
   verifyTotpCodeWithStep,
 } from "@/lib/auth-email";
 import {
+  bumpTotpFailedAttempts,
+  claimTotpStep,
   getUserByEmail,
-  recordTotpStep,
+  incrementSessionVersion,
   updateUser,
 } from "@/lib/auth-store";
 import {
@@ -27,10 +31,16 @@ import {
 // session alone must not be able to kill the victim's backup codes.
 // The session version bumps (H2) and the session is re-issued, so
 // other sessions die with the change.
+const backupCodesSchema = z.object({
+  code: z.string().min(1).max(10).optional(),
+});
+
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
-  const limited = await rateLimit(req, "auth-2fa-backup-codes", 5, 60_000);
+  const limited = await rateLimit(req, "auth-2fa-backup-codes", 5, 60_000, {
+    failClosed: true,
+  });
   if (limited) return limited;
 
   const prereqs = getAuthPrereqs(req);
@@ -47,11 +57,22 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await readJsonBody(req);
-  const code = body?.code;
+  const parsed = backupCodesSchema.safeParse(body ?? {});
+  if (!parsed.success) {
+    return jsonError("Enter the 6-digit code from your authenticator app.", 400);
+  }
+  const code = parsed.data.code;
   if (typeof code !== "string" || !user.totp_secret_enc) {
     return jsonError("Enter the 6-digit code from your authenticator app.", 400);
   }
-  const secret = decryptUserTotpSecret(prereqs.secret, user.totp_secret_enc);
+  // Per-account attempt cap (R2-M8), same 5-failure lockout as
+  // verify/enable: without it the cap was bypassable by guessing
+  // codes here instead — one correct guess regenerated all 10
+  // backup codes and killed the victim's set.
+  if ((user.totp_failed_attempts ?? 0) >= TOTP_MAX_FAILED_ATTEMPTS) {
+    return jsonError("The code is incorrect. Check your authenticator app and try again.", 400);
+  }
+  const secret = decryptUserTotpSecret(user.totp_secret_enc);
   const matched = secret ? verifyTotpCodeWithStep(secret, code) : null;
   const replay =
     matched !== null &&
@@ -59,19 +80,34 @@ export async function POST(req: NextRequest) {
     user.totp_last_step !== undefined &&
     matched.step === user.totp_last_step;
   if (!matched || replay) {
+    await bumpTotpFailedAttempts(user.id);
+    return jsonError("The code is incorrect. Check your authenticator app and try again.", 400);
+  }
+
+  // Replay protection (R2-M9): claim the step atomically BEFORE
+  // regenerating — a second flow presenting the same code loses the
+  // claim and fails here, while the old codes stay live.
+  const stepClaim = await claimTotpStep(user.id, matched.step);
+  if (stepClaim === "replay" || stepClaim === "error") {
     return jsonError("The code is incorrect. Check your authenticator app and try again.", 400);
   }
 
   const backupCodes = generateBackupCodes();
-  const newSessionVersion = (user.session_version ?? 0) + 1;
+  // Atomic version bump (R2-M11): the new session carries the
+  // RETURNED version; a failed bump regenerates nothing.
+  const newSessionVersion = await incrementSessionVersion(user.id);
+  if (newSessionVersion === null) {
+    return jsonError("Could not generate new backup codes.", 503);
+  }
   const saved = await updateUser(user.id, {
     backup_codes: await hashBackupCodes(backupCodes),
-    session_version: newSessionVersion,
+    totp_failed_attempts: 0,
+    // R3-L6: NO session_version here — the CAS incrementSessionVersion
+    // above already wrote it.
   });
   if (!saved) {
     return jsonError("Could not generate new backup codes.", 503);
   }
-  await recordTotpStep(user.id, matched.step);
   const res = NextResponse.json({ backupCodes });
   // Re-issue the session: the old one (old version) is dead from
   // the version bump above, including this browser's.

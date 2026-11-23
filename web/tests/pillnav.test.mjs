@@ -133,7 +133,11 @@ describe("pill nav install", () => {
     assert.ok(navbar.includes("Flame"), "the streak chip must use the Flame icon");
     assert.ok(navbar.includes("computeStreak"), "the streak must come from the real progress record");
     assert.ok(navbar.includes("Continue"), "the Continue button must be there");
-    assert.ok(navbar.includes("LEARN_SECTIONS"), "Continue must find the next uncompleted topic");
+    assert.ok(navbar.includes("LEARN_TOPIC_SLUGS"), "Continue must find the next uncompleted topic");
+    assert.ok(
+      navbar.includes("LEARN_TOPIC_SLUGS.find((slug) => !completedTopics.includes(slug))"),
+      "Continue must be the first slug not in the completed list",
+    );
     assert.ok(
       navbar.includes("flex items-center gap-2 md:hidden"),
       "streak + Continue must sit in a mobile-only wrapper on the right",

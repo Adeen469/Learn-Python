@@ -17,11 +17,10 @@
 // model — only the lesson context (title/notes, plus the lesson video
 // transcript when one was fetched), the user's own question/code, and
 // the AI skills the user enabled (built-in or their own, guide mode
-// only). A BYOK key from the request is used in-memory for that one
-// request only — it is never stored or logged server-side. Keys
-// normally live server-side (lp_byok_keys, migration 009) and the
-// route loads them by provider reference; a key in the request body
-// is only a deprecated fallback for stale clients. A resolved BYOK
+// only). Keys normally live server-side (lp_byok_keys, migration 009)
+// and the route loads them by provider reference; a key in the
+// request body is REJECTED (R2-M1 — the old deprecated fallback is
+// gone, the live editor never sent one). A resolved BYOK
 // key is used on its own provider's leg ONLY (config.byokProvider)
 // — never on another provider's fallback leg.
 
@@ -47,13 +46,14 @@ export type AiProvider = "gemini" | "groq" | "anthropic" | "openai" | "openroute
 /** A bring-your-own-key override for one provider (guide mode only).
     Custom needs a base URL (an OpenAI-compatible /chat/completions
     endpoint) and the model id to call — both ride along in the BYOK.
-    The key is OPTIONAL: it normally lives server-side (lp_byok_keys)
+    There is NO key field: the key lives server-side (lp_byok_keys)
     and the route loads it by provider reference; a key in the body
-    is only a deprecated fallback for stale clients, and the editor
-    never sends one. */
+    is rejected by validateAiRequest (R2-M1). The base URL / model
+    in the body are likewise ignored by the route — the stored ones
+    are authoritative (the editor still sends them; they are
+    harmless). */
 export interface AiByok {
   provider: AiProvider;
-  key?: string;
   baseUrl?: string;
   model?: string;
 }
@@ -153,9 +153,23 @@ export const ANTHROPIC_TIMEOUT_MS = 15000;
 export const OPENAI_TIMEOUT_MS = 12000;
 export const OPENROUTER_TIMEOUT_MS = 12000;
 export const CUSTOM_TIMEOUT_MS = 12000;
+// Shared chain deadline (Phase 3): the whole fallback chain —
+// every leg together — must finish inside ~50s, under the route's
+// 60s maxDuration. Legs keep their own per-leg timeouts above; this
+// is the backstop, so a chain of slow legs cannot run past the
+// function budget.
+export const AI_SHARED_BUDGET_MS = 50_000;
 export const MAX_INPUT_CHARS = 8000;
 export const MAX_HISTORY_TURNS = 4;
 export const MAX_HISTORY_CHARS = 700;
+// R2-M12: per-request input budget — the per-field caps above still
+// let one request carry ~30k+ chars (8k question + 8k code + 4x700
+// history + up to 10x8k skills) and fan it out across the fallback
+// chain. The summed body-controlled input is capped here so one
+// request cannot burn that much shared-provider quota at once.
+// 32k still fits a full question + full code + full history with
+// room for custom skills.
+export const MAX_TOTAL_INPUT_CHARS = 32_000;
 // Prompt budget: a fresh "Hi" must stay ~4000 tokens so Groq's 8000
 // TPM never trips and the first leg answers in ~1-3s. The file is
 // already capped at 8000 chars by validation; skills at 6000 chars
@@ -185,8 +199,9 @@ export interface AiConfig {
   anthropicKey: string | null;
   openaiKey: string | null;
   openrouterKey: string | null;
-  /** Custom provider: BYOK only, no env var (base URL + model ride
-      in the request's BYOK alongside the key). */
+  /** Custom provider: BYOK only, no env var (base URL + model come
+      from the server store — the request's BYOK carries only the
+      provider reference). */
   customKey: string | null;
   customBaseUrl: string | null;
   customModel: string | null;
@@ -288,12 +303,13 @@ export function validateAiRequest(value: unknown): ValidateRequestResult {
   }
   // BYOK first: the model check below allows a custom model id
   // only when it matches the custom BYOK in this same request.
-  // The key is optional — it normally lives server-side and the
-  // route loads it by provider reference; a body key is only a
-  // deprecated fallback for stale clients. Custom baseUrl/model
-  // are likewise optional here: they may come from the server
-  // store instead, and the route rejects the request when neither
-  // source has them.
+  // The key lives server-side and the route loads it by provider
+  // reference — a key in the body is REJECTED outright (R2-M1):
+  // accepting one lets any signed-in caller bypass the server
+  // store and point the request at an arbitrary endpoint with an
+  // arbitrary key. Custom baseUrl/model are still accepted here
+  // for shape-checking, but the route ignores them — the stored
+  // ones are authoritative (the live editor still sends them).
   if (v.byok !== undefined) {
     const b = v.byok as Record<string, unknown>;
     const providers = ["gemini", "groq", "anthropic", "openai", "openrouter", "custom"];
@@ -302,13 +318,11 @@ export function validateAiRequest(value: unknown): ValidateRequestResult {
       b === null ||
       typeof b.provider !== "string" ||
       !providers.includes(b.provider) ||
-      (b.key !== undefined &&
-        (typeof b.key !== "string" || b.key.length < 10 || b.key.length > 200))
+      b.key !== undefined
     ) {
       return { ok: false, error: "byok is not valid." };
     }
     const byok: AiByok = { provider: b.provider as AiProvider };
-    if (typeof b.key === "string") byok.key = b.key;
     if (b.provider === "custom") {
       if (
         (b.baseUrl !== undefined &&
@@ -383,6 +397,16 @@ export function validateAiRequest(value: unknown): ValidateRequestResult {
   }
   if ((mode === "tutor" || mode === "guide") && !body.question) {
     return { ok: false, error: "question is required for this mode." };
+  }
+  // R2-M12: per-request input budget (see MAX_TOTAL_INPUT_CHARS) —
+  // bound the summed body-controlled input, not just each field.
+  const totalInputChars =
+    (body.question?.length ?? 0) +
+    (body.code?.length ?? 0) +
+    (body.history ?? []).reduce((n, h) => n + h.text.length, 0) +
+    (body.skills ?? []).reduce((n, s) => n + s.content.length, 0);
+  if (totalInputChars > MAX_TOTAL_INPUT_CHARS) {
+    return { ok: false, error: `request input is too large (max ${MAX_TOTAL_INPUT_CHARS} characters).` };
   }
   return { ok: true, body };
 }
@@ -696,7 +720,10 @@ async function fetchWithTimeout(
   fetchImpl: FetchImpl,
   url: string,
   init: Record<string, unknown>,
-  ms: number
+  ms: number,
+  // Shared chain deadline (Phase 3): when the outer signal fires,
+  // the leg aborts even though its own timeout has not fired yet.
+  outerSignal?: AbortSignal
 ): Promise<{ ok: boolean; status: number; json: () => Promise<unknown> } | null> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => {
@@ -706,13 +733,140 @@ async function fetchWithTimeout(
       // Ignore.
     }
   }, ms);
+  const signal = outerSignal
+    ? AbortSignal.any([ctrl.signal, outerSignal])
+    : ctrl.signal;
   try {
-    return await fetchImpl(url, { ...init, signal: ctrl.signal });
+    return await fetchImpl(url, { ...init, signal });
   } catch {
     return null;
   } finally {
     clearTimeout(timer);
   }
+}
+
+/**
+ * R2-L16: POST JSON to a custom BYOK endpoint by literal pinned IP
+ * instead of through fetch(). fetch() performs its own third DNS
+ * lookup, which a DNS-controlling attacker can flip to a private IP
+ * in the instant between the double-resolve check and the request —
+ * the guard as built could not contain that. Requesting the literal
+ * IP with explicit TLS SNI (`servername`) and Host closes the
+ * window: no DNS happens at request time at all. Redirects are
+ * never followed (node:https does not follow them), matching the
+ * `redirect: "error"` behaviour of the fetch path. Only the custom
+ * provider uses this, and only when the caller uses the real global
+ * fetch — an injected fetchImpl (tests) keeps the fetch path, since
+ * a stub cannot be replaced by a literal-IP request. Lazily
+ * imported like node:dns — ai.ts is also bundled into the editor
+ * page, so a top-level Node import would break the client build.
+ * Tries each pinned address in turn; a transport failure moves to
+ * the next, an HTTP response (any status) is returned at once.
+ */
+async function postToPinnedIp(
+  url: string,
+  addresses: string[],
+  body: string,
+  headers: Record<string, string>,
+  timeoutMs: number,
+  // Shared chain deadline (Phase 3): node:https aborts the request
+  // when this fires, like fetch() does with its signal.
+  signal?: AbortSignal
+): Promise<{ ok: boolean; status: number; json: () => Promise<unknown> } | null> {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return null;
+  }
+  if (parsed.protocol !== "https:") return null;
+  const { request } = await import(/* webpackIgnore: true */ "node:https");
+  const hostHeader = parsed.port
+    ? `${parsed.hostname}:${parsed.port}`
+    : parsed.hostname;
+  const port = parsed.port ? Number(parsed.port) : 443;
+  const bodyBytes = new TextEncoder().encode(body);
+  for (const address of addresses) {
+    if (signal?.aborted) return null;
+    const result = await new Promise<{
+      ok: boolean;
+      status: number;
+      json: () => Promise<unknown>;
+    } | null>((resolve) => {
+      let settled = false;
+      const done = (
+        v: {
+          ok: boolean;
+          status: number;
+          json: () => Promise<unknown>;
+        } | null
+      ) => {
+        if (!settled) {
+          settled = true;
+          resolve(v);
+        }
+      };
+      let req: ReturnType<typeof request>;
+      try {
+        req = request(
+          {
+            host: address,
+            port,
+            path: `${parsed.pathname}${parsed.search}`,
+            method: "POST",
+            servername: parsed.hostname,
+            headers: {
+              ...headers,
+              Host: hostHeader,
+              "Content-Length": bodyBytes.length,
+            },
+            timeout: timeoutMs,
+            signal,
+          },
+          (res) => {
+            const chunks: Uint8Array[] = [];
+            res.on("data", (chunk: Uint8Array | string) => {
+              chunks.push(
+                typeof chunk === "string"
+                  ? new TextEncoder().encode(chunk)
+                  : chunk
+              );
+            });
+            res.on("end", () => {
+              const total = chunks.reduce((n, c) => n + c.length, 0);
+              const merged = new Uint8Array(total);
+              let offset = 0;
+              for (const c of chunks) {
+                merged.set(c, offset);
+                offset += c.length;
+              }
+              const text = new TextDecoder().decode(merged);
+              const status = res.statusCode ?? 500;
+              done({
+                ok: status >= 200 && status < 300,
+                status,
+                json: async () => {
+                  try {
+                    return JSON.parse(text);
+                  } catch {
+                    return null;
+                  }
+                },
+              });
+            });
+            res.on("error", () => done(null));
+          }
+        );
+      } catch {
+        return done(null);
+      }
+      req.on("timeout", () => req.destroy(new Error("timeout")));
+      req.on("error", () => done(null));
+      req.end(bodyBytes);
+    });
+    if (result) return result;
+  }
+  return null;
 }
 
 export async function callGemini(
@@ -731,7 +885,7 @@ export async function callGemini(
   },
   key: string,
   fetchImpl: FetchImpl = fetch as unknown as FetchImpl,
-  opts: { model?: string; maxTokens?: number } = {}
+  opts: { model?: string; maxTokens?: number; signal?: AbortSignal } = {}
 ): Promise<string | null> {
   const model = opts.model ?? GEMINI_MODEL;
   const maxTokens = opts.maxTokens ?? MAX_OUTPUT_TOKENS;
@@ -747,7 +901,8 @@ export async function callGemini(
           generationConfig: { temperature: temperatureForMode(args.mode), maxOutputTokens: maxTokens },
         }),
       },
-      GEMINI_TIMEOUT_MS
+      GEMINI_TIMEOUT_MS,
+      opts.signal
     );
     if (!res) {
       recordProviderFailure("gemini", model, "no response");
@@ -781,7 +936,7 @@ export async function callGroq(
   },
   key: string,
   fetchImpl: FetchImpl = fetch as unknown as FetchImpl,
-  opts: { model?: string; models?: string[]; maxTokens?: number } = {}
+  opts: { model?: string; models?: string[]; maxTokens?: number; signal?: AbortSignal } = {}
 ): Promise<string | null> {
   const maxTokens = opts.maxTokens ?? MAX_OUTPUT_TOKENS;
   // Try-list: an explicit list wins (fallback without repeating a
@@ -808,7 +963,8 @@ export async function callGroq(
             max_tokens: maxTokens,
           }),
         },
-        GROQ_TIMEOUT_MS
+        GROQ_TIMEOUT_MS,
+        opts.signal
       );
     } catch {
       return null;
@@ -852,7 +1008,7 @@ export async function callAnthropic(
   },
   key: string,
   fetchImpl: FetchImpl = fetch as unknown as FetchImpl,
-  opts: { model?: string; maxTokens?: number } = {}
+  opts: { model?: string; maxTokens?: number; signal?: AbortSignal } = {}
 ): Promise<string | null> {
   const model = opts.model ?? ANTHROPIC_MODELS[0];
   const maxTokens = opts.maxTokens ?? MAX_OUTPUT_TOKENS;
@@ -877,7 +1033,8 @@ export async function callAnthropic(
           messages: buildAnthropicMessages(args),
         }),
       },
-      ANTHROPIC_TIMEOUT_MS
+      ANTHROPIC_TIMEOUT_MS,
+      opts.signal
     );
     if (!res) {
       recordProviderFailure("anthropic", model, "no response");
@@ -930,10 +1087,31 @@ export function isPrivateIp(ip: string): boolean {
   if (v4) {
     const a = Number(v4[1]);
     const b = Number(v4[2]);
+    const c = Number(v4[3]);
+    const d = Number(v4[4]);
+    // R3-C: out-of-range octets cannot be a real public address —
+    // fail closed. (Unreachable from a parsed URL or DNS, which
+    // are canonical, but the validator must not call one public.)
+    if (a > 255 || b > 255 || c > 255 || d > 255) return true;
     if (a === 0 || a === 10 || a === 127) return true;
     if (a === 169 && b === 254) return true;
     if (a === 172 && b >= 16 && b <= 31) return true;
     if (a === 192 && b === 168) return true;
+    // R2-L16: ranges the old check missed — CGNAT 100.64.0.0/10,
+    // 192.0.0.0/24 (IETF protocol assignments, incl. 192.0.0.0/29
+    // and 192.0.2.0/24 TEST-NET), 198.18.0.0/15 benchmarking.
+    if (a === 100 && b >= 64 && b <= 127) return true;
+    if (a === 192 && b === 0) return true;
+    if (a === 198 && (b === 18 || b === 19)) return true;
+    // R3-C: the rest of the reserved space — TEST-NET-2
+    // 198.51.100.0/24, TEST-NET-3 203.0.113.0/24, multicast
+    // 224.0.0.0/4, and reserved 240.0.0.0/4 (incl. broadcast
+    // 255.255.255.255, which the old check let through: a
+    // literal-IP lookup returns it unchanged, so the DNS leg
+    // could not catch it either).
+    if (a === 198 && b === 51 && c === 100) return true;
+    if (a === 203 && b === 0 && c === 113) return true;
+    if (a >= 224) return true;
     return false;
   }
   // IPv6: only strings with a colon are addresses — anything else is
@@ -941,7 +1119,40 @@ export function isPrivateIp(ip: string): boolean {
   const v6 = ip.replace(/^\[|\]$/g, "").split("%")[0].toLowerCase();
   if (!v6.includes(":")) return false;
   if (v6 === "::1" || v6 === "::") return true;
-  if (v6.startsWith("::ffff:")) return isPrivateIp(v6.slice("::ffff:".length));
+  if (v6.startsWith("::ffff:")) {
+    // IPv4-mapped IPv6. The dotted form (::ffff:127.0.0.1)
+    // recurses as before — but the WHATWG URL parser
+    // canonicalises the host to the HEX form (::ffff:7f00:1),
+    // and the old code recursed on the bare "7f00:1", which
+    // matched nothing and returned PUBLIC: https://[::ffff:
+    // 127.0.0.1]/ passed the hostname check (only an accidental
+    // ENOTFOUND from the bracketed DNS lookup saved it in
+    // production — a stubbed or different lookup would not).
+    // Decode the last two hextets as the embedded IPv4 address
+    // and check that. The SIIT translated form ::ffff:0:7f00:1
+    // decodes the same way; anything else under ::ffff: fails
+    // closed. (A mapped PUBLIC address, e.g. ::ffff:808:808 =
+    // 8.8.8.8, still returns false.)
+    const rest = v6.slice("::ffff:".length);
+    if (rest.includes(".")) return isPrivateIp(rest);
+    const parts = rest.split(":");
+    const tail =
+      parts.length === 2
+        ? parts
+        : parts.length === 3 && parts[0] === "0"
+          ? parts.slice(1)
+          : null;
+    if (
+      !tail ||
+      !/^[0-9a-f]{1,4}$/.test(tail[0]) ||
+      !/^[0-9a-f]{1,4}$/.test(tail[1])
+    ) {
+      return true;
+    }
+    const hi = parseInt(tail[0], 16);
+    const lo = parseInt(tail[1], 16);
+    return isPrivateIp(`${hi >> 8}.${hi & 0xff}.${lo >> 8}.${lo & 0xff}`);
+  }
   const first = v6.split(":")[0];
   if (/^fe[89ab][0-9a-f]*$/.test(first)) return true; // fe80::/10 link-local
   if (/^f[cd][0-9a-f]*$/.test(first)) return true; // fc00::/7 unique-local
@@ -1039,11 +1250,20 @@ export async function callOpenAiCompatible(
     extraHeaders?: Record<string, string>;
     timeoutMs?: number;
     dnsLookup?: DnsLookupFn;
+    signal?: AbortSignal;
   }
 ): Promise<string | null> {
   const maxTokens = opts.maxTokens ?? MAX_OUTPUT_TOKENS;
   const timeoutMs = opts.timeoutMs ?? OPENAI_TIMEOUT_MS;
   const provider = opts.url === OPENAI_URL ? "openai" : opts.url === OPENROUTER_URL ? "openrouter" : "custom";
+  // R2-L16: the pinned public addresses for the custom leg. The
+  // request itself goes to the literal IP (postToPinnedIp, explicit
+  // TLS SNI + Host) instead of through fetch(), whose own third DNS
+  // lookup could be flipped to a private IP after these checks.
+  // The literal-IP transport runs only when the caller uses the
+  // real global fetch — an injected fetchImpl (tests) keeps the
+  // fetch path, with the double-resolve pinning as its guard.
+  let pinnedAddresses: string[] | null = null;
   if (provider === "custom") {
     // SSRF guard: a BYOK base URL comes from the user — never fetch
     // a private/loopback/link-local target with the user's key.
@@ -1053,19 +1273,6 @@ export async function callOpenAiCompatible(
     // require the exact same public addresses — a DNS answer that
     // changed between the two lookups (rebinding) refuses the
     // fetch instead of following the new answer.
-    //
-    // RESIDUAL (honest): fetch() performs its own, third lookup,
-    // which this code cannot see or pin — the global fetch has no
-    // way to fetch a literal IP with the original hostname as TLS
-    // SNI, so a TTL-0 record that flips to a private IP in the
-    // instant between the second lookup and fetch's own lookup
-    // would still be followed. The window is one DNS round-trip
-    // wide (not the whole request), and the redirect refusal below
-    // still blocks a 302 to a private target afterwards — but a
-    // rebinding host with a ~0s TTL is not fully contained by this
-    // guard. Only fetching by literal IP with an explicit SNI
-    // (node:https with `servername`) would close it, and that
-    // cannot be done through the fetch abstraction used here.
     const pinned = await resolveSafeCustomAddresses(opts.url, opts.dnsLookup);
     if (!pinned) {
       recordProviderFailure(provider, opts.models[0] ?? "custom", "unsafe base URL");
@@ -1080,35 +1287,57 @@ export async function callOpenAiCompatible(
       recordProviderFailure(provider, opts.models[0] ?? "custom", "DNS changed, refusing fetch");
       return null;
     }
+    pinnedAddresses = pinned;
   }
+  const useLiteralIp =
+    provider === "custom" &&
+    pinnedAddresses !== null &&
+    fetchImpl === (fetch as unknown as FetchImpl);
   for (const model of opts.models) {
     let res: { ok: boolean; status: number; json: () => Promise<unknown> } | null = null;
     try {
-      res = await fetchWithTimeout(
-        fetchImpl,
-        opts.url,
-        {
-          method: "POST",
-          // Custom (BYOK) only: a safe-looking base URL must not be
-          // allowed to 302 to a private IP after the SSRF check —
-          // refuse redirects instead of following them.
-          ...(provider === "custom" ? { redirect: "error" as const } : {}),
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${key}`,
-            ...(opts.extraHeaders ?? {}),
+      const body = JSON.stringify({
+        model,
+        // No temperature: reasoning models (GPT-5.x and friends)
+        // reject non-default sampling values — the default is
+        // safe on every OpenAI-compatible endpoint.
+        messages: buildGroqMessages(args),
+        max_tokens: maxTokens,
+      });
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${key}`,
+        ...(opts.extraHeaders ?? {}),
+      };
+      if (useLiteralIp) {
+        // Literal pinned IP + explicit SNI — no DNS at request
+        // time, and node:https never follows redirects (the
+        // fetch path's `redirect: "error"` equivalent).
+        res = await postToPinnedIp(
+          opts.url,
+          pinnedAddresses as string[],
+          body,
+          headers,
+          timeoutMs,
+          opts.signal
+        );
+      } else {
+        res = await fetchWithTimeout(
+          fetchImpl,
+          opts.url,
+          {
+            method: "POST",
+            // Custom (BYOK) only: a safe-looking base URL must not be
+            // allowed to 302 to a private IP after the SSRF check —
+            // refuse redirects instead of following them.
+            ...(provider === "custom" ? { redirect: "error" as const } : {}),
+            headers,
+            body,
           },
-          body: JSON.stringify({
-            model,
-            // No temperature: reasoning models (GPT-5.x and friends)
-            // reject non-default sampling values — the default is
-            // safe on every OpenAI-compatible endpoint.
-            messages: buildGroqMessages(args),
-            max_tokens: maxTokens,
-          }),
-        },
-        timeoutMs
-      );
+          timeoutMs,
+          opts.signal
+        );
+      }
     } catch {
       return null;
     }
@@ -1212,6 +1441,11 @@ export async function askAi(
   dnsLookupImpl?: DnsLookupFn
 ): Promise<AiResult | null> {
   const maxTokens = maxTokensForEffort(args.effort);
+  // Shared chain deadline (Phase 3): one ~50s budget for the whole
+  // fallback chain, from request start — legs keep their own
+  // per-leg timeouts, but the chain can never exceed the route's
+  // 60s maxDuration. Every leg below gets this signal.
+  const budget = AbortSignal.timeout(AI_SHARED_BUDGET_MS);
   // Fresh per request: a leg that failed but was followed by a
   // success must not leak its entry into the next failed request.
   providerFailures.length = 0;
@@ -1226,19 +1460,19 @@ export async function askAi(
     const p = config.byokProvider;
     if (p === "gemini" && config.geminiKey) {
       const model = selected && GEMINI_FREE_MODELS.includes(selected) ? selected : GEMINI_MODEL;
-      const reply = await callGemini(args, config.geminiKey, fetchImpl, { model, maxTokens });
+      const reply = await callGemini(args, config.geminiKey, fetchImpl, { model, maxTokens, signal: budget });
       if (reply) return finishResult(args.mode, reply, "gemini");
     }
     if (p === "groq" && config.groqKey) {
       const models =
         selected && GROQ_FREE_MODELS.includes(selected) ? [selected] : GROQ_FREE_MODELS;
-      const reply = await callGroq(args, config.groqKey, fetchImpl, { models, maxTokens });
+      const reply = await callGroq(args, config.groqKey, fetchImpl, { models, maxTokens, signal: budget });
       if (reply) return finishResult(args.mode, reply, "groq");
     }
     if (p === "anthropic" && config.anthropicKey) {
       const model =
         selected && ANTHROPIC_MODELS.includes(selected) ? selected : ANTHROPIC_MODELS[0];
-      const reply = await callAnthropic(args, config.anthropicKey, fetchImpl, { model, maxTokens });
+      const reply = await callAnthropic(args, config.anthropicKey, fetchImpl, { model, maxTokens, signal: budget });
       if (reply) return finishResult(args.mode, reply, "anthropic");
     }
     if (p === "openai" && config.openaiKey) {
@@ -1248,6 +1482,7 @@ export async function askAi(
         url: OPENAI_URL,
         models,
         maxTokens,
+        signal: budget,
       });
       if (reply) return finishResult(args.mode, reply, "openai");
     }
@@ -1259,6 +1494,7 @@ export async function askAi(
         models,
         maxTokens,
         extraHeaders: openRouterHeaders(),
+        signal: budget,
       });
       if (reply) return finishResult(args.mode, reply, "openrouter");
     }
@@ -1275,6 +1511,7 @@ export async function askAi(
         maxTokens,
         timeoutMs: CUSTOM_TIMEOUT_MS,
         dnsLookup: dnsLookupImpl,
+        signal: budget,
       });
       if (reply) return finishResult(args.mode, reply, "custom");
     }
@@ -1282,15 +1519,15 @@ export async function askAi(
   }
   // 1. The model the user picked (editor AI panel).
   if (selected && GEMINI_FREE_MODELS.includes(selected) && config.geminiKey) {
-    const reply = await callGemini(args, config.geminiKey, fetchImpl, { model: selected, maxTokens });
+    const reply = await callGemini(args, config.geminiKey, fetchImpl, { model: selected, maxTokens, signal: budget });
     if (reply) return finishResult(args.mode, reply, "gemini");
   }
   if (selected && GROQ_FREE_MODELS.includes(selected) && config.groqKey) {
-    const reply = await callGroq(args, config.groqKey, fetchImpl, { model: selected, maxTokens });
+    const reply = await callGroq(args, config.groqKey, fetchImpl, { model: selected, maxTokens, signal: budget });
     if (reply) return finishResult(args.mode, reply, "groq");
   }
   if (selected && ANTHROPIC_MODELS.includes(selected) && config.anthropicKey) {
-    const reply = await callAnthropic(args, config.anthropicKey, fetchImpl, { model: selected, maxTokens });
+    const reply = await callAnthropic(args, config.anthropicKey, fetchImpl, { model: selected, maxTokens, signal: budget });
     if (reply) return finishResult(args.mode, reply, "anthropic");
   }
   if (selected && OPENAI_MODELS.includes(selected) && config.openaiKey) {
@@ -1298,6 +1535,7 @@ export async function askAi(
       url: OPENAI_URL,
       models: [selected],
       maxTokens,
+      signal: budget,
     });
     if (reply) return finishResult(args.mode, reply, "openai");
   }
@@ -1307,6 +1545,7 @@ export async function askAi(
       models: [selected],
       maxTokens,
       extraHeaders: openRouterHeaders(),
+      signal: budget,
     });
     if (reply) return finishResult(args.mode, reply, "openrouter");
   }
@@ -1323,12 +1562,16 @@ export async function askAi(
       maxTokens,
       timeoutMs: CUSTOM_TIMEOUT_MS,
       dnsLookup: dnsLookupImpl,
+      signal: budget,
     });
     if (reply) return finishResult(args.mode, reply, "custom");
   }
   // 2. Default order. Skip a leg whose model was already tried above.
+  // (And skip the whole phase once the shared budget is spent — a
+  // fetch that ignores the signal must not start new legs past it.)
+  if (budget.aborted) return null;
   if (config.geminiKey && selected !== GEMINI_MODEL) {
-    const reply = await callGemini(args, config.geminiKey, fetchImpl, { maxTokens });
+    const reply = await callGemini(args, config.geminiKey, fetchImpl, { maxTokens, signal: budget });
     if (reply) return finishResult(args.mode, reply, "gemini");
   }
   if (config.groqKey) {
@@ -1336,11 +1579,11 @@ export async function askAi(
       selected && GROQ_FREE_MODELS.includes(selected)
         ? GROQ_FREE_MODELS.filter((m) => m !== selected)
         : GROQ_FREE_MODELS;
-    const reply = await callGroq(args, config.groqKey, fetchImpl, { maxTokens, models: fallbackModels });
+    const reply = await callGroq(args, config.groqKey, fetchImpl, { maxTokens, models: fallbackModels, signal: budget });
     if (reply) return finishResult(args.mode, reply, "groq");
   }
   if (config.anthropicKey && selected !== ANTHROPIC_MODELS[0]) {
-    const reply = await callAnthropic(args, config.anthropicKey, fetchImpl, { maxTokens });
+    const reply = await callAnthropic(args, config.anthropicKey, fetchImpl, { maxTokens, signal: budget });
     if (reply) return finishResult(args.mode, reply, "anthropic");
   }
   if (config.openaiKey) {
@@ -1352,6 +1595,7 @@ export async function askAi(
       url: OPENAI_URL,
       models: fallbackModels,
       maxTokens,
+      signal: budget,
     });
     if (reply) return finishResult(args.mode, reply, "openai");
   }
@@ -1365,6 +1609,7 @@ export async function askAi(
       models: fallbackModels,
       maxTokens,
       extraHeaders: openRouterHeaders(),
+      signal: budget,
     });
     if (reply) return finishResult(args.mode, reply, "openrouter");
   }
@@ -1375,6 +1620,7 @@ export async function askAi(
       maxTokens,
       timeoutMs: CUSTOM_TIMEOUT_MS,
       dnsLookup: dnsLookupImpl,
+      signal: budget,
     });
     if (reply) return finishResult(args.mode, reply, "custom");
   }

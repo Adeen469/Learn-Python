@@ -75,6 +75,13 @@ export interface ByteRange {
   end: number;
 }
 
+// R2-H1: no single Range may pull more than 4 MiB through the
+// function — a client asking `bytes=0-` for a ~37 MB lesson used to
+// get the whole file in one 206, bypassing the 1 MiB no-Range cap.
+// parseHttpRange is the one parser both legs share (Drive imports
+// it), so clamping here binds MEGA and Drive alike.
+export const MAX_VIDEO_CHUNK_BYTES = 4 * 1024 * 1024;
+
 /**
  * Parses an HTTP Range header (e.g. "bytes=0-1023" or "bytes=1024-")
  * against a known total file size. Returns null for invalid/unsatisfiable ranges.
@@ -102,6 +109,10 @@ export function parseHttpRange(rangeHeader: string | null, totalSize: number): B
   }
 
   end = Math.min(end, totalSize - 1);
+  // R2-H1: clamp the window to at most 4 MiB even when the client
+  // asked for the rest of the file (open-ended or huge suffix
+  // ranges). The player just issues the next Range request.
+  end = Math.min(end, start + MAX_VIDEO_CHUNK_BYTES - 1);
   return { start, end };
 }
 

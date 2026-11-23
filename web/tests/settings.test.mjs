@@ -119,9 +119,11 @@ describe("theme (lib/theme.ts + layout + globals)", () => {
 
   test("Monaco follows the theme (editor/page.tsx)", () => {
     const editor = read("src/app/editor/page.tsx");
-    assert.ok(editor.includes('"lp-light"'), "editor must define an lp-light theme");
+    // The Monaco editor lives in the Editor panel component (editor split).
+    const editorPanel = read("src/app/editor/components/EditorPanel.tsx");
+    assert.ok(editorPanel.includes('"lp-light"'), "editor must define an lp-light theme");
     assert.ok(
-      editor.includes('"scrollbarSliderBackground": "#00000073"'),
+      editorPanel.includes('"scrollbarSliderBackground": "#00000073"'),
       "light Monaco thumb must be a dark pill"
     );
     assert.ok(

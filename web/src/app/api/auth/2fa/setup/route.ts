@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import {
   buildOtpAuthUrl,
   encryptTotpSecret,
@@ -13,9 +14,14 @@ import {
   getSessionUser,
   jsonError,
   rateLimit,
+  rateLimitKey,
   readJsonBody,
   serviceUnavailable,
 } from "@/lib/auth-routes";
+
+const setupSchema = z.object({
+  password: z.string().min(1).max(128).optional(),
+});
 
 // POST /api/auth/2fa/setup { password } — start TOTP enrollment for
 // an email user. The password is re-entered (H4): a stolen session
@@ -29,7 +35,9 @@ import {
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
-  const limited = await rateLimit(req, "auth-2fa-setup", 10, 60_000);
+  const limited = await rateLimit(req, "auth-2fa-setup", 10, 60_000, {
+    failClosed: true,
+  });
   if (limited) return limited;
 
   const prereqs = getAuthPrereqs(req);
@@ -41,6 +49,16 @@ export async function POST(req: NextRequest) {
   }
   const user = await getUserByEmail(sessionUser.email);
   if (!user) return jsonError("Account not found.", 404);
+  // R3-L5: per-email bucket on top of the per-IP limit — rotating
+  // IPs must not buy unbounded scrypt password checks on one
+  // account. Same pattern as sign-in/verify.
+  const emailLimited = await rateLimitKey(
+    `auth-2fa-setup-email:${sessionUser.email.toLowerCase()}`,
+    10,
+    60_000,
+    { failClosed: true }
+  );
+  if (emailLimited) return emailLimited;
   if (user.totp_enabled) {
     return jsonError(
       "Two-factor authentication is already on. Disable it first to set up a new one.",
@@ -49,7 +67,11 @@ export async function POST(req: NextRequest) {
   }
   // Password re-entry (H4), before any secret is generated.
   const body = await readJsonBody(req);
-  const password = body?.password;
+  const parsed = setupSchema.safeParse(body ?? {});
+  if (!parsed.success) {
+    return jsonError("Enter your password to set up two-factor authentication.", 400);
+  }
+  const password = parsed.data.password;
   if (typeof password !== "string" || !user.password_hash) {
     return jsonError("Enter your password to set up two-factor authentication.", 400);
   }
@@ -58,11 +80,17 @@ export async function POST(req: NextRequest) {
     return jsonError("Invalid email or password.", 401);
   }
 
-  const key = totpSecretEncryptionKey(prereqs.secret);
+  const key = totpSecretEncryptionKey();
   if (!key) return serviceUnavailable("2fa-setup");
   const secret = generateTotpSecret();
   const pendingEnc = encryptTotpSecret(key, secret);
-  const saved = await updateUser(user.id, { totp_pending_enc: pendingEnc });
+  // A fresh setup resets the TOTP failure counter (R2-M8): without
+  // this, a user who burned all 5 enable attempts stayed locked out
+  // of enrolment until a password reset.
+  const saved = await updateUser(user.id, {
+    totp_pending_enc: pendingEnc,
+    totp_failed_attempts: 0,
+  });
   if (!saved) {
     return jsonError("Could not start setup. Please try again.", 503);
   }

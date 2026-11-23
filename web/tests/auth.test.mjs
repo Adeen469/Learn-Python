@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { readFileSync } from "node:fs";
 import { webcrypto } from "node:crypto";
 
 // Inline pure helpers for zero-build node --test verification
@@ -225,6 +226,12 @@ function sanitizePictureUrl(picture) {
   try {
     const url = new URL(picture);
     if (url.protocol !== "https:") return null;
+    if (
+      url.hostname !== "lh3.googleusercontent.com" &&
+      !url.hostname.endsWith(".googleusercontent.com")
+    ) {
+      return null;
+    }
     return picture;
   } catch {
     return null;
@@ -551,15 +558,35 @@ test("request origin uses the public host, never the server bind address", () =>
   assert.equal(getRequestOrigin(badReq), null);
 });
 
-test("picture URLs must be https", () => {
+test("picture URLs must be https on a googleusercontent host (R2-L20)", () => {
   assert.equal(
     sanitizePictureUrl("https://lh3.googleusercontent.com/a-/photo"),
     "https://lh3.googleusercontent.com/a-/photo"
   );
+  assert.equal(
+    sanitizePictureUrl("https://yt3.googleusercontent.com/avatar"),
+    "https://yt3.googleusercontent.com/avatar"
+  );
+  // Any other host is rejected, even over https — without the host
+  // check a profile URL could point every page load at an
+  // attacker-chosen host.
+  assert.equal(sanitizePictureUrl("https://evil.example.com/x.png"), null);
+  assert.equal(
+    sanitizePictureUrl("https://lh3.googleusercontent.com.evil.example.com/x.png"),
+    null
+  );
+  assert.equal(sanitizePictureUrl("https://googleusercontent.com.evil.com/x.png"), null);
+  assert.equal(sanitizePictureUrl("http://lh3.googleusercontent.com/x.png"), null);
   assert.equal(sanitizePictureUrl("http://evil.example.com/x.png"), null);
   assert.equal(sanitizePictureUrl("javascript:alert(1)"), null);
   assert.equal(sanitizePictureUrl("not a url"), null);
   assert.equal(sanitizePictureUrl(null), null);
+  const auth = readFileSync(
+    new URL("../src/lib/auth.ts", import.meta.url),
+    "utf8"
+  );
+  assert.ok(auth.includes("lh3.googleusercontent.com"), "auth.ts must enforce the picture host");
+  assert.ok(auth.includes(".googleusercontent.com"), "auth.ts must allow the googleusercontent suffix");
 });
 
 test("the Google authorization URL carries every required parameter", () => {

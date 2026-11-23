@@ -1,4 +1,5 @@
 import { decryptTotpSecret, encryptTotpSecret } from "./auth-email";
+import { normalizeEmail } from "./auth-store";
 import { getSupabaseAdmin } from "./supabase-server";
 
 // Server-held BYOK provider keys (migration 009).
@@ -46,12 +47,19 @@ export function isValidByokProvider(value: unknown): value is ByokProvider {
  * The key that encrypts stored BYOK keys: the dedicated
  * BYOK_ENCRYPTION_KEY, or null when it is unset — in which case
  * BYOK storage is unavailable (fail closed), never silently
- * encrypted under SESSION_SECRET. (The key is SHA-256-hashed
- * inside the encrypt/decrypt helpers, so any non-empty value gives
- * a full 256-bit key.)
+ * encrypted under SESSION_SECRET.
+ *
+ * Fail closed (R2-L11, same rule as TOTP L3): a dedicated key
+ * shorter than 32 chars returns null. SHA-256-hashing the secret
+ * inside the encrypt/decrypt helpers makes a full 256-bit key, but
+ * it adds no entropy — a short operator-set secret is still
+ * brute-forceable offline from a ciphertext dump.
  */
 export function getByokEncryptionSecret(): string | null {
-  return process.env.BYOK_ENCRYPTION_KEY ?? null;
+  const dedicated = process.env.BYOK_ENCRYPTION_KEY;
+  if (!dedicated) return null;
+  if (dedicated.length < 32) return null;
+  return dedicated;
 }
 
 export interface StoredByokKey {
@@ -79,7 +87,7 @@ export async function saveByokKey(
   if (!secret) return false;
   const { error } = await supabase.from("lp_byok_keys").upsert(
     {
-      user_email: email,
+      user_email: normalizeEmail(email),
       provider,
       key_encrypted: encryptTotpSecret(secret, key),
       base_url: baseUrl,
@@ -102,7 +110,7 @@ export async function getByokKey(
   const { data, error } = await supabase
     .from("lp_byok_keys")
     .select("key_encrypted,base_url,model")
-    .eq("user_email", email)
+    .eq("user_email", normalizeEmail(email))
     .eq("provider", provider)
     .maybeSingle();
   if (error || !data) return null;
@@ -122,7 +130,7 @@ export async function listByokKeys(email: string): Promise<StoredByokMeta[]> {
   const { data, error } = await supabase
     .from("lp_byok_keys")
     .select("provider,base_url,model")
-    .eq("user_email", email)
+    .eq("user_email", normalizeEmail(email))
     .order("provider");
   if (error || !data) return [];
   return (data as Array<{ provider: string; base_url: string | null; model: string | null }>)
@@ -143,7 +151,7 @@ export async function deleteByokKey(
   const { error } = await supabase
     .from("lp_byok_keys")
     .delete()
-    .eq("user_email", email)
+    .eq("user_email", normalizeEmail(email))
     .eq("provider", provider);
   return !error;
 }

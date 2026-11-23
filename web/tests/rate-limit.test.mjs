@@ -63,8 +63,18 @@ function getClientIp(req) {
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean);
-      const last = parts[parts.length - 1];
-      if (last) return last;
+      // R2-L15: first entry that is NOT a known proxy hop (walked
+      // from the right, so a client-prepended fake never wins).
+      // With no hops configured the last entry stands.
+      const hops = new Set(
+        (process.env.TRUSTED_PROXY_HOPS ?? "")
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      );
+      for (let i = parts.length - 1; i >= 0; i--) {
+        if (!hops.has(parts[i])) return parts[i];
+      }
     }
   }
   if (req.ip) return req.ip;
@@ -75,7 +85,7 @@ function getClientIp(req) {
 // process.env exactly like the source, and tests share one process.
 function withTrustEnv(vars, fn) {
   const prev = {};
-  for (const k of ["VERCEL", "TRUST_PROXY_HEADERS"]) {
+  for (const k of ["VERCEL", "TRUST_PROXY_HEADERS", "TRUSTED_PROXY_HOPS"]) {
     prev[k] = process.env[k];
     if (vars[k] === undefined) delete process.env[k];
     else process.env[k] = vars[k];
@@ -83,7 +93,7 @@ function withTrustEnv(vars, fn) {
   try {
     return fn();
   } finally {
-    for (const k of ["VERCEL", "TRUST_PROXY_HEADERS"]) {
+    for (const k of ["VERCEL", "TRUST_PROXY_HEADERS", "TRUSTED_PROXY_HOPS"]) {
       if (prev[k] === undefined) delete process.env[k];
       else process.env[k] = prev[k];
     }
@@ -136,7 +146,7 @@ test("different IPs are independent", async () => {
   assert.equal((await checkRateLimit("video:5.6.7.8", 2, 60_000, 4_000_003)).allowed, true);
 });
 
-test("getClientIp trusts x-real-ip, then the last forwarded entry (trusted proxy)", () => {
+test("getClientIp trusts x-real-ip, then the first non-hop forwarded entry (trusted proxy)", () => {
   const headers = (xff, realIp) => ({
     get: (name) =>
       name === "x-forwarded-for" ? xff : name === "x-real-ip" ? realIp : null,
@@ -148,15 +158,38 @@ test("getClientIp trusts x-real-ip, then the last forwarded entry (trusted proxy
       getClientIp({ headers: headers("203.0.113.7, 198.51.100.2", "198.51.100.2"), ip: "10.0.0.1" }),
       "198.51.100.2"
     );
-    // Without it, the LAST forwarded entry is the one Vercel's proxy
-    // appended — the first entry is client-controlled and must never
-    // be trusted (an attacker could rotate fake IPs to dodge limits).
+    // Without it, with no known hops configured, the LAST forwarded
+    // entry is the one the proxy appended — the first entry is
+    // client-controlled and must never be trusted on its own (an
+    // attacker could rotate fake IPs to dodge limits).
     assert.equal(
       getClientIp({ headers: headers("203.0.113.7, 198.51.100.2", null), ip: "10.0.0.1" }),
       "198.51.100.2"
     );
     assert.equal(getClientIp({ headers: headers(null, null), ip: "10.0.0.1" }), "10.0.0.1");
     assert.equal(getClientIp({ headers: headers(null, null) }), "unknown");
+  });
+});
+
+test("R2-L15: getClientIp skips known proxy hops to reach the client entry", () => {
+  const headers = (xff, realIp) => ({
+    get: (name) =>
+      name === "x-forwarded-for" ? xff : name === "x-real-ip" ? realIp : null,
+  });
+  withTrustEnv({ VERCEL: "1", TRUSTED_PROXY_HOPS: "198.51.100.2" }, () => {
+    // Chain: client 203.0.113.7, then the known hop 198.51.100.2
+    // appended by the edge — the client entry wins, not the hop.
+    assert.equal(
+      getClientIp({ headers: headers("203.0.113.7, 198.51.100.2", null), ip: "10.0.0.1" }),
+      "203.0.113.7"
+    );
+    // A client-prepended fake left of the real client never wins:
+    // the walk from the right stops at the first non-hop entry,
+    // which is the TCP peer the hop saw.
+    assert.equal(
+      getClientIp({ headers: headers("192.0.2.99, 203.0.113.7, 198.51.100.2", null), ip: "10.0.0.1" }),
+      "203.0.113.7"
+    );
   });
 });
 
@@ -207,4 +240,19 @@ test("the shared Redis limiter is wired in the source", () => {
   assert.ok(src.includes("trustProxyHeaders"), "header trust must be gated");
   assert.ok(src.includes('process.env.VERCEL === "1"'), "Vercel must mark a trusted proxy");
   assert.ok(src.includes("TRUST_PROXY_HEADERS"), "an explicit opt-in must exist");
+  // R2-L15: XFF entries are validated against known proxy hops.
+  assert.ok(src.includes("TRUSTED_PROXY_HOPS"), "known proxy hops must be configurable");
+});
+
+test("R2-L25: a missing Redis config is logged in production, once", () => {
+  const src = readFileSync(
+    path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "src", "lib", "rate-limit.ts"),
+    "utf8"
+  );
+  assert.ok(src.includes("redis_not_configured"), "the missing-Redis event must be logged");
+  assert.ok(src.includes("redisMissingLogged"), "the log must fire at most once per process");
+  assert.ok(
+    src.includes('process.env.NODE_ENV === "production"'),
+    "the missing-Redis log is a production signal, not dev noise"
+  );
 });

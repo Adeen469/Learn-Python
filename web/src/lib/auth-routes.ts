@@ -33,6 +33,25 @@ export function jsonError(message: string, status: number): NextResponse {
   return NextResponse.json({ error: message }, { status });
 }
 
+/**
+ * R3-L1: auth state must never sit in a shared cache. Stamp
+ * `Cache-Control: private, no-store` on an auth GET response
+ * (me, 2fa/pending, 2fa/status, and every other auth GET).
+ */
+export function noStore(res: NextResponse): NextResponse {
+  res.headers.set("Cache-Control", "private, no-store");
+  return res;
+}
+
+/**
+ * R3-L3: fixed delay for the no-account path of forgot / send-otp.
+ * A real account pays a DB count + store + SMTP; without this the
+ * response time alone reveals whether the email exists.
+ */
+export function sameCostDelay(ms = 300): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export function serviceUnavailable(endpoint: string): NextResponse {
   console.error(JSON.stringify({ event: "auth_misconfigured", endpoint }));
   return jsonError("Sign-in is not configured yet.", 503);
@@ -41,17 +60,26 @@ export function serviceUnavailable(endpoint: string): NextResponse {
 /**
  * Per-IP sliding-window limit. Returns a 429 response when exceeded,
  * a 503 when the limiter itself fails, or null when the request may
- * proceed.
+ * proceed. `failClosed` (Phase 3, auth routes only): when Redis IS
+ * configured but its call errors, checkRateLimit throws and this
+ * answers 503 instead of falling back to per-instance memory.
  */
 export async function rateLimit(
   req: NextRequest,
   key: string,
   limit: number,
-  windowMs: number
+  windowMs: number,
+  opts: { failClosed?: boolean } = {}
 ): Promise<NextResponse | null> {
   let result;
   try {
-    result = await checkRateLimit(`${key}:${getClientIp(req)}`, limit, windowMs);
+    result = await checkRateLimit(
+      `${key}:${getClientIp(req)}`,
+      limit,
+      windowMs,
+      Date.now(),
+      opts
+    );
   } catch {
     return jsonError("Sign-in is temporarily unavailable.", 503);
   }
@@ -209,9 +237,13 @@ export async function getSessionUserRaw(
   req: NextRequest,
   secret: string
 ): Promise<SessionUser | null> {
-  const token =
-    req.cookies.get(SESSION_COOKIE)?.value ??
-    req.cookies.get(LEGACY_SESSION_COOKIE)?.value;
+  // No legacy fallback (R2-L7): the pre-rename `lp_session` cookie is
+  // no longer honoured. Reading it let a sibling subdomain toss the
+  // attacker's own valid session onto a signed-out victim's browser
+  // and sign them in as the attacker — the exact attack the `__Host-`
+  // rename was meant to close. Clearing the legacy cookie on sign-out
+  // (clearSessionCookies) stays — only reading it is gone.
+  const token = req.cookies.get(SESSION_COOKIE)?.value;
   if (!token) return null;
   const verified = await verifySession(secret, token);
   if (!verified.ok) return null;
@@ -242,15 +274,17 @@ export function clearSessionCookies(
     );
   }
   clearPending2fa(res, isSecure);
+  // R3-L7: __Host- cookies live at Path=/ now, so the clear must
+  // use Path=/ too — a clear at the old callback path would miss.
   res.cookies.set(
     OAUTH_STATE_COOKIE,
     "",
-    clearCookieOptions(isSecure, "/api/auth/callback/google")
+    clearCookieOptions(isSecure, "/")
   );
   res.cookies.set(
     OAUTH_VERIFIER_COOKIE,
     "",
-    clearCookieOptions(isSecure, "/api/auth/callback/google")
+    clearCookieOptions(isSecure, "/")
   );
 }
 
@@ -293,11 +327,12 @@ export function clearStaleSessionCookies(
 export async function rateLimitKey(
   key: string,
   limit: number,
-  windowMs: number
+  windowMs: number,
+  opts: { failClosed?: boolean } = {}
 ): Promise<NextResponse | null> {
   let result;
   try {
-    result = await checkRateLimit(key, limit, windowMs);
+    result = await checkRateLimit(key, limit, windowMs, Date.now(), opts);
   } catch {
     return jsonError("Sign-in is temporarily unavailable.", 503);
   }
@@ -313,10 +348,52 @@ export async function rateLimitKey(
   return null;
 }
 
+/**
+ * Largest JSON body any auth route accepts (R2-M13). Auth bodies are
+ * a few hundred bytes (email, password, a 6-digit code); 64 KiB is
+ * already generous. Bodies over this are rejected before parsing,
+ * so a 4.5 MB JSON post cannot burn function CPU/memory on parse.
+ */
+export const MAX_AUTH_JSON_BYTES = 64 * 1024;
+
 /** Parse a JSON body, or null when it is not valid JSON / not an object. */
 export async function readJsonBody(
-  req: NextRequest
+  req: NextRequest,
+  maxBytes: number = MAX_AUTH_JSON_BYTES
 ): Promise<Record<string, unknown> | null> {
+  // Content-Length pre-check: refuse oversized bodies before parsing.
+  const contentLength = req.headers.get("content-length");
+  if (contentLength !== null) {
+    const length = Number(contentLength);
+    if (!Number.isFinite(length) || length < 0 || length > maxBytes) {
+      return null;
+    }
+  } else if (req.body) {
+    // No Content-Length (chunked body): stream with a byte cap instead
+    // of trusting the platform cap — `await req.json()` would parse
+    // an unbounded chunked body.
+    try {
+      const reader = req.body.getReader();
+      const chunks: Uint8Array[] = [];
+      let total = 0;
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        total += value.byteLength;
+        if (total > maxBytes) {
+          await reader.cancel();
+          return null;
+        }
+        chunks.push(value);
+      }
+      const text = Buffer.concat(chunks).toString("utf8");
+      const parsed: unknown = JSON.parse(text);
+      if (typeof parsed !== "object" || parsed === null) return null;
+      return parsed as Record<string, unknown>;
+    } catch {
+      return null;
+    }
+  }
   let body: unknown;
   try {
     body = await req.json();
@@ -358,14 +435,45 @@ export type IssueOtpResult =
       retryAfterSeconds?: number;
     };
 
+// Per-email serialisation (R2-L3): the 5/hour cap and the 60s
+// cooldown were count-then-send, so a parallel burst all read
+// count 4 and all sent. Work for one email now runs one at a time
+// per instance — each unit sees the previous unit's stored row.
+// Cross-instance races remain (same as every other in-memory limit
+// while Redis is unset). Exported as enqueuePerEmail so
+// forgot-password (R3-L4) can serialise its count-then-store the
+// same way; enqueueOtpSend below is the same chain under its old
+// name (the OTP path's call site).
+const otpSendChains = new Map<string, Promise<unknown>>();
+
+export function enqueuePerEmail<T>(
+  email: string,
+  fn: () => Promise<T>
+): Promise<T> {
+  const prev = otpSendChains.get(email) ?? Promise.resolve();
+  const next = prev.catch(() => {}).then(fn);
+  otpSendChains.set(email, next);
+  next.catch(() => {}).finally(() => {
+    if (otpSendChains.get(email) === next) otpSendChains.delete(email);
+  });
+  return next;
+}
+
+function enqueueOtpSend<T>(email: string, fn: () => Promise<T>): Promise<T> {
+  return enqueuePerEmail(email, fn);
+}
+
 /**
  * Generate, store (hashed), and email a 6-digit code. Enforces the
  * 60-second resend cooldown and the 5-per-hour cap PER EMAIL across
- * all purposes (L6) — a signup code, a sign-in code, and a 2fa code
- * share one budget, so the cap cannot be tripled by switching
- * purpose. The caller decides whether a code should be sent at all
- * (e.g. only for an existing account) — this function only does the
- * sending.
+ * signup + signin (L6) — a signup code, a sign-in code, and a 2fa
+ * code used to share one budget, so the cap could be tripled by
+ * switching purpose. The `2fa` purpose now has its OWN 5/hour
+ * budget and cooldown (R2-L8): anyone could otherwise burn the
+ * victim's 2FA email-code quota with 5 signin codes and deny the
+ * step-up fallback for the rest of the hour. The caller decides
+ * whether a code should be sent at all (e.g. only for an existing
+ * account) — this function only does the sending.
  */
 export async function issueOtpCode(
   email: string,
@@ -374,40 +482,72 @@ export async function issueOtpCode(
   const normalized = normalizeEmail(email);
   const nowMs = Date.now();
 
-  const recent = await countRecentOtps(
-    normalized,
-    null,
-    nowMs - 60 * 60 * 1000
-  );
-  if (recent === null) return { ok: false, reason: "failed" };
-  if (recent >= OTP_MAX_SENDS_PER_HOUR) {
-    return { ok: false, reason: "hourly_cap", retryAfterSeconds: 3600 };
-  }
+  // Cap + cooldown + store run serialised per email (R2-L3), so a
+  // parallel burst cannot overshoot the cap. The mail send happens
+  // after, outside the lock — the stored row is what the next send
+  // in line counts.
+  const prepared = await enqueueOtpSend(normalized, async () => {
+    if (purpose === "2fa") {
+      const recent2fa = await countRecentOtps(
+        normalized,
+        "2fa",
+        nowMs - 60 * 60 * 1000
+      );
+      if (recent2fa === null) return { ok: false as const, reason: "failed" as const };
+      if (recent2fa >= OTP_MAX_SENDS_PER_HOUR) {
+        return { ok: false as const, reason: "hourly_cap" as const, retryAfterSeconds: 3600 };
+      }
+      const latest2fa = await getLatestOtp(normalized, "2fa");
+      if (latest2fa) {
+        const createdMs = new Date(latest2fa.created_at).getTime();
+        const waitMs = OTP_RESEND_COOLDOWN_MS - (nowMs - createdMs);
+        if (waitMs > 0) {
+          return {
+            ok: false as const,
+            reason: "cooldown" as const,
+            retryAfterSeconds: Math.ceil(waitMs / 1000),
+          };
+        }
+      }
+    } else {
+      const recent = await countRecentOtps(
+        normalized,
+        null,
+        nowMs - 60 * 60 * 1000
+      );
+      if (recent === null) return { ok: false as const, reason: "failed" as const };
+      if (recent >= OTP_MAX_SENDS_PER_HOUR) {
+        return { ok: false as const, reason: "hourly_cap" as const, retryAfterSeconds: 3600 };
+      }
 
-  const latest = await getLatestOtp(normalized, null);
-  if (latest) {
-    const createdMs = new Date(latest.created_at).getTime();
-    const waitMs = OTP_RESEND_COOLDOWN_MS - (nowMs - createdMs);
-    if (waitMs > 0) {
-      return {
-        ok: false,
-        reason: "cooldown",
-        retryAfterSeconds: Math.ceil(waitMs / 1000),
-      };
+      const latest = await getLatestOtp(normalized, null);
+      if (latest) {
+        const createdMs = new Date(latest.created_at).getTime();
+        const waitMs = OTP_RESEND_COOLDOWN_MS - (nowMs - createdMs);
+        if (waitMs > 0) {
+          return {
+            ok: false as const,
+            reason: "cooldown" as const,
+            retryAfterSeconds: Math.ceil(waitMs / 1000),
+          };
+        }
+      }
     }
-  }
 
-  const code = generateOtpCode();
-  const stored = await storeOtp({
-    email: normalized,
-    purpose,
-    codeHash: sha256Hex(code),
-    expiresAtMs: nowMs + OTP_EXPIRY_MS,
+    const code = generateOtpCode();
+    const stored = await storeOtp({
+      email: normalized,
+      purpose,
+      codeHash: sha256Hex(code),
+      expiresAtMs: nowMs + OTP_EXPIRY_MS,
+    });
+    if (!stored) return { ok: false as const, reason: "failed" as const };
+    return { ok: true as const, code };
   });
-  if (!stored) return { ok: false, reason: "failed" };
+  if (!prepared.ok) return prepared;
 
   const message =
-    purpose === "2fa" ? twoFaEmail(code) : otpEmail(code, purpose);
+    purpose === "2fa" ? twoFaEmail(prepared.code) : otpEmail(prepared.code, purpose);
   const sent = await sendMail({ to: normalized, ...message });
   if (!sent.ok) {
     return { ok: false, reason: sent.reason };

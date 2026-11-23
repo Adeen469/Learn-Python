@@ -175,14 +175,16 @@ test("selecting a video does NOT auto-save it offline", () => {
   assert.ok(src.includes("onClick={() => void handleSaveOffline()}"));
 });
 
-test("settings + courses pages are warmed for offline", () => {
+test("courses pages are warmed for offline, settings is NOT", () => {
   const src = downloads();
-  // The playlist page fell back to /offline: client-side navigation
-  // never caches a page's HTML, and the lessons warmer only covered
-  // /learn/*. The app pages warm the same way (HTML + chunks).
+  // /settings renders the signed-in user's streak/progress, so a
+  // cached copy would serve the previous user's data offline on a
+  // shared device (R2-M16) — the warmer must never save it.
+  const warmFn = src.slice(src.indexOf("export async function warmAppPages"));
+  assert.ok(!warmFn.includes('"/settings"'), "warmer must not list /settings");
+  assert.ok(!warmFn.includes("'/settings'"), "warmer must not list /settings");
   assert.ok(src.includes("warmAppPages"));
   assert.ok(src.includes("maybeWarmAppPages"));
-  assert.ok(src.includes('"/settings"'));
   assert.ok(src.includes('"/courses"'));
   // Playlist + one-shot pages come from the catalog, loaded on
   // demand so the shared layout chunk stays lean.
@@ -304,7 +306,7 @@ test("first-sign-in popup asks a real question: Yes and No are equal choices", (
   );
   // A real question with two clear choices, side by side, same size.
   assert.ok(src.includes("t.offline.askTitle"));
-  assert.ok(src.includes("t.offline.askBody(ALL_LEARN_TOPICS.length)"));
+  assert.ok(src.includes("t.offline.askBody(LEARN_TOPIC_COUNT)"));
   assert.ok(src.includes("t.offline.askYes"));
   assert.ok(src.includes("t.offline.askNo"));
   assert.ok(
@@ -455,7 +457,7 @@ test("warm progress counts what is really cached, never double-counts", () => {
   // (the blocklist), so a delete is never silently undone.
   assert.ok(src.includes("const deleted = new Set(getDeletedLessons())"));
   assert.ok(
-    src.includes("(_, i) => !cached[i] && !deleted.has(ALL_LEARN_TOPICS[i].slug)"),
+    src.includes("(_, i) => !cached[i] && !deleted.has(LEARN_TOPIC_SLUGS[i])"),
   );
   assert.ok(
     src.includes("for (let i = 0; i < pending.length; i += WARM_BATCH)"),
@@ -481,13 +483,17 @@ test("Settings toggle still starts a download after a No (explicit action)", () 
   );
 });
 
-test("saving a page offline also caches its static chunks", () => {
+test("saving a page offline preserves the original response headers", () => {
   const src = downloads();
   // One helper, used by the warmer and the breadcrumb button.
   assert.ok(src.includes("export async function savePageOffline"));
-  // The page HTML goes into the pages cache...
-  assert.ok(src.includes("new Response(html"));
-  assert.ok(src.includes('"Content-Type": "text/html'));
+  // The page HTML goes into the pages cache AS FETCHED (res.clone):
+  // rebuilding a Response dropped CSP, X-Frame-Options and HSTS, so
+  // a cached page served offline ran with no CSP at all (R2-M16).
+  assert.ok(src.includes("const toCache = res.clone();"));
+  assert.ok(src.includes("await pages.put(url, toCache);"));
+  assert.ok(!src.includes("new Response(html"), "must not rebuild the Response");
+  assert.ok(!src.includes('"Content-Type": "text/html'), "must not set headers by hand");
   // ...and every /_next/static/ URL it references goes into the
   // static cache (deduplicated — the same chunk appears many times
   // in one page).
@@ -499,6 +505,13 @@ test("saving a page offline also caches its static chunks", () => {
   // and a failed asset never fails the page save.
   assert.ok(src.includes("statics.match(a)"));
   assert.ok(src.includes("statics.add(a).catch(() => undefined)"));
+  // Authed / session-scoped pages are never saved, even when asked
+  // directly — the warmer and the breadcrumb button share this gate.
+  assert.ok(src.includes("export function isOfflineCacheableUrl"));
+  assert.ok(src.includes("if (!isOfflineCacheableUrl(url)) return false;"));
+  for (const p of ['"/auth/"', '"/github"', '"/editor"', '"/settings"']) {
+    assert.ok(src.includes(p), `guard must list ${p}`);
+  }
 });
 
 test("service worker precache caches each page's static chunks", () => {
@@ -593,7 +606,7 @@ test("deleted lessons are not re-warmed until the user saves them again", () => 
   // The warmer skips blocklisted slugs even when they are missing
   // from the cache — otherwise a delete would silently undo itself.
   assert.ok(src.includes("const deleted = new Set(getDeletedLessons())"));
-  assert.ok(src.includes("!deleted.has(ALL_LEARN_TOPICS[i].slug)"));
+  assert.ok(src.includes("!deleted.has(LEARN_TOPIC_SLUGS[i])"));
   // Deleting a lesson blocklists it; re-saving it from its lesson
   // page un-blocks it.
   assert.ok(src.includes("addDeletedLesson(slug)"));
@@ -612,7 +625,7 @@ test("bulk delete stops the auto-warmer, confirms twice, and can be undone", () 
   assert.ok(src.includes("export async function clearAllSavedLessons"));
   assert.ok(src.includes('markDownloadOfferAnswered("no")'));
   assert.ok(
-    src.includes("writeDeletedLessons(ALL_LEARN_TOPICS.map((t) => t.slug))"),
+    src.includes("writeDeletedLessons([...LEARN_TOPIC_SLUGS])"),
   );
   // Downloading again un-blocks everything, answers Yes, and runs
   // the explicit start (the same path the Wi-Fi toggle uses).
@@ -643,6 +656,101 @@ test("bulk delete stops the auto-warmer, confirms twice, and can be undone", () 
   assert.ok(settings.includes("Loader2"));
   assert.ok(settings.includes("disabled={reDownloading}"));
   assert.ok(settings.includes("t.offline.lessonsDownloading(warmPct)"));
+});
+
+test("service worker never caches authed pages, even when visited", () => {
+  const src = sw();
+  // /auth/*, /github, /editor, /settings HTML must never land in
+  // the pages cache (R2-M16): a cached copy served offline would
+  // show the previous user's data on a shared device.
+  assert.ok(src.includes("isNoCacheNav"));
+  for (const p of [
+    'startsWith("/auth/")',
+    '"/github"',
+    '"/editor"',
+    '"/settings"',
+  ]) {
+    assert.ok(src.includes(p), `navigate guard must list ${p}`);
+  }
+  // The guard gates BOTH directions: no cache.put on a fresh fetch,
+  // and no serving a copy an older worker cached — offline it falls
+  // back to /offline instead.
+  const nav = src.slice(src.indexOf("async function navigate"));
+  assert.ok(nav.includes("if (res.ok && !noCache)"));
+  assert.ok(nav.includes("if (!noCache)"));
+  assert.ok(nav.includes('caches.match("/offline")'));
+});
+
+test("sign-out purges the previous user's offline footprint", () => {
+  const auth = readFileSync(
+    join(web, "src", "lib", "auth-client.ts"),
+    "utf8",
+  );
+  // signOut wires the purge in (dynamic import: offline-downloads
+  // imports auth-client, so a static import would be a cycle).
+  assert.ok(auth.includes("clearOfflineUserData"));
+  assert.ok(auth.includes('await import('));
+  assert.ok(auth.includes('"@/lib/offline-downloads"'));
+  const lib = downloads();
+  assert.ok(lib.includes("export async function clearOfflineUserData"));
+  // The purge drops all three user-data caches — pages, data AND
+  // the videos cache (the SW itself never touches the videos cache;
+  // the purge lives in the page, not the worker).
+  assert.ok(lib.includes("caches.delete(PAGES_CACHE)"));
+  assert.ok(lib.includes("caches.delete(DATA_CACHE)"));
+  assert.ok(lib.includes("caches.delete(VIDEO_CACHE)"));
+  // ...and clears the user-data keys: every lp_ai_* key plus the
+  // saved-video index + warm state. Scoped to the purge-list slice —
+  // a whole-file check would also match the explanatory comment that
+  // names the keys the purge deliberately KEEPS.
+  const purgeList = lib.slice(
+    lib.indexOf("export const OFFLINE_USER_DATA_KEYS"),
+    lib.indexOf("];", lib.indexOf("export const OFFLINE_USER_DATA_KEYS")),
+  );
+  for (const k of [
+    '"lp_ai_byok"',
+    '"lp_ai_chats"',
+    '"lp_ai_current_chat"',
+    '"lp_ai_active_skills"',
+    '"lp_ai_custom_skills"',
+    '"lp_ai_selector_models"',
+    "SAVED_VIDEOS_KEY",
+    "WARM_PROGRESS_KEY",
+    "DELETED_LESSONS_KEY",
+    "DOWNLOAD_OFFER_KEY",
+  ]) {
+    assert.ok(purgeList.includes(k), `purge must clear ${k}`);
+  }
+  // Progress / streak are local-only user work with no server copy,
+  // so the purge deliberately KEEPS them (R3-M3 adjudication) — they
+  // must not be in the purge list.
+  for (const k of [
+    '"lp_completed_lessons"',
+    '"lp_learn_completed"',
+    '"lp_last_visited"',
+    '"lp_streak_restores"',
+  ]) {
+    assert.ok(!purgeList.includes(k), `purge must keep ${k} (local-only user work)`);
+  }
+  // Account-tied, re-derivable keys the fixed list cannot name are
+  // purged by prefix scan instead (R3-M3).
+  assert.ok(lib.includes('PURGE_KEY_PREFIXES = ["lp_open_repo_", "lp_github_", "lp_coverage_"]'), "purge must scan the open-repo, github and coverage prefixes");
+  assert.ok(lib.includes("purgePrefixedUserData()"), "clearOfflineUserData must run the prefix scan");
+  // Device preferences stay: theme, language, volume and the
+  // Wi-Fi-only toggle are not user data.
+  const purge = lib.slice(lib.indexOf("export const OFFLINE_USER_DATA_KEYS"));
+  assert.ok(!purge.includes('"lp_theme"'), "theme must survive sign-out");
+  assert.ok(!purge.includes('"lp_language"'), "language must survive sign-out");
+  assert.ok(!purge.includes("WIFI_ONLY_KEY"), "Wi-Fi toggle must survive sign-out");
+  // Best-effort: the purge never throws, so sign-out still proceeds.
+  assert.ok(lib.includes("export async function clearOfflineUserData"));
+  assert.ok(
+    purge.includes("} catch {"),
+    "cache deletes must be guarded",
+  );
+  // The data cache name agrees with sw.js, like pages/static do.
+  assert.ok(lib.includes('"lp-sw-v1-data"'));
+  assert.ok(sw().includes("lp-sw-${VERSION}-data"));
 });
 
 test("offline hints: Settings hard-refresh tip and an offline-only banner on every page", () => {

@@ -31,9 +31,10 @@ import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import {
   claimUsedToken,
   createGoogleUser,
-  getUserByEmail,
+  getUserByEmailResult,
+  incrementSessionVersion,
 } from "@/lib/auth-store";
-import { setPending2fa } from "@/lib/auth-routes";
+import { setPending2fa, clearPending2fa, noStore } from "@/lib/auth-routes";
 import { sha256Hex } from "@/lib/auth-email";
 
 // Google OAuth callback. Validates the state cookie (CSRF), exchanges the
@@ -67,20 +68,30 @@ function fetchWithTimeout(url: string, init: RequestInit): Promise<Response> {
 export async function GET(req: NextRequest) {
   let limit;
   try {
-    limit = await checkRateLimit(`auth-callback:${getClientIp(req)}`, 20, 60_000);
+    limit = await checkRateLimit(
+      `auth-callback:${getClientIp(req)}`,
+      20,
+      60_000,
+      Date.now(),
+      { failClosed: true }
+    );
   } catch {
-    return NextResponse.json(
-      { error: "Sign-in is temporarily unavailable." },
-      { status: 503 }
+    return noStore(
+      NextResponse.json(
+        { error: "Sign-in is temporarily unavailable." },
+        { status: 503 }
+      )
     );
   }
   if (!limit.allowed) {
-    return NextResponse.json(
-      { error: "Too many requests — please slow down and retry shortly." },
-      {
-        status: 429,
-        headers: { "Retry-After": String(limit.retryAfterSeconds) },
-      }
+    return noStore(
+      NextResponse.json(
+        { error: "Too many requests — please slow down and retry shortly." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(limit.retryAfterSeconds) },
+        }
+      )
     );
   }
 
@@ -91,29 +102,34 @@ export async function GET(req: NextRequest) {
     console.error(
       JSON.stringify({ event: "auth_misconfigured", endpoint: "callback" })
     );
-    return NextResponse.json(
-      { error: "Sign-in is not configured yet." },
-      { status: 503 }
+    return noStore(
+      NextResponse.json(
+        { error: "Sign-in is not configured yet." },
+        { status: 503 }
+      )
     );
   }
   const redirectUri = getRedirectUri(origin);
   // Secure comes from the deployment, never from request headers.
   const isSecure = isSecureDeployment();
 
-  // The one-time OAuth cookies are cleared on every exit path below that
-  // passes state validation (single-use by design).
+  // The one-time OAuth cookies are cleared on every exit path below
+  // (single-use by design) — including the 400 state-mismatch exits
+  // (R3-L8), which used to leave a stale state/verifier behind.
+  // R3-L7: the clear uses Path=/, matching the __Host- cookie.
+  // R3-L1: auth responses are never cached.
   const clearOauthCookies = (res: NextResponse) => {
     res.cookies.set(
       OAUTH_STATE_COOKIE,
       "",
-      clearCookieOptions(isSecure, "/api/auth/callback/google")
+      clearCookieOptions(isSecure, "/")
     );
     res.cookies.set(
       OAUTH_VERIFIER_COOKIE,
       "",
-      clearCookieOptions(isSecure, "/api/auth/callback/google")
+      clearCookieOptions(isSecure, "/")
     );
-    return res;
+    return noStore(res);
   };
 
   const params = req.nextUrl.searchParams;
@@ -150,9 +166,11 @@ export async function GET(req: NextRequest) {
       console.log(
         JSON.stringify({ event: "auth_state_mismatch", endpoint: "callback" })
       );
-      return NextResponse.json(
-        { error: "Invalid sign-in response." },
-        { status: 400 }
+      return clearOauthCookies(
+        NextResponse.json(
+          { error: "Invalid sign-in response." },
+          { status: 400 }
+        )
       );
     }
     // Single-use state (migration 005): the signed state travels in
@@ -163,9 +181,11 @@ export async function GET(req: NextRequest) {
       console.log(
         JSON.stringify({ event: "auth_state_mismatch", endpoint: "callback" })
       );
-      return NextResponse.json(
-        { error: "Invalid sign-in response." },
-        { status: 400 }
+      return clearOauthCookies(
+        NextResponse.json(
+          { error: "Invalid sign-in response." },
+          { status: 400 }
+        )
       );
     }
     appVerifier = verified.payload.verifier;
@@ -175,9 +195,11 @@ export async function GET(req: NextRequest) {
     console.log(
       JSON.stringify({ event: "auth_bad_params", endpoint: "callback" })
     );
-    return NextResponse.json(
-      { error: "Invalid sign-in response." },
-      { status: 400 }
+    return clearOauthCookies(
+      NextResponse.json(
+        { error: "Invalid sign-in response." },
+        { status: 400 }
+      )
     );
   }
 
@@ -196,9 +218,11 @@ export async function GET(req: NextRequest) {
     console.log(
       JSON.stringify({ event: "auth_state_mismatch", endpoint: "callback" })
     );
-    return NextResponse.json(
-      { error: "Invalid sign-in response." },
-      { status: 400 }
+    return clearOauthCookies(
+      NextResponse.json(
+        { error: "Invalid sign-in response." },
+        { status: 400 }
+      )
     );
   }
 
@@ -327,11 +351,53 @@ export async function GET(req: NextRequest) {
   // too. First Google sign-in creates the row (H3) — without it,
   // logout has nothing to revoke for a pure Google user and a
   // stolen session stays valid for 30 days after logout.
-  let row = await getUserByEmail(email);
+  //
+  // Fail closed (R2-M3): a database error is NOT "no row". If the
+  // row cannot be read, or still cannot be created, sign-in stops
+  // here with a 503 and mints nothing — a DB blip must never mint
+  // an unrevocable 30-day session with sv 0 and no row behind it.
+  const lookup = await getUserByEmailResult(email);
+  if (lookup.status === "error") {
+    return clearOauthCookies(
+      NextResponse.json(
+        { error: "Could not complete sign-in. Please try again." },
+        { status: 503 }
+      )
+    );
+  }
+  let row = lookup.status === "found" ? lookup.user : null;
   if (!row) {
     row = await createGoogleUser({ email, name });
+    if (!row) {
+      // Lost a race (or the create failed): one re-read decides —
+      // a row that exists by now is used, anything else fails
+      // closed instead of minting with sv 0.
+      const again = await getUserByEmailResult(email);
+      if (again.status !== "found") {
+        return clearOauthCookies(
+          NextResponse.json(
+            { error: "Could not complete sign-in. Please try again." },
+            { status: 503 }
+          )
+        );
+      }
+      row = again.user;
+    }
   }
-  const sv = row?.session_version ?? 0;
+  // Session rotation (R2-M5, atomic per R2-M11): a fresh Google
+  // sign-in invalidates every older token, like password sign-in
+  // already does — a stolen session must not survive the victim
+  // signing in again. The exchange code and the session below both
+  // carry the bumped version; a failed bump mints nothing.
+  const sv = await incrementSessionVersion(row.id);
+  if (sv === null) {
+    return clearOauthCookies(
+      NextResponse.json(
+        { error: "Could not complete sign-in. Please try again." },
+        { status: 503 }
+      )
+    );
+  }
   // 2FA gate (same as email sign-in): a user with TOTP on never
   // gets a session here — they get the short-lived step-up cookie
   // and finish on /auth/2fa, which issues the session with mfa: true.
@@ -362,7 +428,9 @@ export async function GET(req: NextRequest) {
         emailHash: sha256Hex(email),
       })
     );
-    return NextResponse.redirect(buildAppAuthReturnUrl(exchangeCode));
+    return noStore(
+      NextResponse.redirect(buildAppAuthReturnUrl(exchangeCode))
+    );
   }
 
   if (needs2fa) {
@@ -387,6 +455,9 @@ export async function GET(req: NextRequest) {
   // Same as above: use the public origin, never req.url (0.0.0.0:3000).
   const res = clearOauthCookies(NextResponse.redirect(new URL("/", origin)));
   res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions(isSecure));
+  // R3-L2: a stale pending-2FA cookie must never survive a fresh
+  // sign-in (same as verify-otp already does).
+  clearPending2fa(res, isSecure);
   console.log(
     JSON.stringify({
       event: "auth_login",

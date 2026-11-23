@@ -109,7 +109,7 @@ function mapLessonRow(row) {
 }
 
 function shouldFallBackToSeed(outcome) {
-  return !outcome.configured || outcome.error || outcome.rowCount === 0;
+  return !outcome.configured;
 }
 
 const fullRow = {
@@ -269,19 +269,51 @@ test("bad durations become 0 instead of NaN/negative", () => {
   assert.equal(mapLessonRow({ ...fullRow, duration_seconds: 93.7 }).durationSeconds, 93);
 });
 
-test("falls back to seed when env is missing, on error, or on empty result", () => {
+test("falls back to seed ONLY when Supabase was never configured", () => {
   assert.equal(
     shouldFallBackToSeed({ configured: false, error: false, rowCount: 3 }),
     true
   );
   assert.equal(
-    shouldFallBackToSeed({ configured: true, error: true, rowCount: 0 }),
+    shouldFallBackToSeed({ configured: false, error: true, rowCount: 0 }),
     true
+  );
+});
+
+test("does NOT fall back to seed on error or empty rows when configured", () => {
+  // R2-M17: serving seed on a configured error or on zero usable
+  // rows defeats an is_published takedown (unpublish everything
+  // and the seed catalog still serves) and resurrects deleted
+  // lessons during an outage — those cases return empty instead.
+  assert.equal(
+    shouldFallBackToSeed({ configured: true, error: true, rowCount: 0 }),
+    false
   );
   assert.equal(
     shouldFallBackToSeed({ configured: true, error: false, rowCount: 0 }),
-    true
+    false
   );
+});
+
+test("R2-M17: a configured failure returns empty, not seed, and the route drops source", () => {
+  const src = readFileSync(
+    new URL("../src/lib/lessons.ts", import.meta.url),
+    "utf8"
+  );
+  // Seed is served from exactly one place (the unconfigured path):
+  // the definition plus a single call.
+  assert.equal((src.match(/seedResult\(\)/g) || []).length, 2, "seed must be served only when unconfigured");
+  assert.ok(src.includes('lessons: [], source: "supabase"'), "a configured failure must return an empty list");
+  assert.ok(src.includes("console.error("), "a configured failure must log at error level");
+  assert.ok(src.includes("returning an empty list, not seed"), "the failure path must say it returns empty, not seed");
+  const route = readFileSync(
+    new URL("../src/app/api/lessons/route.ts", import.meta.url),
+    "utf8"
+  );
+  assert.ok(route.includes("status: 503"), "an empty lesson list must answer 503");
+  assert.ok(!route.includes("lessons, source"), "the public body must not carry source");
+  assert.ok(route.includes("NextResponse.json({ lessons: page, total, limit, offset })"), "the body must carry the page plus total/limit/offset (R3-L13)");
+  assert.ok(route.includes("parsePagination"), "lessons must paginate instead of dumping the whole catalog");
 });
 
 test("does not fall back when configured and rows are usable", () => {

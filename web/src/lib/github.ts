@@ -19,7 +19,7 @@ export function mapGithubError(err: unknown): { status: number; message: string 
       return { status: 429, message: "GitHub is rate-limiting requests — try again shortly." };
     return { status: 502, message: "GitHub is unavailable right now — try again shortly." };
   }
-  if (err instanceof Error && (err.message.startsWith("File is larger than 50 MB") || err.message.startsWith("Binary file"))) {
+  if (err instanceof Error && (err.message.startsWith("File is larger than") || err.message.startsWith("Binary file"))) {
     return { status: 400, message: err.message };
   }
   return { status: 502, message: "GitHub is unavailable right now — try again shortly." };
@@ -63,8 +63,9 @@ export async function getGithubIdentity(token: string): Promise<GithubIdentity> 
   const octokit = getOctokit(token);
   const { data: user } = await octokit.rest.users.getAuthenticated();
   // Orgs are best-effort: a token without read:org cannot list
-  // them, so an org the caller belongs to simply stays
-  // unreachable through the app rather than failing the check.
+  // them, so an org the caller belongs to is checked per repo
+  // instead (assertGithubOwnerAllowed falls back to
+  // GET /repos/{owner}/{repo} when the owner check fails).
   let orgs: string[] = [];
   try {
     const { data } = await octokit.rest.orgs.listForAuthenticatedUser();
@@ -79,12 +80,38 @@ export async function getGithubIdentity(token: string): Promise<GithubIdentity> 
 }
 
 // The ownership check (M11): the requested owner must be the
-// token's own login or one of its orgs. A collaborator on someone
-// else's repo is refused — the app proxies the user's own repos,
-// not every repo their token can touch.
-export async function assertGithubOwnerAllowed(token: string, owner: string): Promise<boolean> {
+// token's own login or one of its orgs. Logins are compared
+// case-insensitively — GitHub logins are not case-sensitive, so
+// `Owner` vs `owner` must not 403. When that check fails, fall
+// back to a per-repo permission check (GET /repos/{owner}/{repo}):
+// a token without read:org gets an empty org list, and a
+// collaborator on someone else's repo is not the owner — but
+// GitHub itself knows whether this token may touch that exact
+// repo, so the repo's permissions field decides. A collaborator
+// still cannot delete (GitHub 403s that; the delete route says
+// so) — this only restores the read/commit flows M11 over-blocked.
+export async function assertGithubOwnerAllowed(
+  token: string,
+  owner: string,
+  repo?: string
+): Promise<boolean> {
   const identity = await getGithubIdentity(token);
-  return owner === identity.login || identity.orgs.includes(owner);
+  const wanted = owner.toLowerCase();
+  if (
+    wanted === identity.login.toLowerCase() ||
+    identity.orgs.some((org) => org.toLowerCase() === wanted)
+  ) {
+    return true;
+  }
+  if (!repo) return false;
+  try {
+    const octokit = getOctokit(token);
+    const { data } = await octokit.rest.repos.get({ owner, repo });
+    const p = data.permissions;
+    return Boolean(p && (p.admin || p.maintain || p.push || p.triage || p.pull));
+  } catch {
+    return false;
+  }
 }
 
 // Input validation for the repo routes (same shapes as the commit
@@ -169,17 +196,17 @@ export async function createUserRepo(
 }
 
 // Opening a repo in the editor is lazy (Maalik's word 2026-11-21 —
-// no file-count limit, 50 MB per file): the tree arrives first and
+// no file-count limit, 10 MB per file): the tree arrives first and
 // each file's content is fetched only when it is opened. Fetching
 // every file up front cannot work — Learn-Python alone is 357 files
 // / ~17 MB, while a Vercel function response caps at 4.5 MB and the
 // browser's storage at ~5 MB. The tree is one call; a single file's
 // content stays under the caps (the biggest file in his repos is
-// ~1.2 MB). Files over 50 MB or binary files are refused by the
+// ~1.2 MB). Files over 10 MB or binary files are refused by the
 // file endpoint, and the tree itself is capped at 5,000 entries
 // (truncated:true) — GitHub allows up to 100k, which would be a
 // multi-MB response.
-const REPO_OPEN_MAX_BYTES = 50 * 1024 * 1024;
+const REPO_OPEN_MAX_BYTES = 10 * 1024 * 1024;
 const REPO_TREE_MAX_ENTRIES = 5_000;
 
 export async function getRepoTree(
@@ -231,8 +258,13 @@ export async function getRepoFileContent(
   if (meta.sha !== params.sha) {
     throw githubHttpError(404, "File not found or no access");
   }
+  // R2-L27: the blob is fully base64-decoded into memory, so the
+  // cap for editor reads is 10 MB, not 50 — a 50 MB decode per
+  // request is cheap memory exhaustion for the function. Checked
+  // on the metadata size BEFORE the blob is downloaded, and again
+  // on the blob itself.
   if ((meta.size ?? 0) > REPO_OPEN_MAX_BYTES) {
-    throw new Error(`File is larger than 50 MB (${params.path})`);
+    throw new Error(`File is larger than 10 MB (${params.path})`);
   }
   const { data } = await octokit.rest.git.getBlob({
     owner: params.owner,
@@ -240,7 +272,7 @@ export async function getRepoFileContent(
     file_sha: params.sha,
   });
   if ((data.size ?? 0) > REPO_OPEN_MAX_BYTES) {
-    throw new Error(`File is larger than 50 MB (${params.path})`);
+    throw new Error(`File is larger than 10 MB (${params.path})`);
   }
   const content = Buffer.from(data.content, "base64").toString("utf8");
   if (content.includes("\0")) {

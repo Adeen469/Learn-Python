@@ -10,14 +10,15 @@ import {
 } from "@/lib/github-token";
 import { getAuthPrereqs, getSessionUser } from "@/lib/auth-routes";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { checkUserLimit, validateBody } from "@/lib/api-handler";
 
 // The GitHub token, held on the server (migration 006; audit +
 // expiry in 007).
 //
 // POST saves the token the user pastes in: it is encrypted with
-// AES-256-GCM (key = the dedicated GITHUB_TOKEN_KEY when set,
-// SESSION_SECRET otherwise) and stored against the signed-in
-// user's email. Before saving, the token is checked live against
+// AES-256-GCM under the dedicated GITHUB_TOKEN_KEY only (saving
+// fails closed with 503 when the key is unset or too short) and
+// stored against the signed-in user's email. Before saving, the token is checked live against
 // GitHub: a rejected token is refused, and GitHub's expiry header
 // is stored so the page can warn before it lapses. The plaintext
 // token is never logged and never returned. DELETE removes it. The
@@ -57,14 +58,19 @@ export async function POST(req: NextRequest) {
   if (!user) {
     return NextResponse.json({ error: "Sign in to use GitHub" }, { status: 401 });
   }
+  // Per-user bucket alongside the per-IP one, so rotating IPs
+  // does not remove all friction from token overwrite/delete.
+  const userBlocked = await checkUserLimit(user.email, "github-token", 10, 60_000);
+  if (userBlocked) return userBlocked;
   let body: unknown;
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
-  const parsed = saveTokenSchema.safeParse(body);
-  if (!parsed.success || !isValidGithubTokenFormat(parsed.data.token)) {
+  const parsed = validateBody(body, saveTokenSchema, "Invalid request");
+  if (!parsed.ok) return parsed.response;
+  if (!isValidGithubTokenFormat(parsed.data.token)) {
     return NextResponse.json(
       { error: "That doesn't look like a GitHub Personal Access Token (ghp_… or github_pat_…)." },
       { status: 400 }
@@ -121,7 +127,20 @@ export async function DELETE(req: NextRequest) {
   if (!user) {
     return NextResponse.json({ error: "Sign in to use GitHub" }, { status: 401 });
   }
-  await deleteGithubToken(user.email);
+  // Per-user bucket alongside the per-IP one (same as POST).
+  const userBlocked = await checkUserLimit(user.email, "github-token", 10, 60_000);
+  if (userBlocked) return userBlocked;
+  // R3-L10: check the delete actually landed before claiming
+  // success — a user deleting a possibly-compromised token must
+  // not be told it is gone while it is still stored and usable by
+  // every GitHub route. Mirrors byok/delete (R2-L10).
+  const deleted = await deleteGithubToken(user.email);
+  if (!deleted) {
+    return NextResponse.json(
+      { error: "Could not delete the token — please try again." },
+      { status: 503 }
+    );
+  }
   void logGithubTokenUse(user.email, "token_deleted", undefined, getClientIp(req));
   return NextResponse.json({ connected: false });
 }

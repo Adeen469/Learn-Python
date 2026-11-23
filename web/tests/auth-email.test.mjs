@@ -219,18 +219,17 @@ function totpEncryptionKey(sessionSecret) {
   return createHash("sha256").update(sessionSecret, "utf8").digest();
 }
 
-// Mirror of totpSecretEncryptionKey: the dedicated key must be at
-// least 32 chars, else null (fail closed); unset means the legacy
-// session-secret derivation. `dedicated` stands in for
+// Mirror of totpSecretEncryptionKey: the dedicated key, and only
+// the dedicated key, encrypts TOTP secrets. It must be at least
+// 32 chars, else null (fail closed); unset means null too —
+// there is NO session-secret fallback. `dedicated` stands in for
 // process.env.TOTP_ENCRYPTION_KEY, which the test controls.
 const TOTP_ENCRYPTION_KEY_MIN_LENGTH = 32;
 
-function totpSecretEncryptionKey(sessionSecret, dedicated) {
-  if (dedicated !== undefined) {
-    if (dedicated.length < TOTP_ENCRYPTION_KEY_MIN_LENGTH) return null;
-    return dedicated;
-  }
-  return sessionSecret;
+function totpSecretEncryptionKey(dedicated) {
+  if (!dedicated) return null;
+  if (dedicated.length < TOTP_ENCRYPTION_KEY_MIN_LENGTH) return null;
+  return dedicated;
 }
 
 function encryptTotpSecret(sessionSecret, plaintext) {
@@ -755,34 +754,42 @@ test("session checks fail closed and logout revokes server-side", () => {
   );
   const logout = read("src/app/api/auth/logout/route.ts");
   assert.ok(
-    logout.includes("updateUser(row.id, {"),
-    "logout must bump the stored session version"
+    logout.includes("incrementSessionVersion(row.id)"),
+    "logout must bump the stored session version atomically"
   );
   assert.ok(
-    logout.includes("session_version: (row.session_version ?? 0) + 1"),
-    "logout must invalidate the current token server-side"
+    !logout.includes("session_version: (row.session_version ?? 0) + 1"),
+    "logout must not compute the bump from a stale read"
   );
 });
 
-test("TOTP and GitHub tokens use dedicated keys, with a legacy read fallback", () => {
+test("TOTP and GitHub tokens use dedicated keys only — no SESSION_SECRET fallback", () => {
   const lib = read("src/lib/auth-email.ts");
   assert.ok(lib.includes("TOTP_ENCRYPTION_KEY"), "new TOTP secrets must use the dedicated key");
   assert.ok(lib.includes("totpSecretEncryptionKey"), "the key choice must live in one place");
-  assert.ok(lib.includes("decryptUserTotpSecret"), "old TOTP secrets must still decrypt under the legacy key");
+  assert.ok(lib.includes("decryptUserTotpSecret"), "TOTP secrets must decrypt through one helper");
+  assert.ok(
+    !lib.includes("decryptTotpSecret(sessionSecret, stored)"),
+    "no TOTP decrypt path may try the session secret"
+  );
   const setup = read("src/app/api/auth/2fa/setup/route.ts");
   assert.ok(
-    setup.includes("totpSecretEncryptionKey(prereqs.secret)"),
-    "new secrets must be written under the dedicated key"
+    setup.includes("totpSecretEncryptionKey()"),
+    "new secrets must be written under the dedicated key only, with no session-secret argument"
   );
   const verify = read("src/app/api/auth/2fa/verify/route.ts");
   assert.ok(
-    verify.includes("decryptUserTotpSecret(prereqs.secret, user.totp_secret_enc)"),
-    "verify must try the dedicated key, then the legacy one"
+    verify.includes("decryptUserTotpSecret(user.totp_secret_enc)"),
+    "verify must decrypt with the dedicated key only, with no session-secret argument"
   );
   const gh = read("src/lib/github-token.ts");
   assert.ok(
-    gh.includes("return process.env.GITHUB_TOKEN_KEY ?? null"),
-    "no dedicated key must mean no token storage"
+    gh.includes("GITHUB_TOKEN_KEY_MIN_LENGTH = 32"),
+    "a short dedicated key must fail closed (R2-L11, same >=32 rule as TOTP L3)"
+  );
+  assert.ok(
+    gh.includes("if (key.length < GITHUB_TOKEN_KEY_MIN_LENGTH) return null"),
+    "no dedicated key, or a short one, must mean no token storage"
   );
   assert.ok(
     !gh.includes("return dedicated ? dedicated : sessionSecret"),
@@ -791,8 +798,16 @@ test("TOTP and GitHub tokens use dedicated keys, with a legacy read fallback", (
   assert.ok(gh.includes("if (!key) return false"), "saving without the key must fail closed");
   assert.ok(gh.includes("if (!key) return null"), "reading without the key must fail closed");
   assert.ok(
-    gh.includes("decryptTotpSecret(secret, data.token_encrypted)"),
-    "tokens encrypted under the old key must still read once, then re-encrypt"
+    !gh.includes("decryptTotpSecret(secret, data.token_encrypted)"),
+    "a token encrypted under the old session-secret key must NOT read — hard cutover, no legacy fallback"
+  );
+  assert.ok(
+    !gh.includes("getGithubToken(user.email, prereqs.secret)"),
+    "the token read must not take the session secret at all"
+  );
+  assert.ok(
+    gh.includes("getGithubToken(user.email)"),
+    "the token read takes only the email; the key comes from GITHUB_TOKEN_KEY"
   );
 });
 
@@ -846,18 +861,19 @@ test("TOTP verification reports the matched step, for replay protection", () => 
 });
 
 test("a short TOTP_ENCRYPTION_KEY fails closed", () => {
-  const sessionSecret = "test-session-secret-0123456789abcdef";
-  assert.equal(totpSecretEncryptionKey(sessionSecret, undefined), sessionSecret);
+  // Unset means null — there is no session-secret fallback to
+  // fall back to. A dedicated key of >= 32 chars is used as-is.
+  assert.equal(totpSecretEncryptionKey(undefined), null);
+  assert.equal(totpSecretEncryptionKey(""), null);
   assert.equal(
-    totpSecretEncryptionKey(sessionSecret, "a".repeat(64)),
+    totpSecretEncryptionKey("a".repeat(64)),
     "a".repeat(64)
   );
-  assert.equal(totpSecretEncryptionKey(sessionSecret, "a".repeat(32)), "a".repeat(32));
-  assert.equal(totpSecretEncryptionKey(sessionSecret, "short"), null);
-  assert.equal(totpSecretEncryptionKey(sessionSecret, ""), null);
+  assert.equal(totpSecretEncryptionKey("a".repeat(32)), "a".repeat(32));
+  assert.equal(totpSecretEncryptionKey("short"), null);
   const lib = read("src/lib/auth-email.ts");
   assert.ok(lib.includes("TOTP_ENCRYPTION_KEY_MIN_LENGTH = 32"));
-  assert.ok(lib.includes("totpSecretEncryptionKey(\n  sessionSecret: string\n): string | null"));
+  assert.ok(lib.includes("export function totpSecretEncryptionKey(): string | null"));
   const setup = read("src/app/api/auth/2fa/setup/route.ts");
   assert.ok(setup.includes("if (!key) return serviceUnavailable"), "setup must fail closed on a short key");
 });
@@ -878,10 +894,14 @@ test("H2: 2FA enable/disable revokes old sessions and mfa is enforced", () => {
   assert.ok(routes.includes("totpEnabled"), "getSessionUser must read the 2FA flag");
   assert.ok(routes.includes("verified.mfa !== true"), "a session without mfa must fail once TOTP is on");
   const enable = read("src/app/api/auth/2fa/enable/route.ts");
-  assert.ok(enable.includes("session_version: newSessionVersion"), "enable must bump the version");
+  assert.ok(enable.includes("incrementSessionVersion(user.id)"), "enable must bump the version atomically");
+  assert.ok(enable.includes("sv: newSessionVersion"), "enable must re-issue the session with the bumped version");
+  assert.ok(!enable.includes("session_version: newSessionVersion"), "enable must not re-write the version after the atomic bump (R3-L6 downgrade)");
   assert.ok(enable.includes("mfa: true"), "enable must re-issue the session with mfa:true");
   const disable = read("src/app/api/auth/2fa/disable/route.ts");
-  assert.ok(disable.includes("session_version: newSessionVersion"), "disable must bump the version");
+  assert.ok(disable.includes("incrementSessionVersion(user.id)"), "disable must bump the version atomically");
+  assert.ok(disable.includes("sv: newSessionVersion"), "disable must re-issue the session with the bumped version");
+  assert.ok(!disable.includes("session_version: newSessionVersion"), "disable must not re-write the version after the atomic bump (R3-L6 downgrade)");
   assert.ok(disable.includes("mfa: false"), "disable must re-issue the session with mfa:false");
 });
 
@@ -901,7 +921,9 @@ test("H4: 2FA setup/enable need the password, backup regen needs a TOTP code", (
   assert.ok(enable.includes("verifyPassword(password, user.password_hash)"), "enable must re-check the password");
   const backup = read("src/app/api/auth/2fa/backup-codes/route.ts");
   assert.ok(backup.includes("verifyTotpCodeWithStep(secret, code)"), "backup regen must check a TOTP code");
-  assert.ok(backup.includes("session_version: newSessionVersion"), "backup regen must bump the version");
+  assert.ok(backup.includes("incrementSessionVersion(user.id)"), "backup regen must bump the version atomically");
+  assert.ok(backup.includes("sv: newSessionVersion"), "backup regen must re-issue the session with the bumped version");
+  assert.ok(!backup.includes("session_version: newSessionVersion"), "backup regen must not re-write the version after the atomic bump (R3-L6 downgrade)");
   const section = read("src/components/TwoFactorSettings.tsx");
   assert.ok(section.includes("password: setupPassword"), "the settings page must send the password at setup/enable");
   assert.ok(section.includes("code: regenCode"), "the settings page must send a TOTP code for backup regen");
@@ -919,7 +941,9 @@ test("H10: disabling 2FA needs a TOTP (or backup) code", () => {
   const disable = read("src/app/api/auth/2fa/disable/route.ts");
   assert.ok(disable.includes("verifyTotpCodeWithStep(secret, code)"), "disable must check a TOTP code");
   assert.ok(disable.includes("findBackupCode(user.backup_codes, code)"), "disable must also accept a backup code");
-  assert.ok(disable.includes("session_version: newSessionVersion"), "disable must bump the version");
+  assert.ok(disable.includes("incrementSessionVersion(user.id)"), "disable must bump the version atomically");
+  assert.ok(disable.includes("sv: newSessionVersion"), "disable must re-issue the session with the bumped version");
+  assert.ok(!disable.includes("session_version: newSessionVersion"), "disable must not re-write the version after the atomic bump (R3-L6 downgrade)");
   const section = read("src/components/TwoFactorSettings.tsx");
   assert.ok(section.includes("code: disableCode"), "the settings page must send the code when disabling");
 });
@@ -952,16 +976,30 @@ test("M3: backup codes are claimed atomically", () => {
   const store = read("src/lib/auth-store.ts");
   assert.ok(store.includes("claimBackupCode"), "the store must claim backup codes");
   assert.ok(store.includes('.contains("backup_codes", [matchedHash])'), "the claim must only land while the hash is still stored");
+  assert.ok(
+    store.includes("claimBackupCode(\n  userId: string,\n  matchedHash: string\n)"),
+    "the claim must take only the matched hash — the removal is computed server-side from a fresh read, never from a caller-computed list"
+  );
+  assert.ok(
+    !store.includes("auth_backup_claim_fallback"),
+    "the plain-update fallback must be gone: a failing guard fails closed, never double-spends"
+  );
   const verify = read("src/app/api/auth/2fa/verify/route.ts");
-  assert.ok(verify.includes("verified = await claimBackupCode"), "verify must check the claim");
+  assert.ok(verify.includes("verified = await claimBackupCode(user.id, matched)"), "verify must check the claim");
   assert.ok(!verify.includes("backup_codes: remaining });\n      verified = saved;"), "verify must not use the old read-then-write claim");
 });
 
 test("M4: backup attempts are capped and TOTP codes cannot be replayed", () => {
   const verify = read("src/app/api/auth/2fa/verify/route.ts");
   assert.ok(verify.includes("totp_last_step"), "verify must record and check the last-used step");
-  assert.ok(verify.includes("recordTotpStep(user.id, matchedStep)"), "a successful TOTP code must record its step");
+  assert.ok(verify.includes("claimTotpStep(user.id, matchedStep)"), "a successful TOTP code must claim its step atomically before any session is issued");
   assert.ok(verify.includes("replay"), "a reused code in the same step must be rejected");
+  const store = read("src/lib/auth-store.ts");
+  assert.ok(store.includes("claimTotpStep"), "the store must claim the step");
+  assert.ok(
+    store.includes("totp_last_step.is.null,totp_last_step.neq."),
+    "the step record must only land when the stored step is null or different"
+  );
   const lib = read("src/lib/auth-email.ts");
   assert.ok(lib.includes("verifyTotpCodeWithStep"), "the TOTP check must report the matched step");
   const migration = read("supabase/migrations/008_auth_hardening.sql");
@@ -1048,12 +1086,13 @@ test("L5: the reset page sends no referrer", () => {
   assert.ok(page.includes('name="referrer"'), "the reset page must set a referrer policy");
   assert.ok(page.includes('content="no-referrer"'), "the policy must be no-referrer");
   const reset = read("src/app/api/auth/email/reset/route.ts");
-  assert.ok(reset.includes("body?.token"), "the token must travel in the POST body");
+  assert.ok(reset.includes("parsed.data.token"), "the token must travel in the POST body (zod-parsed)");
+  assert.ok(reset.includes("token: z.string()"), "the reset schema must carry the token in the body");
 });
 
 test("L6: OTP caps and cooldowns are per email across purposes", () => {
   const routes = read("src/lib/auth-routes.ts");
-  assert.ok(routes.includes("countRecentOtps(\n    normalized,\n    null,"), "the hourly cap must count all purposes");
+  assert.ok(routes.includes("countRecentOtps(\n        normalized,\n        null,"), "the hourly cap must count all purposes");
   assert.ok(routes.includes("getLatestOtp(normalized, null)"), "the cooldown must look at the latest code of any purpose");
   const store = read("src/lib/auth-store.ts");
   assert.ok(store.includes("purpose: string | null"), "the store must support a cross-purpose count");
@@ -1108,4 +1147,246 @@ test("migration 008 follows the 005 pattern (idempotent, RLS, no policies)", () 
   assert.ok(migration.includes("create table if not exists public.lp_auth_pending_signups"), "the table must be created idempotently");
   assert.ok(migration.includes("alter table public.lp_auth_pending_signups enable row level security"), "the table must have RLS");
   assert.ok(!/create policy/i.test(migration), "the migration must not create any policy");
+});
+
+// --- Security hardening (audit 2026-11-22, round 2, Track: auth/session) ---
+// Same convention as above: source assertions for the DB-backed paths
+// (no service-role key in the sandbox), pure-function mirrors where
+// the logic is testable without a database.
+
+test("R2-M3: Google sign-in fails closed when the DB row cannot be created", () => {
+  const store = read("src/lib/auth-store.ts");
+  assert.ok(store.includes("getUserByEmailResult"), "the store must distinguish a DB error from no row");
+  assert.ok(store.includes('"missing"'), "a missing row must be a distinct outcome");
+  assert.ok(store.includes('"error"'), "a DB error must be a distinct outcome");
+  const callback = read("src/app/api/auth/callback/google/route.ts");
+  assert.ok(callback.includes("getUserByEmailResult(email)"), "the callback must use the discriminating read");
+  assert.ok(callback.includes("incrementSessionVersion(row.id)"), "the callback must bump the version atomically");
+  assert.ok(
+    !callback.includes("row?.session_version ?? 0"),
+    "no session may ever be minted with a fallback sv 0"
+  );
+  assert.ok(
+    callback.includes('status: 503'),
+    "a row that cannot be read or created must stop sign-in with a 503"
+  );
+  const exchange = read("src/app/api/auth/app-exchange/route.ts");
+  assert.ok(exchange.includes("getUserByEmailResult(exchangeEmail)"), "the exchange must use the discriminating read too");
+  assert.ok(exchange.includes("createGoogleUser"), "the exchange must create the row server-side when it is missing");
+  assert.ok(exchange.includes("sv: row.session_version"), "the exchange must mint from the row's version, not the code's");
+});
+
+test("R2-M5: Google and OTP sign-ins rotate the session like password sign-in", () => {
+  const callback = read("src/app/api/auth/callback/google/route.ts");
+  assert.ok(callback.includes("incrementSessionVersion(row.id)"), "the Google callback must bump the version");
+  const verifyOtp = read("src/app/api/auth/email/verify-otp/route.ts");
+  assert.ok(verifyOtp.includes("incrementSessionVersion(finalUser.id)"), "OTP sign-in must bump the version");
+  assert.ok(verifyOtp.includes("sv: newSessionVersion"), "the OTP session must carry the bumped version");
+  assert.ok(
+    verifyOtp.includes("newSessionVersion === null"),
+    "a failed OTP bump must mint nothing"
+  );
+});
+
+test("R2-M6: the sign-in lockout counter increments atomically (CAS)", () => {
+  const store = read("src/lib/auth-store.ts");
+  assert.ok(store.includes("recordSigninFailure"), "the failure counter must live in the store");
+  assert.ok(
+    store.includes('.eq("signin_failed_attempts", current)'),
+    "the bump must only land when the counter is still the value read"
+  );
+  const signin = read("src/app/api/auth/email/signin/route.ts");
+  assert.ok(signin.includes("recordSigninFailure(user.id)"), "a failed password must count");
+});
+
+test("R2-M7: a locked account answers with the generic 401, never a distinct 429", () => {
+  const signin = read("src/app/api/auth/email/signin/route.ts");
+  assert.ok(
+    !signin.includes("Too many failed sign-in attempts for this email"),
+    "the lockout must not have its own error message — it is an enumeration oracle"
+  );
+  assert.ok(
+    (signin.match(/await verifyPassword\(password, DUMMY_PASSWORD_HASH\)/g) ?? []).length >= 2,
+    "a locked account must cost the same dummy scrypt as a missing account"
+  );
+  assert.ok(signin.includes("signin_locked_until"), "the lock check itself must stay");
+});
+
+test("R2-M8: the TOTP cap covers backup-codes and disable, and setup resets it", () => {
+  const backup = read("src/app/api/auth/2fa/backup-codes/route.ts");
+  assert.ok(backup.includes("TOTP_MAX_FAILED_ATTEMPTS"), "backup regen must enforce the cap");
+  assert.ok(backup.includes("bumpTotpFailedAttempts(user.id)"), "backup regen failures must count");
+  const disable = read("src/app/api/auth/2fa/disable/route.ts");
+  assert.ok(disable.includes("TOTP_MAX_FAILED_ATTEMPTS"), "disable must enforce the cap");
+  assert.ok(disable.includes("bumpTotpFailedAttempts(user.id)"), "disable failures must count");
+  const setup = read("src/app/api/auth/2fa/setup/route.ts");
+  assert.ok(setup.includes("totp_failed_attempts: 0"), "a fresh setup must reset the counter");
+});
+
+test("R2-M9: the TOTP step claim is atomic with the check in every 2FA path", () => {
+  const store = read("src/lib/auth-store.ts");
+  assert.ok(store.includes("claimTotpStep"), "the store must claim the step");
+  assert.ok(
+    store.includes('"replay"'),
+    "a step already recorded must be reported as a replay, not silently overwritten"
+  );
+  for (const route of [
+    "src/app/api/auth/2fa/verify/route.ts",
+    "src/app/api/auth/2fa/enable/route.ts",
+    "src/app/api/auth/2fa/disable/route.ts",
+    "src/app/api/auth/2fa/backup-codes/route.ts",
+  ]) {
+    assert.ok(read(route).includes("claimTotpStep"), `${route} must claim the step before issuing or changing anything`);
+  }
+  assert.ok(
+    !read("src/app/api/auth/2fa/verify/route.ts").includes("recordTotpStep(user.id, matchedStep)"),
+    "verify must not record the step with a plain post-hoc write"
+  );
+});
+
+test("R2-M10: backup-code removal is computed from a freshly re-read list", () => {
+  const store = read("src/lib/auth-store.ts");
+  const start = store.indexOf("export async function claimBackupCode");
+  const end = store.indexOf("export async function", start + 10);
+  const claim = store.slice(start, end === -1 ? undefined : end);
+  assert.ok(claim.includes('select("backup_codes")'), "the claim must re-read the list before writing");
+  assert.ok(claim.includes("afterList"), "the claim must re-read after the write to catch a resurrection");
+  assert.ok(!claim.includes("remaining: string[]"), "no caller-computed remaining list may be trusted");
+});
+
+test("R2-M11: one atomic session_version increment serves all six call sites", () => {
+  const store = read("src/lib/auth-store.ts");
+  assert.ok(store.includes("incrementSessionVersion"), "the atomic increment must live in the store");
+  assert.ok(
+    store.includes('.eq("session_version", current)'),
+    "the increment must only land when the version is still the value read"
+  );
+  assert.ok(store.includes("bumpSessionVersion"), "the reset bump must still exist");
+  for (const route of [
+    "src/app/api/auth/logout/route.ts",
+    "src/app/api/auth/email/signin/route.ts",
+    "src/app/api/auth/2fa/enable/route.ts",
+    "src/app/api/auth/2fa/disable/route.ts",
+    "src/app/api/auth/2fa/backup-codes/route.ts",
+  ]) {
+    assert.ok(read(route).includes("incrementSessionVersion"), `${route} must use the atomic increment`);
+    assert.ok(
+      !read(route).includes("session_version ?? 0) + 1"),
+      `${route} must not compute a version bump from a stale read`
+    );
+  }
+  const signin = read("src/app/api/auth/email/signin/route.ts");
+  assert.ok(signin.includes("sv: newSessionVersion"), "sign-in must use the returned version");
+});
+
+test("R2-M4: an unexpired pending sign-up is never overwritten", () => {
+  const store = read("src/lib/auth-store.ts");
+  assert.ok(store.includes("storePendingSignup"), "pending sign-ups must be stored");
+  assert.ok(store.includes('reason: "exists"'), "an unexpired pending row must be reported, not overwritten");
+  const signup = read("src/app/api/auth/email/signup/route.ts");
+  assert.ok(signup.includes('stored.reason === "db"'), "only a DB failure may fall back to creating the row now");
+  assert.ok(
+    !signup.includes("the owner's\n// sign-up overwrites the pending row"),
+    "the old overwrite behaviour must not be described anywhere"
+  );
+});
+
+test("R2-L1: the backup-code claim fails closed, with no plain-update fallback", () => {
+  const store = read("src/lib/auth-store.ts");
+  assert.ok(!store.includes("auth_backup_claim_fallback"), "the fallback log — and the fallback itself — must be gone");
+  const start = store.indexOf("export async function claimBackupCode");
+  const end = store.indexOf("export async function", start + 10);
+  const claim = store.slice(start, end === -1 ? undefined : end);
+  assert.ok(!claim.includes("return updateUser"), "the claim must never fall back to a plain update");
+});
+
+test("R2-L2: legacy SHA-256 backup codes retire when any code is claimed", () => {
+  const store = read("src/lib/auth-store.ts");
+  const start = store.indexOf("export async function claimBackupCode");
+  const end = store.indexOf("export async function", start + 10);
+  const claim = store.slice(start, end === -1 ? undefined : end);
+  assert.ok(
+    claim.includes('h.startsWith("scrypt$")'),
+    "the claim must drop remaining legacy entries — they cannot be re-hashed without their plaintext, so they retire instead"
+  );
+});
+
+test("R2-L3: OTP sends are serialised per email, so the cap cannot be overshot", () => {
+  const routes = read("src/lib/auth-routes.ts");
+  assert.ok(routes.includes("otpSendChains"), "sends for one email must run one at a time per instance");
+  assert.ok(routes.includes("enqueueOtpSend(normalized"), "the cap, cooldown and store must run inside the serialised section");
+});
+
+test("R2-L4: a reset retires the user's other tokens at claim time", () => {
+  const store = read("src/lib/auth-store.ts");
+  assert.ok(store.includes("invalidateOtherResetTokens"), "the store must retire all but the presented token");
+  assert.ok(store.includes('.neq("id", exceptTokenId)'), "the presented token itself must be spared");
+  const reset = read("src/app/api/auth/email/reset/route.ts");
+  assert.ok(
+    reset.includes("invalidateOtherResetTokens(row.user_id, row.id)"),
+    "reset must retire the other tokens before the password is written"
+  );
+  assert.ok(reset.includes("invalidateAllResetTokens(row.user_id)"), "the post-reset retirement must stay as well");
+});
+
+test("R2-L5: a password reset clears the sign-in lockout", () => {
+  const store = read("src/lib/auth-store.ts");
+  const start = store.indexOf("export async function bumpSessionVersion");
+  const end = store.indexOf("export async function", start + 10);
+  const bump = store.slice(start, end === -1 ? undefined : end);
+  assert.ok(bump.includes("signin_failed_attempts: 0"), "the reset bump must clear the failure counter");
+  assert.ok(bump.includes("signin_locked_until: null"), "the reset bump must clear the lock timestamp");
+});
+
+test("R2-L6: sign-in checks the version-bump return and mints nothing on failure", () => {
+  const signin = read("src/app/api/auth/email/signin/route.ts");
+  assert.ok(signin.includes("incrementSessionVersion(user.id)"), "signin must use the atomic bump");
+  assert.ok(signin.includes("newSessionVersion === null"), "signin must check the bump result");
+  assert.ok(signin.includes('"Sign-in is temporarily unavailable.", 503'), "a failed bump must 503, not mint");
+});
+
+test("R2-L7: the legacy lp_session cookie is never read as a session", () => {
+  const routes = read("src/lib/auth-routes.ts");
+  const start = routes.indexOf("export async function getSessionUserRaw");
+  const end = routes.indexOf("export function clearSessionCookies", start);
+  const raw = routes.slice(start, end === -1 ? undefined : end);
+  assert.ok(raw.includes("SESSION_COOKIE"), "the raw check must read the current cookie");
+  assert.ok(!raw.includes("LEGACY_SESSION_COOKIE"), "the legacy fallback must be gone from the raw check");
+  const logout = read("src/app/api/auth/logout/route.ts");
+  assert.ok(!logout.includes("LEGACY_SESSION_COOKIE"), "logout must not treat a legacy cookie as a presented token");
+});
+
+test("R2-L8: 2FA email codes have their own budget, separate from signup/signin", () => {
+  const routes = read("src/lib/auth-routes.ts");
+  assert.ok(
+    routes.includes('countRecentOtps(\n        normalized,\n        "2fa",'),
+    "2FA codes must be counted against their own purpose budget"
+  );
+  assert.ok(routes.includes('getLatestOtp(normalized, "2fa")'), "the 2FA cooldown must be per-purpose");
+});
+
+test("R2-L9: signup runs the dummy scrypt for existing accounts too", () => {
+  const signup = read("src/app/api/auth/email/signup/route.ts");
+  assert.equal(
+    (signup.match(/await hashPassword\(password\)/g) ?? []).length,
+    2,
+    "both the existing-account and the new-account paths must hash (one dummy, one real)"
+  );
+});
+
+test("R2-L12: expired pending sign-ups are deleted opportunistically on access", () => {
+  const store = read("src/lib/auth-store.ts");
+  const start = store.indexOf("export async function getPendingSignup");
+  const end = store.indexOf("export async function", start + 10);
+  const getter = store.slice(start, end === -1 ? undefined : end);
+  assert.ok(getter.includes("expires_at"), "the getter must check expiry");
+  assert.ok(getter.includes("deletePendingSignup(email)"), "an expired row must be deleted on access");
+});
+
+test("R2-M13: auth JSON bodies are size-capped, including chunked ones", () => {
+  const routes = read("src/lib/auth-routes.ts");
+  assert.ok(routes.includes("MAX_AUTH_JSON_BYTES = 64 * 1024"), "auth bodies must have a 64 KiB ceiling");
+  assert.ok(routes.includes('req.headers.get("content-length")'), "the Content-Length must be pre-checked");
+  assert.ok(routes.includes("req.body.getReader()"), "chunked bodies must be streamed with a byte cap");
+  assert.ok(routes.includes("await reader.cancel()"), "an over-cap chunked body must be cancelled, not parsed");
 });

@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { fetchLessonById } from "@/lib/lessons";
-import { openMegaStream } from "@/lib/mega";
+import { openMegaStream, MAX_VIDEO_CHUNK_BYTES } from "@/lib/mega";
 import { openDriveStream, DriveStreamError } from "@/lib/drive";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/rate-limit";
+import { checkIpLimit, rateLimitedResponse } from "@/lib/api-handler";
 
 const lessonIdSchema = z.string().regex(/^[a-zA-Z0-9_-]{1,64}$/);
 
@@ -13,11 +14,7 @@ const lessonIdSchema = z.string().regex(/^[a-zA-Z0-9_-]{1,64}$/);
 // function timeout.)
 export const maxDuration = 60;
 
-const RATE_LIMITED_RESPONSE = (retryAfterSeconds: number) =>
-  NextResponse.json(
-    { error: "Too many requests — please slow down and retry shortly." },
-    { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } }
-  );
+const RATE_LIMITED_RESPONSE = rateLimitedResponse;
 
 // H7: a request with no Range header must never pull a whole ~37 MB video
 // through the function. The real player always sends Range headers, but a
@@ -34,8 +31,15 @@ function effectiveRangeHeader(rangeHeader: string | null): string {
 // H7: per-IP daily byte cap (in-memory, so per Vercel instance unless a
 // shared store is configured — same caveat as the rate limiter). Bounds
 // bulk harvesting of the whole catalogue through the proxy; a heavy day
-// of real watching stays well under 1 GB.
+// of real watching stays well under 1 GB. Moving the cap to the shared
+// Redis store is out of scope — per-instance is the accepted residual.
 const VIDEO_DAILY_BYTE_CAP = 1_000_000_000;
+// R2-L15: when the client IP is unknown every client collapses into
+// one shared bucket, so an unknown IP gets a much smaller shared
+// budget (100 MB/day) instead of the full 1 GB — one abuser cannot
+// eat the whole shared cap, and the event is logged once.
+const VIDEO_DAILY_BYTE_CAP_UNKNOWN_IP = 100_000_000;
+let unknownIpLogged = false;
 const dailyBytes = new Map<string, { day: string; bytes: number }>();
 
 function secondsUntilMidnightUtc(): number {
@@ -46,16 +50,17 @@ function secondsUntilMidnightUtc(): number {
 }
 
 /**
- * Charge `chunkLength` bytes to the IP's UTC-day budget. Returns false
- * when the day's cap would be exceeded (caller answers 429).
+ * Charge `chunkLength` bytes to the IP's UTC-day budget, against the
+ * given cap. Returns false when the day's cap would be exceeded
+ * (caller answers 429).
  */
-function chargeDailyBytes(ip: string, chunkLength: number): boolean {
+function chargeDailyBytes(ip: string, chunkLength: number, cap: number = VIDEO_DAILY_BYTE_CAP): boolean {
   const day = new Date().toISOString().slice(0, 10);
   const entry = dailyBytes.get(ip);
   if (!entry || entry.day !== day) {
     dailyBytes.set(ip, { day, bytes: chunkLength });
   } else {
-    if (entry.bytes + chunkLength > VIDEO_DAILY_BYTE_CAP) return false;
+    if (entry.bytes + chunkLength > cap) return false;
     entry.bytes += chunkLength;
   }
   // The map is keyed by IP, so prune stale days before it grows unbounded.
@@ -74,15 +79,34 @@ function sanitizeVideoMimeType(mimeType: string): string {
   return /^(video|audio)\//.test(mimeType) ? mimeType : "video/mp4";
 }
 
+// R2-H1: the most bytes a Range request can draw, without knowing
+// the file size — used to charge the daily cap before the upstream
+// fetch. Bounded ranges are exact; open-ended/suffix ranges are at
+// most the 4 MiB clamp; no Range is the first 1 MiB chunk. Returns
+// null for a syntactically invalid Range (it 416s downstream and is
+// charged nothing).
+function expectedChunkBytes(rangeHeader: string | null): number | null {
+  if (!rangeHeader) return NO_RANGE_CHUNK_BYTES;
+  const match = /^bytes=(\d*)-(\d*)$/.exec(rangeHeader.trim());
+  if (!match) return null;
+  const [, startStr, endStr] = match;
+  if (!startStr && !endStr) return null;
+  if (startStr && endStr) {
+    const len = Number(endStr) - Number(startStr) + 1;
+    if (!Number.isFinite(len) || len <= 0) return null;
+    return Math.min(len, MAX_VIDEO_CHUNK_BYTES);
+  }
+  if (startStr) return MAX_VIDEO_CHUNK_BYTES;
+  return Math.min(Number(endStr), MAX_VIDEO_CHUNK_BYTES);
+}
+
 export async function GET(
   req: NextRequest,
   context: { params: Promise<{ lessonId: string }> }
 ) {
   // Video players make many Range requests, so the video limit is generous.
-  const limit = await checkRateLimit(`video:${getClientIp(req)}`, 120, 60_000);
-  if (!limit.allowed) {
-    return RATE_LIMITED_RESPONSE(limit.retryAfterSeconds);
-  }
+  const ipBlocked = await checkIpLimit(req, "video", 120, 60_000);
+  if (ipBlocked) return ipBlocked;
 
   const { lessonId } = await context.params;
   const parsed = lessonIdSchema.safeParse(lessonId);
@@ -106,8 +130,39 @@ export async function GET(
     );
   }
 
+  // R2-H1: charge the day's byte cap BEFORE the upstream fetch, so
+  // an over-cap request costs no MEGA/Drive metadata call at all.
+  // The charge is the clamped window the client will get at most:
+  // a bounded range is exact, an open-ended/suffix range is at
+  // most MAX_VIDEO_CHUNK_BYTES (parseHttpRange clamps it), and a
+  // no-Range request is the first 1 MiB chunk. A syntactically
+  // invalid Range returns null here and is charged nothing — it
+  // 416s downstream.
+  const rangeHeader = req.headers.get("range");
+  const ip = getClientIp(req);
+  if (ip === "unknown" && !unknownIpLogged) {
+    unknownIpLogged = true;
+    console.error(
+      JSON.stringify({
+        event: "video_unknown_ip",
+        endpoint: "video",
+        reason: "client IP could not be determined; using the smaller shared byte cap",
+      })
+    );
+  }
+  const expectedBytes = expectedChunkBytes(rangeHeader);
+  if (
+    expectedBytes !== null &&
+    !chargeDailyBytes(
+      ip,
+      expectedBytes,
+      ip === "unknown" ? VIDEO_DAILY_BYTE_CAP_UNKNOWN_IP : VIDEO_DAILY_BYTE_CAP
+    )
+  ) {
+    return RATE_LIMITED_RESPONSE(secondsUntilMidnightUtc());
+  }
+
   try {
-    const rangeHeader = req.headers.get("range");
     const result =
       lesson.videoSource === "drive"
         ? await openDriveStream(lesson.videoUrl, effectiveRangeHeader(rangeHeader))
@@ -121,10 +176,6 @@ export async function GET(
           "X-Content-Type-Options": "nosniff",
         },
       });
-    }
-
-    if (!chargeDailyBytes(getClientIp(req), result.chunkLength)) {
-      return RATE_LIMITED_RESPONSE(secondsUntilMidnightUtc());
     }
 
     const headers: Record<string, string> = {
@@ -146,48 +197,22 @@ export async function GET(
     });
   } catch (err) {
     // Structured one-line log for monitoring (no external service):
-    // lessonId + source + error code + HTTP status, then the raw error.
+    // lessonId + source + error code, then the raw error. The code
+    // stays in the server log only — the client always gets the same
+    // generic body AND the same status.
     const code = err instanceof DriveStreamError ? err.code : "UPSTREAM";
-    const status =
-      err instanceof DriveStreamError
-        ? err.code === "NOT_FOUND"
-          ? 404
-          : err.code === "NOT_CONFIGURED"
-            ? 503
-            : err.code === "NOT_DOWNLOADABLE"
-              ? 422
-              : err.code === "KEY_INVALID"
-                ? 502
-                : 502
-        : 502;
     console.error(
       JSON.stringify({
         lessonId: parsed.data,
         source: lesson.videoSource,
         code,
-        status,
       })
     );
     console.error("Video stream error:", err);
-    // M13: never return the raw upstream error to the client — Drive
-    // messages disclose config state ("Google Drive API key is invalid
-    // or restricted"). Status codes still distinguish the cases; the
-    // body is always the same generic line. The detail stays in the
-    // server log above.
-    if (err instanceof DriveStreamError) {
-      if (err.code === "NOT_FOUND") {
-        return NextResponse.json({ error: "Unable to load video stream" }, { status: 404 });
-      }
-      if (err.code === "NOT_CONFIGURED") {
-        return NextResponse.json({ error: "Unable to load video stream" }, { status: 503 });
-      }
-      if (err.code === "NOT_DOWNLOADABLE") {
-        return NextResponse.json({ error: "Unable to load video stream" }, { status: 422 });
-      }
-      if (err.code === "KEY_INVALID") {
-        return NextResponse.json({ error: "Unable to load video stream" }, { status: 502 });
-      }
-    }
+    // R2-L26: one status (502) for every upstream Drive failure,
+    // keeping the generic body — the old 404/503/422 split let
+    // anyone probe whether the Drive key is configured, invalid,
+    // or the lesson is missing.
     return NextResponse.json(
       { error: "Unable to load video stream" },
       { status: 502 }

@@ -2,13 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   getSessionSecret,
   isSecureDeployment,
-  LEGACY_SESSION_COOKIE,
   SESSION_COOKIE,
 } from "@/lib/auth";
 import {
   createGoogleUser,
   getUserByEmail,
-  updateUser,
+  incrementSessionVersion,
 } from "@/lib/auth-store";
 import { clearSessionCookies, getSessionUserRaw } from "@/lib/auth-routes";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
@@ -26,7 +25,13 @@ export const dynamic = "force-dynamic";
 export async function POST(req: NextRequest) {
   let limit;
   try {
-    limit = await checkRateLimit(`auth-logout:${getClientIp(req)}`, 30, 60_000);
+    limit = await checkRateLimit(
+      `auth-logout:${getClientIp(req)}`,
+      30,
+      60_000,
+      Date.now(),
+      { failClosed: true }
+    );
   } catch {
     return NextResponse.json(
       { error: "Sign-out is temporarily unavailable." },
@@ -45,10 +50,7 @@ export async function POST(req: NextRequest) {
 
   const isSecure = isSecureDeployment();
   const secret = getSessionSecret();
-  const presentedToken =
-    req.cookies.get(SESSION_COOKIE)?.value ??
-    req.cookies.get(LEGACY_SESSION_COOKIE)?.value ??
-    null;
+  const presentedToken = req.cookies.get(SESSION_COOKIE)?.value ?? null;
 
   // Server-side revocation: bump the stored version so this token
   // (and any copy of it) stops verifying. Only the version moves —
@@ -76,9 +78,10 @@ export async function POST(req: NextRequest) {
         });
       }
       if (row) {
-        revoked = await updateUser(row.id, {
-          session_version: (row.session_version ?? 0) + 1,
-        });
+        // Atomic bump (R2-M11): two concurrent logouts (or a logout
+        // racing a sign-in) must not both write N+1 and leave the
+        // session the logout was meant to kill still valid.
+        revoked = (await incrementSessionVersion(row.id)) !== null;
       }
     }
   } else if (presentedToken) {

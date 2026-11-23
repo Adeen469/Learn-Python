@@ -4,6 +4,7 @@ import {
   getAuthPrereqs,
   getSessionUser,
   jsonError,
+  noStore,
   rateLimit,
   serviceUnavailable,
 } from "@/lib/auth-routes";
@@ -14,32 +15,38 @@ import {
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  const limited = await rateLimit(req, "auth-2fa-status", 30, 60_000);
-  if (limited) return limited;
+  const limited = await rateLimit(req, "auth-2fa-status", 30, 60_000, {
+    failClosed: true,
+  });
+  if (limited) return noStore(limited);
 
   const prereqs = getAuthPrereqs(req);
-  if (!prereqs) return serviceUnavailable("2fa-status");
+  if (!prereqs) return noStore(serviceUnavailable("2fa-status"));
 
   const sessionUser = await getSessionUser(req, prereqs.secret);
   if (!sessionUser) {
-    return NextResponse.json({ signedIn: false });
+    return noStore(NextResponse.json({ signedIn: false }));
   }
   if (sessionUser.auth !== "email") {
-    return NextResponse.json({
-      signedIn: true,
-      auth: "google",
-      totpEnabled: false,
-      hasPassword: false,
-      emailVerified: true,
-    });
+    return noStore(
+      NextResponse.json({
+        signedIn: true,
+        auth: "google",
+        totpEnabled: false,
+        hasPassword: false,
+        emailVerified: true,
+      })
+    );
   }
   const user = await getUserByEmail(sessionUser.email);
-  if (!user) return jsonError("Account not found.", 404);
-  return NextResponse.json({
-    signedIn: true,
-    auth: "email",
-    totpEnabled: user.totp_enabled,
-    hasPassword: user.password_hash !== null,
-    emailVerified: user.email_verified,
-  });
+  if (!user) return noStore(jsonError("Account not found.", 404));
+  return noStore(
+    NextResponse.json({
+      signedIn: true,
+      auth: "email",
+      totpEnabled: user.totp_enabled,
+      hasPassword: user.password_hash !== null,
+      emailVerified: user.email_verified,
+    })
+  );
 }

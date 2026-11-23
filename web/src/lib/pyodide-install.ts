@@ -99,8 +99,8 @@ export async function installPackageInto(
       // 404'd from /pyodide/). Check the package actually loaded;
       // if not, fall back to the CDN wheel via micropip.
       if (!isPackageLoaded(pyodide, name)) {
-        const wheelUrl = await cdnWheelUrlFor(name);
-        if (!wheelUrl) {
+        const wheel = await cdnWheelFor(name);
+        if (!wheel) {
           return {
             ok: false,
             error:
@@ -108,14 +108,40 @@ export async function installPackageInto(
               `loaded from this site and no CDN wheel URL is known for it.`,
           };
         }
-        await withTimeout(
-          pyodide.runPythonAsync(
-            "import micropip\n" +
-              `await micropip.install(${JSON.stringify(wheelUrl)})`
-          ),
-          CDN_WHEEL_INSTALL_TIMEOUT_MS,
-          `Downloading '${name}' from the Pyodide CDN timed out after 5 minutes — check your connection and retry.`
-        );
+        // R2-L24: the CDN wheel is fetched and its sha256 verified
+        // against the self-hosted lockfile BEFORE micropip sees
+        // it — a poisoned CDN file (or a MITM with a valid cert)
+        // must never reach the browser's Python. The verified
+        // bytes are installed from a blob URL, never from the CDN
+        // URL directly.
+        let blobUrl: string;
+        try {
+          blobUrl = await withTimeout(
+            fetchVerifiedCdnWheel(wheel),
+            CDN_WHEEL_INSTALL_TIMEOUT_MS,
+            `Downloading '${name}' from the Pyodide CDN timed out after 5 minutes — check your connection and retry.`
+          );
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : String(err);
+          return {
+            ok: false,
+            error:
+              `'${name}' is a Pyodide-built package, but its CDN wheel ` +
+              `could not be verified: ${msg}`,
+          };
+        }
+        try {
+          await withTimeout(
+            pyodide.runPythonAsync(
+              "import micropip\n" +
+                `await micropip.install(${JSON.stringify(blobUrl)})`
+            ),
+            CDN_WHEEL_INSTALL_TIMEOUT_MS,
+            `Installing '${name}' from the Pyodide CDN timed out after 5 minutes — check your connection and retry.`
+          );
+        } finally {
+          URL.revokeObjectURL(blobUrl);
+        }
       }
     } else {
       await withTimeout(
@@ -232,15 +258,26 @@ export function isPackageLoaded(pyodide: any, packageName: string): boolean {
   return norm in loaded || packageName in loaded;
 }
 
-let lockfileCache: Promise<Record<string, { file_name?: string }> | null> | null = null;
+let lockfileCache: Promise<Record<string, { file_name?: string; sha256?: string }> | null> | null =
+  null;
+
+/** A CDN wheel: its URL plus the sha256 the self-hosted lockfile
+    pins for it. Both come from the lockfile — the URL is always
+    the exact wheel loadPackage would have fetched. */
+export interface CdnWheel {
+  url: string;
+  sha256: string;
+}
 
 /**
- * The CDN URL of a Pyodide-built package's wheel, from the
- * self-hosted pyodide-lock.json (same origin, so the lookup itself
- * is fast). Returns null when the package has no wheel in the
- * lockfile. The result is cached for the page lifetime.
+ * The CDN wheel for a Pyodide-built package, from the self-hosted
+ * pyodide-lock.json (same origin, so the lookup itself is fast).
+ * Returns null when the package has no wheel in the lockfile, or
+ * no sha256 to verify it against — an unverifiable wheel is never
+ * offered to the installer. The result is cached for the page
+ * lifetime.
  */
-export async function cdnWheelUrlFor(packageName: string): Promise<string | null> {
+export async function cdnWheelFor(packageName: string): Promise<CdnWheel | null> {
   const norm = normalizePackageName(packageName);
   if (!lockfileCache) {
     lockfileCache = (async () => {
@@ -248,7 +285,7 @@ export async function cdnWheelUrlFor(packageName: string): Promise<string | null
         const res = await fetch("/pyodide/pyodide-lock.json");
         if (!res.ok) return null;
         const lock = (await res.json()) as {
-          packages?: Record<string, { file_name?: string }>;
+          packages?: Record<string, { file_name?: string; sha256?: string }>;
         };
         return lock.packages ?? null;
       } catch {
@@ -257,8 +294,38 @@ export async function cdnWheelUrlFor(packageName: string): Promise<string | null
     })();
   }
   const packages = await lockfileCache;
-  const fileName = packages?.[norm]?.file_name;
-  return fileName ? `${PYODIDE_CDN_WHEEL_BASE}${fileName}` : null;
+  const entry = packages?.[norm];
+  const fileName = entry?.file_name;
+  const sha256 = entry?.sha256;
+  if (!fileName || !sha256) return null;
+  return { url: `${PYODIDE_CDN_WHEEL_BASE}${fileName}`, sha256 };
+}
+
+/**
+ * Fetch a CDN wheel and verify its sha256 against the lockfile
+ * before it is installed. Returns a blob URL for the verified
+ * bytes (micropip installs from that, never from the CDN URL).
+ * Throws — never returns an unverified URL — on a fetch failure,
+ * a hash mismatch, or a browser without Web Crypto (secure
+ * contexts only: localhost + https).
+ */
+export async function fetchVerifiedCdnWheel(wheel: CdnWheel): Promise<string> {
+  if (typeof crypto === "undefined" || !crypto.subtle) {
+    throw new Error(
+      "this browser cannot verify the wheel's integrity (Web Crypto is unavailable)"
+    );
+  }
+  const res = await fetch(wheel.url);
+  if (!res.ok) throw new Error(`the CDN answered ${res.status}`);
+  const bytes = await res.arrayBuffer();
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  const hex = [...new Uint8Array(digest)]
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+  if (hex !== wheel.sha256.toLowerCase()) {
+    throw new Error("its sha256 does not match the lockfile — refusing to install it");
+  }
+  return URL.createObjectURL(new Blob([bytes], { type: "application/octet-stream" }));
 }
 
 /**

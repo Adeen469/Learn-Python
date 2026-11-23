@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getGithubToken, getGithubTokenExpiresAt } from "@/lib/github-token";
 import { getAuthPrereqs, getSessionUser } from "@/lib/auth-routes";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { checkUserLimit } from "@/lib/api-handler";
 
 // Whether the signed-in user has a GitHub token stored on the
 // server. Answers { connected, configured, expiresAt } — never the
@@ -27,7 +28,11 @@ export async function GET(req: NextRequest) {
   if (!user) {
     return NextResponse.json({ error: "Sign in to use GitHub" }, { status: 401 });
   }
-  const token = await getGithubToken(user.email, prereqs.secret);
+  // Per-user bucket alongside the per-IP one, so one user behind
+  // a shared NAT cannot starve another user's status checks.
+  const userBlocked = await checkUserLimit(user.email, "github-token", 10, 60_000);
+  if (userBlocked) return userBlocked;
+  const token = await getGithubToken(user.email);
   if (!token) {
     return NextResponse.json({ connected: false, configured: true, expiresAt: null });
   }

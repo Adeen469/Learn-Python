@@ -7,6 +7,7 @@ import {
 } from "@/lib/github";
 import { resolveSessionGithubToken } from "@/lib/github-token";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { checkUserLimit, rateLimitedResponse } from "@/lib/api-handler";
 
 // A repo's file tree for opening it in the editor: paths + sizes +
 // blob shas only, no contents — the tree is one small call, and each
@@ -16,11 +17,7 @@ import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 // itself is capped at 5,000 entries (truncated:true).
 export const maxDuration = 60;
 
-const RATE_LIMITED_RESPONSE = (retryAfterSeconds: number) =>
-  NextResponse.json(
-    { error: "Too many requests — please slow down and retry shortly." },
-    { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } }
-  );
+const RATE_LIMITED_RESPONSE = rateLimitedResponse;
 
 export async function GET(req: NextRequest) {
   const limit = await checkRateLimit(`github-read:${getClientIp(req)}`, 30, 60_000);
@@ -29,7 +26,11 @@ export async function GET(req: NextRequest) {
   // never sends or sees it.
   const resolved = await resolveSessionGithubToken(req);
   if ("response" in resolved) return resolved.response;
-  const token = resolved.token;
+  const { token, email } = resolved;
+  // Per-user bucket alongside the per-IP one, so one user behind
+  // a shared NAT cannot starve another user's repo browsing.
+  const userBlocked = await checkUserLimit(email, "github-read", 30, 60_000);
+  if (userBlocked) return userBlocked;
   const owner = req.nextUrl.searchParams.get("owner");
   const repo = req.nextUrl.searchParams.get("repo");
   if (!isValidGithubSlug(owner) || !isValidGithubSlug(repo)) {
@@ -37,7 +38,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const allowed = await assertGithubOwnerAllowed(token, owner);
+    const allowed = await assertGithubOwnerAllowed(token, owner, repo);
     if (!allowed) {
       return NextResponse.json(
         { error: "You can only open repos owned by you or your GitHub organisations." },

@@ -1,7 +1,10 @@
 // Server-only Supabase-backed lesson catalog.
 // Lessons live in Supabase (courses -> modules -> lessons); the hardcoded
-// SEED_LESSONS from catalog.ts are the fallback when Supabase is not
-// configured, unreachable, or returns no usable rows. Nothing here is
+// SEED_LESSONS from catalog.ts are the fallback ONLY when Supabase was
+// never configured. When Supabase is configured but the query errors or
+// returns no usable rows, fetchLessons returns an empty list instead of
+// seed — serving seed then would defeat an is_published takedown and
+// resurrect deleted lessons during an outage. Nothing here is
 // imported by client code — the browser reads /api/lessons instead.
 
 import { createClient } from "@supabase/supabase-js";
@@ -132,13 +135,18 @@ export function mapLessonRow(row: LessonRow): Lesson | null {
   };
 }
 
-/** Decide whether to fall back to the seed catalog for a fetch outcome. */
+/** Decide whether to fall back to the seed catalog for a fetch outcome.
+ * Seed is served ONLY when Supabase was never configured. A query
+ * error or zero usable rows while configured must NOT fall back —
+ * that would defeat an is_published takedown (unpublish everything
+ * and the seed catalog still serves) and resurrect deleted lessons
+ * during any Supabase outage. */
 export function shouldFallBackToSeed(outcome: {
   configured: boolean;
   error: boolean;
   rowCount: number;
 }): boolean {
-  return !outcome.configured || outcome.error || outcome.rowCount === 0;
+  return !outcome.configured;
 }
 
 /**
@@ -147,9 +155,8 @@ export function shouldFallBackToSeed(outcome: {
  * mean unpublished — a draft must never leak because a flag was
  * forgotten. (The seed catalog has no flag at all and is unaffected:
  * this only filters Supabase rows. If every row is unpublished the
- * fetch falls back to the seed catalog, so no lesson disappears for
- * users — but live courses must carry is_published=true in Supabase
- * or they silently stop being served from the database.)
+ * fetch returns an empty list, so the takedown takes effect — the
+ * seed catalog is served only when Supabase was never configured.)
  */
 export function isCoursePublished(course: {
   is_published?: unknown;
@@ -164,8 +171,10 @@ function seedResult(): FetchLessonsResult {
 /**
  * Fetch published lessons from Supabase (one query, modules + courses
  * joined so titles come along). Result is cached in memory for 60s.
- * On ANY failure — env missing, network error, query error, zero usable
- * rows — logs one warning and returns the seed catalog instead.
+ * Seed is served only when Supabase was never configured. When it is
+ * configured but the query errors or returns no usable rows, an empty
+ * list is returned (and logged at error level) instead of seed — the
+ * /api/lessons route turns that into a 503.
  */
 export async function fetchLessons(): Promise<FetchLessonsResult> {
   if (cached && Date.now() - cached.fetchedAt < CACHE_TTL_MS) {
@@ -214,10 +223,13 @@ export async function fetchLessons(): Promise<FetchLessonsResult> {
       .filter((lesson): lesson is Lesson => lesson !== null);
 
     if (lessons.length === 0) {
-      console.warn(
-        "[lessons] Supabase returned no usable lessons — falling back to seed lessons"
+      // Configured but nothing usable: no seed fallback — an
+      // operator unpublishing everything must actually take the
+      // lessons down, and an outage must not resurrect them.
+      console.error(
+        "[lessons] Supabase returned no usable lessons — returning an empty list, not seed"
       );
-      const result = seedResult();
+      const result: FetchLessonsResult = { lessons: [], source: "supabase" };
       cached = { result, fetchedAt: Date.now() };
       return result;
     }
@@ -226,11 +238,11 @@ export async function fetchLessons(): Promise<FetchLessonsResult> {
     cached = { result, fetchedAt: Date.now() };
     return result;
   } catch (err) {
-    console.warn(
-      "[lessons] Supabase fetch failed — falling back to seed lessons:",
+    console.error(
+      "[lessons] Supabase fetch failed — returning an empty list, not seed:",
       err instanceof Error ? err.message : String(err)
     );
-    const result = seedResult();
+    const result: FetchLessonsResult = { lessons: [], source: "supabase" };
     cached = { result, fetchedAt: Date.now() };
     return result;
   }

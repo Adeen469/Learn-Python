@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { checkIpLimit, rateLimitedResponse } from "@/lib/api-handler";
 import { isValidPackageName } from "@/lib/validation";
 
-const RATE_LIMITED_RESPONSE = (retryAfterSeconds: number) =>
-  NextResponse.json(
-    { error: "Too many requests — please slow down and retry shortly." },
-    { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } }
-  );
+const RATE_LIMITED_RESPONSE = rateLimitedResponse;
 
 // L15: a PyPI home_page is attacker-controlled (any publisher can set
 // it). Only an absolute https: URL may be handed to the client as a
@@ -27,10 +23,8 @@ function isSafeHttpsUrl(href: unknown): boolean {
 const PYPI_MAX_JSON_BYTES = 1_048_576;
 
 export async function GET(req: NextRequest) {
-  const limit = await checkRateLimit(`pypi:${getClientIp(req)}`, 60, 60_000);
-  if (!limit.allowed) {
-    return RATE_LIMITED_RESPONSE(limit.retryAfterSeconds);
-  }
+  const ipBlocked = await checkIpLimit(req, "pypi", 60, 60_000);
+  if (ipBlocked) return ipBlocked;
 
   const { searchParams } = new URL(req.url);
   const pkg = searchParams.get("name")?.trim();
@@ -74,7 +68,28 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "PyPI response too large" }, { status: 502 });
     }
 
-    const data: unknown = await res.json();
+    // R2-M13: the Content-Length check above is skipped by chunked
+    // upstream bodies (no header), so count bytes while streaming
+    // and stop the read past the cap instead of trusting the header
+    // — parsing the response body directly would read an unbounded
+    // body into memory first.
+    if (!res.body) {
+      return NextResponse.json({ error: "Failed to query PyPI" }, { status: 500 });
+    }
+    const reader = res.body.getReader();
+    const chunks: Uint8Array[] = [];
+    let receivedBytes = 0;
+    for (;;) {
+      const result = await reader.read();
+      if (result.done) break;
+      receivedBytes += result.value.byteLength;
+      if (receivedBytes > PYPI_MAX_JSON_BYTES) {
+        await reader.cancel();
+        return NextResponse.json({ error: "PyPI response too large" }, { status: 502 });
+      }
+      chunks.push(result.value);
+    }
+    const data: unknown = JSON.parse(Buffer.concat(chunks).toString("utf8"));
     // L12: validate the shape before dereferencing — a malformed 200
     // used to throw into the generic 500 path.
     if (

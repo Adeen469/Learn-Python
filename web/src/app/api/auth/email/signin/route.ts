@@ -1,14 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { isValidEmail } from "@/lib/auth";
 import { verifyPassword } from "@/lib/auth-email";
 import {
   clearSigninFailures,
   getUserByEmail,
+  incrementSessionVersion,
   recordSigninFailure,
   updateUser,
 } from "@/lib/auth-store";
 import { checkRateLimit } from "@/lib/rate-limit";
 import {
+  clearPending2fa,
   getAuthPrereqs,
   issueSession,
   jsonError,
@@ -24,6 +27,11 @@ import {
 // second factor and a short-lived step-up cookie is set instead.
 export const dynamic = "force-dynamic";
 
+const signinSchema = z.object({
+  email: z.string().min(3).max(254),
+  password: z.string().min(1).max(128).optional(),
+});
+
 const GENERIC_CREDENTIALS_ERROR = "Invalid email or password.";
 
 // Timing oracle guard: a missing account (or one without a password)
@@ -35,15 +43,21 @@ const DUMMY_PASSWORD_HASH =
   "scrypt$16384$8$1$gfRCHUJjd6I4GJXlcvywSw$Q7Rnq-KI6CqIaWYUz7p40M3SSU33SMJ15ekdKkWg4GwD7-N5HsTWfNN8Gy1rwGw_xzQk8OnoXqXx2b0v9-YarA";
 
 export async function POST(req: NextRequest) {
-  const limited = await rateLimit(req, "auth-email-signin", 10, 60_000);
+  const limited = await rateLimit(req, "auth-email-signin", 10, 60_000, {
+    failClosed: true,
+  });
   if (limited) return limited;
 
   const prereqs = getAuthPrereqs(req);
   if (!prereqs) return serviceUnavailable("signin");
 
   const body = await readJsonBody(req);
-  const email = body?.email;
-  const password = body?.password;
+  const parsed = signinSchema.safeParse(body ?? {});
+  if (!parsed.success) {
+    return jsonError(GENERIC_CREDENTIALS_ERROR, 401);
+  }
+  const email = parsed.data.email;
+  const password = parsed.data.password;
   if (!isValidEmail(email) || typeof password !== "string") {
     return jsonError(GENERIC_CREDENTIALS_ERROR, 401);
   }
@@ -57,7 +71,9 @@ export async function POST(req: NextRequest) {
     emailLimit = await checkRateLimit(
       `auth-email-signin-email:${email.toLowerCase()}`,
       30,
-      60_000
+      60_000,
+      Date.now(),
+      { failClosed: true }
     );
   } catch {
     return jsonError("Sign-in is temporarily unavailable.", 503);
@@ -79,29 +95,22 @@ export async function POST(req: NextRequest) {
     return jsonError(GENERIC_CREDENTIALS_ERROR, 401);
   }
   // Progressive per-account lockout (M5): 10 consecutive failures
-  // lock the account for 15 minutes. The 429 only ever fires for a
-  // real locked account — a missing account still gets the generic
-  // 401 above, so this is not an enumeration oracle.
+  // lock the account for 15 minutes. A locked account answers with
+  // the SAME generic 401 as bad credentials (R2-M7) — the old
+  // distinct 429 ("Too many failed sign-in attempts for this
+  // email") was an enumeration oracle: 11 wrong passwords to any
+  // address proved whether a real account with a password exists.
+  // The dummy scrypt keeps the timing identical to a real password
+  // check. Residual, stated honestly: the lockout itself is still
+  // an account-DoS (10 wrong guesses lock the victim out for 15
+  // minutes) — closing that needs a CAPTCHA or emailed unlock link,
+  // which the owner has forbidden (no UI change).
   if (
     user.signin_locked_until &&
     new Date(user.signin_locked_until).getTime() > Date.now()
   ) {
-    const retryAfterSeconds = Math.max(
-      1,
-      Math.ceil(
-        (new Date(user.signin_locked_until).getTime() - Date.now()) / 1000
-      )
-    );
-    return NextResponse.json(
-      {
-        error:
-          "Too many failed sign-in attempts for this email. Try again in a few minutes.",
-      },
-      {
-        status: 429,
-        headers: { "Retry-After": String(retryAfterSeconds) },
-      }
-    );
+    await verifyPassword(password, DUMMY_PASSWORD_HASH);
+    return jsonError(GENERIC_CREDENTIALS_ERROR, 401);
   }
   const passwordOk = await verifyPassword(password, user.password_hash);
   if (!passwordOk) {
@@ -119,13 +128,18 @@ export async function POST(req: NextRequest) {
 
   // Session rotation (M6): a fresh password sign-in invalidates
   // every older token, so a stolen session does not survive the
-  // victim signing in again. The new session carries the bumped
-  // version; the 2FA branch below bumps too, and the verify step
-  // reads the fresh version when it issues the session.
-  const newSessionVersion = (user.session_version ?? 0) + 1;
+  // victim signing in again. The bump is atomic (R2-M11) and the
+  // new session carries the RETURNED version (R2-L6): if the bump
+  // write fails, mint nothing — a locally computed version would
+  // fail the very next session check and strand the user signed in
+  // but immediately 401'd. The 2FA branch below bumps too, and the
+  // verify step reads the fresh version when it issues the session.
+  const newSessionVersion = await incrementSessionVersion(user.id);
+  if (newSessionVersion === null) {
+    return jsonError("Sign-in is temporarily unavailable.", 503);
+  }
   await updateUser(user.id, {
     last_sign_in_at: new Date().toISOString(),
-    session_version: newSessionVersion,
   });
 
   const res = NextResponse.json({
@@ -143,5 +157,8 @@ export async function POST(req: NextRequest) {
     prereqs.isSecure,
     { auth: "email", mfa: false, sv: newSessionVersion }
   );
+  // R3-L2: a stale pending-2FA cookie must never survive a fresh
+  // sign-in (same as verify-otp already does).
+  clearPending2fa(res, prereqs.isSecure);
   return res;
 }

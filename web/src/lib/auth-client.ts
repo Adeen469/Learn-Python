@@ -94,5 +94,19 @@ export async function signOut(): Promise<void> {
     // landing page either way, and /api/auth/me will 401 without it.
   } finally {
     clearSessionCache();
+    // R2-M16: drop the previous user's offline footprint (cached
+    // pages/data/videos + AI chats, progress and the saved-video
+    // index) so the next user on a shared device cannot open them
+    // offline. Dynamic import: offline-downloads imports this
+    // module, so a static import would be a cycle. Best-effort —
+    // sign-out still proceeds if the purge fails.
+    try {
+      const { clearOfflineUserData } = await import(
+        "@/lib/offline-downloads"
+      );
+      await clearOfflineUserData();
+    } catch {
+      // Ignore.
+    }
   }
 }

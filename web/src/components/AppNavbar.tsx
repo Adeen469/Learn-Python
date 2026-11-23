@@ -21,7 +21,7 @@ import {
   todayKey,
   type ProgressState,
 } from "@/lib/progress";
-import { LEARN_SECTIONS } from "@/lib/learn/sidebar";
+import { LEARN_TOPIC_SLUGS } from "@/lib/learn/topic-slugs";
 import PillNav from "@/components/PillNav";
 import { useLanguage } from "@/lib/i18n";
 
@@ -285,9 +285,13 @@ export function AppNavbar() {
   // Both come from the same stores the pages use — streak from the shared
   // progress record, Continue from the next uncompleted tutorial topic.
   const streak = computeStreak(progress.activeDates);
-  const allTopics = LEARN_SECTIONS.flatMap((s) => s.groups.flatMap((g) => g.topics));
-  const nextTopic = allTopics.find((t) => !completedTopics.includes(t.slug));
-  const nextSlug = nextTopic ? nextTopic.slug : "python-home";
+  // Continue = the first uncompleted topic in curriculum order.
+  // Only the ordered slugs are needed, so the navbar imports the
+  // small slug list, not the whole sidebar tree (53KB) — the navbar
+  // renders on every signed-in page.
+  const nextSlug =
+    LEARN_TOPIC_SLUGS.find((slug) => !completedTopics.includes(slug)) ??
+    "python-home";
 
   return (
     <>

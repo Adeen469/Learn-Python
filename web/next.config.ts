@@ -1,21 +1,24 @@
 import type { NextConfig } from "next";
 
-const csp = [
+const cspDirectives = [
   "default-src 'self'",
-  // NOTE: 'unsafe-inline' is required: Next.js App Router streams its RSC
-  // payload as inline <script>self.__next_f.push(...)</script> tags, and a
-  // real Chromium render proved hydration is fully blocked without it
-  // (28 CSP violations, no client-side rendering). A per-request nonce
-  // via middleware would be the stricter alternative — NOT done here:
-  // the root layout's static theme script (layout.tsx, an inline
-  // <script> via dangerouslySetInnerHTML) would need the nonce passed
-  // to it, and layout.tsx is outside this change; without that, a
-  // nonce CSP would block the theme script. Nonces need: middleware
-  // generates a per-request nonce and sets it on the request/response,
-  // layout.tsx reads it via headers() and puts it on the theme script
-  // (and on Next.js's own inline scripts), then 'unsafe-inline' comes
-  // off script-src/style-src. Until then CSP is a weak backstop, not
-  // an XSS container.
+  // NOTE: 'unsafe-inline' is required on style-src: inline
+  // style={{...}} attributes are used across the app (e.g.
+  // AppNavbar, HighlightedMarkdown spans) and cannot carry a nonce.
+  // script-src used to need it too: Next.js App Router streams its
+  // RSC payload as inline <script>self.__next_f.push(...)</script>
+  // tags, and a real Chromium render proved hydration is fully
+  // blocked without it (28 CSP violations, no client-side
+  // rendering). That half is now fixed with per-request nonces
+  // (R2-L17): middleware.ts generates one nonce per authed page
+  // request, passes it to layout.tsx via the `x-nonce` header for
+  // the static theme script, and Next reads it from the CSP request
+  // header for its own inline scripts — so script-src carries the
+  // nonce instead of 'unsafe-inline' on the middleware-matched
+  // pages, where the middleware header replaces this one. This
+  // header CSP still carries 'unsafe-inline' for every route
+  // middleware does not cover (landing, /auth/*, /offline,
+  // /logic-builder, /modules).
   // 'wasm-unsafe-eval' is required too: Pyodide compiles/instantiates
   // its WebAssembly module via WebAssembly.instantiateStreaming(), and
   // without it the browser refuses with a CompileError ("violates the
@@ -56,7 +59,45 @@ const csp = [
   // No framing at all (X-Frame-Options: DENY is kept alongside it
   // for older browsers that only honour the header).
   "frame-ancestors 'none'",
-].join("; ");
+];
+
+const csp = cspDirectives.join("; ");
+
+// Nonce CSP (R2-L17): the same directives, but script-src carries a
+// per-request nonce instead of 'unsafe-inline'. style-src keeps
+// 'unsafe-inline' — inline style={{...}} attributes cannot carry a
+// nonce. Built by middleware.ts for the matched pages; the header
+// CSP above stays for every route middleware does not cover.
+// Verified against the scratch build: on matched pages the
+// middleware response header replaces the config CSP, it does not
+// duplicate it — so the nonce policy is the one enforced there.
+export function buildCspWithNonce(nonce: string): string {
+  return cspDirectives
+    .map((d) =>
+      d.startsWith("script-src ")
+        ? d.replace("'unsafe-inline'", `'nonce-${nonce}'`)
+        : d,
+    )
+    .join("; ");
+}
+
+// Meta-CSP fallback (R2-M15): Next ignores headers() for
+// `output: "export"`, so the static/desktop build shipped ZERO
+// security headers. layout.tsx emits this same policy as a
+// <meta http-equiv="Content-Security-Policy"> tag, which the export
+// build does honour. `frame-ancestors` cannot be expressed in a meta
+// tag (browsers ignore it there) and there is no meta equivalent of
+// X-Frame-Options, so the export build still has NO framing
+// protection — that gap is honest and stays until the static host
+// serves real headers. On the normal web build the meta tag is
+// redundant (the header carries the same policy plus
+// frame-ancestors) and harmless: multiple CSPs are enforced as
+// their intersection.
+export const cspMeta = csp
+  .split(";")
+  .map((d) => d.trim())
+  .filter((d) => d !== "" && !d.startsWith("frame-ancestors"))
+  .join("; ");
 
 const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },

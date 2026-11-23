@@ -19,6 +19,7 @@ const read = (p) => readFileSync(path.join(root, p), "utf8");
 const page = read("src/app/editor/page.tsx");
 const aiLib = read("src/lib/ai.ts");
 const aiRoute = read("src/app/api/ai/route.ts");
+const saveRoute = read("src/app/api/byok/save/route.ts");
 const en = read("src/lib/i18n/en.ts");
 
 test("BYOK v2: master switch + multiple keys, each switchable, legacy key migrates", () => {
@@ -51,11 +52,13 @@ test("BYOK v2: only the enabled entry for the picked model is ever sent", () => 
   // The server still takes exactly one byok object — multi-key is a
   // client-side selection, not a new server contract. Since H8 the
   // key lives server-side (lp_byok_keys): the route loads it by
-  // provider reference and only falls back to a body key for stale
-  // clients that still send one.
+  // provider reference, and a key in the body is REJECTED (R2-M1)
+  // — the old deprecated fallback is gone.
   assert.ok(aiLib.includes("byok?: AiByok;"), "the server request type must still carry one BYOK object");
   assert.ok(aiRoute.includes("getByokKey(user.email, body.byok.provider)"), "the route must load the BYOK key server-side by provider reference");
-  assert.ok(aiRoute.includes("stored?.key ?? body.byok.key"), "the server-stored key wins; a body key is only a deprecated fallback");
+  assert.ok(aiRoute.includes("const key = stored?.key ?? null;"), "the route must use the stored key only — no body-key fallback");
+  assert.ok(!aiRoute.includes("body.byok.key"), "the route must never read a body-supplied BYOK key");
+  assert.ok(!aiLib.includes("byok.key = b.key"), "validation must never carry a body key through");
 });
 
 test("Models section: breadcrumb, best models per provider, selector tick state", () => {
@@ -93,11 +96,34 @@ test("default selector: two free Gemini + two free Groq models, best + efficient
 });
 
 test("BYOK v2 keeps the old guarantees: browser-only keys, skills ride along", () => {
-  // Keys are persisted to this browser only, never the server.
-  assert.ok(page.includes('localStorage.setItem("lp_ai_byok", JSON.stringify(byokStore))'), "keys must persist to this browser only");
+  // Keys are persisted to this browser only, never the server —
+  // through the version-stamped writer (R2-L19), so a second tab
+  // cannot re-persist keys the first tab deleted.
+  assert.ok(page.includes('writeByokStoreLocal(byokStore)'), "keys must persist to this browser only, version-stamped");
+  assert.ok(page.includes('localStorage.setItem("lp_ai_byok", JSON.stringify({ ...store, v }))'), "the persisted copy must carry a version stamp");
   assert.ok(page.includes('localStorage.setItem("lp_ai_selector_models"'), "selector choices must persist to this browser only");
   // The privacy note must say keys are sent only when BYOK is on.
   assert.ok(en.includes("only when BYOK is on"), "the privacy note must state the new rule");
   // Skills still ride along with every guide request.
   assert.ok(page.includes("skillIds: activeSkillIds"), "skills must still be sent with the request");
+});
+
+test("BYOK save (R3-C SSRF): a custom base URL is validated before it is stored", () => {
+  // The fetch-time guard in lib/ai.ts is the last line of defence,
+  // but an unsafe URL must never reach the store: the save route
+  // reuses isSafeCustomBaseUrl (https-only, no credentials, no
+  // private/loopback/link-local/reserved target, DNS failure fails
+  // closed) and refuses the save BEFORE saveByokKey runs.
+  assert.ok(
+    saveRoute.includes('isSafeCustomBaseUrl'),
+    "the save route must call isSafeCustomBaseUrl for a custom base URL"
+  );
+  assert.ok(
+    saveRoute.indexOf("isSafeCustomBaseUrl(baseUrl)") < saveRoute.indexOf("saveByokKey("),
+    "the SSRF check must run before the key is saved"
+  );
+  assert.ok(
+    saveRoute.includes("Custom base URL must be a public https endpoint"),
+    "a rejected base URL must be refused with a clear error"
+  );
 });

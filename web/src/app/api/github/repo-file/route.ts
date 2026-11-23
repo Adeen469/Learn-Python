@@ -9,6 +9,7 @@ import {
 } from "@/lib/github";
 import { resolveSessionGithubToken } from "@/lib/github-token";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { checkUserLimit, rateLimitedResponse } from "@/lib/api-handler";
 
 // One file's content for the lazily opened repo in the editor.
 // Streamed, not buffered JSON: a Vercel function response caps at
@@ -19,11 +20,7 @@ import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 // it, and refuses oversize files before downloading them.
 export const maxDuration = 60;
 
-const RATE_LIMITED_RESPONSE = (retryAfterSeconds: number) =>
-  NextResponse.json(
-    { error: "Too many requests — please slow down and retry shortly." },
-    { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } }
-  );
+const RATE_LIMITED_RESPONSE = rateLimitedResponse;
 
 export async function GET(req: NextRequest) {
   const limit = await checkRateLimit(`github-read:${getClientIp(req)}`, 30, 60_000);
@@ -32,7 +29,11 @@ export async function GET(req: NextRequest) {
   // never sends or sees it.
   const resolved = await resolveSessionGithubToken(req);
   if ("response" in resolved) return resolved.response;
-  const token = resolved.token;
+  const { token, email } = resolved;
+  // Per-user bucket alongside the per-IP one, so one user behind
+  // a shared NAT cannot starve another user's file reads.
+  const userBlocked = await checkUserLimit(email, "github-read", 30, 60_000);
+  if (userBlocked) return userBlocked;
   const owner = req.nextUrl.searchParams.get("owner");
   const repo = req.nextUrl.searchParams.get("repo");
   const sha = req.nextUrl.searchParams.get("sha");
@@ -47,7 +48,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const allowed = await assertGithubOwnerAllowed(token, owner);
+    const allowed = await assertGithubOwnerAllowed(token, owner, repo);
     if (!allowed) {
       return NextResponse.json(
         { error: "You can only open repos owned by you or your GitHub organisations." },
@@ -70,7 +71,12 @@ export async function GET(req: NextRequest) {
       },
     });
     return new NextResponse(stream, {
-      headers: { "Content-Type": "text/plain; charset=utf-8" },
+      // R3-L15: nosniff, like the video route — a declared
+      // text/plain type is already safe, this is defence in depth.
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "X-Content-Type-Options": "nosniff",
+      },
     });
   } catch (err: unknown) {
     const mapped = mapGithubError(err);

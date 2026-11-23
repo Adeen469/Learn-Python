@@ -731,6 +731,14 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
 
   // Manual save only: tapping Save Offline downloads the video and
   // swaps playback to the cached file.
+  //
+  // R3-M4: the server clamps every Range to a 4 MiB window (R2-H1)
+  // and a no-Range request answers only the first 1 MiB — so the old
+  // plain fetch "saved" a truncated video that played its first
+  // seconds and stopped. Download in sequential Range requests
+  // clamped to the server's window until Content-Range reports
+  // complete, then cache the assembled blob. Any gap, short chunk
+  // or size mismatch fails visibly and caches nothing.
   async function handleSaveOffline() {
     if (!("caches" in window)) {
       setErrorMsg(t.player.errorOfflineCacheUnsupported);
@@ -755,27 +763,69 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
         return;
       }
 
-      const res = await fetch(streamUrl);
-      if (!res.ok || !res.body) {
-        throw new Error(t.player.errorDownloadFailed(res.status));
-      }
-
-      const contentLength = Number(res.headers.get("Content-Length") ?? "0");
-      const contentType = res.headers.get("Content-Type") ?? "video/mp4";
-      const reader = res.body.getReader();
       const chunks: Uint8Array[] = [];
       let received = 0;
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        if (value) {
-          chunks.push(value);
-          received += value.length;
-          if (contentLength > 0 && apply()) {
-            setDownloadProgress(Math.min(100, Math.round((received / contentLength) * 100)));
+      let total = -1;
+      let start = 0;
+      let contentType = "video/mp4";
+      const CHUNK_BYTES = 4 * 1024 * 1024; // the server's Range clamp
+      while (total === -1 || received < total) {
+        const end =
+          total === -1
+            ? start + CHUNK_BYTES - 1
+            : Math.min(start + CHUNK_BYTES - 1, total - 1);
+        const res = await fetch(streamUrl, {
+          headers: { Range: `bytes=${start}-${end}` },
+        });
+        if (res.status !== 206 || !res.body) {
+          throw new Error(t.player.errorDownloadFailed(res.status));
+        }
+        // Content-Range is the only trustworthy total: the route
+        // clamps the window, so Content-Length is just this chunk.
+        const range = res.headers.get("Content-Range") ?? "";
+        const m = /^bytes (\d+)-(\d+)\/(\d+)$/.exec(range);
+        if (!m) throw new Error(t.player.errorSaveOffline);
+        const chunkStart = Number(m[1]);
+        const chunkEnd = Number(m[2]);
+        const chunkTotal = Number(m[3]);
+        if (chunkStart !== start || chunkEnd < chunkStart || chunkTotal <= 0) {
+          throw new Error(t.player.errorSaveOffline);
+        }
+        const firstChunk = total === -1;
+        if (firstChunk) {
+          total = chunkTotal;
+          contentType = res.headers.get("Content-Type") ?? "video/mp4";
+        } else if (chunkTotal !== total) {
+          throw new Error(t.player.errorSaveOffline);
+        }
+        const reader = res.body.getReader();
+        let chunkReceived = 0;
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          if (value) {
+            chunks.push(value);
+            chunkReceived += value.length;
+            received += value.length;
+            if (apply()) {
+              setDownloadProgress(Math.min(100, Math.round((received / total) * 100)));
+            }
           }
         }
+        // A short chunk means a gap in the file — never cache it.
+        if (chunkReceived !== chunkEnd - chunkStart + 1) {
+          throw new Error(t.player.errorSaveOffline);
+        }
+        start = chunkEnd + 1;
+      }
+
+      // Assembled size must equal the total Content-Range reported,
+      // or the saved file is truncated and plays only its first
+      // seconds — fail visibly instead of caching it.
+      if (total <= 0 || received !== total) {
+        throw new Error(
+          `Saved video is incomplete (${received} of ${total} bytes) — try again.`
+        );
       }
 
       const blob = new Blob(chunks as BlobPart[], { type: contentType });

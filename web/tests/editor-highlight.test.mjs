@@ -7,6 +7,13 @@ import path from "node:path";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(path.join(root, p), "utf8");
 
+// The editor split (2026-11-23): the Pyodide engine lives in the hook,
+// the terminal JSX in TerminalPanel, the AI panel in AiPanel — the
+// static checks below read the file that actually holds each piece.
+const hook = read("src/app/editor/hooks/usePyodideEngine.ts");
+const terminalPanel = read("src/app/editor/components/TerminalPanel.tsx");
+const aiPanel = read("src/app/editor/components/AiPanel.tsx");
+
 // --- Inline mirrors of web/src/lib/highlight.tsx (pure logic, no JSX)
 // so node --test can verify behaviour without a build. Keep the regexes
 // and sets identical to the source; the static tests below fail if the
@@ -238,17 +245,17 @@ describe("editor fixes — static checks", () => {
   test("next/script onLoad must not pass the load Event into initPyodide", () => {
     const page = read("src/app/editor/page.tsx");
     assert.ok(
-      page.includes("onLoad={() => initPyodide((stage) => setEngineStage(stage))}"),
+      page.includes("onLoad={() => engine.initPyodide((stage) => engine.setEngineStage(stage))}"),
       "Script onLoad must call initPyodide with a real stage-listener function, so the load status line can show which CDN is being tried"
     );
     assert.ok(!page.includes("onLoad={initPyodide}"), "bare initPyodide must not be the onLoad handler");
+    assert.ok(!page.includes("onLoad={engine.initPyodide}"), "bare engine.initPyodide must not be the onLoad handler either");
     assert.ok(!page.includes("TEMP-DIAG"), "no diagnostic logging may ship");
   });
 
   test("initPyodide only registers real function stage listeners", () => {
-    const page = read("src/app/editor/page.tsx");
     assert.ok(
-      page.includes('typeof onStage === "function"'),
+      hook.includes('typeof onStage === "function"'),
       "initPyodide must guard onStage before adding it to the listener set"
     );
   });
@@ -263,13 +270,12 @@ describe("editor fixes — static checks", () => {
   });
 
   test("editor page highlights code everywhere it is displayed", () => {
-    const page = read("src/app/editor/page.tsx");
-    assert.ok(page.includes("HighlightedTerminal"), "terminal must use the highlighted renderer");
-    assert.ok(page.includes("<HighlightedTerminal output={output} />"), "terminal output must go through it");
-    assert.ok(page.includes("HighlightedMarkdown"), "AI answers must use the highlighted renderer");
-    assert.ok(page.includes("<HighlightedMarkdown text={m.text} />"), "AI panel messages must go through it");
+    assert.ok(terminalPanel.includes("HighlightedTerminal"), "terminal must use the highlighted renderer");
+    assert.ok(terminalPanel.includes("<HighlightedTerminal output={output} />"), "terminal output must go through it");
+    assert.ok(aiPanel.includes("HighlightedMarkdown"), "AI answers must use the highlighted renderer");
+    assert.ok(aiPanel.includes("<HighlightedMarkdown text={m.text} />"), "AI panel messages must go through it");
     assert.ok(
-      page.includes('from "@/lib/highlight"'),
+      terminalPanel.includes('from "@/lib/highlight"') && aiPanel.includes('from "@/lib/highlight"'),
       "highlight components must come from the shared lib"
     );
   });
@@ -291,26 +297,26 @@ describe("editor fixes — static checks", () => {
 
   test("runtime load shows its stage and elapsed seconds while Loading Engine", () => {
     const page = read("src/app/editor/page.tsx");
-    assert.ok(page.includes("const [engineStage, setEngineStage]"), "engineStage state must exist");
-    assert.ok(page.includes("const [engineElapsed, setEngineElapsed]"), "engineElapsed state must exist");
+    assert.ok(hook.includes("const [engineStage, setEngineStage]"), "engineStage state must exist");
+    assert.ok(hook.includes("const [engineElapsed, setEngineElapsed]"), "engineElapsed state must exist");
     assert.ok(
-      page.includes("setInterval(\n      () => setEngineElapsed((s) => s + 1),\n      1000"),
+      hook.includes("setInterval(\n      () => setEngineElapsed((s) => s + 1),\n      1000"),
       "a 1s ticker must advance the elapsed seconds while loading"
     );
     assert.ok(
-      page.includes("{loadingEngine && ("),
+      page.includes("{engine.loadingEngine && ("),
       "a status line must render only while the engine is loading"
     );
     assert.ok(
-      page.includes("{engineStage ?? t.editorPage.loadingEngine}"),
+      page.includes("{engine.engineStage ?? t.editorPage.loadingEngine}"),
       "the status line must show the live stage (which CDN/step), falling back to Loading Engine"
     );
     assert.ok(
-      page.includes("· {engineElapsed}s"),
+      page.includes("· {engine.engineElapsed}s"),
       "the status line must show the elapsed seconds so a slow download reads as working, not stuck"
     );
     assert.ok(
-      page.includes(
+      hook.includes(
         "if (gen === loadGenerationRef.current) {\n        setLoadingEngine(false);\n        setEngineStage(null);\n      }"
       ),
       "the stage must clear when the latest load finishes (guarded so a stale attempt cannot hide a fresh retry's spinner)"
@@ -319,15 +325,15 @@ describe("editor fixes — static checks", () => {
 
   test("terminal has one VS Code-style command line (file-path prompt, shell commands + Python)", () => {
     const page = read("src/app/editor/page.tsx");
-    assert.ok(page.includes("const [terminalInput, setTerminalInput]"), "terminalInput state must exist");
-    assert.ok(page.includes("const [terminalBusy, setTerminalBusy]"), "terminalBusy state must exist");
-    assert.ok(page.includes("async function runTerminalCommand()"), "runTerminalCommand must exist");
+    assert.ok(hook.includes("const [terminalInput, setTerminalInput]"), "terminalInput state must exist");
+    assert.ok(hook.includes("const [terminalBusy, setTerminalBusy]"), "terminalBusy state must exist");
+    assert.ok(hook.includes("async function runTerminalCommand()"), "runTerminalCommand must exist");
     assert.ok(
-      page.includes('if (e.key === "Enter") runTerminalCommand();'),
+      terminalPanel.includes('if (e.key === "Enter") engine.runTerminalCommand();'),
       "Enter in the terminal input must run the command"
     );
     assert.ok(
-      page.includes("disabled={!pyodideReady || terminalBusy || isRunning}"),
+      terminalPanel.includes("disabled={!engine.pyodideReady || engine.terminalBusy || engine.isRunning}"),
       "the terminal input must stay disabled until the runtime is ready and while a command or file run is in flight"
     );
     // The Program-input box and the >>> line are gone — one line only.
@@ -335,37 +341,38 @@ describe("editor fixes — static checks", () => {
     assert.ok(!page.includes("t.editorPage.programInputPlaceholder"), "the Program input placeholder must be gone");
     assert.ok(!page.includes("&gt;&gt;&gt;"), "the >>> prompt must be gone");
     assert.ok(!page.includes("programInput"), "no programInput state may remain");
+    assert.ok(!terminalPanel.includes("programInput"), "no programInput may remain in the terminal panel either");
     // The prompt shows the active file path.
-    assert.ok(page.includes('{activeFile?.path ?? "~"} $'), "the prompt must show the active file path");
+    assert.ok(terminalPanel.includes('{activeFile?.path ?? "~"} $'), "the prompt must show the active file path");
     // Shell commands.
-    assert.ok(page.includes('if (head === "clear")'), "'clear' must empty the terminal");
-    assert.ok(page.includes('if (head === "help")'), "'help' must list the commands");
-    assert.ok(page.includes('if (head === "ls")'), "'ls' must list the workspace files");
-    assert.ok(page.includes('if (head === "pwd")'), "'pwd' must show the active file path");
-    assert.ok(page.includes('if (head === "run")'), "'run' must run the active file");
-    assert.ok(page.includes('head === "python"'), "'python <file>' must run a file");
-    assert.ok(page.includes("await compileAndRun(target)"), "python <file> must run the named file");
-    assert.ok(page.includes("can't open file"), "python <file> must report a missing file");
-    assert.ok(page.includes("async function compileAndRun(file?: WorkspaceItem)"), "compileAndRun must accept a file to run");
+    assert.ok(hook.includes('if (head === "clear")'), "'clear' must empty the terminal");
+    assert.ok(hook.includes('if (head === "help")'), "'help' must list the commands");
+    assert.ok(hook.includes('if (head === "ls")'), "'ls' must list the workspace files");
+    assert.ok(hook.includes('if (head === "pwd")'), "'pwd' must show the active file path");
+    assert.ok(hook.includes('if (head === "run")'), "'run' must run the active file");
+    assert.ok(hook.includes('head === "python"'), "'python <file>' must run a file");
+    assert.ok(hook.includes("await compileAndRun(target)"), "python <file> must run the named file");
+    assert.ok(hook.includes("can't open file"), "python <file> must report a missing file");
+    assert.ok(hook.includes("async function compileAndRun(file?: WorkspaceItem)"), "compileAndRun must accept a file to run");
     // Anything else is still Python in the live runtime.
     assert.ok(
-      page.includes('eval(compile(${JSON.stringify(raw)}, "<terminal>", "eval"))'),
+      hook.includes('eval(compile(${JSON.stringify(raw)}, "<terminal>", "eval"))'),
       "expressions must run through eval so their repr prints (2 + 2 -> 4)"
     );
     assert.ok(
-      page.includes('exec(compile(${JSON.stringify(raw)}, "<terminal>", "exec"))'),
+      hook.includes('exec(compile(${JSON.stringify(raw)}, "<terminal>", "exec"))'),
       "statements must fall back to exec when eval raises SyntaxError"
     );
     assert.ok(
-      page.includes("_lp_term_repr = repr(_lp_term_val)"),
+      hook.includes("_lp_term_repr = repr(_lp_term_val)"),
       "an expression result must print its repr, not nothing"
     );
     assert.ok(
-      page.includes("t.editorPage.terminalCommandPlaceholder"),
+      terminalPanel.includes("t.editorPage.terminalCommandPlaceholder"),
       "the input must use the new command placeholder when ready"
     );
     assert.ok(
-      page.includes("t.editorPage.terminalInputLoadingPlaceholder"),
+      terminalPanel.includes("t.editorPage.terminalInputLoadingPlaceholder"),
       "the input must say the runtime is still loading when it is not ready"
     );
   });
@@ -395,8 +402,7 @@ test("the load status line always shows the real stage, even when the load was s
   // script is slow, emitStage had no listeners and the line fell back
   // to the bare "Loading Engine" while the download was mid-flight.
   // emitStage must update engineStage directly, not only listeners.
-  const src = read("src/app/editor/page.tsx");
-  const emit = src.match(/const emitStage = \(stage: string\) => \{[\s\S]*?\n    \};/);
+  const emit = hook.match(/const emitStage = \(stage: string\) => \{[\s\S]*?\n    \};/);
   assert.ok(emit, "emitStage must be defined in initPyodide");
   assert.ok(
     emit[0].includes("setEngineStage(stage)"),
@@ -409,25 +415,25 @@ test("the load status line always shows the real stage, even when the load was s
 });
 
 test("a stalled runtime load can be cancelled, and a stale load cannot flip state", () => {
-  const src = read("src/app/editor/page.tsx");
+  const page = read("src/app/editor/page.tsx");
   // Generation guard.
-  assert.ok(src.includes("const loadGenerationRef = useRef(0);"), "a load-generation ref must exist");
-  assert.ok(src.includes("const gen = ++loadGenerationRef.current;"), "each fresh load must claim a generation");
+  assert.ok(hook.includes("const loadGenerationRef = useRef(0);"), "a load-generation ref must exist");
+  assert.ok(hook.includes("const gen = ++loadGenerationRef.current;"), "each fresh load must claim a generation");
   assert.ok(
-    src.includes("if (gen !== loadGenerationRef.current) return null;"),
+    hook.includes("if (gen !== loadGenerationRef.current) return null;"),
     "a stale load finishing late must not mark its runtime ready"
   );
   assert.ok(
-    src.includes("if (gen === loadGenerationRef.current) {"),
+    hook.includes("if (gen === loadGenerationRef.current) {"),
     "only the latest attempt may clear the loading state in the finally"
   );
   // Cancel.
-  assert.ok(src.includes("function cancelEngineLoad()"), "a cancelEngineLoad function must exist");
-  assert.ok(src.includes("loadGenerationRef.current++;"), "cancel must invalidate the in-flight attempt");
-  assert.ok(src.includes("pyodideInitPromiseRef.current = null;"), "cancel must clear the shared init promise so a retry starts fresh");
+  assert.ok(hook.includes("function cancelEngineLoad()"), "a cancelEngineLoad function must exist");
+  assert.ok(hook.includes("loadGenerationRef.current++;"), "cancel must invalidate the in-flight attempt");
+  assert.ok(hook.includes("pyodideInitPromiseRef.current = null;"), "cancel must clear the shared init promise so a retry starts fresh");
   // The status line carries the Cancel button.
-  assert.ok(src.includes("onClick={cancelEngineLoad}"), "the status line must have a Cancel button wired to cancelEngineLoad");
-  assert.ok(src.includes("{t.common.cancel}"), "the Cancel button must use the i18n cancel label");
+  assert.ok(page.includes("onClick={engine.cancelEngineLoad}"), "the status line must have a Cancel button wired to cancelEngineLoad");
+  assert.ok(page.includes("{t.common.cancel}"), "the Cancel button must use the i18n cancel label");
   // The cancel label exists in the type and every language.
   const type = read("src/lib/i18n/index.tsx");
   assert.ok(type.includes("cancel: string;"), "the Strings type must carry common.cancel");
@@ -445,27 +451,31 @@ test("workspace files are written to absolute /home/pyodide paths so local impor
   // sys.path insert before the run make local modules resolve.
   const page = read("src/app/editor/page.tsx");
   assert.ok(
-    page.includes('const PY_WORKSPACE_ROOT = "/home/pyodide";'),
+    hook.includes('const PY_WORKSPACE_ROOT = "/home/pyodide";'),
     "the workspace root must be the absolute /home/pyodide path"
   );
   assert.ok(
-    page.includes("py.FS.mkdirTree(`${PY_WORKSPACE_ROOT}/${f.path}`)"),
+    hook.includes("py.FS.mkdirTree(`${PY_WORKSPACE_ROOT}/${f.path}`)"),
     "folders must be created under the absolute workspace root"
   );
   assert.ok(
-    page.includes("py.FS.writeFile(`${PY_WORKSPACE_ROOT}/${f.path}`, f.content ?? \"\");"),
+    hook.includes("py.FS.writeFile(`${PY_WORKSPACE_ROOT}/${f.path}`, f.content ?? \"\");"),
     "files must be written under the absolute workspace root"
   );
   assert.ok(
-    page.includes('os.chdir("/home/pyodide")'),
+    hook.includes('os.chdir("/home/pyodide")'),
     "the run must chdir into the workspace root"
   );
   assert.ok(
-    page.includes('sys.path.insert(0, "/home/pyodide")'),
+    hook.includes('sys.path.insert(0, "/home/pyodide")'),
     "the workspace root must be inserted into sys.path before the run"
   );
   assert.ok(
     !/py\.FS\.writeFile\(f\.path,/.test(page),
     "no relative-path FS.writeFile(f.path, ...) may remain"
+  );
+  assert.ok(
+    !/py\.FS\.writeFile\(f\.path,/.test(hook),
+    "no relative-path FS.writeFile(f.path, ...) may remain in the engine either"
   );
 });

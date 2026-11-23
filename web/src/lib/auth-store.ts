@@ -74,19 +74,39 @@ export function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
 }
 
-export async function getUserByEmail(
+/**
+ * Read a user row, distinguishing "no such user" from "the database
+ * could not be read" (R2-M3). `getUserByEmail` collapses both to
+ * null, which let a DB blip fall through to "create the row / mint
+ * with sv 0". Callers that mint a session must use this and fail
+ * CLOSED on "error", never treat it as "missing".
+ */
+export type GetUserByEmailResult =
+  | { status: "found"; user: AuthUser }
+  | { status: "missing" }
+  | { status: "error" };
+
+export async function getUserByEmailResult(
   email: string
-): Promise<AuthUser | null> {
+): Promise<GetUserByEmailResult> {
   const supabase = getSupabaseAdmin();
-  if (!supabase) return null;
+  if (!supabase) return { status: "error" };
   const { data, error } = await supabase
     .from("lp_auth_users")
     .select("*")
     .eq("email", normalizeEmail(email))
     .limit(1)
     .maybeSingle();
-  if (error || !data) return null;
-  return data as unknown as AuthUser;
+  if (error) return { status: "error" };
+  if (!data) return { status: "missing" };
+  return { status: "found", user: data as unknown as AuthUser };
+}
+
+export async function getUserByEmail(
+  email: string
+): Promise<AuthUser | null> {
+  const result = await getUserByEmailResult(email);
+  return result.status === "found" ? result.user : null;
 }
 
 export async function getUserById(
@@ -375,50 +395,152 @@ export async function bumpTotpFailedAttempts(userId: string): Promise<boolean> {
 }
 
 /**
- * Atomically claim one backup code (M3): remove the matched hash
- * ONLY if it is still in the stored list, and report whether this
- * caller won the claim. Two parallel requests presenting the same
- * code cannot both succeed — the loser sees no row updated and must
- * fail. Falls back to the plain update when the array-contains
- * filter errors (older PostgREST), so backup sign-in never breaks
- * outright — it just loses the atomicity on that path.
+ * Atomically claim one backup code (M3, R2-M10, R2-L1, R2-L2):
+ * remove the matched hash ONLY if it is still in the stored list,
+ * and report whether this caller won the claim. Two parallel
+ * requests presenting the same code cannot both succeed — the loser
+ * sees no row updated and must fail.
+ *
+ * The removal is computed from a freshly re-read list, never from
+ * a caller-computed `remaining`: two parallel claims of DIFFERENT
+ * codes used to resurrect each other's code, because each wrote a
+ * list computed from the same stale read. The write is guarded by
+ * `.contains()` on the matched hash, and after the write the list
+ * is re-read — if the hash is back (a parallel claim re-wrote the
+ * list from a stale read), the claim loops and removes it again.
+ * Any error fails CLOSED (false) — the old plain-update fallback
+ * is gone, so a failing guard can never silently double-spend.
+ *
+ * Legacy SHA-256 codes retire with the claim: any non-scrypt entry
+ * still in the list is dropped alongside the matched code. The
+ * remaining legacy codes cannot be re-hashed under scrypt — their
+ * plaintext is not stored anywhere — so retiring them (forcing
+ * regeneration, which the user does from Settings) is the only way
+ * to bound the weak form's lifetime. The user keeps TOTP access.
  */
 export async function claimBackupCode(
   userId: string,
-  matchedHash: string,
-  remaining: string[]
+  matchedHash: string
 ): Promise<boolean> {
   const supabase = getSupabaseAdmin();
   if (!supabase) return false;
-  const { data, error } = await supabase
-    .from("lp_auth_users")
-    .update({ backup_codes: remaining })
-    .eq("id", userId)
-    .contains("backup_codes", [matchedHash])
-    .select("id");
-  if (!error && data) {
-    return (data as { id: string }[]).length > 0;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const { data: row } = await supabase
+      .from("lp_auth_users")
+      .select("backup_codes")
+      .eq("id", userId)
+      .maybeSingle();
+    const list = (row as { backup_codes?: string[] } | null)
+      ?.backup_codes ?? [];
+    if (!list.includes(matchedHash)) return false;
+    // Drop the matched code — and every remaining legacy SHA-256
+    // entry, which cannot be re-hashed without its plaintext.
+    const remaining = list.filter(
+      (h) => h !== matchedHash && h.startsWith("scrypt$")
+    );
+    const { data, error } = await supabase
+      .from("lp_auth_users")
+      .update({ backup_codes: remaining })
+      .eq("id", userId)
+      .contains("backup_codes", [matchedHash])
+      .select("id");
+    if (error || !data || (data as { id: string }[]).length === 0) {
+      continue;
+    }
+    // Post-write check: a parallel claim of a different code may
+    // have re-written the list from a stale read after this write,
+    // resurrecting the matched hash. Re-read, and loop to remove it
+    // again if it is back.
+    const { data: after } = await supabase
+      .from("lp_auth_users")
+      .select("backup_codes")
+      .eq("id", userId)
+      .maybeSingle();
+    const afterList = (after as { backup_codes?: string[] } | null)
+      ?.backup_codes ?? [];
+    if (!afterList.includes(matchedHash)) return true;
   }
-  console.error(
-    JSON.stringify({
-      event: "auth_backup_claim_fallback",
-      error: error instanceof Error ? error.message : "unknown",
-    })
-  );
-  return updateUser(userId, { backup_codes: remaining });
+  return false;
 }
 
 /**
- * Record the TOTP step a code was accepted for (M4 — replay
- * protection). Best-effort: false when the column is missing
- * (migration 008 not run yet) — sign-in still succeeds, replay
- * protection just activates with the migration.
+ * Atomically record the TOTP step a code was accepted for (M4, R2-M9 —
+ * replay protection). The record IS the check: the UPDATE only lands
+ * when the stored step is NULL or a different step, and the caller
+ * must require "claimed" BEFORE issuing a session. Two sign-in flows
+ * presenting the same code in parallel can no longer both pass —
+ * the loser sees zero rows updated ("replay") and must fail.
+ *
+ * "unavailable" means the column does not exist yet (migration 008
+ * not run) or there is no DB client: replay protection simply is
+ * not active, and the caller proceeds as before. Any other DB error
+ * is "error" — fail closed, issue nothing.
+ */
+export type ClaimTotpStepResult =
+  | "claimed"
+  | "replay"
+  | "unavailable"
+  | "error";
+
+export async function claimTotpStep(
+  userId: string,
+  step: number
+): Promise<ClaimTotpStepResult> {
+  const supabase = getSupabaseAdmin();
+  if (!supabase) {
+    // R3-L9: "unavailable" silently drops replay protection — log
+    // it loudly instead of letting a missing migration pass quiet.
+    console.error(
+      JSON.stringify({
+        event: "totp_replay_unavailable",
+        reason: "no_supabase_client",
+      })
+    );
+    return "unavailable";
+  }
+  const { data, error } = await supabase
+    .from("lp_auth_users")
+    .update({ totp_last_step: step, updated_at: new Date().toISOString() })
+    .eq("id", userId)
+    .or(`totp_last_step.is.null,totp_last_step.neq.${step}`)
+    .select("id");
+  if (!error && data) {
+    return (data as { id: string }[]).length > 0 ? "claimed" : "replay";
+  }
+  // A missing column (migration 008 not run yet) is the only error
+  // that passes through — replay protection just activates with the
+  // migration, as before. Every other DB error fails closed.
+  const code = (error as { code?: string } | null)?.code;
+  const message =
+    error instanceof Error ? error.message : String(error ?? "");
+  if (
+    code === "PGRST204" ||
+    (message.includes("totp_last_step") &&
+      message.includes("schema cache"))
+  ) {
+    // R3-L9: the column is missing (migration 008 not run) — replay
+    // protection is off, and that must never be silent.
+    console.error(
+      JSON.stringify({
+        event: "totp_replay_unavailable",
+        reason: "missing_totp_last_step_column",
+      })
+    );
+    return "unavailable";
+  }
+  return "error";
+}
+
+/**
+ * Backwards-compatible wrapper: true only when this caller won the
+ * atomic step claim. Prefer claimTotpStep — it distinguishes a
+ * replay from a missing column.
  */
 export async function recordTotpStep(
   userId: string,
   step: number
 ): Promise<boolean> {
-  return updateUser(userId, { totp_last_step: step });
+  return (await claimTotpStep(userId, step)) === "claimed";
 }
 
 /**
@@ -491,6 +613,29 @@ export async function markResetTokenUsed(tokenId: string): Promise<boolean> {
 }
 
 /**
+ * Retire EVERY live reset token for a user EXCEPT the presented one
+ * (R2-L4). Called at claim time, BEFORE the password is written —
+ * two concurrent resets with different live tokens can no longer
+ * both succeed, because the second token dies with the first claim.
+ * Best-effort: false when the update fails; the presented token is
+ * already claimed by then, so the reset itself still stands.
+ */
+export async function invalidateOtherResetTokens(
+  userId: string,
+  exceptTokenId: string
+): Promise<boolean> {
+  const supabase = getSupabaseAdmin();
+  if (!supabase) return false;
+  const { error } = await supabase
+    .from("lp_auth_reset_tokens")
+    .update({ used_at: new Date().toISOString() })
+    .eq("user_id", userId)
+    .neq("id", exceptTokenId)
+    .is("used_at", null);
+  return !error;
+}
+
+/**
  * Retire EVERY live reset token for a user (H5). On a successful
  * reset, other outstanding links for the same user must die too —
  * marking only the presented token used leaves earlier links live
@@ -512,20 +657,66 @@ export async function invalidateAllResetTokens(
 }
 
 /**
+ * THE one atomic session_version increment (R2-M11). Every call
+ * site — logout, sign-in, 2FA enable/disable/backup-codes, password
+ * reset — must use this, never a locally computed `+ 1`. The UPDATE
+ * only lands when the version is still the value just read
+ * (compare-and-swap, same pattern as bumpTotpFailedAttempts), so two
+ * concurrent bumps cannot both write N+1 and leave a session valid
+ * after logout/reset. Returns the NEW version, or null when it could
+ * not be bumped — sign-in must use the returned value and mint
+ * nothing on null. The column is NOT NULL DEFAULT 0 (migration
+ * 005), so the equality check never has to deal with NULL.
+ */
+export async function incrementSessionVersion(
+  userId: string
+): Promise<number | null> {
+  const supabase = getSupabaseAdmin();
+  if (!supabase) return null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const { data: row } = await supabase
+      .from("lp_auth_users")
+      .select("session_version")
+      .eq("id", userId)
+      .maybeSingle();
+    if (!row) return null;
+    const current =
+      (row as { session_version?: number }).session_version ?? 0;
+    const { data, error } = await supabase
+      .from("lp_auth_users")
+      .update({
+        session_version: current + 1,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", userId)
+      .eq("session_version", current)
+      .select("session_version");
+    if (!error && data && (data as { session_version: number }[]).length > 0) {
+      return (data as { session_version: number }[])[0].session_version;
+    }
+  }
+  return null;
+}
+
+/**
  * Bump a user's session version (migration 005) and clear the TOTP
- * failure counter. Used after a password reset: every session signed
- * before the reset stops verifying, and a locked step-up flow opens
- * again (the reset link proved email ownership). Best-effort: false
- * when the row or the column is missing — the password itself is
- * already changed, revocation just activates with the migration.
+ * failure counter and the sign-in lockout (R2-L5: a password reset
+ * already proved inbox ownership, so a lockout the attacker caused
+ * must not keep the victim out with their new password). Used after
+ * a password reset: every session signed before the reset stops
+ * verifying, and a locked step-up flow opens again. Best-effort:
+ * false when the version could not be bumped — the password itself
+ * is already changed, revocation just activates with the migration.
  */
 export async function bumpSessionVersion(userId: string): Promise<boolean> {
-  const user = await getUserById(userId);
-  if (!user) return false;
-  return updateUser(userId, {
-    session_version: (user.session_version ?? 0) + 1,
+  const bumped = await incrementSessionVersion(userId);
+  if (bumped === null) return false;
+  await updateUser(userId, {
     totp_failed_attempts: 0,
+    signin_failed_attempts: 0,
+    signin_locked_until: null,
   });
+  return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -535,27 +726,44 @@ export async function bumpSessionVersion(userId: string): Promise<boolean> {
 // ---------------------------------------------------------------------------
 
 /**
- * Record one failed password check. Returns the consecutive
- * failure count, or 0 when it could not be recorded (migration 008
- * not run yet — the lockout is then inactive, never a sign-in
- * failure). At the threshold the account locks for 15 minutes and
- * the counter resets, so the lock always lasts a full 15 minutes
- * from the last burst.
+ * Record one failed password check. Atomic compare-and-swap (R2-M6),
+ * like bumpTotpFailedAttempts: the UPDATE only lands when the
+ * counter is still the value just read, so parallel wrong guesses
+ * cannot all read N and all write N+1 and stall the lockout. Returns
+ * the consecutive failure count, or 0 when it could not be recorded
+ * (migration 008 not run yet — the lockout is then inactive, never
+ * a sign-in failure). At the threshold the account locks for 15
+ * minutes and the counter resets, so the lock always lasts a full
+ * 15 minutes from the last burst.
  */
 export async function recordSigninFailure(userId: string): Promise<number> {
-  const user = await getUserById(userId);
-  if (!user) return 0;
-  const attempts = (user.signin_failed_attempts ?? 0) + 1;
-  const ok =
-    attempts >= SIGNIN_LOCKOUT_THRESHOLD
-      ? await updateUser(userId, {
-          signin_failed_attempts: 0,
-          signin_locked_until: new Date(
-            Date.now() + SIGNIN_LOCKOUT_MS
-          ).toISOString(),
-        })
-      : await updateUser(userId, { signin_failed_attempts: attempts });
-  return ok ? attempts : 0;
+  const supabase = getSupabaseAdmin();
+  if (!supabase) return 0;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const user = await getUserById(userId);
+    if (!user) return 0;
+    const current = user.signin_failed_attempts ?? 0;
+    const attempts = current + 1;
+    const patch =
+      attempts >= SIGNIN_LOCKOUT_THRESHOLD
+        ? {
+            signin_failed_attempts: 0,
+            signin_locked_until: new Date(
+              Date.now() + SIGNIN_LOCKOUT_MS
+            ).toISOString(),
+          }
+        : { signin_failed_attempts: attempts };
+    const { data, error } = await supabase
+      .from("lp_auth_users")
+      .update({ ...patch, updated_at: new Date().toISOString() })
+      .eq("id", userId)
+      .eq("signin_failed_attempts", current)
+      .select("id");
+    if (!error && data && (data as { id: string }[]).length > 0) {
+      return attempts;
+    }
+  }
+  return 0;
 }
 
 /** Clear the failure counter and any lock (on a successful sign-in). Best-effort. */
@@ -624,14 +832,33 @@ export async function countRecentResetTokens(
 // behaviour), so sign-up never breaks pre-migration.
 // ---------------------------------------------------------------------------
 
+/**
+ * Hold a sign-up pending until the emailed code is verified (L8).
+ * Refuses to overwrite an UNEXPIRED pending row (R2-M4): an attacker
+ * who re-signs-up with a victim's email used to replace the victim's
+ * password hash, so the victim's own code created the account with
+ * the attacker's password. Now the pending row — and therefore the
+ * password the account is created with — is the one the code was
+ * issued for. A caller that gets "exists" still sends the code (the
+ * signup route does), so the legitimate owner is never blocked by
+ * their own in-flight sign-up; they just keep the password they
+ * first chose until the row expires (24h). An expired row is
+ * deleted and replaced.
+ */
 export async function storePendingSignup(args: {
   email: string;
   name: string;
   passwordHash: string;
   expiresAtMs: number;
-}): Promise<boolean> {
+}): Promise<
+  { ok: true } | { ok: false; reason: "exists" | "db" }
+> {
   const supabase = getSupabaseAdmin();
-  if (!supabase) return false;
+  if (!supabase) return { ok: false, reason: "db" };
+  const existing = await getPendingSignup(args.email);
+  if (existing) {
+    return { ok: false, reason: "exists" };
+  }
   const { error } = await supabase.from("lp_auth_pending_signups").upsert(
     {
       email: normalizeEmail(args.email),
@@ -641,7 +868,17 @@ export async function storePendingSignup(args: {
     },
     { onConflict: "email" }
   );
-  return !error;
+  if (error) {
+    // Lost a race with another sign-up for the same email: re-read —
+    // an unexpired row now held by someone else is "exists", not a
+    // database failure.
+    if ((error as { code?: string }).code === "23505") {
+      const raced = await getPendingSignup(args.email);
+      if (raced) return { ok: false, reason: "exists" };
+    }
+    return { ok: false, reason: "db" };
+  }
+  return { ok: true };
 }
 
 export async function getPendingSignup(
@@ -656,7 +893,15 @@ export async function getPendingSignup(
     .limit(1)
     .maybeSingle();
   if (error || !data) return null;
-  return data as unknown as PendingSignup;
+  const row = data as unknown as PendingSignup;
+  // Opportunistic expiry (R2-L12): the migration never deletes
+  // expired rows, so drop them on access instead of letting stale
+  // password hashes accumulate indefinitely.
+  if (new Date(row.expires_at).getTime() < Date.now()) {
+    await deletePendingSignup(email);
+    return null;
+  }
+  return row;
 }
 
 export async function deletePendingSignup(email: string): Promise<void> {
@@ -666,4 +911,20 @@ export async function deletePendingSignup(email: string): Promise<void> {
     .from("lp_auth_pending_signups")
     .delete()
     .eq("email", normalizeEmail(email));
+}
+
+/**
+ * R3-M6: delete expired pending sign-ups (migration 010 defines
+ * `delete_expired_pending_signups()` but nothing ever called it).
+ * Best-effort — callers fire-and-forget this; a failure must never
+ * fail the request. Only the service-role client may execute it.
+ */
+export async function deleteExpiredPendingSignups(): Promise<void> {
+  const supabase = getSupabaseAdmin();
+  if (!supabase) return;
+  try {
+    await supabase.rpc("delete_expired_pending_signups");
+  } catch {
+    // Best-effort cleanup only.
+  }
 }

@@ -90,9 +90,13 @@ test("M19: unsafe-inline stays, with the nonce follow-up spelled out", () => {
   assert.ok(src.includes("nonce"), "the nonce follow-up must be named");
 });
 
-test("M20: dompurify is gone from package.json (no direct dep, no override pin)", () => {
-  const pkg = read("package.json");
-  assert.ok(!pkg.includes("dompurify"), "no dompurify mention may remain in package.json");
+test("M20: dompurify has no direct dep; R2-L21 pins the transitive copy to 3.4.17 via overrides", () => {
+  const pkg = JSON.parse(read("package.json"));
+  assert.ok(!pkg.dependencies?.dompurify, "no direct dompurify dep may exist");
+  assert.ok(!pkg.devDependencies?.dompurify, "no direct dompurify devDep may exist");
+  // R2-L21: the transitive copy under monaco-editor was the
+  // vulnerable 3.4.15, so the override pin is REQUIRED, not banned.
+  assert.equal(pkg.overrides?.dompurify, "3.4.17", "the override must pin dompurify to 3.4.17");
   const src = read("src/lib/auth-client.ts");
   assert.ok(!src.includes("dompurify"));
   // And nothing in src imports it (verified: zero imports) — the

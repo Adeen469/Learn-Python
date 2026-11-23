@@ -10,6 +10,7 @@ import { fileURLToPath } from "node:url";
 const webDir = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (rel) => readFileSync(join(webDir, rel), "utf8");
 const page = () => read("src/app/github/page.tsx");
+const editorPage = () => read("src/app/editor/page.tsx");
 const route = () => read("src/app/api/github/repos/route.ts");
 const lib = () => read("src/lib/github.ts");
 const repoTreeRoute = () => read("src/app/api/github/repo-tree/route.ts");
@@ -85,7 +86,7 @@ test("the commit route accepts file contents up to ~4 MB", () => {
 test("the repo tree + single-file routes serve a repo lazily", () => {
   assert.ok(lib().includes("export async function getRepoTree"), "the lib must fetch a repo's file tree");
   assert.ok(lib().includes("export async function getRepoFileContent"), "the lib must fetch one file's content");
-  assert.ok(lib().includes("REPO_OPEN_MAX_BYTES = 50 * 1024 * 1024"), "a file may be up to 50 MB");
+  assert.ok(lib().includes("REPO_OPEN_MAX_BYTES = 10 * 1024 * 1024"), "a file may be up to 10 MB");
   assert.ok(!lib().includes("REPO_OPEN_MAX_FILES"), "there must be no file-count limit");
   assert.ok(!lib().includes("export async function getRepoFiles"), "the fetch-everything helper must be gone");
   assert.ok(lib().includes('recursive: "true"'), "the tree fetch must walk the whole tree");
@@ -200,6 +201,7 @@ test("every GitHub route resolves the server token and takes no Bearer token", (
     "src/app/api/github/repo-tree/route.ts",
     "src/app/api/github/repo-file/route.ts",
     "src/app/api/github/commit/route.ts",
+    "src/app/api/github/batch-commit/route.ts",
     "src/app/api/github/delete-repo/route.ts",
   ]) {
     const src = read(rel);
@@ -282,17 +284,27 @@ test("deleting a repo from the menu needs the typed owner/repo name", () => {
   }
 });
 
-test("stored tokens use a dedicated encryption key, with a lazy migration off the session secret", () => {
+test("stored tokens use a dedicated encryption key only — no session-secret fallback", () => {
   const lib = read("src/lib/github-token.ts");
-  // The key must be a dedicated GITHUB_TOKEN_KEY when set, so a
-  // session-secret leak alone no longer opens the stored tokens.
-  assert.ok(lib.includes("process.env.GITHUB_TOKEN_KEY"), "the token key must prefer a dedicated GITHUB_TOKEN_KEY");
+  // The key must be a dedicated GITHUB_TOKEN_KEY, so a
+  // session-secret leak alone no longer opens the stored tokens —
+  // and a token encrypted under the old SESSION_SECRET key no
+  // longer reads at all (hard cutover, no lazy migration: keeping
+  // any SESSION_SECRET read path would leave the split undone).
+  assert.ok(lib.includes("process.env.GITHUB_TOKEN_KEY"), "the token key must be a dedicated GITHUB_TOKEN_KEY");
   assert.ok(lib.includes("getTokenEncryptionSecret"), "the key choice must live in one helper");
-  // A token encrypted under the old SESSION_SECRET key must still
-  // read — then be re-encrypted under the dedicated key, so the
-  // old key stops working for it from here on.
-  assert.ok(lib.includes("decryptTotpSecret(secret, data.token_encrypted)"), "the read must fall back to the session secret for legacy rows");
-  assert.ok(lib.includes("token_encrypted: encryptTotpSecret(key, plain)"), "a legacy row must be re-encrypted under the dedicated key");
+  assert.ok(
+    !lib.includes("decryptTotpSecret(secret, data.token_encrypted)"),
+    "the read must never fall back to the session secret for legacy rows"
+  );
+  assert.ok(
+    !lib.includes("token_encrypted: encryptTotpSecret(key, plain)"),
+    "no legacy row may be re-encrypted — there is no legacy read to migrate from"
+  );
+  assert.ok(
+    !lib.includes("getGithubToken(user.email, prereqs.secret)"),
+    "the token read must not take the session secret at all"
+  );
   // Save must encrypt under the dedicated key, and fail closed
   // when it is unset — never fall back to the session secret.
   const saveStart = lib.indexOf("export async function saveGithubToken");
@@ -367,13 +379,14 @@ test("M11: GitHub routes check the owner against the token's own identity", () =
   assert.ok(libSrc.includes("createHash"), "the identity cache must be keyed by a hash of the token, not the token");
   assert.ok(libSrc.includes("IDENTITY_TTL_MS"), "the identity cache must expire (short TTL)");
   assert.ok(libSrc.includes("assertGithubOwnerAllowed"), "the lib must offer an owner check");
-  assert.ok(libSrc.includes("owner === identity.login"), "the token owner's own login must be allowed");
-  assert.ok(libSrc.includes("identity.orgs.includes(owner)"), "the token owner's orgs must be allowed");
+  assert.ok(libSrc.includes("wanted === identity.login.toLowerCase()"), "the token owner's own login must be allowed (case-insensitively)");
+  assert.ok(libSrc.includes("org.toLowerCase() === wanted"), "the token owner's orgs must be allowed (case-insensitively)");
   // Every route that takes an owner must run the check before it
   // touches the repo. The repos routes take no owner (list/create
   // are the token owner's own), so there is nothing to check there.
   for (const rel of [
     "src/app/api/github/commit/route.ts",
+    "src/app/api/github/batch-commit/route.ts",
     "src/app/api/github/repo-tree/route.ts",
     "src/app/api/github/repo-file/route.ts",
     "src/app/api/github/delete-repo/route.ts",
@@ -412,6 +425,7 @@ test("M13: GitHub routes map Octokit failures to generic statuses, never raw mes
   assert.ok(libSrc.includes("status: 502"), "an unexpected upstream failure must map to 502");
   for (const rel of [
     "src/app/api/github/commit/route.ts",
+    "src/app/api/github/batch-commit/route.ts",
     "src/app/api/github/repo-tree/route.ts",
     "src/app/api/github/repo-file/route.ts",
     "src/app/api/github/repos/route.ts",
@@ -484,8 +498,12 @@ test("L14: read and write GitHub routes use separate rate-limit buckets", () => 
   assert.ok(!commitRoute.includes("github:${"), "committing must not share the old github: bucket");
   // Writes also get a per-user bucket, so one user behind a shared
   // NAT cannot starve another user's commits.
-  assert.ok(commitRoute.includes("github-write:${email}"), "commits must also be limited per user");
-  assert.ok(reposRoute.includes("github-write:${email}"), "repo creation must also be limited per user");
+  assert.ok(commitRoute.includes('checkUserLimit(email, "github-write"'), "commits must also be limited per user");
+  assert.ok(reposRoute.includes('checkUserLimit(email, "github-write"'), "repo creation must also be limited per user");
+  // R3-L11: the per-user key is a hash of the lowercased email, never
+  // the raw address — the old literal ${email} key must be gone.
+  assert.ok(!commitRoute.includes("github-write:${email}"), "the commit per-user key must not embed the raw email");
+  assert.ok(!reposRoute.includes("github-write:${email}"), "the repo-create per-user key must not embed the raw email");
 });
 
 test("L17: a failed token migration deletes the browser copy and never refills the input", () => {
@@ -508,6 +526,7 @@ test("M17: GitHub POST routes reject oversized bodies before parsing them", () =
   assert.ok(libSrc.includes("status: 413"), "an oversized body must answer 413");
   const cases = [
     ["src/app/api/github/commit/route.ts", "5 * 1024 * 1024"],
+    ["src/app/api/github/batch-commit/route.ts", "5 * 1024 * 1024"],
     ["src/app/api/github/token/route.ts", "256 * 1024"],
     ["src/app/api/github/repos/route.ts", "256 * 1024"],
     ["src/app/api/github/delete-repo/route.ts", "256 * 1024"],
@@ -521,4 +540,250 @@ test("M17: GitHub POST routes reject oversized bodies before parsing them", () =
       `${rel} must check the size BEFORE parsing the body`
     );
   }
+});
+
+test("R2-L13: owner check falls back to a per-repo permission check", () => {
+  const libSrc = lib();
+  // A token without read:org gets an empty org list, and a
+  // collaborator is not the owner — but GitHub knows whether this
+  // token may touch that exact repo, so the repo's permissions
+  // field decides instead of a flat 403.
+  assert.ok(libSrc.includes("rest.repos.get({ owner, repo })"), "the fallback must ask GitHub about the exact repo");
+  assert.ok(libSrc.includes("data.permissions"), "the fallback must read the repo permission field");
+  assert.ok(libSrc.includes("p.admin"), "admin permission must pass the fallback");
+  assert.ok(libSrc.includes("p.push"), "push permission must pass the fallback");
+  assert.ok(libSrc.includes("p.pull"), "read permission must pass the fallback");
+  assert.ok(libSrc.includes("catch {"), "a repo GitHub will not show must fail the check, not throw");
+  // Every route that takes an owner must hand the repo over too,
+  // or the fallback can never run.
+  assert.ok(
+    read("src/app/api/github/commit/route.ts").includes("assertGithubOwnerAllowed(token, parsed.data.owner, parsed.data.repo)"),
+    "commit must pass owner + repo to the check"
+  );
+  assert.ok(
+    read("src/app/api/github/delete-repo/route.ts").includes("assertGithubOwnerAllowed(token, parsed.data.owner, parsed.data.repo)"),
+    "delete-repo must pass owner + repo to the check"
+  );
+  assert.ok(
+    repoTreeRoute().includes("assertGithubOwnerAllowed(token, owner, repo)"),
+    "repo-tree must pass owner + repo to the check"
+  );
+  assert.ok(
+    repoFileRoute().includes("assertGithubOwnerAllowed(token, owner, repo)"),
+    "repo-file must pass owner + repo to the check"
+  );
+});
+
+test("R2-L14: GitHub read + token routes also limit per user, not just per IP", () => {
+  // One user behind a shared NAT must not starve another user's
+  // repo browsing or token checks — same pattern as the write
+  // routes already use (per-user key alongside per-IP).
+  assert.ok(route().includes('checkUserLimit(email, "github-read"'), "listing repos must also be limited per user");
+  assert.ok(repoTreeRoute().includes('checkUserLimit(email, "github-read"'), "repo-tree must also be limited per user");
+  assert.ok(repoFileRoute().includes('checkUserLimit(email, "github-read"'), "repo-file must also be limited per user");
+  const tokenRoute = read("src/app/api/github/token/route.ts");
+  assert.ok(tokenRoute.includes('checkUserLimit(user.email, "github-token"'), "token save/delete must also be limited per user");
+  const status = read("src/app/api/github/token/status/route.ts");
+  assert.ok(status.includes('checkUserLimit(user.email, "github-token"'), "token status must also be limited per user");
+  // R3-L11: per-user keys are hashed (sha256 of the lowercased
+  // email), never the raw address.
+  const handler = read("src/lib/api-handler.ts");
+  assert.ok(handler.includes('createHash("sha256")'), "the per-user key must hash the email");
+  assert.ok(!route().includes("github-read:${email}"), "the repos per-user key must not embed the raw email");
+  assert.ok(!tokenRoute.includes("github-token:${user.email}"), "the token per-user key must not embed the raw email");
+});
+
+test("R2-L27: editor file reads cap at 10 MB before the blob is decoded", () => {
+  const libSrc = lib();
+  // The blob is fully base64-decoded into memory, so a 50 MB
+  // decode per request is cheap memory exhaustion for the
+  // function — the cap for editor reads is 10 MB, checked on the
+  // metadata size before the download and again on the blob.
+  assert.ok(libSrc.includes("REPO_OPEN_MAX_BYTES = 10 * 1024 * 1024"), "an editor file read must cap at 10 MB");
+  assert.ok(libSrc.includes("File is larger than 10 MB"), "an oversize file must say 10 MB");
+  assert.ok(
+    libSrc.includes('err.message.startsWith("File is larger than")'),
+    "the error mapper must still pass the oversize message through as a 400"
+  );
+});
+
+test("R2-L11: the GitHub token key needs >= 32 chars, like the TOTP key", () => {
+  const libSrc = read("src/lib/github-token.ts");
+  assert.ok(libSrc.includes("GITHUB_TOKEN_KEY_MIN_LENGTH = 32"), "the minimum length must be 32");
+  assert.ok(libSrc.includes("key.length < GITHUB_TOKEN_KEY_MIN_LENGTH"), "a short dedicated key must be refused");
+  const getterStart = libSrc.indexOf("export function getTokenEncryptionSecret");
+  const getterEnd = libSrc.indexOf("export async function saveGithubToken", getterStart);
+  const getter = libSrc.slice(getterStart, getterEnd);
+  assert.ok(getter.includes("return null"), "the getter must return null for a short key");
+  assert.ok(!getter.includes("process.env.GITHUB_TOKEN_KEY ?? null"), "the getter must not return any non-empty value");
+});
+
+test("R2-L12: migration 010 makes the BYOK email citext and adds pending-signup cleanup", () => {
+  const migration = read("supabase/migrations/010_byok_citext_and_pending_cleanup.sql");
+  assert.ok(migration.includes("lp_byok_keys"), "010 must touch the BYOK table");
+  assert.ok(migration.includes("alter column user_email type citext"), "010 must make user_email citext");
+  assert.ok(migration.includes("delete_expired_pending_signups"), "010 must add the expired pending-signup cleanup");
+  assert.ok(migration.includes("expires_at < now()"), "the cleanup must delete only expired rows");
+  assert.ok(
+    migration.includes("revoke execute on function public.delete_expired_pending_signups() from public"),
+    "only the service role may call the cleanup"
+  );
+  assert.ok(!migration.includes("pg_cron"), "the cleanup must not assume pg_cron exists");
+});
+
+test("R2-L21/R2-L23: dompurify is pinned by overrides and next/react ranges are tightened", () => {
+  const pkg = JSON.parse(read("package.json"));
+  assert.equal(pkg.overrides?.dompurify, "3.4.17", "dompurify must be pinned to 3.4.17 by overrides");
+  assert.equal(pkg.dependencies.next, "^15.5.29", "next must be ^15.5.29");
+  assert.equal(pkg.dependencies.react, "^19.3.1", "react must be ^19.3.1");
+  assert.equal(pkg.dependencies["react-dom"], "^19.3.1", "react-dom must be ^19.3.1");
+  const lock = JSON.parse(read("package-lock.json"));
+  assert.equal(lock.packages["node_modules/dompurify"]?.version, "3.4.17", "the lockfile must resolve dompurify 3.4.17");
+  assert.equal(lock.packages["node_modules/next"]?.version, "15.5.29", "the lockfile must stay on next 15.5.29");
+  assert.equal(lock.packages["node_modules/react"]?.version, "19.3.1", "the lockfile must stay on react 19.3.1");
+  assert.ok(
+    !lock.packages["node_modules/monaco-editor/node_modules/dompurify"],
+    "the vulnerable nested dompurify 3.4.15 must be gone"
+  );
+});
+
+// ---------------------------------------------------------------------------
+// R3b: the editor push goes through /api/github/batch-commit
+// ---------------------------------------------------------------------------
+
+test("R3b: the editor push goes through /api/github/batch-commit (one request, not one per file)", () => {
+  const e = editorPage();
+  assert.ok(e.includes('fetch("/api/github/batch-commit"'), "the push must POST to batch-commit");
+  assert.ok(!e.includes('fetch("/api/github/commit"'), "the push must no longer fire one request per file");
+  // One message for the whole push, same branch, files as an array.
+  assert.ok(e.includes("files: batch"), "the batch must carry the files array");
+  assert.ok(e.includes("branch: openRepoState.branch"), "the batch must push to the open repo's branch");
+  // Chunking: the server caps at 20 files / 5 MB, so a big push
+  // must split — and a single oversized file must not poison its batch.
+  assert.ok(e.includes("BATCH_COMMIT_MAX_FILES = 20"), "batches must cap at the server's 20 files");
+  assert.ok(e.includes("BATCH_COMMIT_MAX_BYTES = 4_500_000"), "batches must stay under the server's 5 MB body cap");
+  assert.ok(e.includes("BATCH_COMMIT_MAX_CONTENT_CHARS = 4_000_000"), "the per-file cap must match the server's zod limit");
+  assert.ok(e.includes("chunkBatchFiles"), "the push must chunk files into server-acceptable batches");
+  assert.ok(e.includes("oversized"), "an oversized file must be split out of the batches");
+  // A one-file push is a batch of one — the server accepts min 1,
+  // and each file still commits through the same lib call as the
+  // single-file route (one commit per file, behaviour unchanged).
+  const batch = read("src/app/api/github/batch-commit/route.ts");
+  assert.ok(batch.includes("z.array(batchFileSchema).min(1).max(20)"), "the server must accept a one-file batch");
+  assert.ok(batch.includes("commitFileToRepo(token, {"), "each file must still commit through the same lib call as the single-file route");
+});
+
+test("R3b: chunking splits at 20 files and at the byte cap, and isolates oversized files", () => {
+  // Behavioural mirror of chunkBatchFiles in the editor: the tests
+  // are static, so the rule itself is mirrored here and the
+  // constants + call sites are pinned against the real code below.
+  const MAX_FILES = 20;
+  const MAX_BYTES = 4_500_000;
+  const MAX_CHARS = 4_000_000;
+  const chunk = (files) => {
+    const oversized = [];
+    const batches = [];
+    let current = [];
+    let currentBytes = 200;
+    const bytes = (s) => Buffer.byteLength(s, "utf8");
+    for (const file of files) {
+      if (file.content.length > MAX_CHARS) {
+        oversized.push(file);
+        continue;
+      }
+      const b = bytes(file.content) + bytes(file.path) + 64;
+      if (current.length > 0 && (current.length >= MAX_FILES || currentBytes + b > MAX_BYTES)) {
+        batches.push(current);
+        current = [];
+        currentBytes = 200;
+      }
+      current.push(file);
+      currentBytes += b;
+    }
+    if (current.length > 0) batches.push(current);
+    return { batches, oversized };
+  };
+  const file = (i, size = 10) => ({ path: `f${i}.py`, content: "x".repeat(size) });
+  // 1 file → 1 batch of 1 (single-file push still works).
+  assert.deepEqual(chunk([file(0)]).batches.map((b) => b.length), [1]);
+  // 20 files → 1 batch; 21 → 2 batches.
+  assert.deepEqual(
+    chunk(Array.from({ length: 20 }, (_, i) => file(i))).batches.map((b) => b.length),
+    [20]
+  );
+  assert.deepEqual(
+    chunk(Array.from({ length: 21 }, (_, i) => file(i))).batches.map((b) => b.length),
+    [20, 1]
+  );
+  // A file whose bytes alone pass the cap sits in its own batch and
+  // does not drag the small files with it (multi-byte chars: under
+  // the 4M-char cap, over the byte cap).
+  const big = chunk([{ path: "big.py", content: "😀".repeat(1_200_000) }, file(1), file(2)]);
+  assert.deepEqual(big.batches.map((b) => b.length), [1, 2], "a near-cap file must sit in its own batch");
+  assert.equal(big.oversized.length, 0, "a big-but-legal file must not be treated as oversized");
+  // A file over the per-file char cap is isolated, and the other
+  // file still pushes in its own batch.
+  const huge = chunk([{ path: "huge.py", content: "x".repeat(4_000_001) }, file(1)]);
+  assert.equal(huge.oversized.length, 1, "a file over the per-file char cap must be isolated");
+  assert.deepEqual(huge.batches.map((b) => b.length), [1], "the other file must still push");
+  // The real chunker must use the same numbers.
+  const e = editorPage();
+  assert.ok(e.includes("current.length >= BATCH_COMMIT_MAX_FILES"), "the real chunker must cap the file count");
+  assert.ok(e.includes("currentBytes + bytes > BATCH_COMMIT_MAX_BYTES"), "the real chunker must cap the byte size");
+  assert.ok(e.includes("file.content.length > BATCH_COMMIT_MAX_CONTENT_CHARS"), "the real chunker must isolate oversized files");
+});
+
+test("R3b: a partial batch failure names each failed file with its reason and stays retryable", () => {
+  const e = editorPage();
+  const fnStart = e.indexOf("async function pushRepoChanges");
+  const fnEnd = e.indexOf("// Push dialog:", fnStart);
+  const fn = e.slice(fnStart, fnEnd);
+  assert.ok(fn.includes("(data as { results?: unknown }).results"), "the push must read the server's per-file results");
+  // Only a file the server reports ok leaves the changed set —
+  // a failed file stays changed, so the next push retries just it.
+  assert.ok(
+    fn.indexOf("if (result.ok === true)") < fn.indexOf("changedRepoPathsRef.current.delete"),
+    "only ok files must leave the changed set"
+  );
+  assert.ok(fn.includes("failed.push({"), "failures must be collected per file");
+  assert.ok(fn.includes('typeof result.error === "string"'), "a per-file failure must carry the server's reason");
+  // A whole-batch failure (429/403/400/network) fails every file
+  // in that batch with the same reason — never silently, never as
+  // if it had pushed.
+  assert.ok(fn.includes("if (!res.ok)"), "a non-2xx batch must be handled, not read as results");
+  assert.ok(fn.includes("for (const f of batch) failed.push"), "a failed batch must fail each of its files");
+  // A file the server never reports is not assumed pushed.
+  assert.ok(fn.includes("!seen.has(f.path)"), "an unreported file must be treated as failed, not pushed");
+  // The terminal summary names the failures with their reasons.
+  assert.ok(fn.includes("failed.map((f) => `${f.path} (${f.error})`)"), "the summary must show each failed file with its reason");
+  assert.ok(fn.includes("Pushed ${pushed} of ${ready.length}"), "the summary must still count pushed vs ready");
+  assert.ok(fn.includes("Skipped ${skipped.length} unopened file(s)."), "skipped unopened files must still be reported");
+});
+
+test("R3b: the AI-refined commit message is preserved, and the token flow is unchanged", () => {
+  const e = editorPage();
+  // The dialog still refines the message with AI and the confirm
+  // still passes the edited-or-default message to the push.
+  assert.ok(e.includes("generateCommitMessage"), "the dialog must still ask the AI for a commit message");
+  assert.ok(
+    e.includes("commitMessage.trim() || defaultCommitMessage(pushDialogFiles.ready)"),
+    "confirm must send the edited message, or the default when the box is empty"
+  );
+  assert.ok(e.includes("await pushRepoChanges(message)"), "confirm must pass the message into the push");
+  assert.ok(e.includes("async function pushRepoChanges(message: string)"), "the push must still take the one approved message");
+  // The batch carries that one message — no per-file message is built.
+  const fnStart = e.indexOf("async function pushRepoChanges");
+  const fnEnd = e.indexOf("// Push dialog:", fnStart);
+  const fn = e.slice(fnStart, fnEnd);
+  assert.ok(fn.includes("message,"), "the batch body must carry the approved message");
+  assert.ok(!fn.includes("defaultCommitMessage"), "the push itself must not rebuild the message");
+  // Token flow: the editor still sends no token — the server
+  // resolves the stored PAT from the session, like before.
+  assert.ok(!e.includes("Authorization:"), "the editor must send no token with the push");
+  const batch = read("src/app/api/github/batch-commit/route.ts");
+  assert.ok(batch.includes("resolveSessionGithubToken"), "batch-commit must resolve the server-held token");
+  assert.ok(batch.includes("assertGithubOwnerAllowed"), "batch-commit must check the owner");
+  assert.ok(batch.includes("github-write:"), "batch-commit must keep the write rate bucket");
+  assert.ok(batch.includes('checkUserLimit(email, "github-write"'), "batch-commit must keep the per-user bucket");
+  assert.ok(batch.includes("logGithubTokenUse("), "batch-commit must keep auditing token use");
 });

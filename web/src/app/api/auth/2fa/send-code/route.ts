@@ -16,7 +16,9 @@ import {
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
-  const limited = await rateLimit(req, "auth-2fa-send-code", 10, 60_000);
+  const limited = await rateLimit(req, "auth-2fa-send-code", 10, 60_000, {
+    failClosed: true,
+  });
   if (limited) return limited;
 
   const prereqs = getAuthPrereqs(req);

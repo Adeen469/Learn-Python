@@ -188,6 +188,48 @@ export default function GitHubPage() {
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deletingRepo, setDeletingRepo] = useState(false);
+  // Step-up (R3-M2): the server requires the account password (when
+  // the account has one) and a TOTP/backup code (when 2FA is on)
+  // before deleting — collected in this same dialog, no new UI.
+  // Which fields show comes from /api/auth/2fa/status when the
+  // dialog opens; if that check fails both stay hidden and the
+  // server enforces (it 400s if a password/code was needed).
+  // NOTE: this extends an existing dialog (password + code fields)
+  // and needs Maalik's explicit UI permission before it pushes.
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteTotpCode, setDeleteTotpCode] = useState("");
+  const [deleteNeedsPassword, setDeleteNeedsPassword] = useState(false);
+  const [deleteNeedsTotp, setDeleteNeedsTotp] = useState(false);
+  useEffect(() => {
+    if (!deleteTarget) return;
+    setDeletePassword("");
+    setDeleteTotpCode("");
+    setDeleteNeedsPassword(false);
+    setDeleteNeedsTotp(false);
+    let cancelled = false;
+    fetch("/api/auth/2fa/status", { credentials: "same-origin" })
+      .then((res) => (res.ok ? res.json().catch(() => null) : null))
+      .then((data) => {
+        if (cancelled || !data || typeof data !== "object") return;
+        if ((data as { hasPassword?: unknown }).hasPassword === true) {
+          setDeleteNeedsPassword(true);
+        }
+        if ((data as { totpEnabled?: unknown }).totpEnabled === true) {
+          setDeleteNeedsTotp(true);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [deleteTarget]);
+  function closeDeleteDialog() {
+    setDeleteTarget(null);
+    setDeleteConfirmText("");
+    setDeletePassword("");
+    setDeleteTotpCode("");
+    setDeleteError(null);
+  }
   async function confirmDeleteRepo() {
     if (!deleteTarget || deletingRepo) return;
     const [owner, repo] = deleteTarget.full_name.split("/");
@@ -197,7 +239,7 @@ export default function GitHubPage() {
       const res = await fetch("/api/github/delete-repo", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ owner, repo }),
+        body: JSON.stringify({ owner, repo, password: deletePassword, code: deleteTotpCode }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Could not delete the repo");
@@ -205,8 +247,7 @@ export default function GitHubPage() {
       if (selectedRepo?.id === deleteTarget.id) setSelectedRepo(null);
       setFavs((prev) => prev.filter((f) => f !== deleteTarget.full_name));
       setSuccessMsg(t.githubPage.repoDeleted(deleteTarget.full_name));
-      setDeleteTarget(null);
-      setDeleteConfirmText("");
+      closeDeleteDialog();
     } catch (err: unknown) {
       setDeleteError(err instanceof Error ? err.message : "Could not delete the repo");
     } finally {
@@ -878,7 +919,7 @@ export default function GitHubPage() {
         {deleteTarget && (
           <div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-            onClick={() => setDeleteTarget(null)}
+            onClick={() => closeDeleteDialog()}
           >
             <div
               className="w-full max-w-lg rounded-xl border border-neutral-800 bg-neutral-950 p-4 shadow-xl"
@@ -907,13 +948,52 @@ export default function GitHubPage() {
                 placeholder={t.editorPage.deleteRepoConfirmPlaceholder}
                 className="mt-1 w-full rounded-lg border border-neutral-800 bg-black px-3 py-2 font-mono text-xs text-white placeholder-neutral-600 focus:border-red-500 focus:outline-none"
               />
+              {deleteNeedsPassword && (
+                <>
+                  <label
+                    htmlFor="delete-repo-password"
+                    className="mt-3 block text-xs font-medium text-neutral-300"
+                  >
+                    Your password
+                  </label>
+                  <input
+                    id="delete-repo-password"
+                    type="password"
+                    autoComplete="current-password"
+                    value={deletePassword}
+                    onChange={(e) => setDeletePassword(e.target.value)}
+                    placeholder="Enter your password"
+                    className="mt-1 w-full rounded-lg border border-neutral-800 bg-black px-3 py-2 text-xs text-white placeholder-neutral-600 focus:border-red-500 focus:outline-none"
+                  />
+                </>
+              )}
+              {deleteNeedsTotp && (
+                <>
+                  <label
+                    htmlFor="delete-repo-totp"
+                    className="mt-3 block text-xs font-medium text-neutral-300"
+                  >
+                    Authenticator code
+                  </label>
+                  <input
+                    id="delete-repo-totp"
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    value={deleteTotpCode}
+                    onChange={(e) => setDeleteTotpCode(e.target.value)}
+                    placeholder="6-digit code or backup code"
+                    className="mt-1 w-full rounded-lg border border-neutral-800 bg-black px-3 py-2 font-mono text-xs text-white placeholder-neutral-600 focus:border-red-500 focus:outline-none"
+                  />
+                </>
+              )}
               {deleteError && (
                 <p className="mt-2 text-xs text-red-400">{deleteError}</p>
               )}
               <div className="mt-4 flex justify-end gap-2">
                 <button
                   type="button"
-                  onClick={() => setDeleteTarget(null)}
+                  onClick={() => closeDeleteDialog()}
                   className="rounded-md border border-neutral-800 bg-black px-3 py-1.5 text-xs text-neutral-300 hover:text-white"
                 >
                   {t.common.cancel}
@@ -921,7 +1001,12 @@ export default function GitHubPage() {
                 <button
                   type="button"
                   onClick={() => void confirmDeleteRepo()}
-                  disabled={deletingRepo || deleteConfirmText.trim() !== deleteTarget.full_name}
+                  disabled={
+                    deletingRepo ||
+                    deleteConfirmText.trim() !== deleteTarget.full_name ||
+                    (deleteNeedsPassword && deletePassword.length === 0) ||
+                    (deleteNeedsTotp && deleteTotpCode.length === 0)
+                  }
                   className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-500 disabled:bg-neutral-800 disabled:text-neutral-600"
                 >
                   {deletingRepo ? t.editorPage.deleteRepoDeleting : t.editorPage.deleteRepoButton}

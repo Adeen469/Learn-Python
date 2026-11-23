@@ -3,12 +3,9 @@ import { z } from "zod";
 import { createUserRepo, listUserRepos, mapGithubError, oversizedBodyResponse } from "@/lib/github";
 import { logGithubTokenUse, resolveSessionGithubToken } from "@/lib/github-token";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { checkUserLimit, rateLimitedResponse, validateBody } from "@/lib/api-handler";
 
-const RATE_LIMITED_RESPONSE = (retryAfterSeconds: number) =>
-  NextResponse.json(
-    { error: "Too many requests — please slow down and retry shortly." },
-    { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } }
-  );
+const RATE_LIMITED_RESPONSE = rateLimitedResponse;
 
 // Reads (list) and writes (create) get separate buckets, so
 // browsing repos cannot starve creating one — and writes get a
@@ -38,7 +35,12 @@ export async function GET(req: NextRequest) {
   // 401/404 here instead of a GitHub call.
   const resolved = await resolveSessionGithubToken(req);
   if ("response" in resolved) return resolved.response;
-  const token = resolved.token;
+  const { token, email } = resolved;
+
+  // Per-user bucket alongside the per-IP one, so one user behind
+  // a shared NAT cannot starve another user's repo browsing.
+  const userBlocked = await checkUserLimit(email, "github-read", 30, 60_000);
+  if (userBlocked) return userBlocked;
 
   try {
     const repos = await listUserRepos(token);
@@ -58,15 +60,13 @@ export async function POST(req: NextRequest) {
   if ("response" in resolved) return resolved.response;
   const { token, email } = resolved;
 
-  const userLimit = await checkRateLimit(`github-write:${email}`, 30, 60_000);
-  if (!userLimit.allowed) return RATE_LIMITED_RESPONSE(userLimit.retryAfterSeconds);
+  const userBlocked = await checkUserLimit(email, "github-write", 30, 60_000);
+  if (userBlocked) return userBlocked;
 
   try {
     const body = await req.json();
-    const parsed = createRepoSchema.safeParse(body);
-    if (!parsed.success) {
-      return NextResponse.json({ error: "Invalid repository parameters", details: parsed.error.issues }, { status: 400 });
-    }
+    const parsed = validateBody(body, createRepoSchema, "Invalid repository parameters");
+    if (!parsed.ok) return parsed.response;
 
     const repo = await createUserRepo(token, parsed.data);
     void logGithubTokenUse(email, "repo_created", repo.full_name, getClientIp(req));

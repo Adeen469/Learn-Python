@@ -52,7 +52,8 @@ describe("modern scrollbars (globals.css)", () => {
 });
 
 describe("code editor scrollbar matches the theme (editor/page.tsx)", () => {
-  const editor = readFileSync(join(webDir, "src/app/editor/page.tsx"), "utf8");
+  // The Monaco editor lives in the Editor panel component (editor split).
+  const editor = readFileSync(join(webDir, "src/app/editor/components/EditorPanel.tsx"), "utf8");
 
   test("lp-dark theme carries the white-pill scrollbar colors", () => {
     assert.ok(editor.includes('"lp-dark"'), "editor must use the lp-dark theme");

@@ -442,3 +442,61 @@ test("lesson page awaits the lesson chunk and keeps the not-written case", () =>
   assert.ok(page.includes("contentFailed"), "a failed chunk load must be a distinct state, not 'not written yet'");
   assert.ok(page.includes("t.common.retry"), "a failed chunk load must offer a retry");
 });
+
+test("topic slugs list matches the sidebar exactly (order + count)", () => {
+  // The navbar / offline warmer only need ordered slugs, so they
+  // import the small LEARN_TOPIC_SLUGS list instead of the whole
+  // sidebar tree. That list is a second copy of the sidebar order,
+  // so it must be pinned here: any topic added, removed, reordered
+  // or renamed in sidebar.ts fails this test until topic-slugs.ts
+  // is regenerated from it (same extractor, in order).
+  const sidebarSlugs = slugsIn(read("sidebar.ts"));
+  const slugsSrc = read("topic-slugs.ts");
+  const listed = [...slugsSrc.matchAll(/^  "([^"]+)",$/gm)].map((m) => m[1]);
+  assert.equal(listed.length, 812, `expected 812 slugs, got ${listed.length}`);
+  assert.deepEqual(listed, sidebarSlugs, "LEARN_TOPIC_SLUGS must list the sidebar slugs in order");
+  // The count is a literal (not .length) so chunks importing only
+  // the count do not drag the 812-string array along.
+  const count = Number(slugsSrc.match(/LEARN_TOPIC_COUNT = (\d+)/)?.[1]);
+  assert.equal(count, 812, `LEARN_TOPIC_COUNT must be 812, got ${count}`);
+  assert.equal(count, listed.length, "LEARN_TOPIC_COUNT must match the list");
+  assert.ok(!slugsSrc.includes("LEARN_TOPIC_COUNT = LEARN_TOPIC_SLUGS.length"), "the count must stay a literal, never .length");
+});
+
+test("lazy lesson index: shared chunks never statically import the sidebar tree", () => {
+  // The full sidebar tree (53KB) used to ride the shared layout +
+  // navbar chunks on every page: OfflineWarmer (root layout) pulls
+  // offline-downloads, and the navbar pulled LEARN_SECTIONS for its
+  // Continue button. Now the shared chunks carry only the ~17KB
+  // slug list; the tree loads only on Learn pages (LearnSidebar /
+  // lib/learn/index) and inside getSavedLessons, when the Settings
+  // saved-lessons list actually renders.
+  const downloads = readFileSync(join(webDir, "src/lib/offline-downloads.ts"), "utf8");
+  const navbar = readFileSync(join(webDir, "src/components/AppNavbar.tsx"), "utf8");
+  const popup = readFileSync(join(webDir, "src/components/OfflineDownloadPopup.tsx"), "utf8");
+  for (const [name, src] of [["offline-downloads", downloads], ["AppNavbar", navbar], ["OfflineDownloadPopup", popup]]) {
+    assert.ok(!src.includes('from "@/lib/learn/sidebar"'), `${name} must not statically import the sidebar tree`);
+  }
+  assert.ok(!navbar.includes("ALL_LEARN_TOPICS"), "AppNavbar must not reference ALL_LEARN_TOPICS");
+  assert.ok(!popup.includes("ALL_LEARN_TOPICS"), "OfflineDownloadPopup must not reference ALL_LEARN_TOPICS");
+  // offline-downloads names ALL_LEARN_TOPICS only inside
+  // getSavedLessons (the Settings list): the dynamic import plus
+  // its two uses. Everywhere else the slug list is the source.
+  const fn = downloads.match(/export async function getSavedLessons\(\)[\s\S]*?\n}\n/)?.[0];
+  assert.ok(fn, "getSavedLessons must exist");
+  assert.ok(fn.includes('const { ALL_LEARN_TOPICS } = await import("@/lib/learn/sidebar")'), "the tree must load via dynamic import inside getSavedLessons");
+  const outside = downloads.replace(fn, "");
+  assert.ok(!outside.includes("ALL_LEARN_TOPICS"), "no code outside getSavedLessons may reference ALL_LEARN_TOPICS");
+  // The warmer uses the slug list, and only the Settings list loads
+  // the full tree — dynamically, never statically.
+  assert.ok(downloads.includes('from "@/lib/learn/topic-slugs"'), "offline-downloads must use the slug list");
+  assert.ok(downloads.includes('import("@/lib/learn/sidebar")'), "the full tree must load dynamically for the saved-lessons list");
+  assert.ok(downloads.includes("getSavedLessons"), "getSavedLessons must stay exported");
+  assert.ok(downloads.includes("export function readWarmProgress"), "readWarmProgress must stay sync and exported");
+  // The navbar Continue button resolves from slugs only.
+  assert.ok(navbar.includes('from "@/lib/learn/topic-slugs"'), "the navbar must use the slug list");
+  assert.ok(navbar.includes("LEARN_TOPIC_SLUGS.find"), "Continue must find the first uncompleted slug");
+  assert.ok(navbar.replace(/\s+/g, " ").includes('?? "python-home"'), "Continue must fall back to python-home when everything is done");
+  // The popup needs the count only.
+  assert.ok(popup.includes("LEARN_TOPIC_COUNT"), "the popup must use the topic count");
+});

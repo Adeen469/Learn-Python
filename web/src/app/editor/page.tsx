@@ -3,12 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import Script from "next/script";
 import { useRouter } from "next/navigation";
-import Editor from "@monaco-editor/react";
 import { AppNavbar } from "@/components/AppNavbar";
-import BranchedMenu, { type BranchedMenuItem } from "@/components/BranchedMenu";
+import { type BranchedMenuItem } from "@/components/BranchedMenu";
 import { EditorContextMenu, type ContextMenuItem } from "@/components/EditorContextMenu";
 import { EditorMenuBar, type EditorMenu } from "@/components/EditorMenuBar";
-import { EditorPanelHeader } from "@/components/EditorPanelHeader";
 import { EditorSplitter } from "@/components/EditorSplitter";
 import { ModulesPanel } from "@/components/ModulesPanel";
 import { fetchSessionUser } from "@/lib/auth-client";
@@ -19,12 +17,7 @@ import {
 } from "@/lib/theme";
 import { restoreStoredPackages } from "@/lib/package-storage";
 import { loadPyodideRuntime, withTimeout } from "@/lib/pyodide-install";
-import {
-  HighlightedMarkdown,
-  HighlightedTerminal,
-} from "@/lib/highlight";
-import PromptBar, { type PromptBarModel } from "@/components/PromptBar";
-import ThoughtLine from "@/components/ThoughtLine";
+import { type PromptBarModel } from "@/components/PromptBar";
 import {
   ANTHROPIC_MODELS,
   GEMINI_FREE_MODELS,
@@ -37,97 +30,43 @@ import {
   ArrowLeft,
   Check,
   ChevronRight,
-  Code2,
   FileCode,
   Folder,
-  FolderPlus,
   History,
   KeyRound,
   Loader2,
-  MoreVertical,
   Package,
-  Play,
   Pin,
-  Plus,
   Save,
   Settings,
   Sparkles,
-  Square,
   Terminal,
   Trash2,
   UploadCloud,
   X,
 } from "lucide-react";
 import { BUILTIN_AI_SKILL_META } from "@/lib/ai-skills-meta.generated";
-
-export interface WorkspaceItem {
-  id: string;
-  name: string;
-  path: string; // e.g. "main.py" or "utils/math_helpers.py"
-  type: "file" | "folder";
-  content?: string;
-  isSaved?: boolean;
-  // Repo files opened from the GitHub page load lazily: the tree
-  // arrives first (content empty, lazy set), the content is fetched
-  // when the file is opened, using its blob sha.
-  lazy?: boolean;
-  sha?: string;
-}
-
-const DEFAULT_WORKSPACE: WorkspaceItem[] = [
-  {
-    id: "f-root-main",
-    name: "main.py",
-    path: "main.py",
-    type: "file",
-    isSaved: true,
-    content: `# Welcome to LP Python IDE
-# Real Monaco Code Editor with syntax highlighting, auto-complete & minimap.
-# Constraint: Save file before compiling/running!
-
-import sys
-import math
-from utils.math_helpers import quadratic_roots
-
-print("Python WebAssembly Engine:", sys.version.split()[0])
-
-roots = quadratic_roots(1, -7, 12)
-print("Roots of x^2 - 7x + 12 = 0 are:", roots)
-
-for i in range(1, 6):
-    print(f"Cube of {i} is {i**3}")
-`,
-  },
-  {
-    id: "folder-utils",
-    name: "utils",
-    path: "utils",
-    type: "folder",
-  },
-  {
-    id: "f-utils-init",
-    name: "__init__.py",
-    path: "utils/__init__.py",
-    type: "file",
-    isSaved: true,
-    content: ``,
-  },
-  {
-    id: "f-utils-math",
-    name: "math_helpers.py",
-    path: "utils/math_helpers.py",
-    type: "file",
-    isSaved: true,
-    content: `import math
-
-def quadratic_roots(a, b, c):
-    disc = b**2 - 4*a*c
-    if disc < 0:
-        return None
-    return ((-b + math.sqrt(disc)) / (2*a), (-b - math.sqrt(disc)) / (2*a))
-`,
-  },
-];
+import type {
+  AiChat,
+  AiChatMessage,
+  AiPanelView,
+  CentreView,
+  PanelId,
+  PanelZone,
+  WorkspaceItem,
+} from "@/app/editor/lib/editor-types";
+import {
+  buildRepoWorkspaceTree,
+  DEFAULT_WORKSPACE,
+  newId,
+  readLocalJson,
+} from "@/app/editor/lib/editor-utils";
+import { usePyodideEngine, PY_WORKSPACE_ROOT } from "@/app/editor/hooks/usePyodideEngine";
+import { TerminalPanel } from "@/app/editor/components/TerminalPanel";
+import { EditorPanel } from "@/app/editor/components/EditorPanel";
+import { AiPanel } from "@/app/editor/components/AiPanel";
+import { ExplorerPanel } from "@/app/editor/components/ExplorerPanel";
+import { PushDialog } from "@/app/editor/components/PushDialog";
 
 declare global {
   interface Window {
@@ -185,22 +124,14 @@ export default function CodeEditorPage() {
     window.history.replaceState(null, "", url);
   }
   const [output, setOutput] = useState<string>("Ready. Write or edit code, then 'Compile & Run'.\n");
-  const [isRunning, setIsRunning] = useState(false);
-  // Terminal command line: one command per Enter — `python <file>`,
-  // `run`, `ls`, `clear`, `help`, or Python in the live runtime.
-  // Disabled while a command or a file run is in flight — both
-  // redirect sys.stdout, so they must not overlap.
-  const [terminalInput, setTerminalInput] = useState<string>("");
-  const [terminalBusy, setTerminalBusy] = useState(false);
-  const [pyodideError, setPyodideError] = useState<string | null>(null);
 
   // AI panel chat (guide mode, POST /api/ai). A real AI assistant —
   // it answers anything, writes full code when asked, and fixes code
   // directly. Nothing is stored server-side: the current chat, past
   // chats, custom skills and the BYOK key live in this browser's
   // localStorage. Long files are truncated to the API's limit.
-  type AiChatMessage = { role: "user" | "ai"; text: string };
-  type AiChat = { id: string; title: string; createdAt: number; messages: AiChatMessage[] };
+
+
   type CustomAiSkill = { id: string; name: string; description: string; content: string };
   type AiByokProvider = "gemini" | "groq" | "anthropic" | "openai" | "openrouter" | "custom";
   // BYOK reference the editor sends: provider (+ base URL/model
@@ -216,21 +147,9 @@ export default function CodeEditorPage() {
   // succeeds and never sent in a request.
   type AiByokEntry = AiByok & { id: string; enabled: boolean };
   type AiByokStore = { enabled: boolean; entries: AiByokEntry[] };
-  type AiPanelView = "chat" | "history";
-  /** Centre column view: the editor, or the AI Settings card in the
-      editor's place (not movable — it replaces the editor until the
-      user goes back). */
-  type CentreView = "editor" | "ai-settings";
 
-  function readLocalJson<T>(key: string, fallback: T): T {
-    try {
-      const raw = localStorage.getItem(key);
-      if (!raw) return fallback;
-      return JSON.parse(raw) as T;
-    } catch {
-      return fallback;
-    }
-  }
+
+
   function readStoredAiMessages(): AiChatMessage[] {
     const stored = readLocalJson<unknown>("lp_ai_current_chat", []);
     if (!Array.isArray(stored)) return [];
@@ -241,13 +160,6 @@ export default function CodeEditorPage() {
         ((m as AiChatMessage).role === "user" || (m as AiChatMessage).role === "ai") &&
         typeof (m as AiChatMessage).text === "string"
     );
-  }
-  function newId(): string {
-    try {
-      return crypto.randomUUID();
-    } catch {
-      return `id-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    }
   }
   const [aiMessages, setAiMessages] = useState<AiChatMessage[]>(readStoredAiMessages);
   const [aiThinking, setAiThinking] = useState(false);
@@ -313,6 +225,36 @@ export default function CodeEditorPage() {
     return { enabled: false, entries: [] };
   }
   const [byokStore, setByokStore] = useState<AiByokStore>(() => readByokStore());
+  // R2-L19: version stamp for the persisted BYOK store. Every write
+  // stamps `v` (a timestamp); a tab that sees a NEWER stamp than its
+  // own knows another tab owns the store and must not overwrite it
+  // with stale state — otherwise a second tab re-persists keys the
+  // first tab just deleted. byokKnownIdsRef tracks the entry ids
+  // this tab has seen in storage, so the guard can tell a key this
+  // tab created (keep) from one another tab deleted (drop).
+  const byokVersionRef = useRef(0);
+  const byokKnownIdsRef = useRef<Set<string>>(new Set());
+  /** The same entry without its key (metadata only). */
+  function stripByokKey(e: AiByokEntry): AiByokEntry {
+    return {
+      id: e.id,
+      provider: e.provider,
+      ...(e.baseUrl ? { baseUrl: e.baseUrl } : {}),
+      ...(e.model ? { model: e.model } : {}),
+      enabled: e.enabled,
+    };
+  }
+  /** Persist the BYOK store with a fresh version stamp. */
+  function writeByokStoreLocal(store: AiByokStore): void {
+    const v = Date.now();
+    try {
+      localStorage.setItem("lp_ai_byok", JSON.stringify({ ...store, v }));
+    } catch {
+      // Storage unavailable — the state still holds the keys.
+    }
+    byokVersionRef.current = v;
+    byokKnownIdsRef.current = new Set(store.entries.map((e) => e.id));
+  }
   // BYOK server migration + sync (H8): keys used to live in
   // localStorage (lp_ai_byok) in plaintext. On first load after
   // this ships, any keys still there are POSTed once to
@@ -320,25 +262,28 @@ export default function CodeEditorPage() {
   // and then dropped from this browser — localStorage keeps only
   // provider metadata. The raw keys are read synchronously before
   // the first await, so the persist effect below cannot wipe them
-  // mid-migration. If the server save fails (BYOK not set up yet),
-  // the local copy is left alone and the migration retries on the
-  // next load, so a failed migration never loses a key. The server
-  // list is also merged in, so keys saved on another device show up
-  // here as providers (keys themselves never come back down).
+  // mid-migration. R2-M14: the migration reads the same normalised
+  // shape readByokStore() returns, so the old single-key shape
+  // { provider, key } migrates too instead of being silently
+  // deleted (its entries list is empty, so the old loop ran zero
+  // times and still removed the key). R2-L19: each key is dropped
+  // from the local copy as soon as ITS save succeeds, not
+  // all-or-nothing at the end — a failed save keeps that key (and
+  // only that key) for a retry next load. If the server save fails
+  // (BYOK not set up yet), the local copy is left alone and the
+  // migration retries on the next load, so a failed migration
+  // never loses a key. The server list is also merged in, so keys
+  // saved on another device show up here as providers (keys
+  // themselves never come back down).
   const byokSyncRef = useRef(false);
   useEffect(() => {
     if (byokSyncRef.current) return;
     byokSyncRef.current = true;
     void (async () => {
-      let migrated = true;
       try {
-        const raw = localStorage.getItem("lp_ai_byok");
-        const parsed: unknown = raw ? JSON.parse(raw) : null;
-        const entries =
-          parsed && typeof parsed === "object" && Array.isArray((parsed as { entries?: unknown }).entries)
-            ? ((parsed as { entries: Array<Record<string, unknown>> }).entries as Array<Record<string, unknown>>)
-            : [];
-        for (const e of entries) {
+        const store = readByokStore();
+        const savedIds: string[] = [];
+        for (const e of store.entries) {
           if (typeof e.key !== "string" || e.key.length < 10) continue;
           if (typeof e.provider !== "string") continue;
           const res = await fetch("/api/byok/save", {
@@ -351,34 +296,38 @@ export default function CodeEditorPage() {
               ...(typeof e.baseUrl === "string" ? { baseUrl: e.baseUrl } : {}),
               ...(typeof e.model === "string" ? { model: e.model } : {}),
             }),
-          });
-          if (!res.ok) migrated = false;
-        }
-        // Only drop the local keys once every one is safe on the
-        // server — a failed migration keeps them and retries next
-        // load instead of losing them.
-        if (migrated) {
-          try {
-            localStorage.removeItem("lp_ai_byok");
-          } catch {
-            // Storage unavailable — the state strip below still
-            // drops the keys from the next persist.
+          }).catch(() => null);
+          if (res?.ok) {
+            savedIds.push(e.id);
+            // Drop just this key from the local copy right away —
+            // the tab could close before the loop finishes.
+            try {
+              const remaining = readByokStore();
+              writeByokStoreLocal({
+                enabled: remaining.enabled,
+                entries: remaining.entries.map((x) =>
+                  x.id === e.id ? stripByokKey(x) : x
+                ),
+              });
+            } catch {
+              // Storage unavailable — the state strip below still
+              // drops the key from the next persist.
+            }
           }
+        }
+        if (savedIds.length > 0) {
           setByokStore((prev) => ({
             ...prev,
-            entries: prev.entries.map((e) => ({
-              id: e.id,
-              provider: e.provider,
-              ...(e.baseUrl ? { baseUrl: e.baseUrl } : {}),
-              ...(e.model ? { model: e.model } : {}),
-              enabled: e.enabled,
-            })),
+            entries: prev.entries.map((x) =>
+              savedIds.includes(x.id) ? stripByokKey(x) : x
+            ),
           }));
         }
       } catch {
-        // Migration is best-effort: the old local keys keep working
-        // via the deprecated body fallback until the server store
-        // is ready.
+        // Migration is best-effort: keys that did not save stay
+        // local and retry next load. (No body-key fallback exists
+        // server-side anymore, so an unsaved key simply cannot pay
+        // for AI calls until the server store is ready.)
       }
       try {
         const res = await fetch("/api/byok/list", { credentials: "same-origin" });
@@ -445,7 +394,10 @@ export default function CodeEditorPage() {
   }, [aiMessages]);
   useEffect(() => {
     try {
-      localStorage.setItem("lp_ai_chats", JSON.stringify(aiChats));
+      // R2-L18: cap retained chats at the last 20 — full AI
+      // conversations sit in plaintext localStorage, so the pile
+      // must not grow without bound.
+      localStorage.setItem("lp_ai_chats", JSON.stringify(aiChats.slice(-20)));
     } catch {
       // Storage full — skip.
     }
@@ -464,15 +416,106 @@ export default function CodeEditorPage() {
       // Storage full — skip.
     }
   }, [activeSkillIds]);
+  // R2-L19: never blindly overwrite the stored BYOK copy — another
+  // tab may have deleted keys after this tab loaded. If the stored
+  // copy carries a NEWER version stamp, adopt it (drop entries the
+  // other tab removed, keep entries this tab created since — those
+  // have ids the other tab never saw) instead of re-persisting this
+  // tab's stale keys. If the store vanished entirely after this tab
+  // last saw it, adopt the wipe the same way.
   useEffect(() => {
     try {
-      if (byokStore.entries.length > 0 || byokStore.enabled)
-        localStorage.setItem("lp_ai_byok", JSON.stringify(byokStore));
-      else localStorage.removeItem("lp_ai_byok");
+      const raw = localStorage.getItem("lp_ai_byok");
+      if (!raw && (byokVersionRef.current > 0 || byokKnownIdsRef.current.size > 0)) {
+        byokVersionRef.current = Date.now();
+        byokKnownIdsRef.current = new Set();
+        if (byokStore.entries.length > 0 || byokStore.enabled) {
+          setByokStore({ enabled: false, entries: [] });
+        }
+        return;
+      }
+      const parsed: unknown = raw ? JSON.parse(raw) : null;
+      const storedV =
+        parsed && typeof parsed === "object" && typeof (parsed as { v?: unknown }).v === "number"
+          ? (parsed as { v: number }).v
+          : 0;
+      if (storedV > byokVersionRef.current) {
+        byokVersionRef.current = storedV;
+        const stored = readByokStore();
+        const knownBefore = byokKnownIdsRef.current;
+        const storedIds = new Set(stored.entries.map((e) => e.id));
+        const mergedEntries = byokStore.entries.filter(
+          (e) => storedIds.has(e.id) || !knownBefore.has(e.id)
+        );
+        byokKnownIdsRef.current = new Set([
+          ...stored.entries.map((e) => e.id),
+          ...mergedEntries.map((e) => e.id),
+        ]);
+        const enabled = mergedEntries.length > 0 ? byokStore.enabled : stored.enabled;
+        const stateChanged =
+          mergedEntries.length !== byokStore.entries.length || enabled !== byokStore.enabled;
+        if (stateChanged) {
+          // Adopting the newer store changed this tab's state —
+          // the re-run persists the merged state.
+          setByokStore({ enabled, entries: mergedEntries });
+          return;
+        }
+        const differsFromStored =
+          mergedEntries.length !== stored.entries.length ||
+          mergedEntries.some((e, i) => e.id !== stored.entries[i]?.id) ||
+          enabled !== stored.enabled;
+        if (differsFromStored) {
+          // This tab holds a newer local change the other tab
+          // never saw (e.g. a toggled switch) — write the merged
+          // state instead of dropping it.
+          writeByokStoreLocal({ enabled, entries: mergedEntries });
+        }
+        return;
+      }
+      if (byokStore.entries.length > 0 || byokStore.enabled) {
+        writeByokStoreLocal(byokStore);
+      } else {
+        localStorage.removeItem("lp_ai_byok");
+        byokVersionRef.current = Date.now();
+        byokKnownIdsRef.current = new Set();
+      }
     } catch {
-      // Storage full — skip.
+      // Storage full or unreadable — skip, the keys still work in memory.
     }
   }, [byokStore]);
+  // R2-L19: another tab changed lp_ai_byok — adopt its version
+  // promptly, so this tab's next persist cannot resurrect keys the
+  // other tab deleted.
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== "lp_ai_byok") return;
+      try {
+        const parsed: unknown = e.newValue ? JSON.parse(e.newValue) : null;
+        const v =
+          parsed && typeof parsed === "object" && typeof (parsed as { v?: unknown }).v === "number"
+            ? (parsed as { v: number }).v
+            : 0;
+        if (v > 0) byokVersionRef.current = Math.max(byokVersionRef.current, v);
+        const incoming = readByokStore();
+        const knownBefore = byokKnownIdsRef.current;
+        const incomingIds = new Set(incoming.entries.map((x) => x.id));
+        byokKnownIdsRef.current = new Set(incoming.entries.map((x) => x.id));
+        setByokStore((prev) => {
+          const merged = prev.entries.filter(
+            (x) => incomingIds.has(x.id) || !knownBefore.has(x.id)
+          );
+          const enabled = merged.length > 0 ? prev.enabled : incoming.enabled;
+          return merged.length !== prev.entries.length || enabled !== prev.enabled
+            ? { enabled, entries: merged }
+            : prev;
+        });
+      } catch {
+        // Malformed storage event — ignore.
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
   useEffect(() => {
     try {
       localStorage.setItem("lp_ai_selector_models", JSON.stringify(selectorModels));
@@ -897,8 +940,8 @@ export default function CodeEditorPage() {
   // and drop it on a zone to move it there. Persisted, so a reload
   // keeps the layout. The Editor (Monaco) is the centre and never
   // moves; ModulesPanel takes the centre when the Modules tab is on.
-  type PanelZone = "left" | "right" | "bottom";
-  type PanelId = "explorer" | "terminal" | "ai";
+
+
   const [panelZones, setPanelZones] = useState<Record<PanelId, PanelZone>>(() => {
     const fallback: Record<PanelId, PanelZone> = { explorer: "left", terminal: "bottom", ai: "right" };
     if (typeof window === "undefined") return fallback;
@@ -967,43 +1010,22 @@ export default function CodeEditorPage() {
   const editorRef = useRef<any>(null);
   const [cursorPos, setCursorPos] = useState({ line: 1, col: 1 });
   const terminalInputRef = useRef<HTMLInputElement | null>(null);
-  // Format (black via micropip): installed once per session, then
-  // reused; formatting is the in-progress flag for the button/menu.
-  const blackReadyRef = useRef(false);
-  const [formatting, setFormatting] = useState(false);
-
-  const pyodideRef = useRef<any>(null);
-  const [pyodideReady, setPyodideReady] = useState(false);
-  const [loadingEngine, setLoadingEngine] = useState(false);
-  // Live load status: which step the runtime load is on ("Downloading
-  // runtime from jsDelivr…") and how many seconds it has been going.
-  // The old bare "Loading Engine" spinner read as frozen on slow
-  // connections — this line proves the download is alive.
-  const [engineStage, setEngineStage] = useState<string | null>(null);
-  const [engineElapsed, setEngineElapsed] = useState(0);
-  // Single-flight init: without this, two callers (the <Script> onLoad
-  // and an Install click) could start two Pyodide loads at once, and a
-  // click before the script finished just gave up with "not ready".
-  const pyodideInitPromiseRef = useRef<Promise<any> | null>(null);
-  // Generation of the in-flight runtime load: Cancel (or a fresh
-  // retry) bumps it, so a stale load finishing late cannot flip the
-  // loading state or mark its runtime ready after the user moved on.
-  const loadGenerationRef = useRef(0);
-  // Stage listeners for the in-flight init: the Modules tab registers
-  // one when the user clicks Install, so the progress bar can show
-  // WHICH CDN is being tried and how far the load got — the old
-  // frozen "Starting Python runtime…" at 10% told the user nothing.
-  const initStageListenersRef = useRef<Set<(stage: string) => void>>(
-    new Set()
-  );
-  // SIGINT buffer for the Stop button. Only works when SharedArrayBuffer
-  // is available (needs cross-origin isolation); otherwise Stop stays
-  // disabled and the UI says so instead of pretending to stop the run.
-  const interruptBufferRef = useRef<Uint8Array | null>(null);
 
   const activeFile =
     items.find((it) => it.type === "file" && it.path === activeFilePath) ||
     items.find((it) => it.type === "file");
+
+  // Pyodide runtime engine (loading, Compile & Run, terminal,
+  // engine.formatting) — see hooks/usePyodideEngine.ts.
+  const engine = usePyodideEngine({
+    items,
+    activeFile,
+    setItems,
+    setActiveFilePath,
+    setNeedsSaveWarning,
+    setOutput,
+    t,
+  });
 
   // Open tabs in the bottom bar (VS Code-style): one per file the user
   // opened, plus AI Settings while it is open. A single effect keeps
@@ -1081,187 +1103,10 @@ export default function CodeEditorPage() {
     setContextMenu({ x: e.clientX, y: e.clientY, target });
   }
 
-  // Elapsed-seconds ticker while the runtime loads: the number ticking
-  // up proves the load is alive (downloading, not frozen).
-  useEffect(() => {
-    if (!loadingEngine) return;
-    const timer = window.setInterval(
-      () => setEngineElapsed((s) => s + 1),
-      1000
-    );
-    return () => window.clearInterval(timer);
-  }, [loadingEngine]);
 
-  async function initPyodide(onStage?: (stage: string) => void) {
-    if (pyodideRef.current) return pyodideRef.current;
-    // A caller joining the in-flight init still gets later stages.
-    // Guard the type: next/script calls onLoad with the DOM load
-    // Event as its first argument, so passing initPyodide straight
-    // to the Script's onLoad used to register that Event as a
-    // "stage listener" — and the first emitStage() then called the
-    // Event as a function, killing the whole runtime load with
-    // "t is not a function" before the download even started.
-    // Only real functions may join.
-    if (onStage && typeof onStage === "function") {
-      initStageListenersRef.current.add(onStage);
-    }
-    if (pyodideInitPromiseRef.current) {
-      try {
-        return await pyodideInitPromiseRef.current;
-      } catch {
-        // The shared init failed: a joiner must get null (not a
-        // throw), or its install crashes mid-flow and leaves its
-        // button stuck on "Installing…" with a frozen bar forever —
-        // exactly what happened to scikit-image on 2026-11-16, when
-        // the 12:10 init failed and the joining install never
-        // cleaned up.
-        return null;
-      } finally {
-        if (onStage) initStageListenersRef.current.delete(onStage);
-      }
-    }
-    const emitStage = (stage: string) => {
-      // The status line reads engineStage directly, so it must update
-      // even when the load was started by a caller that passed no
-      // listener (e.g. Compile & Run calls initPyodide() bare, before
-      // the <Script> onLoad ever registers one) — otherwise the line
-      // falls back to the bare "Loading Engine" and a slow download
-      // reads as frozen. That is exactly what the user's 433s
-      // screenshot showed: the runtime was mid-download on unpkg,
-      // but the line said only "Loading Engine".
-      setEngineStage(stage);
-      initStageListenersRef.current.forEach((fn) => fn(stage));
-    };
-    // This attempt's generation: a Cancel (or a fresh retry) bumps
-    // loadGenerationRef, so only the latest attempt may flip state.
-    const gen = ++loadGenerationRef.current;
-    const promise = (async () => {
-      // Load the runtime with CDN fallback (jsDelivr, then unpkg):
-      // the jsDelivr download alone used to stall for minutes on
-      // some networks and hang the whole install. loadPyodideRuntime
-      // gives each CDN 5 minutes and tries the next one on a stall.
-      setLoadingEngine(true);
-      setEngineElapsed(0);
-      setEngineStage(null);
-      const pyodide = await loadPyodideRuntime(emitStage);
-      // A cancelled/stale attempt must not mark its runtime ready
-      // after the user moved on (or a fresh retry started).
-      if (gen !== loadGenerationRef.current) return null;
-      // Stop button support, when the browser allows SharedArrayBuffer.
-      try {
-        if (typeof SharedArrayBuffer !== "undefined") {
-          const buf = new Uint8Array(new SharedArrayBuffer(1));
-          pyodide.setInterruptBuffer(buf);
-          interruptBufferRef.current = buf;
-        }
-      } catch {}
-      // micropip's wheel download has no timeout either — cap it.
-      emitStage(t.modulesPage.stageLoadingMicropip);
-      await withTimeout(
-        pyodide.loadPackage("micropip"),
-        60_000,
-        t.editorPage.micropipTimeoutError
-      );
-      pyodideRef.current = pyodide;
-      setPyodideReady(true);
-      setPyodideError(null);
-      emitStage(t.modulesPage.stageRuntimeReady);
-      setOutput((prev) => prev + "✓ Python runtime (Pyodide 0.27.2) loaded successfully.\n");
 
-      // Saved packages are restored in the BACKGROUND, not awaited
-      // here: a stalled wheel re-download used to block init itself,
-      // so the runtime never became ready and every Install click
-      // waited on the same stuck promise (the "Installing…" that
-      // never ends). Each package is capped at 90s inside
-      // restoreStoredPackages and never blocks init.
-      restoreStoredPackages(pyodide, (pkg, status, error) => {
-        if (status === "loading") setOutput((prev) => prev + `[Loading installed package '${pkg}'...]\n`);
-        if (status === "done") setOutput((prev) => prev + `[Package '${pkg}' ready]\n`);
-        if (status === "error") setOutput((prev) => prev + `[Failed loading '${pkg}': ${error}]\n`);
-      }).catch(() => {});
-      return pyodide;
-    })();
-    pyodideInitPromiseRef.current = promise;
-    try {
-      return await promise;
-    } catch (err: unknown) {
-      // Let the next attempt retry instead of caching the failure.
-      pyodideInitPromiseRef.current = null;
-      const msg = err instanceof Error ? err.message : String(err);
-      setPyodideError(msg);
-      setOutput((prev) => prev + `✗ Failed to load runtime: ${msg}\n`);
-      return null;
-    } finally {
-      if (onStage) initStageListenersRef.current.delete(onStage);
-      // Only the latest attempt may clear the loading state: a stale
-      // attempt finishing late must not hide a fresh retry's spinner.
-      if (gen === loadGenerationRef.current) {
-        setLoadingEngine(false);
-        setEngineStage(null);
-      }
-    }
-  }
 
-  // Stop waiting on a stalled runtime download: invalidate the
-  // in-flight attempt (its late finish is ignored by the generation
-  // guard) and clear the loading state, so Run / retry can start a
-  // fresh load instead of staring at the spinner for up to 10 min.
-  function cancelEngineLoad() {
-    loadGenerationRef.current++;
-    pyodideInitPromiseRef.current = null;
-    setLoadingEngine(false);
-    setEngineStage(null);
-    setEngineElapsed(0);
-  }
 
-  // Shared by the Modules tab: loads the runtime if needed, true when ready.
-  // `onStage` gets each init step (which CDN is being tried, timeouts,
-  // success) so the Modules progress bar shows real progress.
-  async function ensurePyodideReady(
-    onStage?: (stage: string) => void
-  ): Promise<boolean> {
-    const py = await initPyodide(onStage);
-    return !!py;
-  }
-
-  function stopRunning() {
-    const buf = interruptBufferRef.current;
-    if (buf) {
-      buf[0] = 2; // SIGINT — interrupts the running Python code.
-      setOutput((prev) => prev + "[Stop requested — interrupting the running code…]\n");
-    }
-  }
-
-  // Build workspace items from a repo's file tree (GitHub page
-  // handoff): one folder item per folder, before its children — the
-  // same order DEFAULT_WORKSPACE uses. Files start lazy (empty
-  // content, sha kept) and load when they are opened.
-  function buildRepoWorkspaceTree(files: { path: string; size: number; sha: string }[]): WorkspaceItem[] {
-    const items: WorkspaceItem[] = [];
-    const folders = new Set<string>();
-    files.forEach((f, i) => {
-      const parts = f.path.split("/");
-      let acc = "";
-      for (const part of parts.slice(0, -1)) {
-        acc = acc ? `${acc}/${part}` : part;
-        if (!folders.has(acc)) {
-          folders.add(acc);
-          items.push({ id: `f-repo-dir-${acc}`, name: part, path: acc, type: "folder" });
-        }
-      }
-      items.push({
-        id: `f-repo-${i}`,
-        name: parts[parts.length - 1],
-        path: f.path,
-        type: "file",
-        content: "",
-        isSaved: true,
-        lazy: true,
-        sha: f.sha,
-      });
-    });
-    return items;
-  }
 
   // Which repo the open workspace belongs to (null = the user's own
   // workspace). Restored on reload from lp_open_repo_current so lazy
@@ -1279,10 +1124,11 @@ export default function CodeEditorPage() {
   }, [repoLoadedToast]);
   // Files changed since the repo was opened (edits, new files, renames,
   // duplicates, drops) — the Push button commits exactly these, one
-  // commit per file through the existing /api/github/commit route.
-  // Saving to the browser is not pushing to GitHub: the set only
-  // clears for files a push actually sent (or when a different repo
-  // opens / the backup is restored).
+  // commit per file through /api/github/batch-commit (one request for
+  // the whole push, chunked when needed; the server still makes one
+  // commit per file). Saving to the browser is not pushing to GitHub:
+  // the set only clears for files a push actually sent (or when a
+  // different repo opens / the backup is restored).
   const changedRepoPathsRef = useRef<Set<string>>(new Set());
   const [changedRepoCount, setChangedRepoCount] = useState(0);
   function markRepoChanged(path: string) {
@@ -1492,7 +1338,7 @@ export default function CodeEditorPage() {
         setOutput((prev) => prev + "[Workspace is too big for the browser's storage — changes are kept for this session only.]\n");
       }
     }
-    syncAllFilesToPyodide(next);
+    engine.syncAllFilesToPyodide(next);
     return stored;
   }
 
@@ -1545,13 +1391,17 @@ export default function CodeEditorPage() {
   }
 
   // Push the repo's changes to GitHub: every file changed since the
-  // repo was opened goes up as its own commit through the existing
-  // /api/github/commit route (one commit per file — that route has no
-  // multi-file commit), all sharing the one commit message the user
-  // approved in the push dialog. Nothing pushes on its own: edits
-  // save to the browser only, and Run still saves first exactly as
-  // before. A file that was never opened has no loaded content, so
-  // it is skipped rather than pushed empty.
+  // repo was opened goes up in /api/github/batch-commit requests
+  // (one request for the whole push, chunked when there are more
+  // than 20 files or the body would pass the server's 5 MB cap),
+  // all sharing the one commit message the user approved in the
+  // push dialog. The server still makes one commit per file,
+  // exactly as the old one-request-per-file push did — and it
+  // reports every file's result, so a file that fails stays marked
+  // changed and the next push retries just it. Nothing pushes on
+  // its own: edits save to the browser only, and Run still saves
+  // first exactly as before. A file that was never opened has no
+  // loaded content, so it is skipped rather than pushed empty.
   const [pushing, setPushing] = useState(false);
   function splitChangedFiles() {
     const changed = [...changedRepoPathsRef.current];
@@ -1565,6 +1415,45 @@ export default function CodeEditorPage() {
     return paths.length === 1
       ? `Update ${paths[0]} from Learn Python editor`
       : `Update ${paths.length} files from Learn Python editor`;
+  }
+  // Batch-commit limits — must match the server
+  // (src/app/api/github/batch-commit/route.ts): at most 20 files
+  // per request, body capped at 5 MB. The byte budget below sits
+  // under the cap to leave room for JSON escaping; the per-file
+  // char cap is the server's zod limit, checked before batching so
+  // one oversized file cannot fail its whole batch.
+  const BATCH_COMMIT_MAX_FILES = 20;
+  const BATCH_COMMIT_MAX_BYTES = 4_500_000;
+  const BATCH_COMMIT_MAX_CONTENT_CHARS = 4_000_000;
+  function chunkBatchFiles(files: { path: string; content: string }[]) {
+    const oversized: { path: string; content: string }[] = [];
+    const batches: { path: string; content: string }[][] = [];
+    let current: { path: string; content: string }[] = [];
+    let currentBytes = 200; // JSON envelope overhead
+    const encoder = new TextEncoder();
+    for (const file of files) {
+      if (file.content.length > BATCH_COMMIT_MAX_CONTENT_CHARS) {
+        oversized.push(file);
+        continue;
+      }
+      const bytes =
+        encoder.encode(file.content).length +
+        encoder.encode(file.path).length +
+        64; // per-file JSON overhead (keys, quotes, braces)
+      if (
+        current.length > 0 &&
+        (current.length >= BATCH_COMMIT_MAX_FILES ||
+          currentBytes + bytes > BATCH_COMMIT_MAX_BYTES)
+      ) {
+        batches.push(current);
+        current = [];
+        currentBytes = 200;
+      }
+      current.push(file);
+      currentBytes += bytes;
+    }
+    if (current.length > 0) batches.push(current);
+    return { batches, oversized };
   }
   async function pushRepoChanges(message: string) {
     if (!openRepoState || pushing) return;
@@ -1583,32 +1472,85 @@ export default function CodeEditorPage() {
     }
     setPushing(true);
     setOutput((prev) => prev + `[Pushing ${ready.length} file(s) to ${openRepoState.repo}...]\n`);
+    const files = ready
+      .map((path) => {
+        const it = itemsRef.current.find((x) => x.type === "file" && x.path === path);
+        return it ? { path, content: it.content ?? "" } : null;
+      })
+      .filter((f): f is { path: string; content: string } => f !== null);
+    const { batches, oversized } = chunkBatchFiles(files);
     let pushed = 0;
-    const failed: string[] = [];
-    for (const path of ready) {
-      const it = itemsRef.current.find((x) => x.type === "file" && x.path === path);
-      if (!it) continue;
+    const failed: { path: string; error: string }[] = [];
+    // Too big for the server to ever accept: fail it alone, with
+    // the reason, instead of letting it fail its whole batch.
+    for (const file of oversized) {
+      failed.push({
+        path: file.path,
+        error: "File is larger than 4 MB — too big to commit from the editor",
+      });
+    }
+    for (const batch of batches) {
       try {
-        const res = await fetch("/api/github/commit", {
+        const res = await fetch("/api/github/batch-commit", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             owner,
             repo,
-            path,
-            content: it.content ?? "",
-            message,
             branch: openRepoState.branch,
+            message,
+            files: batch,
           }),
         });
+        const data: unknown = await res.json().catch(() => null);
         if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || "Push failed");
+          const err =
+            typeof data === "object" &&
+            data !== null &&
+            typeof (data as { error?: unknown }).error === "string"
+              ? (data as { error: string }).error
+              : "Push failed";
+          for (const f of batch) failed.push({ path: f.path, error: err });
+          continue;
         }
-        pushed++;
-        changedRepoPathsRef.current.delete(path);
+        const results =
+          typeof data === "object" &&
+          data !== null &&
+          Array.isArray((data as { results?: unknown }).results)
+            ? (data as { results: unknown[] }).results
+            : [];
+        const seen = new Set<string>();
+        for (const r of results) {
+          if (
+            typeof r !== "object" ||
+            r === null ||
+            typeof (r as { path?: unknown }).path !== "string"
+          )
+            continue;
+          const result = r as { path: string; ok?: unknown; error?: unknown };
+          seen.add(result.path);
+          if (result.ok === true) {
+            pushed++;
+            changedRepoPathsRef.current.delete(result.path);
+          } else {
+            failed.push({
+              path: result.path,
+              error:
+                typeof result.error === "string" && result.error
+                  ? result.error
+                  : "Push failed",
+            });
+          }
+        }
+        // A file the server never reported is not assumed pushed —
+        // it stays changed, so the next push retries it.
+        for (const f of batch) {
+          if (!seen.has(f.path)) {
+            failed.push({ path: f.path, error: "No result from the server — retry to push it" });
+          }
+        }
       } catch {
-        failed.push(path);
+        for (const f of batch) failed.push({ path: f.path, error: "Push failed" });
       }
     }
     setChangedRepoCount(changedRepoPathsRef.current.size);
@@ -1616,7 +1558,7 @@ export default function CodeEditorPage() {
     setOutput(
       (prev) =>
         prev +
-        `[Pushed ${pushed} of ${ready.length} file(s) to ${openRepoState.repo}${failed.length > 0 ? ` — failed: ${failed.join(", ")}` : "."}${skipped.length > 0 ? ` Skipped ${skipped.length} unopened file(s).` : ""}]\n`
+        `[Pushed ${pushed} of ${ready.length} file(s) to ${openRepoState.repo}${failed.length > 0 ? ` — failed: ${failed.map((f) => `${f.path} (${f.error})`).join(", ")}` : "."}${skipped.length > 0 ? ` Skipped ${skipped.length} unopened file(s).` : ""}]\n`
     );
   }
 
@@ -1723,51 +1665,6 @@ export default function CodeEditorPage() {
     localStorage.setItem("lp_editor_terminal_w", String(terminalWidth));
   }, [terminalWidth]);
 
-  // --- Format (black, via micropip, on demand) ---
-  // black is a pure-Python package, so it installs through the same
-  // micropip path the Modules tab already uses. It installs once per
-  // session (blackReadyRef), then formats in-process — no network on
-  // later formats. A failed install leaves a clear terminal message
-  // instead of silently doing nothing.
-  async function formatCurrentFile() {
-    if (!activeFile || formatting) return;
-    if (!pyodideReady || !pyodideRef.current) {
-      setOutput((prev) => prev + `${t.editorPage.formatNotReady}\n`);
-      return;
-    }
-    setFormatting(true);
-    try {
-      const py = pyodideRef.current;
-      if (!blackReadyRef.current) {
-        setOutput((prev) => prev + "Installing formatter (black)…\n");
-        const micropip = py.pyimport("micropip");
-        await micropip.install("black");
-        blackReadyRef.current = true;
-      }
-      const code = activeFile.content ?? "";
-      py.globals.set("__lp_format_code", code);
-      const formatted = py.runPython(
-        `import black\nblack.format_str(__lp_format_code, mode=black.Mode())`
-      ) as string;
-      if (typeof formatted === "string" && formatted !== code) {
-        setItems((prev) =>
-          prev.map((it) =>
-            it.path === activeFile.path
-              ? { ...it, content: formatted, isSaved: false }
-              : it
-          )
-        );
-        setOutput((prev) => prev + `[Formatted '${activeFile.path}']\n`);
-      } else {
-        setOutput((prev) => prev + `[Already formatted '${activeFile.path}']\n`);
-      }
-    } catch (e) {
-      console.warn("Format failed:", e);
-      setOutput((prev) => prev + `${t.editorPage.formatFailed}\n`);
-    } finally {
-      setFormatting(false);
-    }
-  }
 
   // --- Rename / Delete / Duplicate / Copy Path (context menu + File menu) ---
   function startRename(path: string) {
@@ -2094,8 +1991,8 @@ export default function CodeEditorPage() {
       items.push({
         id: "format",
         label: t.editorPage.menuFormat,
-        disabled: formatting || !pyodideReady,
-        action: () => formatCurrentFile(),
+        disabled: engine.formatting || !engine.pyodideReady,
+        action: () => engine.formatCurrentFile(),
       });
     }
     items.push(
@@ -2149,36 +2046,6 @@ export default function CodeEditorPage() {
   // unexpected CWD, and the nested utils/ writes failed with
   // ErrnoError, so `import utils` raised ModuleNotFoundError even
   // though the runtime had loaded fine (2026-11-19).
-  const PY_WORKSPACE_ROOT = "/home/pyodide";
-  function syncAllFilesToPyodide(workspaceItems: WorkspaceItem[]) {
-    if (!pyodideRef.current) return;
-    const py = pyodideRef.current;
-    try {
-      const folders = workspaceItems.filter((i) => i.type === "folder");
-      for (const f of folders) {
-        try {
-          py.FS.mkdirTree(`${PY_WORKSPACE_ROOT}/${f.path}`);
-        } catch {}
-      }
-      const files = workspaceItems.filter((i) => i.type === "file");
-      for (const f of files) {
-        try {
-          const parts = f.path.split("/");
-          if (parts.length > 1) {
-            const dir = parts.slice(0, -1).join("/");
-            try {
-              py.FS.mkdirTree(`${PY_WORKSPACE_ROOT}/${dir}`);
-            } catch {}
-          }
-          py.FS.writeFile(`${PY_WORKSPACE_ROOT}/${f.path}`, f.content ?? "");
-        } catch (e) {
-          console.warn("FS write:", f.path, e);
-        }
-      }
-    } catch (e) {
-      console.warn("Pyodide sync error:", e);
-    }
-  }
 
   function handleAddFile(e: React.FormEvent) {
     e.preventDefault();
@@ -2402,199 +2269,8 @@ export default function CodeEditorPage() {
     }
   }
 
-  async function compileAndRun(file?: WorkspaceItem) {
-    // A file may be passed in (the terminal's `python <file>`)
-    // — otherwise the active file runs.
-    const targetFile = file ?? activeFile;
-    if (!targetFile) return;
 
-    // Auto-save on Run: the old code refused to run an unsaved file and
-    // made the user click Save first. Running now saves first instead.
-    const toRun = items.map((it) =>
-      it.path === targetFile.path ? { ...it, content: targetFile.content ?? "", isSaved: true } : it
-    );
-    setItems(toRun);
-    localStorage.setItem("lp_workspace_tree", JSON.stringify(toRun));
-    setNeedsSaveWarning(null);
-    const code = targetFile.content ?? "";
 
-    if (!pyodideRef.current) {
-      setOutput((prev) => prev + "Python runtime is loading, please wait...\n");
-      const py = await initPyodide();
-      if (!py) return;
-    }
-
-    setIsRunning(true);
-    setOutput(`=== Executing ${targetFile.path} ===\n`);
-
-    try {
-      const py = pyodideRef.current;
-      syncAllFilesToPyodide(toRun);
-
-      // Run from the workspace root so `import utils` (and any other
-      // local module) resolves, and make sure that root is on sys.path.
-      py.runPython(`
-import sys, os
-os.chdir("/home/pyodide")
-if "/home/pyodide" not in sys.path:
-    sys.path.insert(0, "/home/pyodide")
-`);
-
-      // Capture stdout/stderr. stdin is empty — the Program-input box
-      // was removed, so a program that calls input() raises EOFError.
-      py.runPython(`
-import sys
-import io
-sys.__lp_stdout__ = sys.stdout
-sys.__lp_stderr__ = sys.stderr
-sys.__lp_stdin__ = sys.stdin
-class LPOutputBuffer(io.StringIO):
-    pass
-sys.stdout = LPOutputBuffer()
-sys.stderr = sys.stdout
-sys.stdin = io.StringIO("")
-`);
-
-      await py.runPythonAsync(code);
-
-      const captured = py.runPython("sys.stdout.getvalue()");
-      setOutput((prev) => prev + (captured || "(Execution completed with no output)\n") + "\n=== Finished (Exit 0) ===\n");
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
-      // Keep whatever the program printed before it crashed.
-      let captured = "";
-      try {
-        captured = pyodideRef.current?.runPython("sys.stdout.getvalue()") ?? "";
-      } catch {}
-      setOutput(
-        (prev) =>
-          prev +
-          (captured ? captured + "\n" : "") +
-          `Traceback (most recent call last):\n${msg}\n=== Execution Failed ===\n`
-      );
-    } finally {
-      try {
-        pyodideRef.current?.runPython(
-          "sys.stdout = sys.__lp_stdout__\n" +
-            "sys.stderr = sys.__lp_stderr__\n" +
-            "sys.stdin = sys.__lp_stdin__"
-        );
-      } catch {}
-      setIsRunning(false);
-    }
-  }
-
-  // What `help` prints in the terminal (plain English, like the
-  // drop-zone labels — not an i18n string).
-  const TERMINAL_HELP = [
-    "python <file.py>  run a file — its output appears here",
-    "run               run the active file",
-    "ls                list the workspace files",
-    "pwd               show the active file path",
-    "clear             clear the terminal",
-    "help              show this list",
-    "<python code>     run Python in the live runtime, e.g. 2 + 2",
-    "",
-  ].join("\n");
-
-  // VS Code-style terminal command line: one line, prompt shows the
-  // active file path. Shell commands first — `python <file>` runs a
-  // file (its output lands here), `run` runs the active file, `ls`
-  // lists the workspace, `pwd` shows the active file, `clear`
-  // empties the terminal, `help` lists all of these — and anything
-  // else runs as Python in the live runtime (REPL-style: expressions
-  // print their repr, statements run silently, print() is captured).
-  // stdout is redirected only for the duration of the call and
-  // restored in `finally`, so a crash cannot leave it captured.
-  async function runTerminalCommand() {
-    const raw = terminalInput.trim();
-    if (!raw || terminalBusy) return;
-    setTerminalInput("");
-    const prompt = `${activeFile?.path ?? "~"} $`;
-    setOutput((prev) => prev + `${prompt} ${raw}\n`);
-    const [head, ...rest] = raw.split(/\s+/);
-    const arg = rest.join(" ").trim();
-    if (head === "clear") {
-      setOutput("");
-      return;
-    }
-    if (head === "help") {
-      setOutput((prev) => prev + TERMINAL_HELP);
-      return;
-    }
-    if (head === "ls") {
-      const files = items.filter((it) => it.type === "file").map((it) => it.path);
-      setOutput((prev) => prev + (files.length > 0 ? files.join("\n") + "\n" : "(no files)\n"));
-      return;
-    }
-    if (head === "pwd") {
-      setOutput((prev) => prev + `${activeFile?.path ?? "~"}\n`);
-      return;
-    }
-    if (head === "run") {
-      await compileAndRun();
-      return;
-    }
-    if (head === "python" || head === "python3" || head === "py") {
-      if (!arg) {
-        setOutput((prev) => prev + "usage: python <file.py>\n");
-        return;
-      }
-      const target = items.find(
-        (it) => it.type === "file" && (it.path === arg || it.path === arg.replace(/^\.\//, ""))
-      );
-      if (!target) {
-        setOutput((prev) => prev + `python: can't open file '${arg}': [Errno 2] No such file or directory\n`);
-        return;
-      }
-      setActiveFilePath(target.path);
-      await compileAndRun(target);
-      return;
-    }
-    // Anything else: Python in the live runtime.
-    const py = pyodideRef.current;
-    if (!py) {
-      setOutput((prev) => prev + `${t.editorPage.terminalNotReady}\n`);
-      return;
-    }
-    setTerminalBusy(true);
-    try {
-      const result = await py.runPythonAsync(`
-import sys, io
-_lp_term_out = io.StringIO()
-_lp_term_old = sys.stdout
-sys.stdout = _lp_term_out
-_lp_term_repr = ""
-try:
-    try:
-        _lp_term_val = eval(compile(${JSON.stringify(raw)}, "<terminal>", "eval"))
-        if _lp_term_val is not None:
-            _lp_term_repr = repr(_lp_term_val)
-    except SyntaxError:
-        exec(compile(${JSON.stringify(raw)}, "<terminal>", "exec"))
-finally:
-    sys.stdout = _lp_term_old
-_lp_term_result = _lp_term_out.getvalue()
-if _lp_term_repr != "":
-    if _lp_term_result != "" and not _lp_term_result.endswith("\\n"):
-        _lp_term_result += "\\n"
-    _lp_term_result += _lp_term_repr
-_lp_term_result
-`);
-      let text = typeof result === "string" ? result : "";
-      if (text.length > 2000) {
-        text = text.slice(0, 2000) + "\n…(output truncated)";
-      }
-      if (text) {
-        setOutput((prev) => prev + text + (text.endsWith("\n") ? "" : "\n"));
-      }
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
-      setOutput((prev) => prev + `${msg}\n`);
-    } finally {
-      setTerminalBusy(false);
-    }
-  }
 
   // --- Menu bar (VS Code-style header) ---
   // Web-only actions (wabepp): nothing here needs the OS. The
@@ -2622,7 +2298,7 @@ _lp_term_result
         { id: "duplicate", label: t.editorPage.menuDuplicate, disabled: !activeFile, action: () => activeFile && duplicateItem(activeFile.path) },
         { id: "copy-path", label: t.editorPage.menuCopyPath, disabled: !activeFile, action: () => activeFile && copyPath(activeFile.path) },
         { id: "sep-3", label: "", separator: true },
-        { id: "format", label: t.editorPage.menuFormat, disabled: !activeFile || formatting || !pyodideReady, action: () => formatCurrentFile() },
+        { id: "format", label: t.editorPage.menuFormat, disabled: !activeFile || engine.formatting || !engine.pyodideReady, action: () => engine.formatCurrentFile() },
         { id: "sep-4", label: "", separator: true },
         {
           id: "auto-save",
@@ -2644,15 +2320,15 @@ _lp_term_result
         { id: "redo", label: t.editorPage.menuRedo, shortcut: "Ctrl+Y", disabled: !activeFile, action: redoEdit },
         { id: "sep-1", label: "", separator: true },
         { id: "find", label: t.editorPage.menuFind, shortcut: "Ctrl+F", disabled: !activeFile, action: findInEditor },
-        { id: "format", label: t.editorPage.menuFormat, disabled: !activeFile || formatting || !pyodideReady, action: () => formatCurrentFile() },
+        { id: "format", label: t.editorPage.menuFormat, disabled: !activeFile || engine.formatting || !engine.pyodideReady, action: () => engine.formatCurrentFile() },
       ],
     },
     {
       id: "run",
       label: t.editorPage.menuRun,
       items: [
-        { id: "run", label: t.editorPage.runWithoutDebugging, shortcut: "Ctrl+F5", disabled: isRunning || loadingEngine, action: () => compileAndRun() },
-        { id: "stop", label: t.editorPage.stop, disabled: !isRunning, action: stopRunning },
+        { id: "run", label: t.editorPage.runWithoutDebugging, shortcut: "Ctrl+F5", disabled: engine.isRunning || engine.loadingEngine, action: () => engine.compileAndRun() },
+        { id: "stop", label: t.editorPage.stop, disabled: !engine.isRunning, action: engine.stopRunning },
       ],
     },
   ];
@@ -2664,298 +2340,11 @@ _lp_term_result
   // --- Dock panels (zone layout) ---
   // The side panels as JSX, placed into zones below by
   // renderDockPanel. The Editor is the centre and never moves.
-  const explorerPanel = (
-      <div
-        onDragOver={(e) => {
-          if (!e.dataTransfer.types.includes("Files")) return;
-          e.preventDefault();
-          setIsExternalDragOver(true);
-        }}
-        onDragLeave={() => setIsExternalDragOver(false)}
-        onDrop={handleExternalDrop}
-        className={`w-full flex-1 min-h-0 rounded-xl border flex flex-col overflow-hidden transition relative ${
-          isExternalDragOver
-            ? "border-white bg-neutral-900 ring-2 ring-white/20"
-            : "border-neutral-800 bg-neutral-950"
-        }`}
-      >
-        <EditorPanelHeader
-          id="explorer"
-          title={<><Folder className="h-3.5 w-3.5 text-neutral-300" /> {t.editorPage.explorer}</>}
-          actions={
-            <>
-              <button
-                type="button"
-                draggable={false}
-                onClick={() => setShowNewFile(!showNewFile)}
-                title={t.editorPage.newFile}
-                className="rounded p-1 hover:bg-neutral-800 text-neutral-400 hover:text-white"
-              >
-                <Plus className="h-3.5 w-3.5" />
-              </button>
-              <button
-                type="button"
-                draggable={false}
-                onClick={() => setShowNewFolder(!showNewFolder)}
-                title={t.editorPage.newFolder}
-                className="rounded p-1 hover:bg-neutral-800 text-neutral-400 hover:text-white"
-              >
-                <FolderPlus className="h-3.5 w-3.5" />
-              </button>
-            </>
-          }
-          onDragStart={setDraggingPanel}
-          onDragEnd={() => { setDraggingPanel(null); setDropZone(null); }}
-          onClose={() => setShowExplorer(false)}
-          closeLabel={t.common.close}
-        />
-        {/* Files / Modules tabs — the switch lives in the Explorer
-            header now (the separate tab bar above the editor is
-            gone). Files shows the tree; Modules opens the package
-            manager in the centre. */}
-        <div className="flex gap-1 border-b border-neutral-800 p-1.5">
-          <button
-            type="button"
-            onClick={() => switchTab("files")}
-            className={`flex-1 rounded-md px-2 py-1 text-xs font-medium transition ${editorTab === "files" ? "bg-white text-black" : "text-neutral-400 hover:text-white"}`}
-          >
-            <Code2 className="mr-1 inline h-3.5 w-3.5" />{t.editorPage.filesTab}
-          </button>
-          <button
-            type="button"
-            onClick={() => switchTab("modules")}
-            className={`flex-1 rounded-md px-2 py-1 text-xs font-medium transition ${editorTab === "modules" ? "bg-white text-black" : "text-neutral-400 hover:text-white"}`}
-          >
-            <Package className="mr-1 inline h-3.5 w-3.5" />{t.editorPage.modulesTab}
-          </button>
-        </div>
-
-        {/* Inline create inputs */}
-        {showNewFile && (
-          <form onSubmit={handleAddFile} className="p-2 border-b border-neutral-800 bg-black">
-            <input
-              type="text"
-              autoFocus
-              placeholder={t.editorPage.newFilePlaceholder}
-              value={newFileInput}
-              onChange={(e) => setNewFileInput(e.target.value)}
-              className="w-full rounded border border-neutral-800 bg-neutral-950 px-2 py-1 text-xs font-mono text-white placeholder-neutral-600 focus:border-white focus:outline-none"
-            />
-          </form>
-        )}
-
-        {showNewFolder && (
-          <form onSubmit={handleAddFolder} className="p-2 border-b border-neutral-800 bg-black">
-            <input
-              type="text"
-              autoFocus
-              placeholder={t.editorPage.newFolderPlaceholder}
-              value={newFolderInput}
-              onChange={(e) => setNewFolderInput(e.target.value)}
-              className="w-full rounded border border-neutral-800 bg-neutral-950 px-2 py-1 text-xs font-mono text-white placeholder-neutral-600 focus:border-white focus:outline-none"
-            />
-          </form>
-        )}
-
-        {/* Inline rename (from the context menu / File menu): the
-            input is pre-filled with the current name. */}
-        {renamingPath && (
-          <form
-            onSubmit={submitRename}
-            className="p-2 border-b border-neutral-800 bg-black"
-          >
-            <input
-              type="text"
-              autoFocus
-              placeholder={t.editorPage.renamePlaceholder}
-              value={renameInput}
-              onChange={(e) => setRenameInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Escape") setRenamingPath(null);
-              }}
-              onBlur={() => setRenamingPath(null)}
-              className="w-full rounded border border-neutral-800 bg-neutral-950 px-2 py-1 text-xs font-mono text-white placeholder-neutral-600 focus:border-white focus:outline-none"
-            />
-          </form>
-        )}
-
-        {/* Root Drop Zone — while a repo is open this line is the
-            repo's name (owner/repo, branch in the tooltip), so the
-            repo is named at the top of its file list; otherwise it
-            is the plain-workspace drop hint. The div stays the root
-            drop target either way. */}
-        <div
-          onDragOver={(e) => handleDragOverFolder(e, "root")}
-          onDragLeave={() => setDragOverTarget(null)}
-          onDrop={(e) => handleDropOnTarget(e, "root")}
-          className={`px-3 py-1 text-[10px] font-mono tracking-wider transition ${
-            dragOverTarget === "root"
-              ? "bg-white text-black font-semibold rounded mx-2 my-1"
-              : "text-neutral-600"
-          }`}
-        >
-          {openRepoState ? (
-            <span
-              className="block truncate"
-              title={`${openRepoState.repo} (${openRepoState.branch})`}
-            >
-              {openRepoState.repo}
-            </span>
-          ) : (
-            <span className="uppercase">{t.editorPage.workspaceRootDropHint}</span>
-          )}
-        </div>
-
-        {/* Tree Items: React Bits BranchedMenu — top-level files
-            are leaves, folders are sections with branch lines.
-            Selecting a file opens it; folding a folder, dragging
-            files between folders, and the per-row delete button
-            all keep the old tree's behaviour. Right-click (or a
-            long-press on mobile) opens the context menu. */}
-        <div
-          className="flex-1 overflow-auto p-2"
-          onContextMenu={openRootContextMenu}
-          style={{ WebkitTouchCallout: "none" }}
-        >
-          <BranchedMenu
-            items={treeData.menuItems}
-            activeValue={activeFilePath}
-            openSections={treeOpenSections}
-            onSelect={(value) => handleTreeSelect(value)}
-            onToggle={handleTreeToggle}
-            onRowDragStart={handleTreeDragStart}
-            onRowDragOver={handleTreeDragOver}
-            onRowDragLeave={handleTreeDragLeave}
-            onRowDrop={handleTreeDrop}
-            onRowContextMenu={(e, value) => openRowContextMenu(e, value)}
-            dragOverValue={dragOverTarget}
-            className="branched-menu--full"
-            color="#f5f5f5"
-            accentColor="#f5f5f5"
-            lineColor="#3f3f46"
-            width={280}
-          />
-        </div>
-
-        {/* Drag & Drop Hint */}
-        <div className="border-t border-neutral-900 p-2.5 text-center text-[10px] text-neutral-500 flex items-center justify-center gap-1.5">
-          <UploadCloud className="h-3.5 w-3.5" />
-          <span>{t.editorPage.dragFilesHint}</span>
-        </div>
-      </div>
-  );
-  const terminalPanel = (
-      <div className="w-full flex-1 min-h-0 rounded-xl border border-neutral-800 bg-neutral-950 flex flex-col overflow-hidden">
-        <EditorPanelHeader
-          id="terminal"
-          title={<><Terminal className="h-3.5 w-3.5 text-white" /> {t.editorPage.terminalLogs}</>}
-          actions={
-            <button
-              type="button"
-              draggable={false}
-              onClick={() => setOutput("")}
-              className="rounded px-1.5 py-0.5 text-[11px] text-neutral-500 hover:bg-neutral-800 hover:text-white transition"
-            >
-              {t.common.clear}
-            </button>
-          }
-          onDragStart={setDraggingPanel}
-          onDragEnd={() => { setDraggingPanel(null); setDropZone(null); }}
-          onClose={() => setShowTerminal(false)}
-          closeLabel={t.common.close}
-        />
-        <pre className="flex-1 w-full bg-black p-3.5 font-mono text-xs text-neutral-300 overflow-auto whitespace-pre-wrap selection:bg-neutral-800">
-          <HighlightedTerminal output={output} />
-        </pre>
-        {/* VS Code-style command line: one line, prompt shows the
-            active file path. `python <file>` / `run` execute a file
-            (output lands here); anything else runs as Python in the
-            live runtime; `clear` / `help` / `ls` are shell commands.
-            The old Program-input box and the separate >>> line are
-            gone — this line is the terminal's only input. */}
-        <div className="border-t border-neutral-800 bg-black px-3.5 py-2">
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-xs text-emerald-400 shrink-0 truncate max-w-[45%]">
-              {activeFile?.path ?? "~"} $
-            </span>
-            <input
-              type="text"
-              ref={terminalInputRef}
-              value={terminalInput}
-              onChange={(e) => setTerminalInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") runTerminalCommand();
-              }}
-              placeholder={
-                pyodideReady
-                  ? t.editorPage.terminalCommandPlaceholder
-                  : t.editorPage.terminalInputLoadingPlaceholder
-              }
-              disabled={!pyodideReady || terminalBusy || isRunning}
-              className="w-full min-w-0 bg-transparent font-mono text-xs text-white placeholder-neutral-600 focus:outline-none disabled:opacity-50"
-            />
-          </div>
-        </div>
-      </div>
-  );
+  const explorerPanel = (<ExplorerPanel t={t} isExternalDragOver={isExternalDragOver} setIsExternalDragOver={setIsExternalDragOver} handleExternalDrop={handleExternalDrop} showNewFile={showNewFile} setShowNewFile={setShowNewFile} showNewFolder={showNewFolder} setShowNewFolder={setShowNewFolder} switchTab={switchTab} editorTab={editorTab} handleAddFile={handleAddFile} newFileInput={newFileInput} setNewFileInput={setNewFileInput} handleAddFolder={handleAddFolder} newFolderInput={newFolderInput} setNewFolderInput={setNewFolderInput} renamingPath={renamingPath} submitRename={submitRename} renameInput={renameInput} setRenameInput={setRenameInput} setRenamingPath={setRenamingPath} openRepoState={openRepoState} handleDragOverFolder={handleDragOverFolder} setDragOverTarget={setDragOverTarget} handleDropOnTarget={handleDropOnTarget} dragOverTarget={dragOverTarget} openRootContextMenu={openRootContextMenu} treeData={treeData} activeFilePath={activeFilePath} treeOpenSections={treeOpenSections} handleTreeSelect={handleTreeSelect} handleTreeToggle={handleTreeToggle} handleTreeDragStart={handleTreeDragStart} handleTreeDragOver={handleTreeDragOver} handleTreeDragLeave={handleTreeDragLeave} handleTreeDrop={handleTreeDrop} openRowContextMenu={openRowContextMenu} setDraggingPanel={setDraggingPanel} setDropZone={setDropZone} setShowExplorer={setShowExplorer} />);
+  const terminalPanel = (<TerminalPanel t={t} output={output} setOutput={setOutput} activeFile={activeFile} engine={engine} terminalInputRef={terminalInputRef} setDraggingPanel={setDraggingPanel} setDropZone={setDropZone} setShowTerminal={setShowTerminal} />);
   // AI panel — history view (⋮ menu → Chat History): past chats,
   // newest first. Opening one swaps it into the chat; deleting it
   // removes it for good.
-  const aiHistoryView = (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={() => setAiView("chat")}
-          aria-label={t.editorPage.aiBackToChat}
-          title={t.editorPage.aiBackToChat}
-          className="shrink-0 rounded p-1 text-neutral-400 hover:bg-neutral-800 hover:text-white"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </button>
-        <span className="flex-1 text-sm font-semibold text-neutral-200">
-          {t.editorPage.aiHistoryTitle}
-        </span>
-        <button
-          type="button"
-          onClick={startNewChat}
-          className="shrink-0 rounded-md bg-neutral-800 px-2 py-1 text-xs font-medium text-neutral-200 hover:bg-neutral-700 transition"
-        >
-          {t.editorPage.aiNewChat}
-        </button>
-      </div>
-      {aiChats.length === 0 ? (
-        <p className="text-xs text-neutral-500">{t.editorPage.aiHistoryEmpty}</p>
-      ) : (
-        aiChats.map((chat) => (
-          <div
-            key={chat.id}
-            className="flex items-center gap-2 rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2"
-          >
-            <button
-              type="button"
-              onClick={() => loadAiChat(chat)}
-              className="min-w-0 flex-1 text-left"
-            >
-              <span className="block truncate text-sm text-neutral-100">{chat.title}</span>
-              <span className="block text-[11px] text-neutral-500">
-                {new Date(chat.createdAt).toLocaleDateString()}
-              </span>
-            </button>
-            <button
-              type="button"
-              onClick={() => deleteAiChat(chat.id)}
-              aria-label={t.editorPage.menuDelete}
-              title={t.editorPage.menuDelete}
-              className="shrink-0 rounded p-1 text-neutral-500 hover:bg-neutral-800 hover:text-red-300"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </button>
-          </div>
-        ))
-      )}
-    </div>
-  );
 
   // AI Settings card — opened from the ⋮ menu, it takes the code
   // editor's place in the centre column (not movable, not a dock
@@ -3250,262 +2639,9 @@ _lp_term_result
     </div>
   );
 
-  const aiPanel = (
-    <div className="w-full flex-1 min-h-0 rounded-xl border border-neutral-800 bg-neutral-950 flex flex-col overflow-hidden">
-      <EditorPanelHeader
-        id="ai"
-        title={
-          <>
-            <Sparkles className="h-4 w-4 text-neutral-400" />
-            <span>{t.editorPage.aiPanelTitle}</span>
-          </>
-        }
-        actions={
-          <>
-            <button
-              type="button"
-              onClick={clearAiChat}
-              title={t.editorPage.aiClearChat}
-              className="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-neutral-400 hover:bg-neutral-800 hover:text-white transition"
-            >
-              {t.editorPage.aiClearChat}
-            </button>
-            <div className="relative shrink-0">
-              <button
-                type="button"
-                draggable={false}
-                onClick={() => setAiMenuOpen((o) => !o)}
-                aria-label={t.editorPage.aiMenuOptions}
-                title={t.editorPage.aiMenuOptions}
-                className="rounded p-1 text-neutral-400 hover:bg-neutral-800 hover:text-white"
-              >
-                <MoreVertical className="h-4 w-4" />
-              </button>
-              {aiMenuOpen ? (
-                <>
-                  <div
-                    className="fixed inset-0 z-30"
-                    onClick={() => setAiMenuOpen(false)}
-                  />
-                  <div className="absolute right-0 top-full z-40 mt-1 w-44 overflow-hidden rounded-lg border border-neutral-700 bg-neutral-900 shadow-xl">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAiView("history");
-                        setAiMenuOpen(false);
-                      }}
-                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-neutral-200 hover:bg-neutral-800"
-                    >
-                      <History className="h-3.5 w-3.5 text-neutral-400" />
-                      {t.editorPage.aiMenuHistory}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setCentreView("ai-settings");
-                        setSettingsSection("menu");
-                        setSettingsTabOpen(true);
-                        setAiMenuOpen(false);
-                      }}
-                      className="flex w-full items-center gap-2 border-t border-neutral-800 px-3 py-2 text-left text-sm text-neutral-200 hover:bg-neutral-800"
-                    >
-                      <Settings className="h-3.5 w-3.5 text-neutral-400" />
-                      {t.editorPage.aiMenuSettings}
-                    </button>
-                  </div>
-                </>
-              ) : null}
-            </div>
-          </>
-        }
-        onDragStart={setDraggingPanel}
-        onDragEnd={() => {
-          setDraggingPanel(null);
-          setDropZone(null);
-        }}
-        onClose={() => setPanelVisible("ai", false)}
-        closeLabel={t.editorPage.aiClosePanel}
-      />
-      <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3">
-        {aiView === "history" ? (
-          aiHistoryView
-        ) : (
-          <>
-        {aiMessages.length === 0 && !aiThinking && aiThoughtSeconds === null ? (
-          <div className="flex min-h-full flex-col justify-center space-y-2">
-            <p className="text-sm text-neutral-300">{t.editorPage.aiWelcome}</p>
-            <p className="text-xs text-neutral-500">{t.editorPage.aiGuideNote}</p>
-          </div>
-        ) : null}
-        {aiMessages.map((m, i) =>
-          m.role === "user" ? (
-            <div key={i} className="flex justify-end">
-              <div className="max-w-[85%] rounded-xl rounded-br-sm bg-neutral-800 px-3 py-2 text-sm text-neutral-100 whitespace-pre-wrap break-words">
-                {m.text}
-              </div>
-            </div>
-          ) : (
-            <div key={i} className="rounded-xl bg-neutral-900 px-3 py-2 text-sm text-neutral-200">
-              <HighlightedMarkdown text={m.text} />
-            </div>
-          ),
-        )}
-        {aiThinking || aiThoughtSeconds !== null || aiMessages.length > 0 ? (
-          <ThoughtLine
-            working={aiThinking}
-            label={t.editorPage.aiThinkingLabel}
-            steps={[
-              t.editorPage.aiStepReading,
-              t.editorPage.aiStepThinking,
-              t.editorPage.aiStepDrafting,
-            ]}
-            fontSize={13}
-            defaultOpen={false}
-            onSettle={(seconds) => setAiThoughtSeconds(seconds)}
-          />
-        ) : null}
-        {aiError ? <p className="text-xs text-red-400">{aiError}</p> : null}
-          </>
-        )}
-      </div>
-      {aiView === "chat" ? (
-      <div className="shrink-0 border-t border-neutral-800 p-2">
-        <PromptBar
-          placeholder={t.editorPage.aiPlaceholder}
-          sources={[
-            {
-              key: "files",
-              name: "Current file",
-              description: activeFile ? activeFile.path : "No file open",
-              icon: <Code2 className="h-4 w-4" />,
-              attach: true,
-            },
-          ]}
-          commands={[
-            { key: "explain", name: "/explain", description: "Explain the current file" },
-            { key: "debug", name: "/debug", description: "Find the bug in this code" },
-            { key: "hint", name: "/hint", description: "Hint for the next step" },
-          ]}
-          models={AI_PANEL_MODELS}
-          defaultModel="gemini-3.6-flash"
-          efforts={["Low", "Medium", "High", "Extra", "Max"]}
-          defaultEffort="Medium"
-          busy={aiThinking}
-          onSend={sendAiMessage}
-          onStop={stopAi}
-          onAttach={() => (activeFile ? [activeFile.path] : [])}
-          background="#27272a"
-          color="#f5f5f5"
-          menuBackground="#323236"
-          sparkColor="#8e8e8e"
-          width={400}
-          radius={16}
-          maxRows={5}
-        />
-      </div>
-      ) : null}
-    </div>
-  );
+  const aiPanel = (<AiPanel t={t} aiView={aiView} aiMessages={aiMessages} aiThinking={aiThinking} aiThoughtSeconds={aiThoughtSeconds} setAiThoughtSeconds={setAiThoughtSeconds} aiError={aiError} aiMenuOpen={aiMenuOpen} setAiMenuOpen={setAiMenuOpen} activeFile={activeFile} sendAiMessage={sendAiMessage} stopAi={stopAi} clearAiChat={clearAiChat} setAiView={setAiView} setCentreView={setCentreView} setSettingsSection={setSettingsSection} setSettingsTabOpen={setSettingsTabOpen} setPanelVisible={setPanelVisible} setDraggingPanel={setDraggingPanel} setDropZone={setDropZone} AI_PANEL_MODELS={AI_PANEL_MODELS} aiChats={aiChats} startNewChat={startNewChat} loadAiChat={loadAiChat} deleteAiChat={deleteAiChat} defaultModel="gemini-3.6-flash" />);
 
-  const editorPanel = (
-      <div className="min-h-[420px] sm:min-h-[480px] md:min-h-0 flex-1 min-w-0 rounded-xl border border-neutral-800 bg-neutral-950 flex flex-col overflow-hidden">
-        <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-2 bg-black/60">
-          <span className="text-xs font-mono text-neutral-300 flex items-center gap-2 min-w-0">
-            <FileCode className="h-3.5 w-3.5 text-white shrink-0" />
-            <span className="truncate">{activeFile?.path} {!activeFile?.isSaved && t.editorPage.unsavedBadge}</span>
-          </span>
-          {isRunning && (
-            <button
-              type="button"
-              onClick={stopRunning}
-              disabled={!interruptBufferRef.current}
-              title={interruptBufferRef.current ? t.editorPage.stopHint : t.editorPage.stopUnavailableHint}
-              className="flex shrink-0 items-center gap-1 rounded-lg border border-red-500/50 bg-red-500/10 px-2.5 py-1 text-[11px] font-medium text-red-200 hover:bg-red-500/20 transition disabled:opacity-50"
-            >
-              <Square className="h-3 w-3 fill-current" /> {t.editorPage.stop}
-            </button>
-          )}
-          <span className="hidden text-[11px] text-neutral-500 font-mono sm:inline shrink-0 ml-2">
-            Python 3.12 (WASM) • Monaco Editor
-          </span>
-        </div>
-
-        <div className="flex-1 w-full relative">
-          <Editor
-            height="100%"
-            language="python"
-            theme={editorTheme}
-            value={activeFile?.content ?? ""}
-            onChange={handleEditorChange}
-            onMount={(editor) => {
-              editorRef.current = editor;
-              // Cursor position for the status bar (Ln / Col).
-              editor.onDidChangeCursorPosition((e: any) => {
-                setCursorPos({
-                  line: e.position.lineNumber,
-                  col: e.position.column,
-                });
-              });
-            }}
-            beforeMount={(monaco) => {
-              // lp-dark: vs-dark + scrollbars matched to the app's
-              // white-pill scrollbar (same as globals.css).
-              monaco.editor.defineTheme("lp-dark", {
-                base: "vs-dark",
-                inherit: true,
-                rules: [],
-                colors: {
-                  "scrollbarSliderBackground": "#ffffff73",
-                  "scrollbarSliderHoverBackground": "#ffffffe6",
-                  "scrollbarSliderActiveBackground": "#ffffff",
-                  "scrollbarShadow": "#00000000",
-                  "minimapSliderBackground": "#ffffff33",
-                  "minimapSliderHoverBackground": "#ffffff73",
-                  "minimapSliderActiveBackground": "#ffffffbf",
-                },
-              });
-              // lp-light: the same, on the light base — dark pill
-              // on a light editor.
-              monaco.editor.defineTheme("lp-light", {
-                base: "vs",
-                inherit: true,
-                rules: [],
-                colors: {
-                  "scrollbarSliderBackground": "#00000073",
-                  "scrollbarSliderHoverBackground": "#000000e6",
-                  "scrollbarSliderActiveBackground": "#000000",
-                  "scrollbarShadow": "#00000000",
-                  "minimapSliderBackground": "#00000033",
-                  "minimapSliderHoverBackground": "#00000073",
-                  "minimapSliderActiveBackground": "#000000bf",
-                },
-              });
-            }}
-            options={{
-              fontSize: 13,
-              lineNumbers: "on",
-              minimap: { enabled: true, side: "right" },
-              quickSuggestions: true,
-              suggestOnTriggerCharacters: true,
-              parameterHints: { enabled: true },
-              folding: true,
-              automaticLayout: true,
-              scrollBeyondLastLine: false,
-              tabSize: 4,
-              insertSpaces: true,
-              renderWhitespace: "selection",
-              wordWrap: "on",
-              fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-              scrollbar: {
-                verticalScrollbarSize: 8,
-                horizontalScrollbarSize: 8,
-                useShadows: false,
-              },
-            }}
-          />
-        </div>
-      </div>
-  );
+  const editorPanel = (<EditorPanel t={t} activeFile={activeFile} engine={engine} editorTheme={editorTheme} handleEditorChange={handleEditorChange} editorRef={editorRef} setCursorPos={setCursorPos} />);
 
   const dockPanels = (["explorer", "terminal", "ai"] as PanelId[]).filter((id) => isPanelVisible(id));
   const leftPanels = dockPanels.filter((id) => panelZones[id] === "left");
@@ -3529,10 +2665,10 @@ _lp_term_result
         // Event for a stage-listener function — see the guard above.
         // The arrow passes a real stage listener instead, so the
         // status line below can show which CDN is being tried.
-        onLoad={() => initPyodide((stage) => setEngineStage(stage))}
+        onLoad={() => engine.initPyodide((stage) => engine.setEngineStage(stage))}
         onError={() => {
           const msg = t.editorPage.pyodideLoadError;
-          setPyodideError(msg);
+          engine.setPyodideError(msg);
           setOutput((prev) => prev + `✗ ${msg}\n`);
         }}
       />
@@ -3632,16 +2768,16 @@ _lp_term_result
 
         {/* Runtime load status: which CDN/step it is on + elapsed time,
             so a slow download reads as "working", not "stuck". */}
-        {loadingEngine && (
+        {engine.loadingEngine && (
           <div className="flex items-center gap-2 rounded-lg border border-neutral-800 bg-neutral-950 px-4 py-2 text-xs text-neutral-400">
             <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" />
             <span className="truncate">
-              {engineStage ?? t.editorPage.loadingEngine}
+              {engine.engineStage ?? t.editorPage.loadingEngine}
             </span>
-            <span className="text-neutral-500 shrink-0">· {engineElapsed}s</span>
+            <span className="text-neutral-500 shrink-0">· {engine.engineElapsed}s</span>
             <button
               type="button"
-              onClick={cancelEngineLoad}
+              onClick={engine.cancelEngineLoad}
               className="ml-auto shrink-0 underline font-semibold text-neutral-300 hover:text-white"
             >
               {t.common.cancel}
@@ -3649,14 +2785,14 @@ _lp_term_result
           </div>
         )}
 
-        {pyodideError && (
+        {engine.pyodideError && (
           <div className="flex items-center justify-between rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-xs text-red-200">
-            <span>{pyodideError}</span>
+            <span>{engine.pyodideError}</span>
             <button
               type="button"
               onClick={() => {
-                setPyodideError(null);
-                initPyodide();
+                engine.setPyodideError(null);
+                engine.initPyodide();
               }}
               className="underline font-semibold hover:text-white ml-3"
             >
@@ -3725,7 +2861,7 @@ _lp_term_result
                 ) : editorTab === "files" ? (
                   editorPanel
                 ) : (
-                  <ModulesPanel pyodideRef={pyodideRef} ensurePyodide={ensurePyodideReady} />
+                  <ModulesPanel pyodideRef={engine.pyodideRef} ensurePyodide={engine.ensurePyodideReady} />
                 )}
               </div>
               {/* Bottom zone (under the editor only) */}
@@ -3804,7 +2940,7 @@ _lp_term_result
             repeating it here was a duplicate.) */}
         <div className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-1 rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-1.5 text-[11px] font-mono text-neutral-400">
           <span className="flex items-center gap-1.5">
-            <span className={`h-1.5 w-1.5 rounded-full ${pyodideReady ? "bg-emerald-400" : "bg-amber-400"}`} />
+            <span className={`h-1.5 w-1.5 rounded-full ${engine.pyodideReady ? "bg-emerald-400" : "bg-amber-400"}`} />
             {t.editorPage.statusPython}
           </span>
           <span className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
@@ -3925,71 +3061,7 @@ _lp_term_result
           GitHub's. The box opens with a plain default; the AI refines
           it within 5s (or the default stays). Clearing the box falls
           back to the default — a commit always has a message. */}
-      {pushDialogOpen && openRepoState && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-          onClick={() => setPushDialogOpen(false)}
-        >
-          <div
-            className="w-full max-w-lg rounded-xl border border-neutral-800 bg-neutral-950 p-4 shadow-xl"
-            role="dialog"
-            aria-modal="true"
-            aria-label={t.editorPage.pushDialogTitle}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-sm font-semibold text-white">{t.editorPage.pushDialogTitle}</h2>
-            <p className="mt-1 text-xs text-neutral-400">
-              {t.editorPage.pushDialogSummary(pushDialogFiles.ready.length, pushDialogFiles.skipped.length, openRepoState.repo)}
-            </p>
-            <ul className="mt-2 max-h-32 space-y-0.5 overflow-y-auto rounded-md border border-neutral-800 bg-neutral-900 px-2.5 py-2 font-mono text-xs text-neutral-300">
-              {pushDialogFiles.ready.map((p) => (
-                <li key={p}>{p}</li>
-              ))}
-              {pushDialogFiles.skipped.map((p) => (
-                <li key={p} className="text-neutral-600">
-                  {p} — skipped
-                </li>
-              ))}
-            </ul>
-            <label
-              htmlFor="push-commit-message"
-              className="mt-3 block text-xs font-medium text-neutral-300"
-            >
-              {t.editorPage.pushCommitMessageLabel}
-            </label>
-            <textarea
-              id="push-commit-message"
-              value={commitMessage}
-              onChange={(e) => {
-                messageEditedRef.current = true;
-                setCommitMessage(e.target.value);
-              }}
-              rows={2}
-              className="mt-1 w-full rounded-md border border-neutral-700 bg-neutral-900 px-2.5 py-2 text-sm text-white outline-none focus:border-neutral-500"
-            />
-            {generatingMessage && (
-              <p className="mt-1 text-xs text-neutral-500">{t.editorPage.pushGeneratingMessage}</p>
-            )}
-            <div className="mt-4 flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setPushDialogOpen(false)}
-                className="rounded-md px-3 py-1.5 text-xs font-medium text-neutral-300 hover:bg-neutral-800 hover:text-white"
-              >
-                {t.common.cancel}
-              </button>
-              <button
-                type="button"
-                onClick={() => void confirmPush()}
-                disabled={pushing}
-                className="rounded-md bg-white px-3 py-1.5 text-xs font-medium text-black hover:bg-neutral-200 disabled:text-neutral-600"
-              >
-                {t.editorPage.pushButton}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {pushDialogOpen && openRepoState && (<PushDialog t={t} openRepoState={openRepoState} setPushDialogOpen={setPushDialogOpen} pushDialogFiles={pushDialogFiles} commitMessage={commitMessage} setCommitMessage={setCommitMessage} messageEditedRef={messageEditedRef} generatingMessage={generatingMessage} confirmPush={confirmPush} pushing={pushing} />)}
 
       {/* Repo-loaded toast: fires when the repo tree loads (file
           contents load lazily on open, so the toast is about the

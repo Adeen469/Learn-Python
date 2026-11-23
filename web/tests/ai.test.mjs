@@ -1,5 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const testRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
+const readSrc = (p) => readFileSync(join(testRoot, p), "utf8");
 
 // Inline pure helpers + provider orchestration mirrors for zero-build
 // node --test verification (mirrors web/src/lib/ai.ts). Provider calls
@@ -58,6 +64,8 @@ const MAX_INPUT_CHARS = 8000;
 const MAX_HISTORY_TURNS = 4;
 const MAX_HISTORY_CHARS = 700;
 const MAX_SKILLS_CHARS = 6000;
+// R2-M12: per-request input budget (mirror of src/lib/ai.ts).
+const MAX_TOTAL_INPUT_CHARS = 32_000;
 const AI_TEMPERATURE = 0.7;
 const AI_MODES = ["tutor", "explain", "debug", "quiz", "guide"];
 
@@ -119,12 +127,11 @@ function validateAiRequest(value) {
   if (v.history !== undefined) body.history = sanitizeHistory(v.history);
   // BYOK first: the model check below allows a custom model id
   // only when it matches the custom BYOK in this same request.
-  // The key is optional — it normally lives server-side and the
-  // route loads it by provider reference; a body key is only a
-  // deprecated fallback for stale clients. Custom baseUrl/model
-  // are likewise optional here: they may come from the server
-  // store instead, and the route rejects the request when neither
-  // source has them.
+  // The key lives server-side and the route loads it by provider
+  // reference — a key in the body is REJECTED outright (R2-M1).
+  // Custom baseUrl/model are still accepted here for
+  // shape-checking, but the route ignores them — the stored ones
+  // are authoritative.
   if (v.byok !== undefined) {
     const b = v.byok;
     const providers = ["gemini", "groq", "anthropic", "openai", "openrouter", "custom"];
@@ -133,13 +140,11 @@ function validateAiRequest(value) {
       b === null ||
       typeof b.provider !== "string" ||
       !providers.includes(b.provider) ||
-      (b.key !== undefined &&
-        (typeof b.key !== "string" || b.key.length < 10 || b.key.length > 200))
+      b.key !== undefined
     ) {
       return { ok: false, error: "byok is not valid." };
     }
     const byok = { provider: b.provider };
-    if (typeof b.key === "string") byok.key = b.key;
     if (b.provider === "custom") {
       if (
         (b.baseUrl !== undefined &&
@@ -207,6 +212,16 @@ function validateAiRequest(value) {
   }
   if ((mode === "tutor" || mode === "guide") && !body.question) {
     return { ok: false, error: "question is required for this mode." };
+  }
+  // R2-M12: per-request input budget (see MAX_TOTAL_INPUT_CHARS) —
+  // bound the summed body-controlled input, not just each field.
+  const totalInputChars =
+    (body.question?.length ?? 0) +
+    (body.code?.length ?? 0) +
+    (body.history ?? []).reduce((n, h) => n + h.text.length, 0) +
+    (body.skills ?? []).reduce((n, s) => n + s.content.length, 0);
+  if (totalInputChars > MAX_TOTAL_INPUT_CHARS) {
+    return { ok: false, error: `request input is too large (max ${MAX_TOTAL_INPUT_CHARS} characters).` };
   }
   return { ok: true, body };
 }
@@ -636,10 +651,29 @@ function isPrivateIp(ip) {
   if (v4) {
     const a = Number(v4[1]);
     const b = Number(v4[2]);
+    const c = Number(v4[3]);
+    const d = Number(v4[4]);
+    // R3-C: out-of-range octets cannot be a real public address —
+    // fail closed. (Unreachable from a parsed URL or DNS, which
+    // are canonical, but the validator must not call one public.)
+    if (a > 255 || b > 255 || c > 255 || d > 255) return true;
     if (a === 0 || a === 10 || a === 127) return true;
     if (a === 169 && b === 254) return true;
     if (a === 172 && b >= 16 && b <= 31) return true;
     if (a === 192 && b === 168) return true;
+    // R2-L16: CGNAT 100.64.0.0/10, 192.0.0.0/24, 198.18.0.0/15.
+    if (a === 100 && b >= 64 && b <= 127) return true;
+    if (a === 192 && b === 0) return true;
+    if (a === 198 && (b === 18 || b === 19)) return true;
+    // R3-C: the rest of the reserved space — TEST-NET-2
+    // 198.51.100.0/24, TEST-NET-3 203.0.113.0/24, multicast
+    // 224.0.0.0/4, and reserved 240.0.0.0/4 (incl. broadcast
+    // 255.255.255.255, which the old check let through: a
+    // literal-IP lookup returns it unchanged, so the DNS leg
+    // could not catch it either).
+    if (a === 198 && b === 51 && c === 100) return true;
+    if (a === 203 && b === 0 && c === 113) return true;
+    if (a >= 224) return true;
     return false;
   }
   // IPv6: only strings with a colon are addresses — anything else is
@@ -647,7 +681,40 @@ function isPrivateIp(ip) {
   const v6 = ip.replace(/^\[|\]$/g, "").split("%")[0].toLowerCase();
   if (!v6.includes(":")) return false;
   if (v6 === "::1" || v6 === "::") return true;
-  if (v6.startsWith("::ffff:")) return isPrivateIp(v6.slice("::ffff:".length));
+  if (v6.startsWith("::ffff:")) {
+    // IPv4-mapped IPv6. The dotted form (::ffff:127.0.0.1)
+    // recurses as before — but the WHATWG URL parser
+    // canonicalises the host to the HEX form (::ffff:7f00:1),
+    // and the old code recursed on the bare "7f00:1", which
+    // matched nothing and returned PUBLIC: https://[::ffff:
+    // 127.0.0.1]/ passed the hostname check (only an accidental
+    // ENOTFOUND from the bracketed DNS lookup saved it in
+    // production — a stubbed or different lookup would not).
+    // Decode the last two hextets as the embedded IPv4 address
+    // and check that. The SIIT translated form ::ffff:0:7f00:1
+    // decodes the same way; anything else under ::ffff: fails
+    // closed. (A mapped PUBLIC address, e.g. ::ffff:808:808 =
+    // 8.8.8.8, still returns false.)
+    const rest = v6.slice("::ffff:".length);
+    if (rest.includes(".")) return isPrivateIp(rest);
+    const parts = rest.split(":");
+    const tail =
+      parts.length === 2
+        ? parts
+        : parts.length === 3 && parts[0] === "0"
+          ? parts.slice(1)
+          : null;
+    if (
+      !tail ||
+      !/^[0-9a-f]{1,4}$/.test(tail[0]) ||
+      !/^[0-9a-f]{1,4}$/.test(tail[1])
+    ) {
+      return true;
+    }
+    const hi = parseInt(tail[0], 16);
+    const lo = parseInt(tail[1], 16);
+    return isPrivateIp(`${hi >> 8}.${hi & 0xff}.${lo >> 8}.${lo & 0xff}`);
+  }
   const first = v6.split(":")[0];
   if (/^fe[89ab][0-9a-f]*$/.test(first)) return true; // fe80::/10 link-local
   if (/^f[cd][0-9a-f]*$/.test(first)) return true; // fc00::/7 unique-local
@@ -724,18 +791,12 @@ async function callOpenAiCompatibleMock(args, key, fetchImpl, opts) {
     // changed between the two lookups (rebinding) refuses the
     // fetch instead of following the new answer.
     //
-    // RESIDUAL (honest): fetch() performs its own, third lookup,
-    // which this code cannot see or pin — the global fetch has no
-    // way to fetch a literal IP with the original hostname as TLS
-    // SNI, so a TTL-0 record that flips to a private IP in the
-    // instant between the second lookup and fetch's own lookup
-    // would still be followed. The window is one DNS round-trip
-    // wide (not the whole request), and the redirect refusal below
-    // still blocks a 302 to a private target afterwards — but a
-    // rebinding host with a ~0s TTL is not fully contained by this
-    // guard. Only fetching by literal IP with an explicit SNI
-    // (node:https with `servername`) would close it, and that
-    // cannot be done through the fetch abstraction used here.
+    // NOTE (mirror only): the real src/lib/ai.ts no longer fetches
+    // through fetch() for custom legs — it POSTs to the literal
+    // pinned IP with explicit TLS SNI (postToPinnedIp), so there is
+    // no third DNS lookup left to flip. This mock keeps the fetch
+    // path because its fetchImpl is injected (a stub); the
+    // double-resolve pinning above is its guard.
     const pinned = await resolveSafeCustomAddresses(opts.url, opts.dnsLookup);
     if (!pinned) {
       recordProviderFailure(provider, opts.models[0] ?? "custom", "unsafe base URL");
@@ -1322,42 +1383,43 @@ test("validateAiRequest: skillIds, custom skills and BYOK are validated", () => 
     validateAiRequest({ ...base, skills: [{ name: "x", content: "y".repeat(8001) }] }).ok,
     false
   );
-  // BYOK: provider must be one of the six, key 10–200 chars.
+  // BYOK: provider reference only — a key in the body is REJECTED
+  // (R2-M1). The key lives server-side and the route loads it by
+  // provider reference; no body key is ever honoured.
   assert.equal(
     validateAiRequest({ ...base, byok: { provider: "gemini", key: "AIza1234567890" } }).ok,
-    true
+    false
   );
   assert.equal(
     validateAiRequest({ ...base, byok: { provider: "groq", key: "gsk_1234567890" } }).ok,
-    true
+    false
   );
   assert.equal(
     validateAiRequest({ ...base, byok: { provider: "anthropic", key: "sk-ant-1234567890" } }).ok,
-    true
+    false
   );
   assert.equal(
     validateAiRequest({ ...base, byok: { provider: "openai", key: "sk-1234567890" } }).ok,
-    true
+    false
   );
   assert.equal(
     validateAiRequest({ ...base, byok: { provider: "openrouter", key: "sk-or-1234567890" } }).ok,
-    true
+    false
   );
   assert.equal(
     validateAiRequest({
       ...base,
       byok: { provider: "custom", key: "custom-key-123", baseUrl: "https://example.com/v1", model: "my-model" },
     }).ok,
-    true
+    false
   );
   assert.equal(
     validateAiRequest({ ...base, byok: { provider: "unknown", key: "sk-1234567890" } }).ok,
     false
   );
   assert.equal(validateAiRequest({ ...base, byok: { provider: "gemini", key: "short" } }).ok, false);
-  // No key in the body is fine now: the key normally lives
-  // server-side and the route loads it by provider reference; a
-  // body key is only a deprecated fallback for stale clients.
+  // No key in the body is the normal case: the key lives
+  // server-side and the route loads it by provider reference.
   assert.equal(validateAiRequest({ ...base, byok: { provider: "gemini" } }).ok, true);
   assert.equal(validateAiRequest({ ...base, byok: { provider: "custom" } }).ok, true);
   assert.equal(
@@ -1780,6 +1842,29 @@ test("SSRF guard: private IPs and hostnames are rejected without DNS", () => {
     "fc00::1",
     "fd00::1",
     "::ffff:192.168.1.1",
+    // R2-L16: CGNAT 100.64.0.0/10, 192.0.0.0/24, 198.18.0.0/15.
+    "100.64.0.1",
+    "100.127.255.255",
+    "192.0.0.1",
+    "192.0.2.1",
+    "198.18.0.1",
+    "198.19.255.255",
+    // R3-C (task C): IPv4-mapped IPv6 in the HEX form the WHATWG
+    // URL parser canonicalises to (::ffff:7f00:1 is what
+    // https://[::ffff:127.0.0.1]/ becomes) — the old check recursed
+    // on the bare "7f00:1" and called it public. Plus the SIIT
+    // translated form, and the reserved v4 space the old check
+    // missed (broadcast, multicast, reserved, TEST-NET-2/3).
+    "::ffff:127.0.0.1",
+    "::ffff:7f00:1",
+    "::ffff:0a00:1",
+    "::ffff:c0a8:101",
+    "::ffff:0:7f00:1",
+    "255.255.255.255",
+    "224.0.0.1",
+    "240.0.0.1",
+    "198.51.100.1",
+    "203.0.113.1",
   ]) {
     assert.equal(isPrivateIp(ip), true, `${ip} must be private`);
   }
@@ -1790,6 +1875,18 @@ test("SSRF guard: private IPs and hostnames are rejected without DNS", () => {
     "172.32.0.1",
     "2001:4860:4860::8888",
     "2606:4700:4700::1111",
+    // Just outside the R2-L16 ranges.
+    "100.63.255.255",
+    "100.128.0.1",
+    "192.1.0.1",
+    "198.17.255.255",
+    "198.20.0.1",
+    // Just outside the R3-C ranges — and a mapped PUBLIC address,
+    // which must stay public (::ffff:808:808 is 8.8.8.8).
+    "223.255.255.255",
+    "198.51.101.1",
+    "203.0.114.1",
+    "::ffff:808:808",
   ]) {
     assert.equal(isPrivateIp(ip), false, `${ip} must be public`);
   }
@@ -1820,6 +1917,20 @@ test("SSRF guard: isSafeCustomBaseUrl blocks private targets and rebinding", asy
   );
   assert.equal(await isSafeCustomBaseUrl("https://localhost:8443/v1", publicDns), false);
   assert.equal(await isSafeCustomBaseUrl("https://127.0.0.1/v1", publicDns), false);
+  // R3-C (task C): every literal form the task names, plus the
+  // IPv4-mapped IPv6 hex form and the non-decimal IPv4 spellings
+  // the WHATWG parser normalises to 127.0.0.1. The publicDns stub
+  // answers "public" for ANY hostname, so these cases prove the
+  // hostname check itself — not the stub — rejects them.
+  assert.equal(await isSafeCustomBaseUrl("https://10.0.0.5/v1", publicDns), false, "10.x must be rejected");
+  assert.equal(await isSafeCustomBaseUrl("https://172.16.0.5/v1", publicDns), false, "172.16/12 must be rejected");
+  assert.equal(await isSafeCustomBaseUrl("https://0.0.0.0/v1", publicDns), false, "0.0.0.0 must be rejected");
+  assert.equal(await isSafeCustomBaseUrl("https://[::1]/v1", publicDns), false, "::1 must be rejected");
+  assert.equal(await isSafeCustomBaseUrl("https://[::ffff:7f00:1]/v1", publicDns), false, "mapped 127.0.0.1 must be rejected");
+  assert.equal(await isSafeCustomBaseUrl("https://[::ffff:0a00:1]/v1", publicDns), false, "mapped 10.0.0.1 must be rejected");
+  assert.equal(await isSafeCustomBaseUrl("https://255.255.255.255/v1", publicDns), false, "broadcast must be rejected");
+  assert.equal(await isSafeCustomBaseUrl("https://0x7f.0.0.1/v1", publicDns), false, "hex 127.0.0.1 must be rejected");
+  assert.equal(await isSafeCustomBaseUrl("https://2130706433/v1", publicDns), false, "decimal 127.0.0.1 must be rejected");
   assert.equal(
     await isSafeCustomBaseUrl("https://169.254.169.254/latest/meta-data/", publicDns),
     false,
@@ -1859,20 +1970,25 @@ test("validateAiRequest: custom BYOK validation", () => {
   const base = { mode: "guide", question: "hi" };
   const customByok = {
     provider: "custom",
-    key: "custom-key-123",
     baseUrl: "https://example.com/v1",
     model: "my-model",
   };
   const ok = validateAiRequest({ ...base, byok: customByok });
   assert.equal(ok.ok, true);
   assert.deepEqual(ok.body.byok, customByok);
+  // A key in the body is rejected outright (R2-M1) — for custom
+  // too, not just the named providers.
+  assert.equal(
+    validateAiRequest({ ...base, byok: { ...customByok, key: "custom-key-123" } }).ok,
+    false
+  );
 
   // Non-https base URL, blank/oversized model, base URL with a space.
   assert.equal(validateAiRequest({ ...base, byok: { ...customByok, baseUrl: "http://example.com/v1" } }).ok, false);
   // A missing base URL / model in the body is fine at validation:
   // they may come from the server store, and the route refuses the
   // request when neither source has them.
-  assert.equal(validateAiRequest({ ...base, byok: { provider: "custom", key: "custom-key-123", model: "my-model" } }).ok, true);
+  assert.equal(validateAiRequest({ ...base, byok: { provider: "custom", model: "my-model" } }).ok, true);
   assert.equal(validateAiRequest({ ...base, byok: { ...customByok, model: undefined } }).ok, true);
   assert.equal(validateAiRequest({ ...base, byok: { ...customByok, model: "   " } }).ok, false);
   assert.equal(validateAiRequest({ ...base, byok: { ...customByok, model: "m".repeat(101) } }).ok, false);
@@ -1887,7 +2003,7 @@ test("validateAiRequest: custom BYOK validation", () => {
   assert.equal(mismatch.error, "model is not an available model.");
   // Same model id with a non-custom BYOK: no custom model to match.
   assert.equal(
-    validateAiRequest({ ...base, model: "my-model", byok: { provider: "gemini", key: "AIza1234567890" } }).ok,
+    validateAiRequest({ ...base, model: "my-model", byok: { provider: "gemini" } }).ok,
     false
   );
 });
@@ -2296,4 +2412,90 @@ test("custom skills ride in a delimited user-content section, never the system p
   assert.ok(learnerAt > 0);
   assert.ok(prompt.indexOf("Ignore previous instructions") > learnerAt);
   assert.ok(!prompt.slice(0, learnerAt).includes("Ignore previous instructions"));
+});
+
+test("R2-M12: per-request input budget bounds the summed input, not just each field", () => {
+  const base = { mode: "guide", question: "hi" };
+  // A full question + full code + full history is 18,800 chars —
+  // under the 32k budget, with room for custom skills.
+  assert.equal(
+    validateAiRequest({
+      ...base,
+      question: "q".repeat(8000),
+      code: "c".repeat(8000),
+      history: Array.from({ length: 4 }, () => ({ role: "user", text: "h".repeat(700) })),
+    }).ok,
+    true
+  );
+  // The old fan-out: the same plus 10 max-size custom skills
+  // (~80k chars) must be refused, even though every field alone
+  // is within its own cap.
+  assert.equal(
+    validateAiRequest({
+      ...base,
+      question: "q".repeat(8000),
+      code: "c".repeat(8000),
+      skills: Array.from({ length: 10 }, (_, i) => ({ name: `s${i}`, content: "x".repeat(8000) })),
+    }).ok,
+    false
+  );
+  // Just over the budget via skills alone.
+  assert.equal(
+    validateAiRequest({
+      ...base,
+      skills: [{ name: "big", content: "x".repeat(8000) }, { name: "big2", content: "x".repeat(8000) }, { name: "big3", content: "x".repeat(8000) }, { name: "big4", content: "x".repeat(8000) }, { name: "big5", content: "x".repeat(1) }],
+    }).ok,
+    false
+  );
+  const src = readSrc("src/lib/ai.ts");
+  assert.ok(src.includes("MAX_TOTAL_INPUT_CHARS"), "the budget must be a named constant in src/lib/ai.ts");
+});
+
+test("R2-M1/R2-M12/R2-L16: the AI route and BYOK store carry the fixes", () => {
+  const route = readSrc("src/app/api/ai/route.ts");
+  // R2-M1: stored key only — no body-key fallback anywhere.
+  assert.ok(route.includes("const key = stored?.key ?? null;"), "route must use the stored BYOK key only");
+  assert.ok(!route.includes("body.byok.key"), "route must never read a body-supplied BYOK key");
+  // Stored base URL / model are authoritative for custom.
+  assert.ok(route.includes("config.customBaseUrl = stored?.baseUrl ?? null;"), "custom base URL must come from the server store");
+  assert.ok(route.includes("config.customModel = stored?.model ?? null;"), "custom model must come from the server store");
+  assert.ok(!route.includes("body.byok.baseUrl ?? stored"), "a body base URL must not override the stored one");
+  assert.ok(!route.includes("body.byok.model ?? stored"), "a body model must not override the stored one");
+  // R2-M12: the per-user daily quota is counted only after the
+  // body parses and validates — malformed requests must not drain it.
+  assert.ok(
+    route.indexOf("validateAiRequest(rawBody)") < route.indexOf('checkRateLimit(userKey,'),
+    "the daily quota must be checked after validation, not before"
+  );
+  const lib = readSrc("src/lib/ai.ts");
+  // R2-M1: validateAiRequest rejects any body key.
+  assert.ok(lib.includes("b.key !== undefined"), "validateAiRequest must reject a body BYOK key");
+  assert.ok(!lib.includes("byok.key = b.key"), "the validated body must never carry a key");
+  // R2-L16: custom legs POST to the literal pinned IP with
+  // explicit TLS SNI — no third DNS lookup left to flip.
+  assert.ok(lib.includes("postToPinnedIp"), "custom legs must fetch by literal pinned IP");
+  assert.ok(lib.includes("servername: parsed.hostname"), "the literal-IP request must set TLS SNI to the hostname");
+  assert.ok(lib.includes("node:https"), "the literal-IP transport must use node:https");
+  assert.ok(lib.includes('redirect: "error"'), "the fetch path must still refuse redirects for custom");
+});
+
+test("R2-L10/R2-L11/R2-L12/R2-M13: the BYOK routes and store carry the fixes", () => {
+  const store = readSrc("src/lib/byok-store.ts");
+  // R2-L11: the BYOK encryption key needs >= 32 chars, like TOTP's.
+  assert.ok(store.includes("dedicated.length < 32"), "a short BYOK_ENCRYPTION_KEY must fail closed");
+  // R2-L12: the email is normalised at every call site, so a key
+  // saved under one sign-in method is visible under the other.
+  const normalised = (store.match(/normalizeEmail\(email\)/g) || []).length;
+  assert.ok(normalised >= 4, `expected normalizeEmail at all 4 store call sites, got ${normalised}`);
+  const save = readSrc("src/app/api/byok/save/route.ts");
+  // R2-M13: Content-Length pre-check before req.json().
+  assert.ok(save.includes("BYOK_SAVE_MAX_BODY_BYTES"), "save must cap the body before parsing");
+  assert.ok(
+    save.indexOf("content-length") < save.indexOf("await req.json()"),
+    "the size check must run before req.json()"
+  );
+  const del = readSrc("src/app/api/byok/delete/route.ts");
+  // R2-L10: the delete result is checked before claiming success.
+  assert.ok(del.includes("const deleted = await deleteByokKey"), "delete must capture the delete result");
+  assert.ok(del.includes("status: 503"), "a failed delete must answer 503, not {deleted:true}");
 });

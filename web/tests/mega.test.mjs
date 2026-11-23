@@ -16,6 +16,8 @@ function isValidMegaFileUrl(url) {
   return MEGA_FILE_URL_RE.test(url) || MEGA_FOLDER_FILE_URL_RE.test(url);
 }
 
+const MAX_VIDEO_CHUNK_BYTES = 4 * 1024 * 1024;
+
 function parseHttpRange(rangeHeader, totalSize) {
   if (!rangeHeader || totalSize <= 0) return null;
   const match = /^bytes=(\d*)-(\d*)$/.exec(rangeHeader.trim());
@@ -33,7 +35,11 @@ function parseHttpRange(rangeHeader, totalSize) {
   if (Number.isNaN(start) || Number.isNaN(end) || start < 0 || start > end || start >= totalSize) {
     return null;
   }
-  return { start, end: Math.min(end, totalSize - 1) };
+  // R2-H1: any Range is clamped to at most 4 MiB.
+  return {
+    start,
+    end: Math.min(Math.min(end, totalSize - 1), start + MAX_VIDEO_CHUNK_BYTES - 1),
+  };
 }
 
 test("MEGA URL validator accepts valid share links and rejects SSRF URLs", () => {
@@ -60,6 +66,29 @@ test("HTTP Range parser handles open-ended, bounded, suffix, and invalid ranges"
   assert.deepEqual(parseHttpRange("bytes=-500", 5000), { start: 4500, end: 4999 });
   assert.equal(parseHttpRange("bytes=6000-7000", 5000), null);
   assert.equal(parseHttpRange("bytes=invalid", 5000), null);
+});
+
+test("R2-H1: any Range is clamped to at most 4 MiB (open-ended, bounded, suffix)", () => {
+  const total = 37 * 1024 * 1024;
+  // The old bypass: bytes=0- used to return the whole ~37 MB file.
+  assert.deepEqual(parseHttpRange("bytes=0-", total), { start: 0, end: MAX_VIDEO_CHUNK_BYTES - 1 });
+  assert.deepEqual(parseHttpRange("bytes=0-4194303", total), { start: 0, end: 4194303 });
+  assert.deepEqual(parseHttpRange("bytes=0-4194304", total), { start: 0, end: MAX_VIDEO_CHUNK_BYTES - 1 });
+  assert.deepEqual(parseHttpRange("bytes=1048576-5242879", total), { start: 1048576, end: 5242879 });
+  assert.deepEqual(parseHttpRange("bytes=1048576-20971520", total), {
+    start: 1048576,
+    end: 1048576 + MAX_VIDEO_CHUNK_BYTES - 1,
+  });
+  // A huge suffix range is clamped too, and a small file still
+  // returns its real tail.
+  assert.deepEqual(parseHttpRange("bytes=-10485760", total), {
+    start: total - 10485760,
+    end: total - 10485760 + MAX_VIDEO_CHUNK_BYTES - 1,
+  });
+  assert.deepEqual(parseHttpRange("bytes=-500", 5000), { start: 4500, end: 4999 });
+  const src = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "src/lib/mega.ts"), "utf8");
+  assert.ok(src.includes("MAX_VIDEO_CHUNK_BYTES"), "the clamp must live in src/lib/mega.ts");
+  assert.ok(src.includes("start + MAX_VIDEO_CHUNK_BYTES - 1"), "parseHttpRange must clamp the window to 4 MiB");
 });
 
 

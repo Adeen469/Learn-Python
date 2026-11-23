@@ -12,8 +12,12 @@ import {
   verifyToken,
 } from "@/lib/auth";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
-import { claimUsedToken, getUserByEmail } from "@/lib/auth-store";
-import { setPending2fa } from "@/lib/auth-routes";
+import {
+  claimUsedToken,
+  createGoogleUser,
+  getUserByEmailResult,
+} from "@/lib/auth-store";
+import { clearPending2fa, noStore, setPending2fa } from "@/lib/auth-routes";
 import { sha256Hex } from "@/lib/auth-email";
 
 // Completes an Android-app Google sign-in. The app opens this URL in
@@ -33,20 +37,30 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   let limit;
   try {
-    limit = await checkRateLimit(`auth-app-exchange:${getClientIp(req)}`, 20, 60_000);
+    limit = await checkRateLimit(
+      `auth-app-exchange:${getClientIp(req)}`,
+      20,
+      60_000,
+      Date.now(),
+      { failClosed: true }
+    );
   } catch {
-    return NextResponse.json(
-      { error: "Sign-in is temporarily unavailable." },
-      { status: 503 }
+    return noStore(
+      NextResponse.json(
+        { error: "Sign-in is temporarily unavailable." },
+        { status: 503 }
+      )
     );
   }
   if (!limit.allowed) {
-    return NextResponse.json(
-      { error: "Too many requests — please slow down and retry shortly." },
-      {
-        status: 429,
-        headers: { "Retry-After": String(limit.retryAfterSeconds) },
-      }
+    return noStore(
+      NextResponse.json(
+        { error: "Too many requests — please slow down and retry shortly." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(limit.retryAfterSeconds) },
+        }
+      )
     );
   }
 
@@ -56,9 +70,11 @@ export async function GET(req: NextRequest) {
     console.error(
       JSON.stringify({ event: "auth_misconfigured", endpoint: "app-exchange" })
     );
-    return NextResponse.json(
-      { error: "Sign-in is not configured yet." },
-      { status: 503 }
+    return noStore(
+      NextResponse.json(
+        { error: "Sign-in is not configured yet." },
+        { status: 503 }
+      )
     );
   }
   const isSecure = isSecureOrigin(origin);
@@ -78,7 +94,7 @@ export async function GET(req: NextRequest) {
     );
     // Back to the sign-in page — the user can retry Google sign-in.
     // Same as the callback: use the public origin, never req.url.
-    return NextResponse.redirect(new URL("/auth/email", origin));
+    return noStore(NextResponse.redirect(new URL("/auth/email", origin)));
   }
 
   // Single-use exchange code (migration 005): the code travels in a
@@ -90,7 +106,7 @@ export async function GET(req: NextRequest) {
       console.log(
         JSON.stringify({ event: "auth_app_exchange_bad_code", endpoint: "app-exchange" })
       );
-      return NextResponse.redirect(new URL("/auth/email", origin));
+      return noStore(NextResponse.redirect(new URL("/auth/email", origin)));
     }
   }
 
@@ -101,14 +117,40 @@ export async function GET(req: NextRequest) {
     auth: "google" as const,
     mfa: false,
   };
+  // The row must exist before any session is minted (R2-M3): the
+  // callback normally creates it and bumps the version, but a DB
+  // blip there — or an old code minted before the row existed — must
+  // not mint a session with no row behind it. No app-side change is
+  // needed for this: the row is created here, server-side. If it
+  // cannot be read or created, fail closed with a 503.
+  const exchangeEmail = p.email as string;
+  const lookup = await getUserByEmailResult(exchangeEmail);
+  let row = lookup.status === "found" ? lookup.user : null;
+  if (!row && lookup.status !== "error") {
+    row = await createGoogleUser({ email: exchangeEmail, name: p.name });
+    if (!row) {
+      const again = await getUserByEmailResult(exchangeEmail);
+      if (again.status === "found") row = again.user;
+    }
+  }
+  if (!row) {
+    console.error(
+      JSON.stringify({ event: "auth_app_exchange_no_row", endpoint: "app-exchange" })
+    );
+    return noStore(
+      NextResponse.json(
+        { error: "Sign-in is temporarily unavailable." },
+        { status: 503 }
+      )
+    );
+  }
   // 2FA gate (same as the browser callback): the exchange code
   // carries no session, so the check belongs here, where the
   // session would be minted. A user with TOTP on gets the step-up
   // cookie instead, and finishes on /auth/2fa inside this same
   // WebView — the session cookie then lands in the app's jar.
-  const row = await getUserByEmail(p.email);
-  if (row?.totp_enabled) {
-    const res = NextResponse.redirect(new URL("/auth/2fa", origin));
+  if (row.totp_enabled) {
+    const res = noStore(NextResponse.redirect(new URL("/auth/2fa", origin)));
     await setPending2fa(res, secret, p.email, isSecure, "google");
     console.log(
       JSON.stringify({
@@ -122,7 +164,10 @@ export async function GET(req: NextRequest) {
   const token = await signSession(
     secret,
     buildSessionPayload(user, Math.floor(Date.now() / 1000), {
-      sv: typeof p.sv === "number" ? p.sv : 0,
+      // The row's version, not the code's: the callback bumped it
+      // before minting the code, so the row carries the rotated
+      // value the new session must match.
+      sv: row.session_version ?? 0,
     })
   );
   // Native clients (React Native) ask for ?format=json: they fetch
@@ -130,8 +175,11 @@ export async function GET(req: NextRequest) {
   // would swallow the Set-Cookie header. Answer JSON with the cookie
   // set; the client captures the cookie and calls /api/auth/me.
   if (req.nextUrl.searchParams.get("format") === "json") {
-    const res = NextResponse.json({ user });
+    const res = noStore(NextResponse.json({ user }));
     res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions(isSecure));
+    // R3-L2: a stale pending-2FA cookie must never survive a fresh
+    // sign-in (same as verify-otp already does).
+    clearPending2fa(res, isSecure);
     console.log(
       JSON.stringify({
         event: "auth_login_app_exchange",
@@ -141,8 +189,11 @@ export async function GET(req: NextRequest) {
     );
     return res;
   }
-  const res = NextResponse.redirect(new URL("/", origin));
+  const res = noStore(NextResponse.redirect(new URL("/", origin)));
   res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions(isSecure));
+  // R3-L2: a stale pending-2FA cookie must never survive a fresh
+  // sign-in (same as verify-otp already does).
+  clearPending2fa(res, isSecure);
   console.log(
     JSON.stringify({
       event: "auth_login_app_exchange",

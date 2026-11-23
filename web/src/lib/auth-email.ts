@@ -10,7 +10,9 @@
 //   codes are scrypt-hashed (slow, salted), like passwords.
 // - Passwords are scrypt (random 16-byte salt), never plain.
 // - The TOTP secret is AES-256-GCM encrypted with a key derived
-//   from SESSION_SECRET (SHA-256), never stored in the clear.
+//   from TOTP_ENCRYPTION_KEY (SHA-256), never stored in the clear.
+//   SESSION_SECRET is for sessions only and must never encrypt a
+//   TOTP secret or a stored token.
 // - Comparisons of hashes use timingSafeEqual. Codes are never logged.
 //
 // This file is imported ONLY by API route handlers / server libs.
@@ -353,60 +355,53 @@ export function verifyTotpCodeWithStep(
 // ---------------------------------------------------------------------------
 
 /**
- * Key material for NEW TOTP secrets: the dedicated TOTP_ENCRYPTION_KEY
- * when set, else the legacy SESSION_SECRET derivation. Splitting the
- * key off SESSION_SECRET means a session-secret leak (or rotation)
- * no longer opens — or wipes — every 2FA secret.
+ * Key material for TOTP secrets: the dedicated TOTP_ENCRYPTION_KEY
+ * ONLY. There is no SESSION_SECRET fallback — a session-secret leak
+ * (or rotation) must no longer open, or wipe, every 2FA secret.
  *
- * Fail closed (L3): a dedicated key shorter than 32 chars returns
- * null — a short operator-set key must never silently weaken
- * TOTP-secret encryption. Callers treat null as "2FA unavailable".
+ * Fail closed: an unset dedicated key, or one shorter than 32
+ * chars, returns null. Callers treat null as "2FA unavailable"
+ * (setup answers 503; verify/enable/disable treat an undecryptable
+ * secret as a wrong code). A short operator-set key must never
+ * silently weaken TOTP-secret encryption.
  */
 export const TOTP_ENCRYPTION_KEY_MIN_LENGTH = 32;
 
-export function totpSecretEncryptionKey(
-  sessionSecret: string
-): string | null {
+export function totpSecretEncryptionKey(): string | null {
   const dedicated = process.env.TOTP_ENCRYPTION_KEY;
-  if (dedicated !== undefined) {
-    if (dedicated.length < TOTP_ENCRYPTION_KEY_MIN_LENGTH) return null;
-    return dedicated;
-  }
-  return sessionSecret;
+  if (!dedicated) return null;
+  if (dedicated.length < TOTP_ENCRYPTION_KEY_MIN_LENGTH) return null;
+  return dedicated;
 }
 
 /**
- * Decrypt a TOTP secret: try the dedicated key first, then the
- * legacy SESSION_SECRET derivation for secrets written before
- * TOTP_ENCRYPTION_KEY existed. A hard cutover would lock out every
- * 2FA user; this keeps them working with no migration. New secrets
- * are always written under the dedicated key (see setup).
+ * Decrypt a TOTP secret with the dedicated key ONLY. Secrets
+ * written before TOTP_ENCRYPTION_KEY existed (under the old
+ * SESSION_SECRET derivation) no longer decrypt: the split is a
+ * hard cutover, so a user with a legacy-encrypted secret must
+ * re-run 2FA setup (disable with a backup code, or a password
+ * reset, then set up again). That is deliberate — keeping a
+ * SESSION_SECRET read path would leave the split undone, since
+ * any SESSION_SECRET leak would still open every legacy secret.
+ * New secrets are always written under the dedicated key.
  */
-export function decryptUserTotpSecret(
-  sessionSecret: string,
-  stored: string
-): string | null {
-  const key = totpSecretEncryptionKey(sessionSecret);
+export function decryptUserTotpSecret(stored: string): string | null {
+  const key = totpSecretEncryptionKey();
   if (key === null) return null;
-  const plain = decryptTotpSecret(key, stored);
-  if (plain !== null) return plain;
-  if (key !== sessionSecret) {
-    return decryptTotpSecret(sessionSecret, stored);
-  }
-  return null;
+  return decryptTotpSecret(key, stored);
 }
 
-function totpEncryptionKey(sessionSecret: string): Buffer {
-  return createHash("sha256").update(sessionSecret, "utf8").digest();
+function totpEncryptionKey(keyMaterial: string): Buffer {
+  return createHash("sha256").update(keyMaterial, "utf8").digest();
 }
 
 /** Stored form: v1.<iv base64url>.<ciphertext base64url>.<tag base64url>. */
 export function encryptTotpSecret(
-  sessionSecret: string,
+  keyMaterial: string,
   plaintext: string
 ): string {
   const iv = randomBytes(12);
-  const cipher = createCipheriv("aes-256-gcm", totpEncryptionKey(sessionSecret), iv);
+  const cipher = createCipheriv("aes-256-gcm", totpEncryptionKey(keyMaterial), iv);
   const ciphertext = Buffer.concat([
     cipher.update(plaintext, "utf8"),
     cipher.final(),
@@ -421,7 +416,7 @@ export function encryptTotpSecret(
 }
 
 export function decryptTotpSecret(
-  sessionSecret: string,
+  keyMaterial: string,
   stored: string
 ): string | null {
   const parts = stored.split(".");
@@ -439,7 +434,7 @@ export function decryptTotpSecret(
   try {
     const decipher = createDecipheriv(
       "aes-256-gcm",
-      totpEncryptionKey(sessionSecret),
+      totpEncryptionKey(keyMaterial),
       iv
     );
     decipher.setAuthTag(tag);

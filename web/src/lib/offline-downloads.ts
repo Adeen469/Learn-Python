@@ -14,7 +14,16 @@
 // cellular link may read as broadband. The toggle, not the heuristic,
 // is the real gate — turning it off stops all automatic downloads.
 
-import { ALL_LEARN_TOPICS } from "@/lib/learn/sidebar";
+// LAZY lesson index: this module is in the shared layout chunk
+// (OfflineWarmer) and the navbar, so it must NOT statically import
+// the full sidebar tree (53KB of sections/groups/titles for all 812
+// topics) — that shipped the whole tree on every page. What the
+// warmer needs is only the ordered SLUGS, which live in the small
+// ./learn/topic-slugs.ts list (~17KB, no titles). The full tree
+// (titles for the Settings saved-lessons list) loads with a dynamic
+// import() inside getSavedLessons only, when that list actually
+// renders. Same pattern as the courses catalog in warmAppPages below.
+import { LEARN_TOPIC_SLUGS } from "@/lib/learn/topic-slugs";
 import { fetchSessionUser } from "@/lib/auth-client";
 
 export const WIFI_ONLY_KEY = "lp_offline_wifi_only";
@@ -35,8 +44,32 @@ export const WARM_EVENT = "lp-offline-warm";
 export const PAGES_CACHE = "lp-sw-v1-pages";
 // Must match VERSION + STATIC in public/sw.js (tested).
 export const STATIC_CACHE = "lp-sw-v1-static";
+// Must match VERSION + DATA in public/sw.js (tested).
+export const DATA_CACHE = "lp-sw-v1-data";
 // Same cache VideoPlayer's Save Offline flow uses (tested).
 export const VIDEO_CACHE = "lp-offline-videos-v1";
+
+// Paths whose HTML must never be cached offline (R2-M16) — same
+// list as sw.js navigate(): authed / session-scoped pages. A cached
+// /settings page served offline would render the previous user's
+// streak/progress on a shared device.
+export function isOfflineCacheableUrl(url: string): boolean {
+  let pathname = url;
+  try {
+    pathname = new URL(url, "http://localhost").pathname;
+  } catch {
+    // Unparseable — treat the raw string as the path.
+  }
+  return !(
+    pathname.startsWith("/auth/") ||
+    pathname === "/github" ||
+    pathname.startsWith("/github/") ||
+    pathname === "/editor" ||
+    pathname.startsWith("/editor/") ||
+    pathname === "/settings" ||
+    pathname.startsWith("/settings/")
+  );
+}
 
 export type WarmState = "idle" | "warming" | "waiting" | "done";
 
@@ -128,7 +161,7 @@ export function connectionAllowsWarming(): boolean {
 }
 
 export function readWarmProgress(): WarmProgress {
-  const total = ALL_LEARN_TOPICS.length;
+  const total = LEARN_TOPIC_SLUGS.length;
   try {
     const raw = storageGet(WARM_PROGRESS_KEY);
     if (!raw) return { done: 0, total, state: "idle" };
@@ -159,21 +192,33 @@ export function emitWarm(p: WarmProgress): void {
 
 let warming = false;
 
-// Start warming when every gate passes: online, toggle on, the
-// connection looks like broadband, the user is signed in, and not
+// Start warming when every gate passes: online, signed in, the
+// toggle on, the connection looks like broadband, and not
 // everything is already cached. Safe to call on mount, on "online",
 // on focus, or right after the toggle flips — a second call while a
 // run is in flight is a no-op.
+//
+// R3-L18: the session check runs FIRST (after the online gate):
+// with no valid session the previous user's saved videos are
+// purged, so a signed-out / expired / revoked session cannot keep
+// playing them offline. This is the same session check the warmer
+// already runs on every app load (OfflineWarmer) — fetchSessionUser
+// is a cached promise, so no new network call. Offline is excluded
+// above, so a null here while online means no session, not no
+// network — and the videos are re-downloadable anyway.
 export async function maybeWarmLessons(): Promise<WarmProgress | null> {
   if (typeof window === "undefined" || !("caches" in window)) return null;
   if (warming) return readWarmProgress();
   if (!navigator.onLine) return null;
+  const user = await fetchSessionUser().catch(() => null);
+  if (!user) {
+    await purgeSavedVideos();
+    return null;
+  }
   if (!isWifiOnlyEnabled()) return null;
   if (!connectionAllowsWarming()) return null;
   const p = readWarmProgress();
   if (p.state === "done" && p.done >= p.total) return p;
-  const user = await fetchSessionUser().catch(() => null);
-  if (!user) return null;
   return warmLessons();
 }
 
@@ -195,17 +240,20 @@ export async function maybeWarmLessonsAuto(): Promise<WarmProgress | null> {
 const STATIC_URLS = /\/_next\/static\/[^\s"'\)]+/g;
 
 export async function savePageOffline(url: string): Promise<boolean> {
+  // Authed / session-scoped pages are never cached (R2-M16).
+  if (!isOfflineCacheableUrl(url)) return false;
   try {
     const res = await fetch(url);
     if (!res.ok) return false;
+    // Cache the response AS FETCHED (res.clone()), not a rebuilt
+    // Response: rebuilding dropped CSP, X-Frame-Options and HSTS,
+    // so a cached page served offline ran with no CSP at all. The
+    // clone keeps the original headers; res.text() below reads the
+    // other half of the tee for the chunk scan.
+    const toCache = res.clone();
     const html = await res.text();
     const pages = await caches.open(PAGES_CACHE);
-    await pages.put(
-      url,
-      new Response(html, {
-        headers: { "Content-Type": "text/html; charset=utf-8" },
-      }),
-    );
+    await pages.put(url, toCache);
     const assets = [...new Set(html.match(STATIC_URLS) ?? [])];
     if (assets.length === 0) return true;
     const statics = await caches.open(STATIC_CACHE);
@@ -225,16 +273,41 @@ export async function savePageOffline(url: string): Promise<boolean> {
   }
 }
 
+// Total byte cap for the warmer (R3-L17): warming stops once
+// origin storage reaches 200 MB — 169 lesson pages + shared chunks
+// + the Courses tree had no stop condition besides completion, and
+// low-storage devices just kept growing. Silent by design: warming
+// simply stops, with no visible Settings UI (surfacing "storage
+// full" needs Maalik's word). When estimate() is unavailable the
+// cap cannot be enforced and warming proceeds, as before.
+export const WARM_STORAGE_CAP_BYTES = 200 * 1024 * 1024;
+
+export async function storageWithinWarmCap(): Promise<boolean> {
+  try {
+    if (typeof navigator === "undefined") return true;
+    const estimate = navigator.storage?.estimate;
+    if (typeof estimate !== "function") return true;
+    const { usage } = await estimate.call(navigator.storage);
+    if (typeof usage !== "number") return true;
+    return usage < WARM_STORAGE_CAP_BYTES;
+  } catch {
+    return true;
+  }
+}
+
 // Warm every lesson page into the SW's pages cache, skipping pages
 // already cached (the cache itself is the progress record, so the job
 // resumes across reloads). Runs in small batches so the page stays
 // responsive; a failed fetch is skipped and retried next session.
+// R3-L17: the total byte cap below stops each batch once origin
+// storage reaches it — unbounded warming filled low-storage
+// devices with no stop condition besides completion.
 export async function warmLessons(): Promise<WarmProgress> {
   if (warming) return readWarmProgress();
   if (typeof window === "undefined" || !("caches" in window))
     return readWarmProgress();
   warming = true;
-  const urls = ALL_LEARN_TOPICS.map((t) => `/learn/${t.slug}`);
+  const urls = LEARN_TOPIC_SLUGS.map((slug) => `/learn/${slug}`);
   const total = urls.length;
   const progress: WarmProgress = { done: 0, total, state: "warming" };
   try {
@@ -253,7 +326,7 @@ export async function warmLessons(): Promise<WarmProgress> {
     let done = cached.filter(Boolean).length;
     const deleted = new Set(getDeletedLessons());
     const pending = urls.filter(
-      (_, i) => !cached[i] && !deleted.has(ALL_LEARN_TOPICS[i].slug),
+      (_, i) => !cached[i] && !deleted.has(LEARN_TOPIC_SLUGS[i]),
     );
     progress.done = done;
     writeWarmProgress(progress);
@@ -263,6 +336,8 @@ export async function warmLessons(): Promise<WarmProgress> {
         progress.state = "waiting";
         break;
       }
+      // R3-L17: stop warming at the byte cap (checked per batch).
+      if (!(await storageWithinWarmCap())) break;
       const batch = pending.slice(i, i + WARM_BATCH);
       const results = await Promise.all(batch.map((url) => savePageOffline(url)));
       done += results.filter(Boolean).length;
@@ -282,11 +357,13 @@ export async function warmLessons(): Promise<WarmProgress> {
   return progress;
 }
 
-// App pages for offline (Settings + the whole Courses tree).
-// Maalik's order, 2026-11-22: a playlist page still showed "You're
-// offline" because client-side navigation never caches a page's
-// HTML — the SW only caches full document navigations, and the
-// lessons warmer only covered /learn/*. These pages are saved the
+// App pages for offline (the whole Courses tree — NOT /settings:
+// it renders the signed-in user's streak/progress, so a cached copy
+// would serve the previous user's data offline on a shared device,
+// R2-M16). Maalik's order, 2026-11-22: a playlist page still showed
+// "You're offline" because client-side navigation never caches a
+// page's HTML — the SW only caches full document navigations, and
+// the lessons warmer only covered /learn/*. These pages are saved the
 // same way (savePageOffline: HTML + its /_next/static/ chunks),
 // under the same gates (online, Wi-Fi-only toggle, broadband,
 // signed in) — but NOT the first-sign-in Yes/No answer: that
@@ -300,10 +377,17 @@ export async function maybeWarmAppPages(): Promise<boolean> {
   if (typeof window === "undefined" || !("caches" in window)) return false;
   if (warmingAppPages) return false;
   if (!navigator.onLine) return false;
+  // R3-L18: same session check + video purge as maybeWarmLessons
+  // (no valid session on app load purges the saved videos). This
+  // runs on every app load via OfflineWarmer with no download-offer
+  // gate, so the purge is not gated on the user having said Yes.
+  const user = await fetchSessionUser().catch(() => null);
+  if (!user) {
+    await purgeSavedVideos();
+    return false;
+  }
   if (!isWifiOnlyEnabled()) return false;
   if (!connectionAllowsWarming()) return false;
-  const user = await fetchSessionUser().catch(() => null);
-  if (!user) return false;
   return warmAppPages();
 }
 
@@ -318,7 +402,7 @@ export async function warmAppPages(): Promise<boolean> {
     const { COURSE_CREATORS, playlistListId } = await import(
       "@/lib/courses/data"
     );
-    const urls = ["/settings", "/courses"];
+    const urls = ["/courses"];
     for (const c of COURSE_CREATORS) {
       urls.push(`/courses/${c.slug}`);
       for (const p of c.playlists)
@@ -333,6 +417,8 @@ export async function warmAppPages(): Promise<boolean> {
     }
     for (let i = 0; i < missing.length; i += WARM_BATCH) {
       if (!navigator.onLine) break;
+      // R3-L17: stop warming at the byte cap (checked per batch).
+      if (!(await storageWithinWarmCap())) break;
       await Promise.all(
         missing.slice(i, i + WARM_BATCH).map((u) => savePageOffline(u)),
       );
@@ -387,6 +473,12 @@ export interface SavedLesson {
 export async function getSavedLessons(): Promise<SavedLesson[]> {
   if (typeof window === "undefined" || !("caches" in window)) return [];
   try {
+    // LAZY: the full tree (section + lesson titles for the Settings
+    // list) loads only here, when the list actually renders — the
+    // warmer above needs slugs only and never pays for it. Dynamic
+    // imports are cached by the module loader, so repeated calls
+    // do not re-fetch the chunk.
+    const { ALL_LEARN_TOPICS } = await import("@/lib/learn/sidebar");
     const cache = await caches.open(PAGES_CACHE);
     const hits = await Promise.all(
       ALL_LEARN_TOPICS.map((t) =>
@@ -414,7 +506,7 @@ export async function getSavedLessons(): Promise<SavedLesson[]> {
 // that refreshes on the event cannot loop.
 export async function syncWarmProgress(): Promise<WarmProgress> {
   const saved = await getSavedLessons();
-  const total = ALL_LEARN_TOPICS.length;
+  const total = LEARN_TOPIC_SLUGS.length;
   const p: WarmProgress = {
     done: saved.length,
     total,
@@ -453,13 +545,13 @@ export async function clearAllSavedLessons(): Promise<void> {
     if (typeof window !== "undefined" && "caches" in window) {
       const cache = await caches.open(PAGES_CACHE);
       await Promise.all(
-        ALL_LEARN_TOPICS.map((t) => cache.delete(`/learn/${t.slug}`)),
+        LEARN_TOPIC_SLUGS.map((slug) => cache.delete(`/learn/${slug}`)),
       );
     }
   } catch {
     // The blocklist + offer flag below still stick.
   }
-  writeDeletedLessons(ALL_LEARN_TOPICS.map((t) => t.slug));
+  writeDeletedLessons([...LEARN_TOPIC_SLUGS]);
   markDownloadOfferAnswered("no");
   await syncWarmProgress();
 }
@@ -532,4 +624,95 @@ export async function removeSavedVideo(lessonId: string): Promise<void> {
     // The index is still cleared below.
   }
   forgetSavedVideo(lessonId);
+}
+
+// Delete ALL saved videos + their index (R3-L18): called when the
+// app loads with no valid session, so a signed-out / expired /
+// revoked user's videos do not keep playing offline on a shared
+// device. Videos are re-downloadable, so this never destroys
+// irreplaceable work — unlike the workspace/progress keys below,
+// which the sign-out purge deliberately keeps.
+export async function purgeSavedVideos(): Promise<void> {
+  try {
+    if (typeof window !== "undefined" && "caches" in window) {
+      await caches.delete(VIDEO_CACHE);
+    }
+  } catch {
+    // The index below is still cleared.
+  }
+  storageRemove(SAVED_VIDEOS_KEY);
+}
+
+// Sign-out purge (R2-M16): on a shared device the next user must
+// not inherit the previous user's offline videos, AI chats or
+// saved-video index. Deletes the pages/data/video caches and clears
+// the user-data keys below. Device preferences (theme, language,
+// volume, Wi-Fi-only toggle) stay — they are not user data. Called
+// from signOut() in auth-client.ts; best-effort, never throws.
+// NOT a "clear all offline data" UI action — that would be a new
+// Settings button and needs Maalik's word (left NOT-DONE).
+export const OFFLINE_USER_DATA_KEYS = [
+  // AI chats + legacy BYOK leftovers (any lp_ai_* key is user data).
+  "lp_ai_byok",
+  "lp_ai_chats",
+  "lp_ai_current_chat",
+  "lp_ai_active_skills",
+  "lp_ai_custom_skills",
+  "lp_ai_selector_models",
+  // Offline state: saved-video index, warm progress, blocklist,
+  // first-sign-in answer.
+  SAVED_VIDEOS_KEY,
+  WARM_PROGRESS_KEY,
+  DELETED_LESSONS_KEY,
+  DOWNLOAD_OFFER_KEY,
+];
+
+// Account-tied, re-derivable keys the fixed list cannot name
+// (R3-M3): one lp_coverage_<lesson> key per watched video,
+// lp_open_repo_<...> (the repo open in the editor), lp_github_<...>
+// (favourites, …) and the legacy lp_github_token (covered by the
+// lp_github_ prefix). Purged by prefix scan below.
+//
+// Deliberately NOT purged — local-only user work with NO server
+// copy, so purging is data loss: lp_workspace_tree,
+// lp_workspace_tree_backup, lp_virtual_files (the user's code +
+// staged commit files), lp_progress_v1, lp_learn_completed,
+// lp_completed_lessons, lp_last_visited, and streak keys
+// (lp_streak_restores). Progress survives sign-out on a shared
+// device; that is the accepted trade-off for not deleting the
+// user's own work.
+const PURGE_KEY_PREFIXES = ["lp_open_repo_", "lp_github_", "lp_coverage_"];
+
+function purgePrefixedUserData(): void {
+  try {
+    if (typeof window === "undefined") return;
+    const keys: string[] = [];
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const k = window.localStorage.key(i);
+      if (k) keys.push(k);
+    }
+    for (const k of keys) {
+      if (PURGE_KEY_PREFIXES.some((p) => k.startsWith(p))) {
+        window.localStorage.removeItem(k);
+      }
+    }
+  } catch {
+    // Best-effort: the fixed list above is already gone.
+  }
+}
+
+export async function clearOfflineUserData(): Promise<void> {
+  purgePrefixedUserData();
+  for (const key of OFFLINE_USER_DATA_KEYS) storageRemove(key);
+  try {
+    if (typeof window !== "undefined" && "caches" in window) {
+      await Promise.all([
+        caches.delete(PAGES_CACHE),
+        caches.delete(DATA_CACHE),
+        caches.delete(VIDEO_CACHE),
+      ]);
+    }
+  } catch {
+    // Best-effort: the keys above are already gone.
+  }
 }

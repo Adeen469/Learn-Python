@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import {
   decideOtp,
   decryptUserTotpSecret,
@@ -11,11 +12,11 @@ import {
   bumpOtpAttempts,
   bumpTotpFailedAttempts,
   claimBackupCode,
+  claimTotpStep,
   claimUsedToken,
   consumeOtp,
   getLatestOtp,
   getUserByEmail,
-  recordTotpStep,
   updateUser,
 } from "@/lib/auth-store";
 import {
@@ -39,16 +40,27 @@ export const dynamic = "force-dynamic";
 
 const GENERIC_CODE_ERROR = "The code is incorrect or has expired.";
 
+const verify2faSchema = z.object({
+  code: z.string().min(1).max(10),
+  method: z.enum(["totp", "email", "backup"]),
+});
+
 export async function POST(req: NextRequest) {
-  const limited = await rateLimit(req, "auth-2fa-verify", 10, 60_000);
+  const limited = await rateLimit(req, "auth-2fa-verify", 10, 60_000, {
+    failClosed: true,
+  });
   if (limited) return limited;
 
   const prereqs = getAuthPrereqs(req);
   if (!prereqs) return serviceUnavailable("2fa-verify");
 
   const body = await readJsonBody(req);
-  const code = body?.code;
-  const method = body?.method;
+  const parsed = verify2faSchema.safeParse(body ?? {});
+  if (!parsed.success) {
+    return jsonError(GENERIC_CODE_ERROR, 400);
+  }
+  const code = parsed.data.code;
+  const method = parsed.data.method;
   if (
     typeof code !== "string" ||
     (method !== "totp" && method !== "email" && method !== "backup")
@@ -65,7 +77,8 @@ export async function POST(req: NextRequest) {
   const emailLimited = await rateLimitKey(
     `auth-2fa-verify-email:${email.toLowerCase()}`,
     10,
-    60_000
+    60_000,
+    { failClosed: true }
   );
   if (emailLimited) return emailLimited;
   const user = await getUserByEmail(email);
@@ -84,7 +97,7 @@ export async function POST(req: NextRequest) {
     if ((user.totp_failed_attempts ?? 0) >= TOTP_MAX_FAILED_ATTEMPTS) {
       return jsonError(GENERIC_CODE_ERROR, 400);
     }
-    const secret = decryptUserTotpSecret(prereqs.secret, user.totp_secret_enc);
+    const secret = decryptUserTotpSecret(user.totp_secret_enc);
     const matched = secret ? verifyTotpCodeWithStep(secret, code) : null;
     // Replay (M4): this exact code was already accepted once for
     // this step — a second sign-in flow reusing a seen code fails,
@@ -127,21 +140,38 @@ export async function POST(req: NextRequest) {
   } else {
     // Backup code: single-use, claimed atomically (M3) — the matched
     // hash leaves the list only if it is still there, so two
-    // parallel requests with the same code cannot both succeed.
-    // Backup attempts share the per-account failure cap (M4).
+    // parallel requests with the same code cannot both succeed. The
+    // removal is computed from a freshly re-read list (R2-M10), never
+    // from the stale list read at request start, so parallel claims
+    // of different codes cannot resurrect each other. Backup attempts
+    // share the per-account failure cap (M4).
     if ((user.totp_failed_attempts ?? 0) >= TOTP_MAX_FAILED_ATTEMPTS) {
       return jsonError(GENERIC_CODE_ERROR, 400);
     }
     const matched = await findBackupCode(user.backup_codes, code);
     if (matched) {
-      const remaining = user.backup_codes.filter((h) => h !== matched);
-      verified = await claimBackupCode(user.id, matched, remaining);
+      verified = await claimBackupCode(user.id, matched);
     }
     if (!verified) {
       await bumpTotpFailedAttempts(user.id);
     }
   }
   if (!verified) return jsonError(GENERIC_CODE_ERROR, 400);
+
+  // Replay protection (M4, R2-M9): the step claim IS atomic with the
+  // check — the record only lands when no flow has recorded this
+  // step yet, and the session below is issued only on "claimed".
+  // A second flow presenting the same code in parallel loses the
+  // claim ("replay") and gets the generic error, before any session
+  // or cookie claim. "unavailable" means the column does not exist
+  // yet (migration 008 not run) — replay protection then just
+  // activates with the migration, as before.
+  if (matchedStep !== null) {
+    const stepClaim = await claimTotpStep(user.id, matchedStep);
+    if (stepClaim === "replay" || stepClaim === "error") {
+      return jsonError(GENERIC_CODE_ERROR, 400);
+    }
+  }
 
   // Single-use step-up cookie: a stolen copy cannot be replayed
   // within its 10-minute window — the first successful use claims
@@ -156,13 +186,6 @@ export async function POST(req: NextRequest) {
     last_sign_in_at: new Date().toISOString(),
     totp_failed_attempts: 0,
   });
-  // Record the step this TOTP code was accepted for (M4): the same
-  // code cannot be replayed in a second sign-in flow within its
-  // window. Best-effort — pre-migration the column is missing and
-  // replay protection just activates with migration 008.
-  if (matchedStep !== null) {
-    await recordTotpStep(user.id, matchedStep);
-  }
   const res = NextResponse.json({
     user: { email: user.email, name: user.name, picture: null },
   });
