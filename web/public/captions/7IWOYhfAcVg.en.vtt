@@ -1,0 +1,1360 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:00.120 --> 00:00:02.710 align:start position:0%
+ 
+Guys, <00:00:00.474><c>welcome </c><00:00:00.828><c>back </c><00:00:01.182><c>to </c><00:00:01.536><c>100 </c><00:00:01.890><c>Days </c><00:00:02.244><c>of </c><00:00:02.598><c>Code.</c>
+
+00:00:02.710 --> 00:00:02.720 align:start position:0%
+Guys, welcome back to 100 Days of Code.
+ 
+
+00:00:02.720 --> 00:00:04.710 align:start position:0%
+Guys, welcome back to 100 Days of Code.
+In <00:00:03.064><c>today's </c><00:00:03.408><c>video, </c><00:00:03.752><c>we're </c><00:00:04.096><c>going </c><00:00:04.440><c>to</c>
+
+00:00:04.710 --> 00:00:04.720 align:start position:0%
+In today's video, we're going to
+ 
+
+00:00:04.720 --> 00:00:07.070 align:start position:0%
+In today's video, we're going to
+write <00:00:05.220><c>our </c><00:00:05.720><c>first </c><00:00:06.220><c>Python </c><00:00:06.720><c>program.</c>
+
+00:00:07.070 --> 00:00:07.080 align:start position:0%
+write our first Python program.
+ 
+
+00:00:07.080 --> 00:00:08.950 align:start position:0%
+write our first Python program.
+I'd <00:00:07.510><c>say </c><00:00:07.940><c>we're </c><00:00:08.370><c>going </c><00:00:08.800><c>to</c>
+
+00:00:08.950 --> 00:00:08.960 align:start position:0%
+I'd say we're going to
+ 
+
+00:00:08.960 --> 00:00:10.589 align:start position:0%
+I'd say we're going to
+write <00:00:09.084><c>it </c><00:00:09.208><c>because </c><00:00:09.332><c>this </c><00:00:09.456><c>is </c><00:00:09.580><c>going </c><00:00:09.704><c>to </c><00:00:09.828><c>be </c><00:00:09.952><c>a </c><00:00:10.076><c>Python</c>
+
+00:00:10.589 --> 00:00:10.599 align:start position:0%
+write it because this is going to be a Python
+ 
+
+00:00:10.599 --> 00:00:12.150 align:start position:0%
+write it because this is going to be a Python
+program <00:00:11.052><c>in </c><00:00:11.505><c>which </c><00:00:11.958><c>we'll</c>
+
+00:00:12.150 --> 00:00:12.160 align:start position:0%
+program in which we'll
+ 
+
+00:00:12.160 --> 00:00:14.150 align:start position:0%
+program in which we'll
+understand <00:00:12.355><c>each </c><00:00:12.550><c>line </c><00:00:12.745><c>and </c><00:00:12.940><c>write </c><00:00:13.135><c>it. </c><00:00:13.330><c>We'll </c><00:00:13.525><c>have </c><00:00:13.720><c>a </c><00:00:13.915><c>complete</c>
+
+00:00:14.150 --> 00:00:14.160 align:start position:0%
+understand each line and write it. We'll have a complete
+ 
+
+00:00:14.160 --> 00:00:15.829 align:start position:0%
+understand each line and write it. We'll have a complete
+understanding <00:00:14.366><c>of </c><00:00:14.572><c>what's </c><00:00:14.778><c>happening </c><00:00:14.984><c>in </c><00:00:15.190><c>our </c><00:00:15.396><c>Python</c>
+
+00:00:15.829 --> 00:00:15.839 align:start position:0%
+understanding of what's happening in our Python
+ 
+
+00:00:15.839 --> 00:00:17.630 align:start position:0%
+understanding of what's happening in our Python
+program. <00:00:16.259><c>And </c><00:00:16.679><c>we're </c><00:00:17.099><c>going </c><00:00:17.519><c>to</c>
+
+00:00:17.630 --> 00:00:17.640 align:start position:0%
+program. And we're going to
+ 
+
+00:00:17.640 --> 00:00:19.990 align:start position:0%
+program. And we're going to
+write <00:00:17.993><c>it </c><00:00:18.346><c>from </c><00:00:18.699><c>scratch. </c><00:00:19.052><c>We'll </c><00:00:19.405><c>write </c><00:00:19.758><c>some</c>
+
+00:00:19.990 --> 00:00:20.000 align:start position:0%
+write it from scratch. We'll write some
+ 
+
+00:00:20.000 --> 00:00:22.150 align:start position:0%
+write it from scratch. We'll write some
+very <00:00:20.840><c>dangerous </c><00:00:21.680><c>Python</c>
+
+00:00:22.150 --> 00:00:22.160 align:start position:0%
+very dangerous Python
+ 
+
+00:00:22.160 --> 00:00:24.150 align:start position:0%
+very dangerous Python
+programs <00:00:22.301><c>from </c><00:00:22.442><c>scratch </c><00:00:22.583><c>in </c><00:00:22.724><c>the </c><00:00:22.865><c>coming </c><00:00:23.006><c>videos. </c><00:00:23.147><c>But </c><00:00:23.288><c>this </c><00:00:23.429><c>is </c><00:00:23.570><c>going </c><00:00:23.711><c>to </c><00:00:23.852><c>be </c><00:00:23.993><c>our</c>
+
+00:00:24.150 --> 00:00:24.160 align:start position:0%
+programs from scratch in the coming videos. But this is going to be our
+ 
+
+00:00:24.160 --> 00:00:25.830 align:start position:0%
+programs from scratch in the coming videos. But this is going to be our
+first <00:00:24.519><c>program. </c><00:00:24.878><c>Let's </c><00:00:25.237><c>run </c><00:00:25.596><c>it</c>
+
+00:00:25.830 --> 00:00:25.840 align:start position:0%
+first program. Let's run it
+ 
+
+00:00:25.840 --> 00:00:27.589 align:start position:0%
+first program. Let's run it
+on <00:00:26.057><c>a </c><00:00:26.274><c>computer </c><00:00:26.491><c>screen. </c><00:00:26.708><c>And </c><00:00:26.925><c>let's </c><00:00:27.142><c>get </c><00:00:27.359><c>started.</c>
+
+00:00:27.589 --> 00:00:27.599 align:start position:0%
+on a computer screen. And let's get started.
+ 
+
+00:00:27.599 --> 00:00:29.300 align:start position:0%
+on a computer screen. And let's get started.
+
+
+00:00:29.300 --> 00:00:29.310 align:start position:0%
+ 
+ 
+
+00:00:29.310 --> 00:00:37.630 align:start position:0%
+ 
+[Music]
+
+00:00:37.630 --> 00:00:37.640 align:start position:0%
+[Music]
+ 
+
+00:00:37.640 --> 00:00:40.190 align:start position:0%
+[Music]
+So, <00:00:38.127><c>I'm </c><00:00:38.614><c>back </c><00:00:39.101><c>on </c><00:00:39.588><c>Day </c><00:00:40.075><c>Four,</c>
+
+00:00:40.190 --> 00:00:40.200 align:start position:0%
+So, I'm back on Day Four,
+ 
+
+00:00:40.200 --> 00:00:41.910 align:start position:0%
+So, I'm back on Day Four,
+and <00:00:40.394><c>today </c><00:00:40.588><c>we're </c><00:00:40.782><c>going </c><00:00:40.976><c>to </c><00:00:41.170><c>write </c><00:00:41.364><c>our </c><00:00:41.558><c>first</c>
+
+00:00:41.910 --> 00:00:41.920 align:start position:0%
+and today we're going to write our first
+ 
+
+00:00:41.920 --> 00:00:44.069 align:start position:0%
+and today we're going to write our first
+program. <00:00:42.130><c>Now, </c><00:00:42.340><c>friends, </c><00:00:42.550><c>we've </c><00:00:42.760><c>already </c><00:00:42.970><c>written </c><00:00:43.180><c>our </c><00:00:43.390><c>first </c><00:00:43.600><c>program.</c>
+
+00:00:44.069 --> 00:00:44.079 align:start position:0%
+program. Now, friends, we've already written our first program.
+ 
+
+00:00:44.079 --> 00:00:45.950 align:start position:0%
+program. Now, friends, we've already written our first program.
+We've
+
+00:00:45.950 --> 00:00:45.960 align:start position:0%
+We've
+ 
+
+00:00:45.960 --> 00:00:47.670 align:start position:0%
+We've
+written <00:00:46.199><c>a </c><00:00:46.438><c>lot </c><00:00:46.677><c>of </c><00:00:46.916><c>programs, </c><00:00:47.155><c>in </c><00:00:47.394><c>fact,</c>
+
+00:00:47.670 --> 00:00:47.680 align:start position:0%
+written a lot of programs, in fact,
+ 
+
+00:00:47.680 --> 00:00:49.709 align:start position:0%
+written a lot of programs, in fact,
+but <00:00:47.836><c>this </c><00:00:47.992><c>is </c><00:00:48.148><c>going </c><00:00:48.304><c>to </c><00:00:48.460><c>be </c><00:00:48.616><c>a </c><00:00:48.772><c>program </c><00:00:48.928><c>that </c><00:00:49.084><c>I'm </c><00:00:49.240><c>going </c><00:00:49.396><c>to</c>
+
+00:00:49.709 --> 00:00:52.150 align:start position:0%
+but this is going to be a program that I'm going to
+ 
+
+00:00:52.150 --> 00:00:52.160 align:start position:0%
+ 
+ 
+
+00:00:52.160 --> 00:00:53.830 align:start position:0%
+ 
+write <00:00:52.308><c>character </c><00:00:52.456><c>by </c><00:00:52.604><c>character, </c><00:00:52.752><c>word </c><00:00:52.900><c>by </c><00:00:53.048><c>word, </c><00:00:53.196><c>from </c><00:00:53.344><c>scratch. </c><00:00:53.492><c>So, </c><00:00:53.640><c>its</c>
+
+00:00:53.830 --> 00:00:53.840 align:start position:0%
+write character by character, word by word, from scratch. So, its
+ 
+
+00:00:53.840 --> 00:00:55.790 align:start position:0%
+write character by character, word by word, from scratch. So, its
+feel <00:00:54.260><c>is </c><00:00:54.680><c>different. </c><00:00:55.100><c>So, </c><00:00:55.520><c>the</c>
+
+00:00:55.790 --> 00:00:55.800 align:start position:0%
+feel is different. So, the
+ 
+
+00:00:55.800 --> 00:00:58.229 align:start position:0%
+feel is different. So, the
+first <00:00:56.012><c>thing </c><00:00:56.224><c>you </c><00:00:56.436><c>should </c><00:00:56.648><c>do </c><00:00:56.860><c>is </c><00:00:57.072><c>write </c><00:00:57.284><c>print. </c><00:00:57.496><c>Now, </c><00:00:57.708><c>let </c><00:00:57.920><c>me</c>
+
+00:00:58.229 --> 00:01:00.029 align:start position:0%
+first thing you should do is write print. Now, let me
+ 
+
+00:01:00.029 --> 00:01:00.039 align:start position:0%
+ 
+ 
+
+00:01:00.039 --> 00:01:01.869 align:start position:0%
+ 
+tell <00:01:00.191><c>you </c><00:01:00.343><c>what </c><00:01:00.495><c>print </c><00:01:00.647><c>is </c><00:01:00.799><c>in </c><00:01:00.951><c>Python </c><00:01:01.103><c>programming. </c><00:01:01.255><c>Print </c><00:01:01.407><c>is </c><00:01:01.559><c>a </c><00:01:01.711><c>function.</c>
+
+00:01:01.869 --> 00:01:01.879 align:start position:0%
+tell you what print is in Python programming. Print is a function.
+ 
+
+00:01:01.879 --> 00:01:03.750 align:start position:0%
+tell you what print is in Python programming. Print is a function.
+What <00:01:02.372><c>is </c><00:01:02.865><c>a </c><00:01:03.358><c>function?</c>
+
+00:01:03.750 --> 00:01:03.760 align:start position:0%
+What is a function?
+ 
+
+00:01:03.760 --> 00:01:05.950 align:start position:0%
+What is a function?
+You <00:01:04.062><c>use </c><00:01:04.364><c>function </c><00:01:04.666><c>basically </c><00:01:04.968><c>to </c><00:01:05.270><c>perform </c><00:01:05.572><c>some </c><00:01:05.874><c>task.</c>
+
+00:01:05.950 --> 00:01:05.960 align:start position:0%
+You use function basically to perform some task.
+ 
+
+00:01:05.960 --> 00:01:07.910 align:start position:0%
+You use function basically to perform some task.
+Print <00:01:06.533><c>is </c><00:01:07.106><c>a </c><00:01:07.679><c>function.</c>
+
+00:01:07.910 --> 00:01:07.920 align:start position:0%
+Print is a function.
+ 
+
+00:01:07.920 --> 00:01:10.510 align:start position:0%
+Print is a function.
+To <00:01:08.520><c>invoke </c><00:01:09.120><c>any </c><00:01:09.720><c>function, </c><00:01:10.320><c>we</c>
+
+00:01:10.510 --> 00:01:12.870 align:start position:0%
+To invoke any function, we
+ 
+
+00:01:12.870 --> 00:01:12.880 align:start position:0%
+ 
+ 
+
+00:01:12.880 --> 00:01:14.429 align:start position:0%
+ 
+use <00:01:13.080><c>our </c><00:01:13.280><c>parens </c><00:01:13.480><c>in </c><00:01:13.680><c>this </c><00:01:13.880><c>way, </c><00:01:14.080><c>as </c><00:01:14.280><c>you</c>
+
+00:01:14.429 --> 00:01:14.439 align:start position:0%
+use our parens in this way, as you
+ 
+
+00:01:14.439 --> 00:01:17.429 align:start position:0%
+use our parens in this way, as you
+can <00:01:14.925><c>see </c><00:01:15.411><c>that </c><00:01:15.897><c>after </c><00:01:16.383><c>writing </c><00:01:16.869><c>PRINT, </c><00:01:17.355><c>I</c>
+
+00:01:17.429 --> 00:01:17.439 align:start position:0%
+can see that after writing PRINT, I
+ 
+
+00:01:17.439 --> 00:01:20.590 align:start position:0%
+can see that after writing PRINT, I
+opened <00:01:17.939><c>a </c><00:01:18.439><c>paren </c><00:01:18.939><c>here </c><00:01:19.439><c>and </c><00:01:19.939><c>after </c><00:01:20.439><c>that</c>
+
+00:01:20.590 --> 00:01:20.600 align:start position:0%
+opened a paren here and after that
+ 
+
+00:01:20.600 --> 00:01:22.270 align:start position:0%
+opened a paren here and after that
+I <00:01:20.822><c>can </c><00:01:21.044><c>close </c><00:01:21.266><c>it </c><00:01:21.488><c>like </c><00:01:21.710><c>this </c><00:01:21.932><c>and </c><00:01:22.154><c>whatever</c>
+
+00:01:22.270 --> 00:01:22.280 align:start position:0%
+I can close it like this and whatever
+ 
+
+00:01:22.280 --> 00:01:23.830 align:start position:0%
+I can close it like this and whatever
+I <00:01:22.746><c>write </c><00:01:23.212><c>inside </c><00:01:23.678><c>it,</c>
+
+00:01:23.830 --> 00:01:23.840 align:start position:0%
+I write inside it,
+ 
+
+00:01:23.840 --> 00:01:25.830 align:start position:0%
+I write inside it,
+I <00:01:23.968><c>will </c><00:01:24.096><c>get </c><00:01:24.224><c>it </c><00:01:24.352><c>printed. </c><00:01:24.480><c>Suppose </c><00:01:24.608><c>I </c><00:01:24.736><c>write </c><00:01:24.864><c>seven </c><00:01:24.992><c>here, </c><00:01:25.120><c>then </c><00:01:25.248><c>seven </c><00:01:25.376><c>will </c><00:01:25.504><c>be </c><00:01:25.632><c>printed</c>
+
+00:01:25.830 --> 00:01:25.840 align:start position:0%
+I will get it printed. Suppose I write seven here, then seven will be printed
+ 
+
+00:01:25.840 --> 00:01:27.789 align:start position:0%
+I will get it printed. Suppose I write seven here, then seven will be printed
+here,
+
+00:01:27.789 --> 00:01:27.799 align:start position:0%
+here,
+ 
+
+00:01:27.799 --> 00:01:29.590 align:start position:0%
+here,
+but <00:01:28.009><c>you </c><00:01:28.219><c>know </c><00:01:28.429><c>what </c><00:01:28.639><c>we </c><00:01:28.849><c>will </c><00:01:29.059><c>do, </c><00:01:29.269><c>we </c><00:01:29.479><c>will</c>
+
+00:01:29.590 --> 00:01:29.600 align:start position:0%
+but you know what we will do, we will
+ 
+
+00:01:29.600 --> 00:01:32.350 align:start position:0%
+but you know what we will do, we will
+write <00:01:30.019><c>the </c><00:01:30.438><c>word </c><00:01:30.857><c>hello </c><00:01:31.276><c>and </c><00:01:31.695><c>hello </c><00:01:32.114><c>word.</c>
+
+00:01:32.350 --> 00:01:32.360 align:start position:0%
+write the word hello and hello word.
+ 
+
+00:01:32.360 --> 00:01:34.789 align:start position:0%
+write the word hello and hello word.
+You <00:01:32.645><c>must </c><00:01:32.930><c>have </c><00:01:33.215><c>heard </c><00:01:33.500><c>that </c><00:01:33.785><c>in </c><00:01:34.070><c>Python </c><00:01:34.355><c>programming </c><00:01:34.640><c>or</c>
+
+00:01:34.789 --> 00:01:34.799 align:start position:0%
+You must have heard that in Python programming or
+ 
+
+00:01:34.799 --> 00:01:36.910 align:start position:0%
+You must have heard that in Python programming or
+any <00:01:35.439><c>programming </c><00:01:36.079><c>language, </c><00:01:36.719><c>when</c>
+
+00:01:36.910 --> 00:01:36.920 align:start position:0%
+any programming language, when
+ 
+
+00:01:36.920 --> 00:01:39.510 align:start position:0%
+any programming language, when
+any <00:01:37.384><c>code </c><00:01:37.848><c>is </c><00:01:38.312><c>written, </c><00:01:38.776><c>the </c><00:01:39.240><c>first</c>
+
+00:01:39.510 --> 00:01:39.520 align:start position:0%
+any code is written, the first
+ 
+
+00:01:39.520 --> 00:01:41.190 align:start position:0%
+any code is written, the first
+program <00:01:39.695><c>that </c><00:01:39.870><c>is </c><00:01:40.045><c>written </c><00:01:40.220><c>is </c><00:01:40.395><c>of </c><00:01:40.570><c>the </c><00:01:40.745><c>word </c><00:01:40.920><c>hello.</c>
+
+00:01:41.190 --> 00:01:41.200 align:start position:0%
+program that is written is of the word hello.
+ 
+
+00:01:41.200 --> 00:01:42.990 align:start position:0%
+program that is written is of the word hello.
+Now <00:01:41.464><c>you </c><00:01:41.728><c>guys </c><00:01:41.992><c>see </c><00:01:42.256><c>here </c><00:01:42.520><c>that</c>
+
+00:01:42.990 --> 00:01:43.000 align:start position:0%
+Now you guys see here that
+ 
+
+00:01:43.000 --> 00:01:44.510 align:start position:0%
+Now you guys see here that
+as <00:01:43.174><c>soon </c><00:01:43.348><c>as </c><00:01:43.522><c>I </c><00:01:43.696><c>wrote </c><00:01:43.870><c>print </c><00:01:44.044><c>hello </c><00:01:44.218><c>word </c><00:01:44.392><c>here,</c>
+
+00:01:44.510 --> 00:01:44.520 align:start position:0%
+as soon as I wrote print hello word here,
+ 
+
+00:01:44.520 --> 00:01:46.190 align:start position:0%
+as soon as I wrote print hello word here,
+a <00:01:44.737><c>red </c><00:01:44.954><c>color </c><00:01:45.171><c>line </c><00:01:45.388><c>came </c><00:01:45.605><c>up. </c><00:01:45.822><c>Hey </c><00:01:46.039><c>friend,</c>
+
+00:01:46.190 --> 00:01:46.200 align:start position:0%
+a red color line came up. Hey friend,
+ 
+
+00:01:46.200 --> 00:01:48.149 align:start position:0%
+a red color line came up. Hey friend,
+what <00:01:46.376><c>is </c><00:01:46.552><c>this? </c><00:01:46.728><c>Invalid </c><00:01:46.904><c>syntax. </c><00:01:47.080><c>Come </c><00:01:47.256><c>on, </c><00:01:47.432><c>let's </c><00:01:47.608><c>run </c><00:01:47.784><c>it </c><00:01:47.960><c>and</c>
+
+00:01:48.149 --> 00:01:48.159 align:start position:0%
+what is this? Invalid syntax. Come on, let's run it and
+ 
+
+00:01:48.159 --> 00:01:50.190 align:start position:0%
+what is this? Invalid syntax. Come on, let's run it and
+see. <00:01:48.399><c>Hey, </c><00:01:48.639><c>what </c><00:01:48.879><c>is </c><00:01:49.119><c>this? </c><00:01:49.359><c>Start </c><00:01:49.599><c>with </c><00:01:49.839><c>an</c>
+
+00:01:50.190 --> 00:01:50.200 align:start position:0%
+see. Hey, what is this? Start with an
+ 
+
+00:01:50.200 --> 00:01:52.749 align:start position:0%
+see. Hey, what is this? Start with an
+error <00:01:50.432><c>right </c><00:01:50.664><c>from </c><00:01:50.896><c>the </c><00:01:51.128><c>beginning. </c><00:01:51.360><c>Yes, </c><00:01:51.592><c>start </c><00:01:51.824><c>with </c><00:01:52.056><c>an </c><00:01:52.288><c>error. </c><00:01:52.520><c>Only</c>
+
+00:01:52.749 --> 00:01:52.759 align:start position:0%
+error right from the beginning. Yes, start with an error. Only
+ 
+
+00:01:52.759 --> 00:01:55.270 align:start position:0%
+error right from the beginning. Yes, start with an error. Only
+when <00:01:53.090><c>you </c><00:01:53.421><c>get </c><00:01:53.752><c>interrupted, </c><00:01:54.083><c>you </c><00:01:54.414><c>will </c><00:01:54.745><c>learn. </c><00:01:55.076><c>So,</c>
+
+00:01:55.270 --> 00:01:55.280 align:start position:0%
+when you get interrupted, you will learn. So,
+ 
+
+00:01:55.280 --> 00:01:56.990 align:start position:0%
+when you get interrupted, you will learn. So,
+you <00:01:55.464><c>guys </c><00:01:55.648><c>see </c><00:01:55.832><c>here.  </c><00:01:56.016><c>I </c><00:01:56.200><c>typed </c><00:01:56.384><c>"print </c><00:01:56.568><c>hello" </c><00:01:56.752><c>and</c>
+
+00:01:56.990 --> 00:01:57.000 align:start position:0%
+you guys see here.  I typed "print hello" and
+ 
+
+00:01:57.000 --> 00:01:59.670 align:start position:0%
+you guys see here.  I typed "print hello" and
+got <00:01:57.309><c>an </c><00:01:57.618><c>error. </c><00:01:57.927><c>Do </c><00:01:58.236><c>you </c><00:01:58.545><c>know </c><00:01:58.854><c>why </c><00:01:59.163><c>this </c><00:01:59.472><c>error</c>
+
+00:01:59.670 --> 00:01:59.680 align:start position:0%
+got an error. Do you know why this error
+ 
+
+00:01:59.680 --> 00:02:30.030 align:start position:0%
+got an error. Do you know why this error
+occurred? <00:02:00.399><c>pythonanywhere.com</c>
+
+00:02:30.030 --> 00:02:30.040 align:start position:0%
+ 
+ 
+
+00:02:30.040 --> 00:02:31.869 align:start position:0%
+ 
+Two <00:02:30.240><c>comments </c><00:02:30.440><c>for </c><00:02:30.640><c>me. </c><00:02:30.840><c>For </c><00:02:31.040><c>me, </c><00:02:31.240><c>this </c><00:02:31.440><c>is </c><00:02:31.640><c>the</c>
+
+00:02:31.869 --> 00:02:31.879 align:start position:0%
+Two comments for me. For me, this is the
+ 
+
+00:02:31.879 --> 00:02:33.390 align:start position:0%
+Two comments for me. For me, this is the
+first <00:02:32.539><c>program </c><00:02:33.199><c>that</c>
+
+00:02:33.390 --> 00:02:33.400 align:start position:0%
+first program that
+ 
+
+00:02:33.400 --> 00:02:35.790 align:start position:0%
+first program that
+we <00:02:33.591><c>have </c><00:02:33.782><c>written </c><00:02:33.973><c>by </c><00:02:34.164><c>assembling </c><00:02:34.355><c>it </c><00:02:34.546><c>character </c><00:02:34.737><c>by </c><00:02:34.928><c>character. </c><00:02:35.119><c>It's</c>
+
+00:02:35.790 --> 00:02:35.800 align:start position:0%
+we have written by assembling it character by character. It's
+ 
+
+00:02:35.800 --> 00:02:38.869 align:start position:0%
+we have written by assembling it character by character. It's
+great, <00:02:36.280><c>so </c><00:02:36.760><c>far, </c><00:02:37.240><c>so </c><00:02:37.720><c>good. </c><00:02:38.200><c>If </c><00:02:38.680><c>I</c>
+
+00:02:38.869 --> 00:02:38.879 align:start position:0%
+great, so far, so good. If I
+ 
+
+00:02:38.879 --> 00:02:40.750 align:start position:0%
+great, so far, so good. If I
+type <00:02:39.070><c>"p </c><00:02:39.261><c>r </c><00:02:39.452><c>i </c><00:02:39.643><c>n </c><00:02:39.834><c>t" </c><00:02:40.025><c>here, </c><00:02:40.216><c>and </c><00:02:40.407><c>after </c><00:02:40.598><c>that</c>
+
+00:02:40.750 --> 00:02:40.760 align:start position:0%
+type "p r i n t" here, and after that
+ 
+
+00:02:40.760 --> 00:02:42.470 align:start position:0%
+type "p r i n t" here, and after that
+I <00:02:40.977><c>type </c><00:02:41.194><c>"five" </c><00:02:41.411><c>and </c><00:02:41.628><c>then </c><00:02:41.845><c>run </c><00:02:42.062><c>it, </c><00:02:42.279><c>then</c>
+
+00:02:42.470 --> 00:02:42.480 align:start position:0%
+I type "five" and then run it, then
+ 
+
+00:02:42.480 --> 00:02:44.790 align:start position:0%
+I type "five" and then run it, then
+first <00:02:42.643><c>I </c><00:02:42.806><c>get </c><00:02:42.969><c>it </c><00:02:43.132><c>by </c><00:02:43.295><c>typing </c><00:02:43.458><c>"hello" </c><00:02:43.621><c>and </c><00:02:43.784><c>then </c><00:02:43.947><c>I </c><00:02:44.110><c>get </c><00:02:44.273><c>it </c><00:02:44.436><c>by</c>
+
+00:02:44.790 --> 00:02:44.800 align:start position:0%
+first I get it by typing "hello" and then I get it by
+ 
+
+00:02:44.800 --> 00:02:47.750 align:start position:0%
+first I get it by typing "hello" and then I get it by
+typing <00:02:46.120><c>"five". </c><00:02:47.440><c>We</c>
+
+00:02:47.750 --> 00:02:47.760 align:start position:0%
+typing "five". We
+ 
+
+00:02:47.760 --> 00:02:49.790 align:start position:0%
+typing "five". We
+ran <00:02:47.995><c>Python </c><00:02:48.230><c>in </c><00:02:48.465><c>the </c><00:02:48.700><c>terminal, </c><00:02:48.935><c>and </c><00:02:49.170><c>we </c><00:02:49.405><c>saw </c><00:02:49.640><c>that</c>
+
+00:02:49.790 --> 00:02:49.800 align:start position:0%
+ran Python in the terminal, and we saw that
+ 
+
+00:02:49.800 --> 00:02:52.070 align:start position:0%
+ran Python in the terminal, and we saw that
+when <00:02:51.920><c>I</c>
+
+00:02:52.070 --> 00:02:52.080 align:start position:0%
+when I
+ 
+
+00:02:52.080 --> 00:02:55.670 align:start position:0%
+when I
+type <00:02:52.368><c>"python3" </c><00:02:52.656><c>in </c><00:02:52.944><c>the </c><00:02:53.232><c>terminal </c><00:02:53.520><c>like </c><00:02:53.808><c>this, </c><00:02:54.096><c>and </c><00:02:54.384><c>then </c><00:02:54.672><c>I</c>
+
+00:02:55.670 --> 00:02:55.680 align:start position:0%
+type "python3" in the terminal like this, and then I
+ 
+
+00:02:55.680 --> 00:02:58.149 align:start position:0%
+type "python3" in the terminal like this, and then I
+type <00:02:55.994><c>"print </c><00:02:56.308><c>hello" </c><00:02:56.622><c>then </c><00:02:56.936><c>I </c><00:02:57.250><c>get </c><00:02:57.564><c>it </c><00:02:57.878><c>by</c>
+
+00:02:58.149 --> 00:02:58.159 align:start position:0%
+type "print hello" then I get it by
+ 
+
+00:02:58.159 --> 00:03:00.229 align:start position:0%
+type "print hello" then I get it by
+typing <00:02:58.649><c>everything </c><00:02:59.139><c>line </c><00:02:59.629><c>by </c><00:03:00.119><c>line.</c>
+
+00:03:00.229 --> 00:03:00.239 align:start position:0%
+typing everything line by line.
+ 
+
+00:03:00.239 --> 00:03:02.550 align:start position:0%
+typing everything line by line.
+Here <00:03:00.852><c>I </c><00:03:01.465><c>have </c><00:03:02.078><c>to</c>
+
+00:03:02.550 --> 00:03:02.560 align:start position:0%
+Here I have to
+ 
+
+00:03:02.560 --> 00:03:04.550 align:start position:0%
+Here I have to
+type <00:03:02.828><c>everything </c><00:03:03.096><c>manually </c><00:03:03.364><c>one </c><00:03:03.632><c>by </c><00:03:03.900><c>one, </c><00:03:04.168><c>you </c><00:03:04.436><c>see,</c>
+
+00:03:04.550 --> 00:03:04.560 align:start position:0%
+type everything manually one by one, you see,
+ 
+
+00:03:04.560 --> 00:03:06.789 align:start position:0%
+type everything manually one by one, you see,
+first <00:03:05.040><c>I </c><00:03:05.520><c>typed </c><00:03:06.000><c>"hello" </c><00:03:06.480><c>and</c>
+
+00:03:06.789 --> 00:03:06.799 align:start position:0%
+first I typed "hello" and
+ 
+
+00:03:06.799 --> 00:03:09.229 align:start position:0%
+first I typed "hello" and
+then <00:03:07.094><c>I </c><00:03:07.389><c>typed </c><00:03:07.684><c>"print </c><00:03:07.979><c>five" </c><00:03:08.274><c>here. </c><00:03:08.569><c>So, </c><00:03:08.864><c>what </c><00:03:09.159><c>am</c>
+
+00:03:09.229 --> 00:03:09.239 align:start position:0%
+then I typed "print five" here. So, what am
+ 
+
+00:03:09.239 --> 00:03:10.789 align:start position:0%
+then I typed "print five" here. So, what am
+I <00:03:09.939><c>going </c><00:03:10.639><c>to</c>
+
+00:03:10.789 --> 00:03:10.799 align:start position:0%
+I going to
+ 
+
+00:03:10.799 --> 00:03:13.190 align:start position:0%
+I going to
+type <00:03:11.145><c>one </c><00:03:11.491><c>by </c><00:03:11.837><c>one? </c><00:03:12.183><c>No, </c><00:03:12.529><c>I </c><00:03:12.875><c>do</c>
+
+00:03:13.190 --> 00:03:13.200 align:start position:0%
+type one by one? No, I do
+ 
+
+00:03:13.200 --> 00:03:15.030 align:start position:0%
+type one by one? No, I do
+n't <00:03:13.439><c>need </c><00:03:13.678><c>to </c><00:03:13.917><c>type </c><00:03:14.156><c>one </c><00:03:14.395><c>by </c><00:03:14.634><c>one; </c><00:03:14.873><c>I</c>
+
+00:03:15.030 --> 00:03:15.040 align:start position:0%
+n't need to type one by one; I
+ 
+
+00:03:15.040 --> 00:03:16.630 align:start position:0%
+n't need to type one by one; I
+can <00:03:15.335><c>create </c><00:03:15.630><c>a </c><00:03:15.925><c>script. </c><00:03:16.220><c>So, </c><00:03:16.515><c>I</c>
+
+00:03:16.630 --> 00:03:16.640 align:start position:0%
+can create a script. So, I
+ 
+
+00:03:16.640 --> 00:03:18.390 align:start position:0%
+can create a script. So, I
+created <00:03:16.826><c>this </c><00:03:17.012><c>script </c><00:03:17.198><c>whose </c><00:03:17.384><c>name </c><00:03:17.570><c>is </c><00:03:17.756><c>main.py.</c>
+
+00:03:18.390 --> 00:03:18.400 align:start position:0%
+created this script whose name is main.py.
+ 
+
+00:03:18.400 --> 00:03:20.630 align:start position:0%
+created this script whose name is main.py.
+Script <00:03:18.910><c>means </c><00:03:19.420><c>line </c><00:03:19.930><c>by </c><00:03:20.440><c>line</c>
+
+00:03:20.630 --> 00:03:20.640 align:start position:0%
+Script means line by line
+ 
+
+00:03:20.640 --> 00:03:22.309 align:start position:0%
+Script means line by line
+execution.  <00:03:20.774><c>What </c><00:03:20.908><c>will </c><00:03:21.042><c>happen </c><00:03:21.176><c>in </c><00:03:21.310><c>our </c><00:03:21.444><c>code </c><00:03:21.578><c>is </c><00:03:21.712><c>that </c><00:03:21.846><c>if </c><00:03:21.980><c>I </c><00:03:22.114><c>have</c>
+
+00:03:22.309 --> 00:03:22.319 align:start position:0%
+execution.  What will happen in our code is that if I have
+ 
+
+00:03:22.319 --> 00:03:24.110 align:start position:0%
+execution.  What will happen in our code is that if I have
+written <00:03:22.488><c>the </c><00:03:22.657><c>word </c><00:03:22.826><c>hello </c><00:03:22.995><c>first </c><00:03:23.164><c>then </c><00:03:23.333><c>I </c><00:03:23.502><c>will </c><00:03:23.671><c>see </c><00:03:23.840><c>it,</c>
+
+00:03:24.110 --> 00:03:24.120 align:start position:0%
+written the word hello first then I will see it,
+ 
+
+00:03:24.120 --> 00:03:26.390 align:start position:0%
+written the word hello first then I will see it,
+after <00:03:24.543><c>that </c><00:03:24.966><c>print </c><00:03:25.389><c>five, </c><00:03:25.812><c>that </c><00:03:26.235><c>is,</c>
+
+00:03:26.390 --> 00:03:26.400 align:start position:0%
+after that print five, that is,
+ 
+
+00:03:26.400 --> 00:03:28.670 align:start position:0%
+after that print five, that is,
+it <00:03:26.664><c>will </c><00:03:26.928><c>be </c><00:03:27.192><c>executed </c><00:03:27.456><c>and </c><00:03:27.720><c>as </c><00:03:27.984><c>soon </c><00:03:28.248><c>as </c><00:03:28.512><c>I</c>
+
+00:03:28.670 --> 00:03:31.509 align:start position:0%
+it will be executed and as soon as I
+ 
+
+00:03:31.509 --> 00:03:31.519 align:start position:0%
+ 
+ 
+
+00:03:31.519 --> 00:03:34.070 align:start position:0%
+ 
+write <00:03:31.751><c>pri </c><00:03:31.983><c>by </c><00:03:32.215><c>here </c><00:03:32.447><c>like </c><00:03:32.679><c>this </c><00:03:32.911><c>and </c><00:03:33.143><c>then </c><00:03:33.375><c>run </c><00:03:33.607><c>it, </c><00:03:33.839><c>then</c>
+
+00:03:34.070 --> 00:03:34.080 align:start position:0%
+write pri by here like this and then run it, then
+ 
+
+00:03:34.080 --> 00:03:36.190 align:start position:0%
+write pri by here like this and then run it, then
+I <00:03:34.262><c>will </c><00:03:34.444><c>first </c><00:03:34.626><c>see </c><00:03:34.808><c>the </c><00:03:34.990><c>word </c><00:03:35.172><c>hello, </c><00:03:35.354><c>then </c><00:03:35.536><c>five </c><00:03:35.718><c>and</c>
+
+00:03:36.190 --> 00:03:36.200 align:start position:0%
+I will first see the word hello, then five and
+ 
+
+00:03:36.200 --> 00:03:37.949 align:start position:0%
+I will first see the word hello, then five and
+then <00:03:36.746><c>by </c><00:03:37.292><c>because </c><00:03:37.838><c>the</c>
+
+00:03:37.949 --> 00:03:37.959 align:start position:0%
+then by because the
+ 
+
+00:03:37.959 --> 00:03:39.110 align:start position:0%
+then by because the
+script <00:03:38.151><c>is </c><00:03:38.343><c>executing </c><00:03:38.535><c>line </c><00:03:38.727><c>by </c><00:03:38.919><c>line.</c>
+
+00:03:39.110 --> 00:03:39.120 align:start position:0%
+script is executing line by line.
+ 
+
+00:03:39.120 --> 00:03:41.229 align:start position:0%
+script is executing line by line.
+Now <00:03:39.264><c>we </c><00:03:39.408><c>do </c><00:03:39.552><c>not </c><00:03:39.696><c>have </c><00:03:39.840><c>to </c><00:03:39.984><c>go </c><00:03:40.128><c>into </c><00:03:40.272><c>the </c><00:03:40.416><c>implementation </c><00:03:40.560><c>of </c><00:03:40.704><c>how </c><00:03:40.848><c>print </c><00:03:40.992><c>is</c>
+
+00:03:41.229 --> 00:03:41.239 align:start position:0%
+Now we do not have to go into the implementation of how print is
+ 
+
+00:03:41.239 --> 00:03:42.830 align:start position:0%
+Now we do not have to go into the implementation of how print is
+written.
+
+00:03:42.830 --> 00:03:42.840 align:start position:0%
+written.
+ 
+
+00:03:42.840 --> 00:03:44.789 align:start position:0%
+written.
+If <00:03:43.055><c>you </c><00:03:43.270><c>people </c><00:03:43.485><c>want </c><00:03:43.700><c>to </c><00:03:43.915><c>know </c><00:03:44.130><c>what </c><00:03:44.345><c>are </c><00:03:44.560><c>the</c>
+
+00:03:44.789 --> 00:03:44.799 align:start position:0%
+If you people want to know what are the
+ 
+
+00:03:44.799 --> 00:03:47.350 align:start position:0%
+If you people want to know what are the
+other <00:03:45.419><c>uses </c><00:03:46.039><c>of </c><00:03:46.659><c>print, </c><00:03:47.279><c>then</c>
+
+00:03:47.350 --> 00:03:47.360 align:start position:0%
+other uses of print, then
+ 
+
+00:03:47.360 --> 00:03:49.509 align:start position:0%
+other uses of print, then
+you <00:03:47.605><c>see, </c><00:03:47.850><c>it </c><00:03:48.095><c>is </c><00:03:48.340><c>telling </c><00:03:48.585><c>me </c><00:03:48.830><c>poplet </c><00:03:49.075><c>here,</c>
+
+00:03:49.509 --> 00:03:49.519 align:start position:0%
+you see, it is telling me poplet here,
+ 
+
+00:03:49.519 --> 00:03:51.350 align:start position:0%
+you see, it is telling me poplet here,
+as <00:03:49.753><c>soon </c><00:03:49.987><c>as </c><00:03:50.221><c>I </c><00:03:50.455><c>took </c><00:03:50.689><c>my </c><00:03:50.923><c>mouse </c><00:03:51.157><c>here,</c>
+
+00:03:51.350 --> 00:03:51.360 align:start position:0%
+as soon as I took my mouse here,
+ 
+
+00:03:51.360 --> 00:03:52.630 align:start position:0%
+as soon as I took my mouse here,
+it <00:03:51.600><c>is </c><00:03:51.840><c>telling </c><00:03:52.080><c>me </c><00:03:52.320><c>that </c><00:03:52.560><c>brother,</c>
+
+00:03:52.630 --> 00:03:52.640 align:start position:0%
+it is telling me that brother,
+ 
+
+00:03:52.640 --> 00:03:54.670 align:start position:0%
+it is telling me that brother,
+give <00:03:52.826><c>the </c><00:03:53.012><c>values ​​</c><00:03:53.198><c>here, </c><00:03:53.384><c>this </c><00:03:53.570><c>will </c><00:03:53.756><c>be </c><00:03:53.942><c>an </c><00:03:54.128><c>object, </c><00:03:54.314><c>you</c>
+
+00:03:54.670 --> 00:03:54.680 align:start position:0%
+give the values ​​here, this will be an object, you
+ 
+
+00:03:54.680 --> 00:03:56.589 align:start position:0%
+give the values ​​here, this will be an object, you
+can <00:03:54.787><c>also </c><00:03:54.894><c>give </c><00:03:55.001><c>multiple </c><00:03:55.108><c>values ​​</c><00:03:55.215><c>by </c><00:03:55.322><c>putting </c><00:03:55.429><c>a </c><00:03:55.536><c>comma, </c><00:03:55.643><c>something </c><00:03:55.750><c>like </c><00:03:55.857><c>this, </c><00:03:55.964><c>if </c><00:03:56.071><c>I </c><00:03:56.178><c>saved </c><00:03:56.285><c>the </c><00:03:56.392><c>word</c>
+
+00:03:56.589 --> 00:03:58.949 align:start position:0%
+can also give multiple values ​​by putting a comma, something like this, if I saved the word
+ 
+
+00:03:58.949 --> 00:03:58.959 align:start position:0%
+ 
+ 
+
+00:03:58.959 --> 00:04:00.789 align:start position:0%
+ 
+hello <00:03:59.519><c>and </c><00:04:00.079><c>after </c><00:04:00.639><c>that,</c>
+
+00:04:00.789 --> 00:04:00.799 align:start position:0%
+hello and after that,
+ 
+
+00:04:00.799 --> 00:04:02.470 align:start position:0%
+hello and after that,
+after <00:04:00.993><c>a </c><00:04:01.187><c>space, </c><00:04:01.381><c>seven </c><00:04:01.575><c>comes, </c><00:04:01.769><c>then </c><00:04:01.963><c>the </c><00:04:02.157><c>next</c>
+
+00:04:02.470 --> 00:04:02.480 align:start position:0%
+after a space, seven comes, then the next
+ 
+
+00:04:02.480 --> 00:04:04.190 align:start position:0%
+after a space, seven comes, then the next
+statement <00:04:02.870><c>is </c><00:04:03.260><c>executed, </c><00:04:03.650><c>then </c><00:04:04.040><c>the</c>
+
+00:04:04.190 --> 00:04:04.200 align:start position:0%
+statement is executed, then the
+ 
+
+00:04:04.200 --> 00:04:06.470 align:start position:0%
+statement is executed, then the
+next <00:04:04.369><c>is </c><00:04:04.538><c>executed </c><00:04:04.707><c>and </c><00:04:04.876><c>our </c><00:04:05.045><c>script </c><00:04:05.214><c>will </c><00:04:05.383><c>keep </c><00:04:05.552><c>getting </c><00:04:05.721><c>executed </c><00:04:05.890><c>line </c><00:04:06.059><c>by </c><00:04:06.228><c>line.</c>
+
+00:04:06.470 --> 00:04:08.429 align:start position:0%
+next is executed and our script will keep getting executed line by line.
+ 
+
+00:04:08.429 --> 00:04:09.869 align:start position:0%
+ 
+ 
+
+00:04:09.869 --> 00:04:09.879 align:start position:0%
+ 
+ 
+
+00:04:09.879 --> 00:04:12.149 align:start position:0%
+ 
+Can <00:04:10.055><c>we </c><00:04:10.231><c>print </c><00:04:10.407><c>only </c><00:04:10.583><c>with </c><00:04:10.759><c>the </c><00:04:10.935><c>help </c><00:04:11.111><c>of </c><00:04:11.287><c>Python </c><00:04:11.463><c>programming </c><00:04:11.639><c>language?</c>
+
+00:04:12.149 --> 00:04:12.159 align:start position:0%
+Can we print only with the help of Python programming language?
+ 
+
+00:04:12.159 --> 00:04:14.149 align:start position:0%
+Can we print only with the help of Python programming language?
+No, <00:04:12.382><c>friend, </c><00:04:12.605><c>we  </c><00:04:12.828><c>You </c><00:04:13.051><c>cannot </c><00:04:13.274><c>just </c><00:04:13.497><c>print, </c><00:04:13.720><c>you</c>
+
+00:04:14.149 --> 00:04:14.159 align:start position:0%
+No, friend, we  You cannot just print, you
+ 
+
+00:04:14.159 --> 00:04:16.270 align:start position:0%
+No, friend, we  You cannot just print, you
+can <00:04:14.389><c>do </c><00:04:14.619><c>many </c><00:04:14.849><c>other </c><00:04:15.079><c>things </c><00:04:15.309><c>and </c><00:04:15.539><c>this </c><00:04:15.769><c>is </c><00:04:15.999><c>the</c>
+
+00:04:16.270 --> 00:04:16.280 align:start position:0%
+can do many other things and this is the
+ 
+
+00:04:16.280 --> 00:04:18.749 align:start position:0%
+can do many other things and this is the
+speciality <00:04:16.512><c>of </c><00:04:16.744><c>this </c><00:04:16.976><c>course, </c><00:04:17.208><c>this </c><00:04:17.440><c>is </c><00:04:17.672><c>going </c><00:04:17.904><c>to </c><00:04:18.136><c>tell </c><00:04:18.368><c>you </c><00:04:18.600><c>what</c>
+
+00:04:18.749 --> 00:04:18.759 align:start position:0%
+speciality of this course, this is going to tell you what
+ 
+
+00:04:18.759 --> 00:04:20.789 align:start position:0%
+speciality of this course, this is going to tell you what
+we <00:04:19.045><c>will </c><00:04:19.331><c>do, </c><00:04:19.617><c>but </c><00:04:19.903><c>since </c><00:04:20.189><c>we </c><00:04:20.475><c>are</c>
+
+00:04:20.789 --> 00:04:20.799 align:start position:0%
+we will do, but since we are
+ 
+
+00:04:20.799 --> 00:04:22.270 align:start position:0%
+we will do, but since we are
+starting <00:04:21.059><c>with </c><00:04:21.319><c>our </c><00:04:21.579><c>first </c><00:04:21.839><c>Python</c>
+
+00:04:22.270 --> 00:04:22.280 align:start position:0%
+starting with our first Python
+ 
+
+00:04:22.280 --> 00:04:23.590 align:start position:0%
+starting with our first Python
+program, <00:04:22.579><c>we </c><00:04:22.878><c>are </c><00:04:23.177><c>understanding </c><00:04:23.476><c>things,</c>
+
+00:04:23.590 --> 00:04:23.600 align:start position:0%
+program, we are understanding things,
+ 
+
+00:04:23.600 --> 00:04:25.950 align:start position:0%
+program, we are understanding things,
+what <00:04:23.953><c>a </c><00:04:24.306><c>script </c><00:04:24.659><c>is </c><00:04:25.012><c>and </c><00:04:25.365><c>when </c><00:04:25.718><c>we</c>
+
+00:04:25.950 --> 00:04:25.960 align:start position:0%
+what a script is and when we
+ 
+
+00:04:25.960 --> 00:04:28.909 align:start position:0%
+what a script is and when we
+execute <00:04:26.840><c>a </c><00:04:27.720><c>command </c><00:04:28.600><c>here,</c>
+
+00:04:28.909 --> 00:04:28.919 align:start position:0%
+execute a command here,
+ 
+
+00:04:28.919 --> 00:04:31.150 align:start position:0%
+execute a command here,
+give <00:04:29.144><c>it </c><00:04:29.369><c>line </c><00:04:29.594><c>by </c><00:04:29.819><c>line </c><00:04:30.044><c>to </c><00:04:30.269><c>the </c><00:04:30.494><c>Python </c><00:04:30.719><c>interpreter,</c>
+
+00:04:31.150 --> 00:04:31.160 align:start position:0%
+give it line by line to the Python interpreter,
+ 
+
+00:04:31.160 --> 00:04:33.790 align:start position:0%
+give it line by line to the Python interpreter,
+anything, <00:04:31.573><c>in </c><00:04:31.986><c>Ripple </c><00:04:32.399><c>it </c><00:04:32.812><c>is </c><00:04:33.225><c>called </c><00:04:33.638><c>Ripple,</c>
+
+00:04:33.790 --> 00:04:33.800 align:start position:0%
+anything, in Ripple it is called Ripple,
+ 
+
+00:04:33.800 --> 00:04:35.830 align:start position:0%
+anything, in Ripple it is called Ripple,
+when <00:04:34.180><c>we </c><00:04:34.560><c>write </c><00:04:34.940><c>python3 </c><00:04:35.320><c>here,</c>
+
+00:04:35.830 --> 00:04:35.840 align:start position:0%
+when we write python3 here,
+ 
+
+00:04:35.840 --> 00:04:38.150 align:start position:0%
+when we write python3 here,
+python3 <00:04:36.085><c>it </c><00:04:36.330><c>is </c><00:04:36.575><c>called </c><00:04:36.820><c>Ripple, </c><00:04:37.065><c>this </c><00:04:37.310><c>is </c><00:04:37.555><c>a </c><00:04:37.800><c>read</c>
+
+00:04:38.150 --> 00:04:38.160 align:start position:0%
+python3 it is called Ripple, this is a read
+ 
+
+00:04:38.160 --> 00:04:40.909 align:start position:0%
+python3 it is called Ripple, this is a read
+value <00:04:38.465><c>print </c><00:04:38.770><c>loop, </c><00:04:39.075><c>if </c><00:04:39.380><c>I </c><00:04:39.685><c>give </c><00:04:39.990><c>it </c><00:04:40.295><c>8 </c><00:04:40.600><c>+</c>
+
+00:04:40.909 --> 00:04:40.919 align:start position:0%
+value print loop, if I give it 8 +
+ 
+
+00:04:40.919 --> 00:04:44.270 align:start position:0%
+value print loop, if I give it 8 +
+9, <00:04:41.370><c>it </c><00:04:41.821><c>will </c><00:04:42.272><c>write </c><00:04:42.723><c>17, </c><00:04:43.174><c>but </c><00:04:43.625><c>after </c><00:04:44.076><c>that</c>
+
+00:04:44.270 --> 00:04:44.280 align:start position:0%
+9, it will write 17, but after that
+ 
+
+00:04:44.280 --> 00:04:45.950 align:start position:0%
+9, it will write 17, but after that
+I <00:04:44.497><c>will </c><00:04:44.714><c>have </c><00:04:44.931><c>to </c><00:04:45.148><c>write </c><00:04:45.365><c>something </c><00:04:45.582><c>else </c><00:04:45.799><c>again,</c>
+
+00:04:45.950 --> 00:04:45.960 align:start position:0%
+I will have to write something else again,
+ 
+
+00:04:45.960 --> 00:04:47.510 align:start position:0%
+I will have to write something else again,
+I <00:04:46.148><c>will </c><00:04:46.336><c>get </c><00:04:46.524><c>its </c><00:04:46.712><c>output, </c><00:04:46.900><c>as </c><00:04:47.088><c>I </c><00:04:47.276><c>keep</c>
+
+00:04:47.510 --> 00:04:47.520 align:start position:0%
+I will get its output, as I keep
+ 
+
+00:04:47.520 --> 00:04:48.950 align:start position:0%
+I will get its output, as I keep
+writing <00:04:47.946><c>things, </c><00:04:48.372><c>I </c><00:04:48.798><c>will</c>
+
+00:04:48.950 --> 00:04:48.960 align:start position:0%
+writing things, I will
+ 
+
+00:04:48.960 --> 00:04:50.629 align:start position:0%
+writing things, I will
+get <00:04:49.200><c>its </c><00:04:49.440><c>output, </c><00:04:49.680><c>ideally </c><00:04:49.920><c>we </c><00:04:50.160><c>do </c><00:04:50.400><c>not</c>
+
+00:04:50.629 --> 00:04:50.639 align:start position:0%
+get its output, ideally we do not
+ 
+
+00:04:50.639 --> 00:04:53.310 align:start position:0%
+get its output, ideally we do not
+want <00:04:51.135><c>to </c><00:04:51.631><c>do </c><00:04:52.127><c>this, </c><00:04:52.623><c>ideally </c><00:04:53.119><c>we</c>
+
+00:04:53.310 --> 00:04:53.320 align:start position:0%
+want to do this, ideally we
+ 
+
+00:04:53.320 --> 00:04:55.670 align:start position:0%
+want to do this, ideally we
+want <00:04:53.693><c>to </c><00:04:54.066><c>process </c><00:04:54.439><c>the </c><00:04:54.812><c>sequence </c><00:04:55.185><c>of </c><00:04:55.558><c>instructions</c>
+
+00:04:55.670 --> 00:04:55.680 align:start position:0%
+want to process the sequence of instructions
+ 
+
+00:04:55.680 --> 00:04:59.870 align:start position:0%
+want to process the sequence of instructions
+pythonanywhere.com
+
+00:04:59.870 --> 00:04:59.880 align:start position:0%
+ 
+ 
+
+00:04:59.880 --> 00:05:01.790 align:start position:0%
+ 
+execute <00:05:00.480><c>this </c><00:05:01.080><c>first, </c><00:05:01.680><c>then</c>
+
+00:05:01.790 --> 00:05:01.800 align:start position:0%
+execute this first, then
+ 
+
+00:05:01.800 --> 00:05:04.510 align:start position:0%
+execute this first, then
+execute <00:05:02.206><c>this, </c><00:05:02.612><c>then </c><00:05:03.018><c>do </c><00:05:03.424><c>this </c><00:05:03.830><c>and </c><00:05:04.236><c>suppose</c>
+
+00:05:04.510 --> 00:05:04.520 align:start position:0%
+execute this, then do this and suppose
+ 
+
+00:05:04.520 --> 00:05:08.270 align:start position:0%
+execute this, then do this and suppose
+I <00:05:05.017><c>bought </c><00:05:05.514><c>bhindi </c><00:05:06.011><c>for </c><00:05:06.508><c>₹10 </c><00:05:07.005><c>per </c><00:05:07.502><c>kg </c><00:05:07.999><c>and</c>
+
+00:05:08.270 --> 00:05:08.280 align:start position:0%
+I bought bhindi for ₹10 per kg and
+ 
+
+00:05:08.280 --> 00:05:10.870 align:start position:0%
+I bought bhindi for ₹10 per kg and
+I <00:05:08.571><c>bought </c><00:05:08.862><c>5 </c><00:05:09.153><c>kg </c><00:05:09.444><c>or </c><00:05:09.735><c>suppose </c><00:05:10.026><c>I  </c><00:05:10.317><c>I</c>
+
+00:05:10.870 --> 00:05:10.880 align:start position:0%
+I bought 5 kg or suppose I  I
+ 
+
+00:05:10.880 --> 00:05:13.870 align:start position:0%
+I bought 5 kg or suppose I  I
+bought <00:05:11.160><c>bhindi </c><00:05:11.440><c>for </c><00:05:11.720><c>₹1 </c><00:05:12.000><c>per </c><00:05:12.280><c>kg </c><00:05:12.560><c>and </c><00:05:12.840><c>I </c><00:05:13.120><c>bought </c><00:05:13.400><c>13 </c><00:05:13.680><c>kg,</c>
+
+00:05:13.870 --> 00:05:13.880 align:start position:0%
+bought bhindi for ₹1 per kg and I bought 13 kg,
+ 
+
+00:05:13.880 --> 00:05:16.629 align:start position:0%
+bought bhindi for ₹1 per kg and I bought 13 kg,
+so <00:05:14.093><c>I </c><00:05:14.306><c>would </c><00:05:14.519><c>say, </c><00:05:14.732><c>friend, </c><00:05:14.945><c>Python, </c><00:05:15.158><c>there </c><00:05:15.371><c>was </c><00:05:15.584><c>bhindi </c><00:05:15.797><c>for </c><00:05:16.010><c>₹1 </c><00:05:16.223><c>per </c><00:05:16.436><c>kg</c>
+
+00:05:16.629 --> 00:05:16.639 align:start position:0%
+so I would say, friend, Python, there was bhindi for ₹1 per kg
+ 
+
+00:05:16.639 --> 00:05:20.870 align:start position:0%
+so I would say, friend, Python, there was bhindi for ₹1 per kg
+and <00:05:17.319><c>here </c><00:05:17.999><c>I </c><00:05:18.679><c>bought </c><00:05:19.359><c>13 </c><00:05:20.039><c>kg, </c><00:05:20.719><c>so</c>
+
+00:05:20.870 --> 00:05:20.880 align:start position:0%
+and here I bought 13 kg, so
+ 
+
+00:05:20.880 --> 00:05:22.990 align:start position:0%
+and here I bought 13 kg, so
+how <00:05:21.120><c>much </c><00:05:21.360><c>did </c><00:05:21.600><c>it </c><00:05:21.840><c>become, </c><00:05:22.080><c>then </c><00:05:22.320><c>Python </c><00:05:22.560><c>will </c><00:05:22.800><c>tell</c>
+
+00:05:22.990 --> 00:05:23.000 align:start position:0%
+how much did it become, then Python will tell
+ 
+
+00:05:23.000 --> 00:05:24.550 align:start position:0%
+how much did it become, then Python will tell
+you, <00:05:23.113><c>you </c><00:05:23.226><c>can </c><00:05:23.339><c>do </c><00:05:23.452><c>computations </c><00:05:23.565><c>like </c><00:05:23.678><c>this </c><00:05:23.791><c>inside </c><00:05:23.904><c>the </c><00:05:24.017><c>print, </c><00:05:24.130><c>you </c><00:05:24.243><c>will </c><00:05:24.356><c>have </c><00:05:24.469><c>to</c>
+
+00:05:24.550 --> 00:05:26.749 align:start position:0%
+you, you can do computations like this inside the print, you will have to
+ 
+
+00:05:26.749 --> 00:05:26.759 align:start position:0%
+ 
+ 
+
+00:05:26.759 --> 00:05:28.710 align:start position:0%
+ 
+put <00:05:26.984><c>a </c><00:05:27.209><c>star </c><00:05:27.434><c>for </c><00:05:27.659><c>multiplication, </c><00:05:27.884><c>do </c><00:05:28.109><c>not </c><00:05:28.334><c>put </c><00:05:28.559><c>x</c>
+
+00:05:28.710 --> 00:05:28.720 align:start position:0%
+put a star for multiplication, do not put x
+ 
+
+00:05:28.720 --> 00:05:30.870 align:start position:0%
+put a star for multiplication, do not put x
+even <00:05:28.908><c>by </c><00:05:29.096><c>mistake, </c><00:05:29.284><c>it </c><00:05:29.472><c>is </c><00:05:29.660><c>okay </c><00:05:29.848><c>to </c><00:05:30.036><c>put </c><00:05:30.224><c>a </c><00:05:30.412><c>star, </c><00:05:30.600><c>for</c>
+
+00:05:30.870 --> 00:05:30.880 align:start position:0%
+even by mistake, it is okay to put a star, for
+ 
+
+00:05:30.880 --> 00:05:33.189 align:start position:0%
+even by mistake, it is okay to put a star, for
+divide <00:05:31.140><c>it </c><00:05:31.400><c>is </c><00:05:31.660><c>the </c><00:05:31.920><c>same, </c><00:05:32.180><c>and </c><00:05:32.440><c>then </c><00:05:32.700><c>there </c><00:05:32.960><c>is</c>
+
+00:05:33.189 --> 00:05:33.199 align:start position:0%
+divide it is the same, and then there is
+ 
+
+00:05:33.199 --> 00:05:35.309 align:start position:0%
+divide it is the same, and then there is
+plus <00:05:33.532><c>and </c><00:05:33.865><c>minus, </c><00:05:34.198><c>friend, </c><00:05:34.531><c>all </c><00:05:34.864><c>these </c><00:05:35.197><c>are</c>
+
+00:05:35.309 --> 00:05:35.319 align:start position:0%
+plus and minus, friend, all these are
+ 
+
+00:05:35.319 --> 00:05:37.629 align:start position:0%
+plus and minus, friend, all these are
+simple <00:05:35.592><c>things, </c><00:05:35.865><c>so </c><00:05:36.138><c>you </c><00:05:36.411><c>should </c><00:05:36.684><c>try </c><00:05:36.957><c>this,</c>
+
+00:05:37.629 --> 00:05:37.639 align:start position:0%
+simple things, so you should try this,
+ 
+
+00:05:37.639 --> 00:05:59.870 align:start position:0%
+simple things, so you should try this,
+but <00:05:37.939><c>see </c><00:05:38.239><c>here,</c>
+
+00:05:59.870 --> 00:05:59.880 align:start position:0%
+ 
+ 
+
+00:05:59.880 --> 00:06:02.070 align:start position:0%
+ 
+consistency <00:06:00.546><c>demands </c><00:06:01.212><c>that </c><00:06:01.878><c>you</c>
+
+00:06:02.070 --> 00:06:02.080 align:start position:0%
+consistency demands that you
+ 
+
+00:06:02.080 --> 00:06:03.790 align:start position:0%
+consistency demands that you
+practice, <00:06:02.626><c>as </c><00:06:03.172><c>you </c><00:06:03.718><c>are</c>
+
+00:06:03.790 --> 00:06:03.800 align:start position:0%
+practice, as you are
+ 
+
+00:06:03.800 --> 00:06:06.270 align:start position:0%
+practice, as you are
+watching <00:06:03.989><c>the </c><00:06:04.178><c>videos, </c><00:06:04.367><c>give </c><00:06:04.556><c>your </c><00:06:04.745><c>time </c><00:06:04.934><c>and </c><00:06:05.123><c>take </c><00:06:05.312><c>out </c><00:06:05.501><c>a </c><00:06:05.690><c>day </c><00:06:05.879><c>and</c>
+
+00:06:06.270 --> 00:06:06.280 align:start position:0%
+watching the videos, give your time and take out a day and
+ 
+
+00:06:06.280 --> 00:06:08.830 align:start position:0%
+watching the videos, give your time and take out a day and
+come <00:06:06.480><c>and </c><00:06:06.680><c>complete </c><00:06:06.880><c>the </c><00:06:07.080><c>100 </c><00:06:07.280><c>Days </c><00:06:07.480><c>of </c><00:06:07.680><c>Code </c><00:06:07.880><c>Challenge, </c><00:06:08.080><c>you </c><00:06:08.280><c>have </c><00:06:08.480><c>to </c><00:06:08.680><c>go</c>
+
+00:06:08.830 --> 00:06:08.840 align:start position:0%
+come and complete the 100 Days of Code Challenge, you have to go
+ 
+
+00:06:08.840 --> 00:06:10.909 align:start position:0%
+come and complete the 100 Days of Code Challenge, you have to go
+till <00:06:09.506><c>day </c><00:06:10.172><c>100, </c><00:06:10.838><c>you</c>
+
+00:06:10.909 --> 00:06:10.919 align:start position:0%
+till day 100, you
+ 
+
+00:06:10.919 --> 00:06:12.710 align:start position:0%
+till day 100, you
+guys <00:06:11.309><c>keep </c><00:06:11.699><c>giving </c><00:06:12.089><c>your </c><00:06:12.479><c>attendance</c>
+
+00:06:12.710 --> 00:06:12.720 align:start position:0%
+guys keep giving your attendance
+ 
+
+00:06:12.720 --> 00:06:14.350 align:start position:0%
+guys keep giving your attendance
+in <00:06:12.851><c>the </c><00:06:12.982><c>comments </c><00:06:13.113><c>below </c><00:06:13.244><c>that </c><00:06:13.375><c>I </c><00:06:13.506><c>am </c><00:06:13.637><c>present, </c><00:06:13.768><c>I </c><00:06:13.899><c>will </c><00:06:14.030><c>see</c>
+
+00:06:14.350 --> 00:06:14.360 align:start position:0%
+in the comments below that I am present, I will see
+ 
+
+00:06:14.360 --> 00:06:16.110 align:start position:0%
+in the comments below that I am present, I will see
+each <00:06:14.569><c>and </c><00:06:14.778><c>every </c><00:06:14.987><c>comment, </c><00:06:15.196><c>if </c><00:06:15.405><c>you </c><00:06:15.614><c>guys </c><00:06:15.823><c>want </c><00:06:16.032><c>to</c>
+
+00:06:16.110 --> 00:06:16.120 align:start position:0%
+each and every comment, if you guys want to
+ 
+
+00:06:16.120 --> 00:06:17.790 align:start position:0%
+each and every comment, if you guys want to
+learn <00:06:16.337><c>in </c><00:06:16.554><c>a </c><00:06:16.771><c>very </c><00:06:16.988><c>short </c><00:06:17.205><c>time </c><00:06:17.422><c>and </c><00:06:17.639><c>learn</c>
+
+00:06:17.790 --> 00:06:17.800 align:start position:0%
+learn in a very short time and learn
+ 
+
+00:06:17.800 --> 00:06:19.670 align:start position:0%
+learn in a very short time and learn
+very <00:06:18.128><c>quickly, </c><00:06:18.456><c>learn </c><00:06:18.784><c>without </c><00:06:19.112><c>practice, </c><00:06:19.440><c>then</c>
+
+00:06:19.670 --> 00:06:19.680 align:start position:0%
+very quickly, learn without practice, then
+ 
+
+00:06:19.680 --> 00:06:21.270 align:start position:0%
+very quickly, learn without practice, then
+this <00:06:19.926><c>course </c><00:06:20.172><c>is </c><00:06:20.418><c>not </c><00:06:20.664><c>for </c><00:06:20.910><c>you, </c><00:06:21.156><c>friend,</c>
+
+00:06:21.270 --> 00:06:21.280 align:start position:0%
+this course is not for you, friend,
+ 
+
+00:06:21.280 --> 00:06:23.150 align:start position:0%
+this course is not for you, friend,
+because <00:06:21.480><c>it </c><00:06:21.680><c>demands  </c><00:06:21.880><c>Practice </c><00:06:22.080><c>There </c><00:06:22.280><c>is</c>
+
+00:06:23.150 --> 00:06:23.160 align:start position:0%
+because it demands  Practice There is
+ 
+
+00:06:23.160 --> 00:06:25.309 align:start position:0%
+because it demands  Practice There is
+no <00:06:23.506><c>elevator </c><00:06:23.852><c>to </c><00:06:24.198><c>success, </c><00:06:24.544><c>you </c><00:06:24.890><c>have </c><00:06:25.236><c>to</c>
+
+00:06:25.309 --> 00:06:25.319 align:start position:0%
+no elevator to success, you have to
+ 
+
+00:06:25.319 --> 00:06:27.110 align:start position:0%
+no elevator to success, you have to
+take <00:06:25.699><c>the </c><00:06:26.079><c>stairs </c><00:06:26.459><c>to </c><00:06:26.839><c>success</c>
+
+00:06:27.110 --> 00:06:27.120 align:start position:0%
+take the stairs to success
+ 
+
+00:06:27.120 --> 00:06:29.390 align:start position:0%
+take the stairs to success
+and <00:06:27.375><c>these </c><00:06:27.630><c>are </c><00:06:27.885><c>those </c><00:06:28.140><c>stairs </c><00:06:28.395><c>and </c><00:06:28.650><c>you </c><00:06:28.905><c>have </c><00:06:29.160><c>to</c>
+
+00:06:29.390 --> 00:06:31.790 align:start position:0%
+and these are those stairs and you have to
+ 
+
+00:06:31.790 --> 00:06:31.800 align:start position:0%
+ 
+ 
+
+00:06:31.800 --> 00:06:34.110 align:start position:0%
+ 
+climb <00:06:31.913><c>these </c><00:06:32.026><c>stairs </c><00:06:32.139><c>with </c><00:06:32.252><c>me </c><00:06:32.365><c>for </c><00:06:32.478><c>100 </c><00:06:32.591><c>days </c><00:06:32.704><c>and </c><00:06:32.817><c>trust </c><00:06:32.930><c>me </c><00:06:33.043><c>it </c><00:06:33.156><c>will </c><00:06:33.269><c>be </c><00:06:33.382><c>worth </c><00:06:33.495><c>it </c><00:06:33.608><c>at </c><00:06:33.721><c>the </c><00:06:33.834><c>end</c>
+
+00:06:34.110 --> 00:06:34.120 align:start position:0%
+climb these stairs with me for 100 days and trust me it will be worth it at the end
+ 
+
+00:06:34.120 --> 00:06:35.909 align:start position:0%
+climb these stairs with me for 100 days and trust me it will be worth it at the end
+I <00:06:34.920><c>will </c><00:06:35.720><c>tell</c>
+
+00:06:35.909 --> 00:06:35.919 align:start position:0%
+I will tell
+ 
+
+00:06:35.919 --> 00:06:37.550 align:start position:0%
+I will tell
+you <00:06:36.101><c>the </c><00:06:36.283><c>things </c><00:06:36.465><c>from </c><00:06:36.647><c>my </c><00:06:36.829><c>years </c><00:06:37.011><c>of </c><00:06:37.193><c>experience</c>
+
+00:06:37.550 --> 00:06:37.560 align:start position:0%
+you the things from my years of experience
+ 
+
+00:06:37.560 --> 00:06:39.350 align:start position:0%
+you the things from my years of experience
+which <00:06:37.855><c>took </c><00:06:38.150><c>me </c><00:06:38.445><c>a </c><00:06:38.740><c>lot </c><00:06:39.035><c>of</c>
+
+00:06:39.350 --> 00:06:39.360 align:start position:0%
+which took me a lot of
+ 
+
+00:06:39.360 --> 00:06:42.029 align:start position:0%
+which took me a lot of
+time <00:06:39.640><c>to </c><00:06:39.920><c>learn </c><00:06:40.200><c>and </c><00:06:40.480><c>in </c><00:06:40.760><c>the </c><00:06:41.040><c>upcoming </c><00:06:41.320><c>videos </c><00:06:41.600><c>we </c><00:06:41.880><c>will</c>
+
+00:06:42.029 --> 00:06:42.039 align:start position:0%
+time to learn and in the upcoming videos we will
+ 
+
+00:06:42.039 --> 00:06:44.070 align:start position:0%
+time to learn and in the upcoming videos we will
+actually <00:06:42.479><c>do </c><00:06:42.919><c>coding </c><00:06:43.359><c>we </c><00:06:43.799><c>will</c>
+
+00:06:44.070 --> 00:06:44.080 align:start position:0%
+actually do coding we will
+ 
+
+00:06:44.080 --> 00:06:45.909 align:start position:0%
+actually do coding we will
+write <00:06:44.274><c>a </c><00:06:44.468><c>lot </c><00:06:44.662><c>of </c><00:06:44.856><c>code </c><00:06:45.050><c>over </c><00:06:45.244><c>the </c><00:06:45.438><c>next </c><00:06:45.632><c>few</c>
+
+00:06:45.909 --> 00:06:45.919 align:start position:0%
+write a lot of code over the next few
+ 
+
+00:06:45.919 --> 00:06:48.469 align:start position:0%
+write a lot of code over the next few
+videos <00:06:46.214><c>and </c><00:06:46.509><c>in </c><00:06:46.804><c>fact </c><00:06:47.099><c>over </c><00:06:47.394><c>the </c><00:06:47.689><c>next </c><00:06:47.984><c>a </c><00:06:48.279><c>lot</c>
+
+00:06:48.469 --> 00:06:48.479 align:start position:0%
+videos and in fact over the next a lot
+ 
+
+00:06:48.479 --> 00:06:50.830 align:start position:0%
+videos and in fact over the next a lot
+of <00:06:48.636><c>videos </c><00:06:48.793><c>because </c><00:06:48.950><c>we </c><00:06:49.107><c>are </c><00:06:49.264><c>going </c><00:06:49.421><c>to </c><00:06:49.578><c>do </c><00:06:49.735><c>this </c><00:06:49.892><c>challenge </c><00:06:50.049><c>for </c><00:06:50.206><c>100 </c><00:06:50.363><c>days </c><00:06:50.520><c>that's </c><00:06:50.677><c>all</c>
+
+00:06:50.830 --> 00:06:52.230 align:start position:0%
+of videos because we are going to do this challenge for 100 days that's all
+ 
+
+00:06:52.230 --> 00:06:52.240 align:start position:0%
+ 
+ 
+
+00:06:52.240 --> 00:06:53.749 align:start position:0%
+ 
+in <00:06:52.399><c>this </c><00:06:52.558><c>video </c><00:06:52.717><c>for </c><00:06:52.876><c>now </c><00:06:53.035><c>guys </c><00:06:53.194><c>if</c>
+
+00:06:53.749 --> 00:06:53.759 align:start position:0%
+in this video for now guys if
+ 
+
+00:06:53.759 --> 00:06:55.869 align:start position:0%
+in this video for now guys if
+anyone <00:06:54.085><c>hasn't </c><00:06:54.411><c>accessed </c><00:06:54.737><c>the </c><00:06:55.063><c>playlist </c><00:06:55.389><c>then </c><00:06:55.715><c>definitely</c>
+
+00:06:55.869 --> 00:06:55.879 align:start position:0%
+anyone hasn't accessed the playlist then definitely
+ 
+
+00:06:55.879 --> 00:06:57.909 align:start position:0%
+anyone hasn't accessed the playlist then definitely
+access <00:06:56.319><c>it </c><00:06:56.759><c>bookmark </c><00:06:57.199><c>it </c><00:06:57.639><c>and</c>
+
+00:06:57.909 --> 00:06:57.919 align:start position:0%
+access it bookmark it and
+ 
+
+00:06:57.919 --> 00:07:00.230 align:start position:0%
+access it bookmark it and
+save <00:06:58.128><c>it </c><00:06:58.337><c>that's </c><00:06:58.546><c>all </c><00:06:58.755><c>in </c><00:06:58.964><c>this </c><00:06:59.173><c>video </c><00:06:59.382><c>for </c><00:06:59.591><c>now </c><00:06:59.800><c>guys</c>
+
+00:07:00.230 --> 00:07:00.240 align:start position:0%
+save it that's all in this video for now guys
+ 
+
+00:07:00.240 --> 00:07:02.390 align:start position:0%
+save it that's all in this video for now guys
+thank <00:07:00.449><c>you </c><00:07:00.658><c>so </c><00:07:00.867><c>much </c><00:07:01.076><c>guys </c><00:07:01.285><c>for </c><00:07:01.494><c>watching </c><00:07:01.703><c>this </c><00:07:01.912><c>video</c>
+
+00:07:02.390 --> 00:07:02.400 align:start position:0%
+thank you so much guys for watching this video
+ 
+
+00:07:02.400 --> 00:07:06.170 align:start position:0%
+thank you so much guys for watching this video
+and <00:07:02.766><c>I </c><00:07:03.132><c>will </c><00:07:03.498><c>see </c><00:07:03.864><c>you </c><00:07:04.230><c>next </c><00:07:04.596><c>time</c>
+
+00:07:06.170 --> 00:07:06.180 align:start position:0%
+and I will see you next time
+ 
+
+00:07:06.180 --> 00:07:25.649 align:start position:0%
+and I will see you next time
+[Music]
+
