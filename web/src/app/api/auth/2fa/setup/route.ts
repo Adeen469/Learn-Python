@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import {
   buildOtpAuthUrl,
+  decryptUserTotpSecret,
   encryptTotpSecret,
   generateTotpSecret,
   totpSecretEncryptionKey,
@@ -59,7 +60,17 @@ export async function POST(req: NextRequest) {
     { failClosed: true }
   );
   if (emailLimited) return emailLimited;
-  if (user.totp_enabled) {
+  // Legacy re-enrolment: a secret written before the TOTP key split
+  // (under the old session-key derivation) no longer decrypts
+  // with the dedicated key, so no working second factor exists to
+  // protect. Refuse only when the stored secret actually decrypts
+  // (working 2FA); a null/missing/undecryptable secret may re-enrol.
+  // No fallback to the old session key — the hard cutover stands.
+  if (
+    user.totp_enabled &&
+    user.totp_secret_enc &&
+    decryptUserTotpSecret(user.totp_secret_enc) !== null
+  ) {
     return jsonError(
       "Two-factor authentication is already on. Disable it first to set up a new one.",
       400

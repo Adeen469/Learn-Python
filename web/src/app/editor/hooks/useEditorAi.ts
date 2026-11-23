@@ -1,0 +1,810 @@
+// The editor's AI panel state: chat, history, custom skills, the BYOK
+// store + model catalog, and sendAiMessage. Moved verbatim from
+// web/src/app/editor/page.tsx (F1 split) — no behaviour change.
+// The hook owns every AI/BYOK name page.tsx used to declare inline;
+// page.tsx destructures the subset it renders, and AiSettingsCard
+// takes the whole object.
+import { useEffect, useRef, useState } from "react";
+import type { PromptBarModel } from "@/components/PromptBar";
+import {
+  ANTHROPIC_MODELS,
+  GEMINI_FREE_MODELS,
+  GROQ_FREE_MODELS,
+  OPENAI_MODELS,
+  OPENROUTER_MODELS,
+} from "@/lib/ai";
+import type { Strings } from "@/lib/i18n";
+import { newId, readLocalJson } from "@/app/editor/lib/editor-utils";
+import type {
+  AiChat,
+  AiChatMessage,
+  AiPanelView,
+  CentreView,
+  WorkspaceItem,
+} from "@/app/editor/lib/editor-types";
+
+export type CustomAiSkill = { id: string; name: string; description: string; content: string };
+export type AiByokProvider = "gemini" | "groq" | "anthropic" | "openai" | "openrouter" | "custom";
+// BYOK reference the editor sends: provider (+ base URL/model
+// for custom) only — NEVER a key. The key lives server-side
+// (lp_byok_keys, migration 009) and /api/ai loads it by
+// provider reference.
+export type AiByok = { provider: AiByokProvider; key?: string; baseUrl?: string; model?: string };
+// One saved provider. Entries carry metadata only — no key lives
+// in this store anymore (keys are server-side). `key` stays
+// optional on the type only so a pre-migration localStorage entry
+// still parses and can be migrated on load (see the migration
+// effect below); it is stripped from state once the server save
+// succeeds and never sent in a request.
+export type AiByokEntry = AiByok & { id: string; enabled: boolean };
+export type AiByokStore = { enabled: boolean; entries: AiByokEntry[] };
+
+export type EditorAi = ReturnType<typeof useEditorAi>;
+
+export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: WorkspaceItem | undefined }) {
+  // AI panel chat (guide mode, POST /api/ai). A real AI assistant —
+  // it answers anything, writes full code when asked, and fixes code
+  // directly. Nothing is stored server-side: the current chat, past
+  // chats, custom skills and the BYOK key live in this browser's
+  // localStorage. Long files are truncated to the API's limit.
+
+
+
+
+
+  function readStoredAiMessages(): AiChatMessage[] {
+    const stored = readLocalJson<unknown>("lp_ai_current_chat", []);
+    if (!Array.isArray(stored)) return [];
+    return stored.filter(
+      (m): m is AiChatMessage =>
+        typeof m === "object" &&
+        m !== null &&
+        ((m as AiChatMessage).role === "user" || (m as AiChatMessage).role === "ai") &&
+        typeof (m as AiChatMessage).text === "string"
+    );
+  }
+  const [aiMessages, setAiMessages] = useState<AiChatMessage[]>(readStoredAiMessages);
+  const [aiThinking, setAiThinking] = useState(false);
+  const [aiThoughtSeconds, setAiThoughtSeconds] = useState<number | null>(null);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const aiAbortRef = useRef<AbortController | null>(null);
+
+  // AI panel views: chat (default) and history — switched from the ⋮
+  // menu in the panel header. Settings opens as a card in the centre
+  // column instead (see centreView below).
+  const [aiView, setAiView] = useState<AiPanelView>("chat");
+  const [centreView, setCentreView] = useState<CentreView>("editor");
+  // Drill-down inside the settings card: the card first shows a menu
+  // (Skills / BYOK), tapping one opens that sub-page with a breadcrumb
+  // ("AI Settings > Skills"), and the back arrow returns to the menu.
+  const [settingsSection, setSettingsSection] = useState<"menu" | "skills" | "models" | "byok">("menu");
+  const [aiMenuOpen, setAiMenuOpen] = useState(false);
+  const [aiChats, setAiChats] = useState<AiChat[]>(() =>
+    readLocalJson<AiChat[]>("lp_ai_chats", [])
+  );
+  const [customSkills, setCustomSkills] = useState<CustomAiSkill[]>(() =>
+    readLocalJson<CustomAiSkill[]>("lp_ai_custom_skills", [])
+  );
+  const [activeSkillIds, setActiveSkillIds] = useState<string[]>(() =>
+    readLocalJson<string[]>("lp_ai_active_skills", ["ponytail"])
+  );
+  // BYOK store: a master switch plus a list of saved providers.
+  // Entries are metadata only (provider + custom base URL/model) —
+  // the keys live server-side. The old single-key shape
+  // { provider, key } migrates to one enabled entry, so a saved key
+  // keeps working (the migration effect POSTs it to the server).
+  function readByokStore(): AiByokStore {
+    const raw = readLocalJson<unknown>("lp_ai_byok", null);
+    if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+      const r = raw as Record<string, unknown>;
+      if (Array.isArray(r.entries)) {
+        const entries = (r.entries as unknown[]).filter(
+          (e): e is AiByokEntry =>
+            !!e &&
+            typeof e === "object" &&
+            typeof (e as AiByokEntry).provider === "string" &&
+            typeof (e as AiByokEntry).id === "string" &&
+            typeof (e as AiByokEntry).enabled === "boolean"
+        );
+        return { enabled: r.enabled === true, entries };
+      }
+      if (typeof r.provider === "string" && typeof r.key === "string") {
+        return {
+          enabled: true,
+          entries: [
+            {
+              id: newId(),
+              provider: r.provider as AiByokProvider,
+              key: r.key,
+              ...(typeof r.baseUrl === "string" ? { baseUrl: r.baseUrl } : {}),
+              ...(typeof r.model === "string" ? { model: r.model } : {}),
+              enabled: true,
+            },
+          ],
+        };
+      }
+    }
+    return { enabled: false, entries: [] };
+  }
+  const [byokStore, setByokStore] = useState<AiByokStore>(() => readByokStore());
+  // R2-L19: version stamp for the persisted BYOK store. Every write
+  // stamps `v` (a timestamp); a tab that sees a NEWER stamp than its
+  // own knows another tab owns the store and must not overwrite it
+  // with stale state — otherwise a second tab re-persists keys the
+  // first tab just deleted. byokKnownIdsRef tracks the entry ids
+  // this tab has seen in storage, so the guard can tell a key this
+  // tab created (keep) from one another tab deleted (drop).
+  const byokVersionRef = useRef(0);
+  const byokKnownIdsRef = useRef<Set<string>>(new Set());
+  /** The same entry without its key (metadata only). */
+  function stripByokKey(e: AiByokEntry): AiByokEntry {
+    return {
+      id: e.id,
+      provider: e.provider,
+      ...(e.baseUrl ? { baseUrl: e.baseUrl } : {}),
+      ...(e.model ? { model: e.model } : {}),
+      enabled: e.enabled,
+    };
+  }
+  /** Persist the BYOK store with a fresh version stamp. */
+  function writeByokStoreLocal(store: AiByokStore): void {
+    const v = Date.now();
+    try {
+      localStorage.setItem("lp_ai_byok", JSON.stringify({ ...store, v }));
+    } catch {
+      // Storage unavailable — the state still holds the keys.
+    }
+    byokVersionRef.current = v;
+    byokKnownIdsRef.current = new Set(store.entries.map((e) => e.id));
+  }
+  // BYOK server migration + sync (H8): keys used to live in
+  // localStorage (lp_ai_byok) in plaintext. On first load after
+  // this ships, any keys still there are POSTed once to
+  // /api/byok/save (server-encrypted under BYOK_ENCRYPTION_KEY)
+  // and then dropped from this browser — localStorage keeps only
+  // provider metadata. The raw keys are read synchronously before
+  // the first await, so the persist effect below cannot wipe them
+  // mid-migration. R2-M14: the migration reads the same normalised
+  // shape readByokStore() returns, so the old single-key shape
+  // { provider, key } migrates too instead of being silently
+  // deleted (its entries list is empty, so the old loop ran zero
+  // times and still removed the key). R2-L19: each key is dropped
+  // from the local copy as soon as ITS save succeeds, not
+  // all-or-nothing at the end — a failed save keeps that key (and
+  // only that key) for a retry next load. If the server save fails
+  // (BYOK not set up yet), the local copy is left alone and the
+  // migration retries on the next load, so a failed migration
+  // never loses a key. The server list is also merged in, so keys
+  // saved on another device show up here as providers (keys
+  // themselves never come back down).
+  const byokSyncRef = useRef(false);
+  useEffect(() => {
+    if (byokSyncRef.current) return;
+    byokSyncRef.current = true;
+    void (async () => {
+      try {
+        const store = readByokStore();
+        const savedIds: string[] = [];
+        for (const e of store.entries) {
+          if (typeof e.key !== "string" || e.key.length < 10) continue;
+          if (typeof e.provider !== "string") continue;
+          const res = await fetch("/api/byok/save", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              provider: e.provider,
+              key: e.key,
+              ...(typeof e.baseUrl === "string" ? { baseUrl: e.baseUrl } : {}),
+              ...(typeof e.model === "string" ? { model: e.model } : {}),
+            }),
+          }).catch(() => null);
+          if (res?.ok) {
+            savedIds.push(e.id);
+            // Drop just this key from the local copy right away —
+            // the tab could close before the loop finishes.
+            try {
+              const remaining = readByokStore();
+              writeByokStoreLocal({
+                enabled: remaining.enabled,
+                entries: remaining.entries.map((x) =>
+                  x.id === e.id ? stripByokKey(x) : x
+                ),
+              });
+            } catch {
+              // Storage unavailable — the state strip below still
+              // drops the key from the next persist.
+            }
+          }
+        }
+        if (savedIds.length > 0) {
+          setByokStore((prev) => ({
+            ...prev,
+            entries: prev.entries.map((x) =>
+              savedIds.includes(x.id) ? stripByokKey(x) : x
+            ),
+          }));
+        }
+      } catch {
+        // Migration is best-effort: keys that did not save stay
+        // local and retry next load. (No body-key fallback exists
+        // server-side anymore, so an unsaved key simply cannot pay
+        // for AI calls until the server store is ready.)
+      }
+      try {
+        const res = await fetch("/api/byok/list", { credentials: "same-origin" });
+        const data: unknown = await res.json().catch(() => null);
+        const keys = (
+          data as { keys?: Array<{ provider?: unknown; baseUrl?: unknown; model?: unknown }> } | null
+        )?.keys;
+        if (res.ok && Array.isArray(keys)) {
+          setByokStore((prev) => {
+            const have = new Set(prev.entries.map((e) => e.provider));
+            const extra = keys
+              .filter((k) => typeof k.provider === "string" && !have.has(k.provider as AiByokProvider))
+              .map((k) => ({
+                id: newId(),
+                provider: k.provider as AiByokProvider,
+                ...(typeof k.baseUrl === "string" && k.baseUrl
+                  ? { baseUrl: k.baseUrl as string }
+                  : {}),
+                ...(typeof k.model === "string" && k.model ? { model: k.model as string } : {}),
+                enabled: true,
+              }));
+            return extra.length > 0
+              ? { ...prev, enabled: true, entries: [...prev.entries, ...extra] }
+              : prev;
+          });
+        }
+      } catch {
+        // Offline or not signed in — the local providers still work.
+      }
+    })();
+  }, []);
+  // Models the selector shows by default (no BYOK): two free models
+  // per provider — one best (result first, tokens don't matter) and
+  // one efficient (fewest tokens). Gemini best is the 3.1 Pro
+  // preview, efficient is 3.6 Flash; Groq best is the 120B model,
+  // efficient the 20B one.
+  const DEFAULT_SELECTOR_MODELS = [
+    "gemini-3.1-pro-preview",
+    "gemini-3.6-flash",
+    "openai/gpt-oss-120b",
+    "openai/gpt-oss-20b",
+  ];
+  const [selectorModels, setSelectorModels] = useState<string[]>(() =>
+    readLocalJson<string[]>("lp_ai_selector_models", DEFAULT_SELECTOR_MODELS)
+  );
+  // Add-skill + BYOK form fields (settings view).
+  const [newSkillName, setNewSkillName] = useState("");
+  const [newSkillDesc, setNewSkillDesc] = useState("");
+  const [newSkillContent, setNewSkillContent] = useState("");
+  const [byokProvider, setByokProvider] = useState<AiByokProvider>(
+    () => byokStore.entries[0]?.provider ?? "gemini"
+  );
+  const [byokKey, setByokKey] = useState("");
+  const [byokBaseUrl, setByokBaseUrl] = useState("");
+  const [byokModel, setByokModel] = useState("");
+
+  // Persist AI panel state to this browser only (never the server).
+  useEffect(() => {
+    try {
+      localStorage.setItem("lp_ai_current_chat", JSON.stringify(aiMessages));
+    } catch {
+      // Storage full — skip, the chat still works in memory.
+    }
+  }, [aiMessages]);
+  useEffect(() => {
+    try {
+      // R2-L18: cap retained chats at the last 20 — full AI
+      // conversations sit in plaintext localStorage, so the pile
+      // must not grow without bound.
+      localStorage.setItem("lp_ai_chats", JSON.stringify(aiChats.slice(-20)));
+    } catch {
+      // Storage full — skip.
+    }
+  }, [aiChats]);
+  useEffect(() => {
+    try {
+      localStorage.setItem("lp_ai_custom_skills", JSON.stringify(customSkills));
+    } catch {
+      // Storage full — skip.
+    }
+  }, [customSkills]);
+  useEffect(() => {
+    try {
+      localStorage.setItem("lp_ai_active_skills", JSON.stringify(activeSkillIds));
+    } catch {
+      // Storage full — skip.
+    }
+  }, [activeSkillIds]);
+  // R2-L19: never blindly overwrite the stored BYOK copy — another
+  // tab may have deleted keys after this tab loaded. If the stored
+  // copy carries a NEWER version stamp, adopt it (drop entries the
+  // other tab removed, keep entries this tab created since — those
+  // have ids the other tab never saw) instead of re-persisting this
+  // tab's stale keys. If the store vanished entirely after this tab
+  // last saw it, adopt the wipe the same way.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("lp_ai_byok");
+      if (!raw && (byokVersionRef.current > 0 || byokKnownIdsRef.current.size > 0)) {
+        byokVersionRef.current = Date.now();
+        byokKnownIdsRef.current = new Set();
+        if (byokStore.entries.length > 0 || byokStore.enabled) {
+          setByokStore({ enabled: false, entries: [] });
+        }
+        return;
+      }
+      const parsed: unknown = raw ? JSON.parse(raw) : null;
+      const storedV =
+        parsed && typeof parsed === "object" && typeof (parsed as { v?: unknown }).v === "number"
+          ? (parsed as { v: number }).v
+          : 0;
+      if (storedV > byokVersionRef.current) {
+        byokVersionRef.current = storedV;
+        const stored = readByokStore();
+        const knownBefore = byokKnownIdsRef.current;
+        const storedIds = new Set(stored.entries.map((e) => e.id));
+        const mergedEntries = byokStore.entries.filter(
+          (e) => storedIds.has(e.id) || !knownBefore.has(e.id)
+        );
+        byokKnownIdsRef.current = new Set([
+          ...stored.entries.map((e) => e.id),
+          ...mergedEntries.map((e) => e.id),
+        ]);
+        const enabled = mergedEntries.length > 0 ? byokStore.enabled : stored.enabled;
+        const stateChanged =
+          mergedEntries.length !== byokStore.entries.length || enabled !== byokStore.enabled;
+        if (stateChanged) {
+          // Adopting the newer store changed this tab's state —
+          // the re-run persists the merged state.
+          setByokStore({ enabled, entries: mergedEntries });
+          return;
+        }
+        const differsFromStored =
+          mergedEntries.length !== stored.entries.length ||
+          mergedEntries.some((e, i) => e.id !== stored.entries[i]?.id) ||
+          enabled !== stored.enabled;
+        if (differsFromStored) {
+          // This tab holds a newer local change the other tab
+          // never saw (e.g. a toggled switch) — write the merged
+          // state instead of dropping it.
+          writeByokStoreLocal({ enabled, entries: mergedEntries });
+        }
+        return;
+      }
+      if (byokStore.entries.length > 0 || byokStore.enabled) {
+        writeByokStoreLocal(byokStore);
+      } else {
+        localStorage.removeItem("lp_ai_byok");
+        byokVersionRef.current = Date.now();
+        byokKnownIdsRef.current = new Set();
+      }
+    } catch {
+      // Storage full or unreadable — skip, the keys still work in memory.
+    }
+  }, [byokStore]);
+  // R2-L19: another tab changed lp_ai_byok — adopt its version
+  // promptly, so this tab's next persist cannot resurrect keys the
+  // other tab deleted.
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== "lp_ai_byok") return;
+      try {
+        const parsed: unknown = e.newValue ? JSON.parse(e.newValue) : null;
+        const v =
+          parsed && typeof parsed === "object" && typeof (parsed as { v?: unknown }).v === "number"
+            ? (parsed as { v: number }).v
+            : 0;
+        if (v > 0) byokVersionRef.current = Math.max(byokVersionRef.current, v);
+        const incoming = readByokStore();
+        const knownBefore = byokKnownIdsRef.current;
+        const incomingIds = new Set(incoming.entries.map((x) => x.id));
+        byokKnownIdsRef.current = new Set(incoming.entries.map((x) => x.id));
+        setByokStore((prev) => {
+          const merged = prev.entries.filter(
+            (x) => incomingIds.has(x.id) || !knownBefore.has(x.id)
+          );
+          const enabled = merged.length > 0 ? prev.enabled : incoming.enabled;
+          return merged.length !== prev.entries.length || enabled !== prev.enabled
+            ? { enabled, entries: merged }
+            : prev;
+        });
+      } catch {
+        // Malformed storage event — ignore.
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+  useEffect(() => {
+    try {
+      localStorage.setItem("lp_ai_selector_models", JSON.stringify(selectorModels));
+    } catch {
+      // Storage full — skip.
+    }
+  }, [selectorModels]);
+
+  // Chat history: the current chat is saved into the list (title =
+  // first user message) whenever the user starts a new chat, clears,
+  // or opens a saved one — clearing never silently loses a chat.
+  function saveCurrentChatToHistory() {
+    if (aiMessages.length === 0) return;
+    const firstUser = aiMessages.find((m) => m.role === "user");
+    const title =
+      (firstUser?.text ?? "Chat").replace(/\s+/g, " ").trim().slice(0, 60) || "Chat";
+    const chat: AiChat = { id: newId(), title, createdAt: Date.now(), messages: aiMessages };
+    setAiChats((prev) => [chat, ...prev].slice(0, 50));
+  }
+  function startNewChat() {
+    stopAi();
+    saveCurrentChatToHistory();
+    setAiMessages([]);
+    setAiError(null);
+    setAiThoughtSeconds(null);
+    setAiView("chat");
+  }
+  function loadAiChat(chat: AiChat) {
+    stopAi();
+    saveCurrentChatToHistory();
+    setAiChats((prev) => prev.filter((c) => c.id !== chat.id));
+    setAiMessages(chat.messages);
+    setAiError(null);
+    setAiThoughtSeconds(null);
+    setAiView("chat");
+  }
+  function deleteAiChat(id: string) {
+    setAiChats((prev) => prev.filter((c) => c.id !== id));
+  }
+
+  // Skills: toggle a built-in or custom skill on/off; add/delete
+  // custom skills (a new custom skill starts active).
+  function toggleSkill(id: string) {
+    setActiveSkillIds((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
+    );
+  }
+  function addCustomSkill() {
+    const name = newSkillName.trim();
+    const content = newSkillContent.trim();
+    if (!name || !content) return;
+    const skill: CustomAiSkill = {
+      id: `custom-${Date.now()}`,
+      name: name.slice(0, 60),
+      description: newSkillDesc.trim().slice(0, 200),
+      content: content.slice(0, 8000),
+    };
+    setCustomSkills((prev) => [...prev, skill]);
+    setActiveSkillIds((prev) => [...prev, skill.id]);
+    setNewSkillName("");
+    setNewSkillDesc("");
+    setNewSkillContent("");
+  }
+  function deleteCustomSkill(id: string) {
+    setCustomSkills((prev) => prev.filter((s) => s.id !== id));
+    setActiveSkillIds((prev) => prev.filter((s) => s !== id));
+  }
+
+  // BYOK: keys live on the SERVER now (encrypted, migration 009).
+  // Saving POSTs the key once to /api/byok/save; this browser keeps
+  // only the provider (+ base URL/model for custom), so the key is
+  // never in localStorage again. A key is used only when the master
+  // switch is on AND that provider is enabled — otherwise the
+  // request runs on the server keys alone. If the server save fails
+  // (BYOK not set up yet, or not signed in), nothing is stored and
+  // the typed key stays in the field for a retry.
+  async function saveByokEntry() {
+    const key = byokKey.trim();
+    if (key.length < 10) return;
+    if (byokProvider === "custom") {
+      const baseUrl = byokBaseUrl.trim();
+      const model = byokModel.trim();
+      if (!baseUrl.startsWith("https://") || model.length === 0) return;
+      const res = await fetch("/api/byok/save", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ provider: byokProvider, key, baseUrl, model }),
+      }).catch(() => null);
+      if (!res || !res.ok) return;
+      setByokStore((prev) => ({
+        ...prev,
+        entries: [...prev.entries, { id: newId(), provider: byokProvider, baseUrl, model, enabled: true }],
+      }));
+    } else {
+      const res = await fetch("/api/byok/save", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ provider: byokProvider, key }),
+      }).catch(() => null);
+      if (!res || !res.ok) return;
+      setByokStore((prev) => ({
+        ...prev,
+        entries: [...prev.entries, { id: newId(), provider: byokProvider, enabled: true }],
+      }));
+    }
+    setByokKey("");
+    setByokBaseUrl("");
+    setByokModel("");
+  }
+  function toggleByokEntry(id: string) {
+    setByokStore((prev) => ({
+      ...prev,
+      entries: prev.entries.map((e) => (e.id === id ? { ...e, enabled: !e.enabled } : e)),
+    }));
+  }
+  function removeByokEntry(id: string) {
+    const entry = byokStore.entries.find((e) => e.id === id);
+    if (entry) {
+      // Delete the server-held key too — removing the local entry
+      // alone would leave the key usable. Best-effort: the local
+      // entry is gone either way.
+      void fetch(`/api/byok/delete?provider=${encodeURIComponent(entry.provider)}`, {
+        method: "DELETE",
+        credentials: "same-origin",
+      }).catch(() => {});
+    }
+    setByokStore((prev) => ({ ...prev, entries: prev.entries.filter((e) => e.id !== id) }));
+  }
+  function setByokMaster(on: boolean) {
+    setByokStore((prev) => ({ ...prev, enabled: on }));
+  }
+
+  // Model selector: which models show (AI Settings > Models).
+  // Never empty — unticking the last one restores the defaults.
+  function toggleSelectorModel(key: string) {
+    setSelectorModels((prev) => {
+      const next = prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key];
+      return next.length === 0 ? DEFAULT_SELECTOR_MODELS : next;
+    });
+  }
+
+  // BYOK provider display names (brand names — same in every language).
+  const BYOK_PROVIDER_NAMES: Record<AiByokProvider, string> = {
+    gemini: "Gemini",
+    groq: "Groq",
+    anthropic: "Anthropic",
+    openai: "OpenAI",
+    openrouter: "OpenRouter",
+    custom: "Custom",
+  };
+
+  // Model id → provider, from the server's allowlists (same ids as
+  // src/lib/ai.ts). Picks which saved BYOK entry (if any) pays for
+  // the picked model.
+  function providerForModelId(model: string, customModels: string[]): AiByokProvider | null {
+    if (GEMINI_FREE_MODELS.includes(model)) return "gemini";
+    if (GROQ_FREE_MODELS.includes(model)) return "groq";
+    if (ANTHROPIC_MODELS.includes(model)) return "anthropic";
+    if (OPENAI_MODELS.includes(model)) return "openai";
+    if (OPENROUTER_MODELS.includes(model)) return "openrouter";
+    if (customModels.includes(model)) return "custom";
+    return null;
+  }
+
+  // Best = best result, tokens don't matter. Efficient = fewest
+  // tokens. These tags mark the curated models in AI Settings >
+  // Models; the rest keep their picker tag.
+  const BEST_MODEL_KEYS = new Set([
+    "gemini-3.1-pro-preview",
+    "openai/gpt-oss-120b",
+    "claude-opus-5-5",
+    "gpt-5.5",
+    "openai/gpt-5.5",
+  ]);
+  const EFFICIENT_MODEL_KEYS = new Set([
+    "gemini-3.6-flash",
+    "openai/gpt-oss-20b",
+    "claude-haiku-5-5",
+    "gpt-5.4-mini",
+    "google/gemini-3.6-flash",
+  ]);
+
+  // PromptBar models: every model the API accepts. The picker shows
+  // only the models the user chose in AI Settings > Models
+  // (defaults: the four free ones). An enabled custom BYOK entry
+  // adds its own model to the list.
+  const ALL_AI_PANEL_MODELS: PromptBarModel[] = [
+    { key: "gemini-3.1-pro-preview", name: "Gemini 3.1 Pro", tag: "Pro" },
+    { key: "gemini-3.6-flash", name: "Gemini 3.6 Flash", tag: "Fast" },
+    { key: "openai/gpt-oss-120b", name: "GPT-OSS 120B", tag: "Groq" },
+    { key: "openai/gpt-oss-20b", name: "GPT-OSS 20B", tag: "Groq Fast" },
+    { key: "claude-sonnet-5-5", name: "Claude Sonnet 5.5", tag: "Anthropic" },
+    { key: "claude-opus-5-5", name: "Claude Opus 5.5", tag: "Anthropic" },
+    { key: "claude-haiku-5-5", name: "Claude Haiku 5.5", tag: "Anthropic Fast" },
+    { key: "gpt-5.5", name: "GPT-5.5", tag: "OpenAI" },
+    { key: "gpt-5.4-mini", name: "GPT-5.4 Mini", tag: "OpenAI Fast" },
+    { key: "gpt-4o", name: "GPT-4o", tag: "OpenAI" },
+    { key: "gpt-4o-mini", name: "GPT-4o Mini", tag: "OpenAI Fast" },
+    { key: "openai/gpt-5.5", name: "GPT-5.5", tag: "OpenRouter" },
+    { key: "anthropic/claude-sonnet-5-5", name: "Claude Sonnet 5.5", tag: "OpenRouter" },
+    { key: "google/gemini-3.6-flash", name: "Gemini 3.6 Flash", tag: "OpenRouter" },
+    { key: "meta-llama/llama-3.3-70b-instruct", name: "Llama 3.3 70B", tag: "OpenRouter" },
+  ];
+  const AI_PANEL_MODELS: PromptBarModel[] = (() => {
+    const visible = ALL_AI_PANEL_MODELS.filter((m) => selectorModels.includes(m.key));
+    const custom = byokStore.enabled
+      ? byokStore.entries
+          .filter((e) => e.enabled && e.provider === "custom" && e.model)
+          .map((e) => ({ key: e.model as string, name: e.model as string, tag: "Custom" }))
+      : [];
+    const list = [...visible, ...custom];
+    return list.length > 0
+      ? list
+      : ALL_AI_PANEL_MODELS.filter((m) => DEFAULT_SELECTOR_MODELS.includes(m.key));
+  })();
+
+  // Models section groups: every allowlisted model, grouped by
+  // provider. A provider without a usable key (no server key and no
+  // enabled BYOK entry) is marked — its models can be ticked into
+  // the selector but cannot answer until a key exists.
+  const MODEL_GROUPS: { provider: AiByokProvider; name: string; needsKey: boolean; models: PromptBarModel[] }[] = (
+    ["gemini", "groq", "anthropic", "openai", "openrouter"] as AiByokProvider[]
+  ).map((provider) => ({
+    provider,
+    name: BYOK_PROVIDER_NAMES[provider],
+    needsKey:
+      provider !== "gemini" &&
+      provider !== "groq" &&
+      !(byokStore.enabled && byokStore.entries.some((e) => e.enabled && e.provider === provider)),
+    models: ALL_AI_PANEL_MODELS.filter((m) => providerForModelId(m.key, []) === provider),
+  }));
+  function modelQualityTag(key: string): string | null {
+    if (BEST_MODEL_KEYS.has(key)) return t.editorPage.aiModelsBest;
+    if (EFFICIENT_MODEL_KEYS.has(key)) return t.editorPage.aiModelsEfficient;
+    return null;
+  }
+
+  // The one BYOK entry (if any) that pays for a request with this
+  // model: BYOK must be enabled, and only the enabled entry for the
+  // model's provider is sent. The server contract is unchanged (one
+  // byok object), so no server change is needed for multi-key support.
+  // Reference only — the key itself lives server-side and /api/ai
+  // loads it; no key ever leaves this browser anymore.
+  function byokPayloadFor(modelKey: string): AiByok | undefined {
+    if (!byokStore.enabled) return undefined;
+    const customModels = byokStore.entries
+      .filter((e) => e.enabled && e.provider === "custom" && e.model)
+      .map((e) => e.model as string);
+    const provider = providerForModelId(modelKey, customModels);
+    const entry = provider
+      ? byokStore.entries.find((e) => e.enabled && e.provider === provider)
+      : undefined;
+    if (!entry) return undefined;
+    return entry.provider === "custom"
+      ? { provider: entry.provider, baseUrl: entry.baseUrl, model: entry.model }
+      : { provider: entry.provider };
+  }
+
+  async function sendAiMessage(
+    text: string,
+    opts: { model: PromptBarModel | undefined; effort: string },
+  ) {
+    const raw = text.trim();
+    if (!raw || aiThinking) return;
+    // Slash commands from the PromptBar: /explain, /debug, /hint.
+    // The rest of the line is the question; with nothing after the
+    // command the default question for that command is used.
+    let question = raw;
+    if (raw.startsWith("/explain")) {
+      question =
+        raw.slice("/explain".length).trim() ||
+        "Explain this code to me, step by step.";
+    } else if (raw.startsWith("/debug")) {
+      question =
+        raw.slice("/debug".length).trim() ||
+        "Find the bug in this code, explain why it breaks, and show me the fixed code.";
+    } else if (raw.startsWith("/hint")) {
+      question =
+        raw.slice("/hint".length).trim() ||
+        "Give me a hint for the next step — explain the idea, don't write the code.";
+    }
+    const code = activeFile?.content ?? "";
+    const truncated = code.length > 8000;
+    const history = aiMessages.slice(-8).map((m) => ({
+      role: m.role === "user" ? "user" : "assistant",
+      text: m.text,
+    }));
+    setAiMessages((prev) => [...prev, { role: "user", text: raw }]);
+    setAiError(null);
+    setAiThoughtSeconds(null);
+    setAiThinking(true);
+    const byokPayload = byokPayloadFor(opts.model?.key ?? "gemini-3.6-flash");
+    const controller = new AbortController();
+    aiAbortRef.current = controller;
+    try {
+      const res = await fetch("/api/ai", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "guide",
+          question,
+          code: truncated ? code.slice(0, 8000) : code,
+          history,
+          model: opts.model?.key ?? "gemini-3.6-flash",
+          effort: opts.effort,
+          // Active skills: built-in ids resolve server-side; custom
+          // skills ride along as name + instructions. BYOK rides
+          // along only when the user enabled it — and only the
+          // enabled entry for the picked model's provider, so every
+          // other saved key stays in this browser.
+          skillIds: activeSkillIds,
+          skills: customSkills
+            .filter((s) => activeSkillIds.includes(s.id))
+            .map((s) => ({ name: s.name, content: s.content })),
+          ...(byokPayload ? { byok: byokPayload } : {}),
+        }),
+        signal: controller.signal,
+      });
+      const data: unknown = await res.json().catch(() => null);
+      if (res.status === 503) {
+        // Show the server's own reason (no keys vs. every provider
+        // failed) — the old message blamed the keys for every 503,
+        // even when keys were configured and the calls just failed.
+        const serverError =
+          typeof data === "object" && data !== null && typeof (data as { error?: unknown }).error === "string"
+            ? (data as { error: string }).error
+            : null;
+        setAiError(serverError ?? t.editorPage.aiUnavailableMessage);
+        return;
+      }
+      if (res.status === 401) {
+        setAiError(t.tutor.errorSessionExpired);
+        return;
+      }
+      if (!res.ok || typeof data !== "object" || data === null) {
+        setAiError(t.common.genericError);
+        return;
+      }
+      const reply = (data as { reply?: unknown }).reply;
+      if (typeof reply !== "string" || !reply.trim()) {
+        setAiError(t.editorPage.aiEmptyReplyError);
+        return;
+      }
+      setAiMessages((prev) => [...prev, { role: "ai", text: reply.trim() }]);
+    } catch {
+      if (controller.signal.aborted) return;
+      setAiError(t.tutor.errorGeneric);
+    } finally {
+      setAiThinking(false);
+      aiAbortRef.current = null;
+    }
+  }
+
+  function stopAi() {
+    aiAbortRef.current?.abort();
+  }
+
+  function clearAiChat() {
+    stopAi();
+    // Save the chat into history first — clearing never loses it.
+    saveCurrentChatToHistory();
+    setAiMessages([]);
+    setAiError(null);
+    setAiThoughtSeconds(null);
+  }
+
+  return {
+    aiMessages, setAiMessages, aiThinking, setAiThinking,
+    aiThoughtSeconds, setAiThoughtSeconds, aiError, setAiError,
+    aiView, setAiView, centreView, setCentreView,
+    settingsSection, setSettingsSection, aiMenuOpen, setAiMenuOpen,
+    aiChats, setAiChats, customSkills, setCustomSkills,
+    activeSkillIds, setActiveSkillIds, byokStore, setByokStore,
+    selectorModels, setSelectorModels,
+    newSkillName, setNewSkillName, newSkillDesc, setNewSkillDesc,
+    newSkillContent, setNewSkillContent,
+    byokProvider, setByokProvider, byokKey, setByokKey,
+    byokBaseUrl, setByokBaseUrl, byokModel, setByokModel,
+    saveCurrentChatToHistory, startNewChat, loadAiChat, deleteAiChat,
+    toggleSkill, addCustomSkill, deleteCustomSkill,
+    saveByokEntry, toggleByokEntry, removeByokEntry, setByokMaster,
+    toggleSelectorModel, providerForModelId, modelQualityTag, byokPayloadFor,
+    sendAiMessage, stopAi, clearAiChat,
+    BYOK_PROVIDER_NAMES, BEST_MODEL_KEYS, EFFICIENT_MODEL_KEYS,
+    ALL_AI_PANEL_MODELS, AI_PANEL_MODELS, MODEL_GROUPS,
+  };
+}

@@ -628,11 +628,18 @@ test("bulk delete stops the auto-warmer, confirms twice, and can be undone", () 
     src.includes("writeDeletedLessons([...LEARN_TOPIC_SLUGS])"),
   );
   // Downloading again un-blocks everything, answers Yes, and runs
-  // the explicit start (the same path the Wi-Fi toggle uses).
+  // the download directly — NOT through maybeWarmLessons, whose
+  // Wi-Fi-only toggle and connection gates silently killed an
+  // explicit tap (2026-11-23 re-download bug).
   assert.ok(src.includes("export async function downloadLessonsAgain"));
   assert.ok(src.includes("clearDeletedLessons()"));
   assert.ok(src.includes('markDownloadOfferAnswered("yes")'));
-  assert.ok(src.includes("return maybeWarmLessons();"));
+  const again = src.slice(
+    src.indexOf("export async function downloadLessonsAgain"),
+    src.indexOf("// Saved-videos index"),
+  );
+  assert.ok(again.includes("return warmLessons();"));
+  assert.ok(!again.includes("maybeWarmLessons"));
   const settings = readFileSync(
     join(web, "src", "app", "settings", "page.tsx"),
     "utf8",
@@ -795,4 +802,81 @@ test("offline hints: Settings hard-refresh tip and an offline-only banner on eve
   const layout = readFileSync(join(web, "src", "app", "layout.tsx"), "utf8");
   assert.ok(layout.includes("OfflineBanner"));
   assert.ok(layout.includes("<OfflineBanner />"));
+});
+
+test("explicit download bypasses the auto gates and says why it stopped", () => {
+  const src = downloads();
+  const again = src.slice(
+    src.indexOf("export async function downloadLessonsAgain"),
+    src.indexOf("// Saved-videos index"),
+  );
+  // An explicit tap calls warmLessons() directly — no
+  // maybeWarmLessons, so the Wi-Fi-only toggle and the connection
+  // heuristic cannot silently kill a download the user asked for.
+  assert.ok(again.includes("return warmLessons();"));
+  assert.ok(!again.includes("maybeWarmLessons"));
+  assert.ok(!again.includes("isWifiOnlyEnabled"));
+  assert.ok(!again.includes("connectionAllowsWarming"));
+  // The real blocks stay: offline, and no signed-in session (which
+  // also purges the previous user's saved videos).
+  assert.ok(again.includes("navigator.onLine"));
+  assert.ok(again.includes("fetchSessionUser"));
+  assert.ok(again.includes("purgeSavedVideos()"));
+  // ...and each one travels back as a reason instead of null.
+  assert.ok(again.includes('blockedReason: "offline"'));
+  assert.ok(again.includes('blockedReason: "signed-out"'));
+  // The storage cap still stops a run, but says so — and only when
+  // the run actually stopped short.
+  const warm = src.slice(
+    src.indexOf("export async function warmLessons()"),
+    src.indexOf("// App pages for offline"),
+  );
+  assert.ok(warm.includes('progress.blockedReason = "storage-full"'));
+  assert.ok(warm.includes("done < total"));
+  assert.ok(warm.includes('progress.state !== "waiting"'));
+  assert.ok(warm.includes("!(await storageWithinWarmCap())"));
+  // No stored-"done" gate on the explicit path: warmLessons counts
+  // what is really cached before deciding anything is done.
+  assert.ok(warm.includes("const cached = await Promise.all"));
+  // Settings shows the reason under the button.
+  const settings = readFileSync(
+    join(web, "src", "app", "settings", "page.tsx"),
+    "utf8",
+  );
+  assert.ok(settings.includes("downloadNote"));
+  assert.ok(settings.includes("t.offline.downloadBlockedOffline"));
+  assert.ok(settings.includes("t.offline.downloadBlockedSignedOut"));
+  assert.ok(settings.includes("t.offline.downloadBlockedStorage"));
+  // ...and the strings exist in every language (English is the
+  // source of truth; the type requires all three everywhere).
+  const index = readFileSync(
+    join(web, "src", "lib", "i18n", "index.tsx"),
+    "utf8",
+  );
+  for (const key of [
+    "downloadBlockedOffline",
+    "downloadBlockedSignedOut",
+    "downloadBlockedStorage",
+  ]) {
+    assert.ok(index.includes(`${key}: string;`), `type must list ${key}`);
+    for (const lang of [
+      "en",
+      "hi-roman",
+      "fr",
+      "ja",
+      "ko",
+      "es",
+      "de",
+      "pt",
+      "ru",
+      "ar",
+      "zh",
+    ]) {
+      const bundle = readFileSync(
+        join(web, "src", "lib", "i18n", `${lang}.ts`),
+        "utf8",
+      );
+      assert.ok(bundle.includes(`${key}:`), `${lang} must translate ${key}`);
+    }
+  }
 });

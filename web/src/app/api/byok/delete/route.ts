@@ -11,7 +11,15 @@ import { deleteByokKey, isValidByokProvider } from "@/lib/byok-store";
 export const dynamic = "force-dynamic";
 
 export async function DELETE(req: NextRequest) {
-  const ipBlocked = await checkIpLimit(req, "byok-delete", 10, 60_000);
+  let ipBlocked;
+  try {
+    ipBlocked = await checkIpLimit(req, "byok-delete", 10, 60_000, { failClosed: true });
+  } catch {
+    return NextResponse.json(
+      { error: "BYOK is temporarily unavailable." },
+      { status: 503 }
+    );
+  }
   if (ipBlocked) return ipBlocked;
   const prereqs = getAuthPrereqs(req);
   if (!prereqs) {
@@ -28,7 +36,15 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: "Sign in to delete a key" }, { status: 401 });
   }
   // R2-L14: per-user bucket alongside the per-IP one.
-  const userBlocked = await checkUserLimit(user.email, "byok-delete", 10, 60_000);
+  let userBlocked;
+  try {
+    userBlocked = await checkUserLimit(user.email, "byok-delete", 10, 60_000, { failClosed: true });
+  } catch {
+    return NextResponse.json(
+      { error: "BYOK is temporarily unavailable." },
+      { status: 503 }
+    );
+  }
   if (userBlocked) return userBlocked;
   const provider = req.nextUrl.searchParams.get("provider");
   if (!isValidByokProvider(provider)) {

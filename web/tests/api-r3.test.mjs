@@ -375,3 +375,45 @@ test("R3-L16: the middleware mints the nonce CSP on all document routes", () => 
   const apiBranch = mw.slice(mw.indexOf('startsWith("/api/")'));
   assert.ok(!apiBranch.slice(0, 400).includes("randomUUID"), "API routes must not mint a nonce");
 });
+
+test("N1: the fail-closed set is scoped — AI + writes fail closed, reads stay fail-open", () => {
+  // Fail-closed: the AI route (both limits) and every write route.
+  // A Redis blip answers 503 there instead of letting one client
+  // get N× the limit across instances.
+  const aiRoute = read("src/app/api/ai/route.ts");
+  assert.equal((aiRoute.match(/\{ failClosed: true \}/g) || []).length, 2, "the AI route must fail close both limits");
+  for (const rel of [
+    "src/app/api/github/batch-commit/route.ts",
+    "src/app/api/github/commit/route.ts",
+    "src/app/api/github/delete-repo/route.ts",
+    "src/app/api/github/token/route.ts",
+    "src/app/api/byok/save/route.ts",
+    "src/app/api/byok/delete/route.ts",
+  ]) {
+    const src = read(rel);
+    assert.ok(src.includes("{ failClosed: true }"), `${rel} must fail closed on its limit`);
+    assert.ok(src.includes("temporarily unavailable."), `${rel} must answer 503 when the limiter is down`);
+  }
+  // The helpers pass the opt through, and default to fail-open —
+  // so every route that does NOT pass it keeps the old behaviour.
+  const handler = read("src/lib/api-handler.ts");
+  assert.ok(handler.includes("opts: { failClosed?: boolean }"), "the helpers must accept the failClosed opt");
+  assert.ok(handler.includes("failClosed"), "the helpers must pass the opt to checkRateLimit");
+  // Fail-open: the read-only routes pass nothing — a Redis blip
+  // must not break opening a repo, listing keys, or loading a lesson.
+  for (const rel of [
+    "src/app/api/github/repo-file/route.ts",
+    "src/app/api/github/repo-tree/route.ts",
+    "src/app/api/github/token/status/route.ts",
+    "src/app/api/byok/list/route.ts",
+    "src/app/api/lessons/route.ts",
+    "src/app/api/pypi/route.ts",
+    "src/app/api/video/[lessonId]/route.ts",
+  ]) {
+    const src = read(rel);
+    assert.ok(!src.includes("failClosed"), `${rel} must stay fail-open (read-only)`);
+  }
+  const reposRoute = read("src/app/api/github/repos/route.ts");
+  assert.ok(reposRoute.includes('rateLimited(req, "github-write", true)'), "repo creation must fail closed");
+  assert.ok(reposRoute.includes('rateLimited(req, "github-read")'), "repo listing must stay fail-open");
+});

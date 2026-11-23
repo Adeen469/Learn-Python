@@ -23,6 +23,14 @@ const page = read("src/app/editor/page.tsx");
 // The editor split (2026-11-23): engine in the hook, panels in
 // components — the static checks below read the file that holds each piece.
 const hook = read("src/app/editor/hooks/usePyodideEngine.ts");
+// F1 split: AI + BYOK in the editor-AI hook, settings card in its
+// component, menus in the menu lib, repo loading in the repo hook,
+// dock layout in the dock hook.
+const aiHook = read("src/app/editor/hooks/useEditorAi.ts");
+const aiCard = read("src/app/editor/components/AiSettingsCard.tsx");
+const menus = read("src/app/editor/lib/editor-menus.ts");
+const repo = read("src/app/editor/hooks/useWorkspaceRepo.ts");
+const dock = read("src/app/editor/hooks/useDockPanels.ts");
 const terminalPanel = read("src/app/editor/components/TerminalPanel.tsx");
 const editorPanel = read("src/app/editor/components/EditorPanel.tsx");
 const aiPanel = read("src/app/editor/components/AiPanel.tsx");
@@ -45,15 +53,15 @@ const modules = read("src/components/ModulesPanel.tsx");
 
 test("menu bar: File/Edit/Run only, Run = run without debugging + stop (wabepp)", () => {
   assert.ok(page.includes("<EditorMenuBar"), "page must render the menu bar");
-  assert.ok(page.includes('id: "file"'), "File menu must exist");
-  assert.ok(page.includes('id: "edit"'), "Edit menu must exist");
-  assert.ok(page.includes('id: "run"'), "Run menu must exist");
-  assert.ok(!page.includes('id: "view"'), "View menu must be gone (panels move by drag, not a menu)");
-  assert.ok(!page.includes('id: "terminal"'), "Terminal menu must be gone (Clear lives in the Terminal panel header)");
-  assert.ok(page.includes("runWithoutDebugging"), "Run menu must offer Run Without Debugging");
-  assert.ok(page.includes('"Ctrl+F5"'), "Run Without Debugging must carry its Ctrl+F5 label");
-  assert.ok(page.includes('id: "stop"'), "Run menu must offer Stop");
-  assert.ok(page.includes("action: engine.stopRunning"), "Run menu Stop must stop the run");
+  assert.ok(menus.includes('id: "file"'), "File menu must exist");
+  assert.ok(menus.includes('id: "edit"'), "Edit menu must exist");
+  assert.ok(menus.includes('id: "run"'), "Run menu must exist");
+  assert.ok(!menus.includes('id: "view"'), "View menu must be gone (panels move by drag, not a menu)");
+  assert.ok(!menus.includes('id: "terminal"'), "Terminal menu must be gone (Clear lives in the Terminal panel header)");
+  assert.ok(menus.includes("runWithoutDebugging"), "Run menu must offer Run Without Debugging");
+  assert.ok(menus.includes('"Ctrl+F5"'), "Run Without Debugging must carry its Ctrl+F5 label");
+  assert.ok(menus.includes('id: "stop"'), "Run menu must offer Stop");
+  assert.ok(menus.includes("action: engine.stopRunning"), "Run menu Stop must stop the run");
   assert.ok(menuBar.includes('role="menubar"'), "menu bar must use menubar role");
   // wabepp: OS-only items must NOT be in the website menu. The VS Code
   // Run-menu debugger entries are app-only (native APK / Tauri EXE).
@@ -69,7 +77,7 @@ test("menu bar: File/Edit/Run only, Run = run without debugging + stop (wabepp)"
     "Add Configuration",
     "Open Configurations",
   ]) {
-    assert.ok(!page.includes(banned), `web menu must not contain "${banned}" (app-only)`);
+    assert.ok(!menus.includes(banned), `web menu must not contain "${banned}" (app-only)`);
     assert.ok(!menuBar.includes(banned), `menu bar must not contain "${banned}" (app-only)`);
   }
   // Panel toggle buttons live in the menu bar's right side: Terminal
@@ -109,22 +117,22 @@ test("context menu: component exists, wired to rows + root, web-only items", () 
   assert.ok(contextMenu.includes("fixed inset-0 z-40"), "menu must have an overlay to close on outside tap");
   // Items present for files/folders.
   for (const key of ["menuRename", "menuDuplicate", "menuCopyPath", "menuDelete", "menuFormat"]) {
-    assert.ok(page.includes(key), `context menu / file menu must use ${key}`);
+    assert.ok(menus.includes(key), `context menu / file menu must use ${key}`);
   }
   // wabepp: OS-only items must NOT be in the website context menu.
   assert.ok(!contextMenu.includes("Reveal in File Explorer"), "context menu must not contain OS-only items");
-  assert.ok(!page.includes("Reveal in File Explorer"), "page must not contain OS-only items");
+  assert.ok(!menus.includes("Reveal in File Explorer"), "menus must not contain OS-only items");
 });
 
 test("auto-save: on by default, persisted, debounced silent save", () => {
   assert.ok(page.includes("lp_editor_autosave"), "auto-save preference must persist");
   assert.ok(page.includes("saveFileSilently"), "auto-save must use a silent save (no terminal spam)");
   assert.ok(page.includes("1200"), "auto-save must debounce (~1.2s)");
-  assert.ok(page.includes("menuAutoSave"), "auto-save must be toggleable from the File menu");
+  assert.ok(menus.includes("menuAutoSave"), "auto-save must be toggleable from the File menu");
 });
 
 test("format: black via micropip, installed once per session", () => {
-  assert.ok(page.includes("formatCurrentFile"), "format action must exist");
+  assert.ok(menus.includes("formatCurrentFile"), "format action must exist");
   assert.ok(hook.includes("black.format_str"), "format must use black");
   assert.ok(hook.includes("micropip"), "black must install via micropip");
   assert.ok(hook.includes("blackReadyRef"), "black must install once per session");
@@ -147,10 +155,10 @@ test("resizable panels: splitters, persisted widths, double-click reset", () => 
   assert.ok(splitter.includes("cursor-row-resize"), "horizontal splitter must use a row-resize cursor");
   assert.ok(page.includes("lp_editor_explorer_w"), "explorer width must persist");
   assert.ok(page.includes("lp_editor_terminal_w"), "terminal width must persist");
-  assert.ok(page.includes("lp_editor_bottom_h"), "bottom-zone height must persist");
-  assert.ok(page.includes("? v : 150"), "bottom zone must default to 150px so the editor stays tall on laptop screens");
-  assert.ok(page.includes("if (v === 220) return 150"), "a saved 220 (old default) must migrate to the new 150 default");
-  assert.ok(page.includes("editorRef.current?.layout()"), "Monaco must be re-laid-out when the dock geometry changes");
+  assert.ok(dock.includes("lp_editor_bottom_h"), "bottom-zone height must persist");
+  assert.ok(dock.includes("? v : 150"), "bottom zone must default to 150px so the editor stays tall on laptop screens");
+  assert.ok(dock.includes("if (v === 220) return 150"), "a saved 220 (old default) must migrate to the new 150 default");
+  assert.ok(dock.includes("editorRef.current?.layout()"), "Monaco must be re-laid-out when the dock geometry changes");
   assert.ok(page.includes("var(--explorer-w)"), "explorer width must come from a CSS var (desktop only)");
   assert.ok(page.includes("var(--terminal-w)"), "terminal width must come from a CSS var (desktop only)");
   assert.ok(page.includes("showExplorer"), "explorer must be toggleable (panel close)");
@@ -166,19 +174,19 @@ test("draggable dock: panels move between zones (AI is side-only, Terminal/Explo
   );
   assert.ok(panelHeader.includes("draggable"), "panel header must be draggable");
   assert.ok(panelHeader.includes("lp-panel:"), "panel drag must carry its id in the drag data");
-  assert.ok(page.includes("lp_editor_panel_zones"), "panel zones must persist");
+  assert.ok(dock.includes("lp_editor_panel_zones"), "panel zones must persist");
   assert.ok(page.includes("movePanelToZone"), "dropping a panel must move it to the zone");
   assert.ok(page.includes("renderDockPanel"), "zones must render panels through renderDockPanel");
   assert.ok(page.includes("Dock left"), "left drop zone must exist while dragging");
   assert.ok(page.includes("Dock right"), "right drop zone must exist while dragging");
   assert.ok(page.includes("Dock bottom"), "bottom drop zone must exist while dragging");
-  assert.ok(page.includes('const [showAi, setShowAi] = useState(true)'), "AI panel must be visible by default");
+  assert.ok(dock.includes('const [showAi, setShowAi] = useState(true)'), "AI panel must be visible by default");
   // AI is a side panel only — it never docks at the bottom.
-  assert.ok(page.includes('if (id === "ai" && zone === "bottom") return;'), "AI must refuse the bottom zone");
+  assert.ok(dock.includes('if (id === "ai" && zone === "bottom") return;'), "AI must refuse the bottom zone");
   assert.ok(page.includes('draggingPanel !== "ai"'), "bottom drop zone must hide while dragging AI");
-  assert.ok(page.includes('if (z.ai === "bottom") z.ai = "right";'), "a saved AI bottom zone must reset to the right side");
+  assert.ok(dock.includes('if (z.ai === "bottom") z.ai = "right";'), "a saved AI bottom zone must reset to the right side");
   // Terminal opens at the bottom by default (fresh users).
-  assert.ok(page.includes('terminal: "bottom"'), "Terminal must open at the bottom by default");
+  assert.ok(dock.includes('terminal: "bottom"'), "Terminal must open at the bottom by default");
   // The bottom zone lives under the editor only (VS Code): the side
   // panels keep their full height.
   assert.ok(!page.includes("bottom-1/4"), "side drop overlays must span the full height, not stop at 3/4");
@@ -267,7 +275,7 @@ test("AI panel: PromptBar + ThoughtLine wired to guide mode (a real AI, no restr
     "openai/gpt-5.5", "anthropic/claude-sonnet-5-5", "google/gemini-3.6-flash",
     "meta-llama/llama-3.3-70b-instruct",
   ]) {
-    assert.ok(page.includes(`"${id}"`), `AI picker must list ${id}`);
+    assert.ok(aiHook.includes(`"${id}"`), `AI picker must list ${id}`);
     assert.ok(aiLib.includes(`"${id}"`), `backend allowlist must include ${id}`);
   }
   // The vendored components carry Maalik's defaults.
@@ -310,66 +318,66 @@ test("AI panel ⋮ menu: chat history + AI settings card (skills + BYOK)", () =>
   assert.ok(page.includes("aiSettingsCard"), "the settings card must exist");
   assert.ok(page.includes('centreView === "ai-settings"'), "settings must open as a card in the centre");
   assert.ok(page.includes('setCentreView("ai-settings")'), "⋮ menu AI Settings must open the centre card");
-  assert.ok(page.includes("aiBackToEditor"), "the settings card must offer a way back to the editor");
-  assert.ok(page.includes("max-w-2xl"), "the settings card content must stay readable on wide screens");
+  assert.ok(aiCard.includes("aiBackToEditor"), "the settings card must offer a way back to the editor");
+  assert.ok(aiCard.includes("max-w-2xl"), "the settings card content must stay readable on wide screens");
   // Settings is a drill-down menu, not a dropdown: the card first
   // lists Skills / BYOK, tapping a row opens that sub-page with a
   // breadcrumb ("AI Settings > Skills"), and the back arrow returns
   // to the menu.
-  assert.ok(page.includes("settingsSection"), "the settings card must navigate between menu / skills / byok");
-  assert.ok(page.includes('setSettingsSection("skills")'), "the menu must open the Skills sub-page");
-  assert.ok(page.includes('setSettingsSection("byok")'), "the menu must open the BYOK sub-page");
-  assert.ok(page.includes('setSettingsSection("menu")'), "a sub-page must offer a way back to the menu");
-  assert.ok(page.includes('settingsSection === "skills"'), "the skills list must render only on its sub-page");
-  assert.ok(page.includes('settingsSection === "byok"'), "the BYOK form must render only on its sub-page");
-  assert.ok(page.includes('{" > "}'), "a sub-page must show the breadcrumb separator");
-  assert.ok(page.includes("ChevronRight"), "menu rows must show a chevron to the sub-page");
+  assert.ok(aiCard.includes("settingsSection"), "the settings card must navigate between menu / skills / byok");
+  assert.ok(aiCard.includes('setSettingsSection("skills")'), "the menu must open the Skills sub-page");
+  assert.ok(aiCard.includes('setSettingsSection("byok")'), "the menu must open the BYOK sub-page");
+  assert.ok(aiCard.includes('setSettingsSection("menu")'), "a sub-page must offer a way back to the menu");
+  assert.ok(aiCard.includes('settingsSection === "skills"'), "the skills list must render only on its sub-page");
+  assert.ok(aiCard.includes('settingsSection === "byok"'), "the BYOK form must render only on its sub-page");
+  assert.ok(aiCard.includes('{" > "}'), "a sub-page must show the breadcrumb separator");
+  assert.ok(aiCard.includes("ChevronRight"), "menu rows must show a chevron to the sub-page");
   assert.ok(!page.includes("showSkills"), "the old dropdown toggle must be gone");
   // Chat history: persisted in this browser, restorable, deletable.
-  assert.ok(page.includes("lp_ai_chats"), "past chats must persist in localStorage");
-  assert.ok(page.includes("lp_ai_current_chat"), "the in-progress chat must survive a reload");
-  assert.ok(page.includes("saveCurrentChatToHistory"), "clearing / switching must save the chat first");
+  assert.ok(aiHook.includes("lp_ai_chats"), "past chats must persist in localStorage");
+  assert.ok(aiHook.includes("lp_ai_current_chat"), "the in-progress chat must survive a reload");
+  assert.ok(aiHook.includes("saveCurrentChatToHistory"), "clearing / switching must save the chat first");
   assert.ok(page.includes("loadAiChat"), "a saved chat must be restorable");
   assert.ok(page.includes("deleteAiChat"), "a saved chat must be deletable");
   assert.ok(page.includes("startNewChat"), "history must offer a new chat");
   // Skills: built-in list from the generated meta module (content-free,
   // so the skill bodies never ship to the browser), custom skills the
   // user adds, toggles for both.
-  assert.ok(page.includes("BUILTIN_AI_SKILL_META"), "settings must list the built-in skills from the meta module");
-  assert.ok(page.includes("lp_ai_custom_skills"), "custom skills must persist in localStorage");
-  assert.ok(page.includes("lp_ai_active_skills"), "active skill ids must persist in localStorage");
-  assert.ok(page.includes("toggleSkill"), "each skill must be togglable");
-  assert.ok(page.includes("addCustomSkill"), "the user must be able to add a skill");
-  assert.ok(page.includes("deleteCustomSkill"), "a custom skill must be deletable");
-  assert.ok(page.includes("aiSkillName"), "add-skill form must ask for a name");
-  assert.ok(page.includes("aiSkillContent"), "add-skill form must ask for instructions");
+  assert.ok(aiCard.includes("BUILTIN_AI_SKILL_META"), "settings must list the built-in skills from the meta module");
+  assert.ok(aiHook.includes("lp_ai_custom_skills"), "custom skills must persist in localStorage");
+  assert.ok(aiHook.includes("lp_ai_active_skills"), "active skill ids must persist in localStorage");
+  assert.ok(aiHook.includes("toggleSkill"), "each skill must be togglable");
+  assert.ok(aiHook.includes("addCustomSkill"), "the user must be able to add a skill");
+  assert.ok(aiHook.includes("deleteCustomSkill"), "a custom skill must be deletable");
+  assert.ok(aiCard.includes("aiSkillName"), "add-skill form must ask for a name");
+  assert.ok(aiCard.includes("aiSkillContent"), "add-skill form must ask for instructions");
   // BYOK: provider + key, stored in this browser only, sent per request.
   // Six providers now: Gemini, Groq, Anthropic, OpenAI, OpenRouter and
   // a custom OpenAI-compatible endpoint (base URL + model + key).
-  assert.ok(page.includes("lp_ai_byok"), "BYOK metadata must persist in localStorage (keys live server-side now)");
-  assert.ok(page.includes("byokProvider"), "BYOK must offer a provider choice");
+  assert.ok(aiHook.includes("lp_ai_byok"), "BYOK metadata must persist in localStorage (keys live server-side now)");
+  assert.ok(aiCard.includes("byokProvider"), "BYOK must offer a provider choice");
   for (const provider of ["gemini", "groq", "anthropic", "openai", "openrouter", "custom"]) {
-    assert.ok(page.includes(`value="${provider}"`), `BYOK must offer ${provider}`);
+    assert.ok(aiCard.includes(`value="${provider}"`), `BYOK must offer ${provider}`);
   }
-  assert.ok(page.includes("byokBaseUrl"), "custom BYOK must ask for a base URL");
-  assert.ok(page.includes("byokModel"), "custom BYOK must ask for a model");
-  assert.ok(page.includes("aiByokBaseUrl"), "custom BYOK must label the base URL field");
-  assert.ok(page.includes("aiByokModel"), "custom BYOK must label the model field");
-  assert.ok(page.includes("saveByok"), "BYOK must be saveable");
-  assert.ok(page.includes("removeByok"), "BYOK must be removable");
-  assert.ok(page.includes('type="password"'), "the BYOK key field must be a password field");
+  assert.ok(aiCard.includes("byokBaseUrl"), "custom BYOK must ask for a base URL");
+  assert.ok(aiCard.includes("byokModel"), "custom BYOK must ask for a model");
+  assert.ok(aiCard.includes("aiByokBaseUrl"), "custom BYOK must label the base URL field");
+  assert.ok(aiCard.includes("aiByokModel"), "custom BYOK must label the model field");
+  assert.ok(aiHook.includes("saveByok"), "BYOK must be saveable");
+  assert.ok(aiHook.includes("removeByok"), "BYOK must be removable");
+  assert.ok(aiCard.includes('type="password"'), "the BYOK key field must be a password field");
   // A 503 must show the server's own reason (no keys vs. every
   // provider failed) — the old message blamed the keys for every 503,
   // even when keys were configured and the calls just failed.
   assert.ok(
-    page.includes("serverError ?? t.editorPage.aiUnavailableMessage"),
+    aiHook.includes("serverError ?? t.editorPage.aiUnavailableMessage"),
     "a 503 must show the server's own reason, not the generic keys message"
   );
   // The request must carry skills + BYOK to the API.
-  assert.ok(page.includes("skillIds: activeSkillIds"), "the request must send the active built-in skill ids");
-  assert.ok(page.includes("skills: customSkills"), "the request must send the active custom skills");
+  assert.ok(aiHook.includes("skillIds: activeSkillIds"), "the request must send the active built-in skill ids");
+  assert.ok(aiHook.includes("skills: customSkills"), "the request must send the active custom skills");
   assert.ok(page.includes("byok"), "the request must send the BYOK provider reference when saved");
-  assert.ok(page.includes("{ provider: entry.provider }"), "the BYOK payload must carry only the provider reference, never the key");
+  assert.ok(aiHook.includes("{ provider: entry.provider }"), "the BYOK payload must carry only the provider reference, never the key");
   // The server resolves built-in ids (default: ponytail) and applies
   // BYOK in-memory only — never storing or logging the key.
   assert.ok(aiRoute.includes("BUILTIN_AI_SKILLS"), "route must resolve built-in skill ids server-side");
@@ -403,7 +411,7 @@ test("AI panel ⋮ menu: chat history + AI settings card (skills + BYOK)", () =>
   assert.ok(aiSkillsGen.includes("Forces the laziest solution"), "the server module must carry the ponytail body");
   // The /debug default question must ask for the fix (real AI now).
   assert.ok(
-    page.includes("Find the bug in this code, explain why it breaks, and show me the fixed code."),
+    aiHook.includes("Find the bug in this code, explain why it breaks, and show me the fixed code."),
     "/debug must ask for the fixed code, not just a pointer"
   );
   assert.ok(
@@ -444,13 +452,13 @@ test("status bar: runtime, file, save state, cursor position", () => {
   // Right-click a bottom tab opens the VS Code-style tab menu (web
   // actions only, wabepp): closes, copy path, reveal, pin.
   assert.ok(statusBar.includes("openTabContextMenu"), "a tab must open its context menu on right-click");
-  assert.ok(page.includes('kind === "tab-file"'), "a file tab must have its own menu");
-  assert.ok(page.includes('kind === "tab-settings"'), "the settings tab must have its own menu");
+  assert.ok(menus.includes('kind === "tab-file"'), "a file tab must have its own menu");
+  assert.ok(menus.includes('kind === "tab-settings"'), "the settings tab must have its own menu");
   assert.ok(page.includes("applyTabClose"), "bulk closes must share one helper (pins + keep-one-tab)");
   assert.ok(page.includes("pinnedPaths"), "pinned tabs must be tracked (bulk closes skip them)");
   assert.ok(page.includes("revealInExplorer"), "a file tab must offer Reveal in Explorer View");
   assert.ok(page.includes("scrollIntoView"), "reveal must scroll the file's tree row into view");
-  assert.ok(page.includes("App-only (native APK"), "the app-only menu items must be listed, not built on the website");
+  assert.ok(menus.includes("App-only (native APK"), "the app-only menu items must be listed, not built on the website");
 });
 
 test("Push opens a dialog with an AI-written commit message the user can edit (nothing pushes on its own)", () => {
@@ -458,7 +466,7 @@ test("Push opens a dialog with an AI-written commit message the user can edit (n
   assert.ok(page.includes("pushRepoChanges"), "the dialog's confirm must run the push");
   assert.ok(page.includes("/api/github/batch-commit"), "the push must go through the batch-commit route (one request per push)");
   assert.ok(page.includes("changedRepoPathsRef"), "only files changed since the repo opened must push");
-  assert.ok(page.includes("markRepoChanged(activeFile.path)"), "editing a file must mark it changed");
+  assert.ok(repo.includes("markRepoChanged(activeFile.path)"), "editing a file must mark it changed");
   assert.ok(page.includes("t.editorPage.pushButton"), "the menu bar must have a Push button");
   assert.ok(page.includes("UploadCloud"), "the Push button must carry an upload icon");
   assert.ok(page.includes("disabled={!openRepoState || pushing || changedRepoCount === 0}"), "Push must stay disabled without an open repo, while pushing, or with no changes");
@@ -474,17 +482,17 @@ test("Push opens a dialog with an AI-written commit message the user can edit (n
 });
 
 test("opening a repo from GitHub loads its tree lazily (with a backup + restore)", () => {
-  assert.ok(page.includes("lp_open_repo"), "the editor must accept a repo handoff from the GitHub page");
-  assert.ok(page.includes("buildRepoWorkspaceTree"), "the tree must become workspace items (folders first, files lazy)");
-  assert.ok(page.includes("loadRepoTree"), "the editor must fetch the repo's tree itself");
-  assert.ok(page.includes("/api/github/repo-tree?owner="), "the tree must come from the server");
-  assert.ok(page.includes("/api/github/repo-file?owner="), "a file's content must load when it is opened");
-  assert.ok(page.includes("lp_open_repo_current"), "the open repo must survive a reload");
-  assert.ok(page.includes("lp_workspace_tree_backup"), "opening a repo must back the current workspace up first");
-  assert.ok(page.includes("restoreWorkspaceBackup"), "the backup must be restorable");
-  assert.ok(page.includes("t.editorPage.restoreWorkspace"), "File menu must offer Restore previous workspace");
+  assert.ok(repo.includes("lp_open_repo"), "the editor must accept a repo handoff from the GitHub page");
+  assert.ok(repo.includes("buildRepoWorkspaceTree"), "the tree must become workspace items (folders first, files lazy)");
+  assert.ok(repo.includes("loadRepoTree"), "the editor must fetch the repo's tree itself");
+  assert.ok(repo.includes("/api/github/repo-tree?owner="), "the tree must come from the server");
+  assert.ok(repo.includes("/api/github/repo-file?owner="), "a file's content must load when it is opened");
+  assert.ok(repo.includes("lp_open_repo_current"), "the open repo must survive a reload");
+  assert.ok(repo.includes("lp_workspace_tree_backup"), "opening a repo must back the current workspace up first");
+  assert.ok(repo.includes("restoreWorkspaceBackup"), "the backup must be restorable");
+  assert.ok(menus.includes("t.editorPage.restoreWorkspace"), "File menu must offer Restore previous workspace");
   assert.ok(page.includes("hasWorkspaceBackup"), "Restore must only enable when a backup exists");
-  assert.ok(page.includes("too big for the browser's storage"), "an over-full workspace must warn once instead of crashing");
+  assert.ok(repo.includes("too big for the browser's storage"), "an over-full workspace must warn once instead of crashing");
 });
 
 test("i18n: the new editor keys exist in English", () => {
@@ -558,8 +566,8 @@ test("the editor never holds the GitHub token in the browser", () => {
   // (Delete lives on the GitHub page now — same rule there.)
   assert.ok(!page.includes('localStorage.getItem("lp_github_token")'), "the editor must never read a token from the browser");
   assert.ok(!page.includes("Authorization"), "no editor GitHub call may send a token");
-  assert.ok(page.includes("/api/github/repo-tree?owner="), "repo open must go through the session route");
-  assert.ok(page.includes("/api/github/repo-file?owner="), "lazy file load must go through the session route");
+  assert.ok(repo.includes("/api/github/repo-tree?owner="), "repo open must go through the session route");
+  assert.ok(repo.includes("/api/github/repo-file?owner="), "lazy file load must go through the session route");
 });
 
 test("a repo opening shows a success toast with its name and file count", () => {
@@ -568,8 +576,8 @@ test("a repo opening shows a success toast with its name and file count", () => 
   // here, file contents load lazily when each file is opened, so
   // the toast fires on the tree load, not on every file.
   assert.ok(page.includes("repoLoadedToast"), "the editor must render a repo-loaded toast");
-  assert.ok(page.includes("setRepoLoadedToast({ repo: data.repo, count: data.files.length })"), "the toast must fire when the tree load succeeds");
-  assert.ok(page.includes("setTimeout(() => setRepoLoadedToast(null), 5000)"), "the toast must dismiss itself after 5 seconds");
+  assert.ok(repo.includes("setRepoLoadedToast({ repo: data.repo, count: data.files.length })"), "the toast must fire when the tree load succeeds");
+  assert.ok(repo.includes("setTimeout(() => setRepoLoadedToast(null), 5000)"), "the toast must dismiss itself after 5 seconds");
   assert.ok(page.includes('role="status"'), "the toast must be a status region");
   assert.ok(en.includes("repoLoadedToast: (repo, count)"), "en.ts must define the toast message");
   assert.ok(en.includes("loaded — ${count} file(s)"), "the toast must name the repo and count its files");
@@ -594,21 +602,21 @@ test("R2-M14/R2-L19: BYOK migration migrates the legacy shape per-entry, with a 
   // R2-M14: the migration reads the same normalised shape
   // readByokStore() returns — the old single-key { provider, key }
   // shape migrates instead of being silently deleted.
-  assert.ok(page.includes("const store = readByokStore();"), "migration must read the normalised store shape");
-  assert.ok(!page.includes("let migrated = true;"), "the all-or-nothing migrated flag must be gone");
+  assert.ok(aiHook.includes("const store = readByokStore();"), "migration must read the normalised store shape");
+  assert.ok(!aiHook.includes("let migrated = true;"), "the all-or-nothing migrated flag must be gone");
   // R2-L19: each key is dropped from the local copy as soon as ITS
   // save succeeds — no whole-store removeItem on migration.
-  assert.ok(page.includes("savedIds.push(e.id)"), "each successful save must be tracked per entry");
-  assert.ok(page.includes("stripByokKey(x)"), "saved keys must be stripped per entry");
-  assert.ok(!page.includes("if (migrated) {"), "the all-or-nothing 'drop everything once all save' block must be gone");
+  assert.ok(aiHook.includes("savedIds.push(e.id)"), "each successful save must be tracked per entry");
+  assert.ok(aiHook.includes("stripByokKey(x)"), "saved keys must be stripped per entry");
+  assert.ok(!aiHook.includes("if (migrated) {"), "the all-or-nothing 'drop everything once all save' block must be gone");
   // R2-L19: a version stamp + storage event so a second tab cannot
   // re-persist deleted keys.
-  assert.ok(page.includes("byokVersionRef"), "the store must carry a version stamp ref");
-  assert.ok(page.includes("byokKnownIdsRef"), "the guard must track which entry ids this tab has seen");
-  assert.ok(page.includes('window.addEventListener("storage", onStorage)'), "a storage event must sync the store across tabs");
-  assert.ok(page.includes("writeByokStoreLocal(byokStore)"), "persists must go through the stamped writer");
+  assert.ok(aiHook.includes("byokVersionRef"), "the store must carry a version stamp ref");
+  assert.ok(aiHook.includes("byokKnownIdsRef"), "the guard must track which entry ids this tab has seen");
+  assert.ok(aiHook.includes('window.addEventListener("storage", onStorage)'), "a storage event must sync the store across tabs");
+  assert.ok(aiHook.includes("writeByokStoreLocal(byokStore)"), "persists must go through the stamped writer");
 });
 
 test("R2-L18: lp_ai_chats retention is capped when persisting", () => {
-  assert.ok(page.includes("aiChats.slice(-20)"), "only the last 20 chats may be persisted");
+  assert.ok(aiHook.includes("aiChats.slice(-20)"), "only the last 20 chats may be persisted");
 });

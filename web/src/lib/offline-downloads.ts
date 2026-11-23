@@ -77,6 +77,9 @@ export interface WarmProgress {
   done: number;
   total: number;
   state: WarmState;
+  // Set only when an explicit download stops short: the Settings
+  // page shows it under the button instead of going silently idle.
+  blockedReason?: "offline" | "signed-out" | "storage-full";
 }
 
 export interface SavedVideo {
@@ -345,6 +348,16 @@ export async function warmLessons(): Promise<WarmProgress> {
       writeWarmProgress(progress);
       emitWarm(progress);
     }
+    // The cap stops the run, not the download: if it stopped short
+    // (and not for going offline), re-read the cap — storage still
+    // at the cap means the cap stopped it. Say so, so an explicit
+    // tap can show why instead of silently sitting at 0%.
+    if (
+      done < total &&
+      progress.state !== "waiting" &&
+      !(await storageWithinWarmCap())
+    )
+      progress.blockedReason = "storage-full";
     if (done >= total) {
       progress.state = "done";
       progress.done = total;
@@ -557,11 +570,29 @@ export async function clearAllSavedLessons(): Promise<void> {
 }
 
 // Download lessons again after a bulk delete: un-block everything,
-// answer Yes, and run the explicit start.
-export async function downloadLessonsAgain(): Promise<WarmProgress | null> {
+// answer Yes, and run the download.
+//
+// Explicit, not automatic: a tap overrides the automatic warmer's
+// heuristics (Wi-Fi-only toggle, connection quality) — the user
+// asked for the download, so those gates don't apply. Only the real
+// blocks stay: offline, and no signed-in session (which also purges
+// the previous user's saved videos). No stored-"done" gate either:
+// warmLessons() counts what is really cached. When a block stops
+// the tap, the reason travels back on the progress so Settings can
+// show it instead of going silently idle.
+export async function downloadLessonsAgain(): Promise<WarmProgress> {
   clearDeletedLessons();
   markDownloadOfferAnswered("yes");
-  return maybeWarmLessons();
+  if (typeof window === "undefined" || !("caches" in window))
+    return readWarmProgress();
+  if (!navigator.onLine)
+    return { ...readWarmProgress(), blockedReason: "offline" };
+  const user = await fetchSessionUser().catch(() => null);
+  if (!user) {
+    await purgeSavedVideos();
+    return { ...readWarmProgress(), blockedReason: "signed-out" };
+  }
+  return warmLessons();
 }
 
 // Saved-videos index (localStorage). The cache is the source of

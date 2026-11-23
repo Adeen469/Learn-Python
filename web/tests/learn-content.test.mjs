@@ -225,8 +225,9 @@ test("lesson code blocks are syntax-highlighted and carry a Try-it button", () =
 test("the editor opens a Try-it snippet as try-it.py", () => {
   // A lesson's Try-it button stores the snippet in sessionStorage and
   // the editor opens it as try-it.py without touching the user's other
-  // workspace files (Maalik's order, 2026-11-19).
-  const editor = readFileSync(join(webDir, "src/app/editor/page.tsx"), "utf8");
+  // workspace files (Maalik's order, 2026-11-19). The mount effect
+  // that reads the handoff lives in the workspace/repo hook (F1 split).
+  const editor = readFileSync(join(webDir, "src/app/editor/hooks/useWorkspaceRepo.ts"), "utf8");
   assert.ok(editor.includes('sessionStorage.getItem("lp_try_it_code")'), "the editor must read the Try-it handoff");
   assert.ok(editor.includes('sessionStorage.removeItem("lp_try_it_code")'), "the editor must consume the handoff once");
   assert.ok(editor.includes('"try-it.py"'), "the snippet must open as try-it.py");

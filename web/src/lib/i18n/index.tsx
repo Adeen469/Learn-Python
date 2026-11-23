@@ -686,6 +686,9 @@ export type Strings = {
     deleteAll: string;
     confirmDeleteAll: (total: number) => string;
     downloadAgain: string;
+    downloadBlockedOffline: string;
+    downloadBlockedSignedOut: string;
+    downloadBlockedStorage: string;
     noSavedLessons: string;
     askTitle: string;
     askBody: (total: number) => string;

@@ -1390,3 +1390,140 @@ test("R2-M13: auth JSON bodies are size-capped, including chunked ones", () => {
   assert.ok(routes.includes("req.body.getReader()"), "chunked bodies must be streamed with a byte cap");
   assert.ok(routes.includes("await reader.cancel()"), "an over-cap chunked body must be cancelled, not parsed");
 });
+
+test("Legacy TOTP secret: undecryptable under the dedicated key, working secret decrypts", () => {
+  const DEDICATED = "test-dedicated-totp-key-0123456789abcdef";
+  const LEGACY = "legacy-old-key-derived-material-0123456789abcdef";
+  const secret = "JBSWY3DPEHPK3PXP";
+  // Working secret: encrypted under the dedicated key, decrypts.
+  const working = encryptTotpSecret(DEDICATED, secret);
+  assert.equal(decryptTotpSecret(DEDICATED, working), secret);
+  // Legacy secret: encrypted under different key material (the old
+  // session-key derivation), undecryptable under the dedicated key —
+  // this is how the cutover detects a legacy secret.
+  const legacy = encryptTotpSecret(LEGACY, secret);
+  assert.equal(decryptTotpSecret(DEDICATED, legacy), null);
+  // Malformed stored values never decrypt.
+  assert.equal(decryptTotpSecret(DEDICATED, "garbage"), null);
+  assert.equal(decryptTotpSecret(DEDICATED, "v1.only.two"), null);
+  // Tampered tag fails GCM auth.
+  const parts = working.split(".");
+  parts[3] = (parts[3][0] === "A" ? "B" : "A") + parts[3].slice(1);
+  assert.equal(decryptTotpSecret(DEDICATED, parts.join(".")), null);
+  // The refusal predicate, mirrored from setup/enable: refuse only
+  // when the stored secret actually decrypts (working 2FA).
+  const refusesReEnrolment = (user) =>
+    Boolean(
+      user.totp_enabled &&
+        user.totp_secret_enc &&
+        decryptTotpSecret(DEDICATED, user.totp_secret_enc) !== null
+    );
+  assert.equal(
+    refusesReEnrolment({ totp_enabled: true, totp_secret_enc: legacy }),
+    false,
+    "a legacy user may re-enrol"
+  );
+  assert.equal(
+    refusesReEnrolment({ totp_enabled: true, totp_secret_enc: working }),
+    true,
+    "working 2FA still refuses re-setup"
+  );
+  assert.equal(
+    refusesReEnrolment({ totp_enabled: true, totp_secret_enc: null }),
+    false,
+    "no stored secret may re-enrol (guard short-circuits, no throw)"
+  );
+  assert.equal(
+    refusesReEnrolment({ totp_enabled: true, totp_secret_enc: "" }),
+    false,
+    "an empty stored secret may re-enrol"
+  );
+  assert.equal(
+    refusesReEnrolment({ totp_enabled: true, totp_secret_enc: "garbage" }),
+    false,
+    "a malformed stored secret may re-enrol"
+  );
+  assert.equal(
+    refusesReEnrolment({ totp_enabled: false, totp_secret_enc: working }),
+    false,
+    "2FA off may enrol as before"
+  );
+});
+
+test("Legacy TOTP re-enrolment: setup + enable refuse only when the stored secret decrypts", () => {
+  const setup = read("src/app/api/auth/2fa/setup/route.ts");
+  const enable = read("src/app/api/auth/2fa/enable/route.ts");
+  const condition = "decryptUserTotpSecret(user.totp_secret_enc) !== null";
+  for (const [name, src] of [
+    ["setup", setup],
+    ["enable", enable],
+  ]) {
+    assert.ok(
+      src.includes(condition),
+      `${name} must only refuse when the stored secret decrypts`
+    );
+    assert.ok(
+      !src.includes("SESSION_SECRET"),
+      `${name} must not reference the session secret (no fallback)`
+    );
+    assert.ok(
+      !src.includes("sessionSecret"),
+      `${name} must not reference the session secret (no fallback)`
+    );
+  }
+  // Both routes import the decrypt helper.
+  assert.ok(
+    setup.includes("decryptUserTotpSecret,"),
+    "setup must import decryptUserTotpSecret"
+  );
+  assert.ok(
+    enable.includes("decryptUserTotpSecret,"),
+    "enable must import decryptUserTotpSecret"
+  );
+  // The refusal messages are unchanged.
+  assert.ok(
+    setup.includes(
+      "Two-factor authentication is already on. Disable it first to set up a new one."
+    ),
+    "setup refusal message unchanged"
+  );
+  assert.ok(
+    enable.includes("Two-factor authentication is already on."),
+    "enable refusal message unchanged"
+  );
+  // H4 password re-entry still gates both routes.
+  assert.ok(
+    setup.includes("verifyPassword(password, user.password_hash)"),
+    "setup must still re-check the password"
+  );
+  assert.ok(
+    enable.includes("verifyPassword(password, user.password_hash)"),
+    "enable must still re-check the password"
+  );
+  // Setup still resets the cap (R2-M8) so a legacy user at the cap can re-enrol.
+  assert.ok(
+    setup.includes("totp_failed_attempts: 0"),
+    "setup must still reset the failure counter"
+  );
+  // Enable still overwrites the dead secret with the fresh pending one.
+  assert.ok(
+    enable.includes("totp_secret_enc: user.totp_pending_enc"),
+    "enable must overwrite the secret with the pending one"
+  );
+  assert.ok(
+    enable.includes("totp_enabled: true"),
+    "enable must turn 2FA on"
+  );
+  assert.ok(
+    enable.includes("generateBackupCodes()"),
+    "enable must generate fresh backup codes"
+  );
+  assert.ok(
+    enable.includes("totp_failed_attempts: 0"),
+    "enable must reset the failure counter"
+  );
+  assert.ok(
+    enable.includes("mfa: true"),
+    "enable must re-issue the session with mfa: true"
+  );
+});

@@ -71,7 +71,7 @@ export const maxDuration = 60;
 export async function POST(req: NextRequest) {
   let limit;
   try {
-    limit = await checkRateLimit(`ai:${getClientIp(req)}`, 20, 60_000);
+    limit = await checkRateLimit(`ai:${getClientIp(req)}`, 20, 60_000, Date.now(), { failClosed: true });
   } catch {
     return NextResponse.json(
       { error: "AI is temporarily unavailable." },
@@ -292,7 +292,7 @@ export async function POST(req: NextRequest) {
   // Redis/memory limiter keys.
   try {
     const userKey = perUserRateKey("ai-user:", user.email);
-    const userLimit = await checkRateLimit(userKey, AI_DAILY_LIMIT_PER_USER, AI_DAILY_WINDOW_MS);
+    const userLimit = await checkRateLimit(userKey, AI_DAILY_LIMIT_PER_USER, AI_DAILY_WINDOW_MS, Date.now(), { failClosed: true });
     if (!userLimit.allowed) {
       return NextResponse.json(
         { error: "Daily AI limit reached — please try again tomorrow." },

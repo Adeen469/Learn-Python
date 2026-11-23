@@ -103,6 +103,10 @@ export default function SettingsPage() {
   // Re-download in progress: set the instant the button is tapped,
   // so the user sees processing at once instead of a dead button.
   const [reDownloading, setReDownloading] = useState(false);
+  // Why an explicit re-download stopped short (offline / signed
+  // out / storage full), shown under the button — null while a
+  // download runs or succeeds.
+  const [downloadNote, setDownloadNote] = useState<string | null>(null);
   const [langOpen, setLangOpen] = useState(false);
   const currentLang = LANGUAGES.find((l) => l.code === lang) ?? LANGUAGES[0];
 
@@ -233,8 +237,15 @@ export default function SettingsPage() {
     // the label carries the live % from the warm events.
     if (reDownloading) return;
     setReDownloading(true);
+    setDownloadNote(null);
     try {
-      await downloadLessonsAgain();
+      const p = await downloadLessonsAgain();
+      if (p.blockedReason === "offline")
+        setDownloadNote(t.offline.downloadBlockedOffline);
+      else if (p.blockedReason === "signed-out")
+        setDownloadNote(t.offline.downloadBlockedSignedOut);
+      else if (p.blockedReason === "storage-full")
+        setDownloadNote(t.offline.downloadBlockedStorage);
     } finally {
       setReDownloading(false);
     }
@@ -571,6 +582,9 @@ export default function SettingsPage() {
                         </>
                       )}
                     </button>
+                    {downloadNote ? (
+                      <p className="mt-2 text-xs text-amber-300">{downloadNote}</p>
+                    ) : null}
                   </div>
                 ) : (
                   <div className="mt-2 max-h-72 divide-y divide-neutral-800 overflow-y-auto">

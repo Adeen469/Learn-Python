@@ -35,7 +35,15 @@ const saveTokenSchema = z.object({
 const TOKEN_BODY_MAX_BYTES = 256 * 1024;
 
 export async function POST(req: NextRequest) {
-  const limit = await checkRateLimit(`github-token:${getClientIp(req)}`, 10, 60_000);
+  let limit;
+  try {
+    limit = await checkRateLimit(`github-token:${getClientIp(req)}`, 10, 60_000, Date.now(), { failClosed: true });
+  } catch {
+    return NextResponse.json(
+      { error: "GitHub is temporarily unavailable." },
+      { status: 503 }
+    );
+  }
   if (!limit.allowed) {
     return NextResponse.json(
       { error: "Too many requests — please slow down and retry shortly." },
@@ -106,7 +114,15 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const limit = await checkRateLimit(`github-token:${getClientIp(req)}`, 10, 60_000);
+  let limit;
+  try {
+    limit = await checkRateLimit(`github-token:${getClientIp(req)}`, 10, 60_000, Date.now(), { failClosed: true });
+  } catch {
+    return NextResponse.json(
+      { error: "GitHub is temporarily unavailable." },
+      { status: 503 }
+    );
+  }
   if (!limit.allowed) {
     return NextResponse.json(
       { error: "Too many requests — please slow down and retry shortly." },

@@ -506,6 +506,39 @@ test("L14: read and write GitHub routes use separate rate-limit buckets", () => 
   assert.ok(!reposRoute.includes("github-write:${email}"), "the repo-create per-user key must not embed the raw email");
 });
 
+test("N1: GitHub write routes fail closed on a Redis blip; read routes stay fail-open", () => {
+  // Writes: the per-IP limit passes failClosed and a limiter throw
+  // answers 503 ("temporarily unavailable"), never a 500 — the
+  // throw must be caught, not surfaced.
+  for (const rel of [
+    "src/app/api/github/batch-commit/route.ts",
+    "src/app/api/github/commit/route.ts",
+    "src/app/api/github/delete-repo/route.ts",
+    "src/app/api/github/token/route.ts",
+  ]) {
+    const src = read(rel);
+    assert.ok(src.includes("{ failClosed: true }"), `${rel} must pass failClosed on its per-IP limit`);
+    assert.ok(src.includes("GitHub is temporarily unavailable."), `${rel} must answer 503 when the limiter is down`);
+    assert.ok(src.includes("status: 503"), `${rel} must answer 503, not 500, when the limiter throws`);
+  }
+  // repos: one helper, two behaviours — POST (create) fail-closed,
+  // GET (list) fail-open.
+  const reposRoute = route();
+  assert.ok(reposRoute.includes('rateLimited(req, "github-write", true)'), "creating a repo must fail closed");
+  assert.ok(reposRoute.includes('rateLimited(req, "github-read")'), "listing repos must stay fail-open");
+  assert.ok(!reposRoute.includes('rateLimited(req, "github-read", true)'), "listing repos must not fail closed");
+  // Reads: no failClosed anywhere — a Redis blip must not break
+  // opening a repo in the editor.
+  for (const rel of [
+    "src/app/api/github/repo-tree/route.ts",
+    "src/app/api/github/repo-file/route.ts",
+    "src/app/api/github/token/status/route.ts",
+  ]) {
+    const src = read(rel);
+    assert.ok(!src.includes("failClosed"), `${rel} must stay fail-open (read-only)`);
+  }
+});
+
 test("L17: a failed token migration deletes the browser copy and never refills the input", () => {
   const p = page();
   assert.ok(p.includes("for (let attempt = 0; attempt < 2; attempt++)"), "the migration must retry once, then give up");

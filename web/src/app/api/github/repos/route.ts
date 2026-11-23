@@ -10,9 +10,20 @@ const RATE_LIMITED_RESPONSE = rateLimitedResponse;
 // Reads (list) and writes (create) get separate buckets, so
 // browsing repos cannot starve creating one — and writes get a
 // per-user bucket too, so one user behind a shared NAT cannot
-// starve another.
-async function rateLimited(req: NextRequest, bucket: string) {
-  const limit = await checkRateLimit(`${bucket}:${getClientIp(req)}`, 30, 60_000);
+// starve another. Writes are fail-closed (a Redis blip answers
+// 503 instead of letting one client get N× the limit across
+// instances); reads stay fail-open, so a Redis blip cannot break
+// opening a repo in the editor.
+async function rateLimited(req: NextRequest, bucket: string, failClosed = false) {
+  let limit;
+  try {
+    limit = await checkRateLimit(`${bucket}:${getClientIp(req)}`, 30, 60_000, Date.now(), { failClosed });
+  } catch {
+    return NextResponse.json(
+      { error: "GitHub is temporarily unavailable." },
+      { status: 503 }
+    );
+  }
   return limit.allowed ? null : RATE_LIMITED_RESPONSE(limit.retryAfterSeconds);
 }
 
@@ -52,7 +63,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const blocked = await rateLimited(req, "github-write");
+  const blocked = await rateLimited(req, "github-write", true);
   if (blocked) return blocked;
   const tooLarge = oversizedBodyResponse(req, CREATE_BODY_MAX_BYTES);
   if (tooLarge) return tooLarge;

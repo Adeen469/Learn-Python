@@ -40,9 +40,24 @@ function checkMemoryRateLimit(key, limit, windowMs, now = Date.now()) {
   return { allowed: true, retryAfterSeconds: 0 };
 }
 
-async function checkRateLimit(key, limit, windowMs, now = Date.now()) {
-  // No Redis env in the sandbox: the shared check returns null and
-  // the memory window decides, exactly like the source.
+async function checkRateLimit(key, limit, windowMs, now = Date.now(), opts = {}, redisCheck = null) {
+  // Mirror of src/lib/rate-limit.ts checkRateLimit, including the
+  // Phase 3 failClosed branch: the shared Redis check runs first;
+  // when it THROWS (Redis configured but down), failClosed re-throws
+  // "rate_limit_unavailable", otherwise the memory window decides.
+  // No Redis env in the sandbox, so the default redisCheck is null
+  // (shared = null) and the memory window decides, exactly like the
+  // source. Tests inject a redisCheck to exercise the Redis-down
+  // branch the sandbox cannot reach otherwise (6th arg, test-only
+  // seam — the source's checkRedisRateLimit is internal).
+  let shared = null;
+  try {
+    shared = redisCheck ? await redisCheck(key, limit, windowMs) : null;
+  } catch {
+    if (opts.failClosed) throw new Error("rate_limit_unavailable");
+    shared = null;
+  }
+  if (shared && !shared.allowed) return shared;
   return checkMemoryRateLimit(key, limit, windowMs, now);
 }
 
@@ -254,5 +269,52 @@ test("R2-L25: a missing Redis config is logged in production, once", () => {
   assert.ok(
     src.includes('process.env.NODE_ENV === "production"'),
     "the missing-Redis log is a production signal, not dev noise"
+  );
+});
+
+test("N1: Redis down + failClosed throws rate_limit_unavailable (no memory fallback)", async () => {
+  windows.clear();
+  const redisDown = async () => {
+    throw new Error("redis_pipeline_500");
+  };
+  await assert.rejects(
+    checkRateLimit("ai:1.2.3.4", 20, 60_000, 5_000_000, { failClosed: true }, redisDown),
+    /rate_limit_unavailable/
+  );
+});
+
+test("N1: Redis down without failClosed falls back to the memory window", async () => {
+  windows.clear();
+  const redisDown = async () => {
+    throw new Error("redis_pipeline_500");
+  };
+  // Still allowed: the per-instance memory window decides.
+  const r = await checkRateLimit("ai:1.2.3.4", 20, 60_000, 5_000_000, {}, redisDown);
+  assert.equal(r.allowed, true);
+  // And the memory window still enforces its own limit afterwards:
+  // 20 requests in the window are allowed, the 21st is refused.
+  for (let i = 0; i < 19; i++) {
+    assert.equal((await checkRateLimit("ai:1.2.3.4", 20, 60_000, 5_000_001 + i, {}, redisDown)).allowed, true);
+  }
+  assert.equal((await checkRateLimit("ai:1.2.3.4", 20, 60_000, 5_000_020, {}, redisDown)).allowed, false);
+});
+
+test("N1: a Redis refusal wins over the memory window", async () => {
+  windows.clear();
+  const redisRefuses = async () => ({ allowed: false, retryAfterSeconds: 30 });
+  const r = await checkRateLimit("ai:1.2.3.4", 20, 60_000, 5_000_000, {}, redisRefuses);
+  assert.equal(r.allowed, false);
+  assert.equal(r.retryAfterSeconds, 30);
+});
+
+test("N1: the fail-closed opt exists in the source limiter", () => {
+  const src = readFileSync(
+    path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "src", "lib", "rate-limit.ts"),
+    "utf8"
+  );
+  assert.ok(src.includes("failClosed"), "the failClosed opt must exist");
+  assert.ok(
+    src.includes('throw new Error("rate_limit_unavailable")'),
+    "failClosed must throw rate_limit_unavailable when Redis is down"
   );
 });

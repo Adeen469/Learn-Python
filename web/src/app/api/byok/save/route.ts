@@ -52,7 +52,15 @@ const saveByokSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  const ipBlocked = await checkIpLimit(req, "byok-save", 10, 60_000);
+  let ipBlocked;
+  try {
+    ipBlocked = await checkIpLimit(req, "byok-save", 10, 60_000, { failClosed: true });
+  } catch {
+    return NextResponse.json(
+      { error: "BYOK is temporarily unavailable." },
+      { status: 503 }
+    );
+  }
   if (ipBlocked) return ipBlocked;
   const prereqs = getAuthPrereqs(req);
   if (!prereqs) {
@@ -70,7 +78,15 @@ export async function POST(req: NextRequest) {
   }
   // R2-L14: per-user bucket alongside the per-IP one, so listing
   // keys can no longer starve saves (each op has its own bucket).
-  const userBlocked = await checkUserLimit(user.email, "byok-save", 10, 60_000);
+  let userBlocked;
+  try {
+    userBlocked = await checkUserLimit(user.email, "byok-save", 10, 60_000, { failClosed: true });
+  } catch {
+    return NextResponse.json(
+      { error: "BYOK is temporarily unavailable." },
+      { status: 503 }
+    );
+  }
   if (userBlocked) return userBlocked;
   // R2-M13: Content-Length pre-check before req.json() — a huge
   // body is refused without ever being parsed into memory.

@@ -59,6 +59,12 @@ const ANTHROPIC_TIMEOUT_MS = 15000;
 const OPENAI_TIMEOUT_MS = 12000;
 const OPENROUTER_TIMEOUT_MS = 12000;
 const CUSTOM_TIMEOUT_MS = 12000;
+// Shared chain deadline (Phase 3): the whole fallback chain —
+// every leg together — must finish inside ~50s, under the route's
+// 60s maxDuration. Legs keep their own per-leg timeouts above; this
+// is the backstop, so a chain of slow legs cannot run past the
+// function budget.
+const AI_SHARED_BUDGET_MS = 50_000;
 const MAX_OUTPUT_TOKENS = 600;
 const MAX_INPUT_CHARS = 8000;
 const MAX_HISTORY_TURNS = 4;
@@ -511,6 +517,7 @@ async function callGeminiMock(args, key, fetchImpl, opts = {}) {
       `${geminiUrlFor(model)}?key=${encodeURIComponent(key)}`,
       {
         method: "POST",
+        signal: opts.signal,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ role: "user", parts: [{ text: buildGeminiPrompt(args) }] }],
@@ -549,6 +556,7 @@ async function callGroqMock(args, key, fetchImpl, opts = {}) {
     try {
       res = await fetchImpl(GROQ_URL, {
         method: "POST",
+        signal: opts.signal,
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
         body: JSON.stringify({
           model,
@@ -587,6 +595,7 @@ async function callAnthropicMock(args, key, fetchImpl, opts = {}) {
   try {
     const res = await fetchImpl(ANTHROPIC_URL, {
       method: "POST",
+      signal: opts.signal,
       headers: {
         "Content-Type": "application/json",
         "x-api-key": key,
@@ -817,6 +826,7 @@ async function callOpenAiCompatibleMock(args, key, fetchImpl, opts) {
     try {
       res = await fetchImpl(opts.url, {
         method: "POST",
+        signal: opts.signal,
         // Custom (BYOK) only: a safe-looking base URL must not be
         // allowed to 302 to a private IP after the SSRF check —
         // refuse redirects instead of following them.
@@ -884,6 +894,11 @@ function finishResult(mode, reply, provider) {
 
 async function askAiMock(args, config, fetchImpl, dnsLookupImpl) {
   const maxTokens = maxTokensForEffort(args.effort);
+  // Shared chain deadline (Phase 3): one ~50s budget for the whole
+  // fallback chain, from request start — legs keep their own
+  // per-leg timeouts, but the chain can never exceed the route's
+  // 60s maxDuration. Every leg below gets this signal.
+  const budget = AbortSignal.timeout(AI_SHARED_BUDGET_MS);
   // Fresh per request: a leg that failed but was followed by a
   // success must not leak its entry into the next failed request.
   providerFailures.length = 0;
@@ -898,19 +913,19 @@ async function askAiMock(args, config, fetchImpl, dnsLookupImpl) {
     const p = config.byokProvider;
     if (p === "gemini" && config.geminiKey) {
       const model = selected && GEMINI_FREE_MODELS.includes(selected) ? selected : GEMINI_MODEL;
-      const reply = await callGeminiMock(args, config.geminiKey, fetchImpl, { model, maxTokens });
+      const reply = await callGeminiMock(args, config.geminiKey, fetchImpl, { model, maxTokens, signal: budget });
       if (reply) return finishResult(args.mode, reply, "gemini");
     }
     if (p === "groq" && config.groqKey) {
       const models =
         selected && GROQ_FREE_MODELS.includes(selected) ? [selected] : GROQ_FREE_MODELS;
-      const reply = await callGroqMock(args, config.groqKey, fetchImpl, { models, maxTokens });
+      const reply = await callGroqMock(args, config.groqKey, fetchImpl, { models, maxTokens, signal: budget });
       if (reply) return finishResult(args.mode, reply, "groq");
     }
     if (p === "anthropic" && config.anthropicKey) {
       const model =
         selected && ANTHROPIC_MODELS.includes(selected) ? selected : ANTHROPIC_MODELS[0];
-      const reply = await callAnthropicMock(args, config.anthropicKey, fetchImpl, { model, maxTokens });
+      const reply = await callAnthropicMock(args, config.anthropicKey, fetchImpl, { model, maxTokens, signal: budget });
       if (reply) return finishResult(args.mode, reply, "anthropic");
     }
     if (p === "openai" && config.openaiKey) {
@@ -920,6 +935,7 @@ async function askAiMock(args, config, fetchImpl, dnsLookupImpl) {
         url: OPENAI_URL,
         models,
         maxTokens,
+        signal: budget,
       });
       if (reply) return finishResult(args.mode, reply, "openai");
     }
@@ -931,6 +947,7 @@ async function askAiMock(args, config, fetchImpl, dnsLookupImpl) {
         models,
         maxTokens,
         extraHeaders: openRouterHeaders(),
+        signal: budget,
       });
       if (reply) return finishResult(args.mode, reply, "openrouter");
     }
@@ -946,6 +963,7 @@ async function askAiMock(args, config, fetchImpl, dnsLookupImpl) {
         models: [model],
         maxTokens,
         dnsLookup: dnsLookupImpl,
+        signal: budget,
       });
       if (reply) return finishResult(args.mode, reply, "custom");
     }
@@ -953,15 +971,15 @@ async function askAiMock(args, config, fetchImpl, dnsLookupImpl) {
   }
   // 1. The model the user picked (editor AI panel).
   if (selected && GEMINI_FREE_MODELS.includes(selected) && config.geminiKey) {
-    const reply = await callGeminiMock(args, config.geminiKey, fetchImpl, { model: selected, maxTokens });
+    const reply = await callGeminiMock(args, config.geminiKey, fetchImpl, { model: selected, maxTokens, signal: budget });
     if (reply) return finishResult(args.mode, reply, "gemini");
   }
   if (selected && GROQ_FREE_MODELS.includes(selected) && config.groqKey) {
-    const reply = await callGroqMock(args, config.groqKey, fetchImpl, { model: selected, maxTokens });
+    const reply = await callGroqMock(args, config.groqKey, fetchImpl, { model: selected, maxTokens, signal: budget });
     if (reply) return finishResult(args.mode, reply, "groq");
   }
   if (selected && ANTHROPIC_MODELS.includes(selected) && config.anthropicKey) {
-    const reply = await callAnthropicMock(args, config.anthropicKey, fetchImpl, { model: selected, maxTokens });
+    const reply = await callAnthropicMock(args, config.anthropicKey, fetchImpl, { model: selected, maxTokens, signal: budget });
     if (reply) return finishResult(args.mode, reply, "anthropic");
   }
   if (selected && OPENAI_MODELS.includes(selected) && config.openaiKey) {
@@ -969,6 +987,7 @@ async function askAiMock(args, config, fetchImpl, dnsLookupImpl) {
       url: OPENAI_URL,
       models: [selected],
       maxTokens,
+      signal: budget,
     });
     if (reply) return finishResult(args.mode, reply, "openai");
   }
@@ -978,6 +997,7 @@ async function askAiMock(args, config, fetchImpl, dnsLookupImpl) {
       models: [selected],
       maxTokens,
       extraHeaders: openRouterHeaders(),
+      signal: budget,
     });
     if (reply) return finishResult(args.mode, reply, "openrouter");
   }
@@ -993,12 +1013,16 @@ async function askAiMock(args, config, fetchImpl, dnsLookupImpl) {
       models: [selected],
       maxTokens,
       dnsLookup: dnsLookupImpl,
+      signal: budget,
     });
     if (reply) return finishResult(args.mode, reply, "custom");
   }
   // 2. Default order. Skip a leg whose model was already tried above.
+  // (And skip the whole phase once the shared budget is spent — a
+  // fetch that ignores the signal must not start new legs past it.)
+  if (budget.aborted) return null;
   if (config.geminiKey && selected !== GEMINI_MODEL) {
-    const reply = await callGeminiMock(args, config.geminiKey, fetchImpl, { maxTokens });
+    const reply = await callGeminiMock(args, config.geminiKey, fetchImpl, { maxTokens, signal: budget });
     if (reply) return finishResult(args.mode, reply, "gemini");
   }
   if (config.groqKey) {
@@ -1006,11 +1030,11 @@ async function askAiMock(args, config, fetchImpl, dnsLookupImpl) {
       selected && GROQ_FREE_MODELS.includes(selected)
         ? GROQ_FREE_MODELS.filter((m) => m !== selected)
         : GROQ_FREE_MODELS;
-    const reply = await callGroqMock(args, config.groqKey, fetchImpl, { maxTokens, models: fallbackModels });
+    const reply = await callGroqMock(args, config.groqKey, fetchImpl, { maxTokens, models: fallbackModels, signal: budget });
     if (reply) return finishResult(args.mode, reply, "groq");
   }
   if (config.anthropicKey && selected !== ANTHROPIC_MODELS[0]) {
-    const reply = await callAnthropicMock(args, config.anthropicKey, fetchImpl, { maxTokens });
+    const reply = await callAnthropicMock(args, config.anthropicKey, fetchImpl, { maxTokens, signal: budget });
     if (reply) return finishResult(args.mode, reply, "anthropic");
   }
   if (config.openaiKey) {
@@ -1022,6 +1046,7 @@ async function askAiMock(args, config, fetchImpl, dnsLookupImpl) {
       url: OPENAI_URL,
       models: fallbackModels,
       maxTokens,
+      signal: budget,
     });
     if (reply) return finishResult(args.mode, reply, "openai");
   }
@@ -1035,6 +1060,7 @@ async function askAiMock(args, config, fetchImpl, dnsLookupImpl) {
       models: fallbackModels,
       maxTokens,
       extraHeaders: openRouterHeaders(),
+      signal: budget,
     });
     if (reply) return finishResult(args.mode, reply, "openrouter");
   }
@@ -1044,6 +1070,7 @@ async function askAiMock(args, config, fetchImpl, dnsLookupImpl) {
       models: [config.customModel],
       maxTokens,
       dnsLookup: dnsLookupImpl,
+      signal: budget,
     });
     if (reply) return finishResult(args.mode, reply, "custom");
   }
@@ -2498,4 +2525,76 @@ test("R2-L10/R2-L11/R2-L12/R2-M13: the BYOK routes and store carry the fixes", (
   // R2-L10: the delete result is checked before claiming success.
   assert.ok(del.includes("const deleted = await deleteByokKey"), "delete must capture the delete result");
   assert.ok(del.includes("status: 503"), "a failed delete must answer 503, not {deleted:true}");
+});
+
+test("N1: the shared ~50s budget is mirrored — a spent budget stops phase 2", async () => {
+  // Mirror pin: the constant and the plumbing in this file must
+  // match src/lib/ai.ts (the mirror was stale on this point).
+  assert.equal(AI_SHARED_BUDGET_MS, 50_000);
+  const lib = readSrc("src/lib/ai.ts");
+  assert.ok(lib.includes("AI_SHARED_BUDGET_MS = 50_000"), "the source budget must be ~50s");
+  assert.ok(lib.includes("AbortSignal.timeout(AI_SHARED_BUDGET_MS)"), "askAi must mint the deadline from request start");
+  assert.ok(lib.includes("if (budget.aborted) return null;"), "askAi must skip phase 2 once the budget is spent");
+  // A spent budget: the picked-model leg runs (the mock fetch
+  // ignores the signal, like a fetch that does not honour it),
+  // then phase 2 must not start any new leg.
+  const origTimeout = AbortSignal.timeout;
+  AbortSignal.timeout = () => AbortSignal.abort();
+  try {
+    const m = mockFetchFactory([
+      { match: (url) => url.includes("generativelanguage"), ok: false, status: 500, body: {} },
+    ]);
+    const res = await askAiMock(
+      { mode: "tutor", model: GEMINI_MODEL },
+      { geminiKey: "g-key", groqKey: "q-key" },
+      m.fetchImpl
+    );
+    assert.equal(res, null);
+    // Only the picked-model leg ran; the default-order legs (gemini
+    // again, then groq) never started.
+    assert.equal(m.calls.length, 1);
+    assert.ok(m.calls[0].url.includes("generativelanguage"));
+  } finally {
+    AbortSignal.timeout = origTimeout;
+  }
+  // Control: with a live budget the same failing first leg falls
+  // through to phase 2 and groq answers.
+  const m2 = mockFetchFactory([
+    { match: (url) => url.includes("generativelanguage"), ok: false, status: 500, body: {} },
+    {
+      match: (url) => url.includes("api.groq.com"),
+      ok: true,
+      status: 200,
+      body: { choices: [{ message: { content: "from groq" } }] },
+    },
+  ]);
+  const res2 = await askAiMock(
+    { mode: "tutor", model: GEMINI_MODEL },
+    { geminiKey: "g-key", groqKey: "q-key" },
+    m2.fetchImpl
+  );
+  assert.equal(res2?.reply, "from groq");
+  assert.equal(res2?.provider, "groq");
+});
+
+test("N1: a normal single-leg request is unaffected by the budget — and every leg carries its signal", async () => {
+  const m = mockFetchFactory([
+    {
+      match: (url) => url.includes("generativelanguage"),
+      ok: true,
+      status: 200,
+      body: { candidates: [{ content: { parts: [{ text: "from gemini" }] } }] },
+    },
+  ]);
+  const res = await askAiMock(
+    { mode: "tutor", model: GEMINI_MODEL },
+    { geminiKey: "g-key", groqKey: "q-key" },
+    m.fetchImpl
+  );
+  assert.equal(res?.reply, "from gemini");
+  assert.equal(m.calls.length, 1);
+  // The leg's fetch carries the shared budget signal, live.
+  const signal = m.calls[0].init.signal;
+  assert.ok(signal instanceof AbortSignal, "the leg must receive the budget signal");
+  assert.equal(signal.aborted, false);
 });

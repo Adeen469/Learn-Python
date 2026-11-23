@@ -52,32 +52,43 @@ export function perUserRateKey(prefix: string, email: string): string {
   );
 }
 
-/** Per-IP limit; returns the 429 response, or null to continue. */
+/** Per-IP limit; returns the 429 response, or null to continue.
+ * `opts.failClosed` (Phase 3, writes only): when Redis IS
+ * configured but its call errors or times out, the throw surfaces
+ * instead of falling back to per-instance memory — the caller
+ * turns it into a 503. Default stays fail-open (reads). */
 export async function checkIpLimit(
   req: NextRequest,
   bucket: string,
   limit: number,
-  windowMs: number
+  windowMs: number,
+  opts: { failClosed?: boolean } = {}
 ): Promise<NextResponse | null> {
   const result = await checkRateLimit(
     `${bucket}:${getClientIp(req)}`,
     limit,
-    windowMs
+    windowMs,
+    Date.now(),
+    opts
   );
   return result.allowed ? null : rateLimitedResponse(result.retryAfterSeconds);
 }
 
-/** Per-user limit (hashed key, R3-L11); returns the 429 response, or null. */
+/** Per-user limit (hashed key, R3-L11); returns the 429 response, or null.
+ * Same `opts.failClosed` passthrough as checkIpLimit. */
 export async function checkUserLimit(
   email: string,
   bucket: string,
   limit: number,
-  windowMs: number
+  windowMs: number,
+  opts: { failClosed?: boolean } = {}
 ): Promise<NextResponse | null> {
   const result = await checkRateLimit(
     perUserRateKey(`${bucket}:`, email),
     limit,
-    windowMs
+    windowMs,
+    Date.now(),
+    opts
   );
   return result.allowed ? null : rateLimitedResponse(result.retryAfterSeconds);
 }

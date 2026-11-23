@@ -80,7 +80,15 @@ export async function POST(req: NextRequest) {
 
   const user = await getUserByEmail(sessionUser.email);
   if (!user) return jsonError("Account not found.", 404);
-  if (user.totp_enabled) {
+  // Legacy re-enrolment (same as setup): refuse only when the stored
+  // secret actually decrypts (working 2FA). An undecryptable legacy
+  // secret is no working second factor — allow enable to overwrite
+  // it with the new pending secret. No fallback to the old session key.
+  if (
+    user.totp_enabled &&
+    user.totp_secret_enc &&
+    decryptUserTotpSecret(user.totp_secret_enc) !== null
+  ) {
     return jsonError("Two-factor authentication is already on.", 400);
   }
   if (!user.totp_pending_enc) {
