@@ -525,8 +525,8 @@ test("the Pyodide runtime is self-hosted on the same origin (CDNs failed for the
   // 2026-11-19: BOTH public CDNs failed for the user — jsDelivr and
   // unpkg each timed out at 300s, so the editor showed "could not
   // load from jsDelivr or unpkg" and no code could run at all. The
-  // runtime is now served from this site, so it loads whenever the
-  // app itself loads; the CDNs stay only as fallbacks.
+  // runtime is now served only from this site: executing third-party
+  // scripts in the app origin would weaken the site's trust boundary.
   const src = read("src/lib/pyodide-install.ts");
   assert.ok(
     src.includes('export const PYODIDE_SCRIPT_URL = "/pyodide/pyodide.js";'),
