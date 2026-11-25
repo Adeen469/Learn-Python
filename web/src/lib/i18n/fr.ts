@@ -106,6 +106,8 @@ export const fr: Strings = {
     notGroundedFootnote: "Réponse générale — la transcription de la vidéo de cette leçon n’était pas disponible.",
     thinking: "L’IA réfléchit…",
     askButton: "Demander",
+    wakeLabel: "Mot d’activation",
+    wakePrivacy: "Écoute dans ton navigateur « Virtual Tutor » ou « Virtual Assistant ». Tu peux le désactiver à tout moment.",
   },
   selectionToolbar: {
     askAi: "Demander à l'IA",

@@ -105,6 +105,8 @@ export const ko: Strings = {
     notGroundedFootnote: "일반 답변입니다 — 이 레슨의 동영상 대본을 사용할 수 없었습니다.",
     thinking: "AI가 생각하는 중…",
     askButton: "질문하기",
+    wakeLabel: "웨이크 워드",
+    wakePrivacy: "브라우저에서 “Virtual Tutor” 또는 “Virtual Assistant”를 듣습니다. 언제든지 꾼 수 있습니다.",
   },
   selectionToolbar: {
     askAi: "AI에게 묻기",

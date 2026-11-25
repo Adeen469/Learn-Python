@@ -115,6 +115,8 @@ export const ar: Strings = {
       "إجابة عامة — نص فيديو هذا الدرس غير متوفر.",
     thinking: "الذكاء الاصطناعي يفكّر…",
     askButton: "اسأل",
+    wakeLabel: "كلمة التنبيه",
+    wakePrivacy: "يستمع في متصفحك إلى “Virtual Tutor” أو “Virtual Assistant”. يمكنك إيقافه في أي وقت.",
   },
   selectionToolbar: {
     askAi: "اسأل الذكاء الاصطناعي",

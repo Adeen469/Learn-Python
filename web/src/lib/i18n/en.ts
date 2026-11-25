@@ -125,6 +125,8 @@ export const en: Strings = {
       "General answer — this lesson's video transcript was not available.",
     thinking: "AI is thinking…",
     askButton: "Ask",
+    wakeLabel: "Wake word",
+    wakePrivacy: "Listens in your browser for “Virtual Tutor” or “Virtual Assistant”. Turn it off anytime.",
   },
   selectionToolbar: {
     askAi: "Ask to AI",

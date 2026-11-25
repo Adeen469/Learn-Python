@@ -105,6 +105,8 @@ export const hiRoman: Strings = {
     notGroundedFootnote: "General jawab — is lesson ke video ka transcript available nahi tha.",
     thinking: "AI soch raha hai…",
     askButton: "Poocho",
+    wakeLabel: "Wake word",
+    wakePrivacy: "Tumhare browser mein “Virtual Tutor” ya “Virtual Assistant” sunta hai. Kabhi bhi band kar sakte ho.",
   },
   selectionToolbar: {
     askAi: "AI se poochho",

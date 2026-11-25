@@ -237,8 +237,9 @@ void main() {
     }
     vec3 col = 1.0 - exp(-L);
     vec2 d = pc / max(rho, 1e-6);
-    float key = 0.4 * pow(max(0.0, d.x * 0.94 - d.y * 0.34), 6.0) + 0.2 * pow(max(0.0, -d.x * 0.5 + d.y * 0.87), 6.0);
-    float ring = exp(-pow((r - 0.985) / 0.011, 2.0));
+    // No ring term here on purpose: the thin bright circle at the glass
+    // edge (ring, keyed to two directional lobes so it read as a gapped
+    // border) is removed — the glass itself (haze/spec via uRim) stays.
     float hzk = 0.25 + 0.7 * pow(max(0.0, -d.x * 0.6 + d.y * 0.8), 2.0) + pow(max(0.0, d.x * 0.8 - d.y * 0.6), 2.0);
     float haze = exp(-pow((1.0 - r) / 0.09, 2.0)) * hzk * 0.13 * uRim;
     vec3 orb;
@@ -253,7 +254,7 @@ void main() {
       float edge = exp(-pow((1.0 - r) / (0.01 + 1.2 * px), 2.0));
       orb *= 1.0 - 0.12 * edge;
     } else {
-      orb = vec3(0.04) + col * (1.0 + 0.1 * bend * uRim) + ring * key * uRim * (1.0 + 0.4 * level) + haze * vec3(1.0, 1.02, 1.04);
+      orb = vec3(0.04) + col * (1.0 + 0.1 * bend * uRim) + haze * vec3(1.0, 1.02, 1.04);
       orb = grade(clamp(orb, 0.0, 1.0));
     }
     float inside = clamp((1.0 - rho) / px + 0.5, 0.0, 1.0) * appear;

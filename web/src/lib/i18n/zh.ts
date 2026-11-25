@@ -111,6 +111,8 @@ export const zh: Strings = {
       "通用回答 — 未找到本课视频的文字记录。",
     thinking: "AI 正在思考…",
     askButton: "提问",
+    wakeLabel: "唤醒词",
+    wakePrivacy: "在浏览器中聆听“Virtual Tutor”或“Virtual Assistant”。可随时关闭。",
   },
   selectionToolbar: {
     askAi: "问 AI",

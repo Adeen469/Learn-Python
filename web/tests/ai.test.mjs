@@ -83,7 +83,36 @@ const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 const EFFORTS = ["Low", "Medium", "High", "Extra", "Max"];
-const GEMINI_TIMEOUT_MS = 7000;
+const GEMINI_TIMEOUT_MS = 15000;
+// Gemini free-tier daily-quota circuit breaker (mirror of
+// src/lib/ai.ts): when the server key's daily quota is
+// exhausted, Gemini gets no more time that day — the chain goes
+// straight to Groq. Tripped only by a 429 RESOURCE_EXHAUSTED on
+// a server-key call. In-memory only; resets at the next 07:00
+// UTC (midnight Pacific in daylight time, 12:30 PM IST).
+let geminiQuotaExhaustedUntilMs = 0;
+function nextGeminiQuotaResetMs(nowMs = Date.now()) {
+  const dayMs = 24 * 60 * 60 * 1000;
+  const resetMs = 7 * 60 * 60 * 1000; // 07:00 UTC
+  const reset = Math.floor(nowMs / dayMs) * dayMs + resetMs;
+  return reset > nowMs ? reset : reset + dayMs;
+}
+function isGeminiQuotaExhausted(nowMs = Date.now()) {
+  if (geminiQuotaExhaustedUntilMs !== 0 && nowMs >= geminiQuotaExhaustedUntilMs) {
+    geminiQuotaExhaustedUntilMs = 0;
+  }
+  return geminiQuotaExhaustedUntilMs > nowMs;
+}
+function resetGeminiQuotaBreaker() {
+  geminiQuotaExhaustedUntilMs = 0;
+}
+function tripGeminiQuotaBreaker(nowMs = Date.now()) {
+  geminiQuotaExhaustedUntilMs = nextGeminiQuotaResetMs(nowMs);
+}
+function isQuotaExhaustedBody(body) {
+  if (!body || typeof body !== "object") return false;
+  return /RESOURCE_EXHAUSTED/i.test(JSON.stringify(body));
+}
 const GROQ_TIMEOUT_MS = 8000;
 const ANTHROPIC_TIMEOUT_MS = 15000;
 const OPENAI_TIMEOUT_MS = 12000;
@@ -542,6 +571,14 @@ function mockFetchFactory(script) {
 async function callGeminiMock(args, key, fetchImpl, opts = {}) {
   const model = opts.model ?? GEMINI_MODEL;
   const maxTokens = opts.maxTokens ?? MAX_OUTPUT_TOKENS;
+  // Server-key leg only (mirror): quota exhausted → skip Gemini
+  // entirely, no fetch, straight to Groq. opts.nowMs is a test
+  // seam for the clock; the real function uses Date.now().
+  const nowMs = opts.nowMs ?? Date.now();
+  if (opts.serverKey && isGeminiQuotaExhausted(nowMs)) {
+    recordProviderFailure("gemini", model, "quota exhausted, skipped");
+    return null;
+  }
   try {
     const res = await fetchImpl(
       `${geminiUrlFor(model)}?key=${encodeURIComponent(key)}`,
@@ -562,9 +599,16 @@ async function callGeminiMock(args, key, fetchImpl, opts = {}) {
     const body = await res.json().catch(() => null);
     if (!res.ok) {
       recordProviderFailure("gemini", model, `${res.status} ${sanitizeProviderError(body)}`);
+      if (opts.serverKey && res.status === 429 && isQuotaExhaustedBody(body)) {
+        tripGeminiQuotaBreaker(nowMs);
+      }
       return null;
     }
-    return parseGeminiText(body);
+    const text = parseGeminiText(body);
+    if (!text) {
+      recordProviderFailure("gemini", model, "empty reply");
+    }
+    return text;
   } catch {
     recordProviderFailure("gemini", model, "request failed");
     return null;
@@ -999,7 +1043,7 @@ async function askAiMock(args, config, fetchImpl, dnsLookupImpl) {
   }
   // 1. The model the user picked (editor AI panel).
   if (selected && GEMINI_FREE_MODELS.includes(selected) && config.geminiKey) {
-    const reply = await callGeminiMock(args, config.geminiKey, fetchImpl, { model: selected, maxTokens, signal: budget });
+    const reply = await callGeminiMock(args, config.geminiKey, fetchImpl, { model: selected, maxTokens, signal: budget, serverKey: true });
     if (reply) return finishResult(reply, "gemini");
   }
   if (selected && GROQ_FREE_MODELS.includes(selected) && config.groqKey) {
@@ -1054,7 +1098,7 @@ async function askAiMock(args, config, fetchImpl, dnsLookupImpl) {
   // answer. (Anthropic / OpenAI / custom are not in this chain.)
   if (budget.aborted) return null;
   if (config.geminiKey && selected !== GEMINI_MODEL) {
-    const reply = await callGeminiMock(args, config.geminiKey, fetchImpl, { maxTokens, signal: budget });
+    const reply = await callGeminiMock(args, config.geminiKey, fetchImpl, { maxTokens, signal: budget, serverKey: true });
     if (reply) return finishResult(reply, "gemini");
   }
   if (config.groqKey) {
@@ -2422,6 +2466,151 @@ test("OpenRouter leg tries the best model first, next free model only on 404", a
   assert.equal(routerCalls.length, 2);
   assert.equal(JSON.parse(routerCalls[0].init.body).model, OPENROUTER_BEST_MODEL);
   assert.equal(JSON.parse(routerCalls[1].init.body).model, "google/gemma-4-31b-it:free");
+});
+
+test("Gemini quota breaker: 429 RESOURCE_EXHAUSTED skips Gemini until the next reset", async () => {
+  resetGeminiQuotaBreaker();
+  const quotaBody = { error: { code: 429, status: "RESOURCE_EXHAUSTED", message: "Quota exceeded for quota metric" } };
+  const groqOk = {
+    match: (url) => url.includes("api.groq.com"),
+    ok: true,
+    status: 200,
+    body: { choices: [{ message: { content: "from groq" } }] },
+  };
+  // First call: Gemini 429s on quota — the breaker trips, Groq answers.
+  const geminiRule = {
+    match: (url) => url.includes("generativelanguage"),
+    ok: false,
+    status: 429,
+    body: quotaBody,
+  };
+  let m = mockFetchFactory([geminiRule, groqOk]);
+  let res = await askAiMock(
+    { question: "hi" },
+    { geminiKey: "g-key", groqKey: "q-key" },
+    m.fetchImpl
+  );
+  assert.deepEqual(res, { reply: "from groq", provider: "groq" });
+  // Second call, same day: Gemini is NOT fetched at all — the
+  // chain goes straight to Groq. (The rule is flipped to 200 so a
+  // stray Gemini call would answer and fail the assertion.)
+  geminiRule.ok = true;
+  geminiRule.status = 200;
+  geminiRule.body = { candidates: [{ content: { parts: [{ text: "from gemini" }] } }] };
+  m = mockFetchFactory([geminiRule, groqOk]);
+  res = await askAiMock(
+    { question: "hi" },
+    { geminiKey: "g-key", groqKey: "q-key" },
+    m.fetchImpl
+  );
+  assert.deepEqual(res, { reply: "from groq", provider: "groq" });
+  assert.equal(m.calls.filter((c) => c.url.includes("generativelanguage")).length, 0);
+  assert.equal(m.calls.filter((c) => c.url.includes("api.groq.com")).length, 1);
+  // The skip is recorded so the route can say why Gemini sat out.
+  assert.match(takeProviderFailures().join(" "), /quota exhausted, skipped/);
+  resetGeminiQuotaBreaker();
+});
+
+test("nextGeminiQuotaResetMs: next 07:00 UTC (midnight Pacific, 12:30 PM IST)", () => {
+  // 06:00 UTC → reset today 07:00 UTC.
+  assert.equal(
+    nextGeminiQuotaResetMs(Date.parse("2026-11-26T06:00:00Z")),
+    Date.parse("2026-11-26T07:00:00Z")
+  );
+  // 08:00 UTC → reset tomorrow 07:00 UTC.
+  assert.equal(
+    nextGeminiQuotaResetMs(Date.parse("2026-11-26T08:00:00Z")),
+    Date.parse("2026-11-27T07:00:00Z")
+  );
+  // Exactly at reset: the next reset is tomorrow, never "now".
+  assert.equal(
+    nextGeminiQuotaResetMs(Date.parse("2026-11-26T07:00:00Z")),
+    Date.parse("2026-11-27T07:00:00Z")
+  );
+});
+
+test("Gemini quota breaker: Gemini is tried again after the reset time", async () => {
+  resetGeminiQuotaBreaker();
+  const quotaBody = { error: { code: 429, status: "RESOURCE_EXHAUSTED", message: "Quota exceeded" } };
+  const geminiOkBody = { candidates: [{ content: { parts: [{ text: "from gemini" }] } }] };
+  const now = Date.parse("2026-11-26T06:00:00Z");
+  const args = { lesson: null, question: "hi", history: [] };
+  // Trip it at 06:00 UTC.
+  let m = mockFetchFactory([
+    { match: (url) => url.includes("generativelanguage"), ok: false, status: 429, body: quotaBody },
+  ]);
+  let reply = await callGeminiMock(args, "g-key", m.fetchImpl, { serverKey: true, nowMs: now });
+  assert.equal(reply, null);
+  assert.equal(isGeminiQuotaExhausted(now), true);
+  // Still tripped at 06:59 — no fetch happens.
+  m = mockFetchFactory([
+    { match: (url) => url.includes("generativelanguage"), ok: true, status: 200, body: geminiOkBody },
+  ]);
+  reply = await callGeminiMock(args, "g-key", m.fetchImpl, { serverKey: true, nowMs: now + 59 * 60 * 1000 });
+  assert.equal(reply, null);
+  assert.equal(m.calls.length, 0);
+  // Past the 07:00 reset — Gemini is tried again and answers.
+  reply = await callGeminiMock(args, "g-key", m.fetchImpl, { serverKey: true, nowMs: now + 61 * 60 * 1000 });
+  assert.equal(reply, "from gemini");
+  assert.equal(m.calls.length, 1);
+  resetGeminiQuotaBreaker();
+});
+
+test("Gemini quota breaker: only 429 RESOURCE_EXHAUSTED trips it", async () => {
+  resetGeminiQuotaBreaker();
+  const args = { lesson: null, question: "hi", history: [] };
+  const geminiOk = {
+    match: (url) => url.includes("generativelanguage"),
+    ok: true,
+    status: 200,
+    body: { candidates: [{ content: { parts: [{ text: "from gemini" }] } }] },
+  };
+  // Plain 429 without RESOURCE_EXHAUSTED (per-minute rate limit):
+  // no trip — the next call still tries Gemini.
+  let m = mockFetchFactory([
+    { match: (url) => url.includes("generativelanguage"), ok: false, status: 429, body: { error: { code: 429, message: "Too many requests" } } },
+  ]);
+  let reply = await callGeminiMock(args, "g-key", m.fetchImpl, { serverKey: true });
+  assert.equal(reply, null);
+  assert.equal(isGeminiQuotaExhausted(), false);
+  m = mockFetchFactory([geminiOk]);
+  reply = await callGeminiMock(args, "g-key", m.fetchImpl, { serverKey: true });
+  assert.equal(reply, "from gemini");
+  // A 500 does not trip either.
+  m = mockFetchFactory([
+    { match: (url) => url.includes("generativelanguage"), ok: false, status: 500, body: { error: "boom" } },
+  ]);
+  reply = await callGeminiMock(args, "g-key", m.fetchImpl, { serverKey: true });
+  assert.equal(reply, null);
+  assert.equal(isGeminiQuotaExhausted(), false);
+  m = mockFetchFactory([geminiOk]);
+  reply = await callGeminiMock(args, "g-key", m.fetchImpl, { serverKey: true });
+  assert.equal(reply, "from gemini");
+  // A BYOK-key 429 RESOURCE_EXHAUSTED does not trip the server
+  // breaker — the next server-key call still tries Gemini.
+  const quotaBody = { error: { code: 429, status: "RESOURCE_EXHAUSTED", message: "Quota exceeded" } };
+  m = mockFetchFactory([
+    { match: (url) => url.includes("generativelanguage"), ok: false, status: 429, body: quotaBody },
+  ]);
+  reply = await callGeminiMock(args, "g-key", m.fetchImpl);
+  assert.equal(reply, null);
+  assert.equal(isGeminiQuotaExhausted(), false);
+  m = mockFetchFactory([geminiOk]);
+  reply = await callGeminiMock(args, "g-key", m.fetchImpl, { serverKey: true });
+  assert.equal(reply, "from gemini");
+  resetGeminiQuotaBreaker();
+});
+
+test("Gemini empty reply is recorded as a provider failure", async () => {
+  // Mirror fix: the real callGemini records "empty reply" when
+  // the response has no candidates; the mock now does the same.
+  resetGeminiQuotaBreaker();
+  const m = mockFetchFactory([
+    { match: (url) => url.includes("generativelanguage"), ok: true, status: 200, body: { candidates: [] } },
+  ]);
+  const reply = await callGeminiMock({ lesson: null, question: "hi", history: [] }, "g-key", m.fetchImpl, { serverKey: true });
+  assert.equal(reply, null);
+  assert.match(takeProviderFailures().join(" "), /empty reply/);
 });
 
 test("askAi: BYOK OpenRouter calls a user-added free model (and only it)", async () => {

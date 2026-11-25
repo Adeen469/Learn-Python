@@ -187,10 +187,45 @@ export function maxTokensForEffort(effort?: string): number {
       return MAX_OUTPUT_TOKENS; // Medium / unset = 600
   }
 }
-// Gemini's leg is kept short on purpose (Loco lesson): Gemini on the
-// free tier can take over 10s, so a shorter budget fails over to
-// Groq sooner and the user still gets a reply.
-export const GEMINI_TIMEOUT_MS = 7000;
+// Gemini's leg gets a real budget: Gemini on the free tier
+// routinely takes over 10s for a ~4k-token prompt, so the old 7s
+// budget aborted nearly every call ("no response") and the user
+// only ever saw Groq answer. 15s still leaves the chain inside
+// the 50s shared budget (15 + 8 Groq + 12 OpenRouter = 35s).
+export const GEMINI_TIMEOUT_MS = 15000;
+// Gemini free-tier daily-quota circuit breaker: when the server
+// key's daily quota is exhausted, Gemini gets no more time that
+// day — the chain goes straight to Groq instead of spending a
+// call (and its 15s) on a certain 429. Tripped only by a 429
+// RESOURCE_EXHAUSTED on a server-key call: a plain 429 rate-limit
+// clears on its own and must not trip it, and a BYOK key has its
+// own quota and never trips it. In-memory only: a cold serverless
+// instance tries Gemini once and 429s fast, which is acceptable.
+// Resets at the next 07:00 UTC (midnight Pacific in daylight
+// time, 12:30 PM IST).
+let geminiQuotaExhaustedUntilMs = 0;
+export function nextGeminiQuotaResetMs(nowMs: number = Date.now()): number {
+  const dayMs = 24 * 60 * 60 * 1000;
+  const resetMs = 7 * 60 * 60 * 1000; // 07:00 UTC
+  const reset = Math.floor(nowMs / dayMs) * dayMs + resetMs;
+  return reset > nowMs ? reset : reset + dayMs;
+}
+export function isGeminiQuotaExhausted(nowMs: number = Date.now()): boolean {
+  if (geminiQuotaExhaustedUntilMs !== 0 && nowMs >= geminiQuotaExhaustedUntilMs) {
+    geminiQuotaExhaustedUntilMs = 0;
+  }
+  return geminiQuotaExhaustedUntilMs > nowMs;
+}
+export function resetGeminiQuotaBreaker(): void {
+  geminiQuotaExhaustedUntilMs = 0;
+}
+function tripGeminiQuotaBreaker(nowMs: number = Date.now()): void {
+  geminiQuotaExhaustedUntilMs = nextGeminiQuotaResetMs(nowMs);
+}
+function isQuotaExhaustedBody(body: unknown): boolean {
+  if (!body || typeof body !== "object") return false;
+  return /RESOURCE_EXHAUSTED/i.test(JSON.stringify(body));
+}
 export const GROQ_TIMEOUT_MS = 8000;
 export const ANTHROPIC_TIMEOUT_MS = 15000;
 export const OPENAI_TIMEOUT_MS = 12000;
@@ -963,10 +998,18 @@ export async function callGemini(
   },
   key: string,
   fetchImpl: FetchImpl = fetch as unknown as FetchImpl,
-  opts: { model?: string; maxTokens?: number; signal?: AbortSignal } = {}
+  opts: { model?: string; maxTokens?: number; signal?: AbortSignal; serverKey?: boolean } = {}
 ): Promise<string | null> {
   const model = opts.model ?? GEMINI_MODEL;
   const maxTokens = opts.maxTokens ?? MAX_OUTPUT_TOKENS;
+  // Server-key leg only: when the free-tier daily quota is gone,
+  // skip Gemini entirely — no fetch, no wait, straight to Groq.
+  // (A BYOK key has its own quota and no fallback, so it is never
+  // skipped.)
+  if (opts.serverKey && isGeminiQuotaExhausted()) {
+    recordProviderFailure("gemini", model, "quota exhausted, skipped");
+    return null;
+  }
   try {
     const res = await fetchWithTimeout(
       fetchImpl,
@@ -989,9 +1032,22 @@ export async function callGemini(
     const body = await res.json().catch(() => null);
     if (!res.ok) {
       recordProviderFailure("gemini", model, `${res.status} ${sanitizeProviderError(body)}`);
+      // Server-key leg only: a 429 RESOURCE_EXHAUSTED means the
+      // free-tier daily quota is used up — trip the breaker so
+      // later calls today skip Gemini outright.
+      if (opts.serverKey && res.status === 429 && isQuotaExhaustedBody(body)) {
+        tripGeminiQuotaBreaker();
+      }
       return null;
     }
-    return parseGeminiText(body);
+    const text = parseGeminiText(body);
+    if (!text) {
+      // An empty reply (e.g. safety-blocked, no candidates) used
+      // to fail the leg silently with no failure recorded — the
+      // route then had nothing to say about why Gemini failed.
+      recordProviderFailure("gemini", model, "empty reply");
+    }
+    return text;
   } catch {
     recordProviderFailure("gemini", model, "request failed");
     return null;
@@ -1561,7 +1617,7 @@ export async function askAi(
   }
   // 1. The model the user picked (editor AI panel).
   if (selected && GEMINI_FREE_MODELS.includes(selected) && config.geminiKey) {
-    const reply = await callGemini(args, config.geminiKey, fetchImpl, { model: selected, maxTokens, signal: budget });
+    const reply = await callGemini(args, config.geminiKey, fetchImpl, { model: selected, maxTokens, signal: budget, serverKey: true });
     if (reply) return finishResult(reply, "gemini");
   }
   if (selected && GROQ_FREE_MODELS.includes(selected) && config.groqKey) {
@@ -1618,7 +1674,7 @@ export async function askAi(
   // see the orchestrator comment above.)
   if (budget.aborted) return null;
   if (config.geminiKey && selected !== GEMINI_MODEL) {
-    const reply = await callGemini(args, config.geminiKey, fetchImpl, { maxTokens, signal: budget });
+    const reply = await callGemini(args, config.geminiKey, fetchImpl, { maxTokens, signal: budget, serverKey: true });
     if (reply) return finishResult(reply, "gemini");
   }
   if (config.groqKey) {

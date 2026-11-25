@@ -115,6 +115,8 @@ export const de: Strings = {
       "Allgemeine Antwort — das Transkript des Videos dieser Lektion war nicht verfügbar.",
     thinking: "Die KI denkt nach…",
     askButton: "Fragen",
+    wakeLabel: "Weckwort",
+    wakePrivacy: "Hört in deinem Browser auf „Virtual Tutor“ oder „Virtual Assistant“. Jederzeit abschaltbar.",
   },
   selectionToolbar: {
     askAi: "KI fragen",

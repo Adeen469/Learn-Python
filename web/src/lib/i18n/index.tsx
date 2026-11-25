@@ -179,6 +179,8 @@ export type Strings = {
     notGroundedFootnote: string;
     thinking: string;
     askButton: string;
+    wakeLabel: string;
+    wakePrivacy: string;
   };
   selectionToolbar: {
     askAi: string;

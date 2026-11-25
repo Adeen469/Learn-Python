@@ -116,6 +116,8 @@ export const ru: Strings = {
     notGroundedFootnote: "Общий ответ — стенограмма видео этого урока недоступна.",
     thinking: "ИИ думает…",
     askButton: "Спросить",
+    wakeLabel: "Слово пробуждения",
+    wakePrivacy: "Слушает в вашем браузере «Virtual Tutor» или «Virtual Assistant». Можно отключить в любой момент.",
   },
   selectionToolbar: {
     askAi: "Спросить ИИ",

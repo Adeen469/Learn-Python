@@ -112,6 +112,8 @@ export const pt: Strings = {
       "Resposta geral — a transcrição do vídeo desta aula não estava disponível.",
     thinking: "A IA está pensando…",
     askButton: "Perguntar",
+    wakeLabel: "Palavra de ativação",
+    wakePrivacy: "Ouve no teu navegador “Virtual Tutor” ou “Virtual Assistant”. Podes desligar quando quiseres.",
   },
   selectionToolbar: {
     askAi: "Perguntar à IA",

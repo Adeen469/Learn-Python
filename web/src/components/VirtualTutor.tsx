@@ -5,7 +5,9 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Loader2, Mic, MicOff, Send, Volume2, X } from "lucide-react";
 import { fetchSessionUser, type SessionUser } from "@/lib/auth-client";
+import { stripForSpeech } from "@/lib/ai-tts";
 import { useLanguage, type LanguageCode } from "@/lib/i18n";
+import { matchesWakeWord } from "@/lib/tutor-wake";
 import Strands from "@/components/Strands";
 
 interface TutorMessage {
@@ -86,9 +88,31 @@ export function VirtualTutor() {
   const [speechAvailable, setSpeechAvailable] = useState(false);
   const [speakingMessage, setSpeakingMessage] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [wakeEnabled, setWakeEnabled] = useState<boolean>(() => {
+    if (typeof window === "undefined") return true;
+    try {
+      return window.localStorage.getItem("lp_tutor_wake") !== "off";
+    } catch {
+      return true;
+    }
+  });
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const wakeRecognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const wakeBlockedRef = useRef(false);
+  const openRef = useRef(open);
+  const wakeEnabledRef = useRef(wakeEnabled);
+  const ttsAbortRef = useRef<AbortController | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioUrlRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    openRef.current = open;
+  }, [open]);
+  useEffect(() => {
+    wakeEnabledRef.current = wakeEnabled;
+  }, [wakeEnabled]);
 
   useEffect(() => {
     if (!open) return;
@@ -130,12 +154,30 @@ export function VirtualTutor() {
   useEffect(
     () => () => {
       recognitionRef.current?.abort();
+      wakeRecognitionRef.current?.abort();
+      ttsAbortRef.current?.abort();
+      if (audioRef.current) audioRef.current.pause();
+      if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
       if ("speechSynthesis" in window) window.speechSynthesis.cancel();
     },
     []
   );
 
+  function cleanupAudio() {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    if (audioUrlRef.current) {
+      URL.revokeObjectURL(audioUrlRef.current);
+      audioUrlRef.current = null;
+    }
+  }
+
   function stopSpeech() {
+    ttsAbortRef.current?.abort();
+    ttsAbortRef.current = null;
+    cleanupAudio();
     if ("speechSynthesis" in window) window.speechSynthesis.cancel();
     setSpeakingMessage(null);
   }
@@ -194,22 +236,144 @@ export function VirtualTutor() {
     }
   }
 
-  function speak(text: string, index: number) {
+  function stopWake() {
+    const recognition = wakeRecognitionRef.current;
+    wakeRecognitionRef.current = null;
+    if (recognition) {
+      try {
+        recognition.abort();
+      } catch {
+        // Already stopped.
+      }
+    }
+  }
+
+  function startWake() {
+    if (typeof window === "undefined") return;
+    wakeBlockedRef.current = false;
+    const speechWindow = window as SpeechWindow;
+    const Recognition =
+      speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
+    if (!Recognition) return;
+    const recognition = new Recognition();
+    recognition.lang = SPEECH_LOCALES[lang] ?? navigator.language ?? "en-IN";
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.onresult = (event) => {
+      const transcript = Array.from(event.results)
+        .slice(event.resultIndex)
+        .map((result) => result[0]?.transcript ?? "")
+        .join(" ")
+        .trim();
+      if (transcript && matchesWakeWord(transcript)) {
+        stopWake();
+        setOpen(true);
+        startListening();
+      }
+    };
+    recognition.onerror = (event) => {
+      // Degrade silently: the mic button still works. A denied
+      // microphone must not hot-loop restarts.
+      if (
+        event.error === "not-allowed" ||
+        event.error === "service-not-allowed"
+      ) {
+        wakeBlockedRef.current = true;
+      }
+    };
+    recognition.onend = () => {
+      // Auto-restart while the toggle is on and the panel is closed.
+      // If stopWake() cleared the ref, this instance was stopped on
+      // purpose and must not restart.
+      if (wakeRecognitionRef.current !== recognition) return;
+      wakeRecognitionRef.current = null;
+      if (wakeBlockedRef.current) return;
+      window.setTimeout(() => {
+        if (
+          wakeRecognitionRef.current === null &&
+          !openRef.current &&
+          wakeEnabledRef.current
+        ) {
+          startWake();
+        }
+      }, 1500);
+    };
+    wakeRecognitionRef.current = recognition;
+    try {
+      recognition.start();
+    } catch {
+      wakeRecognitionRef.current = null;
+    }
+  }
+
+  useEffect(() => {
+    if (open || !wakeEnabled) {
+      stopWake();
+      return;
+    }
+    startWake();
+    return () => stopWake();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, wakeEnabled]);
+
+  function speakWithBrowser(text: string, index: number) {
     if (!("speechSynthesis" in window)) {
       setError("Speech playback is not supported in this browser.");
       return;
     }
-    if (speakingMessage === index) {
-      stopSpeech();
-      return;
-    }
-    stopSpeech();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = SPEECH_LOCALES[lang] ?? navigator.language ?? "en-IN";
     utterance.onstart = () => setSpeakingMessage(index);
     utterance.onend = () => setSpeakingMessage(null);
     utterance.onerror = () => setSpeakingMessage(null);
     window.speechSynthesis.speak(utterance);
+  }
+
+  async function speak(text: string, index: number) {
+    if (speakingMessage === index) {
+      stopSpeech();
+      return;
+    }
+    stopSpeech();
+    // Gemini TTS first; any failure falls back to the browser voice.
+    const spoken = stripForSpeech(text);
+    if (spoken) {
+      const controller = new AbortController();
+      ttsAbortRef.current = controller;
+      try {
+        const response = await fetch("/api/ai/tts", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: spoken }),
+          signal: controller.signal,
+        });
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = URL.createObjectURL(blob);
+          const audio = new Audio(url);
+          audioRef.current = audio;
+          audioUrlRef.current = url;
+          audio.onplaying = () => setSpeakingMessage(index);
+          audio.onended = () => {
+            setSpeakingMessage(null);
+            cleanupAudio();
+          };
+          audio.onerror = () => {
+            cleanupAudio();
+            speakWithBrowser(text, index);
+          };
+          await audio.play();
+          return;
+        }
+      } catch {
+        // Aborted on purpose (stopSpeech) — do not restart speech.
+        if (controller.signal.aborted) return;
+      } finally {
+        ttsAbortRef.current = null;
+      }
+    }
+    speakWithBrowser(text, index);
   }
 
   async function send(event: FormEvent<HTMLFormElement>) {
@@ -288,7 +452,7 @@ export function VirtualTutor() {
           onClick={() => setOpen(true)}
           aria-label={t.common.aiTutor}
           aria-haspopup="dialog"
-          className="fixed bottom-24 right-4 z-[80] h-16 w-16 overflow-hidden rounded-full border border-neutral-700 bg-black shadow-[0_0_32px_rgba(175,175,175,0.28)] transition hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:bottom-6 sm:right-6"
+          className="fixed bottom-24 right-4 z-[80] h-16 w-16 overflow-hidden rounded-full bg-black shadow-[0_0_32px_rgba(175,175,175,0.28)] transition hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:bottom-6 sm:right-6"
         >
           <Strands
             className="absolute inset-0"
@@ -305,7 +469,7 @@ export function VirtualTutor() {
             intensity={0.6}
             saturation={1.05}
             glassSize={0.5}
-            rim={0}
+            rim={0.7}
             dispersion={0}
             maxDevicePixelRatio={1.5}
           />
@@ -335,6 +499,45 @@ export function VirtualTutor() {
                   {topicSlug
                     ? `Context: ${topicSlug.replaceAll("-", " ")}`
                     : "Ask about Python or what you are learning."}
+                </p>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={wakeEnabled}
+                  onClick={() =>
+                    setWakeEnabled((current) => {
+                      const next = !current;
+                      try {
+                        window.localStorage.setItem(
+                          "lp_tutor_wake",
+                          next ? "on" : "off"
+                        );
+                      } catch {
+                        // Private mode: the toggle still works for this session.
+                      }
+                      return next;
+                    })
+                  }
+                  className="mt-2 flex items-center gap-2 text-xs text-neutral-400 transition hover:text-white"
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`inline-block h-4 w-7 rounded-full p-0.5 transition ${
+                      wakeEnabled ? "bg-white" : "bg-neutral-700"
+                    }`}
+                  >
+                    <span
+                      className={`block h-3 w-3 rounded-full transition ${
+                        wakeEnabled
+                          ? "translate-x-3 bg-black"
+                          : "bg-neutral-400"
+                      }`}
+                    />
+                  </span>
+                  {t.tutor.wakeLabel}
+                </button>
+                <p className="mt-1 text-[11px] leading-relaxed text-neutral-500">
+                  {t.tutor.wakePrivacy}
                 </p>
               </div>
               <button
@@ -383,13 +586,13 @@ export function VirtualTutor() {
                 <div className="rounded-xl border border-neutral-800 bg-black p-3 text-sm leading-relaxed text-neutral-300">
                   <p>
                     I can explain the current Learn topic using its published
-                    content. Ask a question, or use the microphone to dictate
-                    one.
+                    content. Ask a question, use the microphone to dictate
+                    one, or just say “Virtual Tutor” or “Virtual Assistant”
+                    to wake me up.
                   </p>
                   <p className="mt-2 text-xs text-neutral-500">
-                    This conversation is kept in this page session only. Voice
-                    recognition starts only after you tap the microphone and
-                    depends on your browser.
+                    This conversation is kept in this page session only. Wake-word
+                    listening runs in your browser and can be turned off above.
                   </p>
                 </div>
               )}

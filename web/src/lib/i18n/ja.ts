@@ -119,6 +119,8 @@ export const ja: Strings = {
       "一般的な回答です — このレッスンの動画の文字起こしは利用できませんでした。",
     thinking: "AIが考えています…",
     askButton: "質問する",
+    wakeLabel: "ウェイクワード",
+    wakePrivacy: "ブラウザ内で「Virtual Tutor」または「Virtual Assistant」を聞き取ります。いつでもオフにできます。",
   },
   selectionToolbar: {
     askAi: "AIに聞く",
