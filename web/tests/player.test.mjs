@@ -125,7 +125,10 @@ test("English captions: the CC button only shows when a .vtt file exists", () =>
     "the script that fetches the .vtt files must exist",
   );
   const script = read("scripts/fetch-captions.mjs");
-  assert.ok(!script.includes("megaLessonId"), "the script must collect every video, not just the MEGA ones");
+  assert.ok(
+    script.includes('if (!line.includes("megaLessonId")) continue;'),
+    "only MEGA videos need local tracks; YouTube embeds provide their own captions",
+  );
   assert.ok(script.includes("videoId:"), "the script must collect every videoId in the catalog");
   assert.ok(script.includes("--write-auto-subs"), "the script must fetch auto-generated subs too");
   assert.ok(script.includes('"en"'), "the script must fetch the English track");

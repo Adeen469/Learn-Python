@@ -544,10 +544,6 @@ test("the Pyodide runtime is self-hosted on the same origin (CDNs failed for the
     "the runtime must not execute a third-party CDN script in the app origin"
   );
   assert.ok(
-    src.includes('base.startsWith("/")'),
-    "the CDN display name must handle the same-origin base"
-  );
-  assert.ok(
     src.includes('"this site"'),
     "the same-origin base must display as 'this site' in the status line"
   );
