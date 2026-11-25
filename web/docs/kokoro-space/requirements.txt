@@ -1,0 +1,7 @@
+# CPU-only torch keeps the Space small and free; the --index-url
+# line must stay FIRST so kokoro's torch dependency resolves
+# from the CPU index too.
+--index-url https://download.pytorch.org/whl/cpu
+kokoro>=0.9.4
+gradio>=5.0
+torch
