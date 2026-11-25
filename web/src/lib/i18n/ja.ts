@@ -459,6 +459,8 @@ export const ja: Strings = {
     menuTerminal: "ターミナル",
     menuSaveAll: "すべて保存",
     restoreWorkspace: "以前のワークスペースを復元",
+    exitRepo: "Exit",
+    exitRepoTitle: "Exit from the repo",
     menuRename: "名前を変更",
     menuDelete: "削除",
     menuDuplicate: "複製",

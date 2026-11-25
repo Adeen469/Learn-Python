@@ -409,6 +409,8 @@ export const hiRoman: Strings = {
     menuTerminal: "Terminal",
     menuSaveAll: "Sab Save Karo",
     restoreWorkspace: "Pichla Workspace Wapas Lao",
+    exitRepo: "Exit",
+    exitRepoTitle: "Exit from the repo",
     menuRename: "Rename Karo",
     menuDelete: "Delete Karo",
     menuDuplicate: "Duplicate Karo",

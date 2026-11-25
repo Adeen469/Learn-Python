@@ -487,6 +487,8 @@ export type Strings = {
     menuTerminal: string;
     menuSaveAll: string;
     restoreWorkspace: string;
+    exitRepo: string;
+    exitRepoTitle: string;
     menuRename: string;
     menuDelete: string;
     menuDuplicate: string;

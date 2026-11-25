@@ -431,6 +431,8 @@ export const ru: Strings = {
     menuTerminal: "Терминал",
     menuSaveAll: "Сохранить все",
     restoreWorkspace: "Восстановить предыдущее рабочее пространство",
+    exitRepo: "Exit",
+    exitRepoTitle: "Exit from the repo",
     menuRename: "Переименовать",
     menuDelete: "Удалить",
     menuDuplicate: "Дублировать",

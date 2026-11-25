@@ -525,20 +525,24 @@ test("i18n: the new editor keys exist in English", () => {
   }
 });
 
-test("the menu bar shows the open repo on the left and has no Delete button", () => {
-  // A repo opened from the GitHub page must be visible at a glance:
-  // the menu bar shows owner/repo on the LEFT, right after the
-  // File/Edit/Run menus — never beside the Explorer toggle — linking
-  // out to the repo on GitHub. Delete does NOT live here anymore:
+test("the menu bar shows an Exit button on the left and has no Delete button", () => {
+  // A repo opened from the GitHub page must be escapable at a glance:
+  // the menu bar shows an Exit button on the LEFT, right after the
+  // File/Edit/Run menus — never beside the Explorer toggle. The repo
+  // name itself moved out of the menu bar: it now lives at the top
+  // of the Explorer file list, as a link to the repo on GitHub (see
+  // the Explorer test below). Delete does NOT live here anymore:
   // it moved to the GitHub page's repo right-click menu, so a
   // permanent action never sits beside Push. Nothing shows for a
-  // plain local workspace (the badge is gated on openRepoState).
-  assert.ok(page.includes("openRepoState.repo"), "the badge must read the open repo");
-  assert.ok(page.includes("https://github.com/${openRepoState.repo}"), "the badge must link to the repo on GitHub");
-  assert.ok(page.includes("left={"), "the badge must be passed as the menu bar's left slot");
+  // plain local workspace (the button is gated on openRepoState).
+  assert.ok(page.includes("exitRepo"), "the Exit button must be wired up");
+  assert.ok(page.includes("t.editorPage.exitRepo"), "the Exit button label must come from i18n");
+  assert.ok(page.includes("t.editorPage.exitRepoTitle"), "the Exit button must carry its tooltip");
+  assert.ok(page.includes("onClick={exitRepo}"), "the Exit button must call exitRepo");
+  assert.ok(page.includes("left={"), "the Exit button must be passed as the menu bar's left slot");
   assert.ok(
-    page.indexOf("https://github.com/${openRepoState.repo}") < page.indexOf("right={"),
-    "the badge must sit before the right-side group in the menu bar"
+    page.indexOf("onClick={exitRepo}") < page.indexOf("right={"),
+    "the Exit button must sit before the right-side group in the menu bar"
   );
   assert.ok(menuBar.includes("left?: ReactNode"), "the menu bar must accept a left slot");
   assert.ok(
@@ -554,8 +558,10 @@ test("the Explorer names the open repo above its file list", () => {
   // repo's owner/repo (branch in the tooltip) instead of the plain
   // workspace drop hint — the repo is always named at the top of
   // its files. The line stays the root drop target either way, and
-  // the name keeps its case (no uppercase transform).
+  // the name keeps its case (no uppercase transform). The name is
+  // a link that opens the repo on GitHub in a new tab.
   assert.ok(explorerPanel.includes("openRepoState.repo} (${openRepoState.branch})"), "the Explorer header must show repo + branch");
+  assert.ok(explorerPanel.includes("https://github.com/${openRepoState.repo}"), "the Explorer repo name must link to the repo on GitHub");
   assert.ok(explorerPanel.includes("workspaceRootDropHint"), "a plain workspace must still show the drop hint");
 });
 

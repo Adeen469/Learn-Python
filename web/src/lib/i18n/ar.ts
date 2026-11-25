@@ -463,6 +463,8 @@ export const ar: Strings = {
     menuTerminal: "الطرفية",
     menuSaveAll: "حفظ الكل",
     restoreWorkspace: "استعادة مساحة العمل السابقة",
+    exitRepo: "Exit",
+    exitRepoTitle: "Exit from the repo",
     menuRename: "إعادة تسمية",
     menuDelete: "حذف",
     menuDuplicate: "تكرار",

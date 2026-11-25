@@ -259,12 +259,13 @@ export function useWorkspaceRepo(args: {
 
   // Restore the workspace that was backed up when a repo was opened
   // in the editor (File → Restore previous workspace).
-  function restoreWorkspaceBackup() {
+  // Returns true when a backup was actually restored.
+  function restoreWorkspaceBackup(): boolean {
     try {
       const raw = localStorage.getItem("lp_workspace_tree_backup");
-      if (!raw) return;
+      if (!raw) return false;
       const parsed = JSON.parse(raw) as WorkspaceItem[];
-      if (!Array.isArray(parsed) || parsed.length === 0) return;
+      if (!Array.isArray(parsed) || parsed.length === 0) return false;
       persistWorkspace(parsed);
       const firstFile = parsed.find((p) => p.type === "file");
       if (firstFile) setActiveFilePath(firstFile.path);
@@ -275,7 +276,35 @@ export function useWorkspaceRepo(args: {
       repoTreePathsRef.current.clear();
       setHasWorkspaceBackup(false);
       setOutput((prev) => prev + "[Restored your previous workspace.]\n");
-    } catch {}
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  // Exit the open repo: back to the workspace that was there before
+  // the repo opened — or the default workspace when there is no
+  // backup. Always clears lp_open_repo_current, so a refresh does
+  // NOT reopen the repo (yehi wajah hai ki refresh ke baad repo se
+  // bahar nikalne ka button kaam nahi karta tha: openRepoState
+  // wapas aa jata tha, par hasWorkspaceBackup false reh jata tha).
+  // NOTE: backup ko localStorage se seedha check karte hain, state
+  // se nahi — refresh ke baad bhi backup mil jata hai.
+  function exitRepo() {
+    if (!openRepoState) return;
+    const repo = openRepoState.repo;
+    if (!restoreWorkspaceBackup()) {
+      // No backup (fresh workspace, ya backup pehle hi use ho chuka):
+      // default workspace par wapas.
+      persistWorkspace(DEFAULT_WORKSPACE);
+      setActiveFilePath("main.py");
+      localStorage.removeItem("lp_open_repo_current");
+      setOpenRepoState(null);
+      clearRepoChanged();
+      repoTreePathsRef.current.clear();
+      setHasWorkspaceBackup(false);
+      setOutput((prev) => prev + `[Exited ${repo} — back to your workspace.]\n`);
+    }
   }
 
   function saveCurrentFile() {
@@ -309,6 +338,7 @@ export function useWorkspaceRepo(args: {
     changedRepoPathsRef, changedRepoCount, setChangedRepoCount,
     markRepoChanged, repoTreePathsRef, itemsRef, hasWorkspaceBackup,
     handleEditorChange, persistWorkspace, restoreWorkspaceBackup,
+    exitRepo,
     saveCurrentFile, saveFileSilently, saveAllFiles,
   };
 }

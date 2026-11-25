@@ -451,6 +451,8 @@ export const zh: Strings = {
     menuTerminal: "终端",
     menuSaveAll: "全部保存",
     restoreWorkspace: "恢复之前的工作区",
+    exitRepo: "Exit",
+    exitRepoTitle: "Exit from the repo",
     menuRename: "重命名",
     menuDelete: "删除",
     menuDuplicate: "复制",

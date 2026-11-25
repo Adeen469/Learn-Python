@@ -290,6 +290,7 @@ export default function CodeEditorPage() {
     changedRepoPathsRef, changedRepoCount, setChangedRepoCount,
     markRepoChanged, repoTreePathsRef, itemsRef, hasWorkspaceBackup,
     handleEditorChange, persistWorkspace, restoreWorkspaceBackup,
+    exitRepo,
     saveCurrentFile, saveFileSilently, saveAllFiles,
   } = repo;
 
@@ -958,9 +959,15 @@ export default function CodeEditorPage() {
     const item = items.find((i) => i.path === value);
     if (item) handleDragStart(e, item);
   }
+  // VS Code-style: dropping on a file means its parent folder
+  // (root for a top-level file).
+  function parentFolderOf(value: string): string | "root" {
+    return value.includes("/") ? value.slice(0, value.lastIndexOf("/")) : "root";
+  }
   function handleTreeDragOver(e: React.DragEvent, value: string) {
     const item = items.find((i) => i.path === value);
     if (item?.type === "folder") handleDragOverFolder(e, value);
+    else if (item?.type === "file") handleDragOverFolder(e, parentFolderOf(value));
   }
   function handleTreeDragLeave(value: string) {
     const item = items.find((i) => i.path === value);
@@ -969,6 +976,7 @@ export default function CodeEditorPage() {
   function handleTreeDrop(e: React.DragEvent, value: string) {
     const item = items.find((i) => i.path === value);
     if (item?.type === "folder") handleDropOnTarget(e, value);
+    else if (item?.type === "file") handleDropOnTarget(e, parentFolderOf(value));
   }
 
   // --- Drag and Drop: External File Upload from user's Desktop/OS ---
@@ -1093,21 +1101,19 @@ export default function CodeEditorPage() {
         <EditorMenuBar
           menus={menus}
           left={
-            /* Which repo this workspace belongs to — owner/repo,
-               linking out to the repo on GitHub. Left side, after
-               the menus — never beside the Explorer toggle. Shown
-               only while a repo is open; a plain workspace shows
-               nothing. */
+            /* Exit the open repo — same look as the File / Edit /
+               Run buttons (no border, background only on hover).
+               Shown only while a repo is open; a plain workspace
+               shows nothing. Hover shows "Exit from the repo". */
             openRepoState ? (
-              <a
-                href={`https://github.com/${openRepoState.repo}`}
-                target="_blank"
-                rel="noreferrer"
-                title={`${openRepoState.repo} (${openRepoState.branch}) — open on GitHub`}
-                className="flex max-w-56 items-center gap-1.5 truncate rounded-md border border-neutral-800 bg-neutral-900 px-2.5 py-1.5 font-mono text-xs text-neutral-300 transition hover:border-neutral-600 hover:text-white"
+              <button
+                type="button"
+                onClick={exitRepo}
+                title={t.editorPage.exitRepoTitle}
+                className="rounded-md px-3 py-1.5 text-xs font-medium text-neutral-300 transition hover:bg-neutral-800 hover:text-white"
               >
-                {openRepoState.repo}
-              </a>
+                {t.editorPage.exitRepo}
+              </button>
             ) : undefined
           }
           right={

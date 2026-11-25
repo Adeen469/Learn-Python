@@ -167,10 +167,10 @@ export function ExplorerPanel(props: ExplorerPanelProps) {
       )}
 
       {/* Root Drop Zone — while a repo is open this line is the
-          repo's name (owner/repo, branch in the tooltip), so the
-          repo is named at the top of its file list; otherwise it
-          is the plain-workspace drop hint. The div stays the root
-          drop target either way. */}
+          repo's name (owner/repo, branch in the tooltip), now a
+          link that opens the repo on GitHub; otherwise it is the
+          plain-workspace drop hint. The div stays the root drop
+          target either way. */}
       <div
         onDragOver={(e) => handleDragOverFolder(e, "root")}
         onDragLeave={() => setDragOverTarget(null)}
@@ -182,12 +182,16 @@ export function ExplorerPanel(props: ExplorerPanelProps) {
         }`}
       >
         {openRepoState ? (
-          <span
-            className="block truncate"
-            title={`${openRepoState.repo} (${openRepoState.branch})`}
+          <a
+            href={`https://github.com/${openRepoState.repo}`}
+            target="_blank"
+            rel="noreferrer"
+            draggable={false}
+            className="block truncate text-sm font-medium text-inherit hover:underline"
+            title={`${openRepoState.repo} (${openRepoState.branch}) — open on GitHub`}
           >
             {openRepoState.repo}
-          </span>
+          </a>
         ) : (
           <span className="uppercase">{t.editorPage.workspaceRootDropHint}</span>
         )}
@@ -201,6 +205,15 @@ export function ExplorerPanel(props: ExplorerPanelProps) {
           long-press on mobile) opens the context menu. */}
       <div
         className="flex-1 overflow-auto p-2"
+        onDragOver={(e) => {
+          if (e.dataTransfer.types.includes("Files")) return;
+          handleDragOverFolder(e, "root");
+        }}
+        onDragLeave={() => setDragOverTarget(null)}
+        onDrop={(e) => {
+          if (e.dataTransfer.types.includes("Files")) return;
+          handleDropOnTarget(e, "root");
+        }}
         onContextMenu={openRootContextMenu}
         style={{ WebkitTouchCallout: "none" }}
       >

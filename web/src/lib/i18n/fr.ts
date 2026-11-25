@@ -421,6 +421,8 @@ export const fr: Strings = {
     menuTerminal: "Terminal",
     menuSaveAll: "Tout enregistrer",
     restoreWorkspace: "Restaurer l'espace de travail précédent",
+    exitRepo: "Exit",
+    exitRepoTitle: "Exit from the repo",
     menuRename: "Renommer",
     menuDelete: "Supprimer",
     menuDuplicate: "Dupliquer",

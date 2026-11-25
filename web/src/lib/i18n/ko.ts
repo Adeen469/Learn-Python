@@ -412,6 +412,8 @@ export const ko: Strings = {
     menuTerminal: "터미널",
     menuSaveAll: "모두 저장",
     restoreWorkspace: "이전 작업 공간 복원",
+    exitRepo: "Exit",
+    exitRepoTitle: "Exit from the repo",
     menuRename: "이름 바꾸기",
     menuDelete: "삭제",
     menuDuplicate: "복제",

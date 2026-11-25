@@ -461,6 +461,8 @@ export const es: Strings = {
     menuTerminal: "Terminal",
     menuSaveAll: "Guardar todo",
     restoreWorkspace: "Restaurar el espacio de trabajo anterior",
+    exitRepo: "Exit",
+    exitRepoTitle: "Exit from the repo",
     menuRename: "Renombrar",
     menuDelete: "Eliminar",
     menuDuplicate: "Duplicar",

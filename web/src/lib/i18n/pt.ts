@@ -460,6 +460,8 @@ export const pt: Strings = {
     menuTerminal: "Terminal",
     menuSaveAll: "Salvar tudo",
     restoreWorkspace: "Restaurar o workspace anterior",
+    exitRepo: "Exit",
+    exitRepoTitle: "Exit from the repo",
     menuRename: "Renomear",
     menuDelete: "Excluir",
     menuDuplicate: "Duplicar",

@@ -473,6 +473,8 @@ export const en: Strings = {
     menuTerminal: "Terminal",
     menuSaveAll: "Save All",
     restoreWorkspace: "Restore previous workspace",
+    exitRepo: "Exit",
+    exitRepoTitle: "Exit from the repo",
     menuRename: "Rename",
     menuDelete: "Delete",
     menuDuplicate: "Duplicate",
