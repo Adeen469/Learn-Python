@@ -331,10 +331,16 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
       if (!raw && (byokVersionRef.current > 0 || byokKnownIdsRef.current.size > 0)) {
         byokVersionRef.current = Date.now();
         byokKnownIdsRef.current = new Set();
-        if (byokStore.entries.length > 0 || byokStore.enabled) {
+        // Adopt the wipe only when this tab still holds entries: an
+        // enabled switch with zero entries is a legitimate local
+        // state, and resetting it here made the master switch
+        // un-turn-on-able with no saved key (the toggle flipped
+        // straight back off). With no entries, fall through so the
+        // write below persists the enabled switch instead.
+        if (byokStore.entries.length > 0) {
           setByokStore({ enabled: false, entries: [] });
+          return;
         }
-        return;
       }
       const parsed: unknown = raw ? JSON.parse(raw) : null;
       const storedV =

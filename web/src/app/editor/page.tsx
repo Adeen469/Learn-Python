@@ -290,6 +290,7 @@ export default function CodeEditorPage() {
   });
   const {
     openRepoState, repoLoadedToast, setRepoLoadedToast,
+    loadingFilePath,
     changedRepoPathsRef, changedRepoCount, setChangedRepoCount,
     markRepoChanged, repoTreePathsRef, itemsRef, hasWorkspaceBackup,
     handleEditorChange, persistWorkspace, restoreWorkspaceBackup,
@@ -1171,7 +1172,7 @@ export default function CodeEditorPage() {
 
   const aiPanel = (<AiPanel t={t} aiView={aiView} aiMessages={aiMessages} aiThinking={aiThinking} aiThoughtSeconds={aiThoughtSeconds} setAiThoughtSeconds={setAiThoughtSeconds} aiError={aiError} aiMenuOpen={aiMenuOpen} setAiMenuOpen={setAiMenuOpen} activeFile={activeFile} sendAiMessage={sendAiMessage} stopAi={stopAi} clearAiChat={clearAiChat} setAiView={setAiView} setCentreView={setCentreView} setSettingsSection={setSettingsSection} setSettingsTabOpen={setSettingsTabOpen} setPanelVisible={setPanelVisible} setDraggingPanel={setDraggingPanel} setDropZone={setDropZone} AI_PANEL_MODELS={AI_PANEL_MODELS} aiChats={aiChats} startNewChat={startNewChat} loadAiChat={loadAiChat} deleteAiChat={deleteAiChat} defaultModel="gemini-3.6-flash" />);
 
-  const editorPanel = (<EditorPanel t={t} activeFile={activeFile} engine={engine} editorTheme={editorTheme} handleEditorChange={handleEditorChange} editorRef={editorRef} monacoRef={monacoRef} setCursorPos={setCursorPos} />);
+  const editorPanel = (<EditorPanel t={t} activeFile={activeFile} engine={engine} editorTheme={editorTheme} handleEditorChange={handleEditorChange} editorRef={editorRef} monacoRef={monacoRef} setCursorPos={setCursorPos} loadingFile={loadingFilePath === activeFilePath} />);
 
   const dockPanels = (["explorer", "terminal", "ai"] as PanelId[]).filter((id) => isPanelVisible(id));
   const leftPanels = dockPanels.filter((id) => panelZones[id] === "left");
@@ -1271,6 +1272,10 @@ export default function CodeEditorPage() {
                 <Folder className="h-3.5 w-3.5" />
                 {t.editorPage.explorer}
               </button>
+              {/* Push hides with no repo open (like Exit on the left):
+                  a plain workspace has nothing to push, so the button
+                  is gone entirely instead of sitting there disabled. */}
+              {openRepoState && (
               <button
                 type="button"
                 onClick={openPushDialog}
@@ -1286,6 +1291,7 @@ export default function CodeEditorPage() {
                 {t.editorPage.pushButton}
                 {changedRepoCount > 0 ? ` (${changedRepoCount})` : ""}
               </button>
+              )}
             </>
           }
         />

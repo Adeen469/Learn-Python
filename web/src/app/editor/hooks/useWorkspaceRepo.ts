@@ -37,6 +37,11 @@ export function useWorkspaceRepo(args: {
     const timer = setTimeout(() => setRepoLoadedToast(null), 5000);
     return () => clearTimeout(timer);
   }, [repoLoadedToast]);
+  // Which file's content is being fetched right now (lazy load) —
+  // the editor shows a circular spinner for exactly this file.
+  // Instant switches (content already in memory) fetch nothing,
+  // so no spinner ever shows for them.
+  const [loadingFilePath, setLoadingFilePath] = useState<string | null>(null);
   // Files changed since the repo was opened (edits, new files, renames,
   // duplicates, drops) — the Push button commits exactly these, one
   // commit per file through /api/github/batch-commit (one request for
@@ -124,12 +129,14 @@ export function useWorkspaceRepo(args: {
     }
     // A repo opened earlier (reload): its files may still be lazy —
     // restore which repo they belong to so clicking one loads it.
+    let restoredRepo: { repo: string; branch: string } | null = null;
     try {
       const raw = localStorage.getItem("lp_open_repo_current");
       if (raw) {
         const parsed = JSON.parse(raw);
         if (parsed && typeof parsed.repo === "string" && typeof parsed.branch === "string") {
           setOpenRepoState(parsed);
+          restoredRepo = parsed;
         }
       }
     } catch {}
@@ -157,6 +164,19 @@ export function useWorkspaceRepo(args: {
       setOutput((prev) => prev + `[Opening ${openRepoName}...]\n`);
       void loadRepoTree(openRepoName);
       return;
+    }
+    // Refresh-restore (no fresh handoff): the tree came back from
+    // localStorage, so loadRepoTree — and its toast — never ran.
+    // Fire it here so the user still sees "repo loaded" once the
+    // files are back. Only when the saved workspace actually holds
+    // repo files (they carry a sha; a plain workspace has none).
+    if (restoredRepo) {
+      const repoFileCount = base.filter(
+        (p: WorkspaceItem) => p.type === "file" && p.sha
+      ).length;
+      if (repoFileCount > 0) {
+        setRepoLoadedToast({ repo: restoredRepo.repo, count: repoFileCount });
+      }
     }
     let tryCode: string | null = null;
     try {
@@ -195,6 +215,7 @@ export function useWorkspaceRepo(args: {
     const sha = activeFile.sha;
     if (loadingFileRef.current === path) return;
     loadingFileRef.current = path;
+    setLoadingFilePath(path);
     // The server resolves the caller's stored GitHub token from
     // the session (migration 006) — no token leaves this browser.
     const [owner, name] = openRepoState.repo.split("/");
@@ -220,7 +241,13 @@ export function useWorkspaceRepo(args: {
         setOutput((prev) => prev + `[Could not load ${path}: ${err instanceof Error ? err.message : String(err)}]\n`);
       })
       .finally(() => {
-        loadingFileRef.current = null;
+        // Only clear when this fetch is still the latest one — a
+        // newer file clicked mid-flight already owns the ref and
+        // the spinner, and must not lose either to this one.
+        if (loadingFileRef.current === path) {
+          loadingFileRef.current = null;
+          setLoadingFilePath(null);
+        }
       });
   }, [activeFile, openRepoState]);
 
@@ -335,6 +362,7 @@ export function useWorkspaceRepo(args: {
   }
   return {
     openRepoState, repoLoadedToast, setRepoLoadedToast,
+    loadingFilePath,
     changedRepoPathsRef, changedRepoCount, setChangedRepoCount,
     markRepoChanged, repoTreePathsRef, itemsRef, hasWorkspaceBackup,
     handleEditorChange, persistWorkspace, restoreWorkspaceBackup,

@@ -118,11 +118,16 @@ function validateAiRequest(value) {
     }
     body.lessonId = v.lessonId;
   }
+  // An empty code is the same as no code: the editor always sends
+  // the active file's content, which is "" for an empty file (or no
+  // file open), and guide/tutor treat code as optional context — a
+  // "Hi" with an empty file must not 400. Explain/debug still
+  // require code (the check below reads body.code).
   if (v.code !== undefined) {
-    if (typeof v.code !== "string" || v.code.length === 0 || v.code.length > MAX_INPUT_CHARS) {
+    if (typeof v.code !== "string" || v.code.length > MAX_INPUT_CHARS) {
       return { ok: false, error: `code must be 1–${MAX_INPUT_CHARS} characters.` };
     }
-    body.code = v.code;
+    if (v.code.length > 0) body.code = v.code;
   }
   if (v.question !== undefined) {
     if (typeof v.question !== "string" || v.question.trim().length === 0 || v.question.length > MAX_INPUT_CHARS) {
@@ -1344,6 +1349,15 @@ test("validateAiRequest: guide needs a question, code is optional; model + effor
     validateAiRequest({ mode: "guide", question: "explain this", code: "x = 1" }).ok,
     true
   );
+  // An empty code is the same as no code: the editor always sends
+  // the active file's content, which is "" for an empty file (or no
+  // file open) — a "Hi" with an empty file must not 400 (it did:
+  // the client showed "Something went wrong" for every message).
+  assert.equal(validateAiRequest({ mode: "guide", question: "hi", code: "" }).ok, true);
+  assert.equal(validateAiRequest({ mode: "tutor", question: "hi", code: "" }).ok, true);
+  // Explain/debug still require a real code body.
+  assert.equal(validateAiRequest({ mode: "explain", code: "" }).ok, false);
+  assert.equal(validateAiRequest({ mode: "debug", code: "" }).ok, false);
   // Model allowlist: every free Gemini + Groq id passes, anything else fails.
   for (const id of AI_MODEL_IDS) {
     assert.equal(

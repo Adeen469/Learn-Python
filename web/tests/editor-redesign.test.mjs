@@ -470,6 +470,10 @@ test("Push opens a dialog with an AI-written commit message the user can edit (n
   assert.ok(page.includes("t.editorPage.pushButton"), "the menu bar must have a Push button");
   assert.ok(page.includes("UploadCloud"), "the Push button must carry an upload icon");
   assert.ok(page.includes("disabled={!openRepoState || pushing || changedRepoCount === 0}"), "Push must stay disabled without an open repo, while pushing, or with no changes");
+  // Push hides entirely with no repo open (not just disabled) — a
+  // plain workspace has nothing to push, so the button is gone.
+  const pushAt = page.indexOf("onClick={openPushDialog}");
+  assert.ok(pushAt > 0 && page.slice(Math.max(0, pushAt - 400), pushAt).includes("{openRepoState && ("), "the Push button must only render while a repo is open");
   assert.ok(page.includes("generateCommitMessage"), "the dialog must ask the AI for a commit message");
   assert.ok(page.includes("setTimeout(() => controller.abort(), 5000)"), "the AI message must give up after 5 seconds and keep the default");
   assert.ok(page.includes("messageEditedRef"), "typing in the box must win over a late AI reply");
@@ -587,6 +591,43 @@ test("a repo opening shows a success toast with its name and file count", () => 
   assert.ok(page.includes('role="status"'), "the toast must be a status region");
   assert.ok(en.includes("repoLoadedToast: (repo, count)"), "en.ts must define the toast message");
   assert.ok(en.includes("loaded — ${count} file(s)"), "the toast must name the repo and count its files");
+  // Refresh-restore: the tree comes back from localStorage, so the
+  // fresh-open toast above never runs — the toast must fire here
+  // too, or a reloaded repo never shows "loaded" at all.
+  assert.ok(repo.includes("setRepoLoadedToast({ repo: restoredRepo.repo, count: repoFileCount })"), "the toast must also fire when a repo is restored after a refresh");
+  assert.ok(repo.includes('p.type === "file" && p.sha'), "the restore toast must only count real repo files (they carry a sha), never a plain workspace");
+});
+
+test("a file loading from GitHub shows the tetromino loader until its content arrives", () => {
+  // Clicking a repo file fetches its content — until then the editor
+  // sat empty with no feedback at all. A centred loader now covers
+  // the code area while the fetch is in flight, and hides when the
+  // content lands (or the fetch fails).
+  assert.ok(repo.includes("loadingFilePath"), "the workspace hook must track which file is fetching");
+  assert.ok(repo.includes("setLoadingFilePath(path)"), "the loader state must turn on when the fetch starts");
+  assert.ok(repo.includes("setLoadingFilePath(null)"), "the loader state must clear when the fetch settles");
+  assert.ok(page.includes("loadingFile={loadingFilePath === activeFilePath}"), "only the file actually loading gets the loader");
+  assert.ok(editorPanel.includes("loadingFile"), "the editor panel must take a loading flag");
+  // Maalik, 2026-11-25: the spinner ring out, the tetromino
+  // "Compose" loader in (dev.to #15) — four blocks sliding into
+  // the composed logo. The ring must be gone entirely.
+  assert.ok(editorPanel.includes("<TetrominoLoader />"), "the editor panel must render the tetromino loader while the file loads");
+  assert.ok(!editorPanel.includes("animate-spin"), "the old spinner ring must be gone");
+  assert.ok(!editorPanel.includes("rounded-full border-2"), "the old circular ring must be gone");
+  assert.ok(editorPanel.includes("loading={null}"), "the Monaco editor must render no loading text of its own — the loader alone is the loading feedback");
+  const loader = read("src/app/editor/components/TetrominoLoader.tsx");
+  assert.ok(loader.includes('role="status"'), "the loader must be a status region");
+  assert.ok(loader.includes('aria-label="Loading file"'), "the loader must be labelled for screen readers");
+  assert.ok(loader.includes("box1") && loader.includes("box2") && loader.includes("box3") && loader.includes("box4"), "the loader must render all four tetromino pieces");
+  const loaderCss = read("src/app/editor/components/TetrominoLoader.css");
+  assert.ok(loaderCss.includes("@keyframes tetromino1") && loaderCss.includes("@keyframes tetromino4"), "the loader CSS must define the four piece animations");
+  assert.ok(loaderCss.includes("width: 48px") && loaderCss.includes("height: 56px"), "the pieces must be scaled ~50% of the original 96x112px");
+  // Colours inverted for the black editor background: the original
+  // black sides (%23010101) are invisible on black — light sides,
+  // dark top face instead.
+  assert.ok(loaderCss.includes("%23f5f5f5"), "the block sides must be light so they read on black");
+  assert.ok(loaderCss.includes("%230a0a0a"), "the top face must stay dark for the 3D depth");
+  assert.ok(!loaderCss.includes("%23010101"), "the original black sides must be gone");
 });
 
 test("ThoughtLine: the working label is plain text, never a transparent-fill shimmer", () => {

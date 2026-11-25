@@ -131,3 +131,20 @@ test("BYOK save (R3-C SSRF): a custom base URL is validated before it is stored"
     "a rejected base URL must be refused with a clear error"
   );
 });
+
+test("BYOK master switch can turn on with no saved keys (R2-L19 wipe guard)", () => {
+  // The persist effect adopts a cross-tab wipe only when this tab
+  // still holds entries — an enabled switch with zero entries is a
+  // legitimate local state, and the wipe branch must not reset it.
+  // Before this fix the branch reset { enabled: false, entries: [] }
+  // whenever the stored copy was missing, so the master switch
+  // flipped straight back off for a user with no saved key.
+  assert.ok(
+    aiHook.includes("if (byokStore.entries.length > 0) {\n          setByokStore({ enabled: false, entries: [] });"),
+    "the wipe adoption must only reset when this tab still holds entries"
+  );
+  assert.ok(
+    !aiHook.includes("if (byokStore.entries.length > 0 || byokStore.enabled) {\n          setByokStore({ enabled: false, entries: [] });"),
+    "the wipe adoption must not reset an enabled switch with zero entries"
+  );
+});

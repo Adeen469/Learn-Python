@@ -2,6 +2,7 @@ import type { Strings } from "@/lib/i18n";
 import type { Dispatch, SetStateAction } from "react";
 import Editor from "@monaco-editor/react";
 import { FileCode, Square } from "lucide-react";
+import { TetrominoLoader } from "./TetrominoLoader";
 import type { WorkspaceItem } from "../lib/editor-types";
 import type { PyodideEngine } from "../hooks/usePyodideEngine";
 import { languageForFile } from "../lib/editor-utils";
@@ -15,10 +16,14 @@ export type EditorPanelProps = {
   editorRef: { current: any };
   monacoRef: { current: any };
   setCursorPos: Dispatch<SetStateAction<{ line: number; col: number }>>;
+  // True while the active file's content is being fetched (lazy
+  // repo load) — the editor shows the tetromino loader until it
+  // arrives. False for instant switches: no fetch, no loader.
+  loadingFile: boolean;
 };
 
 export function EditorPanel(props: EditorPanelProps) {
-  const { t, activeFile, engine, editorTheme, handleEditorChange, editorRef, monacoRef, setCursorPos } = props;
+  const { t, activeFile, engine, editorTheme, handleEditorChange, editorRef, monacoRef, setCursorPos, loadingFile } = props;
 
   return (
     <div className="min-h-[420px] sm:min-h-[480px] md:min-h-0 flex-1 min-w-0 rounded-xl border border-neutral-800 bg-neutral-950 flex flex-col overflow-hidden">
@@ -44,11 +49,17 @@ export function EditorPanel(props: EditorPanelProps) {
       </div>
 
       <div className="flex-1 w-full relative">
+        {loadingFile && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-neutral-950/60">
+            <TetrominoLoader />
+          </div>
+        )}
         <Editor
           height="100%"
           language={languageForFile(activeFile?.path)}
           theme={editorTheme}
           value={activeFile?.content ?? ""}
+          loading={null}
           onChange={handleEditorChange}
           onMount={(editor) => {
             editorRef.current = editor;

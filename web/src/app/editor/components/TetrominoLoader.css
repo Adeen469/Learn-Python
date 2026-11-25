@@ -1,0 +1,91 @@
+/* Tetromino "Compose" loader (dev.to #15, "25 awesome loading
+   animations") — Maalik's pick to replace the spinner ring.
+   Converted from the pasted SCSS to plain CSS and scaled ~50%
+   (96x112px pieces -> 48x56px, xspace 48 -> 24px, yspace 27 ->
+   13px) so it fits the editor pane without dominating it.
+   Colours INVERTED for the black editor background: the original
+   had black sides + white top, invisible on black — here the sides
+   are near-white (#f5f5f5) and the top face near-black (#0a0a0a),
+   muted neutral only, so the 3D block reads on black. */
+
+.tetrominos {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-56px, -48px);
+}
+
+.tetromino {
+  width: 48px;
+  height: 56px;
+  position: absolute;
+  transition: all ease 0.3s;
+  background: url('data:image/svg+xml;utf-8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 612 684"%3E%3Cpath fill="%23f5f5f5" d="M305.7 0L0 170.9v342.3L305.7 684 612 513.2V170.9L305.7 0z"/%3E%3Cpath fill="%230a0a0a" d="M305.7 80.1l-233.6 131 233.6 131 234.2-131-234.2-131"/%3E%3C/svg%3E') no-repeat top center;
+  background-size: contain;
+}
+
+.box1 {
+  animation: tetromino1 1.5s ease-out infinite;
+}
+.box2 {
+  animation: tetromino2 1.5s ease-out infinite;
+}
+.box3 {
+  animation: tetromino3 1.5s ease-out infinite;
+  z-index: 2;
+}
+.box4 {
+  animation: tetromino4 1.5s ease-out infinite;
+}
+
+@keyframes tetromino1 {
+  0%, 40% {
+    /* compose logo *//* 1 on 3 *//* L-shape */
+    transform: translate(0, 0);
+  }
+  50% {
+    /* pre-box */
+    transform: translate(24px, -13px);
+  }
+  60%, 100% {
+    /* box *//* compose logo */
+    transform: translate(48px, 0);
+  }
+}
+
+@keyframes tetromino2 {
+  0%, 20% {
+    /* compose logo *//* 1 on 3 */
+    transform: translate(48px, 0px);
+  }
+  40%, 100% {
+    /* L-shape *//* box *//* compose logo */
+    transform: translate(72px, 13px);
+  }
+}
+
+@keyframes tetromino3 {
+  0% {
+    /* compose logo */
+    transform: translate(72px, 13px);
+  }
+  20%, 60% {
+    /* 1 on 3 *//* L-shape *//* box */
+    transform: translate(48px, 26px);
+  }
+  90%, 100% {
+    /* compose logo */
+    transform: translate(24px, 13px);
+  }
+}
+
+@keyframes tetromino4 {
+  0%, 60% {
+    /* compose logo *//* 1 on 3 *//* L-shape *//* box */
+    transform: translate(24px, 13px);
+  }
+  90%, 100% {
+    /* compose logo */
+    transform: translate(0, 0);
+  }
+}
