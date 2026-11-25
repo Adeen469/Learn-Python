@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const read = (p) => readFileSync(path.join(root, p), "utf8");
+const read = (p) => readFileSync(path.join(root, p), "utf8").replace(/\r\n/g, "\n");
 
 // BYOK v2 + Models section (2026-11-21, Maalik's brief): BYOK is
 // used only when the user enables it; several keys can be saved and

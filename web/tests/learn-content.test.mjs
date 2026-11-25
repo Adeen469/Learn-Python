@@ -31,7 +31,7 @@ const REFERENCE_FILES = [
 ];
 
 function read(name) {
-  return readFileSync(join(learnDir, name), "utf8");
+  return readFileSync(join(learnDir, name), "utf8").replace(/\r\n/g, "\n");
 }
 
 /** Slugs declared in a file, in order. */
@@ -473,9 +473,10 @@ test("lazy lesson index: shared chunks never statically import the sidebar tree"
   // slug list; the tree loads only on Learn pages (LearnSidebar /
   // lib/learn/index) and inside getSavedLessons, when the Settings
   // saved-lessons list actually renders.
-  const downloads = readFileSync(join(webDir, "src/lib/offline-downloads.ts"), "utf8");
-  const navbar = readFileSync(join(webDir, "src/components/AppNavbar.tsx"), "utf8");
-  const popup = readFileSync(join(webDir, "src/components/OfflineDownloadPopup.tsx"), "utf8");
+  const normalize = (text) => text.replace(/\r\n/g, "\n");
+  const downloads = normalize(readFileSync(join(webDir, "src/lib/offline-downloads.ts"), "utf8"));
+  const navbar = normalize(readFileSync(join(webDir, "src/components/AppNavbar.tsx"), "utf8"));
+  const popup = normalize(readFileSync(join(webDir, "src/components/OfflineDownloadPopup.tsx"), "utf8"));
   for (const [name, src] of [["offline-downloads", downloads], ["AppNavbar", navbar], ["OfflineDownloadPopup", popup]]) {
     assert.ok(!src.includes('from "@/lib/learn/sidebar"'), `${name} must not statically import the sidebar tree`);
   }

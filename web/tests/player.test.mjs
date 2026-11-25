@@ -10,7 +10,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const webDir = join(dirname(fileURLToPath(import.meta.url)), "..");
-const read = (rel) => readFileSync(join(webDir, rel), "utf8");
+const read = (rel) => readFileSync(join(webDir, rel), "utf8").replace(/\r\n/g, "\n");
 const playerPage = () => read("src/app/courses/[slug]/[collection]/page.tsx");
 const player = () => read("src/components/VideoPlayer.tsx");
 const animatedList = () => read("src/components/AnimatedList.tsx");

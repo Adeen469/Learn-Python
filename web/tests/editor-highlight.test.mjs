@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const read = (p) => readFileSync(path.join(root, p), "utf8");
+const read = (p) => readFileSync(path.join(root, p), "utf8").replace(/\r\n/g, "\n");
 
 // The editor split (2026-11-23): the Pyodide engine lives in the hook,
 // the terminal JSX in TerminalPanel, the AI panel in AiPanel — the
