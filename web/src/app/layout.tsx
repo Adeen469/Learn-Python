@@ -5,6 +5,7 @@ import { LanguageProvider } from "@/lib/i18n";
 import OfflineRegister from "@/components/OfflineRegister";
 import OfflineBanner from "@/components/OfflineBanner";
 import OfflineWarmer from "@/components/OfflineWarmer";
+import { VirtualTutor } from "@/components/VirtualTutor";
 import { cspMeta } from "../../next.config";
 
 const SITE_URL = "https://learnpython.fly.dev";
@@ -83,6 +84,7 @@ export default async function RootLayout({
           <OfflineRegister />
           <OfflineBanner />
           <OfflineWarmer />
+          <VirtualTutor />
           {children}
         </LanguageProvider>
       </body>
