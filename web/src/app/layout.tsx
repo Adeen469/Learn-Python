@@ -16,9 +16,9 @@ export const metadata: Metadata = {
   title: "LP — Learn Python",
   description: DESCRIPTION,
   icons: {
-    icon: "/icon.png",
-    shortcut: "/icon.png",
-    apple: "/icon.png",
+    icon: "/site-icon.png",
+    shortcut: "/site-icon.png",
+    apple: "/site-icon.png",
   },
   openGraph: {
     title: "LP — Learn Python",

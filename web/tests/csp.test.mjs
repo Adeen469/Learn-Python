@@ -89,6 +89,18 @@ test("nonce CSP drops unsafe-inline from script-src only (R2-L17)", () => {
   // style={{...}} attributes cannot carry a nonce).
   assert.ok(config.includes("'wasm-unsafe-eval'"));
   assert.ok(config.includes("https://cdn.jsdelivr.net"));
+  assert.ok(
+    config.includes("function allowDevelopmentRefreshEval(policy: string)") &&
+      config.includes('process.env.NODE_ENV === "development"'),
+    "unsafe-eval must be limited to the development refresh runtime"
+  );
+  assert.ok(
+    config.includes('policy.replace("script-src ", "script-src \'unsafe-eval\' ")') &&
+      config.includes(": policy;") &&
+      config.includes('const csp = allowDevelopmentRefreshEval(cspDirectives.join("; "));') &&
+      config.includes("return allowDevelopmentRefreshEval(policy);"),
+    "production must keep the nonce CSP without unsafe-eval"
+  );
   const styleSrc = config.match(/"style-src[^\"]*"/)?.[0] ?? "";
   assert.ok(styleSrc.includes("'unsafe-inline'"), "style-src keeps unsafe-inline");
   // The header CSP still carries 'unsafe-inline' for the routes

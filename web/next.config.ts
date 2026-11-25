@@ -78,7 +78,13 @@ const cspDirectives = [
   "frame-ancestors 'none'",
 ];
 
-const csp = cspDirectives.join("; ");
+function allowDevelopmentRefreshEval(policy: string): string {
+  return process.env.NODE_ENV === "development"
+    ? policy.replace("script-src ", "script-src 'unsafe-eval' ")
+    : policy;
+}
+
+const csp = allowDevelopmentRefreshEval(cspDirectives.join("; "));
 
 // Nonce CSP (R2-L17): the same directives, but script-src carries a
 // per-request nonce instead of 'unsafe-inline'. style-src keeps
@@ -89,13 +95,14 @@ const csp = cspDirectives.join("; ");
 // middleware response header replaces the config CSP, it does not
 // duplicate it — so the nonce policy is the one enforced there.
 export function buildCspWithNonce(nonce: string): string {
-  return cspDirectives
+  const policy = cspDirectives
     .map((d) =>
       d.startsWith("script-src ")
         ? d.replace("'unsafe-inline'", `'nonce-${nonce}'`)
         : d,
     )
     .join("; ");
+  return allowDevelopmentRefreshEval(policy);
 }
 
 // Meta-CSP fallback (R2-M15): Next ignores headers() for
