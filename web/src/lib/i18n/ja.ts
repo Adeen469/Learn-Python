@@ -438,6 +438,7 @@ export const ja: Strings = {
     deleteRepoCodeLabel: "Enter the 6-digit code from your email",
     deleteRepoSendingCode: "Sending code to your email…",
     deleteRepoSendCode: "Send code",
+    deleteRepoCodeSentTo: (email) => `Code sent to ${email}. It expires in 10 minutes.`,
     pushNeedsRepo: "変更をプッシュするには、GitHubページからリポジトリを開いてください",
     pushDialogTitle: "GitHubへプッシュ",
     pushDialogSummary: (ready, skipped, repo) => `${repo} — ${ready}件のファイルをプッシュします${skipped > 0 ? `、${skipped}件をスキップ（未開封）` : ""}。`,

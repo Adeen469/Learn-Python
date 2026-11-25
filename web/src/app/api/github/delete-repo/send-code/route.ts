@@ -18,6 +18,15 @@ import {
 // else's account — and only for a verified email.
 export const dynamic = "force-dynamic";
 
+// Masked for the dialog ("bi•••@gmail.com"): the user needs to know
+// which inbox to check, but the full address never leaves the server.
+function maskEmail(email: string): string {
+  const [local, domain] = email.split("@");
+  if (!domain || !local) return "•••";
+  const shown = local.length <= 2 ? local.slice(0, 1) : local.slice(0, 2);
+  return `${shown}•••@${domain}`;
+}
+
 export async function POST(req: NextRequest) {
   const limited = await rateLimit(req, "github-delete-send-code", 10, 60_000, {
     failClosed: true,
@@ -60,5 +69,5 @@ export async function POST(req: NextRequest) {
     }
     return jsonError("Could not send the email. Please try again.", 502);
   }
-  return NextResponse.json({ sent: true });
+  return NextResponse.json({ sent: true, email: maskEmail(sessionUser.email) });
 }

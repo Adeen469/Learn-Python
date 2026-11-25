@@ -442,6 +442,7 @@ export const ar: Strings = {
     deleteRepoCodeLabel: "Enter the 6-digit code from your email",
     deleteRepoSendingCode: "Sending code to your email…",
     deleteRepoSendCode: "Send code",
+    deleteRepoCodeSentTo: (email) => `Code sent to ${email}. It expires in 10 minutes.`,
     pushNeedsRepo: "افتح مستودعًا من صفحة GitHub لدفع التغييرات",
     pushDialogTitle: "الدفع إلى GitHub",
     pushDialogSummary: (ready, skipped, repo) => `${repo} — سيتم دفع ${ready} ملف(ات)${skipped > 0 ? `، تم تخطي ${skipped} (لم تُفتح)` : ""}.`,

@@ -430,6 +430,7 @@ export const zh: Strings = {
     deleteRepoCodeLabel: "Enter the 6-digit code from your email",
     deleteRepoSendingCode: "Sending code to your email…",
     deleteRepoSendCode: "Send code",
+    deleteRepoCodeSentTo: (email) => `Code sent to ${email}. It expires in 10 minutes.`,
     pushNeedsRepo: "请先从 GitHub 页面打开一个仓库，再推送更改",
     pushDialogTitle: "推送到 GitHub",
     pushDialogSummary: (ready, skipped, repo) => `${repo} — 将推送 ${ready} 个文件${skipped > 0 ? `，跳过 ${skipped} 个（未打开）` : ""}。`,

@@ -114,7 +114,10 @@ test("R3-M2 send-code: the delete code goes to the session user's verified email
   assert.ok(send.includes('issueOtpCode(sessionUser.email, "delete-repo")'), "the code must be a delete-repo OTP");
   assert.ok(send.includes("!user.email_verified"), "the code must only go to a verified email");
   assert.ok(send.includes('rateLimit(req, "github-delete-send-code", 10, 60_000'), "the send route must be rate-limited");
-  assert.ok(send.includes("{ sent: true }"), "the send route must answer sent:true");
+  // The answer names the inbox — MASKED ("bi•••@gmail.com"), never
+  // the full address — so the user knows where to look for the code.
+  assert.ok(send.includes("email: maskEmail(sessionUser.email)"), "the send route must answer with the masked address");
+  assert.ok(send.includes("function maskEmail"), "the masking must live in the send route");
 });
 
 test("R3-M2 client: the GitHub page collects the emailed code in the EXISTING delete dialog", () => {

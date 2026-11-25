@@ -390,6 +390,7 @@ export const hiRoman: Strings = {
     deleteRepoCodeLabel: "Enter the 6-digit code from your email",
     deleteRepoSendingCode: "Sending code to your email…",
     deleteRepoSendCode: "Send code",
+    deleteRepoCodeSentTo: (email) => `Code sent to ${email}. It expires in 10 minutes.`,
     pushNeedsRepo: "Changes push karne ke liye pehle GitHub page se ek repo kholo",
     pushDialogTitle: "GitHub pe Push karo",
     pushDialogSummary: (ready, skipped, repo) => `${repo} — ${ready} file(s) push hongi${skipped > 0 ? `, ${skipped} skip (kabhi kholi nahi)` : ""}.`,

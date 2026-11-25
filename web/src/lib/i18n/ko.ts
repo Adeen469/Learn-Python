@@ -393,6 +393,7 @@ export const ko: Strings = {
     deleteRepoCodeLabel: "Enter the 6-digit code from your email",
     deleteRepoSendingCode: "Sending code to your email…",
     deleteRepoSendCode: "Send code",
+    deleteRepoCodeSentTo: (email) => `Code sent to ${email}. It expires in 10 minutes.`,
     pushNeedsRepo: "변경 사항을 푸시하려면 GitHub 페이지에서 리포지토리를 여세요",
     pushDialogTitle: "GitHub에 푸시",
     pushDialogSummary: (ready, skipped, repo) => `${repo} — 파일 ${ready}개를 푸시합니다${skipped > 0 ? `, ${skipped}개 건너뜀(열지 않음)` : ""}.`,

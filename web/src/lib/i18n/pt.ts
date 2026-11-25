@@ -439,6 +439,7 @@ export const pt: Strings = {
     deleteRepoCodeLabel: "Enter the 6-digit code from your email",
     deleteRepoSendingCode: "Sending code to your email…",
     deleteRepoSendCode: "Send code",
+    deleteRepoCodeSentTo: (email) => `Code sent to ${email}. It expires in 10 minutes.`,
     pushNeedsRepo: "Abra um repositório na página do GitHub para enviar as alterações",
     pushDialogTitle: "Enviar para o GitHub",
     pushDialogSummary: (ready, skipped, repo) => `${repo} — ${ready} arquivo(s) serão enviados${skipped > 0 ? `, ${skipped} ignorado(s) (nunca aberto(s))` : ""}.`,

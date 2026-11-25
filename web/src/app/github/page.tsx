@@ -195,6 +195,10 @@ export default function GitHubPage() {
   // code is required for everyone, including Google-only accounts.
   const [deleteCode, setDeleteCode] = useState("");
   const [deleteCodeSent, setDeleteCodeSent] = useState(false);
+  // Masked address from the send-code response ("bi•••@gmail.com"),
+  // so the user knows which inbox to check. Null until a send
+  // succeeds — the note falls back to the generic line without it.
+  const [deleteSentEmail, setDeleteSentEmail] = useState<string | null>(null);
   const [deleteSendingCode, setDeleteSendingCode] = useState(false);
   const [deleteCooldown, setDeleteCooldown] = useState(0);
   // CodeSlots status: "error" drains the slots on a wrong code,
@@ -211,6 +215,7 @@ export default function GitHubPage() {
     setDeleteConfirmText("");
     setDeleteCode("");
     setDeleteCodeSent(false);
+    setDeleteSentEmail(null);
     setDeleteSendingCode(false);
     setDeleteCooldown(0);
     setDeleteSlotStatus("idle");
@@ -240,6 +245,11 @@ export default function GitHubPage() {
         return;
       }
       setDeleteCodeSent(true);
+      setDeleteSentEmail(
+        typeof (data as Record<string, unknown> | null)?.email === "string"
+          ? ((data as Record<string, unknown>).email as string)
+          : null
+      );
       setDeleteCooldown(60);
     } catch {
       setDeleteError(t.auth.couldNotSendCode);
@@ -266,6 +276,7 @@ export default function GitHubPage() {
     setDeleteConfirmText("");
     setDeleteCode("");
     setDeleteCodeSent(false);
+    setDeleteSentEmail(null);
     setDeleteSendingCode(false);
     setDeleteCooldown(0);
     setDeleteSlotStatus("idle");
@@ -1012,7 +1023,9 @@ export default function GitHubPage() {
               {deleteCodeSent && (
                 <>
                   <p className="mt-3 text-xs text-neutral-400">
-                    {t.auth.codeSentToYourEmailWithExpiry}
+                    {deleteSentEmail
+                      ? t.editorPage.deleteRepoCodeSentTo(deleteSentEmail)
+                      : t.auth.codeSentToYourEmailWithExpiry}
                   </p>
                   <label className="mt-3 block text-xs font-medium text-neutral-300">
                     {t.editorPage.deleteRepoCodeLabel}

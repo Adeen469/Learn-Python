@@ -160,7 +160,20 @@ test("the delete-repo route steps up with an emailed code — no password, no TO
   assert.ok(send.includes('issueOtpCode(sessionUser.email, "delete-repo")'), "the send route must issue a delete-repo code");
   assert.ok(send.includes("getSessionUser(req, prereqs.secret)"), "the send route must need a session");
   assert.ok(send.includes("!user.email_verified"), "the send route must need a verified email");
-  assert.ok(send.includes("{ sent: true }"), "the send route must answer sent:true");
+  // The answer names the inbox — MASKED ("bi•••@gmail.com"), never
+  // the full address — so the user knows where to look for the code.
+  assert.ok(send.includes("email: maskEmail(sessionUser.email)"), "the send route must answer with the masked address");
+  assert.ok(send.includes("function maskEmail"), "the masking must live in the send route");
+  assert.ok(send.includes("•••@${domain}"), "the mask must hide the local part behind dots");
+  assert.ok(send.includes("local.slice(0, 2)"), "the mask must show the first two letters of a long local part");
+  assert.ok(send.includes("local.slice(0, 1)"), "the mask must show only the first letter of a short local part");
+  // Migration 012 widens the 004 CHECK on lp_auth_otp.purpose to
+  // include 'delete-repo' — without it the insert violates the
+  // CHECK, storeOtp fails, and the dialog shows "Could not send
+  // the email" (the live bug).
+  const sql012 = read("supabase/migrations/012_delete_repo_otp_purpose.sql");
+  assert.ok(sql012.includes("drop constraint if exists lp_auth_otp_purpose_check"), "012 must drop the old purpose CHECK");
+  assert.ok(sql012.includes("'delete-repo'"), "012 must admit the delete-repo purpose");
 });
 
 test("repo-tree and repo-file validate owner, repo, sha and path", () => {
@@ -326,6 +339,11 @@ test("deleting a repo from the menu needs the typed owner/repo name", () => {
   assert.ok(p.includes("<CodeSlots"), "the dialog must render code boxes");
   assert.ok(p.includes("length={6}"), "the code boxes must take 6 digits");
   assert.ok(p.includes("t.editorPage.deleteRepoCodeLabel"), "the code boxes must be labelled");
+  // The sent note names the masked inbox ("Code sent to
+  // bi•••@gmail.com…"), with the generic line as fallback.
+  assert.ok(p.includes("t.editorPage.deleteRepoCodeSentTo(deleteSentEmail)"), "the sent note must name the masked inbox");
+  assert.ok(en().includes("deleteRepoCodeSentTo: (email) =>"), "the sent note must be an i18n function of the masked email");
+  assert.ok(p.includes("t.auth.codeSentToYourEmailWithExpiry"), "the note must fall back to the generic line without an address");
   assert.ok(p.includes("code: codeToUse"), "the delete request must send the email code");
   assert.ok(p.includes("deleteCode.length !== 6"), "Delete must stay disabled until all 6 digits are typed");
 });

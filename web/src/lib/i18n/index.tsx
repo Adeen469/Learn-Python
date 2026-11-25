@@ -466,6 +466,7 @@ export type Strings = {
     deleteRepoCodeLabel: string;
     deleteRepoSendingCode: string;
     deleteRepoSendCode: string;
+    deleteRepoCodeSentTo: (email: string) => string;
     pushNeedsRepo: string;
     pushDialogTitle: string;
     pushDialogSummary: (ready: number, skipped: number, repo: string) => string;
