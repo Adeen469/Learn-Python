@@ -305,7 +305,7 @@ export function VirtualTutor() {
             intensity={0.6}
             saturation={1.05}
             glassSize={0.5}
-            rim={0.7}
+            rim={0}
             dispersion={0}
             maxDevicePixelRatio={1.5}
           />
