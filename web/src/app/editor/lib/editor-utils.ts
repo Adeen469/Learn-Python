@@ -4,6 +4,82 @@
 // (The BYOK store helpers stay in page.tsx: their AiByok* types are
 // local to the page and the r3c tests pin them there.)
 import type { WorkspaceItem } from "./editor-types";
+import type { BranchedMenuItem } from "@/components/BranchedMenu";
+
+// --- Explorer tree search + sort (display-only) ---
+// The Explorer panel filters and sorts the BranchedMenu items it gets
+// from the page; the workspace data itself never changes. Pure, so the
+// test suite can import and run them directly (Node type-stripping).
+
+// A folder section is a BranchedMenu item with children; a file is a
+// leaf. Top-level names are the item value (a path with no "/").
+function explorerItemName(item: BranchedMenuItem): string {
+  return item.value ?? "";
+}
+
+function compareExplorerNames(a: string, b: string): number {
+  return a.toLowerCase().localeCompare(b.toLowerCase());
+}
+
+// A child's display name is its path relative to its folder
+// ("sub/file.py" for a file in a sub-folder of the section).
+function relativeExplorerName(folderPath: string, value: string): string {
+  return folderPath && value.startsWith(folderPath + "/") ? value.slice(folderPath.length + 1) : value;
+}
+
+// Sort one level of the tree: folders first (A–Z), then files (A–Z),
+// case-insensitive. A folder's children are flattened files — its own
+// files first (A–Z), then files in sub-folders (A–Z by relative path,
+// which groups them by sub-folder). Returns new arrays; the input is
+// never mutated.
+export function sortExplorerTree(items: BranchedMenuItem[]): BranchedMenuItem[] {
+  const sorted = [...items].sort((a, b) => {
+    const aFolder = a.children ? 0 : 1;
+    const bFolder = b.children ? 0 : 1;
+    if (aFolder !== bFolder) return aFolder - bFolder;
+    return compareExplorerNames(explorerItemName(a), explorerItemName(b));
+  });
+  return sorted.map((item) => {
+    if (!item.children) return item;
+    const folderPath = item.value ?? "";
+    const children = [...item.children].sort((a, b) => {
+      const aRel = relativeExplorerName(folderPath, a.value ?? "");
+      const bRel = relativeExplorerName(folderPath, b.value ?? "");
+      const aNested = aRel.includes("/") ? 1 : 0;
+      const bNested = bRel.includes("/") ? 1 : 0;
+      if (aNested !== bNested) return aNested - bNested;
+      return compareExplorerNames(aRel, bRel);
+    });
+    return { ...item, children };
+  });
+}
+
+// Live-filter the tree by a query (case-insensitive substring on the
+// name). A folder matches by its own name (all its children stay) or
+// by any child (only the matching children stay — the folder itself is
+// kept so the match is reachable); a file matches by its own name. An
+// empty query returns the input unchanged (same array, unsorted).
+export function filterExplorerTree(items: BranchedMenuItem[], query: string): BranchedMenuItem[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return items;
+  const out: BranchedMenuItem[] = [];
+  for (const item of items) {
+    if (item.children) {
+      const folderPath = item.value ?? "";
+      if (folderPath.toLowerCase().includes(q)) {
+        out.push(item);
+        continue;
+      }
+      const kids = item.children.filter((child) =>
+        relativeExplorerName(folderPath, child.value ?? "").toLowerCase().includes(q)
+      );
+      if (kids.length > 0) out.push({ ...item, children: kids });
+    } else if ((item.value ?? "").toLowerCase().includes(q)) {
+      out.push(item);
+    }
+  }
+  return out;
+}
 
 export function readLocalJson<T>(key: string, fallback: T): T {
   try {

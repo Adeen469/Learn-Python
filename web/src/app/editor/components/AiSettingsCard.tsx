@@ -4,7 +4,7 @@
 // sub-page. Everything here lives in this browser; the server never
 // stores a skill or a key. Moved verbatim from page.tsx (F1 split).
 import type { Strings } from "@/lib/i18n";
-import { ArrowLeft, ChevronRight, KeyRound, Trash2 } from "lucide-react";
+import { ArrowLeft, ChevronRight, KeyRound, Search, Trash2 } from "lucide-react";
 import { BUILTIN_AI_SKILL_META } from "@/lib/ai-skills-meta.generated";
 import type { EditorAi } from "../hooks/useEditorAi";
 import type { AiByokProvider } from "../hooks/useEditorAi";
@@ -16,6 +16,8 @@ export function AiSettingsCard({ t, ai }: { t: Strings; ai: EditorAi }) {
     newSkillName, setNewSkillName, newSkillDesc, setNewSkillDesc,
     newSkillContent, setNewSkillContent, addCustomSkill,
     MODEL_GROUPS, selectorModels, toggleSelectorModel, modelQualityTag,
+    ALL_AI_PANEL_MODELS, orSearchOpen, toggleOrSearch, orSearchQuery, setOrSearchQuery,
+    orSearchResults, orSearchLoading, orSearchError, addOpenRouterModel,
     byokStore, setByokMaster, toggleByokEntry, removeByokEntry,
     BYOK_PROVIDER_NAMES, byokProvider, setByokProvider,
     byokKey, setByokKey, byokBaseUrl, setByokBaseUrl,
@@ -174,12 +176,71 @@ export function AiSettingsCard({ t, ai }: { t: Strings; ai: EditorAi }) {
           <div key={group.provider}>
             <p className="mb-1 flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-neutral-400">
               <span>{group.name}</span>
-              {group.needsKey ? (
-                <span className="font-normal normal-case tracking-normal text-amber-400">
-                  {t.editorPage.aiModelsNeedsKey}
-                </span>
-              ) : null}
+              <span className="flex items-center gap-1">
+                {group.needsKey ? (
+                  <span className="font-normal normal-case tracking-normal text-amber-400">
+                    {t.editorPage.aiModelsNeedsKey}
+                  </span>
+                ) : null}
+                {group.provider === "openrouter" ? (
+                  <button
+                    type="button"
+                    onClick={toggleOrSearch}
+                    aria-label={t.editorPage.aiModelsSearchPlaceholder}
+                    title={t.editorPage.aiModelsSearchPlaceholder}
+                    className="rounded p-1 text-neutral-400 hover:bg-neutral-800 hover:text-white"
+                  >
+                    <Search className="h-3.5 w-3.5" />
+                  </button>
+                ) : null}
+              </span>
             </p>
+            {group.provider === "openrouter" && orSearchOpen ? (
+              <div className="mb-2 space-y-1 rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2">
+                <input
+                  value={orSearchQuery}
+                  onChange={(e) => setOrSearchQuery(e.target.value)}
+                  placeholder={t.editorPage.aiModelsSearchPlaceholder}
+                  autoFocus
+                  className="w-full rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-600 outline-none focus:border-neutral-600"
+                />
+                {orSearchLoading ? (
+                  <p className="text-xs text-neutral-500">{t.editorPage.aiModelsSearchLoading}</p>
+                ) : orSearchError ? (
+                  <p className="text-xs text-red-300">{t.editorPage.aiModelsSearchError}</p>
+                ) : orSearchResults.length === 0 ? (
+                  <p className="text-xs text-neutral-500">{t.editorPage.aiModelsSearchNoResults}</p>
+                ) : (
+                  orSearchResults.map((m) => {
+                    const alreadyAdded = ALL_AI_PANEL_MODELS.some((x) => x.key === m.id);
+                    return (
+                      <div
+                        key={m.id}
+                        className="flex items-center gap-2 rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-2"
+                      >
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm text-neutral-100">{m.name}</span>
+                          <span className="block truncate font-mono text-[11px] text-neutral-500">{m.id}</span>
+                        </span>
+                        {alreadyAdded ? (
+                          <span className="shrink-0 text-xs text-neutral-500">
+                            {t.editorPage.aiModelsSearchAdded}
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => addOpenRouterModel(m.id, m.name)}
+                            className="shrink-0 rounded-lg bg-white px-2.5 py-1 text-xs font-semibold text-black transition hover:bg-neutral-200"
+                          >
+                            {t.editorPage.aiModelsSearchAdd}
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            ) : null}
             {group.models.map((m) => (
               <label
                 key={m.key}

@@ -115,9 +115,10 @@ test("lesson pages show a text-selection toolbar (Ask to AI, Translate dropdown,
   // Translate is a dropdown of the 11 app languages.
   assert.ok(toolbar.includes("LANGUAGES.map"), "the Translate dropdown must list the app languages");
   assert.ok(toolbar.includes("translateOpen"), "the Translate dropdown must open/close");
-  // Ask to AI goes through the existing /api/ai tutor mode.
+  // Ask to AI goes through the existing /api/ai route with the
+  // single default AI — no mode field is sent.
   assert.ok(toolbar.includes('"/api/ai"'), "Ask to AI must call the existing /api/ai route");
-  assert.ok(toolbar.includes('mode: "tutor"'), "Ask to AI must use tutor mode");
+  assert.ok(!toolbar.includes('mode: "tutor"'), "Ask to AI must not send a mode — one default AI answers every prompt");
   assert.ok(toolbar.includes("Explain this text from the Python lesson"), "Ask to AI must send the selected text with the lesson title");
   // Translate replaces the selected text IN PLACE in the lesson — never
   // a separate panel. The translated span restores the original on click.

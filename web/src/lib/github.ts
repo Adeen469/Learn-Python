@@ -241,12 +241,35 @@ export async function getRepoFileContent(
   token: string,
   params: { owner: string; repo: string; path: string; sha: string }
 ): Promise<{ path: string; content: string }> {
+  const { path, bytes } = await getRepoBlobBytes(token, params);
+  const content = bytes.toString("utf8");
+  if (content.includes("\0")) {
+    throw new Error(`Binary file — cannot open as code (${params.path})`);
+  }
+  return { path, content };
+}
+
+// Raw bytes of a repo file, for the editor's file viewers (images,
+// video, audio, PDF, Excel, Word). Same checks as the text read —
+// path↔SHA verification and the 10 MB cap — but no UTF-8 decode and
+// no binary rejection: the caller renders the bytes.
+export async function getRepoFileBytes(
+  token: string,
+  params: { owner: string; repo: string; path: string; sha: string }
+): Promise<{ path: string; bytes: Buffer }> {
+  return getRepoBlobBytes(token, params);
+}
+
+// Shared blob fetch for the editor's file reads: verifies first that
+// the path in this repo actually points at this blob, or any blob in
+// the repo's history (a deleted .env included) could be read by SHA.
+// getContent also reports the size, so an oversize file is refused
+// BEFORE the blob is downloaded.
+async function getRepoBlobBytes(
+  token: string,
+  params: { owner: string; repo: string; path: string; sha: string }
+): Promise<{ path: string; bytes: Buffer }> {
   const octokit = getOctokit(token);
-  // A blob SHA alone proves nothing about the path: verify first
-  // that the path in this repo actually points at this blob, or
-  // any blob in the repo's history (a deleted .env included) could
-  // be read by SHA. getContent also reports the size, so an
-  // oversize file is refused BEFORE the blob is downloaded.
   const { data: meta } = await octokit.rest.repos.getContent({
     owner: params.owner,
     repo: params.repo,
@@ -274,11 +297,7 @@ export async function getRepoFileContent(
   if ((data.size ?? 0) > REPO_OPEN_MAX_BYTES) {
     throw new Error(`File is larger than 10 MB (${params.path})`);
   }
-  const content = Buffer.from(data.content, "base64").toString("utf8");
-  if (content.includes("\0")) {
-    throw new Error(`Binary file — cannot open as code (${params.path})`);
-  }
-  return { path: params.path, content };
+  return { path: params.path, bytes: Buffer.from(data.content, "base64") };
 }
 
 export async function commitFileToRepo(

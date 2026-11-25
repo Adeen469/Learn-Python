@@ -17,7 +17,7 @@ import { LANGUAGES, useLanguage } from "@/lib/i18n";
  * Floating toolbar for text selected inside a lesson (/learn/[slug]).
  * Appears above the selection with three actions:
  *   - Ask to AI: opens a draggable, minimizable card with the AI's
- *     explanation of the selected text (via /api/ai, tutor mode).
+ *     explanation of the selected text (via /api/ai, default AI).
  *     The card is dragged by its header and can be minimized to a
  *     slim bar (maximize restores it) or closed.
  *   - Translate: a dropdown of the 11 app languages; picking one
@@ -224,7 +224,7 @@ export function TextSelectionToolbar({ lessonTitle }: { lessonTitle: string }) {
         method: "POST",
         credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode: "tutor", question }),
+        body: JSON.stringify({ question }),
       });
       const data: unknown = await res.json().catch(() => null);
       if (res.status === 401) {
@@ -295,7 +295,6 @@ export function TextSelectionToolbar({ lessonTitle }: { lessonTitle: string }) {
         credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          mode: "tutor",
           question: `Translate this text to ${langEnglishName}. Reply with ONLY the translation, no extra explanation:\n\n${original}`,
         }),
       });

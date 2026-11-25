@@ -518,7 +518,6 @@ export default function CodeEditorPage() {
         credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          mode: "guide",
           question: `Write ONLY a short commit message (one line, max 72 characters, conventional-commits style like "feat: ..." or "fix: ...") for these changes in the ${openRepoState?.repo ?? "repo"} repository:\n${lines.join("\n")}\nReply with just the message, nothing else.`,
           model: "gemini-3.6-flash",
           effort: "Low",

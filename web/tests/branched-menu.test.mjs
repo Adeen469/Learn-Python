@@ -87,7 +87,12 @@ test("the editor page renders its file tree as a BranchedMenu", () => {
   assert.ok(page.includes("sectionPathByIndex"), "the editor must map section indices back to folder paths");
   assert.ok(page.includes("treeOpenSections"), "the editor must pass controlled open sections");
   assert.ok(explorerPanel.includes("activeValue={activeFilePath}"), "the active file must drive BranchedMenu's highlight");
-  assert.ok(explorerPanel.includes("openSections={treeOpenSections}"), "expandedFolders must drive BranchedMenu's fold state");
+  // The panel filters + sorts the tree for search, so section indices
+  // shift: it passes remapped open sections derived from the page's
+  // treeOpenSections (forced open while a query is active, so a match
+  // is always reachable).
+  assert.ok(explorerPanel.includes("openSections={visibleOpenSections}"), "the filtered tree must pass its remapped open sections");
+  assert.ok(explorerPanel.includes("treeOpenSections.map((orig) => visibleIndexByOriginal.indexOf(orig))"), "open sections must derive from the page's treeOpenSections");
   // Selecting a file opens it (same as the old tree's click).
   assert.ok(page.includes("handleTreeSelect"), "the editor must handle BranchedMenu selection");
   assert.ok(page.includes("setActiveFilePath(value)"), "selecting a file must open it in the editor");

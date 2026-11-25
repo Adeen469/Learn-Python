@@ -4,6 +4,20 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
+// Runtime tests for the Explorer search/sort + extensions helpers:
+// Node 24 type-strips .ts on import, so these test the real code
+// (the modules only use erasable `import type` otherwise).
+import {
+  filterExplorerTree,
+  sortExplorerTree,
+} from "../src/app/editor/lib/editor-utils.ts";
+import {
+  EDITOR_EXTENSIONS,
+  extensionForFile,
+  toggleExtensionId,
+  viewerKindForFile,
+} from "../src/app/editor/lib/editor-extensions.ts";
+
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(path.join(root, p), "utf8");
 
@@ -13,7 +27,7 @@ const read = (p) => readFileSync(path.join(root, p), "utf8");
 // Format (black), rename / delete / duplicate / copy-path, resizable
 // panels (drag + double-click reset), a status bar, draggable dock
 // zones (Explorer / Terminal / AI move between left / right / bottom),
-// and an AI panel (PromptBar + ThoughtLine, guide mode — a real AI
+// and an AI panel (PromptBar + ThoughtLine, default AI — a real AI
 // assistant with no restrictions, plus a ⋮ menu for chat history and
 // AI settings: skills + BYOK). Static source checks — the suite
 // mirrors the source so a drift fails loudly instead of shipping a
@@ -46,6 +60,7 @@ const promptBarCss = read("src/components/PromptBar.css");
 const thoughtLine = read("src/components/ThoughtLine.tsx");
 const aiLib = read("src/lib/ai.ts");
 const aiRoute = read("src/app/api/ai/route.ts");
+const orModelsRoute = read("src/app/api/ai/openrouter-models/route.ts");
 const aiSkillsGen = read("src/lib/ai-skills.generated.ts");
 const aiSkillsMeta = read("src/lib/ai-skills-meta.generated.ts");
 const en = read("src/lib/i18n/en.ts");
@@ -224,7 +239,7 @@ test("fit to screen: viewport-height layout on desktop, each panel scrolls on it
   assert.ok(modules.includes("flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto"), "Modules tab must scroll inside one div");
 });
 
-test("AI panel: PromptBar + ThoughtLine wired to guide mode (a real AI, no restrictions)", () => {
+test("AI panel: PromptBar + ThoughtLine wired to the default AI (a real AI, no restrictions)", () => {
   assert.ok(aiPanel.includes("<PromptBar"), "AI panel must render the PromptBar");
   assert.ok(aiPanel.includes("<ThoughtLine"), "AI panel must render the ThoughtLine while thinking");
   // The ThoughtLine must stay mounted while messages exist: if it
@@ -235,7 +250,7 @@ test("AI panel: PromptBar + ThoughtLine wired to guide mode (a real AI, no restr
     "ThoughtLine must stay mounted while messages exist so it can settle"
   );
   assert.ok(page.includes("sendAiMessage"), "AI panel must send through sendAiMessage");
-  assert.ok(page.includes('mode: "guide"'), "AI panel must ask in guide mode (a real AI assistant)");
+  assert.ok(!page.includes('mode: "guide"'), "AI panel must not send a mode — one default AI answers every prompt");
   assert.ok(page.includes("AI_PANEL_MODELS"), "AI panel must offer the model picker");
   assert.ok(page.includes('defaultModel="gemini-3.6-flash"'), "Gemini 3.6 Flash must be the default model (proven live; the 3.1 Pro preview is best, not default)");
   // The model menu must scroll: 15 models no longer fit on screen.
@@ -260,7 +275,7 @@ test("AI panel: PromptBar + ThoughtLine wired to guide mode (a real AI, no restr
     );
   }
   assert.ok(aiPanel.includes('sparkColor="#8e8e8e"'), "PromptBar must use Maalik's spark colour");
-  assert.ok(aiPanel.includes("onSend={sendAiMessage}"), "PromptBar send must go to the guide handler");
+  assert.ok(aiPanel.includes("onSend={sendAiMessage}"), "PromptBar send must go to the AI handler");
   assert.ok(aiPanel.includes("onStop={stopAi}"), "PromptBar stop must abort the in-flight request");
   assert.ok(page.includes("aiButton"), "menu bar must carry the AI toggle button");
   assert.ok(page.includes('if (id === "ai") return aiPanel'), "the AI panel must dock in the side zones");
@@ -272,8 +287,11 @@ test("AI panel: PromptBar + ThoughtLine wired to guide mode (a real AI, no restr
     "openai/gpt-oss-120b", "openai/gpt-oss-20b",
     "claude-sonnet-5-5", "claude-opus-5-5", "claude-haiku-5-5",
     "gpt-5.5", "gpt-5.4-mini", "gpt-4o", "gpt-4o-mini",
-    "openai/gpt-5.5", "anthropic/claude-sonnet-5-5", "google/gemini-3.6-flash",
-    "meta-llama/llama-3.3-70b-instruct",
+    "google/gemma-4-31b-it:free", "google/gemma-4-26b-a4b-it:free",
+    "nvidia/nemotron-3-ultra-550b-a55b:free", "nvidia/nemotron-3.5-lightning:free",
+    "nvidia/nemotron-3.5-super-vl:free", "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+    "baidu/ernie-5.5-flash-preview:free", "inclusionai/ling-3.2-flash:free",
+    "recursive/flint-v1.0:free", "particle-ai/particle-1:free", "liquid/lfm-3-1.7b:free",
   ]) {
     assert.ok(aiHook.includes(`"${id}"`), `AI picker must list ${id}`);
     assert.ok(aiLib.includes(`"${id}"`), `backend allowlist must include ${id}`);
@@ -287,16 +305,18 @@ test("AI panel: PromptBar + ThoughtLine wired to guide mode (a real AI, no restr
   assert.ok(aiPanel.includes("defaultOpen={false}"), "ThoughtLine must start minimised while thinking");
   assert.ok(thoughtLine.includes("defaultOpen"), "ThoughtLine must support a defaultOpen prop");
   assert.ok(thoughtLine.includes("useState(defaultOpen)"), "the trace must start in the defaultOpen state");
-  // Guide mode itself: the backend prompt is a real AI assistant —
-  // it writes full code when asked, with no restrictions.
-  assert.ok(aiLib.includes('case "guide"'), "backend must have a guide mode");
+  // The default backend prompt is a real AI assistant —
+  // it writes full code when asked, with no restrictions, and
+  // there is no mode switch anywhere in the backend.
+  assert.ok(!aiLib.includes('case "guide"'), "backend must have no guide mode");
+  assert.ok(!aiLib.includes("AiMode"), "backend must have no AiMode type");
   assert.ok(
     aiLib.includes("You are a real AI assistant"),
-    "guide prompt must be a real AI assistant"
+    "default prompt must be a real AI assistant"
   );
   assert.ok(
     aiLib.includes("Write the full code when they ask for it"),
-    "guide prompt must write the full code when asked"
+    "default prompt must write the full code when asked"
   );
   assert.ok(
     !aiLib.includes("NEVER write or generate the code solution"),
@@ -382,7 +402,7 @@ test("AI panel ⋮ menu: chat history + AI settings card (skills + BYOK)", () =>
   // BYOK in-memory only — never storing or logging the key.
   assert.ok(aiRoute.includes("BUILTIN_AI_SKILLS"), "route must resolve built-in skill ids server-side");
   assert.ok(aiRoute.includes("DEFAULT_ACTIVE_SKILL_IDS"), "route must default to ponytail when no ids are sent");
-  assert.ok(aiRoute.includes("body.mode === \"guide\""), "skills must apply to guide mode only");
+  assert.ok(!aiRoute.includes("body.mode ==="), "skills must not be gated on a mode — one default AI applies them whenever sent");
   assert.ok(aiRoute.includes("const key = stored?.key ?? null;"), "route must use the stored BYOK key only — a body key is rejected (R2-M1)");
   assert.ok(!aiRoute.includes("body.byok.key"), "route must never read a body-supplied BYOK key");
   assert.ok(aiRoute.includes("config.geminiKey = key"), "route must use a Gemini BYOK key when given");
@@ -666,4 +686,229 @@ test("R2-M14/R2-L19: BYOK migration migrates the legacy shape per-entry, with a 
 
 test("R2-L18: lp_ai_chats retention is capped when persisting", () => {
   assert.ok(aiHook.includes("aiChats.slice(-20)"), "only the last 20 chats may be persisted");
+});
+
+test("AI Settings > Models: OpenRouter free-model search (search icon, add any free model)", () => {
+  // Maalik, 2026-11-25: the OPENROUTER section lists only the 11
+  // curated free models — the user must be able to add ANY free
+  // OpenRouter model. A search icon in the OPENROUTER group header
+  // opens a search over the live catalog (free only).
+  assert.ok(aiCard.includes("toggleOrSearch"), "the settings card must wire the search toggle");
+  assert.ok(aiCard.includes("aria-label={t.editorPage.aiModelsSearchPlaceholder}"), "the search icon must be labelled");
+  assert.ok(aiCard.includes("orSearchOpen"), "the search panel must render when open");
+  assert.ok(aiCard.includes("orSearchQuery"), "the search must have a query input");
+  assert.ok(aiCard.includes("addOpenRouterModel"), "each result must have an Add action");
+  assert.ok(aiCard.includes("aiModelsSearchAdded"), "a model already in the list must show as Added, not a second Add");
+  // The browser cannot fetch openrouter.ai itself (the CSP
+  // connect-src blocks it) — the hook calls the server route, which
+  // proxies the public catalog and returns only the free chat models.
+  assert.ok(aiHook.includes('fetch("/api/ai/openrouter-models"'), "the search must fetch the catalog through the server route, not openrouter.ai directly");
+  assert.ok(!aiHook.includes("https://openrouter.ai/api/v1/models"), "the browser must never fetch the catalog directly — the CSP blocks it");
+  assert.ok(orModelsRoute.includes("https://openrouter.ai/api/v1/models"), "the route must fetch the live OpenRouter catalog");
+  assert.ok(orModelsRoute.includes('pricing?.prompt !== "0"'), "only models with a free prompt price may be listed");
+  assert.ok(orModelsRoute.includes('pricing?.completion !== "0"'), "only models with a free completion price may be listed");
+  assert.ok(orModelsRoute.includes('rec.id === "openrouter/free"'), "the router entry must not be offered as a model");
+  assert.ok(orModelsRoute.includes('endsWith("->text")'), "only models that can answer a chat may be listed (Lyria audio is $0 but not chat)");
+  assert.ok(orModelsRoute.includes('checkIpLimit(req, "or-models"'), "the route must be rate-limited per IP");
+  assert.ok(aiHook.includes("lp_ai_added_models"), "added models must persist in this browser");
+  assert.ok(aiHook.includes("isOpenRouterFreeModelId"), "added ids must be validated as :free slugs");
+  // A user-added model joins the catalog and the OpenRouter group,
+  // and the OpenRouter BYOK entry pays for it.
+  assert.ok(aiHook.includes("addedModels.filter((m) => !BASE_AI_PANEL_MODELS.some((b) => b.key === m.key))"), "added models must join the panel catalog without duplicating a curated id");
+  assert.ok(aiHook.includes('if (isOpenRouterFreeModelId(model)) return "openrouter";'), "a user-added :free id must resolve to the OpenRouter provider");
+  // The server accepts a user-added free id ONLY with an OpenRouter
+  // BYOK reference — never on the server key.
+  assert.ok(aiLib.includes("isOpenRouterFreeModelId"), "lib/ai.ts must define the :free check");
+  assert.ok(aiLib.includes('body.byok?.provider === "openrouter"'), "validation must require OpenRouter BYOK for a user-added free id");
+  assert.ok(aiLib.includes("isUserFreeModel"), "the validation rule must gate on the user-added free id");
+  assert.ok(aiLib.includes("isOpenRouterModelId(selected)"), "the OpenRouter leg must route a user-added free id");
+  // i18n: the search strings exist in English.
+  assert.ok(en.includes("aiModelsSearchPlaceholder"), "the search placeholder string must exist");
+  assert.ok(en.includes("aiModelsSearchAdd"), "the Add string must exist");
+  assert.ok(en.includes("aiModelsSearchNoResults"), "the no-results string must exist");
+});
+
+// --- Explorer search + sort (Maalik 2026-11-25) ---
+// VS Code-style search box above the tree: live case-insensitive
+// filter; folders first (A–Z), then files (A–Z), recursive — display
+// only, the workspace data never changes.
+
+const searchTree = () => [
+  { value: "gen_seed.py", label: "gen_seed.py" },
+  {
+    value: "a",
+    label: "a",
+    children: [
+      { value: "a/README.md", label: "README.md" },
+      { value: "a/main.py", label: "main.py" },
+      { value: "a/sub/deep.py", label: "sub/deep.py" },
+    ],
+  },
+  { value: "Dockerfile", label: "Dockerfile" },
+];
+
+test("explorer search: file match keeps only the match, folder match keeps all its children", () => {
+  const byName = filterExplorerTree(searchTree(), "main");
+  assert.equal(byName.length, 1, "only folder a survives a 'main' query");
+  assert.equal(byName[0].value, "a");
+  assert.deepEqual(
+    byName[0].children.map((c) => c.value),
+    ["a/main.py"],
+    "only the matching child stays"
+  );
+  const byFolder = filterExplorerTree(searchTree(), "a");
+  // "a" is the folder name — the whole folder stays with all children.
+  const folder = byFolder.find((it) => it.value === "a");
+  assert.ok(folder, "folder a must match its own name");
+  assert.equal(folder.children.length, 3, "a matching folder keeps all its children");
+});
+
+test("explorer search: parent folder of a match is shown, case-insensitive, empty query is the full tree", () => {
+  const upper = filterExplorerTree(searchTree(), "MAIN");
+  assert.equal(upper.length, 1, "matching must be case-insensitive");
+  assert.equal(upper[0].value, "a", "the parent folder of the match is shown");
+  const none = filterExplorerTree(searchTree(), "zzz-no-such-file");
+  assert.deepEqual(none, [], "no match means an empty tree (empty state)");
+  const items = searchTree();
+  assert.equal(filterExplorerTree(items, ""), items, "an empty query returns the input unchanged");
+  assert.equal(filterExplorerTree(items, "   "), items, "a blank query returns the input unchanged");
+});
+
+test("explorer sort: folders first (A–Z), then files (A–Z), case-insensitive, recursive", () => {
+  const sorted = sortExplorerTree(searchTree());
+  assert.deepEqual(
+    sorted.map((it) => it.value),
+    ["a", "Dockerfile", "gen_seed.py"],
+    "folder a first, then files A–Z"
+  );
+  const mixed = sortExplorerTree([
+    { value: "b.py", label: "b.py" },
+    { value: "z", label: "z", children: [] },
+    { value: "A.py", label: "A.py" },
+    { value: "M", label: "M", children: [] },
+  ]);
+  assert.deepEqual(
+    mixed.map((it) => it.value),
+    ["M", "z", "A.py", "b.py"],
+    "folders A–Z first, then files A–Z, case-insensitive"
+  );
+  const folder = sorted.find((it) => it.value === "a");
+  assert.deepEqual(
+    folder.children.map((c) => c.value),
+    ["a/main.py", "a/README.md", "a/sub/deep.py"],
+    "a folder's own files first (A–Z), then its sub-folder files"
+  );
+});
+
+test("explorer sort: input is never mutated; filter + sort compose (folders first)", () => {
+  const items = searchTree();
+  const before = JSON.stringify(items);
+  sortExplorerTree(items);
+  filterExplorerTree(items, "py");
+  assert.equal(JSON.stringify(items), before, "sort/filter must not mutate the tree");
+  const composed = sortExplorerTree(filterExplorerTree(searchTree(), "py"));
+  assert.deepEqual(
+    composed.map((it) => it.value),
+    ["a", "gen_seed.py"],
+    "filtered results stay sorted folders-first"
+  );
+});
+
+test("explorer search UI: search box, clear button, empty state, forced-open folders", () => {
+  assert.ok(explorerPanel.includes("explorerSearchPlaceholder"), "the search input must use the i18n placeholder");
+  assert.ok(explorerPanel.includes('type="text"'), "the search box must be a text input");
+  assert.ok(explorerPanel.includes("setSearchQuery(\"\")"), "a clear button must reset the query");
+  assert.ok(explorerPanel.includes("explorerSearchNoMatch"), "a no-match empty state must render while searching");
+  assert.ok(
+    explorerPanel.includes("visibleItems.map((item, i) => (item.children ? i : -1))"),
+    "while searching, every visible folder must be forced open so a match is reachable"
+  );
+  assert.ok(explorerPanel.includes("sortExplorerTree(filterExplorerTree("), "filter and sort must compose on the displayed tree");
+  assert.ok(explorerPanel.includes("handleVisibleToggle"), "folding must translate visible indices back to the page's indices");
+});
+
+// --- Extensions tab + viewers (Maalik 2026-11-25) ---
+
+test("extensions catalog: six viewers covering all common formats of each kind", () => {
+  const byId = Object.fromEntries(EDITOR_EXTENSIONS.map((e) => [e.id, e]));
+  assert.deepEqual(Object.keys(byId).sort(), [
+    "audio-player",
+    "excel-viewer",
+    "image-viewer",
+    "pdf-viewer",
+    "video-player",
+    "word-viewer",
+  ]);
+  assert.deepEqual(byId["pdf-viewer"].formats, ["pdf"]);
+  assert.deepEqual(byId["excel-viewer"].formats, ["xlsx", "xls", "csv"]);
+  assert.deepEqual(byId["word-viewer"].formats, ["docx"]);
+  for (const f of ["png", "jpg", "jpeg", "gif", "webp", "svg", "bmp", "ico", "avif"]) {
+    assert.ok(byId["image-viewer"].formats.includes(f), `image viewer must handle .${f}`);
+  }
+  for (const f of ["mp4", "webm", "mkv", "mov", "avi", "m4v"]) {
+    assert.ok(byId["video-player"].formats.includes(f), `video player must handle .${f}`);
+  }
+  for (const f of ["mp3", "wav", "ogg", "flac", "m4a", "aac"]) {
+    assert.ok(byId["audio-player"].formats.includes(f), `audio player must handle .${f}`);
+  }
+});
+
+test("extensions routing: viewer only when its extension is installed", () => {
+  assert.equal(extensionForFile("x.png")?.id, "image-viewer");
+  assert.equal(extensionForFile("x.PDF")?.id, "pdf-viewer", "matching must be case-insensitive");
+  assert.equal(extensionForFile("sheet.xlsx")?.id, "excel-viewer");
+  assert.equal(extensionForFile("doc.docx")?.id, "word-viewer");
+  assert.equal(extensionForFile("clip.mkv")?.id, "video-player");
+  assert.equal(extensionForFile("song.MP3")?.id, "audio-player");
+  assert.equal(extensionForFile("main.py"), null, "code files have no viewer");
+  assert.equal(viewerKindForFile("x.png", []), null, "not installed means the text editor, as today");
+  assert.equal(viewerKindForFile("x.png", ["image-viewer"]), "image");
+  assert.equal(viewerKindForFile("x.pdf", ["image-viewer"]), null, "the wrong extension installed must not route");
+  assert.equal(viewerKindForFile("x.pdf", ["pdf-viewer"]), "pdf");
+});
+
+test("extensions install state: toggle is pure, no duplicates", () => {
+  assert.deepEqual(toggleExtensionId([], "image-viewer", true), ["image-viewer"]);
+  assert.deepEqual(toggleExtensionId(["image-viewer"], "image-viewer", true), ["image-viewer"], "installing twice must not duplicate");
+  assert.deepEqual(toggleExtensionId(["image-viewer", "pdf-viewer"], "image-viewer", false), ["pdf-viewer"]);
+  assert.deepEqual(toggleExtensionId([], "pdf-viewer", false), []);
+});
+
+test("extensions UI + viewer wiring: tab, catalog, viewer pane, binary API", () => {
+  const extensionsPanel = read("src/app/editor/components/ExtensionsPanel.tsx");
+  const fileViewer = read("src/app/editor/components/FileViewer.tsx");
+  const repoFileRoute = read("src/app/api/github/repo-file/route.ts");
+  const githubLib = read("src/lib/github.ts");
+  const pkg = JSON.parse(read("package.json"));
+  assert.ok(explorerPanel.includes("extensionsTab"), "a third Extensions tab must sit next to Files/Modules");
+  assert.ok(explorerPanel.includes("ExtensionsPanel"), "the tab must swap the panel body to the catalog");
+  assert.ok(explorerPanel.includes('explorerView === "extensions"'), "the tab state must live in the panel, not the page");
+  assert.ok(extensionsPanel.includes("extensionInstall"), "each card must have an Install button");
+  assert.ok(extensionsPanel.includes("extensionInstalled"), "installed cards must show Installed");
+  assert.ok(extensionsPanel.includes("extensionUninstall"), "installed cards must offer Uninstall");
+  assert.ok(extensionsPanel.includes("lp_editor_extensions") || extensionsPanel.includes("useInstalledExtensions"), "install state must persist per-browser");
+  assert.ok(editorPanel.includes("FileViewer"), "the editor pane must show the viewer for installed extensions");
+  assert.ok(editorPanel.includes("viewerKindForFile"), "the viewer must route by file type and install state");
+  assert.ok(editorPanel.includes("viewerLoadError"), "viewer errors must use the i18n string");
+  assert.ok(fileViewer.includes('await import("xlsx")'), "Excel parsing must lazy-load SheetJS");
+  assert.ok(fileViewer.includes('await import("mammoth")'), "Word parsing must lazy-load mammoth");
+  assert.ok(fileViewer.includes("<img"), "images must render natively");
+  assert.ok(fileViewer.includes("<video"), "video must render natively");
+  assert.ok(fileViewer.includes("<audio"), "audio must render natively");
+  assert.ok(fileViewer.includes('type="application/pdf"'), "PDF must use the browser's native viewer");
+  assert.ok(pkg.dependencies.xlsx, "xlsx must be a dependency");
+  assert.ok(pkg.dependencies.mammoth, "mammoth must be a dependency");
+  assert.ok(repoFileRoute.includes('binary") === "1"'), "the repo-file API must serve raw bytes in binary mode");
+  assert.ok(repoFileRoute.includes("getRepoFileBytes"), "binary mode must use the shared blob fetch");
+  assert.ok(githubLib.includes("export async function getRepoFileBytes"), "the lib must expose a bytes fetch (same SHA/size checks as text)");
+  assert.ok(repo.includes("viewerKindForFile(path, readInstalledExtensions())"), "the lazy text loader must skip binary viewer files when installed");
+});
+
+test("explorer i18n: search + extensions keys exist in every language", () => {
+  for (const lang of ["ar", "de", "en", "es", "fr", "hi-roman", "ja", "ko", "pt", "ru", "zh"]) {
+    const file = read(`src/lib/i18n/${lang}.ts`);
+    for (const key of ["explorerSearchPlaceholder", "explorerSearchNoMatch", "extensionsTab", "extensionInstall", "extensionInstalled", "extensionUninstall", "viewerLoadError"]) {
+      assert.ok(file.includes(key), `${lang} must define ${key}`);
+    }
+  }
 });

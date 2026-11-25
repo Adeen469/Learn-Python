@@ -12,6 +12,7 @@ import {
   GROQ_FREE_MODELS,
   OPENAI_MODELS,
   OPENROUTER_MODELS,
+  isOpenRouterFreeModelId,
 } from "@/lib/ai";
 import type { Strings } from "@/lib/i18n";
 import { newId, readLocalJson } from "@/app/editor/lib/editor-utils";
@@ -42,7 +43,7 @@ export type AiByokStore = { enabled: boolean; entries: AiByokEntry[] };
 export type EditorAi = ReturnType<typeof useEditorAi>;
 
 export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: WorkspaceItem | undefined }) {
-  // AI panel chat (guide mode, POST /api/ai). A real AI assistant —
+  // AI panel chat (default AI, POST /api/ai). A real AI assistant —
   // it answers anything, writes full code when asked, and fixes code
   // directly. Nothing is stored server-side: the current chat, past
   // chats, custom skills and the BYOK key live in this browser's
@@ -275,6 +276,33 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
   const [selectorModels, setSelectorModels] = useState<string[]>(() =>
     readLocalJson<string[]>("lp_ai_selector_models", DEFAULT_SELECTOR_MODELS)
   );
+  // Models the user added from the OpenRouter search (AI Settings >
+  // Models): {key, name} pairs, validated on load — a stored entry
+  // counts only when its id is a valid ":free" slug with a
+  // non-empty name, so a tampered or stale entry never reaches the
+  // picker or the server.
+  function readAddedModels(): PromptBarModel[] {
+    const stored = readLocalJson<unknown>("lp_ai_added_models", []);
+    if (!Array.isArray(stored)) return [];
+    const seen = new Set<string>();
+    const out: PromptBarModel[] = [];
+    for (const m of stored) {
+      if (
+        !!m &&
+        typeof m === "object" &&
+        typeof (m as PromptBarModel).key === "string" &&
+        isOpenRouterFreeModelId((m as PromptBarModel).key) &&
+        typeof (m as PromptBarModel).name === "string" &&
+        (m as PromptBarModel).name.trim().length > 0 &&
+        !seen.has((m as PromptBarModel).key)
+      ) {
+        seen.add((m as PromptBarModel).key);
+        out.push({ key: (m as PromptBarModel).key, name: (m as PromptBarModel).name, tag: "OpenRouter" });
+      }
+    }
+    return out;
+  }
+  const [addedModels, setAddedModels] = useState<PromptBarModel[]>(readAddedModels);
   // Add-skill + BYOK form fields (settings view).
   const [newSkillName, setNewSkillName] = useState("");
   const [newSkillDesc, setNewSkillDesc] = useState("");
@@ -431,6 +459,13 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
       // Storage full — skip.
     }
   }, [selectorModels]);
+  useEffect(() => {
+    try {
+      localStorage.setItem("lp_ai_added_models", JSON.stringify(addedModels));
+    } catch {
+      // Storage full — skip.
+    }
+  }, [addedModels]);
 
   // Chat history: the current chat is saved into the list (title =
   // first user message) whenever the user starts a new chat, clears,
@@ -567,6 +602,70 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
     });
   }
 
+  // OpenRouter free-model search (AI Settings > Models): the live
+  // catalog, served by /api/ai/openrouter-models — the browser
+  // cannot fetch openrouter.ai itself (the CSP `connect-src`
+  // blocks it), so the route proxies the public catalog and
+  // returns only the free chat models. Fetched once, when the
+  // search first opens; tapping Add puts the model in the catalog
+  // and ticks it into the selector. A model already in the catalog
+  // shows as Added instead of a second Add.
+  type OpenRouterSearchModel = { id: string; name: string };
+  const [orSearchOpen, setOrSearchOpen] = useState(false);
+  const [orSearchQuery, setOrSearchQuery] = useState("");
+  const [orSearchFree, setOrSearchFree] = useState<OpenRouterSearchModel[] | null>(null);
+  const [orSearchLoading, setOrSearchLoading] = useState(false);
+  const [orSearchError, setOrSearchError] = useState(false);
+  function toggleOrSearch() {
+    if (!orSearchOpen && orSearchFree === null && !orSearchLoading) {
+      void fetchOpenRouterFreeModels();
+    }
+    setOrSearchOpen((prev) => !prev);
+  }
+  async function fetchOpenRouterFreeModels() {
+    setOrSearchLoading(true);
+    setOrSearchError(false);
+    try {
+      const res = await fetch("/api/ai/openrouter-models", { credentials: "same-origin" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data: unknown = await res.json();
+      const models = (data as { models?: unknown })?.models;
+      if (!Array.isArray(models)) throw new Error("bad catalog shape");
+      const free: OpenRouterSearchModel[] = [];
+      for (const m of models) {
+        if (
+          !!m &&
+          typeof m === "object" &&
+          typeof (m as { id?: unknown }).id === "string" &&
+          typeof (m as { name?: unknown }).name === "string" &&
+          (m as { name: string }).name.trim().length > 0
+        ) {
+          free.push({ id: (m as { id: string }).id, name: (m as { name: string }).name });
+        }
+      }
+      setOrSearchFree(free);
+    } catch {
+      setOrSearchError(true);
+    } finally {
+      setOrSearchLoading(false);
+    }
+  }
+  // Search results: the free catalog, filtered by name or id
+  // (case-insensitive substring). Empty query shows every free
+  // model — the free list is small (~14).
+  const orSearchResults: OpenRouterSearchModel[] = (orSearchFree ?? []).filter((m) => {
+    const q = orSearchQuery.trim().toLowerCase();
+    if (!q) return true;
+    return m.name.toLowerCase().includes(q) || m.id.toLowerCase().includes(q);
+  });
+  function addOpenRouterModel(id: string, name: string) {
+    if (!isOpenRouterFreeModelId(id)) return;
+    setAddedModels((prev) =>
+      prev.some((m) => m.key === id) ? prev : [...prev, { key: id, name, tag: "OpenRouter" }]
+    );
+    setSelectorModels((prev) => (prev.includes(id) ? prev : [...prev, id]));
+  }
+
   // BYOK provider display names (brand names — same in every language).
   const BYOK_PROVIDER_NAMES: Record<AiByokProvider, string> = {
     gemini: "Gemini",
@@ -587,6 +686,10 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
     if (OPENAI_MODELS.includes(model)) return "openai";
     if (OPENROUTER_MODELS.includes(model)) return "openrouter";
     if (customModels.includes(model)) return "custom";
+    // A user-added model from the Models search: its id is a
+    // ":free" slug by construction, so it is an OpenRouter model
+    // and the OpenRouter BYOK entry pays for it.
+    if (isOpenRouterFreeModelId(model)) return "openrouter";
     return null;
   }
 
@@ -598,21 +701,19 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
     "openai/gpt-oss-120b",
     "claude-opus-5-5",
     "gpt-5.5",
-    "openai/gpt-5.5",
   ]);
   const EFFICIENT_MODEL_KEYS = new Set([
     "gemini-3.6-flash",
     "openai/gpt-oss-20b",
     "claude-haiku-5-5",
     "gpt-5.4-mini",
-    "google/gemini-3.6-flash",
   ]);
 
   // PromptBar models: every model the API accepts. The picker shows
   // only the models the user chose in AI Settings > Models
   // (defaults: the four free ones). An enabled custom BYOK entry
   // adds its own model to the list.
-  const ALL_AI_PANEL_MODELS: PromptBarModel[] = [
+  const BASE_AI_PANEL_MODELS: PromptBarModel[] = [
     { key: "gemini-3.1-pro-preview", name: "Gemini 3.1 Pro", tag: "Pro" },
     { key: "gemini-3.6-flash", name: "Gemini 3.6 Flash", tag: "Fast" },
     { key: "openai/gpt-oss-120b", name: "GPT-OSS 120B", tag: "Groq" },
@@ -624,10 +725,25 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
     { key: "gpt-5.4-mini", name: "GPT-5.4 Mini", tag: "OpenAI Fast" },
     { key: "gpt-4o", name: "GPT-4o", tag: "OpenAI" },
     { key: "gpt-4o-mini", name: "GPT-4o Mini", tag: "OpenAI Fast" },
-    { key: "openai/gpt-5.5", name: "GPT-5.5", tag: "OpenRouter" },
-    { key: "anthropic/claude-sonnet-5-5", name: "Claude Sonnet 5.5", tag: "OpenRouter" },
-    { key: "google/gemini-3.6-flash", name: "Gemini 3.6 Flash", tag: "OpenRouter" },
-    { key: "meta-llama/llama-3.3-70b-instruct", name: "Llama 3.3 70B", tag: "OpenRouter" },
+    { key: "google/gemma-4-31b-it:free", name: "Gemma 4 31B", tag: "OpenRouter" },
+    { key: "google/gemma-4-26b-a4b-it:free", name: "Gemma 4 26B", tag: "OpenRouter" },
+    { key: "nvidia/nemotron-3-ultra-550b-a55b:free", name: "Nemotron 3 Ultra", tag: "OpenRouter" },
+    { key: "nvidia/nemotron-3.5-lightning:free", name: "Nemotron 3.5 Lightning", tag: "OpenRouter" },
+    { key: "nvidia/nemotron-3.5-super-vl:free", name: "Nemotron 3.5 Super VL", tag: "OpenRouter" },
+    { key: "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free", name: "Nemotron 3 Nano Omni", tag: "OpenRouter" },
+    { key: "baidu/ernie-5.5-flash-preview:free", name: "ERNIE 5.5 Flash", tag: "OpenRouter" },
+    { key: "inclusionai/ling-3.2-flash:free", name: "Ling 3.2 Flash", tag: "OpenRouter" },
+    { key: "recursive/flint-v1.0:free", name: "Flint 1.0", tag: "OpenRouter" },
+    { key: "particle-ai/particle-1:free", name: "Particle 1", tag: "OpenRouter" },
+    { key: "liquid/lfm-3-1.7b:free", name: "LFM 3 1.7B", tag: "OpenRouter" },
+  ];
+  // Plus the models the user added from the OpenRouter search —
+  // they join the catalog (and the Models list + picker) exactly
+  // like the curated ones. An added id that later joins the
+  // curated list (the free list rotates) must not show twice.
+  const ALL_AI_PANEL_MODELS: PromptBarModel[] = [
+    ...BASE_AI_PANEL_MODELS,
+    ...addedModels.filter((m) => !BASE_AI_PANEL_MODELS.some((b) => b.key === m.key)),
   ];
   const AI_PANEL_MODELS: PromptBarModel[] = (() => {
     const visible = ALL_AI_PANEL_MODELS.filter((m) => selectorModels.includes(m.key));
@@ -726,7 +842,6 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
         credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          mode: "guide",
           question,
           code: truncated ? code.slice(0, 8000) : code,
           history,
@@ -809,6 +924,8 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
     toggleSkill, addCustomSkill, deleteCustomSkill,
     saveByokEntry, toggleByokEntry, removeByokEntry, setByokMaster,
     toggleSelectorModel, providerForModelId, modelQualityTag, byokPayloadFor,
+    addedModels, orSearchOpen, toggleOrSearch, orSearchQuery, setOrSearchQuery,
+    orSearchResults, orSearchLoading, orSearchError, addOpenRouterModel,
     sendAiMessage, stopAi, clearAiChat,
     BYOK_PROVIDER_NAMES, BEST_MODEL_KEYS, EFFICIENT_MODEL_KEYS,
     ALL_AI_PANEL_MODELS, AI_PANEL_MODELS, MODEL_GROUPS,

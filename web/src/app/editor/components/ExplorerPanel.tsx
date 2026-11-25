@@ -1,8 +1,10 @@
 import type { Strings } from "@/lib/i18n";
-import type { Dispatch, SetStateAction } from "react";
-import { Code2, Folder, FolderPlus, Package, Plus, UploadCloud } from "lucide-react";
+import { useMemo, useState, type Dispatch, type SetStateAction } from "react";
+import { Code2, Folder, FolderPlus, Package, Plus, Puzzle, Search, UploadCloud, X } from "lucide-react";
 import BranchedMenu, { type BranchedMenuItem } from "@/components/BranchedMenu";
 import { EditorPanelHeader } from "@/components/EditorPanelHeader";
+import { ExtensionsPanel } from "./ExtensionsPanel";
+import { filterExplorerTree, sortExplorerTree } from "../lib/editor-utils";
 import type { PanelId, PanelZone } from "../lib/editor-types";
 
 export type ExplorerPanelProps = {
@@ -51,6 +53,35 @@ export type ExplorerPanelProps = {
 export function ExplorerPanel(props: ExplorerPanelProps) {
   const { t, isExternalDragOver, setIsExternalDragOver, handleExternalDrop, showNewFile, setShowNewFile, showNewFolder, setShowNewFolder, switchTab, editorTab, handleAddFile, newFileInput, setNewFileInput, handleAddFolder, newFolderInput, setNewFolderInput, renamingPath, submitRename, renameInput, setRenameInput, setRenamingPath, openRepoState, handleDragOverFolder, setDragOverTarget, handleDropOnTarget, dragOverTarget, openRootContextMenu, treeData, activeFilePath, treeOpenSections, handleTreeSelect, handleTreeToggle, handleTreeDragStart, handleTreeDragOver, handleTreeDragLeave, handleTreeDrop, openRowContextMenu, setDraggingPanel, setDropZone, setShowExplorer } = props;
 
+  // Explorer search (VS Code-style): live case-insensitive filter on
+  // file/folder names, folders first (A–Z) then files (A–Z) — display
+  // only, the workspace data never changes. Filtering/sorting returns
+  // a new item list, so section indices shift: values are unique paths,
+  // so the visible→original index map is built from them. While a query
+  // is active every visible folder is forced open, so a match is always
+  // reachable (its parent folder shows even when folded).
+  const [searchQuery, setSearchQuery] = useState("");
+  const searching = searchQuery.trim().length > 0;
+  // Extensions tab: local to this panel (the Files/Modules tabs switch
+  // the centre column via the page; Extensions swaps this panel's own
+  // body to the catalog). Picking Files/Modules returns to the tree.
+  const [explorerView, setExplorerView] = useState<"tree" | "extensions">("tree");
+  const visibleItems = useMemo(
+    () => sortExplorerTree(filterExplorerTree(treeData.menuItems, searchQuery)),
+    [treeData.menuItems, searchQuery]
+  );
+  const visibleIndexByOriginal = useMemo(() => {
+    const originalIndexByValue = new Map(treeData.menuItems.map((item, i) => [item.value ?? "", i]));
+    return visibleItems.map((item) => originalIndexByValue.get(item.value ?? "") ?? -1);
+  }, [treeData.menuItems, visibleItems]);
+  const visibleOpenSections = searching
+    ? visibleItems.map((item, i) => (item.children ? i : -1)).filter((i) => i >= 0)
+    : treeOpenSections.map((orig) => visibleIndexByOriginal.indexOf(orig)).filter((i) => i >= 0);
+  function handleVisibleToggle(visibleIndex: number, open: boolean) {
+    const orig = visibleIndexByOriginal[visibleIndex];
+    if (orig !== undefined && orig >= 0) handleTreeToggle(orig, open);
+  }
+
   return (
     <div
       onDragOver={(e) => {
@@ -96,25 +127,64 @@ export function ExplorerPanel(props: ExplorerPanelProps) {
         onClose={() => setShowExplorer(false)}
         closeLabel={t.common.close}
       />
-      {/* Files / Modules tabs — the switch lives in the Explorer
-          header now (the separate tab bar above the editor is
+      {/* Files / Modules / Extensions tabs — the switch lives in the
+          Explorer header now (the separate tab bar above the editor is
           gone). Files shows the tree; Modules opens the package
-          manager in the centre. */}
+          manager in the centre; Extensions swaps this panel's body to
+          the extensions catalog. */}
       <div className="flex gap-1 border-b border-neutral-800 p-1.5">
         <button
           type="button"
-          onClick={() => switchTab("files")}
-          className={`flex-1 rounded-md px-2 py-1 text-xs font-medium transition ${editorTab === "files" ? "bg-white text-black" : "text-neutral-400 hover:text-white"}`}
+          onClick={() => { setExplorerView("tree"); switchTab("files"); }}
+          className={`flex-1 rounded-md px-2 py-1 text-xs font-medium transition ${explorerView === "tree" && editorTab === "files" ? "bg-white text-black" : "text-neutral-400 hover:text-white"}`}
         >
           <Code2 className="mr-1 inline h-3.5 w-3.5" />{t.editorPage.filesTab}
         </button>
         <button
           type="button"
-          onClick={() => switchTab("modules")}
-          className={`flex-1 rounded-md px-2 py-1 text-xs font-medium transition ${editorTab === "modules" ? "bg-white text-black" : "text-neutral-400 hover:text-white"}`}
+          onClick={() => { setExplorerView("tree"); switchTab("modules"); }}
+          className={`flex-1 rounded-md px-2 py-1 text-xs font-medium transition ${explorerView === "tree" && editorTab === "modules" ? "bg-white text-black" : "text-neutral-400 hover:text-white"}`}
         >
           <Package className="mr-1 inline h-3.5 w-3.5" />{t.editorPage.modulesTab}
         </button>
+        <button
+          type="button"
+          onClick={() => setExplorerView("extensions")}
+          className={`flex-1 rounded-md px-2 py-1 text-xs font-medium transition ${explorerView === "extensions" ? "bg-white text-black" : "text-neutral-400 hover:text-white"}`}
+        >
+          <Puzzle className="mr-1 inline h-3.5 w-3.5" />{t.editorPage.extensionsTab}
+        </button>
+      </div>
+
+      {explorerView === "extensions" ? (
+        <ExtensionsPanel t={t} />
+      ) : (
+      <>
+      {/* Explorer search — a search icon inside the input, a clear (×)
+          button once text is typed. Live-filters the tree below. */}
+      <div className="px-2 pt-2">
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-neutral-500" aria-hidden="true" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={t.editorPage.explorerSearchPlaceholder}
+            aria-label={t.editorPage.explorerSearchPlaceholder}
+            className="w-full rounded border border-neutral-800 bg-neutral-950 py-1 pl-7 pr-7 text-xs text-white placeholder-neutral-600 focus:border-white focus:outline-none"
+          />
+          {searchQuery.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              title={t.common.clear}
+              aria-label={t.common.clear}
+              className="absolute right-1 top-1/2 -translate-y-1/2 rounded p-0.5 text-neutral-400 hover:text-white"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Inline create inputs */}
@@ -217,24 +287,32 @@ export function ExplorerPanel(props: ExplorerPanelProps) {
         onContextMenu={openRootContextMenu}
         style={{ WebkitTouchCallout: "none" }}
       >
-        <BranchedMenu
-          items={treeData.menuItems}
-          activeValue={activeFilePath}
-          openSections={treeOpenSections}
-          onSelect={(value) => handleTreeSelect(value)}
-          onToggle={handleTreeToggle}
-          onRowDragStart={handleTreeDragStart}
-          onRowDragOver={handleTreeDragOver}
-          onRowDragLeave={handleTreeDragLeave}
-          onRowDrop={handleTreeDrop}
-          onRowContextMenu={(e, value) => openRowContextMenu(e, value)}
-          dragOverValue={dragOverTarget}
-          className="branched-menu--full"
-          color="#f5f5f5"
-          accentColor="#f5f5f5"
-          lineColor="#3f3f46"
-          width={280}
-        />
+        {/* No-match empty state while searching; otherwise the
+            filtered + sorted tree (folders first, then files). */}
+        {searching && visibleItems.length === 0 ? (
+          <p className="px-2 py-4 text-center text-xs text-neutral-500">
+            {t.editorPage.explorerSearchNoMatch(searchQuery.trim())}
+          </p>
+        ) : (
+          <BranchedMenu
+            items={visibleItems}
+            activeValue={activeFilePath}
+            openSections={visibleOpenSections}
+            onSelect={(value) => handleTreeSelect(value)}
+            onToggle={handleVisibleToggle}
+            onRowDragStart={handleTreeDragStart}
+            onRowDragOver={handleTreeDragOver}
+            onRowDragLeave={handleTreeDragLeave}
+            onRowDrop={handleTreeDrop}
+            onRowContextMenu={(e, value) => openRowContextMenu(e, value)}
+            dragOverValue={dragOverTarget}
+            className="branched-menu--full"
+            color="#f5f5f5"
+            accentColor="#f5f5f5"
+            lineColor="#3f3f46"
+            width={280}
+          />
+        )}
       </div>
 
       {/* Drag & Drop Hint */}
@@ -242,6 +320,8 @@ export function ExplorerPanel(props: ExplorerPanelProps) {
         <UploadCloud className="h-3.5 w-3.5" />
         <span>{t.editorPage.dragFilesHint}</span>
       </div>
+      </>
+      )}
     </div>
   );
 }

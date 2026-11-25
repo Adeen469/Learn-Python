@@ -452,6 +452,13 @@ export type Strings = {
     workspaceRootDropHint: string;
     unsavedTooltip: string;
     dragFilesHint: string;
+    extensionsTab: string;
+    extensionInstall: string;
+    extensionInstalled: string;
+    extensionUninstall: string;
+    viewerLoadError: string;
+    explorerSearchPlaceholder: string;
+    explorerSearchNoMatch: (query: string) => string;
     terminalLogs: string;
     terminalButton: string;
     pushButton: string;
@@ -559,6 +566,12 @@ export type Strings = {
     aiModelsBest: string;
     aiModelsEfficient: string;
     aiModelsNeedsKey: string;
+    aiModelsSearchPlaceholder: string;
+    aiModelsSearchAdd: string;
+    aiModelsSearchAdded: string;
+    aiModelsSearchLoading: string;
+    aiModelsSearchNoResults: string;
+    aiModelsSearchError: string;
     aiByokEnable: string;
     aiByokOffNote: string;
     aiStepReading: string;

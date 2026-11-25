@@ -1,10 +1,18 @@
 import type { Strings } from "@/lib/i18n";
-import type { Dispatch, SetStateAction } from "react";
+import { useMemo, type Dispatch, type SetStateAction } from "react";
 import Editor from "@monaco-editor/react";
 import { FileCode, Square } from "lucide-react";
 import { TetrominoLoader } from "./TetrominoLoader";
+import { FileViewer, type FileViewerSource } from "./FileViewer";
 import type { WorkspaceItem } from "../lib/editor-types";
 import type { PyodideEngine } from "../hooks/usePyodideEngine";
+import { useInstalledExtensions } from "../hooks/useExtensions";
+import {
+  extensionForFile,
+  readOpenRepo,
+  repoBinaryFileUrl,
+  viewerKindForFile,
+} from "../lib/editor-extensions";
 import { languageForFile } from "../lib/editor-utils";
 
 export type EditorPanelProps = {
@@ -25,6 +33,44 @@ export type EditorPanelProps = {
 export function EditorPanel(props: EditorPanelProps) {
   const { t, activeFile, engine, editorTheme, handleEditorChange, editorRef, monacoRef, setCursorPos, loadingFile } = props;
 
+  // File viewer (installed extensions): when the active file's type is
+  // covered by an installed extension, the pane shows that viewer
+  // instead of Monaco. Repo files stream their bytes through the
+  // repo-file API (same token/SHA checks as the text read); local
+  // SVG/CSV files render from their text content. Anything without a
+  // usable source falls back to Monaco, exactly as today.
+  const { installed } = useInstalledExtensions();
+  const viewer = useMemo(() => {
+    if (!activeFile) return null;
+    const kind = viewerKindForFile(activeFile.path, installed);
+    if (!kind) return null;
+    const extension = extensionForFile(activeFile.path);
+    const name = extension?.name ?? "";
+    const repo = readOpenRepo();
+    if (repo && activeFile.sha) {
+      const source: FileViewerSource = {
+        type: "url",
+        url: repoBinaryFileUrl(repo.repo, repo.branch, activeFile.path, activeFile.sha),
+      };
+      return { kind, name, source };
+    }
+    const ext = activeFile.path.split(".").pop()?.toLowerCase() ?? "";
+    if (ext === "svg" && activeFile.content) {
+      return {
+        kind,
+        name,
+        source: {
+          type: "url",
+          url: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(activeFile.content)}`,
+        } as FileViewerSource,
+      };
+    }
+    if (ext === "csv" && activeFile.content) {
+      return { kind, name, source: { type: "text", text: activeFile.content } as FileViewerSource };
+    }
+    return null;
+  }, [activeFile, installed]);
+
   return (
     <div className="min-h-[420px] sm:min-h-[480px] md:min-h-0 flex-1 min-w-0 rounded-xl border border-neutral-800 bg-neutral-950 flex flex-col overflow-hidden">
       <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-2 bg-black/60">
@@ -44,7 +90,7 @@ export function EditorPanel(props: EditorPanelProps) {
           </button>
         )}
         <span className="hidden text-[11px] text-neutral-500 font-mono sm:inline shrink-0 ml-2">
-          Python 3.12 (WASM) • Monaco Editor
+          {viewer ? viewer.name : "Python 3.12 (WASM) • Monaco Editor"}
         </span>
       </div>
 
@@ -54,9 +100,17 @@ export function EditorPanel(props: EditorPanelProps) {
             <TetrominoLoader />
           </div>
         )}
-        <Editor
-          height="100%"
-          language={languageForFile(activeFile?.path)}
+        {viewer ? (
+          <FileViewer
+            fileName={activeFile?.path ?? ""}
+            kind={viewer.kind}
+            source={viewer.source}
+            loadErrorText={t.editorPage.viewerLoadError}
+          />
+        ) : (
+          <Editor
+            height="100%"
+            language={languageForFile(activeFile?.path)}
           theme={editorTheme}
           value={activeFile?.content ?? ""}
           loading={null}
@@ -130,6 +184,7 @@ export function EditorPanel(props: EditorPanelProps) {
             },
           }}
         />
+        )}
       </div>
     </div>
   );

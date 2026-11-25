@@ -4,6 +4,7 @@
 // (F1 split) — no behaviour change.
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { buildRepoWorkspaceTree, DEFAULT_WORKSPACE } from "@/app/editor/lib/editor-utils";
+import { readInstalledExtensions, viewerKindForFile } from "@/app/editor/lib/editor-extensions";
 import type { WorkspaceItem } from "@/app/editor/lib/editor-types";
 import type { usePyodideEngine } from "@/app/editor/hooks/usePyodideEngine";
 
@@ -214,6 +215,12 @@ export function useWorkspaceRepo(args: {
     const path = activeFile.path;
     const sha = activeFile.sha;
     if (loadingFileRef.current === path) return;
+    // Binary viewer files: when the matching viewer extension is
+    // installed, the editor pane shows the viewer (which fetches the
+    // bytes itself through the binary repo-file API) — don't also
+    // fetch the file as text here, which would fail with "Binary
+    // file" and spam the terminal. Not installed = today's behaviour.
+    if (viewerKindForFile(path, readInstalledExtensions())) return;
     loadingFileRef.current = path;
     setLoadingFilePath(path);
     // The server resolves the caller's stored GitHub token from

@@ -45,7 +45,6 @@ export function AiTutor({ lesson }: AiTutorProps) {
         credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          mode: "tutor",
           lessonId: lesson.id,
           question,
           history,

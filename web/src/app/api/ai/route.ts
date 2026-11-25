@@ -31,9 +31,9 @@ import { getStoredTranscript } from "@/lib/stored-transcripts";
 // session secret or both AI keys are missing. No chat history is
 // stored server-side; the client sends at most the last 8 turns.
 // No user profile data is ever passed to a model — only the lesson
-// context (title/notes, plus the lesson video transcript for tutor
-// and quiz modes) and the learner's own question/code.
-// Guide mode (editor AI panel) additionally accepts the user's own
+// context (title/notes, plus the lesson video transcript when a
+// lesson is attached) and the learner's own question/code.
+// The request additionally accepts the user's own
 // skills (built-in ids resolved server-side + their custom skills)
 // and a BYOK reference for one provider (Gemini, Groq, Anthropic,
 // OpenAI, OpenRouter, or a custom OpenAI-compatible endpoint). The
@@ -132,7 +132,7 @@ export async function POST(req: NextRequest) {
   const body = validated.body;
 
   const config = getAiConfig();
-  // BYOK (guide mode): the key lives server-side (lp_byok_keys,
+  // BYOK: the key lives server-side (lp_byok_keys,
   // migration 009) and is loaded here by provider reference — the
   // browser sends only { provider, baseUrl?, model? }, never the
   // key. A key in the body is rejected by validateAiRequest (R2-M1),
@@ -189,17 +189,17 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Skills (guide mode only — the lesson tutor keeps its own
-  // transcript-grounded behaviour). Built-in ids resolve against the
-  // server's skill files; an absent list defaults to ponytail. The
-  // catalogue of available built-in skills always rides along, so
-  // the AI knows the sub-skills exist and when to use them.
-  // Built-in skills ride in the system prompt; user-added custom
-  // skills ride in the user message as a delimited section, never
-  // in the system prompt (see buildCustomSkillsSection).
+  // Skills: built-in ids resolve against the server's skill files;
+  // an absent list defaults to ponytail. The catalogue of available
+  // built-in skills always rides along, so the AI knows the
+  // sub-skills exist and when to use them. Built-in skills ride in
+  // the system prompt; user-added custom skills ride in the user
+  // message as a delimited section, never in the system prompt (see
+  // buildCustomSkillsSection). Learn clients never send skills, so
+  // their behaviour is unchanged.
   let skills: AiSkill[] = [];
   let customSkills: AiSkill[] = [];
-  if (body.mode === "guide") {
+  {
     const catalogue = BUILTIN_AI_SKILLS.map(
       (s) => `${s.name} — ${s.description}`
     ).join("\n");
@@ -232,8 +232,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Video transcript grounding, tutor + quiz only (explain/debug are
-  // about the learner's own code, not the video). The transcript comes
+  // Video transcript grounding, whenever a lesson is attached. The transcript comes
   // FIRST from the stored captions shipped with the code — the lesson
   // video's real words, harvested once, with [mm:ss] timestamps. A
   // live YouTube fetch is only the fallback for a lesson with no
@@ -243,7 +242,7 @@ export async function POST(req: NextRequest) {
   // comes from the part of the video the learner asked about.
   let transcript = null;
   let transcriptSource: "stored" | "live" | "none" = "none";
-  if ((body.mode === "tutor" || body.mode === "quiz") && lesson) {
+  if (lesson) {
     transcript = getStoredTranscript(lesson.id);
     if (transcript) {
       transcriptSource = "stored";
@@ -311,7 +310,6 @@ export async function POST(req: NextRequest) {
 
   const result = await askAi(
     {
-      mode: body.mode,
       lesson,
       transcript,
       question: body.question,
@@ -334,7 +332,6 @@ export async function POST(req: NextRequest) {
     console.error(
       JSON.stringify({
         event: "ai_provider_failed",
-        mode: body.mode,
         model: body.model ?? null,
         hasGemini: Boolean(config.geminiKey),
         hasGroq: Boolean(config.groqKey),

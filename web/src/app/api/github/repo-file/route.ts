@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   assertGithubOwnerAllowed,
+  getRepoFileBytes,
   getRepoFileContent,
   isValidGithubPath,
   isValidGithubSha,
@@ -21,6 +22,43 @@ import { checkUserLimit, rateLimitedResponse } from "@/lib/api-handler";
 export const maxDuration = 60;
 
 const RATE_LIMITED_RESPONSE = rateLimitedResponse;
+
+// MIME type for a viewer file, by extension. Unknown extensions
+// fall back to octet-stream (the browser then refuses to sniff it,
+// per the nosniff header above).
+const BINARY_MIME_TYPES: Record<string, string> = {
+  pdf: "application/pdf",
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  gif: "image/gif",
+  webp: "image/webp",
+  svg: "image/svg+xml",
+  bmp: "image/bmp",
+  ico: "image/x-icon",
+  avif: "image/avif",
+  mp4: "video/mp4",
+  webm: "video/webm",
+  mkv: "video/x-matroska",
+  mov: "video/quicktime",
+  avi: "video/x-msvideo",
+  m4v: "video/x-m4v",
+  mp3: "audio/mpeg",
+  wav: "audio/wav",
+  ogg: "audio/ogg",
+  flac: "audio/flac",
+  m4a: "audio/mp4",
+  aac: "audio/aac",
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  xls: "application/vnd.ms-excel",
+  csv: "text/csv",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+};
+
+function mimeTypeForFile(path: string): string {
+  const ext = path.split(".").pop()?.toLowerCase() ?? "";
+  return BINARY_MIME_TYPES[ext] ?? "application/octet-stream";
+}
 
 export async function GET(req: NextRequest) {
   const limit = await checkRateLimit(`github-read:${getClientIp(req)}`, 30, 60_000);
@@ -55,8 +93,23 @@ export async function GET(req: NextRequest) {
         { status: 403 }
       );
     }
-    const { content } = await getRepoFileContent(token, { owner, repo, path, sha });
-    const encoder = new TextEncoder();
+    // Binary mode (?binary=1): the editor's file viewers (images,
+    // video, audio, PDF, Excel, Word) need the raw bytes — the text
+    // path below refuses binary files. Same token, SHA and size
+    // checks; the bytes come back with the file's real MIME type so
+    // <img>, <video>, <audio> and <embed> render them directly.
+    if (req.nextUrl.searchParams.get("binary") === "1") {
+      const { bytes } = await getRepoFileBytes(token, { owner, repo, path, sha });
+      return new NextResponse(new Uint8Array(bytes), {
+        headers: {
+          "Content-Type": mimeTypeForFile(path),
+          "X-Content-Type-Options": "nosniff",
+          // The blob is immutable by SHA — safe to cache privately.
+          "Cache-Control": "private, max-age=3600",
+        },
+      });
+    }
+    const { content } = await getRepoFileContent(token, { owner, repo, path, sha });    const encoder = new TextEncoder();
     const bytes = encoder.encode(content);
     let offset = 0;
     const stream = new ReadableStream<Uint8Array>({
