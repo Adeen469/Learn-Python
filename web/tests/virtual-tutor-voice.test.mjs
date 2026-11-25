@@ -283,3 +283,44 @@ test("Mic permission: site allows microphone and requests it on gesture", () => 
   assert.ok(tutor.includes('"microphone"'));
   assert.ok(tutor.includes("requestMicPermission()"));
 });
+
+test("Wake word starts a voice-only session and never opens the panel", () => {
+  const tutor = readSrc("src/components/VirtualTutor.tsx");
+  // The wake match hands off to the voice session…
+  const wakeAt = tutor.indexOf("matchesWakeWord(transcript)");
+  assert.ok(wakeAt > -1);
+  assert.ok(tutor.slice(wakeAt, wakeAt + 300).includes("startVoiceSession()"));
+  // …and the panel opens from exactly one place: the orb tap.
+  assert.equal(tutor.split("setOpen(true)").length - 1, 1);
+  assert.ok(tutor.includes("function startVoiceSession()"));
+  assert.ok(tutor.includes("function askVoiceQuestion("));
+  assert.ok(tutor.includes("function endVoiceSession()"));
+});
+
+test("Voice session asks the tutor and speaks the reply, then goes idle", () => {
+  const tutor = readSrc("src/components/VirtualTutor.tsx");
+  assert.ok(tutor.includes("fetchTutorReply(question, history)"));
+  assert.ok(tutor.includes('speak(result.reply, -1, () => endVoiceSession())'));
+  assert.ok(tutor.includes('setVoicePhase("listening")'));
+  assert.ok(tutor.includes('setVoicePhase("thinking")'));
+  assert.ok(tutor.includes('setVoicePhase("speaking")'));
+  assert.ok(tutor.includes("onDone?.()"));
+});
+
+test("Wake listener restarts after a non-permission error", () => {
+  const tutor = readSrc("src/components/VirtualTutor.tsx");
+  const start = tutor.indexOf("function startWake()");
+  const end = tutor.indexOf("useEffect(() => {", start);
+  assert.ok(start > -1 && end > start);
+  const wakeBlock = tutor.slice(start, end);
+  // onend + onerror + start() catch all schedule a restart.
+  assert.ok(wakeBlock.split("scheduleWakeRestart()").length - 1 >= 3);
+  assert.ok(wakeBlock.includes("isMicPermissionError(event.error)"));
+});
+
+test("Orb shows the voice session and the wake effect waits for idle", () => {
+  const tutor = readSrc("src/components/VirtualTutor.tsx");
+  assert.ok(tutor.includes('listening={voicePhase !== "idle"}'));
+  assert.ok(tutor.includes('"Virtual Tutor listening"'));
+  assert.ok(tutor.includes("}, [open, wakeEnabled, voicePhase]);"));
+});

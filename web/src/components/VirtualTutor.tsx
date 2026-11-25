@@ -54,6 +54,15 @@ type SpeechWindow = Window & {
   webkitSpeechRecognition?: SpeechRecognitionConstructor;
 };
 
+// Voice-only session phases (wake word, panel closed):
+// idle = wake listening; listening = hearing the question;
+// thinking = waiting on the tutor reply; speaking = reading it aloud.
+type VoicePhase = "idle" | "listening" | "thinking" | "speaking";
+
+type TutorReplyResult =
+  | { ok: true; reply: string; provider?: string; topicGrounded?: boolean }
+  | { ok: false; expired: boolean; error: string | null };
+
 const SPEECH_LOCALES: Partial<Record<LanguageCode, string>> = {
   en: "en-IN",
   "hi-roman": "hi-IN",
@@ -112,6 +121,9 @@ export function VirtualTutor() {
   const [speechAvailable, setSpeechAvailable] = useState(false);
   const [speakingMessage, setSpeakingMessage] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Voice-only session (wake word): the panel stays closed while
+  // the tutor listens for a question and answers by voice.
+  const [voicePhase, setVoicePhase] = useState<VoicePhase>("idle");
   const [wakeEnabled, setWakeEnabled] = useState<boolean>(() => {
     if (typeof window === "undefined") return true;
     try {
@@ -131,6 +143,9 @@ export function VirtualTutor() {
   const ttsAbortRef = useRef<AbortController | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioUrlRef = useRef<string | null>(null);
+  const voicePhaseRef = useRef<VoicePhase>("idle");
+  const questionRecognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const userRef = useRef<SessionUser | null>(null);
 
   useEffect(() => {
     openRef.current = open;
@@ -138,6 +153,12 @@ export function VirtualTutor() {
   useEffect(() => {
     wakeEnabledRef.current = wakeEnabled;
   }, [wakeEnabled]);
+  useEffect(() => {
+    voicePhaseRef.current = voicePhase;
+  }, [voicePhase]);
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
 
   useEffect(() => {
     if (!open) return;
@@ -183,6 +204,7 @@ export function VirtualTutor() {
       }
       recognitionRef.current?.abort();
       wakeRecognitionRef.current?.abort();
+      questionRecognitionRef.current?.abort();
       ttsAbortRef.current?.abort();
       if (audioRef.current) audioRef.current.pause();
       if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
@@ -214,6 +236,10 @@ export function VirtualTutor() {
     recognitionRef.current?.abort();
     recognitionRef.current = null;
     setListening(false);
+    // A voice-only session may be speaking when the panel is
+    // opened and then closed — reset it so the wake listener
+    // restarts instead of the orb staying stuck active.
+    endVoiceSession();
     stopSpeech();
     setOpen(false);
   }
@@ -251,20 +277,23 @@ export function VirtualTutor() {
     }
   }
 
-  // Retry the wake listener after a short pause, once. Guards so a
+  // Retry the wake listener after a short pause. Guards so a
   // stopped or blocked listener never restarts.
   function scheduleWakeRestart() {
     if (wakeRetryRef.current !== null) return;
     wakeRetryRef.current = window.setTimeout(() => {
       wakeRetryRef.current = null;
       if (
-        wakeRecognitionRef.current === null &&
-        !openRef.current &&
-        wakeEnabledRef.current &&
-        !wakeBlockedRef.current
+        openRef.current ||
+        !wakeEnabledRef.current ||
+        wakeBlockedRef.current
       ) {
-        startWake();
+        return;
       }
+      // The old listener is dead or dying — stop it first so a
+      // fresh one starts instead of two listeners racing.
+      stopWake();
+      startWake();
     }, 1500);
   }
 
@@ -331,6 +360,11 @@ export function VirtualTutor() {
 
   function startWake() {
     if (typeof window === "undefined") return;
+    // A pending retry is moot once a fresh listener starts.
+    if (wakeRetryRef.current !== null) {
+      window.clearTimeout(wakeRetryRef.current);
+      wakeRetryRef.current = null;
+    }
     wakeBlockedRef.current = false;
     const speechWindow = window as SpeechWindow;
     const Recognition =
@@ -348,8 +382,10 @@ export function VirtualTutor() {
         .trim();
       if (transcript && matchesWakeWord(transcript)) {
         stopWake();
-        setOpen(true);
-        startListening();
+        // Voice-only session: the panel stays closed. The tutor
+        // listens for the question and answers by voice; the
+        // panel opens only when the user taps the orb.
+        startVoiceSession();
       }
     };
     recognition.onerror = (event) => {
@@ -359,7 +395,12 @@ export function VirtualTutor() {
       if (isMicPermissionError(event.error)) {
         wakeBlockedRef.current = true;
         setError(MIC_DENIED_MESSAGE);
+        return;
       }
+      // Any other error ends this listener; onend normally follows
+      // and restarts it. Schedule a restart too, so a missing onend
+      // never leaves the wake word dead silently.
+      scheduleWakeRestart();
     };
     recognition.onend = () => {
       // Auto-restart while the toggle is on and the panel is closed.
@@ -381,8 +422,112 @@ export function VirtualTutor() {
     }
   }
 
+  // End a voice-only session and return the orb to idle. The wake
+  // effect restarts the wake listener once the phase is idle again
+  // (panel closed, toggle on, mic not blocked).
+  function endVoiceSession() {
+    const recognition = questionRecognitionRef.current;
+    questionRecognitionRef.current = null;
+    if (recognition) {
+      try {
+        recognition.abort();
+      } catch {
+        // Already stopped.
+      }
+    }
+    if (voicePhaseRef.current !== "idle") setVoicePhase("idle");
+  }
+
+  function startVoiceSession() {
+    if (openRef.current) return;
+    setVoicePhase("listening");
+    // The panel has never been opened on this page load, so the
+    // session user may not be loaded yet — fetch it while the
+    // user speaks their question.
+    void fetchSessionUser()
+      .then((sessionUser) => {
+        userRef.current = sessionUser;
+        setUser(sessionUser);
+      })
+      .catch(() => {
+        // Still unknown — askVoiceQuestion falls back to a sign-in
+        // prompt if there is no user by then.
+      });
+    const speechWindow = window as SpeechWindow;
+    const Recognition =
+      speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
+    if (!Recognition) {
+      endVoiceSession();
+      return;
+    }
+    const recognition = new Recognition();
+    recognition.lang = SPEECH_LOCALES[lang] ?? navigator.language ?? "en-IN";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.onresult = (event) => {
+      const transcript = Array.from(event.results)
+        .slice(event.resultIndex)
+        .map((result) => result[0]?.transcript ?? "")
+        .join(" ")
+        .trim();
+      if (transcript) {
+        void askVoiceQuestion(transcript);
+      } else {
+        endVoiceSession();
+      }
+    };
+    recognition.onerror = () => {
+      // Voice mode has no panel to show the error in — onend
+      // follows and ends the session quietly.
+    };
+    recognition.onend = () => {
+      questionRecognitionRef.current = null;
+      // Still waiting on the question with no transcript: the
+      // user stayed silent, so go back to wake listening. If a
+      // transcript arrived, the phase already moved on.
+      if (voicePhaseRef.current === "listening") endVoiceSession();
+    };
+    questionRecognitionRef.current = recognition;
+    try {
+      recognition.start();
+    } catch {
+      questionRecognitionRef.current = null;
+      endVoiceSession();
+    }
+  }
+
+  async function askVoiceQuestion(question: string) {
+    if (!userRef.current) {
+      setVoicePhase("speaking");
+      speak("Please sign in to use the Virtual Tutor.", -1, () => endVoiceSession());
+      return;
+    }
+    setVoicePhase("thinking");
+    const history = messages.slice(-4).map(({ role, text }) => ({ role, text }));
+    setMessages((current) => [...current, { role: "user", text: question }]);
+    try {
+      const result = await fetchTutorReply(question, history);
+      if (!result.ok) throw new Error("tutor reply failed");
+      const message: TutorMessage = {
+        role: "assistant",
+        text: result.reply,
+        provider: result.provider,
+        topicGrounded: result.topicGrounded,
+      };
+      setMessages((current) => [...current, message]);
+      setVoicePhase("speaking");
+      speak(result.reply, -1, () => endVoiceSession());
+    } catch {
+      setMessages((current) => current.slice(0, -1));
+      setVoicePhase("speaking");
+      speak("Sorry, I couldn't answer that right now. Please try again.", -1, () =>
+        endVoiceSession()
+      );
+    }
+  }
+
   useEffect(() => {
-    if (open || !wakeEnabled) {
+    if (open || !wakeEnabled || voicePhase !== "idle") {
       stopWake();
       return;
     }
@@ -405,24 +550,32 @@ export function VirtualTutor() {
       stopWake();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, wakeEnabled]);
+  }, [open, wakeEnabled, voicePhase]);
 
-  function speakWithBrowser(text: string, index: number) {
+  function speakWithBrowser(text: string, index: number, onDone?: () => void) {
     if (!("speechSynthesis" in window)) {
       setError("Speech playback is not supported in this browser.");
+      onDone?.();
       return;
     }
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = SPEECH_LOCALES[lang] ?? navigator.language ?? "en-IN";
     utterance.onstart = () => setSpeakingMessage(index);
-    utterance.onend = () => setSpeakingMessage(null);
-    utterance.onerror = () => setSpeakingMessage(null);
+    utterance.onend = () => {
+      setSpeakingMessage(null);
+      onDone?.();
+    };
+    utterance.onerror = () => {
+      setSpeakingMessage(null);
+      onDone?.();
+    };
     window.speechSynthesis.speak(utterance);
   }
 
-  async function speak(text: string, index: number) {
+  async function speak(text: string, index: number, onDone?: () => void) {
     if (speakingMessage === index) {
       stopSpeech();
+      onDone?.();
       return;
     }
     stopSpeech();
@@ -449,10 +602,11 @@ export function VirtualTutor() {
           audio.onended = () => {
             setSpeakingMessage(null);
             cleanupAudio();
+            onDone?.();
           };
           audio.onerror = () => {
             cleanupAudio();
-            speakWithBrowser(text, index);
+            speakWithBrowser(text, index, onDone);
           };
           await audio.play();
           return;
@@ -464,7 +618,57 @@ export function VirtualTutor() {
         ttsAbortRef.current = null;
       }
     }
-    speakWithBrowser(text, index);
+    speakWithBrowser(text, index, onDone);
+  }
+
+  // Shared by the panel form and the voice-only session: ask the
+  // tutor and normalise the reply / failure shape.
+  async function fetchTutorReply(
+    question: string,
+    history: { role: "user" | "assistant"; text: string }[]
+  ): Promise<TutorReplyResult> {
+    const response = await fetch("/api/ai", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        virtualTutor: true,
+        ...(topicSlug ? { topicSlug } : {}),
+        question,
+        history,
+      }),
+    });
+    const data: unknown = await response.json().catch(() => null);
+    if (response.status === 401) return { ok: false, expired: true, error: null };
+    if (
+      !response.ok ||
+      typeof data !== "object" ||
+      data === null ||
+      !("reply" in data) ||
+      typeof data.reply !== "string" ||
+      !data.reply.trim()
+    ) {
+      return {
+        ok: false,
+        expired: false,
+        error:
+          typeof data === "object" &&
+          data !== null &&
+          "error" in data &&
+          typeof data.error === "string"
+            ? data.error
+            : null,
+      };
+    }
+    return {
+      ok: true,
+      reply: data.reply.trim(),
+      provider:
+        "provider" in data && typeof data.provider === "string"
+          ? data.provider
+          : undefined,
+      topicGrounded: "topicGrounded" in data && data.topicGrounded === true,
+    };
   }
 
   async function send(event: FormEvent<HTMLFormElement>) {
@@ -477,39 +681,10 @@ export function VirtualTutor() {
     setMessages((current) => [...current, { role: "user", text: question }]);
     setSending(true);
     try {
-      const response = await fetch("/api/ai", {
-        method: "POST",
-        credentials: "same-origin",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          virtualTutor: true,
-          ...(topicSlug ? { topicSlug } : {}),
-          question,
-          history,
-        }),
-      });
-      const data: unknown = await response.json().catch(() => null);
-      if (response.status === 401) {
-        setError(t.tutor.errorSessionExpired);
-        setMessages((current) => current.slice(0, -1));
-        setInput(question);
-        return;
-      }
-      if (
-        !response.ok ||
-        typeof data !== "object" ||
-        data === null ||
-        !("reply" in data) ||
-        typeof data.reply !== "string" ||
-        !data.reply.trim()
-      ) {
+      const result = await fetchTutorReply(question, history);
+      if (!result.ok) {
         setError(
-          typeof data === "object" &&
-            data !== null &&
-            "error" in data &&
-            typeof data.error === "string"
-            ? data.error
-            : t.tutor.errorGeneric
+          result.expired ? t.tutor.errorSessionExpired : result.error ?? t.tutor.errorGeneric
         );
         setMessages((current) => current.slice(0, -1));
         setInput(question);
@@ -517,13 +692,9 @@ export function VirtualTutor() {
       }
       const message: TutorMessage = {
         role: "assistant",
-        text: data.reply.trim(),
-        provider:
-          "provider" in data && typeof data.provider === "string"
-            ? data.provider
-            : undefined,
-        topicGrounded:
-          "topicGrounded" in data && data.topicGrounded === true,
+        text: result.reply,
+        provider: result.provider,
+        topicGrounded: result.topicGrounded,
       };
       setMessages((current) => [...current, message]);
     } catch {
@@ -540,12 +711,20 @@ export function VirtualTutor() {
       {!open ? (
         <button
           type="button"
-          onClick={() => setOpen(true)}
-          aria-label={t.common.aiTutor}
+          onClick={() => {
+            // The panel opens ONLY from this tap — never from the
+            // wake word. Stop any voice-only session first.
+            endVoiceSession();
+            setOpen(true);
+          }}
+          aria-label={voicePhase !== "idle" ? "Virtual Tutor listening" : t.common.aiTutor}
           aria-haspopup="dialog"
-          className="fixed bottom-24 right-4 z-[80] h-16 w-16 overflow-hidden rounded-full bg-transparent transition hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:bottom-6 sm:right-6"
+          className={`fixed bottom-24 right-4 z-[80] h-16 w-16 overflow-hidden rounded-full bg-transparent transition hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:bottom-6 sm:right-6${
+            voicePhase !== "idle" ? " ring-2 ring-white/70" : ""
+          }`}
         >
           <Strands
+            listening={voicePhase !== "idle"}
             className="absolute inset-0"
             colors={STRANDS_COLORS}
             scale={2.6}
@@ -681,7 +860,8 @@ export function VirtualTutor() {
                     I can explain the current Learn topic using its published
                     content. Ask a question, use the microphone to dictate
                     one, or just say “Virtual Tutor” or “Virtual Assistant”
-                    to wake me up.
+                    to wake me up and talk by voice — no need to open this
+                    panel.
                   </p>
                   <p className="mt-2 text-xs text-neutral-500">
                     This conversation is kept in this page session only. Wake-word
