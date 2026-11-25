@@ -533,8 +533,8 @@ test("the Pyodide runtime is self-hosted on the same origin (CDNs failed for the
     "the loader script must come from the same origin"
   );
   assert.ok(
-    src.includes('"/pyodide/",'),
-    "the same-origin /pyodide/ base must be first in PYODIDE_CDN_BASES"
+    src.includes('export const PYODIDE_CDN_BASES = ["/pyodide/"];'),
+    "the runtime must use only the same-origin /pyodide/ base"
   );
   const bases = src.match(/export const PYODIDE_CDN_BASES = \[([\s\S]*?)\];/);
   assert.ok(bases, "PYODIDE_CDN_BASES must be defined");
