@@ -324,3 +324,50 @@ test("Orb shows the voice session and the wake effect waits for idle", () => {
   assert.ok(tutor.includes('"Virtual Tutor listening"'));
   assert.ok(tutor.includes("}, [open, wakeEnabled, voicePhase]);"));
 });
+
+test("Voice session greets by voice before listening for the question", () => {
+  const tutor = readSrc("src/components/VirtualTutor.tsx");
+  assert.ok(tutor.includes('VOICE_GREETING = "Hi! How can I help?"'));
+  const start = tutor.indexOf("function startVoiceSession()");
+  assert.ok(start > -1);
+  const end = tutor.indexOf("async function askVoiceQuestion(", start);
+  assert.ok(end > start);
+  const block = tutor.slice(start, end);
+  // Greet first, then listen — never sit silent after waking.
+  assert.ok(block.includes("speak(VOICE_GREETING, -1,"));
+  assert.ok(block.includes("startQuestionListener()"));
+  // A greeting that never finishes must not hang the session.
+  assert.ok(block.includes("greetingTimerRef"));
+  assert.ok(block.includes("10000"));
+});
+
+test("Question listener stays open across pauses and restarts on end", () => {
+  const tutor = readSrc("src/components/VirtualTutor.tsx");
+  const start = tutor.indexOf("function startQuestionListener()");
+  assert.ok(start > -1);
+  const end = tutor.indexOf("function startVoiceSession()", start);
+  assert.ok(end > start);
+  const block = tutor.slice(start, end);
+  // continuous=true is the fix: a non-continuous listener ends on
+  // the first pause (~1s after the wake word) and the session dies
+  // before the user speaks.
+  assert.ok(block.includes("recognition.continuous = true"));
+  // onend restarts the listener while still waiting — it must not
+  // end the session the way the old listener did.
+  const onendAt = block.indexOf("recognition.onend");
+  assert.ok(onendAt > -1);
+  assert.ok(block.slice(onendAt, onendAt + 500).includes("startQuestionListener()"));
+  // Silence with no question still ends the session eventually.
+  assert.ok(block.includes("30000"));
+  assert.ok(block.includes("questionSilenceRef"));
+});
+
+test("Panel replies are spoken aloud, not text-only", () => {
+  const tutor = readSrc("src/components/VirtualTutor.tsx");
+  const sendAt = tutor.indexOf("async function send(");
+  assert.ok(sendAt > -1);
+  const end = tutor.indexOf("return (", sendAt);
+  assert.ok(end > sendAt);
+  const block = tutor.slice(sendAt, end);
+  assert.ok(block.includes("speak(result.reply,"));
+});
