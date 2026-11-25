@@ -118,9 +118,9 @@ const NAV_ROUTES = [
 ];
 
 function matchCreatorSlug(normalized) {
-  if (/\bharry\b|code with harry/.test(normalized)) return "codewithharry";
-  if (/\bmosh\b|code with mosh/.test(normalized)) return "code-with-mosh";
-  if (/apna college|\bapna\b/.test(normalized)) return "apna-college";
+  if (/\bharry\b|code with harry|codewithharry|\bcwh\b/.test(normalized)) return "codewithharry";
+  if (/\bmosh\b|code with mosh|codewithmosh/.test(normalized)) return "code-with-mosh";
+  if (/apna college|apnacollege|\bapna\b/.test(normalized)) return "apna-college";
   return null;
 }
 
@@ -165,6 +165,23 @@ function matchVoiceCommand(text, ctx = {}) {
     if (to !== null) return { type: "video-seek-to", seconds: to };
   }
 
+  const dayNumber = /\bday\s*#?\s*(\d+)\b/.exec(normalized);
+  if (dayNumber) {
+    const dayIndex = Number(dayNumber[1]) - 1;
+    if (
+      matchCreatorSlug(normalized) !== null ||
+      /\b100 days\b|\bdays of python\b|\b100days\b/.test(normalized)
+    ) {
+      return { type: "video-play-title", query: normalized };
+    }
+    if (
+      onCourses &&
+      /^(?:open|play|kholo|chalao|chalu karo|show|start|day)\b/.test(normalized)
+    ) {
+      return { type: "video-play-index", index: dayIndex };
+    }
+  }
+
   const creator = matchCreatorSlug(normalized);
   if (creator && /^(?:go to|open|kholo|chalo|le chalo|show|play|chalao)/.test(normalized)) {
     return { type: "navigate", route: creator };
@@ -179,6 +196,13 @@ function matchVoiceCommand(text, ctx = {}) {
     ) {
       return { type: "navigate", route };
     }
+  }
+  const creatorTarget = matchCreatorSlug(navTarget);
+  if (
+    creatorTarget &&
+    (Boolean(navMatch) || /^(cwh|harry|mosh|apna)$/.test(navTarget))
+  ) {
+    return { type: "navigate", route: creatorTarget };
   }
 
   if (/\b(next|agla|agli|agle)\b.*\b(lesson|topic|chapter)\b/.test(normalized)) {
@@ -567,6 +591,44 @@ test("lessons: next/previous, explicit and contextual", () => {
   assert.equal(matchVoiceCommand("next", { pathname: "/" }), null);
 });
 
+test("video: course day — creator + day-N opens that video", () => {
+  // Maalik's live failure: "open codewithharry 100 days of python
+  // day 43" fell through to the AI, which then falsely claimed it
+  // opened the video. The matcher must catch it first.
+  assert.deepEqual(matchVoiceCommand("open codewithharry 100 days of python day 43"), {
+    type: "video-play-title",
+    query: "open codewithharry 100 days of python day 43",
+  });
+  assert.deepEqual(matchVoiceCommand("open code with harry 100 days of python day 43"), {
+    type: "video-play-title",
+    query: "open code with harry 100 days of python day 43",
+  });
+  assert.deepEqual(matchVoiceCommand("cwh day 43"), {
+    type: "video-play-title",
+    query: "cwh day 43",
+  });
+  assert.deepEqual(matchVoiceCommand("play codewithharry day 10"), {
+    type: "video-play-title",
+    query: "play codewithharry day 10",
+  });
+  // On a course page, a bare day number is the Nth video there.
+  assert.deepEqual(matchVoiceCommand("open day 43", { pathname: "/courses/codewithharry/abc" }), {
+    type: "video-play-index",
+    index: 42,
+  });
+  assert.deepEqual(matchVoiceCommand("day 43", { pathname: "/courses/codewithharry/abc" }), {
+    type: "video-play-index",
+    index: 42,
+  });
+  // Bare "play day 5" (no creator, no course words) still plays the
+  // Nth video of the current course, as before.
+  assert.deepEqual(matchVoiceCommand("play day 5"), { type: "video-play-index", index: 4 });
+  // Creator names without spaces navigate, as before.
+  assert.deepEqual(matchVoiceCommand("open codewithharry"), { type: "navigate", route: "codewithharry" });
+  assert.deepEqual(matchVoiceCommand("cwh kholo"), { type: "navigate", route: "codewithharry" });
+  assert.deepEqual(matchVoiceCommand("open codewithmosh"), { type: "navigate", route: "code-with-mosh" });
+});
+
 test("video: play/pause/seek", () => {
   assert.deepEqual(matchVoiceCommand("play the video"), { type: "video-play" });
   assert.deepEqual(matchVoiceCommand("video chalao"), { type: "video-play" });
@@ -679,6 +741,26 @@ test("executor: video next/prev and play-by-title", async () => {
     await executeVoiceCommand({ type: "video-play-title", query: "nosuchvideo" }, noTitle, {}),
     "I could not find a video called nosuchvideo."
   );
+  // Day 43 of CodeWithHarry's 100 Days course: navigate to the
+  // playlist route with the pending index, so the player opens it.
+  const day43 = stubEnv({
+    videoTarget: {
+      route: "/courses/codewithharry/PLu0W_9lII9agwh1XjRt242xIpHhPT2llg",
+      index: 42,
+      title: "Day 43 video",
+      creator: "CodeWithHarry",
+    },
+  });
+  assert.equal(
+    await executeVoiceCommand(
+      { type: "video-play-title", query: "open codewithharry 100 days of python day 43" },
+      day43,
+      { pathname: "/" }
+    ),
+    "Opening Day 43 video."
+  );
+  assert.deepEqual(day43.calls[0], ["setPendingVideoIndex", 42]);
+  assert.deepEqual(day43.calls[1], ["navigate", "/courses/codewithharry/PLu0W_9lII9agwh1XjRt242xIpHhPT2llg"]);
 });
 
 test("executor: editor run/save/open-file", async () => {
@@ -740,6 +822,7 @@ test("source: tutor + pages are wired to the command modules", () => {
   const actions = readSrc("src/lib/tutor-command-actions.ts");
   assert.match(actions, /export async function executeVoiceCommand/);
   assert.match(actions, /resolveVideoTarget/);
+  assert.match(actions, /\\bcwh\\b/);
   const tutor = readSrc("src/components/VirtualTutor.tsx");
   assert.match(tutor, /matchVoiceCommand\(question/);
   assert.match(tutor, /executeVoiceCommand\(/);

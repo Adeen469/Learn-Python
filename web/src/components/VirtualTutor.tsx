@@ -17,6 +17,7 @@ import {
   MIC_DENIED_MESSAGE,
   isMicPermissionError,
   matchesWakeWord,
+  normalizeTranscript,
   voiceErrorMessage,
 } from "@/lib/tutor-wake";
 import Strands from "@/components/Strands";
@@ -160,6 +161,12 @@ export function VirtualTutor() {
   const questionSilenceRef = useRef<number | null>(null);
   const voiceSessionActiveRef = useRef(false);
   const userRef = useRef<SessionUser | null>(null);
+  // Wake-word listener health: the orb must never go silently dead.
+  // Repeated start/recognition failures surface as a visible error
+  // (orb badge + panel hint) instead of a quiet retry loop.
+  const [wakeError, setWakeError] = useState<string | null>(null);
+  const wakeFailuresRef = useRef(0);
+  const wakeSettleRef = useRef<number | null>(null);
 
   useEffect(() => {
     openRef.current = open;
@@ -215,6 +222,15 @@ export function VirtualTutor() {
     () => () => {
       if (wakeRetryRef.current !== null) {
         window.clearTimeout(wakeRetryRef.current);
+      }
+      if (wakeSettleRef.current !== null) {
+        window.clearTimeout(wakeSettleRef.current);
+      }
+      if (greetingTimerRef.current !== null) {
+        window.clearTimeout(greetingTimerRef.current);
+      }
+      if (questionSilenceRef.current !== null) {
+        window.clearTimeout(questionSilenceRef.current);
       }
       recognitionRef.current?.abort();
       wakeRecognitionRef.current?.abort();
@@ -297,11 +313,7 @@ export function VirtualTutor() {
     if (wakeRetryRef.current !== null) return;
     wakeRetryRef.current = window.setTimeout(() => {
       wakeRetryRef.current = null;
-      if (
-        openRef.current ||
-        !wakeEnabledRef.current ||
-        wakeBlockedRef.current
-      ) {
+      if (!wakeEnabledRef.current || wakeBlockedRef.current) {
         return;
       }
       // The old listener is dead or dying — stop it first so a
@@ -321,11 +333,44 @@ export function VirtualTutor() {
     }
 
     setError(null);
-    const recognition = new Recognition();
+    // The wake listener and dictation cannot share the mic — stop
+    // wake first; it restarts when dictation ends.
+    stopWake();
+    let recognition: SpeechRecognitionLike;
+    try {
+      recognition = new Recognition();
+    } catch {
+      // The constructor itself can throw when the speech service
+      // is unavailable — say so instead of failing silently.
+      setError("Could not start voice input. Check microphone permission or type instead.");
+      return;
+    }
     recognition.lang = SPEECH_LOCALES[lang] ?? navigator.language ?? "en-IN";
     recognition.continuous = false;
     recognition.interimResults = false;
+    // Watchdog: the service can start and then never fire any
+    // event (unreachable service, blocked on the device) — after
+    // 12s with no result, say so instead of listening forever.
+    let heardSomething = false;
+    const noResultTimer = window.setTimeout(() => {
+      if (!heardSomething && recognitionRef.current === recognition) {
+        recognitionRef.current = null;
+        setListening(false);
+        try {
+          recognition.abort();
+        } catch {
+          // Already stopped.
+        }
+        setError(
+          "Voice input started but I heard nothing. On Windows, check Settings → Privacy & security → Speech → Online speech recognition is on — or type your question instead."
+        );
+        scheduleWakeRestart();
+      }
+    }, 12000);
+    const clearNoResultTimer = () => window.clearTimeout(noResultTimer);
     recognition.onresult = (event) => {
+      heardSomething = true;
+      clearNoResultTimer();
       const transcript = Array.from(event.results)
         .slice(event.resultIndex)
         .map((result) => result[0]?.transcript ?? "")
@@ -338,18 +383,22 @@ export function VirtualTutor() {
       }
     };
     recognition.onerror = (event) => {
+      clearNoResultTimer();
       const message = voiceErrorMessage(event.error);
       if (message) setError(message);
     };
     recognition.onend = () => {
+      clearNoResultTimer();
       recognitionRef.current = null;
       setListening(false);
+      scheduleWakeRestart();
     };
     recognitionRef.current = recognition;
     try {
       recognition.start();
       setListening(true);
     } catch {
+      clearNoResultTimer();
       recognitionRef.current = null;
       setListening(false);
       setError("Could not start voice input. Check microphone permission or type instead.");
@@ -360,6 +409,10 @@ export function VirtualTutor() {
     if (wakeRetryRef.current !== null) {
       window.clearTimeout(wakeRetryRef.current);
       wakeRetryRef.current = null;
+    }
+    if (wakeSettleRef.current !== null) {
+      window.clearTimeout(wakeSettleRef.current);
+      wakeSettleRef.current = null;
     }
     const recognition = wakeRecognitionRef.current;
     wakeRecognitionRef.current = null;
@@ -372,6 +425,16 @@ export function VirtualTutor() {
     }
   }
 
+  // Record a wake-listener failure. Three in a row surface a
+  // visible error (orb badge + panel hint) — the listener must
+  // never fail silently in a retry loop.
+  function recordWakeFailure(message: string) {
+    wakeFailuresRef.current += 1;
+    if (wakeFailuresRef.current >= 3) {
+      setWakeError(message);
+    }
+  }
+
   function startWake() {
     if (typeof window === "undefined") return;
     // A pending retry is moot once a fresh listener starts.
@@ -379,12 +442,27 @@ export function VirtualTutor() {
       window.clearTimeout(wakeRetryRef.current);
       wakeRetryRef.current = null;
     }
+    // Stop any previous listener first, so a restart never leaves
+    // two listeners racing on the same wake word.
+    stopWake();
     wakeBlockedRef.current = false;
     const speechWindow = window as SpeechWindow;
     const Recognition =
       speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
-    if (!Recognition) return;
-    const recognition = new Recognition();
+    if (!Recognition) {
+      setWakeError("Voice input is not supported in this browser. You can still type.");
+      return;
+    }
+    let recognition: SpeechRecognitionLike;
+    try {
+      recognition = new Recognition();
+    } catch {
+      // The constructor itself can throw when the speech service
+      // is unavailable — retry instead of dying silently.
+      recordWakeFailure("Voice listening could not start. Check the microphone and try again.");
+      scheduleWakeRestart();
+      return;
+    }
     recognition.lang = SPEECH_LOCALES[lang] ?? navigator.language ?? "en-IN";
     recognition.continuous = true;
     recognition.interimResults = false;
@@ -409,17 +487,21 @@ export function VirtualTutor() {
       if (isMicPermissionError(event.error)) {
         wakeBlockedRef.current = true;
         setError(MIC_DENIED_MESSAGE);
+        setWakeError(MIC_DENIED_MESSAGE);
         return;
       }
       // Any other error ends this listener; onend normally follows
-      // and restarts it. Schedule a restart too, so a missing onend
-      // never leaves the wake word dead silently.
+      // and restarts it. Count it, so a flapping listener surfaces
+      // instead of retrying forever unnoticed.
+      recordWakeFailure(
+        voiceErrorMessage(event.error) ?? "Voice listening stopped. Try again."
+      );
       scheduleWakeRestart();
     };
     recognition.onend = () => {
-      // Auto-restart while the toggle is on and the panel is closed.
-      // If stopWake() cleared the ref, this instance was stopped on
-      // purpose and must not restart.
+      // Auto-restart while the toggle is on. If stopWake() cleared
+      // the ref, this instance was stopped on purpose and must not
+      // restart.
       if (wakeRecognitionRef.current !== recognition) return;
       wakeRecognitionRef.current = null;
       if (wakeBlockedRef.current) return;
@@ -432,13 +514,28 @@ export function VirtualTutor() {
       wakeRecognitionRef.current = null;
       // start() can throw without firing onend, so schedule the
       // retry explicitly instead of dying silently.
+      recordWakeFailure("Voice listening could not start. Check the microphone and try again.");
       if (!wakeBlockedRef.current) scheduleWakeRestart();
+      return;
     }
+    // A listener that survives 5s is healthy — clear the failure
+    // count (and any earlier failure flag) so one bad start does
+    // not brand the mic broken forever.
+    if (wakeSettleRef.current !== null) {
+      window.clearTimeout(wakeSettleRef.current);
+    }
+    wakeSettleRef.current = window.setTimeout(() => {
+      wakeSettleRef.current = null;
+      if (wakeRecognitionRef.current === recognition) {
+        wakeFailuresRef.current = 0;
+        setWakeError(null);
+      }
+    }, 5000);
   }
 
   // End a voice-only session and return the orb to idle. The wake
   // effect restarts the wake listener once the phase is idle again
-  // (panel closed, toggle on, mic not blocked).
+  // (toggle on, mic not blocked).
   function endVoiceSession() {
     voiceSessionActiveRef.current = false;
     if (greetingTimerRef.current !== null) {
@@ -476,7 +573,6 @@ export function VirtualTutor() {
   // of silence with no question ends it so the mic never runs
   // forever.
   function startQuestionListener() {
-    if (openRef.current) return;
     const speechWindow = window as SpeechWindow;
     const Recognition =
       speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
@@ -496,6 +592,13 @@ export function VirtualTutor() {
         .join(" ")
         .trim();
       if (transcript) {
+        // Ignore echoes of the wake phrase and the greeting itself:
+        // the mic hears the speaker while the greeting plays, and
+        // that must not become the user's question.
+        const normalized = normalizeTranscript(transcript);
+        if (matchesWakeWord(transcript) || /how can i help/.test(normalized)) {
+          return;
+        }
         stopQuestionListener();
         void askVoiceQuestion(transcript);
       }
@@ -514,7 +617,7 @@ export function VirtualTutor() {
       questionRecognitionRef.current = null;
       // Still waiting on the question: the listener ended (pause,
       // network blip) — restart it instead of going silent.
-      if (voicePhaseRef.current === "listening" && !openRef.current) {
+      if (voicePhaseRef.current === "listening") {
         startQuestionListener();
       }
     };
@@ -534,7 +637,7 @@ export function VirtualTutor() {
       // listener was just aborted) — retry once shortly instead of
       // dying silently.
       window.setTimeout(() => {
-        if (voicePhaseRef.current === "listening" && !openRef.current) {
+        if (voicePhaseRef.current === "listening") {
           startQuestionListener();
         }
       }, 500);
@@ -542,13 +645,13 @@ export function VirtualTutor() {
   }
 
   function startVoiceSession() {
-    if (openRef.current) return;
     voiceSessionActiveRef.current = true;
-    // Greet by voice FIRST, then listen for the question. The
+    // The wake word worked — clear any earlier failure flag.
+    setWakeError(null);
+    // Greet by voice and listen for the question in parallel. The
     // tutor must never sit silent after waking — and the question
-    // listener only starts once the greeting is done (or its
-    // safety timer fires), so the greeting itself is never
-    // transcribed as the user's question.
+    // listener must already be running while the greeting is
+    // still generating, or the user's words are never heard.
     setVoicePhase("speaking");
     // The panel has never been opened on this page load, so the
     // session user may not be loaded yet — fetch it while the
@@ -570,19 +673,36 @@ export function VirtualTutor() {
         window.clearTimeout(greetingTimerRef.current);
         greetingTimerRef.current = null;
       }
-      // The panel may have opened mid-greeting, or the session may
-      // have ended — only listen while still in the voice session.
-      if (openRef.current || !voiceSessionActiveRef.current) return;
+      // The session may have ended mid-greeting — only listen
+      // while still in the voice session.
+      if (!voiceSessionActiveRef.current) return;
       startQuestionListener();
     };
     // Safety: if the greeting never finishes (TTS hangs), start
     // listening anyway instead of sitting silent forever.
     greetingTimerRef.current = window.setTimeout(beginListening, 10000);
     speak(VOICE_GREETING, -1, beginListening);
+    // Listen in parallel with the greeting: the greeting's TTS
+    // fetch takes seconds, and the user speaks the question while
+    // it is still generating — if the listener only starts after
+    // the greeting ends, those words are never heard (the "not
+    // listening" / "responding too late" complaint). The question
+    // listener ignores echoes of the greeting itself.
+    beginListening();
   }
 
   async function askVoiceQuestion(question: string) {
-    if (!userRef.current) {
+    // The session user is fetched while the greeting plays, so the
+    // question can arrive before that fetch resolves — wait for it
+    // (cached, so this is cheap) instead of telling a signed-in
+    // user to sign in.
+    const sessionUser =
+      userRef.current ?? (await fetchSessionUser().catch(() => null));
+    if (sessionUser) {
+      userRef.current = sessionUser;
+      setUser(sessionUser);
+    }
+    if (!sessionUser) {
       setVoicePhase("speaking");
       speak("Please sign in to use the Virtual Tutor.", -1, () => endVoiceSession());
       return;
@@ -622,7 +742,10 @@ export function VirtualTutor() {
   }
 
   useEffect(() => {
-    if (open || !wakeEnabled || voicePhase !== "idle") {
+    // The wake word is heard whether the panel is open or closed —
+    // it never OPENS the panel (only the orb tap does), but the
+    // listener must not die just because the panel is open.
+    if (!wakeEnabled || voicePhase !== "idle") {
       stopWake();
       return;
     }
@@ -630,12 +753,20 @@ export function VirtualTutor() {
     // recognition on page load (no gesture, permission still on
     // "prompt") is blocked with "not-allowed" and never shows a
     // prompt — so wait for a gesture (wake toggle or mic button),
-    // which requests the permission first.
+    // which requests the permission first. A "prompt" state is
+    // surfaced, never silently ignored.
     let cancelled = false;
     checkMicPermission().then((state) => {
       if (cancelled) return;
       if (state === "denied") {
         setError(MIC_DENIED_MESSAGE);
+        setWakeError(MIC_DENIED_MESSAGE);
+        return;
+      }
+      if (state === "prompt") {
+        setWakeError(
+          "Microphone is not allowed yet — tap the microphone button in the tutor panel once, then the wake word will work."
+        );
         return;
       }
       if (state === "granted" || state === "unknown") startWake();
@@ -645,7 +776,30 @@ export function VirtualTutor() {
       stopWake();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, wakeEnabled, voicePhase]);
+  }, [wakeEnabled, voicePhase]);
+
+  // If the mic was allowed in Site permissions while this tab was
+  // in the background, the wake listener never hears about it —
+  // re-check when the tab becomes visible again.
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState !== "visible") return;
+      if (
+        !wakeEnabledRef.current ||
+        voicePhaseRef.current !== "idle" ||
+        wakeRecognitionRef.current ||
+        recognitionRef.current
+      ) {
+        return;
+      }
+      checkMicPermission().then((state) => {
+        if (state === "granted" || state === "unknown") startWake();
+      });
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function speakWithBrowser(text: string, index: number, onDone?: () => void) {
     if (!("speechSynthesis" in window)) {
@@ -844,9 +998,14 @@ export function VirtualTutor() {
           }}
           aria-label={voicePhase !== "idle" ? "Virtual Tutor listening" : t.common.aiTutor}
           aria-haspopup="dialog"
+          title={
+            !wakeEnabled
+              ? "Wake word is off — open the tutor to turn it on"
+              : wakeError ?? undefined
+          }
           className={`fixed bottom-24 right-4 z-[80] h-16 w-16 overflow-hidden rounded-full bg-transparent transition hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:bottom-6 sm:right-6${
             voicePhase !== "idle" ? " ring-2 ring-white/70" : ""
-          }`}
+          }${!wakeEnabled ? " opacity-40" : ""}`}
         >
           <Strands
             listening={voicePhase !== "idle"}
@@ -868,6 +1027,17 @@ export function VirtualTutor() {
             dispersion={0}
             maxDevicePixelRatio={1.5}
           />
+          {!wakeEnabled && (
+            <span className="absolute bottom-1 right-1 rounded-full bg-black p-1.5 text-white ring-1 ring-white/40">
+              <MicOff className="h-3 w-3" />
+            </span>
+          )}
+          {wakeEnabled && wakeError && (
+            <span
+              title={wakeError}
+              className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-black"
+            />
+          )}
         </button>
       ) : (
         <div
@@ -913,6 +1083,7 @@ export function VirtualTutor() {
                     // mic now so the browser prompts and registers
                     // the Microphone permission for this site.
                     if (next) void requestMicPermission();
+                    setWakeError(null);
                     setWakeEnabled(next);
                   }}
                   className="mt-2 flex items-center gap-2 text-xs text-neutral-400 transition hover:text-white"
@@ -936,6 +1107,11 @@ export function VirtualTutor() {
                 <p className="mt-1 text-[11px] leading-relaxed text-neutral-500">
                   {t.tutor.wakePrivacy}
                 </p>
+                {wakeError && (
+                  <p className="mt-1 text-[11px] leading-relaxed text-red-300">
+                    {wakeError}
+                  </p>
+                )}
               </div>
               <button
                 type="button"
@@ -949,7 +1125,7 @@ export function VirtualTutor() {
 
             <div className="relative shrink-0 border-b border-neutral-800 bg-black">
               <Strands
-                listening={listening || sending || speakingMessage !== null}
+                listening={listening || sending || speakingMessage !== null || voicePhase !== "idle"}
                 colors={STRANDS_COLORS}
                 speed={2.45}
                 amplitude={1.05}

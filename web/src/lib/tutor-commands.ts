@@ -158,13 +158,14 @@ const NAV_ROUTES = [  { route: "home", words: ["home", "homepage", "home page", 
   { route: "offline", words: ["offline", "saved lessons", "downloads"] },
 ] as const;
 
-// Course creator named in the text, if any.
+// Course creator named in the text, if any. Spoken names come
+// without spaces too ("codewithharry", "cwh"), so match those.
 export function matchCreatorSlug(
   normalized: string
 ): "codewithharry" | "code-with-mosh" | "apna-college" | null {
-  if (/\bharry\b|code with harry/.test(normalized)) return "codewithharry";
-  if (/\bmosh\b|code with mosh/.test(normalized)) return "code-with-mosh";
-  if (/apna college|\bapna\b/.test(normalized)) return "apna-college";
+  if (/\bharry\b|code with harry|codewithharry|\bcwh\b/.test(normalized)) return "codewithharry";
+  if (/\bmosh\b|code with mosh|codewithmosh/.test(normalized)) return "code-with-mosh";
+  if (/apna college|apnacollege|\bapna\b/.test(normalized)) return "apna-college";
   return null;
 }
 
@@ -219,6 +220,31 @@ export function matchVoiceCommand(
     if (to !== null) return { type: "video-seek-to", seconds: to };
   }
 
+  // 4b. Course day — "open codewithharry 100 days of python day 43",
+  // "cwh day 43", "open day 43" on a course page. A day number with
+  // a named creator or course is a video title lookup, not a lesson
+  // — and it must run BEFORE the creator-navigate step below, or
+  // "open codewithharry … day 43" would only open the creator page.
+  // A bare "play day 5" (no creator, no course words, not on a
+  // course page) still falls through to step 8 and plays the Nth
+  // video of the current course.
+  const dayNumber = /\bday\s*#?\s*(\d+)\b/.exec(normalized);
+  if (dayNumber) {
+    const dayIndex = Number(dayNumber[1]) - 1;
+    if (
+      matchCreatorSlug(normalized) !== null ||
+      /\b100 days\b|\bdays of python\b|\b100days\b/.test(normalized)
+    ) {
+      return { type: "video-play-title", query: normalized };
+    }
+    if (
+      onCourses &&
+      /^(?:open|play|kholo|chalao|chalu karo|show|start|day)\b/.test(normalized)
+    ) {
+      return { type: "video-play-index", index: dayIndex };
+    }
+  }
+
   // 5. Navigation — "go home", "courses kholo", or the bare section name.
   const creator = matchCreatorSlug(normalized);
   if (creator && /^(?:go to|open|kholo|chalo|le chalo|show|play|chalao)/.test(normalized)) {
@@ -239,6 +265,15 @@ export function matchVoiceCommand(
     ) {
       return { type: "navigate", route };
     }
+  }
+  // Trailing-verb creator name ("cwh kholo", "harry kholo") — the
+  // verb was stripped above, so check the bare name too.
+  const creatorTarget = matchCreatorSlug(navTarget);
+  if (
+    creatorTarget &&
+    (Boolean(navMatch) || /^(cwh|harry|mosh|apna)$/.test(navTarget))
+  ) {
+    return { type: "navigate", route: creatorTarget };
   }
 
   // 6. Lesson next / previous — explicit, or bare "next" in context.

@@ -322,10 +322,10 @@ test("Orb shows the voice session and the wake effect waits for idle", () => {
   const tutor = readSrc("src/components/VirtualTutor.tsx");
   assert.ok(tutor.includes('listening={voicePhase !== "idle"}'));
   assert.ok(tutor.includes('"Virtual Tutor listening"'));
-  assert.ok(tutor.includes("}, [open, wakeEnabled, voicePhase]);"));
+  assert.ok(tutor.includes("}, [wakeEnabled, voicePhase]);"));
 });
 
-test("Voice session greets by voice before listening for the question", () => {
+test("Voice session greets by voice and listens in parallel", () => {
   const tutor = readSrc("src/components/VirtualTutor.tsx");
   assert.ok(tutor.includes('VOICE_GREETING = "Hi! How can I help?"'));
   const start = tutor.indexOf("function startVoiceSession()");
@@ -333,12 +333,106 @@ test("Voice session greets by voice before listening for the question", () => {
   const end = tutor.indexOf("async function askVoiceQuestion(", start);
   assert.ok(end > start);
   const block = tutor.slice(start, end);
-  // Greet first, then listen — never sit silent after waking.
+  // Greet and listen in parallel — never sit silent after waking.
   assert.ok(block.includes("speak(VOICE_GREETING, -1,"));
   assert.ok(block.includes("startQuestionListener()"));
+  // The listener starts at once, not only when the greeting ends —
+  // or words spoken while the greeting's TTS is still generating
+  // are never heard.
+  assert.ok(block.split("beginListening();").length - 1 >= 1);
   // A greeting that never finishes must not hang the session.
   assert.ok(block.includes("greetingTimerRef"));
   assert.ok(block.includes("10000"));
+});
+
+test("Wake listener never fails silently: start errors are counted and surfaced", () => {
+  const tutor = readSrc("src/components/VirtualTutor.tsx");
+  const start = tutor.indexOf("function startWake()");
+  assert.ok(start > -1);
+  const end = tutor.indexOf("function endVoiceSession()", start);
+  assert.ok(end > start);
+  const block = tutor.slice(start, end);
+  // The constructor itself can throw — it is guarded, not bare.
+  assert.ok(block.includes("recognition = new Recognition();"));
+  assert.ok(block.includes("recordWakeFailure"));
+  // A missing SpeechRecognition API is reported, not ignored.
+  assert.ok(block.includes("Voice input is not supported in this browser."));
+  // Three failures in a row surface a visible error…
+  assert.ok(tutor.includes("wakeFailuresRef.current >= 3"));
+  assert.ok(tutor.includes("setWakeError"));
+  // …and a listener that survives 5s clears the failure flag.
+  assert.ok(block.includes("wakeSettleRef.current = window.setTimeout"));
+  assert.ok(block.includes("}, 5000);"));
+  // The orb shows the failure (red badge) instead of looking idle.
+  assert.ok(tutor.includes("bg-red-500"));
+});
+
+test("Wake word works with the panel open", () => {
+  const tutor = readSrc("src/components/VirtualTutor.tsx");
+  // The wake effect no longer stops the listener when the panel
+  // opens — the wake word never OPENS the panel, but it must be
+  // heard while the panel is already open.
+  assert.equal(tutor.includes("if (open || !wakeEnabled"), false);
+  assert.equal(tutor.includes("if (openRef.current) return;"), false);
+  assert.equal(tutor.includes("openRef.current ||"), false);
+  assert.equal(tutor.includes("&& !openRef.current"), false);
+  // The session still never opens the panel on its own: setOpen
+  // is called with true exactly once, on the orb tap.
+  assert.equal(tutor.split("setOpen(true)").length - 1, 1);
+});
+
+test("Question listener ignores greeting and wake-word echoes", () => {
+  const tutor = readSrc("src/components/VirtualTutor.tsx");
+  const start = tutor.indexOf("function startQuestionListener()");
+  assert.ok(start > -1);
+  const end = tutor.indexOf("function startVoiceSession()", start);
+  assert.ok(end > start);
+  const block = tutor.slice(start, end);
+  // The mic hears the speaker while the greeting plays — that echo
+  // must not become the user's question.
+  assert.ok(block.includes("how can i help"));
+  assert.ok(block.includes("matchesWakeWord(transcript)"));
+});
+
+test("Voice question waits for the session user instead of assuming signed-out", () => {
+  const tutor = readSrc("src/components/VirtualTutor.tsx");
+  const start = tutor.indexOf("async function askVoiceQuestion(");
+  assert.ok(start > -1);
+  const end = tutor.indexOf("useEffect(() => {", start);
+  assert.ok(end > start);
+  const block = tutor.slice(start, end);
+  // The user fetch runs while the greeting plays; a fast question
+  // must wait for it (cached) instead of answering "sign in".
+  assert.ok(block.includes("await fetchSessionUser()"));
+});
+
+test("Wake toggle off is visible on the orb", () => {
+  const tutor = readSrc("src/components/VirtualTutor.tsx");
+  // A switched-off wake word must not look like a dead orb.
+  assert.ok(tutor.includes("opacity-40"));
+  assert.ok(tutor.includes("Wake word is off"));
+  assert.ok(tutor.includes("MicOff"));
+});
+
+test("Panel dictation fails visibly, never silently", () => {
+  const tutor = readSrc("src/components/VirtualTutor.tsx");
+  const start = tutor.indexOf("function startListening()");
+  assert.ok(start > -1);
+  const end = tutor.indexOf("function stopWake()", start);
+  assert.ok(end > start);
+  const block = tutor.slice(start, end);
+  // The constructor can throw when the speech service is
+  // unavailable — guarded, with a visible error.
+  assert.ok(block.includes("recognition = new Recognition();"));
+  assert.ok(block.includes("Could not start voice input. Check microphone permission or type instead."));
+  // A started listener that never fires any event says so after
+  // 12s instead of listening forever.
+  assert.ok(block.includes("12000"));
+  assert.ok(block.includes("heard nothing"));
+  // Dictation stops the wake listener first (one mic) and brings
+  // it back when done.
+  assert.ok(block.includes("stopWake();"));
+  assert.ok(block.includes("scheduleWakeRestart();"));
 });
 
 test("Question listener stays open across pauses and restarts on end", () => {

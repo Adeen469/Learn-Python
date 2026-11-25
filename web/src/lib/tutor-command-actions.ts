@@ -91,7 +91,9 @@ export async function resolveVideoTarget(
     });
   }
   const creatorHit = data.COURSE_CREATORS.find((c) =>
-    q.includes(c.slug.replace(/-/g, "")) || q.replace(/\s+/g, "").includes(c.slug.replace(/-/g, ""))
+    q.includes(c.slug.replace(/-/g, "")) || q.replace(/\s+/g, "").includes(c.slug.replace(/-/g, "")) ||
+    // Spoken shorthand: "cwh" is CodeWithHarry.
+    (c.slug === "codewithharry" && /\bcwh\b/.test(q))
   );
   const pool = creatorHit
     ? flat.filter((f) => f.creator === creatorHit.name)
