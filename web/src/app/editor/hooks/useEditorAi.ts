@@ -69,6 +69,16 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
   const [aiThoughtSeconds, setAiThoughtSeconds] = useState<number | null>(null);
   const [aiError, setAiError] = useState<string | null>(null);
   const aiAbortRef = useRef<AbortController | null>(null);
+  // Ask AI (PDF viewer): the CURRENT document's text is the
+  // reference for the user's next question — the AI answers what
+  // THEY ask about it, not a fixed summary. Set when the user taps
+  // Ask AI in the PDF toolbar; cleared when the active file
+  // changes (the reference follows the current document) or when
+  // the user removes the chip in the AI panel.
+  const [aiDocContext, setAiDocContext] = useState<{ fileName: string; text: string } | null>(null);
+  useEffect(() => {
+    setAiDocContext(null);
+  }, [activeFile?.path]);
 
   // AI panel views: chat (default) and history — switched from the ⋮
   // menu in the panel header. Settings opens as a card in the centre
@@ -823,7 +833,10 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
         raw.slice("/hint".length).trim() ||
         "Give me a hint for the next step — explain the idea, don't write the code.";
     }
-    const code = activeFile?.content ?? "";
+    // The PDF Ask AI context replaces the active file's content as
+    // the reference: a PDF has no text content, so without this the
+    // AI would answer with no document at all.
+    const code = aiDocContext ? aiDocContext.text : (activeFile?.content ?? "");
     const truncated = code.length > 8000;
     const history = aiMessages.slice(-8).map((m) => ({
       role: m.role === "user" ? "user" : "assistant",
@@ -927,6 +940,7 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
     addedModels, orSearchOpen, toggleOrSearch, orSearchQuery, setOrSearchQuery,
     orSearchResults, orSearchLoading, orSearchError, addOpenRouterModel,
     sendAiMessage, stopAi, clearAiChat,
+    aiDocContext, setAiDocContext,
     BYOK_PROVIDER_NAMES, BEST_MODEL_KEYS, EFFICIENT_MODEL_KEYS,
     ALL_AI_PANEL_MODELS, AI_PANEL_MODELS, MODEL_GROUPS,
   };

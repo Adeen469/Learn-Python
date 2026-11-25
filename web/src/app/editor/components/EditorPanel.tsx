@@ -4,6 +4,7 @@ import Editor from "@monaco-editor/react";
 import { FileCode, Square } from "lucide-react";
 import { TetrominoLoader } from "./TetrominoLoader";
 import { FileViewer, type FileViewerSource } from "./FileViewer";
+import type { PdfAskAiContext } from "./PdfViewer";
 import type { WorkspaceItem } from "../lib/editor-types";
 import type { PyodideEngine } from "../hooks/usePyodideEngine";
 import { useInstalledExtensions } from "../hooks/useExtensions";
@@ -28,17 +29,21 @@ export type EditorPanelProps = {
   // repo load) — the editor shows the tetromino loader until it
   // arrives. False for instant switches: no fetch, no loader.
   loadingFile: boolean;
+  // PDF viewer only: Ask AI with the current document as reference.
+  onAskAi?: (ctx: PdfAskAiContext) => void;
 };
 
 export function EditorPanel(props: EditorPanelProps) {
-  const { t, activeFile, engine, editorTheme, handleEditorChange, editorRef, monacoRef, setCursorPos, loadingFile } = props;
+  const { t, activeFile, engine, editorTheme, handleEditorChange, editorRef, monacoRef, setCursorPos, loadingFile, onAskAi } = props;
 
   // File viewer (installed extensions): when the active file's type is
   // covered by an installed extension, the pane shows that viewer
   // instead of Monaco. Repo files stream their bytes through the
-  // repo-file API (same token/SHA checks as the text read); local
-  // SVG/CSV files render from their text content. Anything without a
-  // usable source falls back to Monaco, exactly as today.
+  // repo-file API (same token/SHA checks as the text read); dropped
+  // binary files carry a blob: URL from the drop handler, so the
+  // viewer renders their raw bytes; local SVG/CSV files render from
+  // their text content. Anything without a usable source falls back
+  // to Monaco, exactly as today.
   const { installed } = useInstalledExtensions();
   const viewer = useMemo(() => {
     if (!activeFile) return null;
@@ -53,6 +58,9 @@ export function EditorPanel(props: EditorPanelProps) {
         url: repoBinaryFileUrl(repo.repo, repo.branch, activeFile.path, activeFile.sha),
       };
       return { kind, name, source };
+    }
+    if (activeFile.blobUrl) {
+      return { kind, name, source: { type: "url", url: activeFile.blobUrl } as FileViewerSource };
     }
     const ext = activeFile.path.split(".").pop()?.toLowerCase() ?? "";
     if (ext === "svg" && activeFile.content) {
@@ -94,7 +102,7 @@ export function EditorPanel(props: EditorPanelProps) {
         </span>
       </div>
 
-      <div className="flex-1 w-full relative">
+      <div className="flex-1 w-full min-w-0 relative overflow-hidden">
         {loadingFile && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-neutral-950/60">
             <TetrominoLoader />
@@ -102,10 +110,12 @@ export function EditorPanel(props: EditorPanelProps) {
         )}
         {viewer ? (
           <FileViewer
+            t={t}
             fileName={activeFile?.path ?? ""}
             kind={viewer.kind}
             source={viewer.source}
             loadErrorText={t.editorPage.viewerLoadError}
+            onAskAi={onAskAi}
           />
         ) : (
           <Editor
@@ -176,6 +186,11 @@ export function EditorPanel(props: EditorPanelProps) {
             insertSpaces: true,
             renderWhitespace: "selection",
             wordWrap: "on",
+            // Binary garbage is one unbroken token with no wrap
+            // opportunities — the default "simple" strategy can
+            // leave such a line running past the pane edge. "advanced"
+            // breaks anywhere, so nothing ever escapes the frame.
+            wrappingStrategy: "advanced",
             fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
             scrollbar: {
               verticalScrollbarSize: 8,

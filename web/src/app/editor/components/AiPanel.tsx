@@ -72,7 +72,7 @@ export function AiHistoryView(props: AiHistoryViewProps) {
   );
 }
 
-import { Code2, History, MoreVertical, Settings, Sparkles } from "lucide-react";
+import { Code2, FileText, History, MoreVertical, Settings, Sparkles, X } from "lucide-react";
 import { EditorPanelHeader } from "@/components/EditorPanelHeader";
 import PromptBar, { type PromptBarModel } from "@/components/PromptBar";
 import ThoughtLine from "@/components/ThoughtLine";
@@ -106,10 +106,15 @@ export type AiPanelProps = {
   loadAiChat: (chat: AiChat) => void;
   deleteAiChat: (id: string) => void;
   defaultModel: string;
+  // Ask AI (PDF viewer): the current document is attached as the
+  // reference for the user's next question. Null when no document
+  // is attached.
+  aiDocContext: { fileName: string; text: string } | null;
+  setAiDocContext: Dispatch<SetStateAction<{ fileName: string; text: string } | null>>;
 };
 
 export function AiPanel(props: AiPanelProps) {
-  const { t, aiView, aiMessages, aiThinking, aiThoughtSeconds, setAiThoughtSeconds, aiError, aiMenuOpen, setAiMenuOpen, activeFile, sendAiMessage, stopAi, clearAiChat, setAiView, setCentreView, setSettingsSection, setSettingsTabOpen, setPanelVisible, setDraggingPanel, setDropZone, AI_PANEL_MODELS, aiChats, startNewChat, loadAiChat, deleteAiChat, defaultModel } = props;
+  const { t, aiView, aiMessages, aiThinking, aiThoughtSeconds, setAiThoughtSeconds, aiError, aiMenuOpen, setAiMenuOpen, activeFile, sendAiMessage, stopAi, clearAiChat, setAiView, setCentreView, setSettingsSection, setSettingsTabOpen, setPanelVisible, setDraggingPanel, setDropZone, AI_PANEL_MODELS, aiChats, startNewChat, loadAiChat, deleteAiChat, defaultModel, aiDocContext, setAiDocContext } = props;
 
   return (
     <div className="w-full flex-1 min-h-0 rounded-xl border border-neutral-800 bg-neutral-950 flex flex-col overflow-hidden">
@@ -231,6 +236,22 @@ export function AiPanel(props: AiPanelProps) {
       </div>
       {aiView === "chat" ? (
       <div className="shrink-0 border-t border-neutral-800 p-2">
+        {aiDocContext ? (
+          <div className="mb-2 flex items-center gap-1.5 rounded-lg border border-neutral-700 bg-neutral-900 px-2 py-1">
+            <FileText className="h-3.5 w-3.5 shrink-0 text-neutral-400" />
+            <span className="min-w-0 flex-1 truncate text-[11px] text-neutral-300">
+              {t.editorPage.pdfDocContext(aiDocContext.fileName)}
+            </span>
+            <button
+              type="button"
+              aria-label="Remove document"
+              onClick={() => setAiDocContext(null)}
+              className="rounded p-0.5 text-neutral-400 hover:bg-neutral-800 hover:text-white"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ) : null}
         <PromptBar
           placeholder={t.editorPage.aiPlaceholder}
           sources={[

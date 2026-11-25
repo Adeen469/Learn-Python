@@ -51,8 +51,18 @@ const cspDirectives = [
   "media-src 'self' blob:",
   // youtube-nocookie embeds the course videos that don't have a
   // MEGA/Drive link yet (temporary fallback — Maalik replaces them
-  // with MEGA/Drive links when he has them).
+  // with MEGA/Drive links when he has them). No 'self' or blob:
+  // here anymore — the PDF viewer used to need blob: (Chrome
+  // renders a PDF <embed> inside a nested frame, checked against
+  // frame-src), but the viewer is pdf.js now: canvas + text layer,
+  // no embed, no frame.
   "frame-src https://www.youtube-nocookie.com https://www.youtube.com",
+  // Back to 'none': the PDF viewer's native <embed> was the only
+  // plugin content on the site, and pdf.js replaced it — canvas +
+  // text layer needs no plugin permission at all. blob: stays on
+  // img-src / media-src (dropped images, video and audio still
+  // render from blob: URLs), which are the narrow permissions
+  // those viewers need.
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",

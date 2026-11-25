@@ -4,7 +4,7 @@
 // (F1 split) — no behaviour change.
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { buildRepoWorkspaceTree, DEFAULT_WORKSPACE } from "@/app/editor/lib/editor-utils";
-import { readInstalledExtensions, viewerKindForFile } from "@/app/editor/lib/editor-extensions";
+import { readInstalledExtensions, stripTransientBlobUrls, viewerKindForFile } from "@/app/editor/lib/editor-extensions";
 import type { WorkspaceItem } from "@/app/editor/lib/editor-types";
 import type { usePyodideEngine } from "@/app/editor/hooks/usePyodideEngine";
 
@@ -125,7 +125,10 @@ export function useWorkspaceRepo(args: {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) base = parsed;
+        // blob: URLs from dropped binary files die on reload — strip
+        // them here so a restored file never points the viewer at a
+        // dead URL (it falls back to the empty text editor instead).
+        if (Array.isArray(parsed) && parsed.length > 0) base = stripTransientBlobUrls(parsed);
       } catch {}
     }
     // A repo opened earlier (reload): its files may still be lazy —
@@ -300,7 +303,7 @@ export function useWorkspaceRepo(args: {
       if (!raw) return false;
       const parsed = JSON.parse(raw) as WorkspaceItem[];
       if (!Array.isArray(parsed) || parsed.length === 0) return false;
-      persistWorkspace(parsed);
+      persistWorkspace(stripTransientBlobUrls(parsed));
       const firstFile = parsed.find((p) => p.type === "file");
       if (firstFile) setActiveFilePath(firstFile.path);
       localStorage.removeItem("lp_workspace_tree_backup");

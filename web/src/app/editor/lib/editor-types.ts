@@ -12,6 +12,12 @@ export interface WorkspaceItem {
   // when the file is opened, using its blob sha.
   lazy?: boolean;
   sha?: string;
+  // Dropped binary file (PDF/image/video/...): a blob: object URL
+  // for the raw bytes, so the viewer renders them without the
+  // bytes ever being text-decoded (file.text() corrupts binary).
+  // Session-only — blob: URLs die on reload, so the workspace
+  // loader strips them when restoring from storage.
+  blobUrl?: string;
 }
 
 export type AiChatMessage = { role: "user" | "ai"; text: string };

@@ -14,6 +14,7 @@ import {
 import {
   EDITOR_EXTENSIONS,
   extensionForFile,
+  stripTransientBlobUrls,
   toggleExtensionId,
   viewerKindForFile,
 } from "../src/app/editor/lib/editor-extensions.ts";
@@ -874,6 +875,114 @@ test("extensions install state: toggle is pure, no duplicates", () => {
   assert.deepEqual(toggleExtensionId([], "pdf-viewer", false), []);
 });
 
+// --- PDF / image / video viewer fix (Maalik 2026-11-25) ---
+// The viewer was installed but PDFs/images/videos opened as raw
+// binary garbage in Monaco: dropped files were text-decoded, the
+// pane never routed them to a viewer, and the CSP blocked every
+// PDF <embed> outright (object-src 'none'). The embed is gone now
+// — pdf.js renders to canvas, so the CSP loosenings were reverted
+// and the viewer grew the header toolbar (Ask AI included).
+
+test("viewer fix: blob: URLs are stripped when a workspace is restored", () => {
+  const items = [
+    { path: "a.pdf", blobUrl: "blob:http://localhost/123" },
+    { path: "b.png", blobUrl: "data:image/png;base64,AAA" },
+    { path: "c.py" },
+  ];
+  const stripped = stripTransientBlobUrls(items);
+  assert.equal(stripped[0].blobUrl, undefined, "a blob: URL dies on reload, so it must not be restored");
+  assert.equal(stripped[1].blobUrl, "data:image/png;base64,AAA", "a data: URL is durable and must stay");
+  assert.equal(stripped[2].blobUrl, undefined, "a file with no blob URL is untouched");
+  assert.equal(items[0].blobUrl, "blob:http://localhost/123", "the input list must not be mutated");
+});
+
+test("viewer fix: dropped binary files keep raw bytes, PDF renders on pdf.js (no embed, CSP tight again), viewers fit the frame", () => {
+  const config = read("next.config.ts");
+  const fileViewer = read("src/app/editor/components/FileViewer.tsx");
+  const types = read("src/app/editor/lib/editor-types.ts");
+  assert.ok(config.includes('"object-src \'none\'"'), "with the <embed> gone (pdf.js renders to canvas), object-src goes back to 'none'");
+  assert.ok(!config.includes('"object-src \'self\' blob:"'), "the embed's object-src loosening must be gone");
+  assert.ok(config.includes('"frame-src https://www.youtube-nocookie.com https://www.youtube.com"'), "frame-src drops blob: (the embed's nested frame is gone); YouTube embeds keep their origins");
+  assert.ok(config.includes('"img-src \'self\' data: blob:'), "dropped images still render from blob: URLs, so img-src keeps blob:");
+  assert.ok(config.includes('"media-src \'self\' blob:"'), "dropped video/audio still render from blob: URLs, so media-src keeps blob:");
+  assert.ok(!fileViewer.includes("<embed"), "no native PDF <embed> anymore — it cannot host the custom header");
+  assert.ok(fileViewer.includes("PdfViewer"), "the PDF branch must render the pdf.js viewer");
+  assert.ok(page.includes("extensionForFile(fileName)"), "the drop handler must check the viewer catalog before reading a file");
+  assert.ok(page.includes("await file.arrayBuffer()"), "dropped binary files must be read as bytes, never text-decoded");
+  assert.ok(page.includes("URL.createObjectURL"), "dropped binary bytes must live behind a blob: URL for the viewer");
+  assert.ok(page.includes("blobUrl"), "the dropped item must carry its blob URL");
+  assert.ok(!page.includes("newItems.forEach((it) => markRepoChanged(it.path))"), "binary drops must not be marked repo-changed (the push path only sends text)");
+  assert.ok(types.includes("blobUrl?: string"), "WorkspaceItem must carry the dropped file's blob URL");
+  assert.ok(editorPanel.includes("activeFile.blobUrl"), "the editor pane must route a dropped binary file to its viewer");
+  assert.ok(editorPanel.includes('wrappingStrategy: "advanced"'), "Monaco must break unbroken binary lines anywhere, or they run past the frame");
+  assert.ok(fileViewer.includes("onWheel"), "the image viewer must zoom on the mouse wheel");
+  assert.ok(fileViewer.includes("onPointerDown"), "the image viewer must pan by dragging when zoomed");
+  assert.ok(fileViewer.includes("imageFit"), "the image viewer must have a visible Fit button");
+  assert.ok(fileViewer.includes('className="h-full w-full object-contain"'), "the video must fill the pane and resize with it (contain-fit)");
+  const repoHook = read("src/app/editor/hooks/useWorkspaceRepo.ts");
+  assert.ok(repoHook.includes("stripTransientBlobUrls"), "restoring a workspace must drop dead blob: URLs");
+});
+
+test("viewer fix i18n: image zoom keys exist in every language", () => {
+  for (const lang of ["ar", "de", "en", "es", "fr", "hi-roman", "ja", "ko", "pt", "ru", "zh"]) {
+    const file = read(`src/lib/i18n/${lang}.ts`);
+    for (const key of ["imageZoomIn", "imageZoomOut", "imageFit"]) {
+      assert.ok(file.includes(key), `${lang} must define ${key}`);
+    }
+  }
+});
+
+test("pdf.js viewer: header toolbar (all controls), Ask AI with the document as reference", () => {
+  const pdfViewer = read("src/app/editor/components/PdfViewer.tsx");
+  const fileViewer = read("src/app/editor/components/FileViewer.tsx");
+  const editorPanel = read("src/app/editor/components/EditorPanel.tsx");
+  const aiHook = read("src/app/editor/hooks/useEditorAi.ts");
+  const aiPanel = read("src/app/editor/components/AiPanel.tsx");
+  const page = read("src/app/editor/page.tsx");
+  const index = read("src/lib/i18n/index.tsx");
+  // pdf.js, lazily loaded, canvas + text layer, bundled worker.
+  assert.ok(pdfViewer.includes('await import("pdfjs-dist")'), "pdf.js must load lazily, only when a PDF opens");
+  assert.ok(pdfViewer.includes("pdf.worker.min.mjs?url"), "the worker must be a bundled asset URL (same-origin, offline-safe)");
+  assert.ok(pdfViewer.includes("new pdfjs.TextLayer"), "pages render with a text layer (selectable text for search/highlight/Ask AI)");
+  assert.ok(pdfViewer.includes("page.render"), "pages render to canvas");
+  assert.ok(!pdfViewer.includes("<embed"), "no native embed inside the viewer either");
+  // Header controls — every one from Maalik's list, none removed.
+  for (const key of ["pdfSidebar", "pdfSearch", "pdfHighlight", "pdfFilter", "pdfAddText", "pdfReadAloud", "pdfRotate", "pdfView", "pdfPrint", "pdfSave", "pdfAnnotate", "pdfMore", "pdfAskAi"]) {
+    assert.ok(pdfViewer.includes(key), `the header must have ${key}`);
+  }
+  assert.ok(pdfViewer.includes("pdfPageOf"), "page navigation must show Page X of Y");
+  assert.ok(pdfViewer.includes("pdfSinglePage") && pdfViewer.includes("pdfContinuous"), "the View menu must offer single page and continuous");
+  assert.ok(pdfViewer.includes("pdfFitWidth"), "the View menu must offer fit to width");
+  assert.ok(pdfViewer.includes("speechSynthesis"), "read aloud must use speechSynthesis (real, not a stub)");
+  assert.ok(pdfViewer.includes("window.print()"), "print must open the browser print dialog");
+  assert.ok(pdfViewer.includes("window.open(source.url"), "open in new tab must open the PDF URL");
+  // Removed tools must have no keys and no buttons: translate,
+  // sketching/draw, eraser are out by his order.
+  assert.ok(!index.includes("pdfTranslate") && !index.includes("pdfDraw") && !index.includes("pdfEraser"), "translate/draw/eraser must not exist as toolbar keys");
+  // Ask AI wiring: viewer -> FileViewer -> EditorPanel -> page ->
+  // AI hook (document text as the request's reference) -> panel chip.
+  assert.ok(pdfViewer.includes("onAskAi"), "the viewer must call onAskAi with the document text");
+  assert.ok(pdfViewer.includes("Document: ${fileName}"), "the context must name the document it comes from");
+  assert.ok(fileViewer.includes("onAskAi"), "FileViewer must pass Ask AI through to the PDF viewer");
+  assert.ok(editorPanel.includes("onAskAi"), "EditorPanel must pass Ask AI through to FileViewer");
+  assert.ok(page.includes("handlePdfAskAi"), "the page must attach the document and open the AI panel");
+  assert.ok(page.includes("setAiDocContext"), "the page must set the document context");
+  assert.ok(aiHook.includes("aiDocContext"), "the AI hook must hold the document context");
+  assert.ok(aiHook.includes('aiDocContext ? aiDocContext.text : (activeFile?.content ?? "")'), "the AI request must use the document text as its reference instead of the (empty) PDF content");
+  assert.ok(aiHook.includes("setAiDocContext(null)"), "the context must clear when the active file changes");
+  assert.ok(aiPanel.includes("aiDocContext"), "the AI panel must show the attached document chip");
+  assert.ok(aiPanel.includes("pdfDocContext"), "the chip must label the document");
+});
+
+test("pdf viewer i18n: toolbar keys exist in every language", () => {
+  for (const lang of ["ar", "de", "en", "es", "fr", "hi-roman", "ja", "ko", "pt", "ru", "zh"]) {
+    const file = read(`src/lib/i18n/${lang}.ts`);
+    for (const key of ["pdfSidebar", "pdfSearch", "pdfHighlight", "pdfFilter", "pdfAddText", "pdfReadAloud", "pdfStopReading", "pdfRotate", "pdfView", "pdfPrint", "pdfSave", "pdfAnnotate", "pdfMore", "pdfAskAi", "pdfPageOf", "pdfSinglePage", "pdfContinuous", "pdfFitWidth", "pdfDocProperties", "pdfOpenNewTab", "pdfNoMatches", "pdfFilterHighlights", "pdfFilterTextNotes", "pdfDocContext"]) {
+      assert.ok(file.includes(key), `${lang} must define ${key}`);
+    }
+  }
+});
+
 test("extensions UI + viewer wiring: tab, catalog, viewer pane, binary API", () => {
   const extensionsPanel = read("src/app/editor/components/ExtensionsPanel.tsx");
   const fileViewer = read("src/app/editor/components/FileViewer.tsx");
@@ -895,7 +1004,9 @@ test("extensions UI + viewer wiring: tab, catalog, viewer pane, binary API", () 
   assert.ok(fileViewer.includes("<img"), "images must render natively");
   assert.ok(fileViewer.includes("<video"), "video must render natively");
   assert.ok(fileViewer.includes("<audio"), "audio must render natively");
-  assert.ok(fileViewer.includes('type="application/pdf"'), "PDF must use the browser's native viewer");
+  assert.ok(fileViewer.includes("PdfViewer"), "PDF must render in the pdf.js viewer (custom header, zoom/search/pages)");
+  assert.ok(!fileViewer.includes("<embed"), "the native <embed> is gone — it cannot host the custom header");
+  assert.ok(pkg.dependencies["pdfjs-dist"], "pdfjs-dist must be a dependency");
   assert.ok(pkg.dependencies.xlsx, "xlsx must be a dependency");
   assert.ok(pkg.dependencies.mammoth, "mammoth must be a dependency");
   assert.ok(repoFileRoute.includes('binary") === "1"'), "the repo-file API must serve raw bytes in binary mode");

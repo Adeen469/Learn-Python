@@ -58,6 +58,7 @@ import { EditorPanel } from "@/app/editor/components/EditorPanel";
 import { AiPanel } from "@/app/editor/components/AiPanel";
 import { ExplorerPanel } from "@/app/editor/components/ExplorerPanel";
 import { PushDialog } from "@/app/editor/components/PushDialog";
+import { extensionForFile } from "@/app/editor/lib/editor-extensions";
 
 declare global {
   interface Window {
@@ -129,6 +130,7 @@ export default function CodeEditorPage() {
     aiChats, AI_PANEL_MODELS, byokPayloadFor,
     sendAiMessage, stopAi, clearAiChat,
     startNewChat, loadAiChat, deleteAiChat,
+    aiDocContext, setAiDocContext,
   } = ai;
 
   const [needsSaveWarning, setNeedsSaveWarning] = useState<string | null>(null);
@@ -1108,10 +1110,33 @@ export default function CodeEditorPage() {
     const newItems: WorkspaceItem[] = [];
     for (let i = 0; i < filesList.length; i++) {
       const file = filesList[i];
-      const text = await file.text();
       const fileName = file.name;
 
-      if (!items.some((it) => it.path === fileName)) {
+      if (items.some((it) => it.path === fileName)) continue;
+      if (extensionForFile(fileName)) {
+        // Binary viewer file (PDF/image/video/...): file.text()
+        // would UTF-8-decode the raw bytes and corrupt them — the
+        // PDF opened as binary garbage in Monaco for exactly this
+        // reason. Keep the raw bytes behind a blob: URL for the
+        // viewer instead, with empty text content. A binary drop is
+        // NOT marked repo-changed: the push path sends text content,
+        // so it could only ever commit an empty file.
+        const blobUrl = URL.createObjectURL(
+          new Blob([await file.arrayBuffer()], {
+            type: file.type || "application/octet-stream",
+          })
+        );
+        newItems.push({
+          id: "f-drop-" + Date.now() + "-" + i,
+          name: fileName,
+          path: fileName,
+          type: "file",
+          content: "",
+          isSaved: true,
+          blobUrl,
+        });
+      } else {
+        const text = await file.text();
         newItems.push({
           id: "f-drop-" + Date.now() + "-" + i,
           name: fileName,
@@ -1126,7 +1151,9 @@ export default function CodeEditorPage() {
     if (newItems.length > 0) {
       const merged = [...items, ...newItems];
       setItems(merged);
-      newItems.forEach((it) => markRepoChanged(it.path));
+      newItems.forEach((it) => {
+        if (!it.blobUrl) markRepoChanged(it.path);
+      });
       setActiveFilePath(newItems[0].path);
       localStorage.setItem("lp_workspace_tree", JSON.stringify(merged));
       setOutput((prev) => prev + `[Imported ${newItems.length} file(s) via drag & drop]\n`);
@@ -1169,9 +1196,16 @@ export default function CodeEditorPage() {
   // AI Settings card — see components/AiSettingsCard.tsx.
   const aiSettingsCard = <AiSettingsCard t={t} ai={ai} />;
 
-  const aiPanel = (<AiPanel t={t} aiView={aiView} aiMessages={aiMessages} aiThinking={aiThinking} aiThoughtSeconds={aiThoughtSeconds} setAiThoughtSeconds={setAiThoughtSeconds} aiError={aiError} aiMenuOpen={aiMenuOpen} setAiMenuOpen={setAiMenuOpen} activeFile={activeFile} sendAiMessage={sendAiMessage} stopAi={stopAi} clearAiChat={clearAiChat} setAiView={setAiView} setCentreView={setCentreView} setSettingsSection={setSettingsSection} setSettingsTabOpen={setSettingsTabOpen} setPanelVisible={setPanelVisible} setDraggingPanel={setDraggingPanel} setDropZone={setDropZone} AI_PANEL_MODELS={AI_PANEL_MODELS} aiChats={aiChats} startNewChat={startNewChat} loadAiChat={loadAiChat} deleteAiChat={deleteAiChat} defaultModel="gemini-3.6-flash" />);
+  const aiPanel = (<AiPanel t={t} aiView={aiView} aiMessages={aiMessages} aiThinking={aiThinking} aiThoughtSeconds={aiThoughtSeconds} setAiThoughtSeconds={setAiThoughtSeconds} aiError={aiError} aiMenuOpen={aiMenuOpen} setAiMenuOpen={setAiMenuOpen} activeFile={activeFile} sendAiMessage={sendAiMessage} stopAi={stopAi} clearAiChat={clearAiChat} setAiView={setAiView} setCentreView={setCentreView} setSettingsSection={setSettingsSection} setSettingsTabOpen={setSettingsTabOpen} setPanelVisible={setPanelVisible} setDraggingPanel={setDraggingPanel} setDropZone={setDropZone} AI_PANEL_MODELS={AI_PANEL_MODELS} aiChats={aiChats} startNewChat={startNewChat} loadAiChat={loadAiChat} deleteAiChat={deleteAiChat} defaultModel="gemini-3.6-flash" aiDocContext={aiDocContext} setAiDocContext={setAiDocContext} />);
 
-  const editorPanel = (<EditorPanel t={t} activeFile={activeFile} engine={engine} editorTheme={editorTheme} handleEditorChange={handleEditorChange} editorRef={editorRef} monacoRef={monacoRef} setCursorPos={setCursorPos} loadingFile={loadingFilePath === activeFilePath} />);
+  // Ask AI (PDF viewer): attach the current document as the AI's
+  // reference and open the panel, so the user asks their question
+  // about it — the AI answers from the document, per their prompt.
+  const handlePdfAskAi = (ctx: { fileName: string; text: string }) => {
+    setAiDocContext(ctx);
+    setShowAi(true);
+  };
+  const editorPanel = (<EditorPanel t={t} activeFile={activeFile} engine={engine} editorTheme={editorTheme} handleEditorChange={handleEditorChange} editorRef={editorRef} monacoRef={monacoRef} setCursorPos={setCursorPos} loadingFile={loadingFilePath === activeFilePath} onAskAi={handlePdfAskAi} />);
 
   const dockPanels = (["explorer", "terminal", "ai"] as PanelId[]).filter((id) => isPanelVisible(id));
   const leftPanels = dockPanels.filter((id) => panelZones[id] === "left");

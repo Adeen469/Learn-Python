@@ -136,6 +136,16 @@ export function viewerKindForFile(
   return ext.kind;
 }
 
+/** Drop blob: URLs when restoring a workspace from storage: a
+    blob: URL only lives in the session that created it, so a
+    persisted one is dead by definition. data: URLs (if any) are
+    durable and stay. */
+export function stripTransientBlobUrls<T extends { blobUrl?: string }>(items: T[]): T[] {
+  return items.map((it) =>
+    it.blobUrl?.startsWith("blob:") ? { ...it, blobUrl: undefined } : it
+  );
+}
+
 /** The open repo, as the repo hook persists it (owner/name + branch)
     — the viewer builds its binary file URL from it, no page prop
     needed. */
