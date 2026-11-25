@@ -21,6 +21,7 @@
 // leg could speak. No key is ever logged or echoed.
 
 import { createHash, randomUUID } from "node:crypto";
+import type { ClientRequest, IncomingMessage } from "node:http";
 import WebSocket from "ws";
 import { Client as GradioClient } from "@gradio/client";
 
@@ -256,7 +257,7 @@ async function callEdgeTtsOnce(
       finish(null);
       return;
     }
-    ws.on("unexpected-response", (_req, res) => {
+    ws.on("unexpected-response", (_req: ClientRequest, res: IncomingMessage) => {
       // 403 means our clock is skewed vs Microsoft's — retry once
       // with the skew from the server's Date header.
       if (res.statusCode === 403) {
@@ -278,7 +279,7 @@ async function callEdgeTtsOnce(
         `X-RequestId:${requestId}\r\nContent-Type:application/ssml+xml\r\nX-Timestamp:${ts}Z\r\nPath:ssml\r\n\r\n${edgeSsml(text, voice)}`
       );
     });
-    ws.on("message", (data) => {
+    ws.on("message", (data: WebSocket.RawData) => {
       const parsed = parseEdgeMessage(
         typeof data === "string" ? data : Buffer.isBuffer(data) ? data : Buffer.from(data as ArrayBuffer)
       );

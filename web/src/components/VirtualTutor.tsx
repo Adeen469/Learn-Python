@@ -452,7 +452,7 @@ export function VirtualTutor() {
           onClick={() => setOpen(true)}
           aria-label={t.common.aiTutor}
           aria-haspopup="dialog"
-          className="fixed bottom-24 right-4 z-[80] h-16 w-16 overflow-hidden rounded-full bg-black shadow-[0_0_32px_rgba(175,175,175,0.28)] transition hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:bottom-6 sm:right-6"
+          className="fixed bottom-24 right-4 z-[80] h-16 w-16 overflow-hidden rounded-full bg-transparent transition hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:bottom-6 sm:right-6"
         >
           <Strands
             className="absolute inset-0"
@@ -468,7 +468,7 @@ export function VirtualTutor() {
             taper={1.2}
             intensity={0.6}
             saturation={1.05}
-            glassSize={0.5}
+            glassSize={1.2}
             rim={0.7}
             dispersion={0}
             maxDevicePixelRatio={1.5}
@@ -564,7 +564,7 @@ export function VirtualTutor() {
                 taper={1.2}
                 intensity={0.6}
                 saturation={1.05}
-                glassSize={0.5}
+                glassSize={1.2}
                 rim={0.7}
                 dispersion={0}
                 maxDevicePixelRatio={1.5}
