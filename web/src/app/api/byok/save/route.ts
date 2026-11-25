@@ -46,17 +46,17 @@ const BYOK_SAVE_MAX_BODY_BYTES = 64 * 1024;
 // non-custom request must not be rejected for fields it ignores.
 const saveByokSchema = z.object({
   key: z
-    .string({ invalid_type_error: "key is not valid." })
+    .string({ error: "key is not valid." })
     .min(10, "key is not valid.")
     .max(200, "key is not valid."),
   baseUrl: z
     .string({
-      invalid_type_error: "Custom BYOK needs an https base URL and a model.",
+      error: "Custom BYOK needs an https base URL and a model.",
     })
     .optional(),
   model: z
     .string({
-      invalid_type_error: "Custom BYOK needs an https base URL and a model.",
+      error: "Custom BYOK needs an https base URL and a model.",
     })
     .optional(),
   // Replace the existing key for this provider (only allowed when

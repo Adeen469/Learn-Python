@@ -24,7 +24,7 @@ import {
 // covered by source assertions below instead.
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const read = (rel) => readFileSync(path.join(root, rel), "utf8");
+const read = (rel) => readFileSync(path.join(root, rel), "utf8").replace(/\r\n/g, "\n");
 
 // --- mirrors ---------------------------------------------------------------
 
@@ -1185,7 +1185,11 @@ test("R2-M3: Google sign-in fails closed when the DB row cannot be created", () 
   const exchange = read("src/app/api/auth/app-exchange/route.ts");
   assert.ok(exchange.includes("getUserByEmailResult(exchangeEmail)"), "the exchange must use the discriminating read too");
   assert.ok(exchange.includes("createGoogleUser"), "the exchange must create the row server-side when it is missing");
-  assert.ok(exchange.includes("sv: row.session_version"), "the exchange must mint from the row's version, not the code's");
+  const versionCheck = exchange.indexOf("exchangeVersion !== (row.session_version ?? 0)");
+  const twoFactorGate = exchange.indexOf("if (row.totp_enabled)");
+  const sessionMint = exchange.indexOf("sv: exchangeVersion");
+  assert.ok(versionCheck !== -1 && versionCheck < twoFactorGate, "the signed code version must match the current row before the 2FA gate");
+  assert.ok(sessionMint > versionCheck, "the exchange must mint only with its verified signed version");
 });
 
 test("R2-M5: Google and OTP sign-ins rotate the session like password sign-in", () => {

@@ -144,6 +144,18 @@ export async function GET(req: NextRequest) {
       )
     );
   }
+  const exchangeVersion = p.sv;
+  if (
+    typeof exchangeVersion !== "number" ||
+    !Number.isSafeInteger(exchangeVersion) ||
+    exchangeVersion < 0 ||
+    exchangeVersion !== (row.session_version ?? 0)
+  ) {
+    console.log(
+      JSON.stringify({ event: "auth_app_exchange_bad_code", endpoint: "app-exchange" })
+    );
+    return noStore(NextResponse.redirect(new URL("/auth/email", origin)));
+  }
   // 2FA gate (same as the browser callback): the exchange code
   // carries no session, so the check belongs here, where the
   // session would be minted. A user with TOTP on gets the step-up
@@ -164,10 +176,10 @@ export async function GET(req: NextRequest) {
   const token = await signSession(
     secret,
     buildSessionPayload(user, Math.floor(Date.now() / 1000), {
-      // The row's version, not the code's: the callback bumped it
-      // before minting the code, so the row carries the rotated
-      // value the new session must match.
-      sv: row.session_version ?? 0,
+      // The signed exchange version was checked against the current
+      // row above, so a code issued before logout/reset cannot revive
+      // the revoked session.
+      sv: exchangeVersion,
     })
   );
   // Native clients (React Native) ask for ?format=json: they fetch
