@@ -201,6 +201,10 @@ export const en: Strings = {
       "This two-factor step only lasts 10 minutes. Sign in again to continue.",
     twoFactorEnterCodeSubtitle:
       "Enter the code from your authenticator app to finish signing in.",
+    twoFactorEnterEmailCodeSubtitle:
+      "Enter the code sent to your email to finish signing in.",
+    twoFactorEnterBackupCodeSubtitle:
+      "Enter one of your backup codes to finish signing in.",
     secondFactorMethodLabel: "Second-factor method",
     methodAuthenticator: "Authenticator",
     methodEmailCode: "Email code",
@@ -442,7 +446,7 @@ export const en: Strings = {
     deleteRepoWarning: (repo) => `This permanently deletes ${repo} on GitHub. This cannot be undone.`,
     deleteRepoOwnerNote: "Only the repo owner can delete it — collaborators cannot delete a repo they don't own.",
     deleteRepoScopeNote: "Deleting needs a token with the delete_repo scope — create one from the GitHub page with repo + delete_repo.",
-    deleteRepoConfirmLabel: "Type owner/repo to confirm",
+    deleteRepoConfirmLabel: (repo) => `Type ${repo} to confirm`,
     deleteRepoConfirmPlaceholder: "owner/repo",
     deleteRepoDeleting: "Deleting…",
     pushNeedsRepo: "Open a repo from the GitHub page to push changes",

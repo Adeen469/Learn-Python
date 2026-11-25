@@ -171,6 +171,10 @@ export const hiRoman: Strings = {
     signInStepExpiredTitle: "Sign-in step expire ho gaya",
     signInStepExpiredSubtitle: "Ye two-factor step sirf 10 minute tak rehta hai. Aage badhne ke liye dobara sign in karo.",
     twoFactorEnterCodeSubtitle: "Sign in poora karne ke liye apne authenticator app se code daalo.",
+    twoFactorEnterEmailCodeSubtitle:
+      "Enter the code sent to your email to finish signing in.",
+    twoFactorEnterBackupCodeSubtitle:
+      "Enter one of your backup codes to finish signing in.",
     secondFactorMethodLabel: "Second-factor method",
     methodAuthenticator: "Authenticator",
     methodEmailCode: "Email code",
@@ -380,7 +384,7 @@ export const hiRoman: Strings = {
     deleteRepoWarning: (repo) => `Ye ${repo} ko GitHub se hamesha ke liye delete kar dega. Ye wapas nahi ho sakta.`,
     deleteRepoOwnerNote: "Sirf repo ka owner hi delete kar sakta hai — collaborators kisi aur ka repo delete nahi kar sakte.",
     deleteRepoScopeNote: "Delete karne ke liye delete_repo scope wala token chahiye — GitHub page se repo + delete_repo ke saath naya token banao.",
-    deleteRepoConfirmLabel: "Confirm karne ke liye owner/repo likho",
+    deleteRepoConfirmLabel: (repo) => `Type ${repo} to confirm`,
     deleteRepoConfirmPlaceholder: "owner/repo",
     deleteRepoDeleting: "Delete ho raha hai…",
     pushNeedsRepo: "Changes push karne ke liye pehle GitHub page se ek repo kholo",

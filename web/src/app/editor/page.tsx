@@ -172,6 +172,9 @@ export default function CodeEditorPage() {
     return Number.isFinite(v) && v >= 240 && v <= 560 ? v : 320;
   });
   const editorRef = useRef<any>(null);
+  // Monaco namespace (set in EditorPanel's beforeMount) — the page
+  // needs it for run markers (setModelMarkers).
+  const monacoRef = useRef<any>(null);
   // Dockable-panel layout — see hooks/useDockPanels.ts.
   const dock = useDockPanels({ editorRef });
   const {
@@ -560,6 +563,120 @@ export default function CodeEditorPage() {
     // path is what gets saved, so it is a dependency too.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoSave, activeFile?.path, activeFile?.content, activeFile?.isSaved]);
+
+  // VS Code keyboard shortcuts (app-level — Monaco's own editor
+  // shortcuts already work when the editor is focused, so only the
+  // app actions are wired here). One window listener, global like
+  // VS Code: it works from anywhere in the app. The ref holds the
+  // latest handlers so the listener never goes stale; the menu bar
+  // shows the same labels (editor-menus.ts). Cmd works on Mac via
+  // (ctrlKey || metaKey). Not wired: Ctrl+W / Ctrl+N / Ctrl+T
+  // (the browser owns them and will not let a page stop them) and
+  // Ctrl+P / Ctrl+Shift+P (they need a Quick Open / Command Palette
+  // UI, which does not exist yet).
+  const shortcutsRef = useRef({
+    saveCurrentFile, saveAllFiles,
+    compileAndRun: engine.compileAndRun,
+    formatCurrentFile: engine.formatCurrentFile,
+    isRunning: engine.isRunning, loadingEngine: engine.loadingEngine,
+    formatting: engine.formatting, pyodideReady: engine.pyodideReady,
+    activeFile, setShowTerminal, setShowExplorer,
+    setCentreView, setSettingsSection, setSettingsTabOpen, setAiMenuOpen,
+  });
+  useEffect(() => {
+    shortcutsRef.current = {
+      saveCurrentFile, saveAllFiles,
+      compileAndRun: engine.compileAndRun,
+      formatCurrentFile: engine.formatCurrentFile,
+      isRunning: engine.isRunning, loadingEngine: engine.loadingEngine,
+      formatting: engine.formatting, pyodideReady: engine.pyodideReady,
+      activeFile, setShowTerminal, setShowExplorer,
+      setCentreView, setSettingsSection, setSettingsTabOpen, setAiMenuOpen,
+    };
+  });
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const mod = e.ctrlKey || e.metaKey;
+      const s = shortcutsRef.current;
+      const key = e.key.toLowerCase();
+      if (mod && !e.shiftKey && !e.altKey && key === "s") {
+        // Ctrl+S — save (same guard as the File menu). The
+        // preventDefault stops the browser's save-page dialog.
+        e.preventDefault();
+        if (s.activeFile && !s.activeFile.isSaved) s.saveCurrentFile();
+      } else if (mod && e.shiftKey && !e.altKey && key === "s") {
+        // Ctrl+Shift+S — save all files.
+        e.preventDefault();
+        s.saveAllFiles();
+      } else if (mod && !e.shiftKey && !e.altKey && key === "f5") {
+        // Ctrl+F5 — run without debugging (same guard as the Run
+        // menu). The preventDefault stops the browser's hard reload.
+        e.preventDefault();
+        if (!s.isRunning && !s.loadingEngine) s.compileAndRun();
+      } else if (!mod && e.shiftKey && e.altKey && (key === "f" || key === "ƒ")) {
+        // Shift+Alt+F — format (same guard as the File menu).
+        // "ƒ" is what macOS Option+F types.
+        e.preventDefault();
+        if (s.activeFile && !s.formatting && s.pyodideReady) s.formatCurrentFile();
+      } else if (mod && !e.shiftKey && !e.altKey && key === "`") {
+        // Ctrl+` — toggle terminal.
+        e.preventDefault();
+        s.setShowTerminal((v) => !v);
+      } else if (mod && !e.shiftKey && !e.altKey && key === "j") {
+        // Ctrl+J — toggle panel (the terminal lives at the bottom).
+        e.preventDefault();
+        s.setShowTerminal((v) => !v);
+      } else if (mod && !e.shiftKey && !e.altKey && key === "b") {
+        // Ctrl+B — toggle Explorer.
+        e.preventDefault();
+        s.setShowExplorer((v) => !v);
+      } else if (mod && e.shiftKey && !e.altKey && key === "e") {
+        // Ctrl+Shift+E — show Explorer.
+        e.preventDefault();
+        s.setShowExplorer(true);
+      } else if (mod && !e.shiftKey && !e.altKey && key === ",") {
+        // Ctrl+, — open Settings (same opener as the AI menu's
+        // Settings item).
+        e.preventDefault();
+        s.setCentreView("ai-settings");
+        s.setSettingsSection("menu");
+        s.setSettingsTabOpen(true);
+        s.setAiMenuOpen(false);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  // Run diagnostics → editor markers: when a run fails, the error
+  // line gets a red squiggle (warnings get a yellow one); hovering
+  // the marker shows the message. Markers clear on the next run and
+  // when the active file changes — they belong to the run's file.
+  useEffect(() => {
+    const editor = editorRef.current;
+    const monaco = monacoRef.current;
+    if (!editor || !monaco) return;
+    const model = editor.getModel?.();
+    if (!model) return;
+    const d = engine.runDiagnostics;
+    if (!d || d.path !== activeFilePath) {
+      monaco.editor.setModelMarkers(model, "lp-python", []);
+      return;
+    }
+    const lineCount = model.getLineCount();
+    const markers = d.items.map((it) => {
+      const line = Math.min(Math.max(1, it.line), lineCount);
+      return {
+        severity: it.severity === "warning" ? monaco.MarkerSeverity.Warning : monaco.MarkerSeverity.Error,
+        message: it.message,
+        startLineNumber: line,
+        startColumn: 1,
+        endLineNumber: line,
+        endColumn: model.getLineLength(line) + 1,
+      };
+    });
+    monaco.editor.setModelMarkers(model, "lp-python", markers);
+  }, [engine.runDiagnostics, activeFilePath]);
 
   // Persist the resizable panel widths so a reload keeps the layout.
   useEffect(() => {
@@ -1054,7 +1171,7 @@ export default function CodeEditorPage() {
 
   const aiPanel = (<AiPanel t={t} aiView={aiView} aiMessages={aiMessages} aiThinking={aiThinking} aiThoughtSeconds={aiThoughtSeconds} setAiThoughtSeconds={setAiThoughtSeconds} aiError={aiError} aiMenuOpen={aiMenuOpen} setAiMenuOpen={setAiMenuOpen} activeFile={activeFile} sendAiMessage={sendAiMessage} stopAi={stopAi} clearAiChat={clearAiChat} setAiView={setAiView} setCentreView={setCentreView} setSettingsSection={setSettingsSection} setSettingsTabOpen={setSettingsTabOpen} setPanelVisible={setPanelVisible} setDraggingPanel={setDraggingPanel} setDropZone={setDropZone} AI_PANEL_MODELS={AI_PANEL_MODELS} aiChats={aiChats} startNewChat={startNewChat} loadAiChat={loadAiChat} deleteAiChat={deleteAiChat} defaultModel="gemini-3.6-flash" />);
 
-  const editorPanel = (<EditorPanel t={t} activeFile={activeFile} engine={engine} editorTheme={editorTheme} handleEditorChange={handleEditorChange} editorRef={editorRef} setCursorPos={setCursorPos} />);
+  const editorPanel = (<EditorPanel t={t} activeFile={activeFile} engine={engine} editorTheme={editorTheme} handleEditorChange={handleEditorChange} editorRef={editorRef} monacoRef={monacoRef} setCursorPos={setCursorPos} />);
 
   const dockPanels = (["explorer", "terminal", "ai"] as PanelId[]).filter((id) => isPanelVisible(id));
   const leftPanels = dockPanels.filter((id) => panelZones[id] === "left");

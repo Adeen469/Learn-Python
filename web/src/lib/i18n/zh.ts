@@ -185,6 +185,10 @@ export const zh: Strings = {
       "此双重验证步骤仅 10 分钟内有效，请重新登录以继续。",
     twoFactorEnterCodeSubtitle:
       "请输入验证器应用中的验证码以完成登录。",
+    twoFactorEnterEmailCodeSubtitle:
+      "Enter the code sent to your email to finish signing in.",
+    twoFactorEnterBackupCodeSubtitle:
+      "Enter one of your backup codes to finish signing in.",
     secondFactorMethodLabel: "第二验证方式",
     methodAuthenticator: "验证器",
     methodEmailCode: "邮箱验证码",
@@ -420,7 +424,7 @@ export const zh: Strings = {
     deleteRepoWarning: (repo) => `这将永久删除 GitHub 上的 ${repo}。此操作无法撤销。`,
     deleteRepoOwnerNote: "只有仓库所有者才能删除它，协作者无法删除不属于自己的仓库。",
     deleteRepoScopeNote: "删除需要具有 delete_repo 权限的令牌，请在 GitHub 页面上使用 repo + delete_repo 创建一个。",
-    deleteRepoConfirmLabel: "输入 owner/repo 以确认",
+    deleteRepoConfirmLabel: (repo) => `Type ${repo} to confirm`,
     deleteRepoConfirmPlaceholder: "owner/repo",
     deleteRepoDeleting: "删除中…",
     pushNeedsRepo: "请先从 GitHub 页面打开一个仓库，再推送更改",

@@ -187,6 +187,10 @@ export const ru: Strings = {
     signInStepExpiredTitle: "Срок действия шага входа истёк",
     signInStepExpiredSubtitle: "Этот шаг двухфакторной проверки действует всего 10 минут. Войдите ещё раз, чтобы продолжить.",
     twoFactorEnterCodeSubtitle: "Введите код из приложения-аутентификатора, чтобы завершить вход.",
+    twoFactorEnterEmailCodeSubtitle:
+      "Enter the code sent to your email to finish signing in.",
+    twoFactorEnterBackupCodeSubtitle:
+      "Enter one of your backup codes to finish signing in.",
     secondFactorMethodLabel: "Способ второго фактора",
     methodAuthenticator: "Аутентификатор",
     methodEmailCode: "Код из письма",
@@ -402,7 +406,7 @@ export const ru: Strings = {
     deleteRepoWarning: (repo) => `Это навсегда удалит ${repo} на GitHub. Действие нельзя отменить.`,
     deleteRepoOwnerNote: "Удалить репозиторий может только его владелец — соавторы не могут удалить чужой репозиторий.",
     deleteRepoScopeNote: "Для удаления нужен токен с областью delete_repo — создайте его на странице GitHub с repo + delete_repo.",
-    deleteRepoConfirmLabel: "Введите владелец/репозиторий для подтверждения",
+    deleteRepoConfirmLabel: (repo) => `Type ${repo} to confirm`,
     deleteRepoConfirmPlaceholder: "владелец/репозиторий",
     deleteRepoDeleting: "Удаление…",
     pushNeedsRepo: "Откройте репозиторий на странице GitHub, чтобы отправить изменения",

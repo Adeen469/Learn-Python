@@ -174,6 +174,10 @@ export const ko: Strings = {
     signInStepExpiredTitle: "로그인 단계가 만료되었습니다",
     signInStepExpiredSubtitle: "이 2단계 인증 단계는 10분 동안만 유효합니다. 다시 로그인하여 계속하세요.",
     twoFactorEnterCodeSubtitle: "로그인을 마치려면 인증 앱의 코드를 입력하세요.",
+    twoFactorEnterEmailCodeSubtitle:
+      "Enter the code sent to your email to finish signing in.",
+    twoFactorEnterBackupCodeSubtitle:
+      "Enter one of your backup codes to finish signing in.",
     secondFactorMethodLabel: "두 번째 인증 방법",
     methodAuthenticator: "인증 앱",
     methodEmailCode: "이메일 코드",
@@ -383,7 +387,7 @@ export const ko: Strings = {
     deleteRepoWarning: (repo) => `GitHub에서 ${repo}을(를) 영구적으로 삭제합니다. 이 작업은 되돌릴 수 없습니다.`,
     deleteRepoOwnerNote: "리포지토리 소유자만 삭제할 수 있습니다. 협업자는 소유하지 않은 리포지토리를 삭제할 수 없습니다.",
     deleteRepoScopeNote: "삭제하려면 delete_repo 범위가 있는 토큰이 필요합니다. GitHub 페이지에서 repo + delete_repo로 새 토큰을 만드세요.",
-    deleteRepoConfirmLabel: "확인하려면 owner/repo 입력",
+    deleteRepoConfirmLabel: (repo) => `Type ${repo} to confirm`,
     deleteRepoConfirmPlaceholder: "owner/repo",
     deleteRepoDeleting: "삭제 중…",
     pushNeedsRepo: "변경 사항을 푸시하려면 GitHub 페이지에서 리포지토리를 여세요",

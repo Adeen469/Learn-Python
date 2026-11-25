@@ -249,7 +249,16 @@ export default function GitHubPage() {
       setSuccessMsg(t.githubPage.repoDeleted(deleteTarget.full_name));
       closeDeleteDialog();
     } catch (err: unknown) {
-      setDeleteError(err instanceof Error ? err.message : "Could not delete the repo");
+      const message = err instanceof Error ? err.message : "Could not delete the repo";
+      setDeleteError(message);
+      // Step-up reveal: the password / authenticator fields only
+      // show when /api/auth/2fa/status says they are needed, but
+      // the server checks the DB row's password_hash / totp flag
+      // regardless of auth method — a Google user with a password
+      // set gets this 400 with no field to type it in. Reveal the
+      // field the error asks for so the user can fill it and retry.
+      if (message.toLowerCase().includes("password")) setDeleteNeedsPassword(true);
+      if (message.toLowerCase().includes("authenticator")) setDeleteNeedsTotp(true);
     } finally {
       setDeletingRepo(false);
     }
@@ -938,14 +947,14 @@ export default function GitHubPage() {
                 htmlFor="delete-repo-confirm"
                 className="mt-3 block text-xs font-medium text-neutral-300"
               >
-                {t.editorPage.deleteRepoConfirmLabel}
+                {t.editorPage.deleteRepoConfirmLabel(deleteTarget.full_name)}
               </label>
               <input
                 id="delete-repo-confirm"
                 type="text"
                 value={deleteConfirmText}
                 onChange={(e) => setDeleteConfirmText(e.target.value)}
-                placeholder={t.editorPage.deleteRepoConfirmPlaceholder}
+                placeholder={deleteTarget.full_name}
                 className="mt-1 w-full rounded-lg border border-neutral-800 bg-black px-3 py-2 font-mono text-xs text-white placeholder-neutral-600 focus:border-red-500 focus:outline-none"
               />
               {deleteNeedsPassword && (

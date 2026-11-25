@@ -193,6 +193,10 @@ export const ja: Strings = {
       "この二要素認証の手順は10分間のみ有効です。もう一度サインインして続けてください。",
     twoFactorEnterCodeSubtitle:
       "サインインを完了するには、認証アプリのコードを入力してください。",
+    twoFactorEnterEmailCodeSubtitle:
+      "Enter the code sent to your email to finish signing in.",
+    twoFactorEnterBackupCodeSubtitle:
+      "Enter one of your backup codes to finish signing in.",
     secondFactorMethodLabel: "第二要素の方法",
     methodAuthenticator: "認証アプリ",
     methodEmailCode: "メールアドレスのコード",
@@ -428,7 +432,7 @@ export const ja: Strings = {
     deleteRepoWarning: (repo) => `${repo}をGitHubから完全に削除します。この操作は取り消せません。`,
     deleteRepoOwnerNote: "削除できるのはリポジトリの所有者のみです。コラボレーターは他人のリポジトリを削除できません。",
     deleteRepoScopeNote: "削除にはdelete_repoスコープを持つトークンが必要です。GitHubページからrepo + delete_repoで新しいトークンを作成してください。",
-    deleteRepoConfirmLabel: "確認のため owner/repo を入力",
+    deleteRepoConfirmLabel: (repo) => `Type ${repo} to confirm`,
     deleteRepoConfirmPlaceholder: "owner/repo",
     deleteRepoDeleting: "削除中…",
     pushNeedsRepo: "変更をプッシュするには、GitHubページからリポジトリを開いてください",

@@ -188,6 +188,10 @@ export const pt: Strings = {
       "Esta etapa de dois fatores dura apenas 10 minutos. Entre novamente para continuar.",
     twoFactorEnterCodeSubtitle:
       "Digite o código do seu app autenticador para terminar de entrar.",
+    twoFactorEnterEmailCodeSubtitle:
+      "Enter the code sent to your email to finish signing in.",
+    twoFactorEnterBackupCodeSubtitle:
+      "Enter one of your backup codes to finish signing in.",
     secondFactorMethodLabel: "Método de segundo fator",
     methodAuthenticator: "Autenticador",
     methodEmailCode: "Código por e-mail",
@@ -429,7 +433,7 @@ export const pt: Strings = {
     deleteRepoWarning: (repo) => `Isto exclui ${repo} do GitHub permanentemente. Não pode ser desfeito.`,
     deleteRepoOwnerNote: "Só o proprietário do repo pode excluí-lo — colaboradores não podem excluir um repo que não lhes pertence.",
     deleteRepoScopeNote: "Excluir exige um token com o escopo delete_repo — crie um na página do GitHub com repo + delete_repo.",
-    deleteRepoConfirmLabel: "Digite proprietário/repo para confirmar",
+    deleteRepoConfirmLabel: (repo) => `Type ${repo} to confirm`,
     deleteRepoConfirmPlaceholder: "proprietário/repo",
     deleteRepoDeleting: "Excluindo…",
     pushNeedsRepo: "Abra um repositório na página do GitHub para enviar as alterações",

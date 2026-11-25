@@ -246,6 +246,8 @@ export type Strings = {
     signInStepExpiredTitle: string;
     signInStepExpiredSubtitle: string;
     twoFactorEnterCodeSubtitle: string;
+    twoFactorEnterEmailCodeSubtitle: string;
+    twoFactorEnterBackupCodeSubtitle: string;
     secondFactorMethodLabel: string;
     methodAuthenticator: string;
     methodEmailCode: string;
@@ -458,7 +460,7 @@ export type Strings = {
     deleteRepoWarning: (repo: string) => string;
     deleteRepoOwnerNote: string;
     deleteRepoScopeNote: string;
-    deleteRepoConfirmLabel: string;
+    deleteRepoConfirmLabel: (repo: string) => string;
     deleteRepoConfirmPlaceholder: string;
     deleteRepoDeleting: string;
     pushNeedsRepo: string;

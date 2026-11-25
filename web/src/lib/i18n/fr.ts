@@ -177,6 +177,10 @@ export const fr: Strings = {
     signInStepExpiredTitle: "Étape de connexion expirée",
     signInStepExpiredSubtitle: "Cette étape d’authentification à deux facteurs ne dure que 10 minutes. Reconnectez-vous pour continuer.",
     twoFactorEnterCodeSubtitle: "Saisissez le code de votre application d’authentification pour terminer la connexion.",
+    twoFactorEnterEmailCodeSubtitle:
+      "Enter the code sent to your email to finish signing in.",
+    twoFactorEnterBackupCodeSubtitle:
+      "Enter one of your backup codes to finish signing in.",
     secondFactorMethodLabel: "Méthode de second facteur",
     methodAuthenticator: "Authentificateur",
     methodEmailCode: "Code e-mail",
@@ -392,7 +396,7 @@ export const fr: Strings = {
     deleteRepoWarning: (repo) => `Cela supprime définitivement ${repo} sur GitHub. Cette action est irréversible.`,
     deleteRepoOwnerNote: "Seul le propriétaire du dépôt peut le supprimer — les collaborateurs ne peuvent pas supprimer un dépôt qui ne leur appartient pas.",
     deleteRepoScopeNote: "La suppression nécessite un token avec le scope delete_repo — créez-en un depuis la page GitHub avec repo + delete_repo.",
-    deleteRepoConfirmLabel: "Tapez propriétaire/dépôt pour confirmer",
+    deleteRepoConfirmLabel: (repo) => `Type ${repo} to confirm`,
     deleteRepoConfirmPlaceholder: "propriétaire/dépôt",
     deleteRepoDeleting: "Suppression…",
     pushNeedsRepo: "Ouvrez un dépôt depuis la page GitHub pour pousser les modifications",

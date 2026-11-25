@@ -7,11 +7,18 @@ import { useEffect, useRef, useState } from "react";
 import type { Strings } from "@/lib/i18n";
 import { loadPyodideRuntime, withTimeout } from "@/lib/pyodide-install";
 import { restoreStoredPackages } from "@/lib/package-storage";
+import { parsePythonError, parsePythonWarnings } from "../lib/editor-utils";
 import type { WorkspaceItem } from "../lib/editor-types";
 
 // Pyodide virtual filesystem root (shared with the editor page,
 // which uses it for the tab "copy path" action).
 export const PY_WORKSPACE_ROOT = "/home/pyodide";
+
+// One editor marker from a run: the failing/warning line plus the
+// message the hover shows. The page turns these into Monaco
+// markers (severity Error/Warning) on the run file's model.
+export type RunDiagnostic = { line: number; message: string; severity: "error" | "warning" };
+export type RunDiagnostics = { path: string; items: RunDiagnostic[] } | null;
 
 export function usePyodideEngine(opts: {
   items: WorkspaceItem[];
@@ -32,6 +39,11 @@ export function usePyodideEngine(opts: {
   const [terminalInput, setTerminalInput] = useState<string>("");
   const [terminalBusy, setTerminalBusy] = useState(false);
   const [pyodideError, setPyodideError] = useState<string | null>(null);
+
+  // Diagnostics from the last run (error line + warning lines, if
+  // any) — the page turns these into Monaco markers on the run
+  // file's model. Cleared when the next run starts.
+  const [runDiagnostics, setRunDiagnostics] = useState<RunDiagnostics>(null);
 
   // Format (black via micropip): installed once per session, then
   // reused; formatting is the in-progress flag for the button/menu.
@@ -317,6 +329,7 @@ export function usePyodideEngine(opts: {
     }
 
     setIsRunning(true);
+    setRunDiagnostics(null);
     setOutput(`=== Executing ${targetFile.path} ===\n`);
 
     try {
@@ -351,6 +364,14 @@ sys.stdin = io.StringIO("")
 
       const captured = py.runPython("sys.stdout.getvalue()");
       setOutput((prev) => prev + (captured || "(Execution completed with no output)\n") + "\n=== Finished (Exit 0) ===\n");
+      // A clean run can still warn (warnings.warn) — mark those lines.
+      const runWarnings = parsePythonWarnings(typeof captured === "string" ? captured : "");
+      if (runWarnings.length > 0) {
+        setRunDiagnostics({
+          path: targetFile.path,
+          items: runWarnings.map((w) => ({ ...w, severity: "warning" as const })),
+        });
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       // Keep whatever the program printed before it crashed.
@@ -358,6 +379,20 @@ sys.stdin = io.StringIO("")
       try {
         captured = pyodideRef.current?.runPython("sys.stdout.getvalue()") ?? "";
       } catch {}
+      // Mark the failing line (red) plus any warning lines (yellow)
+      // printed before the crash — the page shows them as squiggles.
+      // Pyodide's error message is empty here: the traceback goes to
+      // stderr, which lands in the captured output — so the frames
+      // are parsed from the capture, with the message as fallback.
+      const runError = parsePythonError(msg) ?? parsePythonError(captured);
+      const runWarnings = parsePythonWarnings(captured);
+      const diagnosticItems: RunDiagnostic[] = [
+        ...runWarnings.map((w) => ({ ...w, severity: "warning" as const })),
+        ...(runError ? [{ ...runError, severity: "error" as const }] : []),
+      ];
+      if (diagnosticItems.length > 0) {
+        setRunDiagnostics({ path: targetFile.path, items: diagnosticItems });
+      }
       setOutput(
         (prev) =>
           prev +
@@ -498,6 +533,7 @@ _lp_term_result
     setPyodideError,
     setEngineStage,
     isRunning,
+    runDiagnostics,
     terminalBusy,
     terminalInput,
     setTerminalInput,

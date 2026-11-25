@@ -145,7 +145,13 @@ export default function TwoFactorPage() {
   return (
     <AuthShell
       title={t.auth.twoFactorTitle}
-      subtitle={t.auth.twoFactorEnterCodeSubtitle}
+      subtitle={
+        method === "backup"
+          ? t.auth.twoFactorEnterBackupCodeSubtitle
+          : method === "email"
+            ? t.auth.twoFactorEnterEmailCodeSubtitle
+            : t.auth.twoFactorEnterCodeSubtitle
+      }
     >
       <AuthError message={error} />
       <AuthNote message={note} />

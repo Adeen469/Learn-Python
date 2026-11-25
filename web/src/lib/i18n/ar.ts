@@ -191,6 +191,10 @@ export const ar: Strings = {
       "خطوة المصادقة الثنائية هذه تدوم 10 دقائق فقط. سجّل الدخول مرة أخرى للمتابعة.",
     twoFactorEnterCodeSubtitle:
       "أدخل الرمز من تطبيق المصادقة لإتمام تسجيل الدخول.",
+    twoFactorEnterEmailCodeSubtitle:
+      "Enter the code sent to your email to finish signing in.",
+    twoFactorEnterBackupCodeSubtitle:
+      "Enter one of your backup codes to finish signing in.",
     secondFactorMethodLabel: "طريقة العامل الثاني",
     methodAuthenticator: "تطبيق المصادقة",
     methodEmailCode: "رمز البريد الإلكتروني",
@@ -432,7 +436,7 @@ export const ar: Strings = {
     deleteRepoWarning: (repo) => `سيؤدي هذا إلى حذف ${repo} من GitHub نهائياً. لا يمكن التراجع عن ذلك.`,
     deleteRepoOwnerNote: "يمكن لمالك المستودع فقط حذفه — لا يمكن للمتعاونين حذف مستودع لا يملكونه.",
     deleteRepoScopeNote: "يتطلب الحذف رمزاً بنطاق delete_repo — أنشئ واحداً من صفحة GitHub مع repo + delete_repo.",
-    deleteRepoConfirmLabel: "اكتب المالك/المستودع للتأكيد",
+    deleteRepoConfirmLabel: (repo) => `Type ${repo} to confirm`,
     deleteRepoConfirmPlaceholder: "المالك/المستودع",
     deleteRepoDeleting: "جارٍ الحذف…",
     pushNeedsRepo: "افتح مستودعًا من صفحة GitHub لدفع التغييرات",

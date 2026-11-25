@@ -4,6 +4,7 @@ import Editor from "@monaco-editor/react";
 import { FileCode, Square } from "lucide-react";
 import type { WorkspaceItem } from "../lib/editor-types";
 import type { PyodideEngine } from "../hooks/usePyodideEngine";
+import { languageForFile } from "../lib/editor-utils";
 
 export type EditorPanelProps = {
   t: Strings;
@@ -12,11 +13,12 @@ export type EditorPanelProps = {
   editorTheme: "lp-dark" | "lp-light";
   handleEditorChange: (value: string | undefined) => void;
   editorRef: { current: any };
+  monacoRef: { current: any };
   setCursorPos: Dispatch<SetStateAction<{ line: number; col: number }>>;
 };
 
 export function EditorPanel(props: EditorPanelProps) {
-  const { t, activeFile, engine, editorTheme, handleEditorChange, editorRef, setCursorPos } = props;
+  const { t, activeFile, engine, editorTheme, handleEditorChange, editorRef, monacoRef, setCursorPos } = props;
 
   return (
     <div className="min-h-[420px] sm:min-h-[480px] md:min-h-0 flex-1 min-w-0 rounded-xl border border-neutral-800 bg-neutral-950 flex flex-col overflow-hidden">
@@ -44,7 +46,7 @@ export function EditorPanel(props: EditorPanelProps) {
       <div className="flex-1 w-full relative">
         <Editor
           height="100%"
-          language="python"
+          language={languageForFile(activeFile?.path)}
           theme={editorTheme}
           value={activeFile?.content ?? ""}
           onChange={handleEditorChange}
@@ -59,6 +61,9 @@ export function EditorPanel(props: EditorPanelProps) {
             });
           }}
           beforeMount={(monaco) => {
+            // The page needs the monaco namespace for run markers
+            // (setModelMarkers) — stored next to editorRef.
+            monacoRef.current = monaco;
             // lp-dark: vs-dark + scrollbars matched to the app's
             // white-pill scrollbar (same as globals.css).
             monaco.editor.defineTheme("lp-dark", {

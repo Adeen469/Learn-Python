@@ -282,6 +282,18 @@ test("deleting a repo from the menu needs the typed owner/repo name", () => {
   ]) {
     assert.ok(en().includes(`${key}:`), `en.ts must define ${key}`);
   }
+  // The confirm label must show the EXACT repo name to type (like
+  // GitHub), not a generic "owner/repo" — and the confirm box's
+  // placeholder must show it too.
+  assert.ok(en().includes("deleteRepoConfirmLabel: (repo) =>"), "the confirm label must be a function of the repo name");
+  assert.ok(p.includes("deleteRepoConfirmLabel(deleteTarget.full_name)"), "the dialog label must show the exact repo name");
+  assert.ok(p.includes("placeholder={deleteTarget.full_name}"), "the confirm box placeholder must show the exact repo name");
+  // Step-up reveal: when the server 400s for a missing password or
+  // authenticator code (a Google user with a password set never sees
+  // the field otherwise), the field must appear so the user can
+  // fill it and retry instead of hitting a dead end.
+  assert.ok(p.includes('includes("password")) setDeleteNeedsPassword(true)'), "a password error must reveal the password field");
+  assert.ok(p.includes('includes("authenticator")) setDeleteNeedsTotp(true)'), "an authenticator error must reveal the code field");
 });
 
 test("stored tokens use a dedicated encryption key only — no session-secret fallback", () => {
