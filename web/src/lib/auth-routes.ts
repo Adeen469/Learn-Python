@@ -423,9 +423,9 @@ import {
   normalizeEmail,
   storeOtp,
 } from "@/lib/auth-store";
-import { otpEmail, sendMail, twoFaEmail } from "@/lib/email";
+import { deleteRepoEmail, otpEmail, sendMail, twoFaEmail } from "@/lib/email";
 
-export type OtpPurpose = "signup" | "signin" | "2fa";
+export type OtpPurpose = "signup" | "signin" | "2fa" | "delete-repo";
 
 export type IssueOtpResult =
   | { ok: true }
@@ -468,12 +468,12 @@ function enqueueOtpSend<T>(email: string, fn: () => Promise<T>): Promise<T> {
  * 60-second resend cooldown and the 5-per-hour cap PER EMAIL across
  * signup + signin (L6) — a signup code, a sign-in code, and a 2fa
  * code used to share one budget, so the cap could be tripled by
- * switching purpose. The `2fa` purpose now has its OWN 5/hour
- * budget and cooldown (R2-L8): anyone could otherwise burn the
- * victim's 2FA email-code quota with 5 signin codes and deny the
- * step-up fallback for the rest of the hour. The caller decides
- * whether a code should be sent at all (e.g. only for an existing
- * account) — this function only does the sending.
+ * switching purpose. The `2fa` and `delete-repo` purposes each have
+ * their OWN 5/hour budget and cooldown (R2-L8): anyone could
+ * otherwise burn the victim's 2FA email-code quota with 5 signin
+ * codes and deny the step-up fallback for the rest of the hour. The
+ * caller decides whether a code should be sent at all (e.g. only
+ * for an existing account) — this function only does the sending.
  */
 export async function issueOtpCode(
   email: string,
@@ -487,19 +487,19 @@ export async function issueOtpCode(
   // after, outside the lock — the stored row is what the next send
   // in line counts.
   const prepared = await enqueueOtpSend(normalized, async () => {
-    if (purpose === "2fa") {
-      const recent2fa = await countRecentOtps(
+    if (purpose === "2fa" || purpose === "delete-repo") {
+      const recentOwn = await countRecentOtps(
         normalized,
-        "2fa",
+        purpose,
         nowMs - 60 * 60 * 1000
       );
-      if (recent2fa === null) return { ok: false as const, reason: "failed" as const };
-      if (recent2fa >= OTP_MAX_SENDS_PER_HOUR) {
+      if (recentOwn === null) return { ok: false as const, reason: "failed" as const };
+      if (recentOwn >= OTP_MAX_SENDS_PER_HOUR) {
         return { ok: false as const, reason: "hourly_cap" as const, retryAfterSeconds: 3600 };
       }
-      const latest2fa = await getLatestOtp(normalized, "2fa");
-      if (latest2fa) {
-        const createdMs = new Date(latest2fa.created_at).getTime();
+      const latestOwn = await getLatestOtp(normalized, purpose);
+      if (latestOwn) {
+        const createdMs = new Date(latestOwn.created_at).getTime();
         const waitMs = OTP_RESEND_COOLDOWN_MS - (nowMs - createdMs);
         if (waitMs > 0) {
           return {
@@ -547,7 +547,11 @@ export async function issueOtpCode(
   if (!prepared.ok) return prepared;
 
   const message =
-    purpose === "2fa" ? twoFaEmail(prepared.code) : otpEmail(prepared.code, purpose);
+    purpose === "2fa"
+      ? twoFaEmail(prepared.code)
+      : purpose === "delete-repo"
+        ? deleteRepoEmail(prepared.code)
+        : otpEmail(prepared.code, purpose);
   const sent = await sendMail({ to: normalized, ...message });
   if (!sent.ok) {
     return { ok: false, reason: sent.reason };

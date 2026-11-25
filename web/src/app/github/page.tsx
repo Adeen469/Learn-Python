@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppNavbar } from "@/components/AppNavbar";
+import CodeSlots from "@/components/CodeSlots";
 import { EditorContextMenu } from "@/components/EditorContextMenu";
 import { fetchSessionUser } from "@/lib/auth-client";
 import { useLanguage } from "@/lib/i18n";
@@ -188,50 +189,91 @@ export default function GitHubPage() {
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deletingRepo, setDeletingRepo] = useState(false);
-  // Step-up (R3-M2): the server requires the account password (when
-  // the account has one) and a TOTP/backup code (when 2FA is on)
-  // before deleting — collected in this same dialog, no new UI.
-  // Which fields show comes from /api/auth/2fa/status when the
-  // dialog opens; if that check fails both stay hidden and the
-  // server enforces (it 400s if a password/code was needed).
-  // NOTE: this extends an existing dialog (password + code fields)
-  // and needs Maalik's explicit UI permission before it pushes.
-  const [deletePassword, setDeletePassword] = useState("");
-  const [deleteTotpCode, setDeleteTotpCode] = useState("");
-  const [deleteNeedsPassword, setDeleteNeedsPassword] = useState(false);
-  const [deleteNeedsTotp, setDeleteNeedsTotp] = useState(false);
+  // Email-code step-up: no password, no app code — the moment
+  // the exact owner/repo name is typed, a 6-digit code goes to the
+  // signed-in user's email and the code boxes appear below. The
+  // code is required for everyone, including Google-only accounts.
+  const [deleteCode, setDeleteCode] = useState("");
+  const [deleteCodeSent, setDeleteCodeSent] = useState(false);
+  const [deleteSendingCode, setDeleteSendingCode] = useState(false);
+  const [deleteCooldown, setDeleteCooldown] = useState(0);
+  // CodeSlots status: "error" drains the slots on a wrong code,
+  // "success" washes them on a right one.
+  const [deleteSlotStatus, setDeleteSlotStatus] = useState<"idle" | "error" | "success">("idle");
+  // Auto-send fires once per exact-name match (a failed send is
+  // retried from the "Send code" button, not by retyping).
+  const deleteAutoSentRef = useRef(false);
+  // Guard against a double delete (slots auto-submit on complete
+  // AND the Delete button can fire in the same tick).
+  const deleteVerifyingRef = useRef(false);
   useEffect(() => {
     if (!deleteTarget) return;
-    setDeletePassword("");
-    setDeleteTotpCode("");
-    setDeleteNeedsPassword(false);
-    setDeleteNeedsTotp(false);
-    let cancelled = false;
-    fetch("/api/auth/2fa/status", { credentials: "same-origin" })
-      .then((res) => (res.ok ? res.json().catch(() => null) : null))
-      .then((data) => {
-        if (cancelled || !data || typeof data !== "object") return;
-        if ((data as { hasPassword?: unknown }).hasPassword === true) {
-          setDeleteNeedsPassword(true);
-        }
-        if ((data as { totpEnabled?: unknown }).totpEnabled === true) {
-          setDeleteNeedsTotp(true);
-        }
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
+    setDeleteConfirmText("");
+    setDeleteCode("");
+    setDeleteCodeSent(false);
+    setDeleteSendingCode(false);
+    setDeleteCooldown(0);
+    setDeleteSlotStatus("idle");
+    setDeleteError(null);
+    deleteAutoSentRef.current = false;
   }, [deleteTarget]);
+  useEffect(() => {
+    if (deleteCooldown <= 0) return;
+    const timer = window.setInterval(
+      () => setDeleteCooldown((c) => Math.max(0, c - 1)),
+      1000
+    );
+    return () => window.clearInterval(timer);
+  }, [deleteCooldown]);
+  async function sendDeleteCode() {
+    setDeleteSendingCode(true);
+    setDeleteError(null);
+    try {
+      const res = await fetch("/api/github/delete-repo/send-code", { method: "POST" });
+      const data: unknown = await res.json().catch(() => null);
+      if (!res.ok) {
+        setDeleteError(
+          typeof (data as Record<string, unknown> | null)?.error === "string"
+            ? ((data as Record<string, unknown>).error as string)
+            : t.auth.couldNotSendCode
+        );
+        return;
+      }
+      setDeleteCodeSent(true);
+      setDeleteCooldown(60);
+    } catch {
+      setDeleteError(t.auth.couldNotSendCode);
+    } finally {
+      setDeleteSendingCode(false);
+    }
+  }
+  // Auto-send the email code the moment the exact name is typed.
+  // If the name stops matching, the flag resets so retyping it
+  // sends again.
+  useEffect(() => {
+    if (!deleteTarget) return;
+    if (deleteConfirmText.trim() !== deleteTarget.full_name) {
+      deleteAutoSentRef.current = false;
+      return;
+    }
+    if (deleteCodeSent || deleteSendingCode || deleteAutoSentRef.current) return;
+    deleteAutoSentRef.current = true;
+    void sendDeleteCode();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deleteConfirmText, deleteTarget, deleteCodeSent, deleteSendingCode]);
   function closeDeleteDialog() {
     setDeleteTarget(null);
     setDeleteConfirmText("");
-    setDeletePassword("");
-    setDeleteTotpCode("");
+    setDeleteCode("");
+    setDeleteCodeSent(false);
+    setDeleteSendingCode(false);
+    setDeleteCooldown(0);
+    setDeleteSlotStatus("idle");
     setDeleteError(null);
   }
-  async function confirmDeleteRepo() {
-    if (!deleteTarget || deletingRepo) return;
+  async function confirmDeleteRepo(codeToUse: string) {
+    if (!deleteTarget || deletingRepo || deleteVerifyingRef.current) return;
+    deleteVerifyingRef.current = true;
     const [owner, repo] = deleteTarget.full_name.split("/");
     setDeletingRepo(true);
     setDeleteError(null);
@@ -239,28 +281,23 @@ export default function GitHubPage() {
       const res = await fetch("/api/github/delete-repo", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ owner, repo, password: deletePassword, code: deleteTotpCode }),
+        body: JSON.stringify({ owner, repo, code: codeToUse }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Could not delete the repo");
+      setDeleteSlotStatus("success");
       setRepos((prev) => prev.filter((r) => r.id !== deleteTarget.id));
       if (selectedRepo?.id === deleteTarget.id) setSelectedRepo(null);
       setFavs((prev) => prev.filter((f) => f !== deleteTarget.full_name));
       setSuccessMsg(t.githubPage.repoDeleted(deleteTarget.full_name));
-      closeDeleteDialog();
+      window.setTimeout(() => closeDeleteDialog(), 600);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Could not delete the repo";
       setDeleteError(message);
-      // Step-up reveal: the password / authenticator fields only
-      // show when /api/auth/2fa/status says they are needed, but
-      // the server checks the DB row's password_hash / totp flag
-      // regardless of auth method — a Google user with a password
-      // set gets this 400 with no field to type it in. Reveal the
-      // field the error asks for so the user can fill it and retry.
-      if (message.toLowerCase().includes("password")) setDeleteNeedsPassword(true);
-      if (message.toLowerCase().includes("authenticator")) setDeleteNeedsTotp(true);
+      setDeleteSlotStatus("error");
     } finally {
       setDeletingRepo(false);
+      deleteVerifyingRef.current = false;
     }
   }
 
@@ -957,43 +994,56 @@ export default function GitHubPage() {
                 placeholder={deleteTarget.full_name}
                 className="mt-1 w-full rounded-lg border border-neutral-800 bg-black px-3 py-2 font-mono text-xs text-white placeholder-neutral-600 focus:border-red-500 focus:outline-none"
               />
-              {deleteNeedsPassword && (
-                <>
-                  <label
-                    htmlFor="delete-repo-password"
-                    className="mt-3 block text-xs font-medium text-neutral-300"
-                  >
-                    Your password
-                  </label>
-                  <input
-                    id="delete-repo-password"
-                    type="password"
-                    autoComplete="current-password"
-                    value={deletePassword}
-                    onChange={(e) => setDeletePassword(e.target.value)}
-                    placeholder="Enter your password"
-                    className="mt-1 w-full rounded-lg border border-neutral-800 bg-black px-3 py-2 text-xs text-white placeholder-neutral-600 focus:border-red-500 focus:outline-none"
-                  />
-                </>
+              {deleteSendingCode && (
+                <p className="mt-2 text-xs text-neutral-400">
+                  {t.editorPage.deleteRepoSendingCode}
+                </p>
               )}
-              {deleteNeedsTotp && (
-                <>
-                  <label
-                    htmlFor="delete-repo-totp"
-                    className="mt-3 block text-xs font-medium text-neutral-300"
+              {!deleteCodeSent && !deleteSendingCode &&
+                deleteConfirmText.trim() === deleteTarget.full_name && (
+                  <button
+                    type="button"
+                    onClick={() => void sendDeleteCode()}
+                    className="mt-2 rounded-md border border-neutral-800 bg-black px-3 py-1.5 text-xs text-neutral-300 hover:text-white"
                   >
-                    Authenticator code
+                    {t.editorPage.deleteRepoSendCode}
+                  </button>
+                )}
+              {deleteCodeSent && (
+                <>
+                  <p className="mt-3 text-xs text-neutral-400">
+                    {t.auth.codeSentToYourEmailWithExpiry}
+                  </p>
+                  <label className="mt-3 block text-xs font-medium text-neutral-300">
+                    {t.editorPage.deleteRepoCodeLabel}
                   </label>
-                  <input
-                    id="delete-repo-totp"
-                    type="text"
-                    inputMode="numeric"
-                    autoComplete="one-time-code"
-                    value={deleteTotpCode}
-                    onChange={(e) => setDeleteTotpCode(e.target.value)}
-                    placeholder="6-digit code or backup code"
-                    className="mt-1 w-full rounded-lg border border-neutral-800 bg-black px-3 py-2 font-mono text-xs text-white placeholder-neutral-600 focus:border-red-500 focus:outline-none"
-                  />
+                  <div className="mt-1 flex justify-center py-1">
+                    <CodeSlots
+                      length={6}
+                      value={deleteCode}
+                      onChange={(c) => {
+                        setDeleteCode(c);
+                        setDeleteSlotStatus("idle");
+                      }}
+                      onComplete={(c) => void confirmDeleteRepo(c)}
+                      status={deleteSlotStatus}
+                      disabled={deletingRepo}
+                      autoFocus
+                    />
+                  </div>
+                  <p className="mt-2 text-xs text-neutral-500">
+                    {deleteCooldown > 0 ? (
+                      <>{t.auth.resendCodeIn(deleteCooldown)}</>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => void sendDeleteCode()}
+                        className="text-neutral-300 underline hover:text-white"
+                      >
+                        {t.auth.resendCode}
+                      </button>
+                    )}
+                  </p>
                 </>
               )}
               {deleteError && (
@@ -1009,12 +1059,11 @@ export default function GitHubPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => void confirmDeleteRepo()}
+                  onClick={() => void confirmDeleteRepo(deleteCode)}
                   disabled={
                     deletingRepo ||
                     deleteConfirmText.trim() !== deleteTarget.full_name ||
-                    (deleteNeedsPassword && deletePassword.length === 0) ||
-                    (deleteNeedsTotp && deleteTotpCode.length === 0)
+                    deleteCode.length !== 6
                   }
                   className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-500 disabled:bg-neutral-800 disabled:text-neutral-600"
                 >

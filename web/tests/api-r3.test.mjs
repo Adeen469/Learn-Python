@@ -77,29 +77,26 @@ test("R3-L11: per-user rate keys are a hash of the lowercased email, never the a
 // R3-M2: delete-repo step-up
 // ---------------------------------------------------------------------------
 
-test("R3-M2: delete-repo requires a password + a TOTP/backup code step-up before deleting", () => {
+test("R3-M2: delete-repo requires an emailed code step-up before deleting", () => {
   const src = read("src/app/api/github/delete-repo/route.ts");
-  // The schema carries both step-up fields.
-  assert.ok(src.includes("password: z.string()"), "the body schema must carry a password");
-  assert.ok(src.includes("code: z.string()"), "the body schema must carry a TOTP/backup code");
-  // Password is verified with scrypt, like 2FA disable.
-  assert.ok(src.includes("verifyPassword(password, user.password_hash)"), "the password must be verified");
-  assert.ok(src.includes('"Invalid password."'), "a wrong password must answer 401");
-  assert.ok(src.includes("Enter your password to delete this repo."), "a missing password must be rejected");
-  // TOTP is verified with step + atomic replay claim; a backup code
-  // is CONSUMED (claimBackupCode), not just checked (findBackupCode).
-  assert.ok(src.includes("verifyTotpCodeWithStep(secret, code)"), "a TOTP code must be verified");
-  assert.ok(src.includes("claimTotpStep(user.id, matchedStep)"), "the TOTP step must be claimed atomically");
-  assert.ok(src.includes("findBackupCode(user.backup_codes"), "a backup code must be looked up");
-  assert.ok(src.includes("claimBackupCode(user.id, matchedBackup)"), "a backup code must be consumed on use");
-  assert.ok(src.includes("bumpTotpFailedAttempts(user.id)"), "a wrong code must count toward the cap");
-  assert.ok(src.includes("TOTP_MAX_FAILED_ATTEMPTS"), "the 5-failure cap must apply");
-  assert.ok(src.includes("Enter a code from your authenticator app"), "a missing code must be rejected when 2FA is on");
-  // The gate runs BEFORE the owner check + delete, and a DB read
-  // failure fails closed instead of skipping the gate.
-  assert.ok(src.indexOf("getUserByEmailResult(email)") < src.indexOf("await deleteUserRepo("), "the step-up must run before the delete");
-  assert.ok(src.includes('row.status === "error"'), "a DB read failure must fail closed");
-  assert.ok(src.includes("status: 503"), "a DB read failure must answer 503");
+  // The schema carries the code, and it is REQUIRED.
+  assert.ok(src.includes("code: z.string().min(1).max(10)"), "the body schema must require the code");
+  assert.ok(!src.includes("password: z.string()"), "the body schema must not carry a password");
+  // The code is a "delete-repo" OTP: looked up, decided, consumed.
+  assert.ok(src.includes('getLatestOtp(email, "delete-repo")'), "the code must be looked up by purpose");
+  assert.ok(src.includes("decideOtp("), "the code must be checked through decideOtp");
+  assert.ok(src.includes("consumeOtp(row.id)"), "a right code must be consumed before deleting");
+  assert.ok(src.includes("bumpOtpAttempts(row.id)"), "a wrong code must bump attempts");
+  // Every failure answers the same generic 400 — a wrong code
+  // cannot be told apart from an expired one.
+  assert.ok(src.includes('const GENERIC_CODE_ERROR = "The code is incorrect or has expired."'), "failures must share one generic message");
+  // No password / TOTP step-up anywhere in the route.
+  assert.ok(!src.includes("verifyPassword"), "the route must not check a password");
+  assert.ok(!src.includes("verifyTotpCodeWithStep"), "the route must not check a TOTP code");
+  assert.ok(!src.includes("decryptUserTotpSecret"), "the route must not read a TOTP secret");
+  assert.ok(!src.includes("findBackupCode"), "the route must not take backup codes");
+  // The gate runs BEFORE the owner check + delete.
+  assert.ok(src.indexOf('getLatestOtp(email, "delete-repo")') < src.indexOf("await deleteUserRepo("), "the step-up must run before the delete");
   // Old behaviour still holds: slugs validated, owner checked, the
   // two user-actionable 403s kept, body-size guard before parsing.
   assert.ok(src.includes("isValidGithubSlug"), "owner/repo must still be validated");
@@ -111,23 +108,32 @@ test("R3-M2: delete-repo requires a password + a TOTP/backup code step-up before
   assert.ok(src.indexOf("oversizedBodyResponse") < src.indexOf("await req.json()"), "the size check must run before parsing");
 });
 
-test("R3-M2 client: the GitHub page collects password + code in the EXISTING delete dialog", () => {
+test("R3-M2 send-code: the delete code goes to the session user's verified email", () => {
+  const send = read("src/app/api/github/delete-repo/send-code/route.ts");
+  assert.ok(send.includes("getSessionUser(req, prereqs.secret)"), "the send route must need a session");
+  assert.ok(send.includes('issueOtpCode(sessionUser.email, "delete-repo")'), "the code must be a delete-repo OTP");
+  assert.ok(send.includes("!user.email_verified"), "the code must only go to a verified email");
+  assert.ok(send.includes('rateLimit(req, "github-delete-send-code", 10, 60_000'), "the send route must be rate-limited");
+  assert.ok(send.includes("{ sent: true }"), "the send route must answer sent:true");
+});
+
+test("R3-M2 client: the GitHub page collects the emailed code in the EXISTING delete dialog", () => {
   const page = read("src/app/github/page.tsx");
-  assert.ok(page.includes('"/api/auth/2fa/status"'), "the dialog must learn hasPassword/totpEnabled from 2FA status");
-  assert.ok(page.includes('id="delete-repo-password"'), "the dialog must have a password field");
-  assert.ok(page.includes('type="password"'), "the password field must mask input");
-  assert.ok(page.includes('id="delete-repo-totp"'), "the dialog must have a TOTP field");
-  assert.ok(page.includes("password: deletePassword, code: deleteTotpCode"), "the delete request must send both step-up fields");
-  // The Delete button stays armed only when the required fields are filled.
-  assert.ok(page.includes("deleteNeedsPassword && deletePassword.length === 0"), "Delete must need the password when the account has one");
-  assert.ok(page.includes("deleteNeedsTotp && deleteTotpCode.length === 0"), "Delete must need the code when 2FA is on");
-  // The password leaves state on close/success — it must not linger.
-  assert.ok(page.includes("setDeletePassword(\"\")"), "the password must be cleared");
-  // No NEW dialog/page/element: the fields live inside the existing
-  // deleteTarget dialog block.
+  assert.ok(page.includes("/api/github/delete-repo/send-code"), "the dialog must send the code to the user's email");
+  assert.ok(page.includes('import CodeSlots from "@/components/CodeSlots"'), "the dialog must use CodeSlots");
+  assert.ok(page.includes("<CodeSlots"), "the dialog must render code boxes");
+  assert.ok(page.includes("code: codeToUse"), "the delete request must send the email code");
+  // The Delete button stays armed only when the exact name is typed
+  // and all 6 code digits are in.
+  assert.ok(page.includes("deleteConfirmText.trim() !== deleteTarget.full_name"), "Delete must need the exact name");
+  assert.ok(page.includes("deleteCode.length !== 6"), "Delete must need all 6 digits");
+  // No password / authenticator field anywhere in the dialog.
+  assert.ok(!page.includes('id="delete-repo-password"'), "the dialog must not have a password field");
+  assert.ok(!page.includes('id="delete-repo-totp"'), "the dialog must not have an authenticator field");
+  // No NEW dialog/page/element: the code boxes live inside the
+  // existing deleteTarget dialog block.
   const dialog = page.slice(page.indexOf("{deleteTarget && ("), page.indexOf("{deleteTarget && (") + 8000);
-  assert.ok(dialog.includes('id="delete-repo-password"'), "the password field must be inside the existing dialog");
-  assert.ok(dialog.includes('id="delete-repo-totp"'), "the TOTP field must be inside the existing dialog");
+  assert.ok(dialog.includes("<CodeSlots"), "the code boxes must be inside the existing dialog");
 });
 
 test("R3-L12: delete-repo has a per-user rate bucket after token resolution", () => {

@@ -463,6 +463,9 @@ export type Strings = {
     deleteRepoConfirmLabel: (repo: string) => string;
     deleteRepoConfirmPlaceholder: string;
     deleteRepoDeleting: string;
+    deleteRepoCodeLabel: string;
+    deleteRepoSendingCode: string;
+    deleteRepoSendCode: string;
     pushNeedsRepo: string;
     pushDialogTitle: string;
     pushDialogSummary: (ready: number, skipped: number, repo: string) => string;

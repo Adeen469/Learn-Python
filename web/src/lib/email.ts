@@ -122,6 +122,28 @@ export function twoFaEmail(code: string): {
   };
 }
 
+/** Repo-deletion email code (valid 10 minutes). */
+export function deleteRepoEmail(code: string): {
+  subject: string;
+  text: string;
+  html: string;
+} {
+  return {
+    // Fixed subject (L22): see otpEmail — the code belongs in the
+    // body only, never in a notification preview.
+    subject: "Your Learn Python repo deletion code",
+    text:
+      `Your Learn Python repo deletion code is ${code}.\n` +
+      `Enter it to delete the repo. The code expires in 10 minutes.` +
+      authEmailFooterText(),
+    html:
+      `<p>Your Learn Python repo deletion code is:</p>` +
+      codeBlockHtml(code) +
+      `<p>Enter it to delete the repo. The code expires in 10 minutes.</p>` +
+      authEmailFooterHtml(),
+  };
+}
+
 /** Password-reset link (valid 1 hour, single-use). */
 export function resetEmail(link: string): {
   subject: string;

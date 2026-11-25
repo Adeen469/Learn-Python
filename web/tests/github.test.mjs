@@ -139,6 +139,30 @@ test("the delete-repo route validates slugs, rate-limits and deletes via Octokit
   assert.ok(libSrc.includes("repos.delete"), "the helper must call repos.delete");
 });
 
+test("the delete-repo route steps up with an emailed code — no password, no TOTP", () => {
+  const r = read("src/app/api/github/delete-repo/route.ts");
+  // The schema carries the code, and it is REQUIRED (not optional).
+  assert.ok(r.includes("code: z.string().min(1).max(10)"), "the body schema must require the code");
+  // The code is a "delete-repo" OTP: looked up, decided, consumed.
+  assert.ok(r.includes('getLatestOtp(email, "delete-repo")'), "the route must look up the emailed code");
+  assert.ok(r.includes("decideOtp("), "the route must check the code through decideOtp");
+  assert.ok(r.includes("consumeOtp(row.id)"), "a right code must be consumed before deleting");
+  assert.ok(r.includes("bumpOtpAttempts(row.id)"), "a wrong code must bump attempts");
+  // Every failure answers the same generic 400.
+  assert.ok(r.includes('const GENERIC_CODE_ERROR = "The code is incorrect or has expired."'), "failures must share one generic message");
+  assert.ok(!r.includes("verifyPassword"), "the route must not check a password");
+  assert.ok(!r.includes("verifyTotpCodeWithStep"), "the route must not check a TOTP code");
+  assert.ok(!r.includes("decryptUserTotpSecret"), "the route must not read a TOTP secret");
+  assert.ok(!r.includes("findBackupCode"), "the route must not take backup codes");
+  assert.ok(!r.includes("claimTotpStep"), "the route must not claim a TOTP step");
+  // The send-code route exists: session-gated, verified email only.
+  const send = read("src/app/api/github/delete-repo/send-code/route.ts");
+  assert.ok(send.includes('issueOtpCode(sessionUser.email, "delete-repo")'), "the send route must issue a delete-repo code");
+  assert.ok(send.includes("getSessionUser(req, prereqs.secret)"), "the send route must need a session");
+  assert.ok(send.includes("!user.email_verified"), "the send route must need a verified email");
+  assert.ok(send.includes("{ sent: true }"), "the send route must answer sent:true");
+});
+
 test("repo-tree and repo-file validate owner, repo, sha and path", () => {
   const libSrc = lib();
   assert.ok(libSrc.includes("isValidGithubSlug"), "lib must export a slug validator");
@@ -279,6 +303,7 @@ test("deleting a repo from the menu needs the typed owner/repo name", () => {
     "deleteRepoButton", "deleteRepoTitle", "deleteRepoWarning",
     "deleteRepoOwnerNote", "deleteRepoScopeNote", "deleteRepoConfirmLabel",
     "deleteRepoConfirmPlaceholder", "deleteRepoDeleting",
+    "deleteRepoCodeLabel", "deleteRepoSendingCode", "deleteRepoSendCode",
   ]) {
     assert.ok(en().includes(`${key}:`), `en.ts must define ${key}`);
   }
@@ -288,12 +313,21 @@ test("deleting a repo from the menu needs the typed owner/repo name", () => {
   assert.ok(en().includes("deleteRepoConfirmLabel: (repo) =>"), "the confirm label must be a function of the repo name");
   assert.ok(p.includes("deleteRepoConfirmLabel(deleteTarget.full_name)"), "the dialog label must show the exact repo name");
   assert.ok(p.includes("placeholder={deleteTarget.full_name}"), "the confirm box placeholder must show the exact repo name");
-  // Step-up reveal: when the server 400s for a missing password or
-  // authenticator code (a Google user with a password set never sees
-  // the field otherwise), the field must appear so the user can
-  // fill it and retry instead of hitting a dead end.
-  assert.ok(p.includes('includes("password")) setDeleteNeedsPassword(true)'), "a password error must reveal the password field");
-  assert.ok(p.includes('includes("authenticator")) setDeleteNeedsTotp(true)'), "an authenticator error must reveal the code field");
+  // Email-code step-up: no password, no authenticator field — the
+  // moment the exact owner/repo name is typed the dialog auto-sends
+  // a code to the user's email and shows 6 code boxes.
+  assert.ok(!p.includes('id="delete-repo-password"'), "the dialog must not have a password field");
+  assert.ok(!p.includes('id="delete-repo-totp"'), "the dialog must not have an authenticator field");
+  assert.ok(!p.includes("deletePassword"), "the dialog must not keep a password state");
+  assert.ok(!p.includes("deleteTotpCode"), "the dialog must not keep an authenticator-code state");
+  assert.ok(!p.includes('"/api/auth/2fa/status"'), "the dialog must not ask 2FA status for step-up fields");
+  assert.ok(p.includes("/api/github/delete-repo/send-code"), "typing the exact name must send an email code");
+  assert.ok(p.includes('import CodeSlots from "@/components/CodeSlots"'), "the dialog must use CodeSlots");
+  assert.ok(p.includes("<CodeSlots"), "the dialog must render code boxes");
+  assert.ok(p.includes("length={6}"), "the code boxes must take 6 digits");
+  assert.ok(p.includes("t.editorPage.deleteRepoCodeLabel"), "the code boxes must be labelled");
+  assert.ok(p.includes("code: codeToUse"), "the delete request must send the email code");
+  assert.ok(p.includes("deleteCode.length !== 6"), "Delete must stay disabled until all 6 digits are typed");
 });
 
 test("stored tokens use a dedicated encryption key only — no session-secret fallback", () => {

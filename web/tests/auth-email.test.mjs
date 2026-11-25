@@ -1358,11 +1358,18 @@ test("R2-L7: the legacy lp_session cookie is never read as a session", () => {
 
 test("R2-L8: 2FA email codes have their own budget, separate from signup/signin", () => {
   const routes = read("src/lib/auth-routes.ts");
+  // The own-budget branch covers 2FA (and delete-repo, which needs
+  // the same isolation) and counts against the purpose passed in,
+  // not the shared signup/signin budget.
   assert.ok(
-    routes.includes('countRecentOtps(\n        normalized,\n        "2fa",'),
+    routes.includes('if (purpose === "2fa" || purpose === "delete-repo")'),
+    "2FA codes must go through the own-budget branch"
+  );
+  assert.ok(
+    routes.includes('countRecentOtps(\n        normalized,\n        purpose,'),
     "2FA codes must be counted against their own purpose budget"
   );
-  assert.ok(routes.includes('getLatestOtp(normalized, "2fa")'), "the 2FA cooldown must be per-purpose");
+  assert.ok(routes.includes('getLatestOtp(normalized, purpose)'), "the 2FA cooldown must be per-purpose");
 });
 
 test("R2-L9: signup runs the dummy scrypt for existing accounts too", () => {
