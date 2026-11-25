@@ -19,6 +19,11 @@ type Status =
       totpEnabled: boolean;
       hasPassword: boolean;
       emailVerified: boolean;
+      // True when the stored TOTP secret no longer decrypts
+      // (legacy account, key split) — no authenticator code can
+      // ever verify, so the Disable form must offer the emailed
+      // code instead. Absent for Google accounts.
+      authenticatorBroken?: boolean;
     };
 
 async function postJson(url: string, payload?: unknown) {
@@ -57,6 +62,20 @@ export default function TwoFactorSettings() {
   const [disablePassword, setDisablePassword] = useState("");
   const [disableCode, setDisableCode] = useState("");
   const [showDisable, setShowDisable] = useState(false);
+  // Second-factor method for disabling: the authenticator app
+  // (default) or an emailed code — the recovery path when the
+  // authenticator cannot verify (lost app, or a legacy secret
+  // that no longer decrypts). A legacy account defaults to email.
+  const [disableMethod, setDisableMethod] = useState<"totp" | "email">("totp");
+  const [disableEmailSent, setDisableEmailSent] = useState(false);
+  const [disableCooldown, setDisableCooldown] = useState(0);
+
+  // Resend cooldown countdown for the disable email code.
+  useEffect(() => {
+    if (disableCooldown <= 0) return;
+    const timer = setTimeout(() => setDisableCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [disableCooldown]);
 
   // Backup-code regeneration state.
   const [regenCode, setRegenCode] = useState("");
@@ -129,6 +148,24 @@ export default function TwoFactorSettings() {
     }
   }
 
+  async function handleSendDisableCode() {
+    setError(null);
+    setNote(null);
+    setLoading(true);
+    try {
+      const { res, data } = await postJson("/api/auth/2fa/disable/send-code");
+      if (!res.ok) {
+        setError(errorMessage(data, t.settings.couldNotSendDisableCode));
+        return;
+      }
+      setDisableEmailSent(true);
+      setDisableCooldown(60);
+      setNote(t.auth.codeSentToYourEmailWithExpiry);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function handleDisable(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -138,6 +175,7 @@ export default function TwoFactorSettings() {
       const { res, data } = await postJson("/api/auth/2fa/disable", {
         password: disablePassword,
         code: disableCode,
+        method: disableMethod,
       });
       if (!res.ok) {
         setError(errorMessage(data, t.settings.couldNotDisableTwoFactor));
@@ -146,6 +184,8 @@ export default function TwoFactorSettings() {
       setShowDisable(false);
       setDisablePassword("");
       setDisableCode("");
+      setDisableEmailSent(false);
+      setDisableCooldown(0);
       setNote(t.settings.twoFactorOff);
       await refresh();
     } finally {
@@ -331,7 +371,20 @@ export default function TwoFactorSettings() {
               </button>
               <button
                 type="button"
-                onClick={() => setShowDisable((v) => !v)}
+                onClick={() => {
+                  // Opening the form defaults to the emailed code
+                  // for a legacy account (its authenticator can
+                  // never verify); closing it clears the code state.
+                  if (!showDisable && status.authenticatorBroken === true) {
+                    setDisableMethod("email");
+                  }
+                  if (showDisable) {
+                    setDisableEmailSent(false);
+                    setDisableCode("");
+                    setDisableCooldown(0);
+                  }
+                  setShowDisable((v) => !v);
+                }}
                 className="rounded-lg border border-neutral-800 bg-black px-3 py-2 text-xs text-neutral-400 transition hover:text-red-400"
               >
                 <ShieldOff className="mr-1 inline h-3.5 w-3.5" />
@@ -365,8 +418,47 @@ export default function TwoFactorSettings() {
                 onSubmit={(e) => void handleDisable(e)}
                 className="mt-3 space-y-2"
               >
+                {status.authenticatorBroken === true && (
+                  <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs leading-relaxed text-amber-200">
+                    {t.settings.authenticatorCannotVerify}
+                  </p>
+                )}
+                <div
+                  className="flex gap-1"
+                  role="tablist"
+                  aria-label={t.auth.secondFactorMethodLabel}
+                >
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-pressed={disableMethod === "totp"}
+                    onClick={() => setDisableMethod("totp")}
+                    className={`rounded-lg border px-3 py-1.5 text-xs transition ${
+                      disableMethod === "totp"
+                        ? "border-white bg-white text-black"
+                        : "border-neutral-800 bg-black text-neutral-300 hover:text-white"
+                    }`}
+                  >
+                    {t.auth.methodAuthenticator}
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-pressed={disableMethod === "email"}
+                    onClick={() => setDisableMethod("email")}
+                    className={`rounded-lg border px-3 py-1.5 text-xs transition ${
+                      disableMethod === "email"
+                        ? "border-white bg-white text-black"
+                        : "border-neutral-800 bg-black text-neutral-300 hover:text-white"
+                    }`}
+                  >
+                    {t.auth.methodEmailCode}
+                  </button>
+                </div>
                 <p className="text-xs text-neutral-400">
-                  {t.settings.disableTwoFactorPrompt}
+                  {disableMethod === "email"
+                    ? t.settings.disableTwoFactorEmailPrompt
+                    : t.settings.disableTwoFactorPrompt}
                 </p>
                 <input
                   type="password"
@@ -377,6 +469,37 @@ export default function TwoFactorSettings() {
                   onChange={(e) => setDisablePassword(e.target.value)}
                   className={inputClass}
                 />
+                {disableMethod === "email" && !disableEmailSent && (
+                  <>
+                    <p className="text-xs text-neutral-400">
+                      {t.auth.emailCodeWillBeSent}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => void handleSendDisableCode()}
+                      disabled={loading}
+                      className={buttonClass}
+                    >
+                      {loading ? t.auth.sending : t.auth.sendEmailCode}
+                    </button>
+                  </>
+                )}
+                {disableMethod === "email" && disableEmailSent && (
+                  <div className="flex items-center gap-2 text-xs text-neutral-400">
+                    {disableCooldown > 0 ? (
+                      <span>{t.auth.resendCodeIn(disableCooldown)}</span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => void handleSendDisableCode()}
+                        disabled={loading}
+                        className="rounded-lg border border-neutral-800 bg-black px-3 py-1.5 text-xs text-neutral-300 transition hover:text-white disabled:opacity-50"
+                      >
+                        {t.auth.resendCode}
+                      </button>
+                    )}
+                  </div>
+                )}
                 <input
                   type="text"
                   required

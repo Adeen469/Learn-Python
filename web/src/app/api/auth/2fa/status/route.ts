@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  decryptUserTotpSecret,
+  totpSecretEncryptionKey,
+} from "@/lib/auth-email";
 import { getUserByEmail } from "@/lib/auth-store";
 import {
   getAuthPrereqs,
@@ -40,6 +44,19 @@ export async function GET(req: NextRequest) {
   }
   const user = await getUserByEmail(sessionUser.email);
   if (!user) return noStore(jsonError("Account not found.", 404));
+  // Legacy secret (key split, 2026-11-23): the stored secret exists
+  // but no longer decrypts under TOTP_ENCRYPTION_KEY, so no
+  // authenticator code can ever verify for this account. The key
+  // check matters: decryptUserTotpSecret also returns null when the
+  // key itself is missing, and then the account is not "legacy" —
+  // the whole TOTP setup is unconfigured. Session-gated (this
+  // account's owner only), so reporting it leaks nothing.
+  const authenticatorBroken =
+    user.totp_enabled &&
+    user.totp_secret_enc !== null &&
+    user.totp_secret_enc !== undefined &&
+    totpSecretEncryptionKey() !== null &&
+    decryptUserTotpSecret(user.totp_secret_enc) === null;
   return noStore(
     NextResponse.json({
       signedIn: true,
@@ -47,6 +64,7 @@ export async function GET(req: NextRequest) {
       totpEnabled: user.totp_enabled,
       hasPassword: user.password_hash !== null,
       emailVerified: user.email_verified,
+      authenticatorBroken,
     })
   );
 }

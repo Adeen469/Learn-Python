@@ -10,10 +10,18 @@ import path from "node:path";
 import {
   filterExplorerTree,
   sortExplorerTree,
+  editorStorageScope,
+  readLocalJson,
+  readScopedRaw,
+  scopedStorageKey,
+  setEditorStorageScope,
+  writeLocalJson,
 } from "../src/app/editor/lib/editor-utils.ts";
 import {
   EDITOR_EXTENSIONS,
   extensionForFile,
+  readOpenRepo,
+  setEditorScope,
   stripTransientBlobUrls,
   toggleExtensionId,
   viewerKindForFile,
@@ -372,13 +380,19 @@ test("AI panel ⋮ menu: chat history + AI settings card (skills + BYOK)", () =>
   assert.ok(aiHook.includes("deleteCustomSkill"), "a custom skill must be deletable");
   assert.ok(aiCard.includes("aiSkillName"), "add-skill form must ask for a name");
   assert.ok(aiCard.includes("aiSkillContent"), "add-skill form must ask for instructions");
-  // BYOK: provider + key, stored in this browser only, sent per request.
-  // Six providers now: Gemini, Groq, Anthropic, OpenAI, OpenRouter and
-  // a custom OpenAI-compatible endpoint (base URL + model + key).
+  // BYOK: provider + key, saved encrypted on the server (the
+  // browser keeps only the provider + masked hint). Six providers
+  // now: Gemini, Groq, Anthropic, OpenAI, OpenRouter and a custom
+  // OpenAI-compatible endpoint (base URL + model + key). One key
+  // per provider: the add-form only offers providers without a
+  // saved key, so the options come from the hook's provider list
+  // via availableByokProviders, not hardcoded <option> rows.
   assert.ok(aiHook.includes("lp_ai_byok"), "BYOK metadata must persist in localStorage (keys live server-side now)");
   assert.ok(aiCard.includes("byokProvider"), "BYOK must offer a provider choice");
+  assert.ok(aiHook.includes("export const ALL_BYOK_PROVIDERS"), "the hook must define the provider list");
+  assert.ok(aiCard.includes("availableByokProviders"), "the card must offer only the providers without a saved key");
   for (const provider of ["gemini", "groq", "anthropic", "openai", "openrouter", "custom"]) {
-    assert.ok(aiCard.includes(`value="${provider}"`), `BYOK must offer ${provider}`);
+    assert.ok(aiHook.includes(`"${provider}"`), `BYOK must offer ${provider}`);
   }
   assert.ok(aiCard.includes("byokBaseUrl"), "custom BYOK must ask for a base URL");
   assert.ok(aiCard.includes("byokModel"), "custom BYOK must ask for a model");
@@ -942,7 +956,9 @@ test("pdf.js viewer: header toolbar (all controls), Ask AI with the document as 
   const index = read("src/lib/i18n/index.tsx");
   // pdf.js, lazily loaded, canvas + text layer, bundled worker.
   assert.ok(pdfViewer.includes('await import("pdfjs-dist")'), "pdf.js must load lazily, only when a PDF opens");
-  assert.ok(pdfViewer.includes("pdf.worker.min.mjs?url"), "the worker must be a bundled asset URL (same-origin, offline-safe)");
+  assert.ok(pdfViewer.includes('"pdfjs-dist/build/pdf.worker.min.mjs"'), "the worker must be a bundled asset URL (same-origin, offline-safe)");
+  assert.ok(pdfViewer.includes("import.meta.url"), "the worker URL must resolve against the module URL, so the build emits the worker as a real .mjs asset");
+  assert.ok(!pdfViewer.includes('?url"'), "the ?url import must be gone — webpack bundled it as a JS chunk, so no worker asset was ever emitted and every PDF failed");
   assert.ok(pdfViewer.includes("new pdfjs.TextLayer"), "pages render with a text layer (selectable text for search/highlight/Ask AI)");
   assert.ok(pdfViewer.includes("page.render"), "pages render to canvas");
   assert.ok(!pdfViewer.includes("<embed"), "no native embed inside the viewer either");
@@ -1021,5 +1037,239 @@ test("explorer i18n: search + extensions keys exist in every language", () => {
     for (const key of ["explorerSearchPlaceholder", "explorerSearchNoMatch", "extensionsTab", "extensionInstall", "extensionInstalled", "extensionUninstall", "viewerLoadError"]) {
       assert.ok(file.includes(key), `${lang} must define ${key}`);
     }
+  }
+});
+
+// PDF preview fix (2026-11-25, manifest-120): the c21312c viewer
+// shipped two live failures on the same dropped PDF — the viewer
+// showed "Could not preview this file." (the pdf.js worker never
+// loaded AND the CSP blocked fetch(blob:)), and after a hard
+// refresh the PDF opened blank in Monaco (the dropped bytes were
+// never persisted). The AI panel also hid a missing BYOK key
+// behind "Something went wrong". These checks pin the fixes.
+
+test("pdf fix: pdf.js worker loads as a real same-origin asset (no ?url default-export guess)", () => {
+  const pdfViewer = read("src/app/editor/components/PdfViewer.tsx");
+  assert.ok(
+    pdfViewer.includes('"pdfjs-dist/build/pdf.worker.min.mjs"') && pdfViewer.includes("import.meta.url"),
+    "the worker must resolve through the documented webpack asset pattern (new URL(path, import.meta.url)), so the build emits a real .mjs file",
+  );
+  assert.ok(!pdfViewer.includes('?url")'), "the ?url import must be gone — webpack bundled it as a JS chunk, so no worker asset was ever emitted");
+  assert.ok(!pdfViewer.includes("= worker.default"), "worker.default must be gone — the worker module has a named export only, so .default was undefined and pdf.js threw inside the load");
+});
+
+test("pdf fix: CSP connect-src allows blob: (the viewer fetches the file's bytes)", () => {
+  const config = read("next.config.ts");
+  assert.ok(
+    config.includes('"connect-src \'self\' blob:'),
+    "fetch(blob:) is governed by connect-src, not img/media-src — without blob: here every dropped/repo PDF is CSP-blocked and fails with 'Could not preview this file.'",
+  );
+  assert.ok(config.includes('"object-src \'none\'"'), "object-src stays 'none' — the embed is still gone");
+});
+
+test("pdf fix: dropped file bytes persist in IndexedDB and rehydrate after a hard refresh", () => {
+  const dropped = read("src/app/editor/lib/dropped-files.ts");
+  assert.ok(dropped.includes("lp-dropped-files"), "the store must be the editor's own IndexedDB database");
+  assert.ok(dropped.includes("export async function saveDroppedFile"), "drops must save their bytes");
+  assert.ok(dropped.includes("export async function loadDroppedFile"), "a restored file must load its bytes back");
+  assert.ok(dropped.includes("export async function deleteDroppedFile"), "removing a dropped file must drop its bytes too");
+  assert.ok(page.includes("saveDroppedFile"), "the drop handler must persist the bytes at drop time");
+  assert.ok(page.includes("deleteDroppedFile"), "deleting a dropped file must clear its persisted bytes");
+  const editorPanel = read("src/app/editor/components/EditorPanel.tsx");
+  assert.ok(editorPanel.includes("loadDroppedFile"), "the pane must rehydrate dropped bytes on open");
+  assert.ok(editorPanel.includes("rehydratedUrl"), "the viewer must use the rehydrated blob URL when the stored one died on reload");
+  assert.ok(editorPanel.includes("rehydrating"), "while the bytes load, the pane must show the loader, not a blank editor");
+});
+
+test("pdf fix: the viewer shows the tetromino loader until the first page has actually painted", () => {
+  const pdfViewer = read("src/app/editor/components/PdfViewer.tsx");
+  assert.ok(pdfViewer.includes("renderedOnce"), "the viewer must track whether a page has painted");
+  assert.ok(pdfViewer.includes("onPageRendered"), "a page must report back once its canvas has painted");
+  assert.ok(pdfViewer.includes("!renderedOnce"), "the loader overlay must stay up until the first paint, not just until the document object exists");
+  const fileViewer = read("src/app/editor/components/FileViewer.tsx");
+  assert.ok(fileViewer.includes("TetrominoLoader"), "image/video viewers must use the same tetromino loader while their content loads");
+  assert.ok(fileViewer.includes("onLoad"), "the image viewer must clear its loader on load");
+  assert.ok(fileViewer.includes("onLoadedData"), "the video player must clear its loader when the first frame is ready");
+  assert.ok(fileViewer.includes("loadErrorText"), "a viewer whose source fails must show the load error, not a blank pane or a stuck loader");
+});
+
+test("ai fix: the client shows the server's own error instead of the generic one (missing BYOK key must say so)", () => {
+  const aiHook = read("src/app/editor/hooks/useEditorAi.ts");
+  // The 503 branch already surfaced the server message; a 400
+  // (no saved BYOK key for the picked provider) fell through to
+  // "Something went wrong", so the user could never tell a missing
+  // key from a broken call.
+  assert.ok(aiHook.includes("serverError"), "a non-OK reply must surface the server's error string when it has one");
+  assert.ok(aiHook.includes("(data as { error: string }).error"), "the server's error field must be the string shown (e.g. the 400 'No saved key for this provider' from a missing BYOK key)");
+  assert.ok(aiHook.includes("t.common.genericError"), "the generic error stays as the fallback when the server sent no message");
+});
+
+test("per-user editor storage: keys are namespaced by the signed-in user, and a fresh user sees nothing of the first", () => {
+  // The helpers touch the global localStorage lazily, so a stub
+  // installed here (before any call) is what they see.
+  const store = new Map();
+  globalThis.localStorage = {
+    getItem: (k) => (store.has(k) ? store.get(k) : null),
+    setItem: (k, v) => {
+      store.set(k, String(v));
+    },
+    removeItem: (k) => {
+      store.delete(k);
+    },
+  };
+  try {
+    setEditorStorageScope("alice@example.com");
+    assert.equal(editorStorageScope(), "alice@example.com");
+    assert.equal(scopedStorageKey("lp_workspace_tree"), "lp_workspace_tree::alice@example.com");
+    writeLocalJson("lp_workspace_tree", [{ path: "main.py" }]);
+    assert.equal(
+      store.get("lp_workspace_tree::alice@example.com"),
+      JSON.stringify([{ path: "main.py" }])
+    );
+    assert.equal(store.has("lp_workspace_tree"), false, "no bare key may ever be written");
+    // Bob, same browser: nothing of Alice's.
+    setEditorStorageScope("bob@example.com");
+    assert.deepEqual(readLocalJson("lp_workspace_tree", []), []);
+    assert.equal(readScopedRaw("lp_workspace_tree"), null);
+    // Alice's data is still there under her scope.
+    setEditorStorageScope("alice@example.com");
+    assert.deepEqual(readLocalJson("lp_workspace_tree", []), [{ path: "main.py" }]);
+    // Guest sees nothing either.
+    setEditorStorageScope("guest");
+    assert.deepEqual(readLocalJson("lp_workspace_tree", []), []);
+  } finally {
+    delete globalThis.localStorage;
+    setEditorStorageScope("guest");
+  }
+});
+
+test("per-user editor storage: a legacy bare key is adopted once into the signed-in user's scope, never into guest", () => {
+  const store = new Map();
+  globalThis.localStorage = {
+    getItem: (k) => (store.has(k) ? store.get(k) : null),
+    setItem: (k, v) => {
+      store.set(k, String(v));
+    },
+    removeItem: (k) => {
+      store.delete(k);
+    },
+  };
+  try {
+    store.set("lp_workspace_tree", JSON.stringify([{ path: "main.py" }]));
+    setEditorStorageScope("guest");
+    assert.deepEqual(readLocalJson("lp_workspace_tree", []), []);
+    assert.equal(store.has("lp_workspace_tree"), true, "guest must not adopt");
+    setEditorStorageScope("alice@example.com");
+    assert.deepEqual(readLocalJson("lp_workspace_tree", []), [{ path: "main.py" }]);
+    assert.equal(store.has("lp_workspace_tree"), false, "adoption removes the bare key");
+    assert.equal(store.has("lp_workspace_tree::alice@example.com"), true);
+  } finally {
+    delete globalThis.localStorage;
+    setEditorStorageScope("guest");
+  }
+});
+
+test("per-user editor: the default workspace is a generic welcome seed, never a user's files", () => {
+  const utils = read("src/app/editor/lib/editor-utils.ts");
+  assert.ok(
+    !utils.includes("Python_Unit_3_Assignment_Answers"),
+    "the seed must not contain a user's files"
+  );
+  assert.ok(
+    utils.includes("Welcome to LP Python IDE"),
+    "the seed stays the generic welcome file"
+  );
+});
+
+test("per-user editor: workspace restore, AI restore and repo writes all wait for the session scope", () => {
+  const repo = read("src/app/editor/hooks/useWorkspaceRepo.ts");
+  assert.ok(
+    repo.includes("await ensureEditorScope()"),
+    "the workspace restore must resolve the scope first"
+  );
+  assert.ok(
+    repo.includes('writeLocalJson("lp_open_repo_current"'),
+    "the open repo must persist under the user's scope"
+  );
+  assert.ok(
+    repo.includes('readScopedRaw("lp_workspace_tree")'),
+    "the tree must restore from the user's scope"
+  );
+  assert.ok(
+    repo.includes('readScopedRaw("lp_workspace_tree_backup")'),
+    "the backup must restore from the user's scope"
+  );
+  const ai = read("src/app/editor/hooks/useEditorAi.ts");
+  assert.ok(
+    ai.includes("aiScopeReady"),
+    "the AI hook must gate its server migration on the per-user restore"
+  );
+  assert.ok(
+    ai.includes('writeLocalJson("lp_ai_chats"'),
+    "AI chats must persist under the user's scope"
+  );
+  assert.ok(
+    ai.includes('writeLocalJson("lp_ai_current_chat"'),
+    "the current chat must persist under the user's scope"
+  );
+  assert.ok(
+    ai.includes('writeLocalJson("lp_ai_byok"') || ai.includes('writeScopedRaw("lp_ai_byok"'),
+    "the BYOK store must persist under the user's scope"
+  );
+  const dropped = read("src/app/editor/lib/dropped-files.ts");
+  assert.ok(
+    dropped.includes("droppedKey(path)"),
+    "dropped bytes must be keyed per user"
+  );
+  const page = read("src/app/editor/page.tsx");
+  assert.ok(
+    page.includes("setEditorScope(user.email)"),
+    "the page must set the extensions scope from the session"
+  );
+  assert.ok(
+    page.includes('writeLocalJson("lp_workspace_tree"'),
+    "the page's workspace writes must use the scoped helper"
+  );
+  const extensions = read("src/app/editor/lib/editor-extensions.ts");
+  assert.ok(
+    extensions.includes("openRepoKey()"),
+    "the open-repo read must use the scoped key"
+  );
+  const panel = read("src/app/editor/components/EditorPanel.tsx");
+  assert.ok(
+    panel.includes("await ensureEditorScope()"),
+    "the viewer must wait for the scope before rehydrating dropped bytes"
+  );
+});
+
+test("per-user editor: the open-repo read is scoped once the page sets the scope", () => {
+  const store = new Map();
+  globalThis.localStorage = {
+    getItem: (k) => (store.has(k) ? store.get(k) : null),
+    setItem: (k, v) => {
+      store.set(k, String(v));
+    },
+    removeItem: (k) => {
+      store.delete(k);
+    },
+  };
+  try {
+    store.set(
+      "lp_open_repo_current",
+      JSON.stringify({ repo: "someone/else", branch: "main" })
+    );
+    // Before the scope is set, the legacy bare key is read (the
+    // viewer only uses it for files carrying a sha).
+    assert.deepEqual(readOpenRepo(), { repo: "someone/else", branch: "main" });
+    // After the page sets the scope, the legacy key is invisible.
+    setEditorScope("bob@example.com");
+    assert.equal(readOpenRepo(), null);
+    store.set(
+      "lp_open_repo_current::bob@example.com",
+      JSON.stringify({ repo: "bob/repo", branch: "main" })
+    );
+    assert.deepEqual(readOpenRepo(), { repo: "bob/repo", branch: "main" });
+  } finally {
+    delete globalThis.localStorage;
   }
 });

@@ -57,6 +57,12 @@ export function getTokenEncryptionSecret(): string | null {
   return key;
 }
 
+/** Last 4 chars of a secret — the masked hint shown in the UI. */
+function last4(secret: string): string {
+  const t = secret.trim();
+  return t.length >= 4 ? t.slice(-4) : t;
+}
+
 export async function saveGithubToken(
   email: string,
   token: string,
@@ -66,21 +72,30 @@ export async function saveGithubToken(
   if (!supabase) return false;
   const key = getTokenEncryptionSecret();
   if (!key) return false;
-  const { error } = await supabase.from("lp_github_tokens").upsert(
-    {
-      // R3-L11: normalised like BYOK — the session email is never
-      // lowercased, so the same account signing in as User@X vs
-      // user@x held two token rows and saw a token under one
-      // sign-in but not the other. Rows keyed by a raw email stay
-      // orphaned; a backfill is a Maalik/DB step, not code.
-      user_email: normalizeEmail(email),
-      token_encrypted: encryptTotpSecret(key, token),
-      expires_at: expiresAt,
-      updated_at: new Date().toISOString(),
-    },
-    { onConflict: "user_email" }
-  );
-  return !error;
+  const row = {
+    // R3-L11: normalised like BYOK — the session email is never
+    // lowercased, so the same account signing in as User@X vs
+    // user@x held two token rows and saw a token under one
+    // sign-in but not the other. Rows keyed by a raw email stay
+    // orphaned; a backfill is a Maalik/DB step, not code.
+    user_email: normalizeEmail(email),
+    token_encrypted: encryptTotpSecret(key, token),
+    expires_at: expiresAt,
+    updated_at: new Date().toISOString(),
+  };
+  // The masked hint rides along when migration 013 has run. Before
+  // that the column does not exist, so a save must not fail for it:
+  // retry once without the hint and the token still saves (the hint
+  // is only display, never needed to use the token).
+  const { error } = await supabase
+    .from("lp_github_tokens")
+    .upsert({ ...row, key_hint: last4(token) }, { onConflict: "user_email" });
+  if (!error) return true;
+  if (!/key_hint/.test(error.message ?? "")) return false;
+  const retry = await supabase
+    .from("lp_github_tokens")
+    .upsert(row, { onConflict: "user_email" });
+  return !retry.error;
 }
 
 export async function getGithubToken(email: string): Promise<string | null> {
@@ -113,6 +128,20 @@ export async function getGithubTokenExpiresAt(
     .maybeSingle();
   if (error || !data) return null;
   return (data.expires_at as string | null) ?? null;
+}
+
+/** Last 4 chars of the stored token (migration 013) — shown as ••••1234, never the token. Null before 013 runs. */
+export async function getGithubTokenHint(email: string): Promise<string | null> {
+  const supabase = getSupabaseAdmin();
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from("lp_github_tokens")
+    .select("key_hint")
+    .eq("user_email", normalizeEmail(email))
+    .maybeSingle();
+  if (error || !data) return null;
+  const hint = (data as { key_hint?: unknown }).key_hint;
+  return typeof hint === "string" && hint.length > 0 ? hint : null;
 }
 
 /**

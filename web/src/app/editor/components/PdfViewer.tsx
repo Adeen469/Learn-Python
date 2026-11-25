@@ -61,8 +61,19 @@ const ZOOM_MAX = 4;
 async function loadPdfjs() {
   const pdfjs = await import("pdfjs-dist");
   if (!pdfjs.GlobalWorkerOptions.workerSrc) {
-    const worker = await import("pdfjs-dist/build/pdf.worker.min.mjs?url");
-    pdfjs.GlobalWorkerOptions.workerSrc = worker.default;
+    // The worker MUST be a real asset URL: the `?url` dynamic
+    // import bundled the worker as a JS chunk instead, so
+    // `worker.default` was undefined and the workerSrc setter
+    // threw ("Invalid `workerSrc` type.") — every PDF failed to
+    // load with a silent "Could not preview this file." The
+    // `new URL(..., import.meta.url)` pattern is the documented
+    // webpack way: the worker file is emitted as a static asset
+    // and this becomes its same-origin public URL (CSP
+    // `worker-src 'self'` covers it, no CDN, no public/ copy).
+    pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+      "pdfjs-dist/build/pdf.worker.min.mjs",
+      import.meta.url
+    ).toString();
   }
   return pdfjs;
 }
@@ -113,6 +124,7 @@ function PdfPage({
   onTextContent,
   onViewport,
   registerEl,
+  onPageRendered,
 }: {
   doc: PDFDocumentProxy;
   pageNum: number;
@@ -131,6 +143,11 @@ function PdfPage({
   onTextContent: (pageNum: number, text: string) => void;
   onViewport: (pageNum: number, viewport: PageViewport) => void;
   registerEl: (pageNum: number, el: HTMLDivElement | null) => void;
+  // Fired once this page's canvas has actually painted — the
+  // viewer keeps its loader up until the first page renders, so
+  // the pane never flashes blank between "document loaded" and
+  // "content on screen".
+  onPageRendered?: (pageNum: number) => void;
 }) {
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -145,7 +162,7 @@ function PdfPage({
   // Render canvas + text layer. A new render cancels the old one.
   useEffect(() => {
     let cancelled = false;
-    let renderTask: { cancel: () => void } | null = null;
+    let renderTask: { cancel: () => void; promise: Promise<void> } | null = null;
     let textLayer: PdfTextLayer | null = null;
     void (async () => {
       try {
@@ -172,6 +189,13 @@ function PdfPage({
           viewport: vp,
           transform: outputScale === 1 ? undefined : [outputScale, 0, 0, outputScale, 0, 0],
         });
+        void renderTask.promise
+          .then(() => {
+            if (!cancelled) onPageRendered?.(pageNum);
+          })
+          .catch(() => {
+            // Cancelled renders throw — nothing to report.
+          });
         const textContent = await page.getTextContent();
         if (cancelled) return;
         onTextContent(pageNum, pageText(textContent.items as Array<{ str?: string; hasEOL?: boolean }>));
@@ -381,6 +405,10 @@ export function PdfViewer({ t, fileName, source, loadErrorText, onAskAi }: PdfVi
   const [doc, setDoc] = useState<PDFDocumentProxy | null>(null);
   const [numPages, setNumPages] = useState(0);
   const [loadError, setLoadError] = useState(false);
+  // True once the first page's canvas has actually painted — the
+  // loader stays up until content is on screen, never just until
+  // the document object exists.
+  const [renderedOnce, setRenderedOnce] = useState(false);
   const [fileSize, setFileSize] = useState(0);
   const [docTitle, setDocTitle] = useState<string | null>(null);
   const [page, setPage] = useState(1);
@@ -419,6 +447,7 @@ export function PdfViewer({ t, fileName, source, loadErrorText, onAskAi }: PdfVi
     setDoc(null);
     setNumPages(0);
     setLoadError(false);
+    setRenderedOnce(false);
     setPage(1);
     setFitMode("page");
     setHighlights({});
@@ -1063,7 +1092,7 @@ export function PdfViewer({ t, fileName, source, loadErrorText, onAskAi }: PdfVi
             )}
           </div>
         )}
-        <div ref={scrollRef} onScroll={onScroll} className="min-h-0 flex-1 overflow-auto">
+        <div ref={scrollRef} onScroll={onScroll} className="relative min-h-0 flex-1 overflow-auto">
           {viewMode === "single" ? (
             <div className="flex min-h-full w-full justify-center p-4">
               <div className="m-auto">
@@ -1111,6 +1140,7 @@ export function PdfViewer({ t, fileName, source, loadErrorText, onAskAi }: PdfVi
                     if (el) pageElsRef.current.set(n, el);
                     else pageElsRef.current.delete(n);
                   }}
+                  onPageRendered={() => setRenderedOnce(true)}
                 />
               </div>
             </div>
@@ -1162,8 +1192,18 @@ export function PdfViewer({ t, fileName, source, loadErrorText, onAskAi }: PdfVi
                     if (el) pageElsRef.current.set(pn, el);
                     else pageElsRef.current.delete(pn);
                   }}
+                  onPageRendered={() => setRenderedOnce(true)}
                 />
               ))}
+            </div>
+          )}
+          {/* Loading: the tetromino loader stays over the pages until
+              the first page's canvas has actually painted — no blank
+              pane, no premature error. It never comes back for a
+              zoom/rotate re-render (renderedOnce stays true). */}
+          {!renderedOnce && (
+            <div className="absolute inset-0 z-20 flex items-center justify-center bg-neutral-950">
+              <TetrominoLoader />
             </div>
           )}
         </div>

@@ -15,7 +15,16 @@ import {
   isOpenRouterFreeModelId,
 } from "@/lib/ai";
 import type { Strings } from "@/lib/i18n";
-import { newId, readLocalJson } from "@/app/editor/lib/editor-utils";
+import {
+  newId,
+  readLocalJson,
+  readScopedRaw,
+  removeLocalKey,
+  scopedStorageKey,
+  writeLocalJson,
+  writeScopedRaw,
+} from "@/app/editor/lib/editor-utils";
+import { ensureEditorScope } from "@/app/editor/lib/editor-storage";
 import type {
   AiChat,
   AiChatMessage,
@@ -26,6 +35,23 @@ import type {
 
 export type CustomAiSkill = { id: string; name: string; description: string; content: string };
 export type AiByokProvider = "gemini" | "groq" | "anthropic" | "openai" | "openrouter" | "custom";
+
+// All BYOK providers, in the order the add-form offers them.
+// availableByokProviders (below) filters this to the providers
+// without a saved key — one key per provider (Maalik 2026-11-25).
+export const ALL_BYOK_PROVIDERS: AiByokProvider[] = [
+  "gemini",
+  "groq",
+  "anthropic",
+  "openai",
+  "openrouter",
+  "custom",
+];
+
+// Max BYOK keys per user (Maalik 2026-11-25). The server enforces
+// this in src/lib/byok-store.ts (MAX_BYOK_KEYS_PER_USER); this
+// client copy only drives the "X of 10" count — keep both at 10.
+export const MAX_BYOK_KEYS_PER_USER_CLIENT = 10;
 // BYOK reference the editor sends: provider (+ base URL/model
 // for custom) only — NEVER a key. The key lives server-side
 // (lp_byok_keys, migration 009) and /api/ai loads it by
@@ -36,8 +62,9 @@ export type AiByok = { provider: AiByokProvider; key?: string; baseUrl?: string;
 // optional on the type only so a pre-migration localStorage entry
 // still parses and can be migrated on load (see the migration
 // effect below); it is stripped from state once the server save
-// succeeds and never sent in a request.
-export type AiByokEntry = AiByok & { id: string; enabled: boolean };
+// succeeds and never sent in a request. `keyHint` is the last 4
+// chars of the saved key (migration 013), shown as ••••1234.
+export type AiByokEntry = AiByok & { id: string; enabled: boolean; keyHint?: string };
 export type AiByokStore = { enabled: boolean; entries: AiByokEntry[] };
 
 export type EditorAi = ReturnType<typeof useEditorAi>;
@@ -68,6 +95,11 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
   const [aiThinking, setAiThinking] = useState(false);
   const [aiThoughtSeconds, setAiThoughtSeconds] = useState<number | null>(null);
   const [aiError, setAiError] = useState<string | null>(null);
+  // Per-user restore (Fix C) has run: the state below was re-read
+  // from the signed-in user's scope. The BYOK server migration
+  // waits for this, so it reads the user's own store — not the
+  // empty guest one the initializers saw.
+  const [aiScopeReady, setAiScopeReady] = useState(false);
   const aiAbortRef = useRef<AbortController | null>(null);
   // Ask AI (PDF viewer): the CURRENT document's text is the
   // reference for the user's next question — the AI answers what
@@ -147,24 +179,27 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
   // tab created (keep) from one another tab deleted (drop).
   const byokVersionRef = useRef(0);
   const byokKnownIdsRef = useRef<Set<string>>(new Set());
-  /** The same entry without its key (metadata only). */
+  /** The same entry without its key (metadata only). The masked
+      hint survives the strip — it is display-only, never a key. */
   function stripByokKey(e: AiByokEntry): AiByokEntry {
     return {
       id: e.id,
       provider: e.provider,
       ...(e.baseUrl ? { baseUrl: e.baseUrl } : {}),
       ...(e.model ? { model: e.model } : {}),
+      ...(e.keyHint ? { keyHint: e.keyHint } : {}),
+      ...(typeof e.key === "string" && e.key.length >= 4
+        ? { keyHint: e.key.slice(-4) }
+        : {}),
       enabled: e.enabled,
     };
   }
   /** Persist the BYOK store with a fresh version stamp. */
   function writeByokStoreLocal(store: AiByokStore): void {
     const v = Date.now();
-    try {
-      localStorage.setItem("lp_ai_byok", JSON.stringify({ ...store, v }));
-    } catch {
-      // Storage unavailable — the state still holds the keys.
-    }
+    // Per-user (Fix C): the store persists under the signed-in
+    // user's scope.
+    writeScopedRaw("lp_ai_byok", JSON.stringify({ ...store, v }));
     byokVersionRef.current = v;
     byokKnownIdsRef.current = new Set(store.entries.map((e) => e.id));
   }
@@ -188,8 +223,73 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
   // never loses a key. The server list is also merged in, so keys
   // saved on another device show up here as providers (keys
   // themselves never come back down).
+  //
+  // fetchServerByokKeys is the shared list-merge: the mount sync
+  // below runs it once, and opening the BYOK settings page runs it
+  // again, so a key saved on another device while this tab was
+  // open shows up without a reload. Merging is by provider: new
+  // providers are added (enabled), and a provider already listed
+  // gains the server's masked hint when it lacks one.
+  async function fetchServerByokKeys(): Promise<void> {
+    try {
+      const res = await fetch("/api/byok/list", { credentials: "same-origin" });
+      const data: unknown = await res.json().catch(() => null);
+      const keys = (
+        data as {
+          keys?: Array<{
+            provider?: unknown;
+            baseUrl?: unknown;
+            model?: unknown;
+            keyHint?: unknown;
+          }>;
+        } | null
+      )?.keys;
+      if (!res.ok || !Array.isArray(keys)) return;
+      setByokStore((prev) => {
+        const serverByProvider = new Map(
+          keys
+            .filter((k) => typeof k.provider === "string")
+            .map((k) => [k.provider as AiByokProvider, k])
+        );
+        let hintChanged = false;
+        const entries = prev.entries.map((e) => {
+          const s = serverByProvider.get(e.provider);
+          if (s && typeof s.keyHint === "string" && s.keyHint && !e.keyHint) {
+            hintChanged = true;
+            return { ...e, keyHint: s.keyHint as string };
+          }
+          return e;
+        });
+        const have = new Set(prev.entries.map((e) => e.provider));
+        const extra = keys
+          .filter((k) => typeof k.provider === "string" && !have.has(k.provider as AiByokProvider))
+          .map((k) => ({
+            id: newId(),
+            provider: k.provider as AiByokProvider,
+            ...(typeof k.baseUrl === "string" && k.baseUrl
+              ? { baseUrl: k.baseUrl as string }
+              : {}),
+            ...(typeof k.model === "string" && k.model ? { model: k.model as string } : {}),
+            ...(typeof k.keyHint === "string" && k.keyHint
+              ? { keyHint: k.keyHint as string }
+              : {}),
+            enabled: true,
+          }));
+        if (extra.length > 0) {
+          return { ...prev, enabled: true, entries: [...entries, ...extra] };
+        }
+        return hintChanged ? { ...prev, entries } : prev;
+      });
+    } catch {
+      // Offline or not signed in — the local providers still work.
+    }
+  }
   const byokSyncRef = useRef(false);
+  // Runs only after the per-user restore below (aiScopeReady): the
+  // migration must read the signed-in user's own BYOK store, not
+  // the empty guest one the initializers saw.
   useEffect(() => {
+    if (!aiScopeReady) return;
     if (byokSyncRef.current) return;
     byokSyncRef.current = true;
     void (async () => {
@@ -210,7 +310,13 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
               ...(typeof e.model === "string" ? { model: e.model } : {}),
             }),
           }).catch(() => null);
-          if (res?.ok) {
+          // 409 counts as migrated too: it means the server already
+          // holds a key for this provider (a duplicate legacy
+          // entry — one key per provider) or the 10-key cap was
+          // hit. Either way the local duplicate must be dropped,
+          // not retried on every load forever; the server's key
+          // stays authoritative for that provider.
+          if (res?.ok || res?.status === 409) {
             savedIds.push(e.id);
             // Drop just this key from the local copy right away —
             // the tab could close before the loop finishes.
@@ -242,36 +348,21 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
         // server-side anymore, so an unsaved key simply cannot pay
         // for AI calls until the server store is ready.)
       }
-      try {
-        const res = await fetch("/api/byok/list", { credentials: "same-origin" });
-        const data: unknown = await res.json().catch(() => null);
-        const keys = (
-          data as { keys?: Array<{ provider?: unknown; baseUrl?: unknown; model?: unknown }> } | null
-        )?.keys;
-        if (res.ok && Array.isArray(keys)) {
-          setByokStore((prev) => {
-            const have = new Set(prev.entries.map((e) => e.provider));
-            const extra = keys
-              .filter((k) => typeof k.provider === "string" && !have.has(k.provider as AiByokProvider))
-              .map((k) => ({
-                id: newId(),
-                provider: k.provider as AiByokProvider,
-                ...(typeof k.baseUrl === "string" && k.baseUrl
-                  ? { baseUrl: k.baseUrl as string }
-                  : {}),
-                ...(typeof k.model === "string" && k.model ? { model: k.model as string } : {}),
-                enabled: true,
-              }));
-            return extra.length > 0
-              ? { ...prev, enabled: true, entries: [...prev.entries, ...extra] }
-              : prev;
-          });
-        }
-      } catch {
-        // Offline or not signed in — the local providers still work.
-      }
+      // Merge the server list (keys saved on another device show
+      // up here as providers; keys themselves never come back down).
+      await fetchServerByokKeys();
     })();
-  }, []);
+  }, [aiScopeReady]);
+  // Re-sync the server key list whenever the BYOK settings page
+  // opens: a key saved on another device while this tab was open
+  // must show up without a reload (the mount sync above runs once).
+  const prevSettingsSectionRef = useRef(settingsSection);
+  useEffect(() => {
+    if (prevSettingsSectionRef.current !== "byok" && settingsSection === "byok") {
+      void fetchServerByokKeys();
+    }
+    prevSettingsSectionRef.current = settingsSection;
+  }, [settingsSection]);
   // Models the selector shows by default (no BYOK): two free models
   // per provider — one best (result first, tokens don't matter) and
   // one efficient (fewest tokens). Gemini best is the 3.1 Pro
@@ -313,6 +404,32 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
     return out;
   }
   const [addedModels, setAddedModels] = useState<PromptBarModel[]>(readAddedModels);
+  // Per-user restore (Fix C): the initializers above ran before the
+  // storage scope resolved (guest scope → fallbacks), so re-read
+  // every AI state from the signed-in user's scope once it resolves.
+  // Until this runs the panel shows empty state — the page renders
+  // nothing before its auth gate resolves anyway, so nothing wrong
+  // ever paints. Sets aiScopeReady so the BYOK server migration
+  // above runs against the user's own store.
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      await ensureEditorScope();
+      if (cancelled) return;
+      setAiMessages(readStoredAiMessages());
+      setAiChats(readLocalJson<AiChat[]>("lp_ai_chats", []));
+      setCustomSkills(readLocalJson<CustomAiSkill[]>("lp_ai_custom_skills", []));
+      setActiveSkillIds(readLocalJson<string[]>("lp_ai_active_skills", ["ponytail"]));
+      setByokStore(readByokStore());
+      setSelectorModels(readLocalJson<string[]>("lp_ai_selector_models", DEFAULT_SELECTOR_MODELS));
+      setAddedModels(readAddedModels());
+      setAiScopeReady(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   // Add-skill + BYOK form fields (settings view).
   const [newSkillName, setNewSkillName] = useState("");
   const [newSkillDesc, setNewSkillDesc] = useState("");
@@ -323,38 +440,64 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
   const [byokKey, setByokKey] = useState("");
   const [byokBaseUrl, setByokBaseUrl] = useState("");
   const [byokModel, setByokModel] = useState("");
-
-  // Persist AI panel state to this browser only (never the server).
+  // Last BYOK save/remove failure, shown under the Save button —
+  // a failed save used to fail silently (the typed key just stayed
+  // in the field), so the user could believe a key was saved when
+  // it was not (not signed in, BYOK not set up yet). The text is
+  // the server's error string, like aiError.
+  const [byokError, setByokError] = useState<string | null>(null);
+  // Replace target: the provider whose saved key the form is about
+  // to replace. One key per provider (Maalik 2026-11-25) — the
+  // add-form only offers providers without a key, so the only way
+  // to save a key for a taken provider is Replace on its row,
+  // which sends replace: true and overwrites that provider's key
+  // instead of adding a second entry. Null = adding a new key.
+  const [byokReplaceTarget, setByokReplaceTarget] =
+    useState<AiByokProvider | null>(null);
+  // Providers the add-form may offer: those without a saved entry.
+  const availableByokProviders = ALL_BYOK_PROVIDERS.filter(
+    (p) => !byokStore.entries.some((e) => e.provider === p)
+  );
+  // If the form's provider gains a saved key (saved here, on
+  // another device, or merged in), move the form to the first free
+  // provider — the select only lists free providers, so a taken
+  // value would render blank. Skipped while replacing: the form
+  // is locked to the provider being replaced.
   useEffect(() => {
-    try {
-      localStorage.setItem("lp_ai_current_chat", JSON.stringify(aiMessages));
-    } catch {
-      // Storage full — skip, the chat still works in memory.
+    if (byokReplaceTarget) return;
+    if (byokStore.entries.some((e) => e.provider === byokProvider)) {
+      const free = ALL_BYOK_PROVIDERS.find(
+        (p) => !byokStore.entries.some((e) => e.provider === p)
+      );
+      if (free) setByokProvider(free);
     }
+  }, [byokStore.entries, byokReplaceTarget, byokProvider]);
+  function startByokReplace(provider: AiByokProvider) {
+    setByokError(null);
+    setByokKey("");
+    setByokProvider(provider);
+    setByokReplaceTarget(provider);
+  }
+  function cancelByokReplace() {
+    setByokReplaceTarget(null);
+  }
+
+  // Persist AI panel state to this browser only (never the server),
+  // under the signed-in user's scope (Fix C).
+  useEffect(() => {
+    writeLocalJson("lp_ai_current_chat", aiMessages);
   }, [aiMessages]);
   useEffect(() => {
-    try {
-      // R2-L18: cap retained chats at the last 20 — full AI
-      // conversations sit in plaintext localStorage, so the pile
-      // must not grow without bound.
-      localStorage.setItem("lp_ai_chats", JSON.stringify(aiChats.slice(-20)));
-    } catch {
-      // Storage full — skip.
-    }
+    // R2-L18: cap retained chats at the last 20 — full AI
+    // conversations sit in plaintext localStorage, so the pile
+    // must not grow without bound.
+    writeLocalJson("lp_ai_chats", aiChats.slice(-20));
   }, [aiChats]);
   useEffect(() => {
-    try {
-      localStorage.setItem("lp_ai_custom_skills", JSON.stringify(customSkills));
-    } catch {
-      // Storage full — skip.
-    }
+    writeLocalJson("lp_ai_custom_skills", customSkills);
   }, [customSkills]);
   useEffect(() => {
-    try {
-      localStorage.setItem("lp_ai_active_skills", JSON.stringify(activeSkillIds));
-    } catch {
-      // Storage full — skip.
-    }
+    writeLocalJson("lp_ai_active_skills", activeSkillIds);
   }, [activeSkillIds]);
   // R2-L19: never blindly overwrite the stored BYOK copy — another
   // tab may have deleted keys after this tab loaded. If the stored
@@ -365,7 +508,7 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
   // last saw it, adopt the wipe the same way.
   useEffect(() => {
     try {
-      const raw = localStorage.getItem("lp_ai_byok");
+      const raw = readScopedRaw("lp_ai_byok");
       if (!raw && (byokVersionRef.current > 0 || byokKnownIdsRef.current.size > 0)) {
         byokVersionRef.current = Date.now();
         byokKnownIdsRef.current = new Set();
@@ -421,8 +564,19 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
       if (byokStore.entries.length > 0 || byokStore.enabled) {
         writeByokStoreLocal(byokStore);
       } else {
-        localStorage.removeItem("lp_ai_byok");
-        byokVersionRef.current = Date.now();
+        removeLocalKey("lp_ai_byok");
+        // Reset the version to 0, NOT Date.now(): this tab has no
+        // store at all — it never saw one, or it just adopted a
+        // wipe. Stamping a fresh timestamp here made the tab look
+        // like one that HAD a store and lost it, so the wipe
+        // branch above deleted the next entries that appeared
+        // while localStorage was still empty — the first save on
+        // a fresh profile, or a server-list merge on a fresh
+        // device — as a phantom "another tab deleted it". Version
+        // 0 means "nothing seen": any real stored version still
+        // wins the compare above, and a genuine wipe is still
+        // adopted via the known-ids half of the wipe branch.
+        byokVersionRef.current = 0;
         byokKnownIdsRef.current = new Set();
       }
     } catch {
@@ -434,7 +588,8 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
   // other tab deleted.
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
-      if (e.key !== "lp_ai_byok") return;
+      // Per-user (Fix C): the event key is the scoped key.
+      if (e.key !== scopedStorageKey("lp_ai_byok")) return;
       try {
         const parsed: unknown = e.newValue ? JSON.parse(e.newValue) : null;
         const v =
@@ -463,18 +618,10 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
     return () => window.removeEventListener("storage", onStorage);
   }, []);
   useEffect(() => {
-    try {
-      localStorage.setItem("lp_ai_selector_models", JSON.stringify(selectorModels));
-    } catch {
-      // Storage full — skip.
-    }
+    writeLocalJson("lp_ai_selector_models", selectorModels);
   }, [selectorModels]);
   useEffect(() => {
-    try {
-      localStorage.setItem("lp_ai_added_models", JSON.stringify(addedModels));
-    } catch {
-      // Storage full — skip.
-    }
+    writeLocalJson("lp_ai_added_models", addedModels);
   }, [addedModels]);
 
   // Chat history: the current chat is saved into the list (title =
@@ -539,15 +686,64 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
 
   // BYOK: keys live on the SERVER now (encrypted, migration 009).
   // Saving POSTs the key once to /api/byok/save; this browser keeps
-  // only the provider (+ base URL/model for custom), so the key is
-  // never in localStorage again. A key is used only when the master
-  // switch is on AND that provider is enabled — otherwise the
-  // request runs on the server keys alone. If the server save fails
-  // (BYOK not set up yet, or not signed in), nothing is stored and
-  // the typed key stays in the field for a retry.
+  // only the provider (+ base URL/model for custom) and the masked
+  // hint (last 4 chars), so the key is never in localStorage again.
+  // A key is used only when the master switch is on AND that
+  // provider is enabled — otherwise the request runs on the server
+  // keys alone. If the server save fails (BYOK not set up yet, or
+  // not signed in), nothing is stored, the typed key stays in the
+  // field for a retry, and the server's error is shown — a failed
+  // save must never look like a saved key. One key per provider:
+  // the form only offers free providers, and a save for a taken
+  // provider goes through as a replace (replace: true) — the
+  // server rejects a non-replace duplicate with 409.
   async function saveByokEntry() {
     const key = byokKey.trim();
     if (key.length < 10) return;
+    setByokError(null);
+    const replacing = byokReplaceTarget === byokProvider;
+    const saveError = async (res: Response | null): Promise<string> => {
+      if (!res) return "Could not reach the server — check your connection and try again.";
+      const data: unknown = await res.json().catch(() => null);
+      const msg =
+        data && typeof data === "object" && typeof (data as { error?: unknown }).error === "string"
+          ? (data as { error: string }).error
+          : null;
+      return msg ?? "Could not save the key — please try again.";
+    };
+    // Store the saved entry locally (provider + hint only, never
+    // the key): a replace overwrites the existing row for that
+    // provider in place, an add appends a new row.
+    const storeSavedEntry = (baseUrl?: string, model?: string) => {
+      setByokStore((prev) => {
+        const idx = prev.entries.findIndex((e) => e.provider === byokProvider);
+        if (replacing && idx >= 0) {
+          const next = [...prev.entries];
+          next[idx] = {
+            ...next[idx],
+            ...(baseUrl !== undefined ? { baseUrl } : {}),
+            ...(model !== undefined ? { model } : {}),
+            keyHint: key.slice(-4),
+            enabled: true,
+          };
+          return { ...prev, entries: next };
+        }
+        return {
+          ...prev,
+          entries: [
+            ...prev.entries,
+            {
+              id: newId(),
+              provider: byokProvider,
+              ...(baseUrl !== undefined ? { baseUrl } : {}),
+              ...(model !== undefined ? { model } : {}),
+              keyHint: key.slice(-4),
+              enabled: true,
+            },
+          ],
+        };
+      });
+    };
     if (byokProvider === "custom") {
       const baseUrl = byokBaseUrl.trim();
       const model = byokModel.trim();
@@ -556,26 +752,27 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
         method: "POST",
         credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ provider: byokProvider, key, baseUrl, model }),
+        body: JSON.stringify({ provider: byokProvider, key, baseUrl, model, replace: replacing }),
       }).catch(() => null);
-      if (!res || !res.ok) return;
-      setByokStore((prev) => ({
-        ...prev,
-        entries: [...prev.entries, { id: newId(), provider: byokProvider, baseUrl, model, enabled: true }],
-      }));
+      if (!res || !res.ok) {
+        setByokError(await saveError(res));
+        return;
+      }
+      storeSavedEntry(baseUrl, model);
     } else {
       const res = await fetch("/api/byok/save", {
         method: "POST",
         credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ provider: byokProvider, key }),
+        body: JSON.stringify({ provider: byokProvider, key, replace: replacing }),
       }).catch(() => null);
-      if (!res || !res.ok) return;
-      setByokStore((prev) => ({
-        ...prev,
-        entries: [...prev.entries, { id: newId(), provider: byokProvider, enabled: true }],
-      }));
+      if (!res || !res.ok) {
+        setByokError(await saveError(res));
+        return;
+      }
+      storeSavedEntry();
     }
+    setByokReplaceTarget(null);
     setByokKey("");
     setByokBaseUrl("");
     setByokModel("");
@@ -586,18 +783,33 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
       entries: prev.entries.map((e) => (e.id === id ? { ...e, enabled: !e.enabled } : e)),
     }));
   }
-  function removeByokEntry(id: string) {
+  async function removeByokEntry(id: string) {
     const entry = byokStore.entries.find((e) => e.id === id);
-    if (entry) {
-      // Delete the server-held key too — removing the local entry
-      // alone would leave the key usable. Best-effort: the local
-      // entry is gone either way.
-      void fetch(`/api/byok/delete?provider=${encodeURIComponent(entry.provider)}`, {
-        method: "DELETE",
-        credentials: "same-origin",
-      }).catch(() => {});
+    if (!entry) return;
+    // Delete the server-held key too — removing the local entry
+    // alone would leave the key usable. The delete is awaited and
+    // the local entry is removed only when the server confirms it:
+    // a failed delete keeps the entry (and shows the error) instead
+    // of telling the user a possibly-compromised key is gone while
+    // it is still stored and usable by /api/ai.
+    setByokError(null);
+    const res = await fetch(`/api/byok/delete?provider=${encodeURIComponent(entry.provider)}`, {
+      method: "DELETE",
+      credentials: "same-origin",
+    }).catch(() => null);
+    if (!res || !res.ok) {
+      const data: unknown = res ? await res.json().catch(() => null) : null;
+      const msg =
+        data && typeof data === "object" && typeof (data as { error?: unknown }).error === "string"
+          ? (data as { error: string }).error
+          : null;
+      setByokError(msg ?? "Could not delete the key — please try again.");
+      return;
     }
     setByokStore((prev) => ({ ...prev, entries: prev.entries.filter((e) => e.id !== id) }));
+    // The removed row may have been the replace target — a
+    // replace of a deleted key would be a plain add instead.
+    if (byokReplaceTarget === entry.provider) setByokReplaceTarget(null);
   }
   function setByokMaster(on: boolean) {
     setByokStore((prev) => ({ ...prev, enabled: on }));
@@ -890,7 +1102,17 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
         return;
       }
       if (!res.ok || typeof data !== "object" || data === null) {
-        setAiError(t.common.genericError);
+        // Show the server's own reason when it has one — a 400 like
+        // "No saved key for this provider — add one in AI Settings
+        // > BYOK" (OpenRouter model picked, no key saved) or a 429
+        // rate limit is actionable, and the old code hid every one
+        // of them behind "Something went wrong", so the user could
+        // never tell a missing key from a broken call.
+        const serverError =
+          typeof data === "object" && data !== null && typeof (data as { error?: unknown }).error === "string"
+            ? (data as { error: string }).error
+            : null;
+        setAiError(serverError ?? t.common.genericError);
         return;
       }
       const reply = (data as { reply?: unknown }).reply;
@@ -933,6 +1155,9 @@ export function useEditorAi({ t, activeFile }: { t: Strings; activeFile: Workspa
     newSkillContent, setNewSkillContent,
     byokProvider, setByokProvider, byokKey, setByokKey,
     byokBaseUrl, setByokBaseUrl, byokModel, setByokModel,
+    byokError, setByokError,
+    byokReplaceTarget, startByokReplace, cancelByokReplace,
+    availableByokProviders, MAX_BYOK_KEYS_PER_USER_CLIENT,
     saveCurrentChatToHistory, startNewChat, loadAiChat, deleteAiChat,
     toggleSkill, addCustomSkill, deleteCustomSkill,
     saveByokEntry, toggleByokEntry, removeByokEntry, setByokMaster,

@@ -46,7 +46,9 @@ import {
   DEFAULT_WORKSPACE,
   newId,
   readLocalJson,
+  writeLocalJson,
 } from "@/app/editor/lib/editor-utils";
+import { setEditorScope } from "@/app/editor/lib/editor-extensions";
 import { usePyodideEngine } from "@/app/editor/hooks/usePyodideEngine";
 import { useEditorAi } from "@/app/editor/hooks/useEditorAi";
 import { useWorkspaceRepo } from "@/app/editor/hooks/useWorkspaceRepo";
@@ -59,6 +61,7 @@ import { AiPanel } from "@/app/editor/components/AiPanel";
 import { ExplorerPanel } from "@/app/editor/components/ExplorerPanel";
 import { PushDialog } from "@/app/editor/components/PushDialog";
 import { extensionForFile } from "@/app/editor/lib/editor-extensions";
+import { deleteDroppedFile, saveDroppedFile } from "@/app/editor/lib/dropped-files";
 
 declare global {
   interface Window {
@@ -99,6 +102,11 @@ export default function CodeEditorPage() {
         router.replace("/");
         return;
       }
+      // Per-user (Fix C): the open-repo read in the viewer uses
+      // this scope. The workspace/AI restore effects resolve the
+      // same user via ensureEditorScope (same cached /api/auth/me
+      // call), so the two scopes always agree.
+      setEditorScope(user.email);
       setEnteredChecked(true);
     });
     return () => {
@@ -774,6 +782,15 @@ export default function CodeEditorPage() {
       return;
     }
     persistWorkspace(remaining);
+    // A dropped file's bytes live in IndexedDB (they survive a
+    // refresh) — deleting the file must drop them too, or the
+    // bytes linger forever under a path that no longer exists.
+    // (No-op for repo/text files, which were never saved there.)
+    // A folder delete takes its children with it, so clear those
+    // too.
+    for (const it of items) {
+      if (it.path === path || it.path.startsWith(path + "/")) void deleteDroppedFile(it.path);
+    }
     if (activeFilePath === path || activeFilePath.startsWith(path + "/")) {
       const first = remaining.find((it) => it.type === "file");
       if (first) setActiveFilePath(first.path);
@@ -929,7 +946,7 @@ export default function CodeEditorPage() {
     setActiveFilePath(normalized);
     setNewFileInput("");
     setShowNewFile(false);
-    localStorage.setItem("lp_workspace_tree", JSON.stringify(next));
+    writeLocalJson("lp_workspace_tree", next);
   }
 
   function handleAddFolder(e: React.FormEvent) {
@@ -951,7 +968,7 @@ export default function CodeEditorPage() {
     setExpandedFolders((prev) => ({ ...prev, [clean]: true }));
     setNewFolderInput("");
     setShowNewFolder(false);
-    localStorage.setItem("lp_workspace_tree", JSON.stringify(next));
+    writeLocalJson("lp_workspace_tree", next);
   }
 
   // --- Drag and Drop: Internal moving between folders ---
@@ -1010,7 +1027,7 @@ export default function CodeEditorPage() {
     if (targetFolderPath !== "root") {
       setExpandedFolders((p) => ({ ...p, [targetFolderPath]: true }));
     }
-    localStorage.setItem("lp_workspace_tree", JSON.stringify(updated));
+    writeLocalJson("lp_workspace_tree", updated);
     setDraggedItemPath(null);
     setOutput((prev) => prev + `[Moved '${sourceItem.name}' to ${targetFolderPath === "root" ? "root" : targetFolderPath}]\n`);
   }
@@ -1121,11 +1138,15 @@ export default function CodeEditorPage() {
         // viewer instead, with empty text content. A binary drop is
         // NOT marked repo-changed: the push path sends text content,
         // so it could only ever commit an empty file.
-        const blobUrl = URL.createObjectURL(
-          new Blob([await file.arrayBuffer()], {
-            type: file.type || "application/octet-stream",
-          })
-        );
+        const blob = new Blob([await file.arrayBuffer()], {
+          type: file.type || "application/octet-stream",
+        });
+        const blobUrl = URL.createObjectURL(blob);
+        // Persist the bytes (IndexedDB): a blob: URL dies on reload
+        // and the restore strips it, so without this the file opens
+        // blank in Monaco after a refresh. Fire-and-forget — the
+        // in-session blob URL works either way.
+        void saveDroppedFile(fileName, blob);
         newItems.push({
           id: "f-drop-" + Date.now() + "-" + i,
           name: fileName,
@@ -1155,7 +1176,7 @@ export default function CodeEditorPage() {
         if (!it.blobUrl) markRepoChanged(it.path);
       });
       setActiveFilePath(newItems[0].path);
-      localStorage.setItem("lp_workspace_tree", JSON.stringify(merged));
+      writeLocalJson("lp_workspace_tree", merged);
       setOutput((prev) => prev + `[Imported ${newItems.length} file(s) via drag & drop]\n`);
     }
   }

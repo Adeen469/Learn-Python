@@ -3,7 +3,8 @@
 // save functions. Moved verbatim from web/src/app/editor/page.tsx
 // (F1 split) — no behaviour change.
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
-import { buildRepoWorkspaceTree, DEFAULT_WORKSPACE } from "@/app/editor/lib/editor-utils";
+import { buildRepoWorkspaceTree, DEFAULT_WORKSPACE, readScopedRaw, removeScopedRaw, writeLocalJson } from "@/app/editor/lib/editor-utils";
+import { ensureEditorScope } from "@/app/editor/lib/editor-storage";
 import { readInstalledExtensions, stripTransientBlobUrls, viewerKindForFile } from "@/app/editor/lib/editor-extensions";
 import type { WorkspaceItem } from "@/app/editor/lib/editor-types";
 import type { usePyodideEngine } from "@/app/editor/hooks/usePyodideEngine";
@@ -96,13 +97,9 @@ export function useWorkspaceRepo(args: {
       setItems(repoItems);
       clearRepoChanged();
       repoTreePathsRef.current = new Set(data.files.map((f: { path: string }) => f.path));
-      try {
-        localStorage.setItem(
-          "lp_open_repo_current",
-          JSON.stringify({ repo: data.repo, branch: data.branch })
-        );
-      } catch {}
-      setOpenRepoState({ repo: data.repo, branch: data.branch });
+      // Per-user (Fix C): the open repo lives under the signed-in
+      // user's scope, never the shared bare key.
+      writeLocalJson("lp_open_repo_current", { repo: data.repo, branch: data.branch });
       setRepoLoadedToast({ repo: data.repo, count: data.files.length });
       const firstFile = repoItems.find((p: WorkspaceItem) => p.type === "file");
       if (firstFile) setActiveFilePath(firstFile.path);
@@ -119,92 +116,108 @@ export function useWorkspaceRepo(args: {
   // block stores its snippet in sessionStorage (lp_try_it_code) and
   // links here — open it as try-it.py so the user's workspace files
   // are untouched and the snippet is the active file.
+  //
+  // Per-user (Fix C): the scope resolves from the session first —
+  // the workspace tree, open repo, and backup are all read from the
+  // signed-in user's keys, never the shared bare ones. A fresh user
+  // sees the default workspace, not the previous user's files. A
+  // bare key written before scoping is adopted once into the
+  // signed-in user's scope (see readScopedRaw).
   useEffect(() => {
-    const saved = localStorage.getItem("lp_workspace_tree");
-    let base = DEFAULT_WORKSPACE;
-    if (saved) {
+    let cancelled = false;
+    void (async () => {
+      await ensureEditorScope();
+      if (cancelled) return;
+      const saved = readScopedRaw("lp_workspace_tree");
+      let base = DEFAULT_WORKSPACE;
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          // blob: URLs from dropped binary files die on reload — strip
+          // them here so a restored file never points the viewer at a
+          // dead URL. The bytes live in IndexedDB (saved at drop
+          // time), so the viewer rehydrates a fresh URL when the file
+          // opens; a file dropped before that shipped has no bytes to
+          // rehydrate and shows the viewer's load error instead.
+          if (Array.isArray(parsed) && parsed.length > 0) base = stripTransientBlobUrls(parsed);
+        } catch {}
+      }
+      // A repo opened earlier (reload): its files may still be lazy —
+      // restore which repo they belong to so clicking one loads it.
+      let restoredRepo: { repo: string; branch: string } | null = null;
       try {
-        const parsed = JSON.parse(saved);
-        // blob: URLs from dropped binary files die on reload — strip
-        // them here so a restored file never points the viewer at a
-        // dead URL (it falls back to the empty text editor instead).
-        if (Array.isArray(parsed) && parsed.length > 0) base = stripTransientBlobUrls(parsed);
+        const raw = readScopedRaw("lp_open_repo_current");
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed.repo === "string" && typeof parsed.branch === "string") {
+            setOpenRepoState(parsed);
+            restoredRepo = parsed;
+          }
+        }
       } catch {}
-    }
-    // A repo opened earlier (reload): its files may still be lazy —
-    // restore which repo they belong to so clicking one loads it.
-    let restoredRepo: { repo: string; branch: string } | null = null;
-    try {
-      const raw = localStorage.getItem("lp_open_repo_current");
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (parsed && typeof parsed.repo === "string" && typeof parsed.branch === "string") {
-          setOpenRepoState(parsed);
-          restoredRepo = parsed;
-        }
-      }
-    } catch {}
-    // Repo handoff: the GitHub page stores just the repo's name in
-    // sessionStorage (lp_open_repo) — the tree is fetched here, and
-    // each file loads lazily when opened. The workspace being left
-    // is backed up first (File → Restore previous workspace brings
-    // it back).
-    let openRepoName: string | null = null;
-    try {
-      const raw = sessionStorage.getItem("lp_open_repo");
-      if (raw !== null) {
-        sessionStorage.removeItem("lp_open_repo");
-        const parsed = JSON.parse(raw);
-        if (parsed && typeof parsed.repo === "string") {
-          openRepoName = parsed.repo;
-        }
-      }
-    } catch {}
-    if (openRepoName) {
+      // Repo handoff: the GitHub page stores just the repo's name in
+      // sessionStorage (lp_open_repo) — the tree is fetched here, and
+      // each file loads lazily when opened. The workspace being left
+      // is backed up first (File → Restore previous workspace brings
+      // it back).
+      let openRepoName: string | null = null;
       try {
-        localStorage.setItem("lp_workspace_tree_backup", JSON.stringify(base));
+        const raw = sessionStorage.getItem("lp_open_repo");
+        if (raw !== null) {
+          sessionStorage.removeItem("lp_open_repo");
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed.repo === "string") {
+            openRepoName = parsed.repo;
+          }
+        }
+      } catch {}
+      if (openRepoName) {
+        writeLocalJson("lp_workspace_tree_backup", base);
         setHasWorkspaceBackup(true);
-      } catch {}
-      setOutput((prev) => prev + `[Opening ${openRepoName}...]\n`);
-      void loadRepoTree(openRepoName);
-      return;
-    }
-    // Refresh-restore (no fresh handoff): the tree came back from
-    // localStorage, so loadRepoTree — and its toast — never ran.
-    // Fire it here so the user still sees "repo loaded" once the
-    // files are back. Only when the saved workspace actually holds
-    // repo files (they carry a sha; a plain workspace has none).
-    if (restoredRepo) {
-      const repoFileCount = base.filter(
-        (p: WorkspaceItem) => p.type === "file" && p.sha
-      ).length;
-      if (repoFileCount > 0) {
-        setRepoLoadedToast({ repo: restoredRepo.repo, count: repoFileCount });
+        setOutput((prev) => prev + `[Opening ${openRepoName}...]\n`);
+        void loadRepoTree(openRepoName);
+        return;
       }
-    }
-    let tryCode: string | null = null;
-    try {
-      tryCode = sessionStorage.getItem("lp_try_it_code");
-      if (tryCode !== null) sessionStorage.removeItem("lp_try_it_code");
-    } catch {}
-    if (tryCode !== null) {
-      const tryFile: WorkspaceItem = {
-        id: "f-try-it",
-        name: "try-it.py",
-        path: "try-it.py",
-        type: "file",
-        content: tryCode,
-        isSaved: false,
-      };
-      setItems([tryFile, ...base.filter((p: WorkspaceItem) => p.path !== "try-it.py")]);
-      setActiveFilePath("try-it.py");
-      return;
-    }
-    if (saved) {
-      setItems(base);
-      const firstFile = base.find((p: WorkspaceItem) => p.type === "file");
-      if (firstFile) setActiveFilePath(firstFile.path);
-    }
+      // Refresh-restore (no fresh handoff): the tree came back from
+      // localStorage, so loadRepoTree — and its toast — never ran.
+      // Fire it here so the user still sees "repo loaded" once the
+      // files are back. Only when the saved workspace actually holds
+      // repo files (they carry a sha; a plain workspace has none).
+      if (restoredRepo) {
+        const repoFileCount = base.filter(
+          (p: WorkspaceItem) => p.type === "file" && p.sha
+        ).length;
+        if (repoFileCount > 0) {
+          setRepoLoadedToast({ repo: restoredRepo.repo, count: repoFileCount });
+        }
+      }
+      let tryCode: string | null = null;
+      try {
+        tryCode = sessionStorage.getItem("lp_try_it_code");
+        if (tryCode !== null) sessionStorage.removeItem("lp_try_it_code");
+      } catch {}
+      if (tryCode !== null) {
+        const tryFile: WorkspaceItem = {
+          id: "f-try-it",
+          name: "try-it.py",
+          path: "try-it.py",
+          type: "file",
+          content: tryCode,
+          isSaved: false,
+        };
+        setItems([tryFile, ...base.filter((p: WorkspaceItem) => p.path !== "try-it.py")]);
+        setActiveFilePath("try-it.py");
+        return;
+      }
+      if (saved) {
+        setItems(base);
+        const firstFile = base.find((p: WorkspaceItem) => p.type === "file");
+        if (firstFile) setActiveFilePath(firstFile.path);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Lazy file loading: a repo file's content arrives only when the
@@ -280,15 +293,10 @@ export function useWorkspaceRepo(args: {
   // update) and the failure is noted once instead of crashing.
   function persistWorkspace(next: WorkspaceItem[]): boolean {
     setItems(next);
-    let stored = true;
-    try {
-      localStorage.setItem("lp_workspace_tree", JSON.stringify(next));
-    } catch {
-      stored = false;
-      if (!persistWarnedRef.current) {
-        persistWarnedRef.current = true;
-        setOutput((prev) => prev + "[Workspace is too big for the browser's storage — changes are kept for this session only.]\n");
-      }
+    const stored = writeLocalJson("lp_workspace_tree", next);
+    if (!stored && !persistWarnedRef.current) {
+      persistWarnedRef.current = true;
+      setOutput((prev) => prev + "[Workspace is too big for the browser's storage — changes are kept for this session only.]\n");
     }
     engine.syncAllFilesToPyodide(next);
     return stored;
@@ -299,15 +307,15 @@ export function useWorkspaceRepo(args: {
   // Returns true when a backup was actually restored.
   function restoreWorkspaceBackup(): boolean {
     try {
-      const raw = localStorage.getItem("lp_workspace_tree_backup");
+      const raw = readScopedRaw("lp_workspace_tree_backup");
       if (!raw) return false;
       const parsed = JSON.parse(raw) as WorkspaceItem[];
       if (!Array.isArray(parsed) || parsed.length === 0) return false;
       persistWorkspace(stripTransientBlobUrls(parsed));
       const firstFile = parsed.find((p) => p.type === "file");
       if (firstFile) setActiveFilePath(firstFile.path);
-      localStorage.removeItem("lp_workspace_tree_backup");
-      localStorage.removeItem("lp_open_repo_current");
+      removeScopedRaw("lp_workspace_tree_backup");
+      removeScopedRaw("lp_open_repo_current");
       setOpenRepoState(null);
       clearRepoChanged();
       repoTreePathsRef.current.clear();
@@ -335,7 +343,7 @@ export function useWorkspaceRepo(args: {
       // default workspace par wapas.
       persistWorkspace(DEFAULT_WORKSPACE);
       setActiveFilePath("main.py");
-      localStorage.removeItem("lp_open_repo_current");
+      removeScopedRaw("lp_open_repo_current");
       setOpenRepoState(null);
       clearRepoChanged();
       repoTreePathsRef.current.clear();

@@ -1,5 +1,5 @@
 import type { Strings } from "@/lib/i18n";
-import { useMemo, type Dispatch, type SetStateAction } from "react";
+import { useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import Editor from "@monaco-editor/react";
 import { FileCode, Square } from "lucide-react";
 import { TetrominoLoader } from "./TetrominoLoader";
@@ -8,6 +8,8 @@ import type { PdfAskAiContext } from "./PdfViewer";
 import type { WorkspaceItem } from "../lib/editor-types";
 import type { PyodideEngine } from "../hooks/usePyodideEngine";
 import { useInstalledExtensions } from "../hooks/useExtensions";
+import { loadDroppedFile } from "../lib/dropped-files";
+import { ensureEditorScope } from "../lib/editor-storage";
 import {
   extensionForFile,
   readOpenRepo,
@@ -42,13 +44,63 @@ export function EditorPanel(props: EditorPanelProps) {
   // repo-file API (same token/SHA checks as the text read); dropped
   // binary files carry a blob: URL from the drop handler, so the
   // viewer renders their raw bytes; local SVG/CSV files render from
-  // their text content. Anything without a usable source falls back
-  // to Monaco, exactly as today.
+  // their text content.
   const { installed } = useInstalledExtensions();
+  const kind = activeFile ? viewerKindForFile(activeFile.path, installed) : null;
+  const viewerName = kind ? (extensionForFile(activeFile?.path ?? "")?.name ?? "") : "";
+  // A dropped binary file's blob: URL dies on reload (the restore
+  // strips it), so after a refresh the file has no live source at
+  // all. Rehydrate its bytes from IndexedDB (saved at drop time)
+  // and mint a fresh blob URL for the viewer. While the lookup runs
+  // the pane shows the loader, never a blank editor or a premature
+  // error; if nothing was ever persisted (a file dropped before this
+  // shipped), the pane shows the load error instead of blank Monaco.
+  const [rehydratedUrl, setRehydratedUrl] = useState<string | null>(null);
+  const [rehydrating, setRehydrating] = useState(false);
+  const rehydratedRef = useRef<string | null>(null);
+  useEffect(() => {
+    setRehydratedUrl(null);
+    setRehydrating(false);
+    if (!activeFile || !kind) return;
+    const repo = readOpenRepo();
+    if (repo && activeFile.sha) return;
+    if (activeFile.blobUrl) return;
+    const ext = activeFile.path.split(".").pop()?.toLowerCase() ?? "";
+    if ((ext === "svg" || ext === "csv") && activeFile.content) return;
+    setRehydrating(true);
+    let cancelled = false;
+    // Per-user (Fix C): the dropped bytes live under the signed-in
+    // user's scope — wait for it before reading, or a second
+    // account on this browser would rehydrate the first user's
+    // files (or miss its own).
+    void (async () => {
+      await ensureEditorScope();
+      if (cancelled) return;
+      await loadDroppedFile(activeFile.path)
+        .then((blob) => {
+          if (cancelled) return;
+          setRehydrating(false);
+          if (blob) {
+            const url = URL.createObjectURL(blob);
+            rehydratedRef.current = url;
+            setRehydratedUrl(url);
+          }
+        })
+        .catch(() => {
+          if (!cancelled) setRehydrating(false);
+        });
+    })();
+    return () => {
+      cancelled = true;
+      if (rehydratedRef.current) {
+        URL.revokeObjectURL(rehydratedRef.current);
+        rehydratedRef.current = null;
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeFile?.path, installed]);
   const viewer = useMemo(() => {
-    if (!activeFile) return null;
-    const kind = viewerKindForFile(activeFile.path, installed);
-    if (!kind) return null;
+    if (!activeFile || !kind) return null;
     const extension = extensionForFile(activeFile.path);
     const name = extension?.name ?? "";
     const repo = readOpenRepo();
@@ -59,8 +111,9 @@ export function EditorPanel(props: EditorPanelProps) {
       };
       return { kind, name, source };
     }
-    if (activeFile.blobUrl) {
-      return { kind, name, source: { type: "url", url: activeFile.blobUrl } as FileViewerSource };
+    const url = activeFile.blobUrl ?? rehydratedUrl;
+    if (url) {
+      return { kind, name, source: { type: "url", url } as FileViewerSource };
     }
     const ext = activeFile.path.split(".").pop()?.toLowerCase() ?? "";
     if (ext === "svg" && activeFile.content) {
@@ -77,7 +130,7 @@ export function EditorPanel(props: EditorPanelProps) {
       return { kind, name, source: { type: "text", text: activeFile.content } as FileViewerSource };
     }
     return null;
-  }, [activeFile, installed]);
+  }, [activeFile, installed, kind, rehydratedUrl]);
 
   return (
     <div className="min-h-[420px] sm:min-h-[480px] md:min-h-0 flex-1 min-w-0 rounded-xl border border-neutral-800 bg-neutral-950 flex flex-col overflow-hidden">
@@ -98,7 +151,7 @@ export function EditorPanel(props: EditorPanelProps) {
           </button>
         )}
         <span className="hidden text-[11px] text-neutral-500 font-mono sm:inline shrink-0 ml-2">
-          {viewer ? viewer.name : "Python 3.12 (WASM) • Monaco Editor"}
+          {viewer ? viewer.name : viewerName || "Python 3.12 (WASM) • Monaco Editor"}
         </span>
       </div>
 
@@ -117,6 +170,14 @@ export function EditorPanel(props: EditorPanelProps) {
             loadErrorText={t.editorPage.viewerLoadError}
             onAskAi={onAskAi}
           />
+        ) : rehydrating ? (
+          <div className="flex h-full w-full items-center justify-center">
+            <TetrominoLoader />
+          </div>
+        ) : kind ? (
+          <div className="flex h-full w-full items-center justify-center p-4">
+            <p className="text-center text-xs text-neutral-500">{t.editorPage.viewerLoadError}</p>
+          </div>
         ) : (
           <Editor
             height="100%"

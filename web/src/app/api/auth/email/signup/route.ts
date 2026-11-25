@@ -27,8 +27,19 @@ const signupSchema = z.object({
 });
 
 // POST /api/auth/email/signup { email, password, name }
-// Sends a sign-up code. Always answers { sent: true } — the response
-// never reveals whether the email already has an account (M1).
+// Sends a sign-up code — except when the email already has a
+// password account, which fails with a clear 400 ("An account with
+// this email already exists. Sign in instead."). Maalik ordered
+// one account per email (2026-11-25): the old success-shaped reply
+// for an existing account left the user waiting for a code that
+// never came, and hid that the address was already registered.
+// (Trade-off, stated: this reveals account existence at sign-up;
+// the other endpoints keep their success-shaped replies.)
+// A Google-only row (no password) is NOT an error: the sign-up is
+// held pending and, once the code is verified, the row gains the
+// password — the same email links both ways instead of ever
+// producing a second row. The response carries linkExisting: true
+// so the page can say so.
 //
 // The email is NOT reserved here (L8): the name + password hash wait
 // in a pending-signup row until the emailed code is verified, and
@@ -76,26 +87,30 @@ export async function POST(req: NextRequest) {
     return jsonError("Enter your name.", 400);
   }
 
-  // Success-shaped either way — enumeration happens nowhere.
+  // One account per email (Maalik, 2026-11-25): an address that
+  // already has a password account fails here with a clear message
+  // instead of a success-shaped reply and a code that never comes.
+  // Run the dummy scrypt first (R2-L9): the new-account path below
+  // hashes the password (~100 ms), and without this the response
+  // time alone reveals whether the email has an account. An
+  // unverified legacy account is not stranded: the sign-in page
+  // offers a "resend verification code" step for it.
   const sentResponse = NextResponse.json({ sent: true, email });
   const existing = await getUserByEmail(email);
   if (existing?.password_hash) {
-    // Already an account with a password. Run the dummy scrypt
-    // first (R2-L9): the new-account path below hashes the password
-    // (~100 ms), and without this the response time alone reveals
-    // whether the email has an account.
     await hashPassword(password);
-    // A verified one gets no mail at all (no mail-bombing a
-    // stranger's inbox); an unverified legacy one gets its code
-    // resent.
-    if (!existing.email_verified) {
-      await issueOtpCode(email, "signup");
-    }
-    return sentResponse;
+    return jsonError(
+      "An account with this email already exists. Sign in instead.",
+      400
+    );
   }
 
   // No account yet — or a Google-only row (no password): hold the
-  // sign-up pending until the code is verified.
+  // sign-up pending until the code is verified. Verifying claims
+  // the Google-only row with this password (see verify-otp), so
+  // the same email never produces a second row. linkExisting tells
+  // the page to say so.
+  const linkExisting = existing !== null;
   const passwordHash = await hashPassword(password);
   const stored = await storePendingSignup({
     email,
@@ -136,5 +151,9 @@ export async function POST(req: NextRequest) {
       })
     );
   }
-  return sentResponse;
+  // A Google-only row existed for this email: verifying the code
+  // links it with this password instead of creating a second row.
+  return linkExisting
+    ? NextResponse.json({ sent: true, email, linkExisting: true })
+    : sentResponse;
 }

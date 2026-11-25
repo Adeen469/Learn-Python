@@ -36,6 +36,13 @@ export const BYOK_PROVIDERS = [
 
 export type ByokProvider = (typeof BYOK_PROVIDERS)[number];
 
+/**
+ * Max BYOK keys per user (Maalik 2026-11-25): 10 in total, on top of the
+ * one-key-per-provider rule. With the 6 providers above the provider rule
+ * binds first; this cap is the hard ceiling if more providers are added.
+ */
+export const MAX_BYOK_KEYS_PER_USER = 10;
+
 export function isValidByokProvider(value: unknown): value is ByokProvider {
   return (
     typeof value === "string" &&
@@ -72,6 +79,14 @@ export interface StoredByokMeta {
   provider: ByokProvider;
   baseUrl: string | null;
   model: string | null;
+  /** Last 4 chars of the key (migration 013) — shown as ••••1234, never the key. */
+  keyHint: string | null;
+}
+
+/** Last 4 chars of a secret — the masked hint shown in the UI. */
+function last4(secret: string): string {
+  const t = secret.trim();
+  return t.length >= 4 ? t.slice(-4) : t;
 }
 
 export async function saveByokKey(
@@ -85,18 +100,28 @@ export async function saveByokKey(
   if (!supabase) return false;
   const secret = getByokEncryptionSecret();
   if (!secret) return false;
+  const row = {
+    user_email: normalizeEmail(email),
+    provider,
+    key_encrypted: encryptTotpSecret(secret, key),
+    base_url: baseUrl,
+    model,
+    updated_at: new Date().toISOString(),
+  };
+  // The masked hint rides along when migration 013 has run. Before
+  // that the column does not exist, so a save must not fail for it:
+  // retry once without the hint and the key still saves (the hint
+  // is only display, never needed to use the key).
   const { error } = await supabase.from("lp_byok_keys").upsert(
-    {
-      user_email: normalizeEmail(email),
-      provider,
-      key_encrypted: encryptTotpSecret(secret, key),
-      base_url: baseUrl,
-      model,
-      updated_at: new Date().toISOString(),
-    },
+    { ...row, key_hint: last4(key) },
     { onConflict: "user_email,provider" }
   );
-  return !error;
+  if (!error) return true;
+  if (!/key_hint/.test(error.message ?? "")) return false;
+  const retry = await supabase
+    .from("lp_byok_keys")
+    .upsert(row, { onConflict: "user_email,provider" });
+  return !retry.error;
 }
 
 export async function getByokKey(
@@ -127,19 +152,46 @@ export async function getByokKey(
 export async function listByokKeys(email: string): Promise<StoredByokMeta[]> {
   const supabase = getSupabaseAdmin();
   if (!supabase) return [];
+  const toMeta = (row: {
+    provider: string;
+    base_url: string | null;
+    model: string | null;
+    key_hint?: unknown;
+  }): StoredByokMeta | null => {
+    if (!isValidByokProvider(row.provider)) return null;
+    return {
+      provider: row.provider as ByokProvider,
+      baseUrl: row.base_url ?? null,
+      model: row.model ?? null,
+      keyHint:
+        typeof row.key_hint === "string" && row.key_hint.length > 0
+          ? row.key_hint
+          : null,
+    };
+  };
   const { data, error } = await supabase
+    .from("lp_byok_keys")
+    .select("provider,base_url,model,key_hint")
+    .eq("user_email", normalizeEmail(email))
+    .order("provider");
+  if (!error && data) {
+    return (data as Array<{ provider: string; base_url: string | null; model: string | null; key_hint?: unknown }>)
+      .map(toMeta)
+      .filter((m): m is StoredByokMeta => m !== null);
+  }
+  // Before migration 013 the key_hint column does not exist and the
+  // select above errors — retry without it instead of reporting no
+  // keys at all (the hint is only display).
+  if (error && !/key_hint/.test(error.message ?? "")) return [];
+  const retry = await supabase
     .from("lp_byok_keys")
     .select("provider,base_url,model")
     .eq("user_email", normalizeEmail(email))
     .order("provider");
-  if (error || !data) return [];
-  return (data as Array<{ provider: string; base_url: string | null; model: string | null }>)
-    .filter((row) => isValidByokProvider(row.provider))
-    .map((row) => ({
-      provider: row.provider as ByokProvider,
-      baseUrl: row.base_url ?? null,
-      model: row.model ?? null,
-    }));
+  if (retry.error || !retry.data) return [];
+  return (retry.data as Array<{ provider: string; base_url: string | null; model: string | null }>)
+    .map((row) => toMeta(row))
+    .filter((m): m is StoredByokMeta => m !== null);
 }
 
 export async function deleteByokKey(

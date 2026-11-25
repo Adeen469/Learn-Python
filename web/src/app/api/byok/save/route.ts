@@ -5,6 +5,8 @@ import { checkIpLimit, checkUserLimit } from "@/lib/api-handler";
 import {
   getByokEncryptionSecret,
   isValidByokProvider,
+  listByokKeys,
+  MAX_BYOK_KEYS_PER_USER,
   saveByokKey,
   type ByokProvider,
 } from "@/lib/byok-store";
@@ -12,11 +14,19 @@ import { isSafeCustomBaseUrl } from "@/lib/ai";
 
 // Save a BYOK provider key (migration 009).
 //
-// POST { provider, key, baseUrl?, model? } — the key is encrypted
-// with AES-256-GCM (key = the dedicated BYOK_ENCRYPTION_KEY) and
-// stored against the signed-in user's email. Custom needs a base
-// URL (https) + model; other providers need only the key. The
-// plaintext key is never logged and never returned.
+// POST { provider, key, baseUrl?, model?, replace? } — the key is
+// encrypted with AES-256-GCM (key = the dedicated
+// BYOK_ENCRYPTION_KEY) and stored against the signed-in user's
+// email. Custom needs a base URL (https) + model; other providers
+// need only the key. The plaintext key is never logged and never
+// returned.
+//
+// One key per provider (Maalik 2026-11-25): saving a provider that
+// already has a key is rejected with 409 — a second entry for the
+// same provider can never exist. Replacing the existing key is
+// allowed with replace: true. Max 10 keys per user in total: any
+// non-replace save past 10 is rejected with 409. Both checks run
+// server-side, so no client (or second tab) can work around them.
 //
 // Saving a key is sensitive, so the limit is tight (10/min) and the
 // route fails closed: without the service-role key, without
@@ -49,6 +59,10 @@ const saveByokSchema = z.object({
       invalid_type_error: "Custom BYOK needs an https base URL and a model.",
     })
     .optional(),
+  // Replace the existing key for this provider (only allowed when
+  // one already exists — see the 409 checks below). Absent/false
+  // means "add a new key", which must not duplicate a provider.
+  replace: z.boolean().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -147,6 +161,36 @@ export async function POST(req: NextRequest) {
             "Custom base URL must be a public https endpoint — private, loopback, or unresolvable hosts are not allowed.",
         },
         { status: 400 }
+      );
+    }
+  }
+  // One key per provider + max 10 keys per user (Maalik 2026-11-25):
+  // a non-replace save for a provider that already has a key is a
+  // duplicate, and a non-replace save past the cap is refused — both
+  // 409 with a plain message the UI can show as-is. A replace
+  // (replace: true) is exempt: it overwrites the existing key for
+  // that provider and never grows the count. listByokKeys returns
+  // [] when the table is missing, so these checks never block the
+  // 503 below — they only ever refuse a save that would break the
+  // rules.
+  const replace = parsed.data.replace === true;
+  if (!replace) {
+    const existing = await listByokKeys(user.email);
+    if (existing.some((k) => k.provider === provider)) {
+      return NextResponse.json(
+        {
+          error:
+            "This provider already has a saved key — remove it or replace it instead of adding another one.",
+        },
+        { status: 409 }
+      );
+    }
+    if (existing.length >= MAX_BYOK_KEYS_PER_USER) {
+      return NextResponse.json(
+        {
+          error: `You can save up to ${MAX_BYOK_KEYS_PER_USER} BYOK keys — remove one before adding another.`,
+        },
+        { status: 409 }
       );
     }
   }

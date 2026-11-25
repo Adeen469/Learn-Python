@@ -123,6 +123,9 @@ export default function GitHubPage() {
   // The token's expiry as GitHub reported it at save time (null =
   // no expiry, or unknown). The page warns when it is close.
   const [tokenExpiresAt, setTokenExpiresAt] = useState<string | null>(null);
+  // Last 4 chars of the stored token (migration 013), shown as
+  // ••••1234 next to the connected state — never the token itself.
+  const [tokenHint, setTokenHint] = useState<string | null>(null);
   const tokenExpiresDaysLeft =
     tokenExpiresAt === null
       ? null
@@ -353,6 +356,7 @@ export default function GitHubPage() {
             localStorage.removeItem("lp_github_token");
           } catch {}
           setTokenConnected(true);
+          setTokenHint(stored.trim().slice(-4));
           setSuccessMsg(t.githubPage.tokenSaved);
           fetchRepos();
           return true;
@@ -381,6 +385,7 @@ export default function GitHubPage() {
         setTokenConfigured(data.configured !== false);
         setTokenConnected(!!data.connected);
         setTokenExpiresAt(typeof data.expiresAt === "string" ? data.expiresAt : null);
+        setTokenHint(typeof data.keyHint === "string" && data.keyHint ? data.keyHint : null);
         if (data.connected) {
           // A token already lives on the server — drop any stale
           // plaintext copy from this browser.
@@ -435,6 +440,7 @@ export default function GitHubPage() {
       if (!res.ok) throw new Error(data.error || "Could not save the token");
       setToken("");
       setTokenConnected(true);
+      setTokenHint(clean.slice(-4));
       setSuccessMsg(t.githubPage.tokenSaved);
       fetchRepos();
     } catch (err: unknown) {
@@ -447,6 +453,8 @@ export default function GitHubPage() {
       await fetch("/api/github/token", { method: "DELETE" });
     } catch {}
     setTokenConnected(false);
+    setTokenHint(null);
+    setTokenExpiresAt(null);
     setRepos([]);
     setSelectedRepo(null);
     setSuccessMsg(t.githubPage.tokenRemoved);
@@ -650,6 +658,9 @@ export default function GitHubPage() {
                 <Check className="h-4 w-4 shrink-0 text-emerald-400" />
                 <span className="truncate text-neutral-300">
                   {t.githubPage.connected}
+                  {tokenHint ? (
+                    <span className="ml-1 font-mono text-xs text-neutral-400">••••{tokenHint}</span>
+                  ) : null}
                 </span>
               </div>
               {/* A token that lapses soon (or already has) must not

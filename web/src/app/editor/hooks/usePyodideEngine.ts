@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Strings } from "@/lib/i18n";
 import { loadPyodideRuntime, withTimeout } from "@/lib/pyodide-install";
 import { restoreStoredPackages } from "@/lib/package-storage";
-import { parsePythonError, parsePythonWarnings } from "../lib/editor-utils";
+import { parsePythonError, parsePythonWarnings, writeLocalJson } from "../lib/editor-utils";
 import type { WorkspaceItem } from "../lib/editor-types";
 
 // Pyodide virtual filesystem root (shared with the editor page,
@@ -318,7 +318,9 @@ export function usePyodideEngine(opts: {
       it.path === targetFile.path ? { ...it, content: targetFile.content ?? "", isSaved: true } : it
     );
     setItems(toRun);
-    localStorage.setItem("lp_workspace_tree", JSON.stringify(toRun));
+    // Per-user (Fix C): the auto-save on Run persists under the
+    // signed-in user's scope.
+    writeLocalJson("lp_workspace_tree", toRun);
     setNeedsSaveWarning(null);
     const code = targetFile.content ?? "";
 

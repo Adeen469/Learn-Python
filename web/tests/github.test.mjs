@@ -884,3 +884,28 @@ test("R3b: the AI-refined commit message is preserved, and the token flow is unc
   assert.ok(batch.includes('checkUserLimit(email, "github-write"'), "batch-commit must keep the per-user bucket");
   assert.ok(batch.includes("logGithubTokenUse("), "batch-commit must keep auditing token use");
 });
+
+test("GitHub token masked hint (migration 013): ••••1234 in the connected banner, never the token", () => {
+  // Maalik's order (2026-11-25): the server-held token must prove
+  // which token is connected without ever showing it — the last 4
+  // chars ride as key_hint (migration 013) and the page shows
+  // ••••1234 next to the connected state.
+  const store = read("src/lib/github-token.ts");
+  assert.ok(store.includes("key_hint: last4(token)"), "saving must store the last 4 chars as the hint");
+  assert.ok(store.includes("export async function getGithubTokenHint"), "the store must expose the hint reader");
+  assert.ok(store.includes('select("key_hint")'), "the hint reader must select only key_hint");
+  assert.ok(store.includes("retry once without the hint"), "saving must retry without the hint before 013 runs");
+  const status = read("src/app/api/github/token/status/route.ts");
+  assert.ok(status.includes("getGithubTokenHint"), "the status route must read the hint");
+  assert.ok(status.includes("keyHint"), "the status route must return the hint");
+  assert.ok(!status.includes("token_encrypted"), "the status route must never return the encrypted token");
+  const p = page();
+  assert.ok(p.includes("const [tokenHint, setTokenHint] = useState<string | null>(null);"), "the page must hold the hint");
+  assert.ok(p.includes("••••{tokenHint}"), "the connected banner must show the hint masked as ••••1234");
+  assert.ok(p.includes("setTokenHint(clean.slice(-4))"), "a just-saved token must show its own hint at once");
+  assert.ok(p.includes("setTokenHint(null);"), "removing the token must clear the hint");
+  // The hint rule, mirrored: exactly the last 4 chars, nothing else.
+  const last4 = (s) => s.trim().slice(-4);
+  assert.equal(last4("ghp_abcdefghij1234"), "1234", "the hint must be the last 4 chars");
+  assert.equal(last4("github_pat_11ABCDEFG0aBcDeF"), "cDeF", "the hint must be the last 4 chars for fine-grained tokens too");
+});

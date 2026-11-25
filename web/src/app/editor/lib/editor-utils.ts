@@ -83,12 +83,107 @@ export function filterExplorerTree(items: BranchedMenuItem[], query: string): Br
 
 export function readLocalJson<T>(key: string, fallback: T): T {
   try {
-    const raw = localStorage.getItem(key);
+    const raw = readScopedRaw(key);
     if (!raw) return fallback;
     return JSON.parse(raw) as T;
   } catch {
     return fallback;
   }
+}
+
+/** Scoped write: the value lands under the signed-in user's key.
+    Returns false when storage refused it (quota / private mode). */
+export function writeLocalJson(key: string, value: unknown): boolean {
+  try {
+    return writeScopedRaw(key, JSON.stringify(value));
+  } catch {
+    return false;
+  }
+}
+
+/** Scoped remove. */
+export function removeLocalKey(key: string): void {
+  removeScopedRaw(key);
+}
+
+// --- Per-user editor storage (Fix C, Maalik 2026-11-25) ---
+// Every content-bearing editor key is namespaced by the signed-in
+// user's email, so a second account on the same browser never sees
+// the first user's files, repos, AI chats, or BYOK metadata. The
+// scope is set once at editor mount (see editor-storage.ts, which
+// resolves it from the session); before that it reads as "guest"
+// and every read returns its fallback. Pure UI prefs (panel layout,
+// widths, autosave, installed extensions) stay unscoped on purpose
+// — they carry no user content. No imports are added here on
+// purpose: the test suite imports this file directly (Node
+// type-stripping), so it must stay free of `@/` imports.
+let editorScope: string | null = null;
+
+/** Set the storage scope — the signed-in user's email, or "guest". */
+export function setEditorStorageScope(scope: string): void {
+  editorScope = scope.toLowerCase();
+}
+
+/** The current scope ("guest" until the session resolves). */
+export function editorStorageScope(): string {
+  return editorScope ?? "guest";
+}
+
+/** The storage key for a base key under the current scope. */
+export function scopedStorageKey(base: string): string {
+  return `${base}::${editorStorageScope()}`;
+}
+
+function readRaw(key: string): string | null {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+/** Scoped read with one-time legacy adoption: a bare key written
+    before scoping moves into the signed-in user's scope the first
+    time it is read — so the current user's files survive the
+    change. Never adopts into the "guest" scope: a signed-out
+    reader must not inherit the previous user's data. Trade-off,
+    stated: the adoption cannot tell whose the legacy data was, so
+    the first account to sign in on a browser after this ships
+    adopts whatever pre-fix data is there; after that, everything
+    is strictly per-user. */
+export function readScopedRaw(base: string): string | null {
+  const scoped = readRaw(scopedStorageKey(base));
+  if (scoped !== null) return scoped;
+  if (editorStorageScope() === "guest") return null;
+  const legacy = readRaw(base);
+  if (legacy === null) return null;
+  try {
+    localStorage.setItem(scopedStorageKey(base), legacy);
+  } catch {
+    return legacy;
+  }
+  try {
+    localStorage.removeItem(base);
+  } catch {}
+  return legacy;
+}
+
+/** Scoped raw write. Returns false when storage refused it. */
+export function writeScopedRaw(base: string, value: string): boolean {
+  try {
+    localStorage.setItem(scopedStorageKey(base), value);
+    return true;
+  } catch {
+    // Storage full — skip, the state still works in memory.
+    return false;
+  }
+}
+
+/** Scoped raw remove. */
+export function removeScopedRaw(base: string): void {
+  try {
+    localStorage.removeItem(scopedStorageKey(base));
+  } catch {}
 }
 
 export function newId(): string {

@@ -132,16 +132,27 @@ function WordViewer({ source, loadErrorText }: { source: FileViewerSource; loadE
 // edge — it just pans inside the frame.
 const IMAGE_MAX_ZOOM = 8;
 
-function ImageViewer({ source, fileName, t }: { source: string; fileName: string; t: Strings }) {
+function ImageViewer({ source, fileName, t, loadErrorText }: { source: string; fileName: string; t: Strings; loadErrorText: string }) {
   const [scale, setScale] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [dragging, setDragging] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const imgRef = useRef<HTMLImageElement | null>(null);
   const dragRef = useRef<{ x: number; y: number } | null>(null);
   // A different file starts back at fit.
   useEffect(() => {
     setScale(1);
     setPan({ x: 0, y: 0 });
+    setLoaded(false);
+    setFailed(false);
   }, [fileName]);
+  // A cached image can finish before React attaches onLoad — the
+  // loader would spin forever without this check.
+  useEffect(() => {
+    const img = imgRef.current;
+    if (img && img.complete && img.naturalWidth > 0) setLoaded(true);
+  }, [source]);
   const zoomBy = (factor: number) => {
     const next = Math.min(IMAGE_MAX_ZOOM, Math.max(1, Math.round(scale * factor * 100) / 100));
     if (next === 1) setPan({ x: 0, y: 0 });
@@ -151,11 +162,23 @@ function ImageViewer({ source, fileName, t }: { source: string; fileName: string
     setScale(1);
     setPan({ x: 0, y: 0 });
   };
+  if (failed) {
+    return (
+      <div className="flex h-full w-full items-center justify-center p-4">
+        <p className="text-center text-xs text-neutral-500">{loadErrorText}</p>
+      </div>
+    );
+  }
   return (
     <div
       className="relative flex h-full w-full items-center justify-center overflow-hidden"
       onWheel={(e) => zoomBy(e.deltaY < 0 ? 1.2 : 1 / 1.2)}
     >
+      {!loaded && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-neutral-950">
+          <TetrominoLoader />
+        </div>
+      )}
       <div className="absolute right-2 top-2 z-10 flex items-center gap-0.5 rounded-lg border border-neutral-700 bg-black/70 px-1 py-1">
         <button
           type="button"
@@ -189,9 +212,12 @@ function ImageViewer({ source, fileName, t }: { source: string; fileName: string
         </button>
       </div>
       <img
+        ref={imgRef}
         src={source}
         alt={fileName}
         draggable={false}
+        onLoad={() => setLoaded(true)}
+        onError={() => setFailed(true)}
         className="max-h-full max-w-full object-contain"
         style={{
           transform: `translate(${pan.x}px, ${pan.y}px) scale(${scale})`,
@@ -224,20 +250,45 @@ function ImageViewer({ source, fileName, t }: { source: string; fileName: string
   );
 }
 
-export function FileViewer({ t, fileName, kind, source, loadErrorText, onAskAi }: FileViewerProps) {
-  if (kind === "image" && source.type === "url") {
-    return <ImageViewer source={source.url} fileName={fileName} t={t} />;
-  }
-  if (kind === "video" && source.type === "url") {
-    // The video fills the pane like the code editor does — h-full
-    // w-full + object-contain, so it follows pane resizes
-    // automatically (big pane, big video; small pane, small video)
-    // and can never run past the frame.
+// Video player with a loading state: the tetromino loader shows
+// until the first frame is ready (onLoadedData), a bad source shows
+// the load error instead of a black pane.
+function VideoPlayer({ source, loadErrorText }: { source: string; loadErrorText: string }) {
+  const [loaded, setLoaded] = useState(false);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    setLoaded(false);
+    setFailed(false);
+  }, [source]);
+  if (failed) {
     return (
-      <div className="flex h-full w-full items-center justify-center overflow-hidden">
-        <video src={source.url} controls className="h-full w-full object-contain" />
+      <div className="flex h-full w-full items-center justify-center p-4">
+        <p className="text-center text-xs text-neutral-500">{loadErrorText}</p>
       </div>
     );
+  }
+  // The video fills the pane like the code editor does — h-full
+  // w-full + object-contain, so it follows pane resizes
+  // automatically (big pane, big video; small pane, small video)
+  // and can never run past the frame.
+  return (
+    <div className="relative flex h-full w-full items-center justify-center overflow-hidden">
+      {!loaded && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-neutral-950">
+          <TetrominoLoader />
+        </div>
+      )}
+      <video src={source} controls className="h-full w-full object-contain" onLoadedData={() => setLoaded(true)} onError={() => setFailed(true)} />
+    </div>
+  );
+}
+
+export function FileViewer({ t, fileName, kind, source, loadErrorText, onAskAi }: FileViewerProps) {
+  if (kind === "image" && source.type === "url") {
+    return <ImageViewer source={source.url} fileName={fileName} t={t} loadErrorText={loadErrorText} />;
+  }
+  if (kind === "video" && source.type === "url") {
+    return <VideoPlayer source={source.url} loadErrorText={loadErrorText} />;
   }
   if (kind === "audio" && source.type === "url") {
     return (

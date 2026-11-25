@@ -46,7 +46,14 @@ const cspDirectives = [
   // directly from the browser. Without these, every micropip install
   // was blocked by the CSP and the Modules panel's Install button
   // silently failed for any package not built into Pyodide.
-  "connect-src 'self' https://cdn.jsdelivr.net https://pypi.org https://files.pythonhosted.org",
+  // blob: is required too: the PDF viewer fetches the file's bytes
+  // with fetch() (pdf.js parses from memory), and a dropped/repo
+  // PDF's source is a blob: URL — without blob: here the fetch is
+  // CSP-blocked and every PDF fails with "Could not preview this
+  // file." (image/video/audio render from blob: URLs through
+  // img-src/media-src, which is why only the PDF broke). blob: URLs
+  // are same-origin by construction, so this stays narrow.
+  "connect-src 'self' blob: https://cdn.jsdelivr.net https://pypi.org https://files.pythonhosted.org",
   "worker-src 'self' blob:",
   "media-src 'self' blob:",
   // youtube-nocookie embeds the course videos that don't have a

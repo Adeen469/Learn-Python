@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getGithubToken, getGithubTokenExpiresAt } from "@/lib/github-token";
+import { getGithubToken, getGithubTokenExpiresAt, getGithubTokenHint } from "@/lib/github-token";
 import { getAuthPrereqs, getSessionUser } from "@/lib/auth-routes";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { checkUserLimit } from "@/lib/api-handler";
 
 // Whether the signed-in user has a GitHub token stored on the
-// server. Answers { connected, configured, expiresAt } — never the
-// token itself. `configured: false` means token storage is not set
-// up yet (missing service-role key or migration 006 not run); the
-// GitHub page shows a setup message instead of the connect form.
+// server. Answers { connected, configured, expiresAt, keyHint } —
+// never the token itself. keyHint is only the last 4 chars
+// (migration 013), shown as ••••1234, and null before 013 runs.
+// `configured: false` means token storage is not set up yet
+// (missing service-role key or migration 006 not run); the GitHub
+// page shows a setup message instead of the connect form.
 // expiresAt is the token's expiry as GitHub reported it when the
 // token was saved (null = no expiry, or unknown) — the page warns
 // when it is close.
@@ -22,7 +24,7 @@ export async function GET(req: NextRequest) {
   }
   const prereqs = getAuthPrereqs(req);
   if (!prereqs) {
-    return NextResponse.json({ connected: false, configured: false, expiresAt: null });
+    return NextResponse.json({ connected: false, configured: false, expiresAt: null, keyHint: null });
   }
   const user = await getSessionUser(req, prereqs.secret);
   if (!user) {
@@ -34,8 +36,9 @@ export async function GET(req: NextRequest) {
   if (userBlocked) return userBlocked;
   const token = await getGithubToken(user.email);
   if (!token) {
-    return NextResponse.json({ connected: false, configured: true, expiresAt: null });
+    return NextResponse.json({ connected: false, configured: true, expiresAt: null, keyHint: null });
   }
   const expiresAt = await getGithubTokenExpiresAt(user.email);
-  return NextResponse.json({ connected: true, configured: true, expiresAt });
+  const keyHint = await getGithubTokenHint(user.email);
+  return NextResponse.json({ connected: true, configured: true, expiresAt, keyHint });
 }

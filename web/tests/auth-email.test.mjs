@@ -549,6 +549,7 @@ test("every email-auth route and page exists", () => {
     "src/app/api/auth/2fa/verify/route.ts",
     "src/app/api/auth/2fa/send-code/route.ts",
     "src/app/api/auth/2fa/disable/route.ts",
+    "src/app/api/auth/2fa/disable/send-code/route.ts",
     "src/app/api/auth/2fa/backup-codes/route.ts",
   ];
   for (const route of routes) {
@@ -948,10 +949,21 @@ test("H10: disabling 2FA needs a TOTP (or backup) code", () => {
   assert.ok(section.includes("code: disableCode"), "the settings page must send the code when disabling");
 });
 
-test("M1: no endpoint reveals whether an email has an account", () => {
+test("M1: no endpoint reveals whether an email has an account — except sign-up, which says so for a taken email", () => {
   const signup = read("src/app/api/auth/email/signup/route.ts");
-  assert.ok(!signup.includes("An account with this email already exists"), "signup must not say the account exists");
-  assert.ok(signup.includes("NextResponse.json({ sent: true, email })"), "signup must answer success-shaped");
+  // One account per email (Maalik, 2026-11-25): an address with a
+  // password account fails with a clear message instead of a
+  // success-shaped reply and a code that never comes. Trade-off,
+  // stated: sign-up now reveals account existence; the other
+  // endpoints below keep their success-shaped replies.
+  assert.ok(
+    signup.includes("An account with this email already exists. Sign in instead."),
+    "signup must say the account exists"
+  );
+  assert.ok(
+    signup.includes('jsonError(\n      "An account with this email already exists. Sign in instead.",\n      400\n    )'),
+    "signup must fail the taken email with a 400, not a success-shaped reply"
+  );
   const signin = read("src/app/api/auth/email/signin/route.ts");
   assert.ok(!signin.includes("needsVerification"), "signin must not flag unverified accounts");
   assert.ok(signin.includes("GENERIC_CREDENTIALS_ERROR, 401"), "an unverified sign-in must get the generic 401");
@@ -1532,5 +1544,139 @@ test("Legacy TOTP re-enrolment: setup + enable refuse only when the stored secre
   assert.ok(
     enable.includes("mfa: true"),
     "enable must re-issue the session with mfa: true"
+  );
+});
+
+test("disable-2FA email code: a signed-in user can disable 2FA with an emailed code (legacy-secret recovery)", () => {
+  // The send-code route: session-gated, '2fa' OTP budget, masked
+  // reply — the same shape as the delete-repo send-code route.
+  const sendCode = read("src/app/api/auth/2fa/disable/send-code/route.ts");
+  assert.ok(
+    sendCode.includes('issueOtpCode(sessionUser.email, "2fa")'),
+    "the send-code route must issue a '2fa' code to the session user"
+  );
+  assert.ok(
+    sendCode.includes("getSessionUser(req, prereqs.secret)"),
+    "the send-code route must be session-gated"
+  );
+  assert.ok(
+    sendCode.includes("user.totp_enabled"),
+    "the send-code route must only send for 2FA-on accounts"
+  );
+  assert.ok(
+    sendCode.includes("maskEmail(sessionUser.email)"),
+    "the reply must carry only the masked address"
+  );
+  // The disable route: an email method that verifies like the
+  // sign-in email-code step and bypasses the TOTP failure cap.
+  const disable = read("src/app/api/auth/2fa/disable/route.ts");
+  assert.ok(
+    disable.includes('method: z.enum(["totp", "email"])'),
+    "disable must accept a second-factor method"
+  );
+  assert.ok(
+    disable.includes('getLatestOtp(sessionUser.email, "2fa")'),
+    "the email method must read the latest '2fa' code"
+  );
+  assert.ok(
+    disable.includes("decideOtp("),
+    "the email method must decide the code like verify does"
+  );
+  assert.ok(
+    disable.includes("consumeOtp(row.id)"),
+    "the email method must consume the code atomically"
+  );
+  assert.ok(
+    disable.includes('method !== "email"'),
+    "the email method must bypass the TOTP failure cap"
+  );
+  assert.ok(
+    disable.includes("secretUnusable"),
+    "disable must detect a legacy undecryptable secret"
+  );
+  assert.ok(
+    disable.includes("totpSecretEncryptionKey() !== null"),
+    "the legacy check must confirm the key itself is configured"
+  );
+  assert.ok(
+    disable.includes("Your authenticator app can't verify this account. Use an emailed code"),
+    "a legacy account must be guided to the emailed code, not asked for an impossible authenticator code"
+  );
+  assert.ok(
+    disable.includes("verifyPassword(password, user.password_hash)"),
+    "the email method must still re-check the password (H10)"
+  );
+  // The status route reports the breakage so the form can default
+  // to email and say why.
+  const status = read("src/app/api/auth/2fa/status/route.ts");
+  assert.ok(
+    status.includes("authenticatorBroken"),
+    "status must report whether the authenticator can verify"
+  );
+  // The settings form offers both methods and the send-code call.
+  const ui = read("src/components/TwoFactorSettings.tsx");
+  assert.ok(
+    ui.includes("/api/auth/2fa/disable/send-code"),
+    "the settings form must call the disable send-code route"
+  );
+  assert.ok(
+    ui.includes("method: disableMethod"),
+    "the settings form must send the chosen method"
+  );
+  assert.ok(
+    ui.includes("authenticatorCannotVerify"),
+    "the settings form must show the legacy guidance"
+  );
+  assert.ok(
+    ui.includes("disableTwoFactorEmailPrompt"),
+    "the email method must have its own prompt"
+  );
+});
+
+test("one account per email: Google sign-in links, email register rejects a taken email, Google-only links by password", () => {
+  // DB guard: one row per email (migration 004).
+  const migration = read("supabase/migrations/004_email_auth.sql");
+  assert.ok(
+    migration.includes("email citext not null unique"),
+    "the DB must enforce one row per email"
+  );
+  // Google callback: look the email up first, create only when
+  // none exists — a Google sign-in for an email account signs into
+  // that account, never a second one.
+  const callback = read("src/app/api/auth/callback/google/route.ts");
+  assert.ok(
+    callback.includes("getUserByEmailResult(email)"),
+    "the Google callback must look the email up first"
+  );
+  assert.ok(
+    callback.includes("if (!row)"),
+    "the Google callback must create a row only when none exists"
+  );
+  assert.ok(
+    callback.includes("createGoogleUser({ email, name })"),
+    "a first Google sign-in still creates its row"
+  );
+  // Email register: a password account fails with a clear message;
+  // a Google-only row proceeds to the link path.
+  const signup = read("src/app/api/auth/email/signup/route.ts");
+  assert.ok(
+    signup.includes("An account with this email already exists. Sign in instead."),
+    "signup must reject an email that already has a password account"
+  );
+  assert.ok(
+    signup.includes("linkExisting: true"),
+    "signup must flag a Google-only row so the page can say it links"
+  );
+  // Verify-otp claims the Google-only row with the code-enterer's
+  // password — the same email never produces a second row.
+  const verify = read("src/app/api/auth/email/verify-otp/route.ts");
+  assert.ok(
+    verify.includes("Google-only row (no password): claim it with the password"),
+    "verify-otp must claim a Google-only row with the code-enterer's password"
+  );
+  const page = read("src/app/auth/email/page.tsx");
+  assert.ok(
+    page.includes("signupLinksGoogleAccount"),
+    "the sign-up page must explain the link when one exists"
   );
 });

@@ -1,8 +1,10 @@
 // AI Settings card — opened from the AI panel's ⋮ menu, it takes the
 // code editor's place in the centre column (not movable, not a dock
 // panel): a drill-down menu (Skills / BYOK) — each row opens its own
-// sub-page. Everything here lives in this browser; the server never
-// stores a skill or a key. Moved verbatim from page.tsx (F1 split).
+// sub-page. Skills live in this browser; BYOK keys live encrypted on
+// the server, tied to the account (migration 009) — this browser
+// keeps only which providers are saved, plus the masked hint.
+// Moved verbatim from page.tsx (F1 split).
 import type { Strings } from "@/lib/i18n";
 import { ArrowLeft, ChevronRight, KeyRound, Search, Trash2 } from "lucide-react";
 import { BUILTIN_AI_SKILL_META } from "@/lib/ai-skills-meta.generated";
@@ -22,6 +24,9 @@ export function AiSettingsCard({ t, ai }: { t: Strings; ai: EditorAi }) {
     BYOK_PROVIDER_NAMES, byokProvider, setByokProvider,
     byokKey, setByokKey, byokBaseUrl, setByokBaseUrl,
     byokModel, setByokModel, saveByokEntry,
+    byokError, setByokError,
+    byokReplaceTarget, startByokReplace, cancelByokReplace,
+    availableByokProviders, MAX_BYOK_KEYS_PER_USER_CLIENT,
   } = ai;
   return (
     <div className="min-h-[420px] sm:min-h-[480px] md:min-h-0 flex-1 min-w-0 rounded-xl border border-neutral-800 bg-neutral-950 flex flex-col overflow-hidden">
@@ -292,6 +297,9 @@ export function AiSettingsCard({ t, ai }: { t: Strings; ai: EditorAi }) {
             <span className="min-w-0 flex-1 text-sm text-neutral-200">
               {BYOK_PROVIDER_NAMES[entry.provider]}
               {entry.provider === "custom" && entry.model ? ` • ${entry.model}` : ""} • {t.editorPage.aiByokSaved}
+              {entry.keyHint ? (
+                <span className="ml-1 font-mono text-xs text-neutral-400">••••{entry.keyHint}</span>
+              ) : null}
             </span>
             <input
               type="checkbox"
@@ -302,6 +310,13 @@ export function AiSettingsCard({ t, ai }: { t: Strings; ai: EditorAi }) {
             />
             <button
               type="button"
+              onClick={() => startByokReplace(entry.provider)}
+              className="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-neutral-300 hover:bg-neutral-800"
+            >
+              {t.editorPage.aiByokReplace}
+            </button>
+            <button
+              type="button"
               onClick={() => removeByokEntry(entry.id)}
               className="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-red-300 hover:bg-neutral-800"
             >
@@ -309,18 +324,24 @@ export function AiSettingsCard({ t, ai }: { t: Strings; ai: EditorAi }) {
             </button>
           </div>
         ))}
+        {/* Keys saved: X of 10 — the cap Maalik set. One key per
+            provider, so the count can never pass 6 today, but the
+            cap is the hard ceiling. */}
+        <p className="text-xs text-neutral-500">
+          {t.editorPage.aiByokKeysUsed(byokStore.entries.length, MAX_BYOK_KEYS_PER_USER_CLIENT)}
+        </p>
+        {byokReplaceTarget || availableByokProviders.length > 0 ? (
+        <>
         <select
           value={byokProvider}
           onChange={(e) => setByokProvider(e.target.value as AiByokProvider)}
+          disabled={byokReplaceTarget !== null}
           aria-label={t.editorPage.aiByokProvider}
-          className="w-full rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-neutral-100 outline-none focus:border-neutral-600"
+          className="w-full rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-neutral-100 outline-none focus:border-neutral-600 disabled:opacity-60"
         >
-          <option value="gemini">Gemini</option>
-          <option value="groq">Groq</option>
-          <option value="anthropic">Anthropic</option>
-          <option value="openai">OpenAI</option>
-          <option value="openrouter">OpenRouter</option>
-          <option value="custom">Custom</option>
+          {(byokReplaceTarget ? [byokReplaceTarget] : availableByokProviders).map((p) => (
+            <option key={p} value={p}>{BYOK_PROVIDER_NAMES[p]}</option>
+          ))}
         </select>
         {byokProvider === "custom" ? (
           <>
@@ -345,23 +366,44 @@ export function AiSettingsCard({ t, ai }: { t: Strings; ai: EditorAi }) {
         <input
           type="password"
           value={byokKey}
-          onChange={(e) => setByokKey(e.target.value)}
+          onChange={(e) => {
+            setByokKey(e.target.value);
+            if (byokError) setByokError(null);
+          }}
           placeholder={t.editorPage.aiByokKey}
           autoComplete="off"
           className="w-full rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 font-mono text-sm text-neutral-100 placeholder:text-neutral-600 outline-none focus:border-neutral-600"
         />
-        <button
-          type="button"
-          onClick={saveByokEntry}
-          disabled={
-            byokKey.trim().length < 10 ||
-            (byokProvider === "custom" &&
-              (!byokBaseUrl.trim().startsWith("https://") || byokModel.trim().length === 0))
-          }
-          className="rounded-lg bg-white px-3 py-2 text-xs font-semibold text-black transition hover:bg-neutral-200 disabled:opacity-40"
-        >
-          {t.editorPage.aiByokSave}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={saveByokEntry}
+            disabled={
+              byokKey.trim().length < 10 ||
+              (byokProvider === "custom" &&
+                (!byokBaseUrl.trim().startsWith("https://") || byokModel.trim().length === 0))
+            }
+            className="rounded-lg bg-white px-3 py-2 text-xs font-semibold text-black transition hover:bg-neutral-200 disabled:opacity-40"
+          >
+            {t.editorPage.aiByokSave}
+          </button>
+          {byokReplaceTarget ? (
+            <button
+              type="button"
+              onClick={cancelByokReplace}
+              className="rounded-lg px-3 py-2 text-xs font-medium text-neutral-300 hover:bg-neutral-800"
+            >
+              {t.common.cancel}
+            </button>
+          ) : null}
+        </div>
+        {byokError ? (
+          <p className="text-xs text-red-400" role="alert">{byokError}</p>
+        ) : null}
+        </>
+        ) : (
+          <p className="text-xs text-neutral-500">{t.editorPage.aiByokAllSaved}</p>
+        )}
         <p className="text-xs text-neutral-500">{t.editorPage.aiByokNote}</p>
       </div>
       )}

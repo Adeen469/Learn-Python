@@ -1,15 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import {
+  decideOtp,
   decryptUserTotpSecret,
   findBackupCode,
   TOTP_MAX_FAILED_ATTEMPTS,
+  totpSecretEncryptionKey,
   verifyPassword,
   verifyTotpCodeWithStep,
 } from "@/lib/auth-email";
 import {
+  bumpOtpAttempts,
   bumpTotpFailedAttempts,
   claimTotpStep,
+  consumeOtp,
+  getLatestOtp,
   getUserByEmail,
   incrementSessionVersion,
   updateUser,
@@ -28,14 +33,24 @@ import {
 const disableSchema = z.object({
   password: z.string().min(1).max(128).optional(),
   code: z.string().min(1).max(10).optional(),
+  // Second-factor method: "totp" (authenticator app, or a backup
+  // code) or "email" (a 6-digit code emailed to the account — the
+  // recovery path when the authenticator cannot verify). Defaults
+  // to "totp" for older clients that send only password + code.
+  method: z.enum(["totp", "email"]).optional(),
 });
 
-// POST /api/auth/2fa/disable { password, code } — turn two-factor off.
-// The password is re-checked, AND a valid TOTP code (or a backup
-// code) must be presented (H10): a phished password alone must not
-// be able to strip the second factor. The session version bumps
-// (H2) and the session is re-issued, so every other session dies
-// with the change.
+// POST /api/auth/2fa/disable { password, code, method? } — turn two-factor off.
+// The password is re-checked, AND a valid second factor must be
+// presented (H10): a phished password alone must not be able to
+// strip the second factor. The second factor is a current TOTP code
+// (or a backup code), or — method "email" — a code emailed to the
+// account via /api/auth/2fa/disable/send-code. The emailed code
+// bypasses the TOTP failure cap, exactly like the sign-in email-code
+// step: a legacy account whose secret no longer decrypts (key split,
+// 2026-11-23) would otherwise be locked out of disabling 2FA
+// forever. The session version bumps (H2) and the session is
+// re-issued, so every other session dies with the change.
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
@@ -67,6 +82,7 @@ export async function POST(req: NextRequest) {
   }
   const password = parsed.data.password;
   const code = parsed.data.code;
+  const method = parsed.data.method ?? "totp";
   if (typeof password !== "string" || typeof code !== "string") {
     return jsonError("Enter your password and a code from your authenticator app to disable two-factor authentication.", 400);
   }
@@ -82,38 +98,89 @@ export async function POST(req: NextRequest) {
   if (!user.totp_enabled) {
     return jsonError("Two-factor authentication is not on.", 400);
   }
+  // Legacy secret (key split, 2026-11-23): the stored secret exists
+  // but no longer decrypts under TOTP_ENCRYPTION_KEY, so no
+  // authenticator code can ever verify for this account. The key
+  // check matters: decryptUserTotpSecret also returns null when the
+  // key itself is missing, and then the account is not "legacy" —
+  // the whole TOTP setup is unconfigured. Guide the user to the
+  // emailed code instead of demanding an authenticator code that
+  // can never work (and burning the failure cap guessing it).
+  const secretUnusable =
+    user.totp_secret_enc !== null &&
+    user.totp_secret_enc !== undefined &&
+    totpSecretEncryptionKey() !== null &&
+    decryptUserTotpSecret(user.totp_secret_enc) === null;
+  if (method === "totp" && secretUnusable) {
+    return jsonError("Your authenticator app can't verify this account. Use an emailed code to turn two-factor authentication off instead.", 400);
+  }
   // Per-account attempt cap (R2-M8), same 5-failure lockout as
   // verify/enable: without it the cap was bypassable by guessing
   // codes here instead. A locked disable answers with the same
-  // generic error as a wrong code.
-  if ((user.totp_failed_attempts ?? 0) >= TOTP_MAX_FAILED_ATTEMPTS) {
+  // generic error as a wrong code. The emailed-code method skips
+  // this cap — like the sign-in email-code step, it is the recovery
+  // path for an account the cap has locked out of TOTP.
+  if (
+    method !== "email" &&
+    (user.totp_failed_attempts ?? 0) >= TOTP_MAX_FAILED_ATTEMPTS
+  ) {
     return jsonError("The code is incorrect. Check your authenticator app and try again.", 400);
   }
 
   // Second-factor proof (H10): a current TOTP code, or one of the
   // backup codes (the recovery path when the authenticator is
-  // lost). A replayed TOTP code fails the step check (M4).
+  // lost) — or, for method "email", the 6-digit code emailed to the
+  // account. A replayed TOTP code fails the step check (M4). The
+  // emailed code is single-use (consumed atomically) and has its
+  // own 5-attempt limit on the OTP row; a wrong emailed code does
+  // NOT bump the TOTP failure cap.
   let matchedStep: number | null = null;
   let codeOk = false;
-  if (user.totp_secret_enc) {
-    const secret = decryptUserTotpSecret(user.totp_secret_enc);
-    const matched = secret ? verifyTotpCodeWithStep(secret, code) : null;
-    const replay =
-      matched !== null &&
-      user.totp_last_step !== null &&
-      user.totp_last_step !== undefined &&
-      matched.step === user.totp_last_step;
-    if (matched && !replay) {
-      codeOk = true;
-      matchedStep = matched.step;
+  if (method === "email") {
+    const row = await getLatestOtp(sessionUser.email, "2fa");
+    if (row) {
+      const decision = decideOtp(
+        {
+          codeHash: row.code_hash,
+          expiresAtMs: new Date(row.expires_at).getTime(),
+          attempts: row.attempts,
+          consumedAtMs: row.consumed_at
+            ? new Date(row.consumed_at).getTime()
+            : null,
+        },
+        code,
+        Date.now()
+      );
+      if (decision.ok) {
+        // Atomic claim: a second request with the same code loses.
+        codeOk = await consumeOtp(row.id);
+      } else if (decision.reason === "invalid") {
+        await bumpOtpAttempts(row.id);
+      }
+    }
+  } else {
+    if (user.totp_secret_enc) {
+      const secret = decryptUserTotpSecret(user.totp_secret_enc);
+      const matched = secret ? verifyTotpCodeWithStep(secret, code) : null;
+      const replay =
+        matched !== null &&
+        user.totp_last_step !== null &&
+        user.totp_last_step !== undefined &&
+        matched.step === user.totp_last_step;
+      if (matched && !replay) {
+        codeOk = true;
+        matchedStep = matched.step;
+      }
+    }
+    if (!codeOk) {
+      const matchedBackup = await findBackupCode(user.backup_codes, code);
+      codeOk = matchedBackup !== null;
     }
   }
   if (!codeOk) {
-    const matchedBackup = await findBackupCode(user.backup_codes, code);
-    codeOk = matchedBackup !== null;
-  }
-  if (!codeOk) {
-    await bumpTotpFailedAttempts(user.id);
+    if (method !== "email") {
+      await bumpTotpFailedAttempts(user.id);
+    }
     return jsonError("The code is incorrect. Check your authenticator app and try again.", 400);
   }
 

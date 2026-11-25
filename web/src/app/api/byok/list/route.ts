@@ -5,11 +5,12 @@ import { listByokKeys } from "@/lib/byok-store";
 
 // List the signed-in user's saved BYOK providers (migration 009).
 //
-// GET returns { keys: [{ provider, baseUrl, model }] } — metadata
-// only. Keys are NEVER returned to the browser, not even here.
-// When BYOK storage is not set up yet the list is empty (fail
-// closed as "no keys"), not an error — the editor just shows no
-// saved providers.
+// GET returns { keys: [{ provider, baseUrl, model, keyHint }] } —
+// metadata only. Keys are NEVER returned to the browser, not even
+// here; keyHint is only the last 4 chars (migration 013), shown as
+// ••••1234, and null before 013 runs. When BYOK storage is not set
+// up yet the list is empty (fail closed as "no keys"), not an
+// error — the editor just shows no saved providers.
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {

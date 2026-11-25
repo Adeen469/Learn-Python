@@ -11,6 +11,23 @@
 // extensionless TS imports, and tsc forbids explicit `.ts` imports
 // here) — so the tiny guarded localStorage read lives here instead
 // of coming from editor-utils.
+//
+// Per-user scope (Fix C, Maalik 2026-11-25): the repo a user opened
+// is namespaced by their email, like the workspace tree. The editor
+// page sets the scope once the session resolves (setEditorScope);
+// until then the legacy bare key is read. That is safe: the viewer
+// only uses the repo for files that carry a sha, and repo files
+// only exist in a scoped workspace tree — a fresh user has none.
+let editorScope: string | null = null;
+
+/** Set the per-user scope — the signed-in user's email. */
+export function setEditorScope(scope: string): void {
+  editorScope = scope.toLowerCase();
+}
+
+function openRepoKey(): string {
+  return editorScope ? `lp_open_repo_current::${editorScope}` : "lp_open_repo_current";
+}
 function readStoredJson<T>(key: string, fallback: T): T {
   try {
     const raw = localStorage.getItem(key);
@@ -148,10 +165,12 @@ export function stripTransientBlobUrls<T extends { blobUrl?: string }>(items: T[
 
 /** The open repo, as the repo hook persists it (owner/name + branch)
     — the viewer builds its binary file URL from it, no page prop
-    needed. */
+    needed. Read from the signed-in user's scoped key (set via
+    setEditorScope); falls back to the legacy bare key for a repo
+    opened before scoping shipped. */
 export function readOpenRepo(): { repo: string; branch: string } | null {
   try {
-    const raw = localStorage.getItem("lp_open_repo_current");
+    const raw = localStorage.getItem(openRepoKey());
     if (!raw) return null;
     const parsed = JSON.parse(raw) as { repo?: unknown; branch?: unknown };
     if (parsed && typeof parsed.repo === "string" && typeof parsed.branch === "string") {

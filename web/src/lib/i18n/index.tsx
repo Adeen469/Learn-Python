@@ -211,6 +211,7 @@ export type Strings = {
     codeSentToWithExpiry: (email: string) => string;
     couldNotSignIn: string;
     couldNotCreateAccount: string;
+    signupLinksGoogleAccount: string;
     codeIncorrectOrExpired: string;
     enterCodeTitle: string;
     signInWithEmail: string;
@@ -286,6 +287,9 @@ export type Strings = {
     newBackupCodes: string;
     disable: string;
     disableTwoFactorPrompt: string;
+    authenticatorCannotVerify: string;
+    disableTwoFactorEmailPrompt: string;
+    couldNotSendDisableCode: string;
     disablingTwoFactor: string;
     disableTwoFactor: string;
     backupCodesTitle: string;
@@ -588,6 +592,9 @@ export type Strings = {
     aiByokSaved: string;
     aiByokRemove: string;
     aiByokNote: string;
+    aiByokReplace: string;
+    aiByokKeysUsed: (used: number, max: number) => string;
+    aiByokAllSaved: string;
     aiModelsTitle: string;
     aiModelsNote: string;
     aiModelsBest: string;

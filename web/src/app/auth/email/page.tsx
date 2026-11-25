@@ -178,7 +178,14 @@ export default function EmailAuthPage() {
       }
       setOtpPurpose("signup");
       setStep("code");
-      setNote(t.auth.codeSentToWithExpiry(email));
+      // A Google-only row existed for this email: verifying the
+      // code links it with this password instead of creating a
+      // second account — say so, instead of the generic code note.
+      setNote(
+        data.linkExisting === true
+          ? t.auth.signupLinksGoogleAccount
+          : t.auth.codeSentToWithExpiry(email)
+      );
       setCooldown(60);
       setCodeSent(true);
     } finally {
