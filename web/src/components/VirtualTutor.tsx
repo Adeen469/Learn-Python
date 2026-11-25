@@ -7,7 +7,12 @@ import { Loader2, Mic, MicOff, Send, Volume2, X } from "lucide-react";
 import { fetchSessionUser, type SessionUser } from "@/lib/auth-client";
 import { stripForSpeech } from "@/lib/ai-tts";
 import { useLanguage, type LanguageCode } from "@/lib/i18n";
-import { matchesWakeWord } from "@/lib/tutor-wake";
+import {
+  MIC_DENIED_MESSAGE,
+  isMicPermissionError,
+  matchesWakeWord,
+  voiceErrorMessage,
+} from "@/lib/tutor-wake";
 import Strands from "@/components/Strands";
 
 interface TutorMessage {
@@ -73,6 +78,25 @@ const STRANDS_COLORS = [
   "#afafaf",
 ];
 
+// Microphone permission state for the wake listener. The wake
+// listener must not auto-start before the browser has granted the
+// mic: start() without a user gesture is blocked with
+// "not-allowed" and no permission prompt is ever shown.
+async function checkMicPermission(): Promise<
+  "granted" | "denied" | "prompt" | "unknown"
+> {
+  try {
+    const permissions = navigator.permissions;
+    if (!permissions?.query) return "unknown";
+    const status = await permissions.query({
+      name: "microphone" as PermissionName,
+    });
+    return status.state;
+  } catch {
+    return "unknown";
+  }
+}
+
 export function VirtualTutor() {
   const { lang, t } = useLanguage();
   const pathname = usePathname();
@@ -101,6 +125,7 @@ export function VirtualTutor() {
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const wakeRecognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const wakeBlockedRef = useRef(false);
+  const wakeRetryRef = useRef<number | null>(null);
   const openRef = useRef(open);
   const wakeEnabledRef = useRef(wakeEnabled);
   const ttsAbortRef = useRef<AbortController | null>(null);
@@ -153,6 +178,9 @@ export function VirtualTutor() {
 
   useEffect(
     () => () => {
+      if (wakeRetryRef.current !== null) {
+        window.clearTimeout(wakeRetryRef.current);
+      }
       recognitionRef.current?.abort();
       wakeRecognitionRef.current?.abort();
       ttsAbortRef.current?.abort();
@@ -190,6 +218,56 @@ export function VirtualTutor() {
     setOpen(false);
   }
 
+  // Ask the browser for the microphone, on a user gesture. This is
+  // what makes Edge/Chrome show the permission prompt and register
+  // the Microphone entry in Site permissions (like muse.ai). The
+  // stream is stopped at once — the granted permission is what
+  // matters; SpeechRecognition uses it afterwards.
+  async function requestMicPermission(): Promise<boolean> {
+    const mediaDevices = navigator.mediaDevices;
+    if (!mediaDevices?.getUserMedia) {
+      setError("Voice input is not supported in this browser. You can still type.");
+      return false;
+    }
+    try {
+      const stream = await mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach((track) => track.stop());
+      setError(null);
+      return true;
+    } catch (caught) {
+      const name = caught instanceof Error ? caught.name : "";
+      if (name === "NotAllowedError" || name === "SecurityError") {
+        setError(MIC_DENIED_MESSAGE);
+      } else if (name === "NotFoundError" || name === "OverconstrainedError") {
+        setError(
+          "No microphone was found on this device. Check your microphone or type instead."
+        );
+      } else if (name === "NotReadableError") {
+        setError("Your microphone is in use by another app. Close it and try again.");
+      } else {
+        setError("Could not access the microphone. Check permission or type instead.");
+      }
+      return false;
+    }
+  }
+
+  // Retry the wake listener after a short pause, once. Guards so a
+  // stopped or blocked listener never restarts.
+  function scheduleWakeRestart() {
+    if (wakeRetryRef.current !== null) return;
+    wakeRetryRef.current = window.setTimeout(() => {
+      wakeRetryRef.current = null;
+      if (
+        wakeRecognitionRef.current === null &&
+        !openRef.current &&
+        wakeEnabledRef.current &&
+        !wakeBlockedRef.current
+      ) {
+        startWake();
+      }
+    }, 1500);
+  }
+
   function startListening() {
     const speechWindow = window as SpeechWindow;
     const Recognition =
@@ -217,9 +295,8 @@ export function VirtualTutor() {
       }
     };
     recognition.onerror = (event) => {
-      if (event.error !== "aborted") {
-        setError("Voice input stopped. You can retry or type your question.");
-      }
+      const message = voiceErrorMessage(event.error);
+      if (message) setError(message);
     };
     recognition.onend = () => {
       recognitionRef.current = null;
@@ -237,6 +314,10 @@ export function VirtualTutor() {
   }
 
   function stopWake() {
+    if (wakeRetryRef.current !== null) {
+      window.clearTimeout(wakeRetryRef.current);
+      wakeRetryRef.current = null;
+    }
     const recognition = wakeRecognitionRef.current;
     wakeRecognitionRef.current = null;
     if (recognition) {
@@ -272,13 +353,12 @@ export function VirtualTutor() {
       }
     };
     recognition.onerror = (event) => {
-      // Degrade silently: the mic button still works. A denied
-      // microphone must not hot-loop restarts.
-      if (
-        event.error === "not-allowed" ||
-        event.error === "service-not-allowed"
-      ) {
+      // A denied microphone must not hot-loop restarts — but surface
+      // it instead of degrading silently, so the user can allow the
+      // mic in Site permissions and retry.
+      if (isMicPermissionError(event.error)) {
         wakeBlockedRef.current = true;
+        setError(MIC_DENIED_MESSAGE);
       }
     };
     recognition.onend = () => {
@@ -288,21 +368,16 @@ export function VirtualTutor() {
       if (wakeRecognitionRef.current !== recognition) return;
       wakeRecognitionRef.current = null;
       if (wakeBlockedRef.current) return;
-      window.setTimeout(() => {
-        if (
-          wakeRecognitionRef.current === null &&
-          !openRef.current &&
-          wakeEnabledRef.current
-        ) {
-          startWake();
-        }
-      }, 1500);
+      scheduleWakeRestart();
     };
     wakeRecognitionRef.current = recognition;
     try {
       recognition.start();
     } catch {
       wakeRecognitionRef.current = null;
+      // start() can throw without firing onend, so schedule the
+      // retry explicitly instead of dying silently.
+      if (!wakeBlockedRef.current) scheduleWakeRestart();
     }
   }
 
@@ -311,8 +386,24 @@ export function VirtualTutor() {
       stopWake();
       return;
     }
-    startWake();
-    return () => stopWake();
+    // Auto-start only once the mic is already granted. Starting
+    // recognition on page load (no gesture, permission still on
+    // "prompt") is blocked with "not-allowed" and never shows a
+    // prompt — so wait for a gesture (wake toggle or mic button),
+    // which requests the permission first.
+    let cancelled = false;
+    checkMicPermission().then((state) => {
+      if (cancelled) return;
+      if (state === "denied") {
+        setError(MIC_DENIED_MESSAGE);
+        return;
+      }
+      if (state === "granted" || state === "unknown") startWake();
+    });
+    return () => {
+      cancelled = true;
+      stopWake();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, wakeEnabled]);
 
@@ -504,20 +595,22 @@ export function VirtualTutor() {
                   type="button"
                   role="switch"
                   aria-checked={wakeEnabled}
-                  onClick={() =>
-                    setWakeEnabled((current) => {
-                      const next = !current;
-                      try {
-                        window.localStorage.setItem(
-                          "lp_tutor_wake",
-                          next ? "on" : "off"
-                        );
-                      } catch {
-                        // Private mode: the toggle still works for this session.
-                      }
-                      return next;
-                    })
-                  }
+                  onClick={() => {
+                    const next = !wakeEnabled;
+                    try {
+                      window.localStorage.setItem(
+                        "lp_tutor_wake",
+                        next ? "on" : "off"
+                      );
+                    } catch {
+                      // Private mode: the toggle still works for this session.
+                    }
+                    // Turning wake on is a user gesture: request the
+                    // mic now so the browser prompts and registers
+                    // the Microphone permission for this site.
+                    if (next) void requestMicPermission();
+                    setWakeEnabled(next);
+                  }}
                   className="mt-2 flex items-center gap-2 text-xs text-neutral-400 transition hover:text-white"
                 >
                   <span
@@ -685,12 +778,15 @@ export function VirtualTutor() {
                   {speechAvailable && (
                     <button
                       type="button"
-                      onClick={() => {
+                      onClick={async () => {
                         if (listening) {
                           recognitionRef.current?.stop();
-                        } else {
-                          startListening();
+                          return;
                         }
+                        // Request the mic first: this shows the
+                        // browser prompt and registers the
+                        // Microphone permission for this site.
+                        if (await requestMicPermission()) startListening();
                       }}
                       disabled={checkingSession || !user || sending}
                       aria-label={listening ? "Stop voice input" : "Start voice input"}

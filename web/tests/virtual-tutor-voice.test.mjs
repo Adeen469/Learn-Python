@@ -207,3 +207,79 @@ test("matchesWakeWord ignores anything else", () => {
   assert.equal(matchesWakeWord("assistant"), false);
   assert.equal(matchesWakeWord("tutor me python"), false);
 });
+
+const MIC_DENIED_MESSAGE =
+  "Microphone access is blocked for this site. Tap the lock icon in the address bar, open Site permissions, set Microphone to Allow, then tap the microphone again.";
+
+function isMicPermissionError(error) {
+  return error === "not-allowed" || error === "service-not-allowed";
+}
+
+function voiceErrorMessage(error) {
+  if (!error || error === "aborted") return null;
+  if (isMicPermissionError(error)) return MIC_DENIED_MESSAGE;
+  if (error === "audio-capture") {
+    return "No microphone was found, or it is in use by another app. Check your microphone and try again.";
+  }
+  if (error === "network") {
+    return "Voice service is unreachable. Check your connection or type your question.";
+  }
+  if (error === "no-speech") {
+    return "Didn't hear anything. Try again or type your question.";
+  }
+  return "Voice input stopped. You can retry or type your question.";
+}
+
+test("Mic mirror: denied message matches src/lib/tutor-wake.ts", () => {
+  const src = readSrc("src/lib/tutor-wake.ts");
+  assert.ok(src.includes(MIC_DENIED_MESSAGE));
+  assert.ok(src.includes("export function isMicPermissionError"));
+  assert.ok(src.includes("export function voiceErrorMessage"));
+});
+
+test("isMicPermissionError flags only permission denials", () => {
+  assert.equal(isMicPermissionError("not-allowed"), true);
+  assert.equal(isMicPermissionError("service-not-allowed"), true);
+  assert.equal(isMicPermissionError("network"), false);
+  assert.equal(isMicPermissionError("no-speech"), false);
+  assert.equal(isMicPermissionError("aborted"), false);
+  assert.equal(isMicPermissionError(undefined), false);
+});
+
+test("voiceErrorMessage returns null for aborted / missing errors", () => {
+  assert.equal(voiceErrorMessage("aborted"), null);
+  assert.equal(voiceErrorMessage(undefined), null);
+  assert.equal(voiceErrorMessage(""), null);
+});
+
+test("voiceErrorMessage maps each recognition error", () => {
+  assert.equal(voiceErrorMessage("not-allowed"), MIC_DENIED_MESSAGE);
+  assert.equal(voiceErrorMessage("service-not-allowed"), MIC_DENIED_MESSAGE);
+  assert.equal(
+    voiceErrorMessage("audio-capture"),
+    "No microphone was found, or it is in use by another app. Check your microphone and try again."
+  );
+  assert.equal(
+    voiceErrorMessage("network"),
+    "Voice service is unreachable. Check your connection or type your question."
+  );
+  assert.equal(
+    voiceErrorMessage("no-speech"),
+    "Didn't hear anything. Try again or type your question."
+  );
+  assert.equal(
+    voiceErrorMessage("bad-device"),
+    "Voice input stopped. You can retry or type your question."
+  );
+});
+
+test("Mic permission: site allows microphone and requests it on gesture", () => {
+  const config = readSrc("next.config.ts");
+  assert.ok(config.includes("microphone=(self)"));
+  assert.equal(config.includes("microphone=()"), false);
+  const tutor = readSrc("src/components/VirtualTutor.tsx");
+  assert.ok(tutor.includes("getUserMedia({ audio: true })"));
+  assert.ok(tutor.includes("navigator.permissions"));
+  assert.ok(tutor.includes('"microphone"'));
+  assert.ok(tutor.includes("requestMicPermission()"));
+});
