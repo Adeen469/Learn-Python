@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { ArrowLeft, CheckCircle2, Circle, Pause, Play } from "lucide-react";
 import { fetchSessionUser } from "@/lib/auth-client";
 import { AppNavbar } from "@/components/AppNavbar";
@@ -14,6 +14,11 @@ import {
   getStoredTheme,
   type Theme,
 } from "@/lib/theme";
+import {
+  PENDING_VIDEO_INDEX_KEY,
+  VOICE_VIDEO_DONE_EVENT,
+  VOICE_VIDEO_EVENT,
+} from "@/lib/tutor-commands";
 import {
   PROGRESS_KEY,
   PROGRESS_UPDATED_EVENT,
@@ -103,6 +108,73 @@ export default function CoursePlayerPage({
   );
   const [theme, setTheme] = useState<Theme>("dark");
 
+  // Voice site control (Virtual Tutor): next / previous / play a
+  // numbered video, dispatched as lp-voice-video events from the
+  // tutor. Answers with lp-voice-video-done (title or atEnd) so the
+  // tutor can confirm honestly.
+  const activeIndexRef = useRef(activeIndex);
+  activeIndexRef.current = activeIndex;
+  const videosRef = useRef<CourseVideo[]>([]);
+  const pendingVideoConsumedRef = useRef(false);
+  useEffect(() => {
+    const reply = (detail: Record<string, unknown>) => {
+      window.dispatchEvent(new CustomEvent(VOICE_VIDEO_DONE_EVENT, { detail }));
+    };
+    const pick = (index: number) => {
+      const list = videosRef.current;
+      if (list.length === 0) return;
+      const clamped = Math.max(0, Math.min(index, list.length - 1));
+      setActiveIndex(clamped);
+      setIsPlaying(false);
+      setHasPlayed(false);
+      setActiveCoverage({ fraction: 0, seconds: 0 });
+      reply({ ok: true, title: list[clamped].title });
+    };
+    const onVoice = (event: Event) => {
+      const detail = (event as CustomEvent).detail as { action?: string; index?: number } | undefined;
+      const list = videosRef.current;
+      if (list.length === 0) return;
+      if (detail?.action === "next") {
+        const next = activeIndexRef.current + 1;
+        if (next >= list.length) reply({ ok: false, atEnd: true });
+        else pick(next);
+        return;
+      }
+      if (detail?.action === "prev") {
+        const prev = activeIndexRef.current - 1;
+        if (prev < 0) reply({ ok: false, atEnd: true });
+        else pick(prev);
+        return;
+      }
+      if (detail?.action === "play-index" && typeof detail.index === "number") {
+        if (detail.index < 0 || detail.index >= list.length) reply({ ok: false, atEnd: true });
+        else pick(detail.index);
+      }
+    };
+    window.addEventListener(VOICE_VIDEO_EVENT, onVoice);
+    return () => window.removeEventListener(VOICE_VIDEO_EVENT, onVoice);
+  }, []);
+  // Pending video index from a cross-page voice command (the tutor
+  // navigated here first): play that video instead of the first one.
+  useEffect(() => {
+    if (!route || pendingVideoConsumedRef.current) return;
+    pendingVideoConsumedRef.current = true;
+    try {
+      const raw = sessionStorage.getItem(PENDING_VIDEO_INDEX_KEY);
+      if (raw === null) return;
+      const index = Number(raw);
+      sessionStorage.removeItem(PENDING_VIDEO_INDEX_KEY);
+      if (Number.isInteger(index) && index >= 0 && index < videosRef.current.length) {
+        setActiveIndex(index);
+        setIsPlaying(false);
+        setHasPlayed(false);
+        setActiveCoverage({ fraction: 0, seconds: 0 });
+      }
+    } catch {
+      // Private mode — the page just starts at the first video.
+    }
+  }, [route]);
+
   // The lessons list follows the app theme (same pattern as the editor).
   useEffect(() => {
     setTheme(getStoredTheme());
@@ -161,6 +233,7 @@ export default function CoursePlayerPage({
   }
 
   const videos: CourseVideo[] = isOneShots ? creator.oneShots : (playlist?.videos ?? []);
+  videosRef.current = videos;
   const activeVideo = videos[Math.min(activeIndex, Math.max(0, videos.length - 1))];
   if (!activeVideo) {
     router.replace(`/courses/${creator.slug}`);

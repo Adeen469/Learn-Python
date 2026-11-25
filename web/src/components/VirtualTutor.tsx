@@ -1,11 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Loader2, Mic, MicOff, Send, Volume2, X } from "lucide-react";
 import { fetchSessionUser, type SessionUser } from "@/lib/auth-client";
 import { stripForSpeech } from "@/lib/ai-tts";
+import { applyTheme } from "@/lib/theme";
+import {
+  executeVoiceCommand,
+  realCommandEnv,
+} from "@/lib/tutor-command-actions";
+import { matchVoiceCommand } from "@/lib/tutor-commands";
 import { useLanguage, type LanguageCode } from "@/lib/i18n";
 import {
   MIC_DENIED_MESSAGE,
@@ -77,10 +83,6 @@ const SPEECH_LOCALES: Partial<Record<LanguageCode, string>> = {
   zh: "zh-CN",
 };
 
-// Spoken when the wake word fires, before listening for the
-// question — the tutor must never sit silent after waking.
-const VOICE_GREETING = "Hi! How can I help?";
-
 const STRANDS_COLORS = [
   "#afafaf",
   "#afafaf",
@@ -113,6 +115,7 @@ async function checkMicPermission(): Promise<
 export function VirtualTutor() {
   const { lang, t } = useLanguage();
   const pathname = usePathname();
+  const router = useRouter();
   const topicMatch = pathname?.match(/^\/learn\/([A-Za-z0-9_-]+)\/?$/);
   const topicSlug = topicMatch?.[1];
   const [open, setOpen] = useState(false);
@@ -149,9 +152,6 @@ export function VirtualTutor() {
   const audioUrlRef = useRef<string | null>(null);
   const voicePhaseRef = useRef<VoicePhase>("idle");
   const questionRecognitionRef = useRef<SpeechRecognitionLike | null>(null);
-  const greetingTimerRef = useRef<number | null>(null);
-  const questionSilenceRef = useRef<number | null>(null);
-  const voiceSessionActiveRef = useRef(false);
   const userRef = useRef<SessionUser | null>(null);
 
   useEffect(() => {
@@ -433,23 +433,6 @@ export function VirtualTutor() {
   // effect restarts the wake listener once the phase is idle again
   // (panel closed, toggle on, mic not blocked).
   function endVoiceSession() {
-    voiceSessionActiveRef.current = false;
-    if (greetingTimerRef.current !== null) {
-      window.clearTimeout(greetingTimerRef.current);
-      greetingTimerRef.current = null;
-    }
-    stopQuestionListener();
-    if (voicePhaseRef.current !== "idle") setVoicePhase("idle");
-  }
-
-  // Stop the question listener (and its inactivity timer) without
-  // ending the session — used when a transcript arrived and the
-  // session moves on to thinking.
-  function stopQuestionListener() {
-    if (questionSilenceRef.current !== null) {
-      window.clearTimeout(questionSilenceRef.current);
-      questionSilenceRef.current = null;
-    }
     const recognition = questionRecognitionRef.current;
     questionRecognitionRef.current = null;
     if (recognition) {
@@ -459,93 +442,15 @@ export function VirtualTutor() {
         // Already stopped.
       }
     }
-  }
-
-  // Listen for the spoken question. continuous MUST stay true: a
-  // non-continuous listener ends on the first pause in speech —
-  // about a second after the wake word — and the session dies
-  // before the user speaks. While the phase is "listening" an
-  // ended listener restarts instead of ending the session; 30s
-  // of silence with no question ends it so the mic never runs
-  // forever.
-  function startQuestionListener() {
-    if (openRef.current) return;
-    const speechWindow = window as SpeechWindow;
-    const Recognition =
-      speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
-    if (!Recognition) {
-      endVoiceSession();
-      return;
-    }
-    setVoicePhase("listening");
-    const recognition = new Recognition();
-    recognition.lang = SPEECH_LOCALES[lang] ?? navigator.language ?? "en-IN";
-    recognition.continuous = true;
-    recognition.interimResults = false;
-    recognition.onresult = (event) => {
-      const transcript = Array.from(event.results)
-        .slice(event.resultIndex)
-        .map((result) => result[0]?.transcript ?? "")
-        .join(" ")
-        .trim();
-      if (transcript) {
-        stopQuestionListener();
-        void askVoiceQuestion(transcript);
-      }
-    };
-    recognition.onerror = (event) => {
-      // A revoked mic ends the session with the denied hint;
-      // anything else (network blips, service hiccups) is left to
-      // onend, which restarts the listener below.
-      if (isMicPermissionError(event.error)) {
-        endVoiceSession();
-        setError(MIC_DENIED_MESSAGE);
-      }
-    };
-    recognition.onend = () => {
-      if (questionRecognitionRef.current !== recognition) return;
-      questionRecognitionRef.current = null;
-      // Still waiting on the question: the listener ended (pause,
-      // network blip) — restart it instead of going silent.
-      if (voicePhaseRef.current === "listening" && !openRef.current) {
-        startQuestionListener();
-      }
-    };
-    questionRecognitionRef.current = recognition;
-    if (questionSilenceRef.current !== null) {
-      window.clearTimeout(questionSilenceRef.current);
-    }
-    questionSilenceRef.current = window.setTimeout(() => {
-      questionSilenceRef.current = null;
-      if (voicePhaseRef.current === "listening") endVoiceSession();
-    }, 30000);
-    try {
-      recognition.start();
-    } catch {
-      questionRecognitionRef.current = null;
-      // start() can throw if the mic is momentarily busy (the wake
-      // listener was just aborted) — retry once shortly instead of
-      // dying silently.
-      window.setTimeout(() => {
-        if (voicePhaseRef.current === "listening" && !openRef.current) {
-          startQuestionListener();
-        }
-      }, 500);
-    }
+    if (voicePhaseRef.current !== "idle") setVoicePhase("idle");
   }
 
   function startVoiceSession() {
     if (openRef.current) return;
-    voiceSessionActiveRef.current = true;
-    // Greet by voice FIRST, then listen for the question. The
-    // tutor must never sit silent after waking — and the question
-    // listener only starts once the greeting is done (or its
-    // safety timer fires), so the greeting itself is never
-    // transcribed as the user's question.
-    setVoicePhase("speaking");
+    setVoicePhase("listening");
     // The panel has never been opened on this page load, so the
     // session user may not be loaded yet — fetch it while the
-    // greeting plays.
+    // user speaks their question.
     void fetchSessionUser()
       .then((sessionUser) => {
         userRef.current = sessionUser;
@@ -555,23 +460,47 @@ export function VirtualTutor() {
         // Still unknown — askVoiceQuestion falls back to a sign-in
         // prompt if there is no user by then.
       });
-    let listeningStarted = false;
-    const beginListening = () => {
-      if (listeningStarted) return;
-      listeningStarted = true;
-      if (greetingTimerRef.current !== null) {
-        window.clearTimeout(greetingTimerRef.current);
-        greetingTimerRef.current = null;
+    const speechWindow = window as SpeechWindow;
+    const Recognition =
+      speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
+    if (!Recognition) {
+      endVoiceSession();
+      return;
+    }
+    const recognition = new Recognition();
+    recognition.lang = SPEECH_LOCALES[lang] ?? navigator.language ?? "en-IN";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.onresult = (event) => {
+      const transcript = Array.from(event.results)
+        .slice(event.resultIndex)
+        .map((result) => result[0]?.transcript ?? "")
+        .join(" ")
+        .trim();
+      if (transcript) {
+        void askVoiceQuestion(transcript);
+      } else {
+        endVoiceSession();
       }
-      // The panel may have opened mid-greeting, or the session may
-      // have ended — only listen while still in the voice session.
-      if (openRef.current || !voiceSessionActiveRef.current) return;
-      startQuestionListener();
     };
-    // Safety: if the greeting never finishes (TTS hangs), start
-    // listening anyway instead of sitting silent forever.
-    greetingTimerRef.current = window.setTimeout(beginListening, 10000);
-    speak(VOICE_GREETING, -1, beginListening);
+    recognition.onerror = () => {
+      // Voice mode has no panel to show the error in — onend
+      // follows and ends the session quietly.
+    };
+    recognition.onend = () => {
+      questionRecognitionRef.current = null;
+      // Still waiting on the question with no transcript: the
+      // user stayed silent, so go back to wake listening. If a
+      // transcript arrived, the phase already moved on.
+      if (voicePhaseRef.current === "listening") endVoiceSession();
+    };
+    questionRecognitionRef.current = recognition;
+    try {
+      recognition.start();
+    } catch {
+      questionRecognitionRef.current = null;
+      endVoiceSession();
+    }
   }
 
   async function askVoiceQuestion(question: string) {
@@ -583,6 +512,16 @@ export function VirtualTutor() {
     setVoicePhase("thinking");
     const history = messages.slice(-4).map(({ role, text }) => ({ role, text }));
     setMessages((current) => [...current, { role: "user", text: question }]);
+    // Voice site control (130): a command runs instead of an AI
+    // answer — the wake-word voice session never opens the panel,
+    // so the confirmation is spoken and the session ends.
+    const confirmation = await handleVoiceCommand(question);
+    if (confirmation) {
+      setMessages((current) => [...current, { role: "assistant", text: confirmation }]);
+      setVoicePhase("speaking");
+      speak(confirmation, -1, () => endVoiceSession());
+      return;
+    }
     try {
       const result = await fetchTutorReply(question, history);
       if (!result.ok) throw new Error("tutor reply failed");
@@ -749,6 +688,25 @@ export function VirtualTutor() {
     };
   }
 
+  // Voice site control (130): "open strings lesson", "play the
+  // video", "run the code". Returns the spoken confirmation, or null
+  // when the text is not a command (then the AI answers it). Used by
+  // both send() (panel) and askVoiceQuestion() (wake-word voice
+  // session, no panel).
+  async function handleVoiceCommand(question: string): Promise<string | null> {
+    const command = matchVoiceCommand(question, { pathname, topicSlug });
+    if (!command) return null;
+    return executeVoiceCommand(
+      command,
+      realCommandEnv({
+        navigate: (path) => router.push(path),
+        setTutorOpen: setOpen,
+        setTheme: applyTheme,
+      }),
+      { pathname, topicSlug }
+    );
+  }
+
   async function send(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const question = input.trim();
@@ -757,6 +715,12 @@ export function VirtualTutor() {
     setInput("");
     const history = messages.slice(-4).map(({ role, text }) => ({ role, text }));
     setMessages((current) => [...current, { role: "user", text: question }]);
+    const confirmation = await handleVoiceCommand(question);
+    if (confirmation) {
+      setMessages((current) => [...current, { role: "assistant", text: confirmation }]);
+      void speak(confirmation, messages.length + 1);
+      return;
+    }
     setSending(true);
     try {
       const result = await fetchTutorReply(question, history);
@@ -775,11 +739,6 @@ export function VirtualTutor() {
         topicGrounded: result.topicGrounded,
       };
       setMessages((current) => [...current, message]);
-      // Every tutor reply is also spoken aloud via the TTS chain
-      // — panel replies were text-only before this. The reply
-      // lands at messages.length + 1 (the user message just
-      // appended sits at messages.length).
-      void speak(result.reply, messages.length + 1);
     } catch {
       setError(t.tutor.errorGeneric);
       setMessages((current) => current.slice(0, -1));

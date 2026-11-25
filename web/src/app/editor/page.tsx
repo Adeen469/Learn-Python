@@ -15,6 +15,11 @@ import {
   THEME_CHANGED_EVENT,
   getStoredTheme,
 } from "@/lib/theme";
+import {
+  PENDING_OPEN_FILE_KEY,
+  VOICE_EDITOR_DONE_EVENT,
+  VOICE_EDITOR_EVENT,
+} from "@/lib/tutor-commands";
 import { restoreStoredPackages } from "@/lib/package-storage";
 import { loadPyodideRuntime, withTimeout } from "@/lib/pyodide-install";
 import {
@@ -657,6 +662,67 @@ export default function CodeEditorPage() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
+
+  // Voice site control (Virtual Tutor): run / save / open a file by
+  // name, dispatched as lp-voice-editor events from the tutor. The
+  // page answers with lp-voice-editor-done so the tutor can confirm
+  // honestly. A pending file (the tutor navigated here from another
+  // page first) is consumed once the workspace items have loaded.
+  useEffect(() => {
+    const reply = (detail: Record<string, unknown>) => {
+      window.dispatchEvent(new CustomEvent(VOICE_EDITOR_DONE_EVENT, { detail }));
+    };
+    const findFile = (wantedRaw: string) => {
+      const wanted = wantedRaw.toLowerCase();
+      return items
+        .filter((it) => it.type === "file")
+        .find((it) => {
+          const base = it.path.split("/").pop()?.toLowerCase() ?? "";
+          return base === wanted || base === `${wanted}.py` || base.startsWith(wanted);
+        });
+    };
+    const onVoice = (event: Event) => {
+      const detail = (event as CustomEvent).detail as { action?: string; name?: string } | undefined;
+      const s = shortcutsRef.current;
+      if (detail?.action === "run") {
+        if (s.isRunning || s.loadingEngine) {
+          reply({ ok: true, busy: true });
+          return;
+        }
+        void s.compileAndRun();
+        reply({ ok: true });
+        return;
+      }
+      if (detail?.action === "save") {
+        s.saveCurrentFile();
+        reply({ ok: true });
+        return;
+      }
+      if (detail?.action === "open-file" && typeof detail.name === "string") {
+        const hit = findFile(detail.name);
+        if (hit) {
+          setActiveFilePath(hit.path);
+          reply({ ok: true, path: hit.path });
+        } else {
+          reply({ ok: false });
+        }
+      }
+    };
+    window.addEventListener(VOICE_EDITOR_EVENT, onVoice);
+    try {
+      const pending = sessionStorage.getItem(PENDING_OPEN_FILE_KEY);
+      if (pending) {
+        const hit = findFile(pending);
+        if (hit) {
+          sessionStorage.removeItem(PENDING_OPEN_FILE_KEY);
+          setActiveFilePath(hit.path);
+        }
+      }
+    } catch {
+      // Private mode — the editor just opens as usual.
+    }
+    return () => window.removeEventListener(VOICE_EDITOR_EVENT, onVoice);
+  }, [items]);
 
   // Run diagnostics → editor markers: when a run fails, the error
   // line gets a red squiggle (warnings get a yellow one); hovering
