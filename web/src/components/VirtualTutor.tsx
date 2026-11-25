@@ -293,7 +293,7 @@ export function VirtualTutor() {
           <Strands
             className="absolute inset-0"
             colors={STRANDS_COLORS}
-            scale={1.8}
+            scale={2.6}
             speed={2.45}
             amplitude={1.05}
             waviness={2.5}
