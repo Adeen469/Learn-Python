@@ -48,6 +48,17 @@ const OPENROUTER_MODELS = [
   "particle-ai/particle-1:free",
   "liquid/lfm-3-1.7b:free",
 ];
+// Mirror of src/lib/ai.ts: the OpenRouter leg's first model — the
+// most capable free model in the list above (NVIDIA Nemotron 3
+// Ultra, 550B params, "frontier reasoning", 1M-token context;
+// verified against the live catalog 2026-11-26).
+const OPENROUTER_BEST_MODEL = "nvidia/nemotron-3-ultra-550b-a55b:free";
+// Mirror of src/lib/ai.ts: default OpenRouter try-list — best first,
+// then the rest (reached only on a 404 — retired model).
+const OPENROUTER_DEFAULT_MODELS = [
+  OPENROUTER_BEST_MODEL,
+  ...OPENROUTER_MODELS.filter((m) => m !== OPENROUTER_BEST_MODEL),
+];
 const AI_MODEL_IDS = [
   ...GEMINI_FREE_MODELS,
   ...GROQ_FREE_MODELS,
@@ -958,7 +969,7 @@ async function askAiMock(args, config, fetchImpl, dnsLookupImpl) {
     }
     if (p === "openrouter" && config.openrouterKey) {
       const models =
-        selected && isOpenRouterModelId(selected) ? [selected] : OPENROUTER_MODELS;
+        selected && isOpenRouterModelId(selected) ? [selected] : OPENROUTER_DEFAULT_MODELS;
       const reply = await callOpenAiCompatibleMock(args, config.openrouterKey, fetchImpl, {
         url: OPENROUTER_URL,
         models,
@@ -1034,9 +1045,13 @@ async function askAiMock(args, config, fetchImpl, dnsLookupImpl) {
     });
     if (reply) return finishResult(reply, "custom");
   }
-  // 2. Default order. Skip a leg whose model was already tried above.
-  // (And skip the whole phase once the shared budget is spent — a
-  // fetch that ignores the signal must not start new legs past it.)
+  // 2. Default fallback order: Gemini → Groq → OpenRouter (best
+  // free model first). Skip a leg whose model was already tried
+  // above, and skip the whole phase once the shared budget is
+  // spent — a fetch that ignores the signal must not start new legs
+  // past it. A leg with no key configured is skipped, so a missing
+  // OPENROUTER_API_KEY never 503s a request Gemini or Groq can
+  // answer. (Anthropic / OpenAI / custom are not in this chain.)
   if (budget.aborted) return null;
   if (config.geminiKey && selected !== GEMINI_MODEL) {
     const reply = await callGeminiMock(args, config.geminiKey, fetchImpl, { maxTokens, signal: budget });
@@ -1050,28 +1065,11 @@ async function askAiMock(args, config, fetchImpl, dnsLookupImpl) {
     const reply = await callGroqMock(args, config.groqKey, fetchImpl, { maxTokens, models: fallbackModels, signal: budget });
     if (reply) return finishResult(reply, "groq");
   }
-  if (config.anthropicKey && selected !== ANTHROPIC_MODELS[0]) {
-    const reply = await callAnthropicMock(args, config.anthropicKey, fetchImpl, { maxTokens, signal: budget });
-    if (reply) return finishResult(reply, "anthropic");
-  }
-  if (config.openaiKey) {
-    const fallbackModels =
-      selected && OPENAI_MODELS.includes(selected)
-        ? OPENAI_MODELS.filter((m) => m !== selected)
-        : OPENAI_MODELS;
-    const reply = await callOpenAiCompatibleMock(args, config.openaiKey, fetchImpl, {
-      url: OPENAI_URL,
-      models: fallbackModels,
-      maxTokens,
-      signal: budget,
-    });
-    if (reply) return finishResult(reply, "openai");
-  }
   if (config.openrouterKey) {
     const fallbackModels =
       selected && isOpenRouterModelId(selected)
-        ? OPENROUTER_MODELS.filter((m) => m !== selected)
-        : OPENROUTER_MODELS;
+        ? OPENROUTER_DEFAULT_MODELS.filter((m) => m !== selected)
+        : OPENROUTER_DEFAULT_MODELS;
     const reply = await callOpenAiCompatibleMock(args, config.openrouterKey, fetchImpl, {
       url: OPENROUTER_URL,
       models: fallbackModels,
@@ -1080,16 +1078,6 @@ async function askAiMock(args, config, fetchImpl, dnsLookupImpl) {
       signal: budget,
     });
     if (reply) return finishResult(reply, "openrouter");
-  }
-  if (config.customKey && config.customModel && config.customBaseUrl && selected !== config.customModel) {
-    const reply = await callOpenAiCompatibleMock(args, config.customKey, fetchImpl, {
-      url: normalizeCustomUrl(config.customBaseUrl),
-      models: [config.customModel],
-      maxTokens,
-      dnsLookup: dnsLookupImpl,
-      signal: budget,
-    });
-    if (reply) return finishResult(reply, "custom");
   }
   return null;
 }
@@ -2217,7 +2205,7 @@ const stubPublicDns = async (hostname) => {
   throw new Error(`ENOTFOUND ${hostname}`);
 };
 
-test("askAi fallback order across all six providers", async () => {
+test("askAi fallback order: Gemini → Groq → OpenRouter (best model first)", async () => {
   const geminiOk = {
     match: (url) => url.includes("generativelanguage"),
     ok: true,
@@ -2304,8 +2292,10 @@ test("askAi fallback order across all six providers", async () => {
   assert.deepEqual(res, { reply: "from custom", provider: "custom" });
   assert.equal(m.calls[0].url, "https://my-llm.example.com/v1/chat/completions");
 
-  // Default order walks Gemini → Groq → Anthropic → OpenAI: the first
-  // three fail, OpenAI answers (first model in its list).
+  // Default order is Gemini → Groq → OpenRouter (best model first):
+  // Gemini fails, Groq 404s on both models, OpenRouter answers on
+  // the best free model. Anthropic / OpenAI keys are set but their
+  // legs are NOT in the default chain, so they are never called.
   m = mockFetchFactory([
     { ...geminiOk, ok: false, status: 500, body: { error: "boom" } },
     groq404All,
@@ -2319,9 +2309,12 @@ test("askAi fallback order across all six providers", async () => {
     { ...noKeys, geminiKey: "g-key", groqKey: "q-key", anthropicKey: "sk-ant-key", openaiKey: "sk-key", openrouterKey: "sk-or-key" },
     m.fetchImpl
   );
-  assert.deepEqual(res, { reply: "from openai", provider: "openai" });
+  assert.deepEqual(res, { reply: "from router", provider: "openrouter" });
   assert.equal(m.calls.filter((c) => c.url.includes("api.groq.com")).length, 2);
-  assert.equal(JSON.parse(m.calls.find((c) => c.url.includes("api.openai.com")).init.body).model, "gpt-5.5");
+  assert.equal(m.calls.filter((c) => c.url.includes("api.anthropic.com")).length, 0);
+  assert.equal(m.calls.filter((c) => c.url.includes("api.openai.com")).length, 0);
+  const routerCall = m.calls.find((c) => c.url.includes("openrouter.ai"));
+  assert.equal(JSON.parse(routerCall.init.body).model, OPENROUTER_BEST_MODEL);
 
   // Picked OpenRouter model with only an OpenRouter key: the
   // attribution headers ride along on the picked call.
@@ -2340,6 +2333,95 @@ test("askAi fallback order across all six providers", async () => {
   res = await askAiMock({ question: "hi" }, noKeys, m.fetchImpl);
   assert.equal(res, null);
   assert.equal(m.calls.length, 0);
+});
+
+test("fallback shares the same memory: identical history reaches every leg", async () => {
+  // Gemini 500s, Groq 500s on its first model (stops the leg), then
+  // OpenRouter answers. All three legs must see the same history,
+  // system prompt and user message — a fallback never resets the
+  // conversation.
+  const history = [
+    { role: "user", text: "first question" },
+    { role: "assistant", text: "first answer" },
+  ];
+  const m = mockFetchFactory([
+    { match: (url) => url.includes("generativelanguage"), ok: false, status: 500, body: { error: "boom" } },
+    { match: (url) => url.includes("api.groq.com"), ok: false, status: 500, body: { error: "boom" } },
+    { match: (url) => url.includes("openrouter.ai"), ok: true, status: 200, body: { choices: [{ message: { content: "from router" } }] } },
+  ]);
+  const res = await askAiMock(
+    { question: "what is a list?", history },
+    { geminiKey: "g-key", groqKey: "q-key", openrouterKey: "sk-or-key" },
+    m.fetchImpl
+  );
+  assert.deepEqual(res, { reply: "from router", provider: "openrouter" });
+  const geminiCall = m.calls.find((c) => c.url.includes("generativelanguage"));
+  const groqCall = m.calls.find((c) => c.url.includes("api.groq.com"));
+  const routerCall = m.calls.find((c) => c.url.includes("openrouter.ai"));
+  // Gemini flattens history into one text prompt.
+  const geminiText = JSON.parse(geminiCall.init.body).contents[0].parts[0].text;
+  assert.match(geminiText, /first question/);
+  assert.match(geminiText, /first answer/);
+  assert.match(geminiText, /what is a list\?/);
+  // Groq and OpenRouter carry the same messages list.
+  const historyMessages = history.map((h) => ({ role: h.role, content: h.text }));
+  const groqMessages = JSON.parse(groqCall.init.body).messages;
+  const routerMessages = JSON.parse(routerCall.init.body).messages;
+  assert.deepEqual(groqMessages.slice(1, 3), historyMessages);
+  assert.deepEqual(routerMessages.slice(1, 3), historyMessages);
+  assert.equal(groqMessages[0].content, routerMessages[0].content);
+  assert.equal(
+    groqMessages[groqMessages.length - 1].content,
+    routerMessages[routerMessages.length - 1].content
+  );
+});
+
+test("missing OPENROUTER_API_KEY skips the OpenRouter leg (no 503)", async () => {
+  // Vercel has GEMINI_API_KEY + GROQ_API_KEY but no OPENROUTER_API_KEY
+  // yet: Gemini fails, Groq answers, OpenRouter is never called and
+  // the request still succeeds.
+  const m = mockFetchFactory([
+    { match: (url) => url.includes("generativelanguage"), ok: false, status: 500, body: { error: "boom" } },
+    { match: (url) => url.includes("api.groq.com"), ok: true, status: 200, body: { choices: [{ message: { content: "from groq" } }] } },
+  ]);
+  const res = await askAiMock(
+    { question: "hi" },
+    { geminiKey: "g-key", groqKey: "q-key", openrouterKey: null },
+    m.fetchImpl
+  );
+  assert.deepEqual(res, { reply: "from groq", provider: "groq" });
+  assert.equal(m.calls.filter((c) => c.url.includes("openrouter.ai")).length, 0);
+});
+
+test("OpenRouter leg tries the best model first, next free model only on 404", async () => {
+  const router404Best = {
+    match: (url, init) => url.includes("openrouter.ai") && JSON.parse(init.body).model === OPENROUTER_BEST_MODEL,
+    ok: false,
+    status: 404,
+    body: { error: "model not found" },
+  };
+  const routerGemma = {
+    match: (url, init) => url.includes("openrouter.ai") && JSON.parse(init.body).model === "google/gemma-4-31b-it:free",
+    ok: true,
+    status: 200,
+    body: { choices: [{ message: { content: "from gemma" } }] },
+  };
+  const m = mockFetchFactory([
+    { match: (url) => url.includes("generativelanguage"), ok: false, status: 500, body: { error: "boom" } },
+    { match: (url) => url.includes("api.groq.com"), ok: false, status: 404, body: { error: "model not found" } },
+    router404Best,
+    routerGemma,
+  ]);
+  const res = await askAiMock(
+    { question: "hi" },
+    { geminiKey: "g-key", groqKey: "q-key", openrouterKey: "sk-or-key" },
+    m.fetchImpl
+  );
+  assert.deepEqual(res, { reply: "from gemma", provider: "openrouter" });
+  const routerCalls = m.calls.filter((c) => c.url.includes("openrouter.ai"));
+  assert.equal(routerCalls.length, 2);
+  assert.equal(JSON.parse(routerCalls[0].init.body).model, OPENROUTER_BEST_MODEL);
+  assert.equal(JSON.parse(routerCalls[1].init.body).model, "google/gemma-4-31b-it:free");
 });
 
 test("askAi: BYOK OpenRouter calls a user-added free model (and only it)", async () => {

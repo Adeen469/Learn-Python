@@ -1,6 +1,8 @@
-// AI provider logic — Gemini first, then Groq, Anthropic, OpenAI,
-// OpenRouter and a custom OpenAI-compatible endpoint, in that order
-// (the Gemini/Groq order and model names match the Locora chatbot
+// AI provider logic — server-key fallback order: Gemini first, then
+// Groq, then OpenRouter (best free model first). A picked model
+// (editor AI panel) is tried before the default chain, and a BYOK
+// key runs ONLY its own provider's leg — never the chain. (The
+// Gemini/Groq order and model names match the Locora chatbot
 // "Loco", verified working there).
 //
 // Server-only: this file reads GEMINI_API_KEY / GROQ_API_KEY /
@@ -11,7 +13,7 @@
 // never logged; provider errors are scrubbed of anything key-shaped
 // before they reach a response.
 //
-// Fail-closed: when NEITHER key is configured, askAi() returns null and
+// Fail-closed: when NO key is configured, askAi() returns null and
 // the route answers 503 (the app still works, the AI panels show an
 // "AI unavailable" state). No user profile data is ever passed to a
 // model — only the lesson context (title/notes, plus the lesson video
@@ -117,6 +119,21 @@ export const OPENROUTER_MODELS = [
   "recursive/flint-v1.0:free",
   "particle-ai/particle-1:free",
   "liquid/lfm-3-1.7b:free",
+];
+// The OpenRouter leg's first model: the most capable free model in
+// the list above. NVIDIA Nemotron 3 Ultra (550B params, described
+// by NVIDIA as a "frontier reasoning" model, 1M-token context) is
+// the largest and most capable of the free models in the live
+// catalog (verified 2026-11-26); the next largest are Gemma 4 31B
+// (30.7B dense) and Nemotron 3.5 Super VL. The leg tries this
+// model first and only moves to the next free model on a 404
+// (retired model) — any other failure stops the leg, like Groq.
+export const OPENROUTER_BEST_MODEL = "nvidia/nemotron-3-ultra-550b-a55b:free";
+/** Default OpenRouter try-list: the best free model first, then the
+    rest in catalog order (reached only on a 404 — retired model). */
+export const OPENROUTER_DEFAULT_MODELS = [
+  OPENROUTER_BEST_MODEL,
+  ...OPENROUTER_MODELS.filter((m) => m !== OPENROUTER_BEST_MODEL),
 ];
 // A user-added OpenRouter free model id (AI Settings > Models
 // search): a valid OpenRouter slug — vendor/model segments of
@@ -1432,9 +1449,17 @@ export async function callOpenAiCompatible(
 
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
-// Orchestrator: the picked model first, then Gemini, Groq, Anthropic,
-// OpenAI, OpenRouter and custom, in that order. Returns null when no
-// provider answered (caller turns that into a 503).
+// Orchestrator: the picked model first, then the default fallback
+// chain — Gemini → Groq → OpenRouter (best free model first). A leg
+// runs only when its key is configured, so a missing key (e.g. no
+// OPENROUTER_API_KEY in Vercel yet) skips that leg instead of
+// failing the request. Every leg gets the same `args` — one history,
+// one lesson/transcript context, one system prompt — so all
+// providers share the same memory; a fallback never resets the
+// conversation. Anthropic / OpenAI / custom are NOT in this chain:
+// they run only when the user picks one of their models above, or
+// via their own BYOK key. Returns null when no provider answered
+// (caller turns that into a 503).
 // ---------------------------------------------------------------------------
 
 export async function askAi(
@@ -1505,7 +1530,7 @@ export async function askAi(
     }
     if (p === "openrouter" && config.openrouterKey) {
       const models =
-        selected && isOpenRouterModelId(selected) ? [selected] : OPENROUTER_MODELS;
+        selected && isOpenRouterModelId(selected) ? [selected] : OPENROUTER_DEFAULT_MODELS;
       const reply = await callOpenAiCompatible(args, config.openrouterKey, fetchImpl, {
         url: OPENROUTER_URL,
         models,
@@ -1583,9 +1608,14 @@ export async function askAi(
     });
     if (reply) return finishResult(reply, "custom");
   }
-  // 2. Default order. Skip a leg whose model was already tried above.
-  // (And skip the whole phase once the shared budget is spent — a
-  // fetch that ignores the signal must not start new legs past it.)
+  // 2. Default fallback order: Gemini → Groq → OpenRouter (best
+  // free model first). Skip a leg whose model was already tried
+  // above, and skip the whole phase once the shared budget is
+  // spent — a fetch that ignores the signal must not start new legs
+  // past it. A leg with no key configured is skipped, so a missing
+  // OPENROUTER_API_KEY never 503s a request Gemini or Groq can
+  // answer. (Anthropic / OpenAI / custom are not in this chain —
+  // see the orchestrator comment above.)
   if (budget.aborted) return null;
   if (config.geminiKey && selected !== GEMINI_MODEL) {
     const reply = await callGemini(args, config.geminiKey, fetchImpl, { maxTokens, signal: budget });
@@ -1599,28 +1629,11 @@ export async function askAi(
     const reply = await callGroq(args, config.groqKey, fetchImpl, { maxTokens, models: fallbackModels, signal: budget });
     if (reply) return finishResult(reply, "groq");
   }
-  if (config.anthropicKey && selected !== ANTHROPIC_MODELS[0]) {
-    const reply = await callAnthropic(args, config.anthropicKey, fetchImpl, { maxTokens, signal: budget });
-    if (reply) return finishResult(reply, "anthropic");
-  }
-  if (config.openaiKey) {
-    const fallbackModels =
-      selected && OPENAI_MODELS.includes(selected)
-        ? OPENAI_MODELS.filter((m) => m !== selected)
-        : OPENAI_MODELS;
-    const reply = await callOpenAiCompatible(args, config.openaiKey, fetchImpl, {
-      url: OPENAI_URL,
-      models: fallbackModels,
-      maxTokens,
-      signal: budget,
-    });
-    if (reply) return finishResult(reply, "openai");
-  }
   if (config.openrouterKey) {
     const fallbackModels =
       selected && isOpenRouterModelId(selected)
-        ? OPENROUTER_MODELS.filter((m) => m !== selected)
-        : OPENROUTER_MODELS;
+        ? OPENROUTER_DEFAULT_MODELS.filter((m) => m !== selected)
+        : OPENROUTER_DEFAULT_MODELS;
     const reply = await callOpenAiCompatible(args, config.openrouterKey, fetchImpl, {
       url: OPENROUTER_URL,
       models: fallbackModels,
@@ -1629,17 +1642,6 @@ export async function askAi(
       signal: budget,
     });
     if (reply) return finishResult(reply, "openrouter");
-  }
-  if (config.customKey && config.customModel && config.customBaseUrl && selected !== config.customModel) {
-    const reply = await callOpenAiCompatible(args, config.customKey, fetchImpl, {
-      url: normalizeCustomUrl(config.customBaseUrl),
-      models: [config.customModel],
-      maxTokens,
-      timeoutMs: CUSTOM_TIMEOUT_MS,
-      dnsLookup: dnsLookupImpl,
-      signal: budget,
-    });
-    if (reply) return finishResult(reply, "custom");
   }
   return null;
 }

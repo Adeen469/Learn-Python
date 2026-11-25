@@ -12,6 +12,7 @@ node_modules/
 .next/
 out/
 build/
+web/tsconfig.tsbuildinfo
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies

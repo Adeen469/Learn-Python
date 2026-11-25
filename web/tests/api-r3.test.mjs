@@ -245,9 +245,10 @@ test("Phase 3: the AI fallback chain has one ~50s shared deadline", async () => 
   const lib = read("src/lib/ai.ts");
   assert.ok(lib.includes("AI_SHARED_BUDGET_MS = 50_000"), "the shared budget must be ~50s");
   assert.ok(lib.includes("AbortSignal.timeout(AI_SHARED_BUDGET_MS)"), "askAi must mint the deadline from request start");
-  // Every leg gets the signal — 18 call sites (6 BYOK + 6 picked + 6 default).
+  // Every leg gets the signal — 15 call sites (6 BYOK + 6 picked + 3
+  // default: Gemini → Groq → OpenRouter).
   const legs = (lib.match(/signal: budget/g) || []).length;
-  assert.equal(legs, 18, `expected all 18 legs to carry the shared signal, got ${legs}`);
+  assert.equal(legs, 15, `expected all 15 legs to carry the shared signal, got ${legs}`);
   // The per-leg timeouts still exist (the shared deadline is the
   // backstop, not a replacement).
   for (const t of ["GEMINI_TIMEOUT_MS", "GROQ_TIMEOUT_MS", "ANTHROPIC_TIMEOUT_MS", "OPENAI_TIMEOUT_MS", "CUSTOM_TIMEOUT_MS"]) {
