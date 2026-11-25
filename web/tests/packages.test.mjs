@@ -538,8 +538,11 @@ test("the Pyodide runtime is self-hosted on the same origin (CDNs failed for the
   );
   const bases = src.match(/export const PYODIDE_CDN_BASES = \[([\s\S]*?)\];/);
   assert.ok(bases, "PYODIDE_CDN_BASES must be defined");
-  assert.ok(bases[1].indexOf('"/pyodide/"') < bases[1].indexOf("jsdelivr"), "same-origin must be tried before jsDelivr");
-  assert.ok(bases[1].indexOf("jsdelivr") < bases[1].indexOf("unpkg"), "jsDelivr must still be tried before unpkg as a fallback");
+  assert.ok(bases[1].includes('"/pyodide/"'), "the runtime must use the same-origin base");
+  assert.ok(
+    !/https?:\/\//.test(bases[1]),
+    "the runtime must not execute a third-party CDN script in the app origin"
+  );
   assert.ok(
     src.includes('base.startsWith("/")'),
     "the CDN display name must handle the same-origin base"
