@@ -1,0 +1,4144 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:00.000 --> 00:00:03.178
+Guys in this video I will teach you how to create Jarvis AI
+
+00:00:03.178 --> 00:00:04.318
+With the help of python
+
+00:00:04.318 --> 00:00:07.264
+This video will be the best video of the channel till now
+
+00:00:07.264 --> 00:00:09.536
+Because we will create an AI system 
+
+00:00:09.536 --> 00:00:12.396
+A virtual assistant that will work for you
+
+00:00:12.396 --> 00:00:13.944
+So if someone misses this video 
+
+00:00:13.944 --> 00:00:15.219
+He/she will miss a lot of things
+
+00:00:15.219 --> 00:00:17.349
+Please don't miss this video
+
+00:00:17.349 --> 00:00:22.746
+Guys you might have seen AI-powered bots in movies/tv-shows
+
+00:00:22.746 --> 00:00:25.335
+It has been shown frequently in tb/movues
+
+00:00:25.335 --> 00:00:26.973
+And they show you
+
+00:00:26.973 --> 00:00:31.827
+How an AI is doing tasks for humans automatically
+
+00:00:31.827 --> 00:00:37.218
+And this automation makes the lives of humans easier
+
+00:00:37.218 --> 00:00:39.547
+Todays video is based on that only 
+
+00:00:39.547 --> 00:00:45.578
+We will see how we can make AI Jarvis with python
+
+00:00:45.578 --> 00:00:50.567
+And this will be the first project in Beginner python series 
+
+00:00:50.567 --> 00:00:52.698
+Guys when we used to watch movies 10 years ago
+
+00:00:52.698 --> 00:00:57.325
+The we used to think that whatever fiction we are seeing 
+
+00:00:57.325 --> 00:00:59.411
+That's not less than magic
+
+00:00:59.411 --> 00:01:03.993
+But the way technology is enhancing and new thing are being released
+
+00:01:03.993 --> 00:01:08.394
+Researches are done mainly in AI and ML
+
+00:01:08.394 --> 00:01:09.800
+We can see that
+
+00:01:09.800 --> 00:01:13.561
+The things that we used to see in movies 10 years age
+
+00:01:13.561 --> 00:01:16.875
+That things are being done in reality
+
+00:01:16.875 --> 00:01:21.230
+This video is an attempt to touch those topics
+
+00:01:21.230 --> 00:01:25.761
+I want you all to be motivated after watching this video
+
+00:01:25.761 --> 00:01:30.796
+That in todays world computer can easily automate your tasks
+
+00:01:30.796 --> 00:01:35.015
+Guys few months ago I started this Python Beginner course
+
+00:01:35.015 --> 00:01:38.613
+And I didn't thought I will get this much response
+
+00:01:38.613 --> 00:01:43.221
+And millions will be involved and will be influenced by this
+
+00:01:43.221 --> 00:01:47.576
+If by any chance you haven't accessed this course playlist
+
+00:01:47.576 --> 00:01:52.379
+So please access it in a new tab from the link in description
+
+00:01:52.379 --> 00:01:53.337
+Do to this what will happen is that
+
+00:01:53.337 --> 00:01:55.739
+If you all haven't seen those videos
+
+00:01:55.739 --> 00:02:00.000
+Then you can schedule and complete to later
+
+00:02:00.000 --> 00:02:05.216
+Whatever things we will be needing I will tell you on the go
+
+00:02:05.216 --> 00:02:09.662
+So the prerequisite is that you should know basic python
+
+00:02:09.662 --> 00:02:11.294
+Guys whenever I create a course
+
+00:02:11.294 --> 00:02:14.472
+Then I ensure that I should complete it
+
+00:02:14.472 --> 00:02:17.876
+And along with that I try to tell you things
+
+00:02:17.876 --> 00:02:20.465
+Like this video is about a mega project
+
+00:02:20.465 --> 00:02:23.009
+This type of video was a compulsion for me
+
+00:02:23.009 --> 00:02:24.919
+So by working on this project
+
+00:02:24.919 --> 00:02:27.503
+I will deliver something good and valuable
+
+00:02:27.503 --> 00:02:30.590
+So for me to present something new and exciting
+
+00:02:30.590 --> 00:02:34.085
+That's why I have made this video on a project
+
+00:02:34.085 --> 00:02:38.078
+This Jarvis will automate your computer tasks
+
+00:02:38.078 --> 00:02:40.797
+Like the tasks that you do daily 
+
+00:02:40.797 --> 00:02:44.382
+Like I use Visual studio code daily
+
+00:02:44.382 --> 00:02:46.246
+Or I use YouTube daily
+
+00:02:46.246 --> 00:02:48.246
+I use google daily
+
+00:02:48.246 --> 00:02:49.793
+I listen to music daily
+
+00:02:49.793 --> 00:02:51.385
+I send emails daily
+
+00:02:51.385 --> 00:02:54.200
+Along with that I do more things...
+
+00:02:54.200 --> 00:02:58.262
+I will try to automate those things using Jarvis
+
+00:02:58.262 --> 00:03:01.757
+So that you all can rest on couch and Command Jarvis
+
+00:03:01.757 --> 00:03:04.821
+Like Jarvis do this, Jarvis do that...
+
+00:03:04.821 --> 00:03:07.183
+And Jarvis will handle everything for you
+
+00:03:07.183 --> 00:03:09.319
+I will write each and every line 
+
+00:03:09.319 --> 00:03:11.727
+And will explain how everything is working
+
+00:03:11.727 --> 00:03:14.678
+And which element works in what way
+
+00:03:14.678 --> 00:03:18.264
+So if you are a student and you are looking for a project
+
+00:03:18.264 --> 00:03:20.717
+And you all are looking for a project that
+
+00:03:20.717 --> 00:03:23.442
+That you can use a final year project
+
+00:03:23.442 --> 00:03:28.024
+Or you are looking for a course completion project 
+
+00:03:28.024 --> 00:03:32.606
+The you can take inspiration from this project
+
+00:03:32.606 --> 00:03:37.596
+Guys when I was in my early stage of programming career
+
+00:03:37.596 --> 00:03:39.370
+Then I used to have a question 
+
+00:03:39.370 --> 00:03:44.643
+That will AI and ML make human jobs obsolete?
+
+00:03:44.643 --> 00:03:48.500
+Will AI and Ml automate every human jobs?
+
+00:03:48.500 --> 00:03:50.000
+And humans won't have to do anything
+
+00:03:50.000 --> 00:03:53.903
+10 years ago the answer would've been straight no
+
+00:03:53.903 --> 00:03:56.537
+But as the time passes the answer is changing
+
+00:03:56.537 --> 00:04:00.000
+It is converting from no to yes
+
+00:04:00.000 --> 00:04:02.589
+Even with todays standard the answer is not a solid yes
+
+00:04:02.589 --> 00:04:05.269
+Not all tasks have been automated completely
+
+00:04:05.269 --> 00:04:07.586
+but the way we are going ahead in time
+
+00:04:07.586 --> 00:04:12.528
+We can see things that were impossible 5 years ago
+
+00:04:12.528 --> 00:04:16.185
+We have done that in a time span of 5 year 
+
+00:04:16.185 --> 00:04:21.446
+If we talk about Google, Microsoft, and reputed universities
+
+00:04:21.446 --> 00:04:26.028
+So every year they do some research 
+
+00:04:26.028 --> 00:04:29.782
+That we thought of as impossible and how they have done it
+
+00:04:29.782 --> 00:04:32.657
+And they also show demo
+
+00:04:32.657 --> 00:04:36.844
+So we don't know Where AI and ML will be in 10 years
+
+00:04:36.844 --> 00:04:39.297
+What do you think, please let me know in comments
+
+00:04:39.297 --> 00:04:44.100
+That will AI and ML steal all humans jobs or not
+
+00:04:44.100 --> 00:04:45.687
+Before I start this course
+
+00:04:45.687 --> 00:04:48.321
+I want you all to like this video
+
+00:04:48.321 --> 00:04:50.819
+And comment you name and where are you from
+
+00:04:50.819 --> 00:04:53.045
+I will enrol you in this course
+
+00:04:53.045 --> 00:04:55.226
+And if there is any related resource like this
+
+00:04:55.226 --> 00:04:57.525
+Then I will reply you in the comments
+
+00:04:57.525 --> 00:05:01.110
+So please drop your name and city in the comments
+
+00:05:01.110 --> 00:05:02.506
+This is very important
+
+00:05:02.506 --> 00:05:04.370
+So guys I won't take much of your time
+
+00:05:04.370 --> 00:05:06.370
+I will take you all I'm Visual Studio code
+
+00:05:06.370 --> 00:05:08.665
+That is an IDE that we will use
+
+00:05:08.665 --> 00:05:10.665
+To code todays project
+
+00:05:10.665 --> 00:05:16.153
+And I will show you how we will code our AI Jarvis
+
+00:05:16.153 --> 00:05:17.881
+I will show you each and every line 
+
+00:05:17.881 --> 00:05:20.379
+Lets go to our computer screen and start with a demo
+
+00:05:20.379 --> 00:05:23.105
+In which I will show what we are going to make
+
+00:05:23.105 --> 00:05:24.063
+How does it work
+
+00:05:24.063 --> 00:05:26.782
+And how it can make your life easier
+
+00:05:26.782 --> 00:05:29.774
+And then we will see how we can make it
+
+00:05:29.774 --> 00:05:31.563
+And what are the modules
+
+00:05:31.563 --> 00:05:35.284
+what lines of code, constructs, functions that we will use
+
+00:05:35.284 --> 00:05:36.786
+In Todays project
+
+00:05:36.786 --> 00:05:38.514
+So lets go to our computer
+
+00:05:38.514 --> 00:05:42.501
+So before coding we will see a little demo of Jarvis
+
+00:05:42.501 --> 00:05:43.731
+Like how does it work
+
+00:05:43.731 --> 00:05:46.405
+And what I will do I will just simply run it here
+
+00:05:46.405 --> 00:05:48.405
+So the moment I run this
+
+00:05:48.405 --> 00:05:50.000
+So it is greeting me Good Afternoon
+
+00:05:50.000 --> 00:05:51.315
+So greeting message can be anything
+
+00:05:51.315 --> 00:05:52.404
+And now it is listening 
+
+00:05:52.404 --> 00:05:54.285
+whatever I say it will be listening 
+
+00:05:54.285 --> 00:05:55.062
+So..
+
+00:05:55.379 --> 00:05:57.374
+I have said a lot of things to it
+
+00:05:57.600 --> 00:06:01.276
+So I will check other iteration whether it will listen to me or not
+
+00:06:01.502 --> 00:06:03.276
+"PLAY MUSIC"
+
+00:06:03.502 --> 00:06:05.502
+ So it started playing music
+
+00:06:05.502 --> 00:06:06.687
+You all can see that
+
+00:06:06.687 --> 00:06:08.687
+And along with that it is listening for other commands too
+
+00:06:08.687 --> 00:06:10.592
+So I will close the music
+
+00:06:12.041 --> 00:06:14.267
+"SEND EMAIL TO HARRY"
+
+00:06:14.267 --> 00:06:15.884
+*Jarvis Responds*
+
+00:06:15.884 --> 00:06:20.214
+"I AM A VERY GOOD BOY, THIS TUTORIAL IS THE BEST"
+
+00:06:20.214 --> 00:06:21.801
+*Jarvis Responds*
+
+00:06:21.801 --> 00:06:23.201
+"OPEN GOOGLE"
+
+00:06:23.518 --> 00:06:25.468
+So it opened YouTube instead google
+
+00:06:25.468 --> 00:06:28.464
+Because I have made a mistake, I will just fix it
+
+00:06:28.464 --> 00:06:31.279
+I change this from YouTube.com to google.com
+
+00:06:31.279 --> 00:06:33.143
+I will stop the program now
+
+00:06:33.143 --> 00:06:36.909
+I will show you whether it has sent email or not
+
+00:06:36.909 --> 00:06:39.221
+So if I take you to my inbox
+
+00:06:39.221 --> 00:06:42.625
+So see "I AM A VERY GOOD BOY, THIS TUTORIAL IS THE BEST"
+
+00:06:42.625 --> 00:06:45.208
+You can see this email in my inbox
+
+00:06:45.208 --> 00:06:48.476
+So guys I am in my gmail's inbox
+
+00:06:48.476 --> 00:06:49.209
+Zero minutes ago
+
+00:06:49.209 --> 00:06:50.983
+I can see this email
+
+00:06:50.983 --> 00:06:52.761
+I will show you how to do all of these things
+
+00:06:52.761 --> 00:06:56.835
+This was just a demo, I was just showing how this works
+
+00:06:56.835 --> 00:06:58.790
+Now if I run this and say "OPEN GOOGLE"
+
+00:06:58.790 --> 00:07:01.056
+Then it will open google only. Now I will tun this
+
+00:07:02.324 --> 00:07:03.944
+"OPEN GOOGLE"
+
+00:07:05.530 --> 00:07:07.422
+"OPEN YOUTUBE"
+
+00:07:09.422 --> 00:07:12.871
+So it has opened YouTube here
+
+00:07:12.871 --> 00:07:14.464
+"WHATS THE TIME"
+
+00:07:14.464 --> 00:07:18.474
+*Jarvis tells time*
+
+00:07:18.474 --> 00:07:20.474
+"WHO ARE YOU"
+
+00:07:20.474 --> 00:07:22.106
+*Jarvis Introduction*
+
+00:07:22.106 --> 00:07:24.197
+"SALMAN KHAN WIKIPEDIA"
+
+00:07:24.197 --> 00:07:42.636
+*JARVIS READS SALMAN KHAN'S WIKIPEDIA*
+
+00:07:42.636 --> 00:07:44.001
+"OPEN CODE"
+
+00:07:44.001 --> 00:07:46.318
+It has opened VS code 
+
+00:07:46.318 --> 00:07:47.950
+When I told him to open code
+
+00:07:47.950 --> 00:07:50.675
+And this is a very good functionality
+
+00:07:50.675 --> 00:07:54.894
+the moment I said open code and Jarvis opened it
+
+00:07:54.894 --> 00:07:56.713
+Now lets see how to develop it 
+
+00:07:56.713 --> 00:07:58.169
+This was just a small demo
+
+00:07:58.169 --> 00:08:01.569
+"JARVIS QUIT"
+
+00:08:01.569 --> 00:08:04.747
+*Jarvis Responds*
+
+00:08:04.747 --> 00:08:06.379
+So the program has quitted itself
+
+00:08:06.379 --> 00:08:08.877
+And you can see here how it..
+
+00:08:08.877 --> 00:08:11.194
+That it is recognising whatever I am saying 
+
+00:08:11.194 --> 00:08:13.462
+It opened the VS code
+
+00:08:13.462 --> 00:08:14.918
+We can also make it in Hindi
+
+00:08:14.918 --> 00:08:16.556
+Like I showed you here 
+
+00:08:16.556 --> 00:08:18.964
+Whatever I will show you ill make it in English
+
+00:08:18.964 --> 00:08:20.461
+We will develop it here in English
+
+00:08:20.461 --> 00:08:22.954
+But you all can develop it in Hindi too
+
+00:08:22.954 --> 00:08:26.806
+And along with that I have added some functionalities 
+
+00:08:26.806 --> 00:08:29.349
+Those functionalities is the start of this AI 
+
+00:08:29.349 --> 00:08:30.650
+It is just the start of AI
+
+00:08:30.650 --> 00:08:32.645
+You can develop it further
+
+00:08:32.645 --> 00:08:35.777
+And along with that what features you can add
+
+00:08:35.777 --> 00:08:38.910
+the limit for that is sky, Sky is the limit my friends
+
+00:08:38.910 --> 00:08:40.859
+So I hope everyone enjoyed demo
+
+00:08:40.859 --> 00:08:43.402
+Everyone is ensured that whatever they are going to code
+
+00:08:43.402 --> 00:08:45.532
+It is really a good project
+
+00:08:45.532 --> 00:08:47.314
+I want to mention something 
+
+00:08:47.314 --> 00:08:49.495
+This video is a part of my python series
+
+00:08:49.495 --> 00:08:53.443
+So if you haven't seen my Python series by any chance
+
+00:08:53.443 --> 00:08:55.307
+ So please access my playlist
+
+00:08:55.307 --> 00:08:58.485
+You can see the playlist Python tutorials for absolute beginners
+
+00:08:58.485 --> 00:09:02.931
+And if you don't know python then please start from the first video
+
+00:09:02.931 --> 00:09:05.696
+After going through this course I can guarantee you
+
+00:09:05.696 --> 00:09:08.647
+You will learn python properly
+
+00:09:08.647 --> 00:09:11.734
+Along with That you will not face any problem
+
+00:09:11.734 --> 00:09:14.278
+When it comes to learn Python
+
+00:09:14.278 --> 00:09:15.005
+Writing python and
+
+00:09:15.005 --> 00:09:17.574
+Will be a job ready Python developer
+
+00:09:17.574 --> 00:09:20.480
+If you are in school then also you can do this course
+
+00:09:20.480 --> 00:09:22.701
+I have added many practice problems
+
+00:09:22.701 --> 00:09:24.747
+I have made 103 videos
+
+00:09:24.747 --> 00:09:28.287
+after that I have added many practice problems and mega projects
+
+00:09:28.287 --> 00:09:31.103
+This project is a part of course
+
+00:09:31.103 --> 00:09:34.055
+I will come in my visual studio code
+
+00:09:34.055 --> 00:09:36.282
+And I will show coding there
+
+00:09:36.282 --> 00:09:39.007
+By any chance if you have an installed visual studio code
+
+00:09:39.007 --> 00:09:42.592
+you can search for visual studio code on Google
+
+00:09:42.592 --> 00:09:45.181
+And just install it
+
+00:09:45.181 --> 00:09:46.819
+You can use PyCharm also
+
+00:09:46.819 --> 00:09:51.843
+I will not force you to use any particular IDE
+
+00:09:51.843 --> 00:09:55.111
+you have to download and install visual studio code 
+
+00:09:55.111 --> 00:09:58.103
+after that you have to install python
+
+00:09:58.103 --> 00:10:00.692
+you can install python from python.org
+
+00:10:00.692 --> 00:10:03.365
+If you search for Python install
+
+00:10:03.365 --> 00:10:08.173
+You will reach to python.org and you can install it
+
+00:10:08.173 --> 00:10:11.708
+ So guys now I am in a directory in my computer
+
+00:10:11.708 --> 00:10:14.795
+Whose name is dudes, I will create an new folder here
+
+00:10:14.795 --> 00:10:16.795
+And I will name It Jarvis 
+
+00:10:16.795 --> 00:10:18.523
+And then I will browse into Jarvis 
+
+00:10:18.523 --> 00:10:21.610
+And I will open PowerShell window using right click and shift
+
+00:10:21.610 --> 00:10:23.863
+And I will write here code .(dot)
+
+00:10:23.863 --> 00:10:26.814
+With this VS code will be opened in this folder
+
+00:10:26.814 --> 00:10:28.814
+Sometimes what happens is
+
+00:10:28.814 --> 00:10:30.542
+You want to use something different 
+
+00:10:30.542 --> 00:10:35.259
+suppose you want to use pycharm or some other IDE
+
+00:10:35.259 --> 00:10:36.942
+That is totally fine with me 
+
+00:10:36.942 --> 00:10:41.383
+I am not particularly suggesting VS code
+
+00:10:41.383 --> 00:10:44.289
+But I like this because it is helpful in Web development 
+
+00:10:44.289 --> 00:10:46.198
+And in some other things too.
+
+00:10:46.198 --> 00:10:47.926
+ What I will do here 
+
+00:10:47.926 --> 00:10:50.917
+I will create a program named Jarvis.py
+
+00:10:50.917 --> 00:10:52.283
+And now what we will do here
+
+00:10:52.283 --> 00:10:54.821
+First simply we will write our speak function
+
+00:10:54.821 --> 00:10:57.863
+Because what does out AI needs first
+
+00:10:57.863 --> 00:10:59.365
+is that it should speak
+
+00:10:59.365 --> 00:11:01.139
+So what's the first thing Jarvis will do; It will speak.
+
+00:11:01.139 --> 00:11:03.632
+So I will write here def speak:
+
+00:11:03.632 --> 00:11:06.764
+And whatever argument this will take
+
+00:11:06.764 --> 00:11:09.036
+This will speak it
+
+00:11:09.036 --> 00:11:11.897
+I will give it an audio argument
+
+00:11:11.897 --> 00:11:14.073
+Will it do? it will pronounce that audio.
+
+00:11:14.073 --> 00:11:15.847
+Now where will this audio come from
+
+00:11:15.847 --> 00:11:17.258
+We will look into it
+
+00:11:17.258 --> 00:11:19.052
+But what I will do here first
+
+00:11:19.052 --> 00:11:21.913
+Here you have to install a module
+
+00:11:21.913 --> 00:11:23.506
+I am importing it here
+
+00:11:23.506 --> 00:11:26.044
+The name of module is pyttxx3
+
+00:11:26.406 --> 00:11:29.168
+You can install this module with the help of PIP
+
+00:11:29.168 --> 00:11:32.527
+The end of this video I will show you which modules to install
+
+00:11:32.527 --> 00:11:35.796
+I will let you know whenever I will install a new module
+
+00:11:35.796 --> 00:11:39.738
+pyttxx3 was already installed 
+
+00:11:39.738 --> 00:11:42.186
+So I imported it
+
+00:11:42.186 --> 00:11:43.688
+If you haven't  installed it
+
+00:11:43.688 --> 00:11:44.873
+Then what you will do
+
+00:11:44.873 --> 00:11:51.855
+You will write here pip install pyttxx3
+
+00:11:52.355 --> 00:11:53.353
+You all will write like this
+
+00:11:53.353 --> 00:11:55.846
+I already have my requirement satisfied
+
+00:11:55.846 --> 00:11:57.484
+Yours will be installed to
+
+00:11:57.484 --> 00:11:59.202
+This was our first step
+
+00:11:59.202 --> 00:12:00.749
+Now I will do some work here
+
+00:12:00.749 --> 00:12:06.146
+I am writing here engine is equal to pyttxx3.init()
+
+00:12:07.007 --> 00:12:08.511
+Inside that I will write sapi5
+
+00:12:08.511 --> 00:12:09.555
+What is this?
+
+00:12:09.555 --> 00:12:14.646
+If I Google search sapi 5
+
+00:12:14.918 --> 00:12:17.070
+Now what is sapi5 if you want to learn about it
+
+00:12:17.070 --> 00:12:20.226
+so you can read it here on this Microsoft's page
+
+00:12:20.226 --> 00:12:22.025
+But for now just keep in mind that
+
+00:12:22.025 --> 00:12:23.753
+You are going to use it
+
+00:12:23.753 --> 00:12:25.359
+To take the voices
+
+00:12:25.359 --> 00:12:27.496
+Windows has given us an API
+
+00:12:27.496 --> 00:12:30.000
+Through which you can take the voices f
+
+00:12:30.000 --> 00:12:34.491
+You can use the inbuilt voice in Windows
+
+00:12:34.491 --> 00:12:39.678
+I will write voices is equal to engine.getProperty()
+
+00:12:39.678 --> 00:12:42.516
+If I write gp then get property will automatically come
+
+00:12:42.516 --> 00:12:43.565
+This is the intellisense
+
+00:12:43.565 --> 00:12:48.074
+If I write GP then it will suggest me getProperty
+
+00:12:48.074 --> 00:12:51.292
+I clicked enter and took the suggestion
+
+00:12:51.564 --> 00:12:53.836
+Now see what I am writing here I am writing voices
+
+00:12:53.836 --> 00:12:56.329
+If I print hear voices
+
+00:12:57.144 --> 00:12:58.556
+And then if I run the program
+
+00:12:58.556 --> 00:13:00.868
+Then see there are two voices in my computer
+
+00:13:00.868 --> 00:13:02.500
+You can Install additional voices
+
+00:13:02.500 --> 00:13:04.862
+But for now I will use one of the two voices
+
+00:13:04.862 --> 00:13:06.630
+One is male and one is female
+
+00:13:06.630 --> 00:13:08.906
+You can use anyone of them
+
+00:13:08.906 --> 00:13:11.261
+Now how do you have to set voice
+
+00:13:11.261 --> 00:13:12.667
+You have to write
+
+00:13:12.667 --> 00:13:14.521
+engine.setproperty
+
+00:13:14.521 --> 00:13:16.606
+After that you have to say
+
+00:13:16.606 --> 00:13:19.008
+That you have to set voice property of engine
+
+00:13:19.201 --> 00:13:21.830
+and after that you have to write voices
+
+00:13:21.830 --> 00:13:25.788
+and after that I am writing [0].id
+
+00:13:26.105 --> 00:13:27.563
+So voices[0].id
+
+00:13:27.563 --> 00:13:30.826
+If I print voices[0].id
+
+00:13:32.728 --> 00:13:33.921
+And run this
+
+00:13:33.921 --> 00:13:35.241
+so can you see what you did
+
+00:13:35.241 --> 00:13:38.101
+The name of the voice is David
+
+00:13:38.101 --> 00:13:39.144
+And if I change that to 1
+
+00:13:39.144 --> 00:13:40.233
+So what's the name
+
+00:13:40.233 --> 00:13:41.548
+David is a boy
+
+00:13:41.548 --> 00:13:43.729
+And along with that Zira. Zira is a girl.
+
+00:13:43.729 --> 00:13:44.999
+So if you want boys voice
+
+00:13:44.999 --> 00:13:46.682
+Then write voices[0].id
+
+00:13:46.682 --> 00:13:47.907
+Or else write voices[1].id
+
+00:13:47.907 --> 00:13:50.899
+Check what Voices are available in your computer
+
+00:13:50.899 --> 00:13:52.305
+by printing voices
+
+00:13:52.305 --> 00:13:53.077
+What that will do 
+
+00:13:53.077 --> 00:13:57.834
+You can see what voices are available in your computer
+
+00:13:57.834 --> 00:14:00.327
+and you can use it
+
+00:14:00.327 --> 00:14:02.820
+So here I have simply written speak function
+
+00:14:02.820 --> 00:14:04.769
+So let's just write main method
+
+00:14:04.769 --> 00:14:06.361
+And test it
+
+00:14:06.361 --> 00:14:10.218
+Whether the speak function that we are going to write here
+
+00:14:10.218 --> 00:14:12.264
+Will it work or not
+
+00:14:12.264 --> 00:14:14.395
+For that we have to write speak function first
+
+00:14:14.395 --> 00:14:17.165
+so Inside this speak function what I will do
+
+00:14:17.165 --> 00:14:21.294
+I will write here engine.say(audio)
+
+00:14:21.294 --> 00:14:24.072
+So whatever audio is fed then engine will speak it
+
+00:14:24.072 --> 00:14:26.616
+engine.runAandWait() is a function
+
+00:14:26.616 --> 00:14:28.842
+Now what I will do; I will run it.
+
+00:14:28.842 --> 00:14:32.287
+You can see it said "Harry is a good boy", once more.
+
+00:14:32.649 --> 00:14:34.041
+So it just said Harry is a good boy
+
+00:14:34.041 --> 00:14:35.452
+That means our speak function
+
+00:14:35.452 --> 00:14:37.905
+It is speaking properly
+
+00:14:37.905 --> 00:14:40.584
+This thing I have shown you in my other videos also
+
+00:14:40.584 --> 00:14:42.216
+If you have seen this course
+
+00:14:42.216 --> 00:14:46.254
+I have talked about speak function somewhere here
+
+00:14:46.254 --> 00:14:48.430
+I cannot search it here
+
+00:14:48.430 --> 00:14:50.792
+But I am damn sure I talked about it
+
+00:14:50.792 --> 00:14:52.515
+You can go through it
+
+00:14:52.515 --> 00:14:55.236
+I have talked about speak function in one of these
+
+00:14:55.236 --> 00:14:56.557
+I guess it was a exercise
+
+00:14:56.557 --> 00:14:59.236
+In which I told you to read newspaper
+
+00:14:59.236 --> 00:15:03.364
+and news... I cannot search it here for some reason
+
+00:15:03.364 --> 00:15:04.906
+You all just go through it
+
+00:15:04.906 --> 00:15:07.268
+It was something related to Reading newspaper
+
+00:15:07.268 --> 00:15:11.351
+So exercise 9 was the one in which I used speak function
+
+00:15:11.351 --> 00:15:13.573
+I will go back to visual studio
+
+00:15:13.573 --> 00:15:14.894
+Our speak function is ready
+
+00:15:14.894 --> 00:15:17.800
+It was an important part for our Jarvis
+
+00:15:17.800 --> 00:15:20.837
+Because our Jarvis he needs to speak
+
+00:15:20.837 --> 00:15:23.140
+Speaking is very important for him
+
+00:15:23.865 --> 00:15:26.616
+Now I will write a function here named wish me
+
+00:15:26.616 --> 00:15:28.390
+now what is wish me function will do
+
+00:15:28.390 --> 00:15:31.296
+So if I write a function named wishMe here
+
+00:15:31.296 --> 00:15:33.251
+so what it will do it will wish me
+
+00:15:33.251 --> 00:15:34.234
+What respect it will wish me
+
+00:15:34.234 --> 00:15:35.549
+With respect to time
+
+00:15:35.549 --> 00:15:36.955
+And how it will wish me
+
+00:15:36.955 --> 00:15:39.568
+It will use speak function to wish me
+
+00:15:39.568 --> 00:15:40.300
+so what I will do
+
+00:15:40.300 --> 00:15:41.495
+I will take an hour
+
+00:15:41.495 --> 00:15:43.223
+I will say hour is equal to
+
+00:15:43.223 --> 00:15:45.735
+int of datetime.
+
+00:15:45.735 --> 00:15:48.641
+Now I has to import datetime module
+
+00:15:48.641 --> 00:15:52.634
+You don't need to install it, it is built-in
+
+00:15:53.223 --> 00:15:59.048
+So I will write here datetime.now()
+
+00:15:59.048 --> 00:16:00.504
+and .hour(dot hour)
+
+00:16:00.504 --> 00:16:03.042
+So I will get the hour and I have typecasted it into int
+
+00:16:03.042 --> 00:16:06.084
+So I can get the hour
+
+00:16:06.084 --> 00:16:10.666
+I will get to from 0-24
+
+00:16:10.666 --> 00:16:11.664
+Yes good.
+
+00:16:11.664 --> 00:16:13.256
+Now what I will do here
+
+00:16:13.256 --> 00:16:15.120
+I have taken the hour here
+
+00:16:15.120 --> 00:16:16.933
+And I will write here
+
+00:16:16.933 --> 00:16:22.330
+If hour is greater than equal to 0
+
+00:16:22.330 --> 00:16:24.537
+and hour is less than 12
+
+00:16:24.537 --> 00:16:25.988
+What does this mean
+
+00:16:25.988 --> 00:16:29.024
+from 0-12 means it is morning 
+
+00:16:29.787 --> 00:16:30.867
+that means you will do good morning
+
+00:16:30.867 --> 00:16:32.655
+So you will write like this
+
+00:16:32.655 --> 00:16:35.080
+speak good morning
+
+00:16:37.662 --> 00:16:40.250
+And along with that what you will do
+
+00:16:40.250 --> 00:16:46.367
+you will write here elif hour is greater than 12
+
+00:16:46.367 --> 00:16:48.548
+lets change it to greater than equal to
+
+00:16:48.548 --> 00:16:50.418
+Greater than equal to 12
+
+00:16:50.418 --> 00:16:54.112
+and you will write hour is less than 18
+
+00:16:54.112 --> 00:16:58.287
+This means between 12-18 it is afternoon
+
+00:16:58.287 --> 00:17:01.912
+So I will write here speak good afternoon
+
+00:17:04.041 --> 00:17:05.855
+That means afternoon is going on
+
+00:17:05.855 --> 00:17:10.000
+and in else I will write good evening
+
+00:17:10.589 --> 00:17:14.387
+Else our Jarvis will say good evening
+
+00:17:14.387 --> 00:17:16.387
+These 3 things it will definitely say
+
+00:17:16.387 --> 00:17:17.889
+But along with this what it will do
+
+00:17:17.889 --> 00:17:20.478
+After wishing me it will talk about itself
+
+00:17:20.478 --> 00:17:22.524
+I will say I am Jarvis 
+
+00:17:22.524 --> 00:17:25.022
+So I will write one more speak function
+
+00:17:25.022 --> 00:17:29.628
+I will write speak "I am Jarvis sir"
+
+00:17:29.628 --> 00:17:35.523
+"Please tell me how may I help you"
+
+00:17:37.154 --> 00:17:39.556
+So I will write how may I help you
+
+00:17:39.556 --> 00:17:41.148
+So I have written here the wish me function
+
+00:17:41.148 --> 00:17:42.826
+So just see what all things we did
+
+00:17:42.826 --> 00:17:44.051
+We have created a main function here
+
+00:17:44.051 --> 00:17:46.368
+I am just formatting the code
+
+00:17:46.368 --> 00:17:48.549
+We have created a main function here
+
+00:17:48.549 --> 00:17:50.594
+After main function what we have done
+
+00:17:50.594 --> 00:17:53.450
+We wrote 2 functions
+
+00:17:53.450 --> 00:17:55.269
+What does wish do, It wishes you
+
+00:17:55.269 --> 00:17:58.357
+The moment out program is starting
+
+00:17:58.946 --> 00:18:00.629
+I will call wishme here
+
+00:18:00.629 --> 00:18:02.743
+I will save it and run it
+
+00:18:02.743 --> 00:18:07.144
+"I am Jarvis sir, Please tell me how may I help you"
+
+00:18:07.144 --> 00:18:10.503
+So it says "I am Jarvis sir, Please tell me how may I help you"
+
+00:18:10.503 --> 00:18:13.545
+Now the voice that I printed I just wanted to show you that
+
+00:18:13.545 --> 00:18:15.545
+I will just comment it out, you all can remove it
+
+00:18:15.545 --> 00:18:18.064
+Its not a good practice to keep this print statements
+
+00:18:18.064 --> 00:18:20.064
+I am keeping it because I want to give you the code
+
+00:18:21.287 --> 00:18:22.421
+So we have created this much here
+
+00:18:22.421 --> 00:18:26.459
+We have created the wishme and speak function beautifully
+
+00:18:26.459 --> 00:18:27.774
+Now what we will do here
+
+00:18:27.774 --> 00:18:29.361
+We will write a function named take command
+
+00:18:29.361 --> 00:18:33.127
+And for this you have to install speak recognition module
+
+00:18:33.127 --> 00:18:34.370
+So everyone write here
+
+00:18:34.370 --> 00:18:39.359
+pip install speech recognition
+
+00:18:39.359 --> 00:18:45.209
+type exactly as me pip install speech recognition
+
+00:18:45.209 --> 00:18:47.662
+and your module will start installing
+
+00:18:47.662 --> 00:18:50.749
+my installation hasn't started yet, why?
+
+00:18:50.749 --> 00:18:52.205
+because mine was already installed
+
+00:18:52.205 --> 00:18:54.613
+Alright now I will import here
+
+00:18:54.613 --> 00:18:58.012
+speech recognition as sr
+
+00:18:58.012 --> 00:19:01.235
+I will import it with name sr
+
+00:19:01.235 --> 00:19:05.047
+After importing speech recognition what I will do
+
+00:19:05.047 --> 00:19:07.319
+I will write a function named take command
+
+00:19:07.319 --> 00:19:09.319
+Now what dos this take will do?
+
+00:19:10.000 --> 00:19:14.004
+You all should include a docstring in your programs 
+
+00:19:14.004 --> 00:19:17.136
+I have shown you doctoring in python programming
+
+00:19:17.136 --> 00:19:18.421
+They are string like this
+
+00:19:18.421 --> 00:19:20.285
+and they show that in program
+
+00:19:20.285 --> 00:19:21.515
+what a function is doing
+
+00:19:21.515 --> 00:19:23.329
+But I am skipping it
+
+00:19:23.329 --> 00:19:25.737
+But I have shown this in my python course
+
+00:19:25.737 --> 00:19:30.364
+So you can understand it there and implement it 
+
+00:19:30.364 --> 00:19:34.402
+Now I am just writing a comment that it takes
+
+00:19:36.259 --> 00:19:40.445
+microphone input from the user
+
+00:19:40.445 --> 00:19:42.445
+and returns
+
+00:19:42.445 --> 00:19:45.803
+string output
+
+00:19:45.803 --> 00:19:48.257
+so the string will be its output
+
+00:19:48.257 --> 00:19:49.774
+I will explain this to you
+
+00:19:49.774 --> 00:19:51.723
+I won't leave it
+
+00:19:52.176 --> 00:19:54.447
+So what I have done here I have written a function named take command
+
+00:19:54.447 --> 00:19:56.487
+So I will do one thing I will write here
+
+00:19:56.487 --> 00:19:58.261
+Hour is equal to
+
+00:19:58.261 --> 00:20:00.618
+and I will write here sr.recogniser
+
+00:20:00.618 --> 00:20:02.613
+So this recogniser class of ours
+
+00:20:03.202 --> 00:20:06.283
+This will help us to recognise audio
+
+00:20:06.691 --> 00:20:09.554
+now I will write here with sr.microphone
+
+00:20:10.415 --> 00:20:12.366
+And I will write here as source
+
+00:20:12.728 --> 00:20:15.123
+I will use this as source microphone
+
+00:20:15.123 --> 00:20:17.213
+and I will write a print statement here
+
+00:20:17.213 --> 00:20:20.000
+And I will write listening
+
+00:20:20.000 --> 00:20:21.411
+Why did I write listening
+
+00:20:21.411 --> 00:20:24.176
+So that it should be known that the program is being used
+
+00:20:24.176 --> 00:20:26.765
+He/She should know Jarvis is listening
+
+00:20:27.943 --> 00:20:31.211
+I will change here r.pause_threshold 
+
+00:20:31.211 --> 00:20:32.079
+And I will make it 1
+
+00:20:32.079 --> 00:20:34.436
+I will click here control and take you here
+
+00:20:34.436 --> 00:20:37.375
+Now what is pause threshold 
+
+00:20:37.375 --> 00:20:39.460
+This has explained what Is paused threshold
+
+00:20:39.460 --> 00:20:43.643
+Seconds of non speaking period before a phase is considered complete
+
+00:20:43.869 --> 00:20:45.733
+I will just toggle word wrap
+
+00:20:45.733 --> 00:20:47.773
+Now you all can see the page
+
+00:20:47.773 --> 00:20:49.542
+Here some other arguments are also given
+
+00:20:49.542 --> 00:20:53.620
+energy threshold, dynamic energy threshold, dynamic energy adjustment dampening
+
+00:20:53.620 --> 00:20:55.485
+This are  all things you can change
+
+00:20:55.485 --> 00:20:56.941
+And details about that is given here
+
+00:20:56.941 --> 00:20:58.846
+You all can read it here
+
+00:20:58.846 --> 00:21:01.933
+ That what is our non speaking duration
+
+00:21:01.933 --> 00:21:03.435
+phrase threshold and along with it 
+
+00:21:03.435 --> 00:21:05.344
+What is dynamic energy ratio?
+
+00:21:05.344 --> 00:21:08.930
+And I have changed the pause threshold and made it 1
+
+00:21:08.930 --> 00:21:10.205
+Why did I changed it to 1?
+
+00:21:10.205 --> 00:21:12.477
+Because I wanted to increase seconds of non speaking audio
+
+00:21:12.477 --> 00:21:16.017
+Before a phase is considered complete
+
+00:21:16.017 --> 00:21:17.202
+I wanted to increase it
+
+00:21:17.202 --> 00:21:19.066
+To give it time for 1 second
+
+00:21:19.066 --> 00:21:22.470
+That if I am taking gap of one second while speaking
+
+00:21:22.470 --> 00:21:24.651
+Then it should not complete the phrase
+
+00:21:24.877 --> 00:21:26.361
+So I hope you all understood this
+
+00:21:26.361 --> 00:21:27.410
+Understanding is important 
+
+00:21:27.410 --> 00:21:30.316
+Code and be found easily 
+
+00:21:30.316 --> 00:21:33.403
+But if you want to be a good python programmer 
+
+00:21:33.403 --> 00:21:35.720
+And if you have done this course
+
+00:21:35.720 --> 00:21:39.028
+My full focus is to teach python
+
+00:21:39.028 --> 00:21:41.204
+I don't what you all to memorise it
+
+00:21:41.204 --> 00:21:42.751
+Or just running the code
+
+00:21:42.751 --> 00:21:44.207
+No that is not our focus
+
+00:21:44.207 --> 00:21:45.868
+Our focus is to learn python 
+
+00:21:45.868 --> 00:21:48.321
+Lets come back here and write code further
+
+00:21:48.321 --> 00:21:54.398
+And I will write here audio is equal to r.listen
+
+00:21:54.398 --> 00:21:56.580
+source
+
+00:21:57.801 --> 00:21:59.026
+And where is this all coming from
+
+00:21:59.026 --> 00:22:01.157
+This is coming from speech recognition module
+
+00:22:01.401 --> 00:22:03.215
+So if you click control and choose listen 
+
+00:22:03.215 --> 00:22:04.128
+Then it will take you here
+
+00:22:04.128 --> 00:22:05.942
+You can do this in pycharm too
+
+00:22:06.395 --> 00:22:08.903
+pycharm will also take you to the course file
+
+00:22:08.903 --> 00:22:12.035
+I did toggle word wrap so that it wouldn't overflow
+
+00:22:12.035 --> 00:22:13.809
+You can read about it here
+
+00:22:13.809 --> 00:22:15.985
+Many things about it Is given here
+
+00:22:15.985 --> 00:22:18.297
+And it has also said here that
+
+00:22:18.297 --> 00:22:20.207
+What all thing you can do
+
+00:22:20.207 --> 00:22:21.709
+many things are given in detail here
+
+00:22:21.709 --> 00:22:23.522
+I don't want to discuss all that
+
+00:22:23.522 --> 00:22:25.431
+I don't want to take much of your time
+
+00:22:25.431 --> 00:22:26.797
+Now what I will do here is
+
+00:22:26.797 --> 00:22:28.163
+I will write here try
+
+00:22:28.163 --> 00:22:29.257
+Now what will happen
+
+00:22:29.257 --> 00:22:33.431
+When we use try? When we think an error can occur
+
+00:22:33.929 --> 00:22:36.785
+So I will write here recognising 
+
+00:22:38.144 --> 00:22:40.596
+Now it is recognising the command
+
+00:22:40.596 --> 00:22:42.415
+It will recognise the command
+
+00:22:42.415 --> 00:22:44.233
+And whatever the query there is
+
+00:22:44.822 --> 00:22:48.239
+I will write here recognising bing or google
+
+00:22:48.601 --> 00:22:52.100
+recognise google, google cloud and many things are available
+
+00:22:52.100 --> 00:22:54.825
+I will use recognise google
+
+00:22:54.825 --> 00:22:57.357
+If I take you here by using control
+
+00:22:57.357 --> 00:23:01.209
+So just see recognise google, bing and many more
+
+00:23:01.209 --> 00:23:04.110
+And it is showing the name and what engine it is using
+
+00:23:04.110 --> 00:23:09.144
+and it will use google cloud engine if you recognise google cloud
+
+00:23:09.144 --> 00:23:13.313
+But as of now, recognise google works properly
+
+00:23:13.811 --> 00:23:15.904
+So we don't have to be stressed out
+
+00:23:15.904 --> 00:23:18.397
+After that I will write English India 
+
+00:23:18.397 --> 00:23:20.175
+EN-IN
+
+00:23:20.175 --> 00:23:21.983
+And after that
+
+00:23:21.983 --> 00:23:23.987
+I will write here print
+
+00:23:23.987 --> 00:23:25.217
+And I will write here
+
+00:23:25.217 --> 00:23:30.237
+user said, whatever user said and query, okay?
+
+00:23:30.237 --> 00:23:33.343
+I could've used fstring but I am not
+
+00:23:33.343 --> 00:23:34.756
+What I will do here
+
+00:23:34.756 --> 00:23:37.526
+Let me use fstring here
+
+00:23:37.526 --> 00:23:41.332
+So kets use fstring here
+
+00:23:41.332 --> 00:23:43.191
+So I will just write query here
+
+00:23:43.191 --> 00:23:46.408
+I will remove the comma and write /n
+
+00:23:46.408 --> 00:23:48.725
+So I hope you understood everything till here
+
+00:23:48.725 --> 00:23:50.438
+We are recognising the audio here
+
+00:23:50.438 --> 00:23:52.896
+Whatever audio is typed
+
+00:23:52.896 --> 00:23:56.014
+I will use tab+enter and to get correct indent level
+
+00:23:56.014 --> 00:23:59.056
+I will write except exceptions
+
+00:23:59.056 --> 00:24:05.773
+Exception as e
+
+00:24:05.773 --> 00:24:08.362
+I will print e
+
+00:24:08.362 --> 00:24:10.134
+And along with that what I will do
+
+00:24:10.134 --> 00:24:12.134
+I will write "Say that again please"
+
+00:24:12.134 --> 00:24:14.052
+So I will write print
+
+00:24:16.951 --> 00:24:22.021
+"Say that again please" and I will return 
+
+00:24:22.791 --> 00:24:25.782
+return... I am returning here None
+
+00:24:25.782 --> 00:24:27.913
+Now you might be thinking why I used string
+
+00:24:27.913 --> 00:24:29.596
+This none Is not python's none
+
+00:24:29.596 --> 00:24:31.409
+I am just returning None string
+
+00:24:31.409 --> 00:24:32.471
+Just keep that in mind
+
+00:24:32.471 --> 00:24:36.102
+Now you might want error should not be in console 
+
+00:24:36.102 --> 00:24:37.106
+ So don't write this
+
+00:24:37.106 --> 00:24:38.602
+use control + /
+
+00:24:39.055 --> 00:24:40.627
+And remove that exception
+
+00:24:40.627 --> 00:24:41.705
+Or else whatever the error is coming
+
+00:24:41.705 --> 00:24:44.741
+it will be printed here and it does not look good
+
+00:24:44.741 --> 00:24:47.013
+So suppose an error occurred
+
+00:24:47.013 --> 00:24:48.114
+While recognising 
+
+00:24:48.114 --> 00:24:52.107
+You said something that it couldn't recognise
+
+00:24:52.107 --> 00:24:53.473
+Then what will happen
+
+00:24:53.473 --> 00:24:55.875
+It will go into this exception block.
+
+00:24:55.875 --> 00:24:57.875
+And after going into that block
+
+00:24:57.875 --> 00:24:59.276
+What it will do?
+
+00:25:00.000 --> 00:25:03.133
+You can print the exception here
+
+00:25:03.133 --> 00:25:04.312
+Or what else it will do
+
+00:25:04.312 --> 00:25:06.578
+"Say that again". It will return none
+
+00:25:06.578 --> 00:25:09.660
+And here I am going to run a while loop infinitely
+
+00:25:09.660 --> 00:25:11.391
+What this will do
+
+00:25:11.391 --> 00:25:14.156
+It will listen, listen, listen and keep on listening
+
+00:25:14.745 --> 00:25:15.685
+That's good
+
+00:25:15.685 --> 00:25:17.951
+Now here, how fast you speak
+
+00:25:17.951 --> 00:25:20.034
+You can control it here
+
+00:25:20.034 --> 00:25:21.813
+If I open this pause threshold here
+
+00:25:21.813 --> 00:25:22.902
+So just see here
+
+00:25:22.902 --> 00:25:24.997
+If you increase the energy threshold
+
+00:25:24.997 --> 00:25:27.445
+So the least audio energy is needed more
+
+00:25:27.445 --> 00:25:29.032
+Then you have to shout a little
+
+00:25:29.032 --> 00:25:29.809
+So if you all want
+
+00:25:29.809 --> 00:25:31.854
+If there is noise in your house 24hr
+
+00:25:31.854 --> 00:25:34.579
+And if you want your AI to not listen to that
+
+00:25:34.579 --> 00:25:36.127
+Your Jarvis should not listen to that 
+
+00:25:36.127 --> 00:25:37.402
+To their voices
+
+00:25:37.402 --> 00:25:40.529
+So just increase the energy threshold and experiment with this
+
+00:25:40.529 --> 00:25:42.574
+Experiment wit h all of these parameters 
+
+00:25:42.574 --> 00:25:45.022
+Just like I have increased the pause threshold
+
+00:25:45.022 --> 00:25:47.470
+You all can also change all the parameters 
+
+00:25:47.470 --> 00:25:52.867
+I hope you all understood this clearly
+
+00:25:52.867 --> 00:25:54.183
+Now what I will do here
+
+00:25:54.183 --> 00:25:56.545
+I will write here that
+
+00:25:57.541 --> 00:25:59.128
+I will write a while loop here
+
+00:25:59.128 --> 00:26:01.495
+So what I just did here
+
+00:26:02.310 --> 00:26:03.540
+One thing here
+
+00:26:04.265 --> 00:26:06.447
+We haven't returned the query here
+
+00:26:06.447 --> 00:26:07.686
+Then we will return the query here
+
+00:26:07.686 --> 00:26:09.590
+Now what is this function doing
+
+00:26:09.590 --> 00:26:12.355
+Take command function is getting the audio
+
+00:26:12.581 --> 00:26:14.336
+It is taking the audio from microphone
+
+00:26:14.336 --> 00:26:16.693
+And it is converting it into string and returning it
+
+00:26:16.693 --> 00:26:18.693
+It is not doing anything more than that
+
+00:26:18.693 --> 00:26:20.000
+And it is returning a string output
+
+00:26:20.000 --> 00:26:23.268
+If there is a problem then it is returning none
+
+00:26:23.268 --> 00:26:25.540
+Lets just test this once
+
+00:26:25.540 --> 00:26:27.037
+I will write here the take command
+
+00:26:27.037 --> 00:26:29.042
+I will save it with control + s
+
+00:26:29.042 --> 00:26:30.000
+*JARVIS RESPONDS*
+
+00:26:30.000 --> 00:26:33.132
+"HELLO MY.." "HELLO"
+
+00:26:33.132 --> 00:26:34.195
+*JARVIS RESPONDS* 
+
+00:26:34.195 --> 00:26:35.706
+"HELLO I AM HARRY"
+
+00:26:36.113 --> 00:26:38.472
+It is showing I am having that is not bad
+
+00:26:38.472 --> 00:26:40.402
+I will run this again once
+
+00:26:40.402 --> 00:26:45.318
+*JARVIS RESPONDS*
+
+00:26:45.318 --> 00:26:46.761
+"WHO ARE YOU?"
+
+00:26:46.761 --> 00:26:49.335
+So it has recognised who are you perfectly
+
+00:26:49.335 --> 00:26:51.284
+What happened is what mic are you using 
+
+00:26:51.284 --> 00:26:54.320
+The quality, distance 
+
+00:26:54.320 --> 00:26:57.284
+The noise, it depends on all of that factors 
+
+00:26:57.284 --> 00:27:00.000
+In most of the cases, google engine works perfectly
+
+00:27:00.000 --> 00:27:01.502
+Trust me
+
+00:27:01.502 --> 00:27:04.544
+This is the same engine that you use in mobiles
+
+00:27:04.544 --> 00:27:07.631
+So please don't think it won't work
+
+00:27:07.631 --> 00:27:11.035
+So the voice-to-text or speech-to-text
+
+00:27:11.035 --> 00:27:13.800
+you all know how smoothly that works.
+
+00:27:15.068 --> 00:27:17.491
+Now here we have done the take command
+
+00:27:17.491 --> 00:27:20.216
+Now what I will do here I will write query is equal to
+
+00:27:20.216 --> 00:27:22.845
+Whatever the query is, query is equal to
+
+00:27:22.845 --> 00:27:26.385
+And I will convert it into lowercase string
+
+00:27:26.385 --> 00:27:29.064
+So I will say convert this into lowercase string
+
+00:27:29.064 --> 00:27:32.423
+And after that I will write logic
+
+00:27:32.423 --> 00:27:36.650
+for executing tasks
+
+00:27:36.650 --> 00:27:38.482
+Based on query 
+
+00:27:38.482 --> 00:27:40.612
+Now I will write here the logic
+
+00:27:40.612 --> 00:27:44.333
+That I will use to execute tasks
+
+00:27:44.333 --> 00:27:48.009
+So what I will do, I will write a while loop
+
+00:27:49.368 --> 00:27:51.733
+And this wishme don't write it in while loop
+
+00:27:51.733 --> 00:27:55.771
+Or else Jarvis will start wishing you like a mad man
+
+00:27:55.771 --> 00:27:57.363
+We don't want like this
+
+00:27:57.363 --> 00:27:58.481
+So lets write the logic
+
+00:27:58.481 --> 00:28:02.061
+And lest see what tasks we can execute
+
+00:28:02.061 --> 00:28:06.275
+I want you to type in terminal pip install wikipedia
+
+00:28:06.275 --> 00:28:10.625
+And this will install the wikipedia module
+
+00:28:10.625 --> 00:28:13.843
+and write import wikipedia on the top here
+
+00:28:16.017 --> 00:28:17.724
+wikipedia you all have written. Now suppose
+
+00:28:17.724 --> 00:28:20.815
+You all have to search wikipedia
+
+00:28:20.815 --> 00:28:22.757
+So what I will do? I will write here
+
+00:28:22.757 --> 00:28:27.542
+If "wikipedia" in query
+
+00:28:27.542 --> 00:28:30.629
+Suppose wikipedia is present in your query
+
+00:28:30.629 --> 00:28:32.312
+Then what has to be done
+
+00:28:32.493 --> 00:28:33.878
+Then Speak
+
+00:28:34.648 --> 00:28:36.600
+Searching...
+
+00:28:38.366 --> 00:28:41.584
+Wikipedia. So I am searching wikipedia
+
+00:28:42.309 --> 00:28:44.358
+And I will write this much. I won't write please wait
+
+00:28:44.358 --> 00:28:45.537
+I will write searching wikipedia 
+
+00:28:45.537 --> 00:28:49.389
+And along with that I will write query is equal to
+
+00:28:49.389 --> 00:28:51.480
+And I will write here
+
+00:28:51.480 --> 00:28:52.838
+Query...
+
+00:28:52.838 --> 00:28:55.570
+So I will Wirte here query.replace
+
+00:28:55.570 --> 00:28:57.998
+And the wikipedia that is in query
+
+00:28:57.998 --> 00:28:59.521
+I will replace it with
+
+00:28:59.521 --> 00:29:02.596
+replace with Blank. That means I will remove wikipedia
+
+00:29:02.596 --> 00:29:04.782
+And I will write here
+
+00:29:04.782 --> 00:29:08.396
+I will search wikipedia with the query 
+
+00:29:08.396 --> 00:29:10.949
+So I will write here results is equal to
+
+00:29:10.949 --> 00:29:14.167
+And whatever results I will get from wikipedia
+
+00:29:14.167 --> 00:29:16.666
+I will write here wikipedia.summary
+
+00:29:16.666 --> 00:29:20.795
+And I will write here query, sentences is equal to 2
+
+00:29:20.795 --> 00:29:24.115
+query sentences is equal to 2
+
+00:29:24.115 --> 00:29:28.108
+And sentences = 2 will return two sentences
+
+00:29:28.108 --> 00:29:30.096
+From wikipedia
+
+00:29:30.096 --> 00:29:33.092
+And here I will make it speak
+
+00:29:33.092 --> 00:29:35.817
+According to wikipedia
+
+00:29:35.817 --> 00:29:38.089
+According to wikipedia...
+
+00:29:38.089 --> 00:29:41.040
+So it will speak like "According to wikipedia"
+
+00:29:41.040 --> 00:29:42.979
+"Something, something, something...." like this
+
+00:29:42.979 --> 00:29:45.613
+And after that I will program it to speak results
+
+00:29:45.613 --> 00:29:48.519
+Whatever results are there just speak it
+
+00:29:49.019 --> 00:29:50.923
+Lets try to run it
+
+00:29:50.923 --> 00:29:56.121
+*Jarvis responds*
+
+00:29:56.121 --> 00:29:58.755
+"SHAHRUKH KHAN ACCPRDING TO WIKIPEDIA"
+
+00:29:58.755 --> 00:30:02.044
+*SEARCHING WIKIPEDIA*
+
+00:30:02.044 --> 00:30:10.000
+"JARVIS SPEAKS ABOUT SHAHRUKH KHAN "
+
+00:30:10.000 --> 00:30:11.713
+Can you all see?
+
+00:30:11.713 --> 00:30:15.366
+"JARVIS SPEAKS ABOUT SHAHRUKH KHAN "
+
+00:30:15.366 --> 00:30:17.094
+So it is giving details about Shahrukh Khan
+
+00:30:17.094 --> 00:30:20.362
+What I will do here.. I will print the results too
+
+00:30:20.362 --> 00:30:21.592
+And I will click f3
+
+00:30:21.592 --> 00:30:27.374
+*JARVIS RESPONDS*
+
+00:30:27.374 --> 00:30:29.252
+"SHAHRUKH KHAN WIKIPEDIA"
+
+00:30:29.252 --> 00:30:41.852
+*JARVIS TALKS ABOUT SRK*
+
+00:30:41.852 --> 00:30:44.028
+So did you all see that? I am cancelling this
+
+00:30:44.028 --> 00:30:45.363
+Because it is reading this 
+
+00:30:45.363 --> 00:30:48.473
+So it took 2 sentences from wikipedia and reading it
+
+00:30:48.473 --> 00:30:50.545
+If you think 2 sentences are more than enough
+
+00:30:50.545 --> 00:30:52.771
+So you can make It less
+
+00:30:52.771 --> 00:30:54.766
+So I will leave that upto you 
+
+00:30:54.766 --> 00:30:58.391
+This will be on you whether you want 1,2 or 3 sentences
+
+00:30:58.391 --> 00:31:01.614
+Or you can program it to read full wikipedia
+
+00:31:01.614 --> 00:31:05.154
+Now what we will do here
+
+00:31:05.154 --> 00:31:06.702
+We have made some progress here
+
+00:31:06.702 --> 00:31:09.110
+What we did, we made wikipedia work for us
+
+00:31:09.110 --> 00:31:10.682
+We have made some progress here
+
+00:31:10.682 --> 00:31:13.361
+At least our wikipedia is working now
+
+00:31:13.361 --> 00:31:14.703
+Now what we want to do
+
+00:31:14.703 --> 00:31:16.782
+We have to make more things work like
+
+00:31:16.782 --> 00:31:22.446
+Like open YouTube, open google, or another site like wikipedia
+
+00:31:22.446 --> 00:31:25.019
+Now lets see how will it work
+
+00:31:25.019 --> 00:31:27.069
+Now suppose you said 
+
+00:31:27.069 --> 00:31:28.926
+I will write elif
+
+00:31:29.379 --> 00:31:31.559
+"Open YouTube" in query
+
+00:31:31.559 --> 00:31:34.180
+Now the query includes open YouTube
+
+00:31:34.180 --> 00:31:35.722
+Now suppose you said
+
+00:31:35.722 --> 00:31:38.191
+Jarvis please open YouTube for me
+
+00:31:38.191 --> 00:31:40.000
+so open YouTube will be in that query
+
+00:31:40.000 --> 00:31:43.042
+open YouTube for that query will be true
+
+00:31:43.042 --> 00:31:43.865
+And what it will do
+
+00:31:43.865 --> 00:31:45.321
+It will open YouTube 
+
+00:31:45.321 --> 00:31:46.863
+But how top open YouTube 
+
+00:31:46.863 --> 00:31:49.039
+So for that we will install web browser module
+
+00:31:49.039 --> 00:31:51.039
+which is an inbuilt module
+
+00:31:51.039 --> 00:31:53.963
+So I will write at the top import web browser
+
+00:31:55.367 --> 00:31:57.284
+I wrote import web browser
+
+00:31:57.284 --> 00:31:59.777
+Now what I will do here, I will simply write
+
+00:31:59.777 --> 00:32:02.859
+webbrowser.open and here I will write 
+
+00:32:02.859 --> 00:32:06.031
+YouTube.com
+
+00:32:06.031 --> 00:32:08.212
+And the moment I say open YouTube then it will be opened
+
+00:32:08.212 --> 00:32:10.478
+Now lets test whether it works or not
+
+00:32:11.655 --> 00:32:13.382
+I have executed it
+
+00:32:13.382 --> 00:32:14.398
+*JARVIS RESPONDS*
+
+00:32:14.398 --> 00:32:15.417
+I will speak now
+
+00:32:15.417 --> 00:32:17.680
+*JARVIS RESPONDS*
+
+00:32:17.680 --> 00:32:19.765
+"JARVIS OPEN YOUTUBE"
+
+00:32:21.758 --> 00:32:23.770
+Just see it has opened YouTube for me
+
+00:32:23.770 --> 00:32:25.544
+Now what I will do I will quit it
+
+00:32:25.544 --> 00:32:28.540
+And it has opened YouTube for me perfectly.
+
+00:32:28.540 --> 00:32:31.395
+Like this we can program it to open more websites
+
+00:32:31.395 --> 00:32:34.981
+Its not mandatory to open YouTube only, it can open more sites
+
+00:32:34.981 --> 00:32:36.981
+So will just copy it here
+
+00:32:36.981 --> 00:32:40.797
+I will paste it and write open google 
+
+00:32:40.797 --> 00:32:44.926
+And for google, I will write here google.com
+
+00:32:46.013 --> 00:32:48.557
+And what is there? Stack overflow is there for programmers
+
+00:32:49.191 --> 00:32:50.778
+We should now forget it
+
+00:32:52.318 --> 00:32:54.041
+Okay?
+
+00:32:57.982 --> 00:32:59.095
+okay?
+
+00:32:59.095 --> 00:33:00.863
+You all can open like this
+
+00:33:00.863 --> 00:33:03.446
+So if I say open stack overflow
+
+00:33:03.446 --> 00:33:05.446
+So it opened stack overflow
+
+00:33:05.446 --> 00:33:08.171
+*JARVIS RESPONDS*
+
+00:33:08.171 --> 00:33:10.748
+"OPEN GOOGLE FOR ME JARVIS"
+
+00:33:12.243 --> 00:33:14.062
+So it has opened google for me
+
+00:33:14.062 --> 00:33:16.600
+and now if I haven't converted it into small case 
+
+00:33:16.600 --> 00:33:20.000
+Then the G would've been capital and my query would've failed
+
+00:33:20.000 --> 00:33:21.949
+That's why in the query
+
+00:33:21.949 --> 00:33:25.710
+I have converted the take command into lowercase
+
+00:33:25.710 --> 00:33:28.797
+By lowercase, it will be converted into lowercase
+
+00:33:28.797 --> 00:33:31.199
+And you can match the query perfectly
+
+00:33:31.199 --> 00:33:33.109
+These were our browser actions
+
+00:33:33.109 --> 00:33:34.928
+And now I am going to show you
+
+00:33:34.928 --> 00:33:37.562
+that how you can play music
+
+00:33:37.562 --> 00:33:38.968
+So I will write here
+
+00:33:39.783 --> 00:33:43.525
+Elif and after that play music
+
+00:33:44.839 --> 00:33:46.582
+So you all have written play music
+
+00:33:46.582 --> 00:33:48.486
+And in query 
+
+00:33:48.486 --> 00:33:50.783
+What you want? You want to play music
+
+00:33:50.783 --> 00:33:54.142
+Just import the os module from the top
+
+00:33:54.142 --> 00:33:55.916
+I have written import os at the top
+
+00:33:55.916 --> 00:33:57.916
+Now just se how I will play music
+
+00:33:57.916 --> 00:34:00.725
+If you are on windows then what happens is
+
+00:34:00.725 --> 00:34:03.450
+There will be a directory for songs
+
+00:34:03.450 --> 00:34:05.224
+Then what you will do music_ .....
+
+00:34:05.224 --> 00:34:08.939
+If there is now directory then create one for songs
+
+00:34:08.939 --> 00:34:10.440
+Like my directory with name
+
+00:34:10.440 --> 00:34:13.889
+D:\\ after that Non Critical
+
+00:34:13.889 --> 00:34:20.000
+after that \\songs and after that \\Favourite songs
+
+00:34:20.000 --> 00:34:22.996
+I have created a directory by this name
+
+00:34:22.996 --> 00:34:24.724
+Now why am I using double slash here?
+
+00:34:24.724 --> 00:34:28.701
+I am using it because I want to escape the character 
+
+00:34:28.701 --> 00:34:31.051
+All these things we have seen in out python course 
+
+00:34:31.051 --> 00:34:33.499
+And you might get to know it
+
+00:34:33.499 --> 00:34:37.170
+That how we have to use these things
+
+00:34:37.170 --> 00:34:39.351
+If you haven't seen the python course
+
+00:34:39.351 --> 00:34:40.621
+I am telling you again
+
+00:34:40.621 --> 00:34:41.891
+You al will say I am telling you again and again
+
+00:34:41.891 --> 00:34:46.065
+But its important that's why I have to tell you again and again
+
+00:34:46.065 --> 00:34:48.835
+Lets go back to our visual studio code
+
+00:34:48.835 --> 00:34:52.762
+So here we have escaped and wrote our music directory
+
+00:34:52.762 --> 00:34:55.894
+Now by using the voice module here
+
+00:34:55.894 --> 00:35:00.334
+I will write here songs = os.listdir
+
+00:35:00.334 --> 00:35:01.651
+What does list for do
+
+00:35:01.651 --> 00:35:08.361
+It will all the files in musicdir
+
+00:35:08.361 --> 00:35:10.809
+So if I write here print songs
+
+00:35:10.809 --> 00:35:13.665
+So it will print all my songs
+
+00:35:13.665 --> 00:35:14.669
+You all ensure one thing here
+
+00:35:14.669 --> 00:35:17.213
+We are not detecting that we have to play mp3
+
+00:35:17.213 --> 00:35:19.638
+You can add that additional feature
+
+00:35:19.638 --> 00:35:22.448
+For now it will just listen
+
+00:35:22.448 --> 00:35:24.397
+I haven't closed it is still listening
+
+00:35:24.397 --> 00:35:27.212
+See it has listened to something 
+
+00:35:27.212 --> 00:35:28.527
+I don't know what, anyways
+
+00:35:28.527 --> 00:35:31.156
+So I write here print songs
+
+00:35:31.156 --> 00:35:32.432
+I have written print songs so what will happen
+
+00:35:32.432 --> 00:35:35.111
+So I would be able to see all the songs
+
+00:35:35.111 --> 00:35:36.341
+What I will do here?l
+
+00:35:36.341 --> 00:35:38.341
+I will do os.startfile
+
+00:35:38.341 --> 00:35:40.000
+What will os.startfile do?
+
+00:35:40.000 --> 00:35:41.275
+It will open that file
+
+00:35:41.275 --> 00:35:43.773
+And I will use os.part.joina
+
+00:35:43.773 --> 00:35:46.317
+I will merge musicdir with
+
+00:35:46.317 --> 00:35:49.548
+Will merge music_dir with songsdir
+
+00:35:49.548 --> 00:35:51.141
+That means I will play first song
+
+00:35:51.141 --> 00:35:52.910
+Now its not important to play only first song
+
+00:35:52.910 --> 00:35:55.454
+With the help of random module
+
+00:35:55.454 --> 00:35:58.360
+from 0 to length of song minus 1
+
+00:35:58.360 --> 00:36:01.487
+you can generate a number to play random song
+
+00:36:01.487 --> 00:36:04.257
+But for now I will just keep it like this only
+
+00:36:04.257 --> 00:36:05.799
+Whatever the first song is will be played
+
+00:36:05.799 --> 00:36:07.160
+But you will enjoy more
+
+00:36:07.160 --> 00:36:09.522
+When you use random module
+
+00:36:09.748 --> 00:36:11.743
+When you will generate a number through random module
+
+00:36:11.743 --> 00:36:13.511
+And a random song
+
+00:36:13.511 --> 00:36:16.729
+Jarvis will generate a random song
+
+00:36:16.729 --> 00:36:19.092
+So it will be more fun. Please try it at your end.
+
+00:36:19.092 --> 00:36:21.223
+I just want to simply show you
+
+00:36:21.223 --> 00:36:24.219
+Video will be long if I do small enhancements 
+
+00:36:24.536 --> 00:36:26.944
+So you can play music like this
+
+00:36:26.944 --> 00:36:28.944
+So lets see if it works or no
+
+00:36:28.944 --> 00:36:31.851
+I will run Jarvis and say "Play music"
+
+00:36:31.851 --> 00:36:34.802
+So I will play this and run my program
+
+00:36:34.802 --> 00:36:36.661
+I will run program and then say it
+
+00:36:36.661 --> 00:36:40.427
+*JARVIS RESPONDS*
+
+00:36:40.427 --> 00:36:41.784
+"JARVIS PLAY MUSIC"
+
+00:36:41.784 --> 00:36:43.435
+So just see it has played music for me
+
+00:36:44.839 --> 00:36:46.018
+So it is plying song now 
+
+00:36:46.018 --> 00:36:48.453
+And it takes some time to open
+
+00:36:48.453 --> 00:36:50.134
+So the song is now started
+
+00:36:50.134 --> 00:36:52.670
+So I will not waste my time listening to song
+
+00:36:52.670 --> 00:36:53.402
+I will show you
+
+00:36:53.402 --> 00:36:54.813
+So like this you can play song 
+
+00:36:54.813 --> 00:36:57.402
+So our play music task has been completed.
+
+00:36:57.402 --> 00:36:59.130
+Now we will add more task
+
+00:36:59.311 --> 00:37:01.171
+I will write here elif
+
+00:37:01.171 --> 00:37:02.809
+"the time in query" 
+
+00:37:02.809 --> 00:37:04.945
+That means if you have asked for time
+
+00:37:05.986 --> 00:37:08.711
+You have asked Jarvis what's the time 
+
+00:37:09.028 --> 00:37:11.314
+Then what you will do, I will write here
+
+00:37:11.314 --> 00:37:14.763
+timestr is equal to
+
+00:37:14.763 --> 00:37:16.758
+You want the time in string 
+
+00:37:16.758 --> 00:37:21.068
+datetime.datetime.now
+
+00:37:21.068 --> 00:37:22.842
+that is the current time
+
+00:37:22.842 --> 00:37:24.882
+.strf(time)
+
+00:37:24.882 --> 00:37:26.695
+And after that what you will do
+
+00:37:26.695 --> 00:37:29.774
+%h specifier you will write here
+
+00:37:29.774 --> 00:37:33.384
+%m and along with that %s
+
+00:37:33.384 --> 00:37:36.285
+So with these specifiers, you can get the time in string
+
+00:37:36.285 --> 00:37:39.780
+If I have written it correctly, then I will speak time
+
+00:37:39.780 --> 00:37:41.644
+And here I will
+
+00:37:41.644 --> 00:37:44.590
+I will make Jarvis speak "TIME IS"
+
+00:37:44.590 --> 00:37:45.536
+I will apply fstring here
+
+00:37:45.536 --> 00:37:49.574
+And here I will say that "TIME IS"
+
+00:37:49.574 --> 00:37:52.389
+And by using control + X, I will paste it.
+
+00:37:52.706 --> 00:37:54.973
+I will make him speak "SIR THE TIME IS"
+
+00:37:56.105 --> 00:37:57.870
+"SIR THE TIME IS", like this it will say.
+
+00:37:57.870 --> 00:37:59.684
+Lets see if it works or not
+
+00:38:00.000 --> 00:38:01.994
+And here I will do like this.
+
+00:38:01.994 --> 00:38:03.722
+My program has started running
+
+00:38:03.722 --> 00:38:06.492
+It has not started yet. I am waiting.
+
+00:38:06.492 --> 00:38:09.398
+And my Jarvis is starting
+
+00:38:09.398 --> 00:38:11.101
+*JARVIS RESPONDS*
+
+00:38:11.101 --> 00:38:12.631
+"WHATS THE TIME JARVIS?"
+
+00:38:12.631 --> 00:38:17.200
+*JARVIS TELLS TIME*
+
+00:38:17.200 --> 00:38:19.774
+So Jarvis told me the current time that is 13:53
+
+00:38:19.774 --> 00:38:21.004
+I will just close this program
+
+00:38:21.004 --> 00:38:22.053
+Let me do one thing
+
+00:38:22.053 --> 00:38:23.957
+I should change while True:
+
+00:38:23.957 --> 00:38:25.765
+Because I don't want it to run again and again
+
+00:38:25.765 --> 00:38:27.131
+Because I am taking to you
+
+00:38:27.131 --> 00:38:29.683
+And I am running it while talking to you
+
+00:38:29.683 --> 00:38:30.687
+So what will happen due to this?
+
+00:38:30.687 --> 00:38:32.229
+That if I do like this than
+
+00:38:32.229 --> 00:38:35.633
+It will be running continuously and recognising everything 
+
+00:38:35.633 --> 00:38:37.415
+There is no damage due to if but still
+
+00:38:37.415 --> 00:38:39.189
+So what did we do here
+
+00:38:39.189 --> 00:38:41.325
+We simply opened google, opened YouTube 
+
+00:38:41.325 --> 00:38:43.507
+opened stack overflow, played music
+
+00:38:43.507 --> 00:38:46.005
+We learned about time
+
+00:38:46.005 --> 00:38:48.950
+Now sometimes you want to open a program
+
+00:38:48.950 --> 00:38:50.181
+So what you will do then
+
+00:38:50.181 --> 00:38:52.000
+Suppose I want to open VS code
+
+00:38:52.000 --> 00:38:53.843
+I personally want to open it
+
+00:38:53.843 --> 00:38:55.727
+So what happens is I will click on Start
+
+00:38:55.727 --> 00:38:57.727
+Right-click on VS code
+
+00:38:57.727 --> 00:39:00.000
+And then I will go in more
+
+00:39:00.000 --> 00:39:03.534
+I will simply just go into open file location
+
+00:39:03.534 --> 00:39:05.274
+After going into open file location
+
+00:39:05.274 --> 00:39:07.319
+I can see the VS code
+
+00:39:07.319 --> 00:39:09.727
+I will right-click and select property 
+
+00:39:09.727 --> 00:39:12.135
+and I will copy the target
+
+00:39:12.135 --> 00:39:14.266
+I will copy this whole target
+
+00:39:14.266 --> 00:39:16.447
+After copying target what I will do
+
+00:39:16.447 --> 00:39:20.000
+I will write here Elif open code
+
+00:39:21.676 --> 00:39:22.770
+In query.
+
+00:39:22.770 --> 00:39:25.359
+If there is open code in my query
+
+00:39:25.359 --> 00:39:28.446
+Then what I will do... I will write here
+
+00:39:28.627 --> 00:39:31.029
+What my path is.. I will write here
+
+00:39:31.754 --> 00:39:34.700
+path is equal to this... will change it to code
+
+00:39:34.700 --> 00:39:37.164
+code path is equal to this.
+
+00:39:37.164 --> 00:39:39.753
+And the slashes that are here
+
+00:39:39.753 --> 00:39:41.023
+I will escape them
+
+00:39:41.023 --> 00:39:43.884
+I will convert the single slash into double slash
+
+00:39:43.884 --> 00:39:44.701
+Simply..
+
+00:39:44.701 --> 00:39:47.335
+And I will save it with control + s
+
+00:39:47.335 --> 00:39:48.918
+And I will write here
+
+00:39:49.371 --> 00:39:52.342
+Like I used os module before
+
+00:39:52.342 --> 00:39:57.016
+I will write here os.startfile(codepath)
+
+00:39:57.016 --> 00:40:00.407
+Simply you have to write this and nothing more
+
+00:40:00.633 --> 00:40:02.275
+And along with this, like I have used codepath here
+
+00:40:02.275 --> 00:40:04.139
+You can use more things like this 
+
+00:40:04.139 --> 00:40:06.230
+Suppose you want to open some other program
+
+00:40:06.230 --> 00:40:07.913
+Then you can use that program's path
+
+00:40:07.913 --> 00:40:10.493
+ And create a program corresponding to it
+
+00:40:10.897 --> 00:40:14.019
+You can make any string here and
+
+00:40:14.019 --> 00:40:16.634
+And you can open the corresponding path
+
+00:40:16.634 --> 00:40:19.262
+So if i run this program
+
+00:40:19.262 --> 00:40:23.161
+*JARVIS RESPONDS*
+
+00:40:23.161 --> 00:40:25.696
+"JARVIS OPEN CODE"
+
+00:40:29.735 --> 00:40:32.609
+So it has opened one more instance of VS code
+
+00:40:32.609 --> 00:40:35.863
+Now I will close this instance of VS code.
+
+00:40:35.863 --> 00:40:37.100
+If you are lazy  
+
+00:40:37.100 --> 00:40:39.145
+and don't want to click on start like me
+
+00:40:39.145 --> 00:40:41.145
+So you can use you assistant for this work.
+
+00:40:41.145 --> 00:40:45.280
+Playing music, time, date, setting reminder
+
+00:40:45.280 --> 00:40:46.786
+These all things you can do.
+
+00:40:46.786 --> 00:40:49.325
+You can keep all your reminders in a file
+
+00:40:49.325 --> 00:40:50.902
+Or else you can store them is csv
+
+00:40:50.902 --> 00:40:53.870
+And use pandas to read csv
+
+00:40:53.870 --> 00:40:55.402
+So here i will simply show you
+
+00:40:55.402 --> 00:40:59.097
+That you limits here is the sky
+
+00:40:59.097 --> 00:41:02.088
+You can make your Jarvis do anything.
+
+00:41:02.582 --> 00:41:06.476
+Now after that one more fascinating 
+
+00:41:06.476 --> 00:41:08.628
+use i will show you
+
+00:41:08.628 --> 00:41:09.992
+That is sending E-mails.
+
+00:41:09.992 --> 00:41:11.992
+Yes yes you can send e-mails
+
+00:41:11.992 --> 00:41:13.928
+But for sending E-mails
+
+00:41:13.928 --> 00:41:14.832
+What we will do
+
+00:41:14.832 --> 00:41:16.652
+I will show you a simple usage 
+
+00:41:16.652 --> 00:41:18.428
+I will write here E-mail to harry
+
+00:41:18.787 --> 00:41:20.204
+Ans what I will do here. 
+
+00:41:20.204 --> 00:41:22.903
+Now here I will say "Send e-mail to Harry.  
+
+00:41:22.903 --> 00:41:26.365
+Then my command will be triggered
+
+00:41:27.038 --> 00:41:28.500
+But what you all can do.  
+
+00:41:28.500 --> 00:41:30.212
+You can simply do this
+
+00:41:30.212 --> 00:41:31.969
+You can send e-mail
+
+00:41:31.969 --> 00:41:33.995
+and after that by using name
+
+00:41:33.995 --> 00:41:36.515
+You can detect the e-mail
+
+00:41:36.515 --> 00:41:38.137
+So what you all will do... You will create dictionary
+
+00:41:38.137 --> 00:41:40.271
+You can create a dictionary at the start
+
+00:41:40.271 --> 00:41:43.353
+And in that dictionary the names will be keys
+
+00:41:43.353 --> 00:41:46.680
+And the values will be e-mail id's.
+
+00:41:46.680 --> 00:41:49.648
+You can fill this with you Gmail Account.
+
+00:41:49.648 --> 00:41:52.078
+Fill it with all your contacts. 
+
+00:41:52.347 --> 00:41:54.247
+You can import your contacts.
+
+00:41:54.247 --> 00:41:56.653
+And after importing the contacts
+
+00:41:56.653 --> 00:41:59.211
+And can save it by creating a dictionary
+
+00:41:59.211 --> 00:42:02.527
+But what I will show you here is E-mail to Harry
+
+00:42:02.527 --> 00:42:05.002
+In which message will go to only 1 E-Mail
+
+00:42:05.989 --> 00:42:06.975
+Now what i will do here. 
+
+00:42:06.975 --> 00:42:07.744
+I will write here try
+
+00:42:07.744 --> 00:42:09.744
+You should always use try 
+
+00:42:09.744 --> 00:42:13.969
+Because we don't want our Jarvis to fail
+
+00:42:13.969 --> 00:42:16.732
+We don't want it like that
+
+00:42:16.732 --> 00:42:18.732
+So I will write here speak "What should I say"
+
+00:42:18.732 --> 00:42:20.711
+What I should say, okay?
+
+00:42:20.711 --> 00:42:24.267
+And in this content I will use take command
+
+00:42:24.267 --> 00:42:26.581
+What does take command function do?
+
+00:42:26.581 --> 00:42:28.119
+What take command function does is
+
+00:42:28.119 --> 00:42:29.805
+Whatever you said in microphone
+
+00:42:29.805 --> 00:42:33.017
+It returns that in the form of string. 
+
+00:42:33.466 --> 00:42:36.857
+So I hope you all can understand these things
+
+00:42:36.857 --> 00:42:38.857
+to is equal to 
+
+00:42:38.857 --> 00:42:42.824
+your e-mail @ of 
+
+00:42:42.824 --> 00:42:44.287
+gmail.com. 
+
+00:42:44.287 --> 00:42:45.281
+Whose e-mail? Harry's email. 
+
+00:42:45.281 --> 00:42:47.128
+Because I am e-mailing to Harry.
+
+00:42:47.128 --> 00:42:49.982
+So I will change it to harryyourEmail@gmail.com
+
+00:42:49.982 --> 00:42:51.996
+Whatever Harry's email is will come here
+
+00:42:51.996 --> 00:42:53.518
+And what I will do afterwards
+
+00:42:53.518 --> 00:42:56.729
+I will write a send email function here. 
+
+00:42:57.133 --> 00:43:00.429
+It will include 2 this i.e to, and content
+
+00:43:01.012 --> 00:43:02.636
+I will send to and content to this function. 
+
+00:43:02.636 --> 00:43:04.752
+I will explain this function
+
+00:43:05.291 --> 00:43:07.150
+You all don't be stressed
+
+00:43:08.990 --> 00:43:11.302
+"Email has been sent"
+
+00:43:11.302 --> 00:43:14.041
+I will make my AI speak that
+
+00:43:14.939 --> 00:43:17.623
+And after that what I will do
+
+00:43:17.623 --> 00:43:21.579
+I will write Except exception as e
+
+00:43:22.073 --> 00:43:23.730
+And I will write here
+
+00:43:23.730 --> 00:43:25.314
+After writing Except exception as e. 
+
+00:43:25.314 --> 00:43:28.327
+I will print it to see what is the problem
+
+00:43:28.327 --> 00:43:30.712
+Because ideally this problem should not happen
+
+00:43:30.712 --> 00:43:33.142
+If you have configured it properly then it shouldn't happen
+
+00:43:33.501 --> 00:43:35.497
+But now we will see here and write.  
+
+00:43:35.497 --> 00:43:39.498
+Sorry My friend Harry bhai. 
+
+00:43:39.498 --> 00:43:43.646
+I am not able to send this E-Mail.
+
+00:43:44.544 --> 00:43:46.660
+Now the thing is, if you have done this
+
+00:43:46.660 --> 00:43:49.506
+Sorry My friend Harry bhai, I am not able to send this E-Mail.
+
+00:43:50.000 --> 00:43:50.938
+At the moment.
+
+00:43:50.938 --> 00:43:52.460
+You can write anything you want.
+
+00:43:52.460 --> 00:43:53.364
+So what will happen is it will speak 
+
+00:43:53.364 --> 00:43:56.557
+And you will get to know your e-mail hasn't been sent.
+
+00:43:56.557 --> 00:43:59.256
+But ideally your e-mail will be sent.
+
+00:43:59.256 --> 00:44:01.346
+Now lets complete this send e-mail function.
+
+00:44:01.346 --> 00:44:02.909
+So I will come up here
+
+00:44:02.909 --> 00:44:05.559
+And I will complete this send email function
+
+00:44:05.559 --> 00:44:07.804
+I will write def sendEmail()
+
+00:44:08.124 --> 00:44:09.656
+And what things it takes in inputs?
+
+00:44:09.656 --> 00:44:11.117
+It takes to(to whom you want to mail) and content. 
+
+00:44:11.117 --> 00:44:12.545
+To whom you want to send mail.
+
+00:44:12.545 --> 00:44:14.476
+And what you want to send.
+
+00:44:15.598 --> 00:44:18.862
+Now how will we send mail with the help of google?
+
+00:44:18.862 --> 00:44:21.735
+Now I will show you what will be our strategy 
+
+00:44:21.735 --> 00:44:23.309
+To send these emails
+
+00:44:23.309 --> 00:44:27.029
+So what I will do here, I will use Google.
+
+00:44:27.029 --> 00:44:30.180
+I will use our Gmail here.
+
+00:44:30.180 --> 00:44:31.185
+And I will write here
+
+00:44:31.185 --> 00:44:32.966
+smtplib.
+
+00:44:32.966 --> 00:44:36.294
+smtplib is a python package
+
+00:44:36.294 --> 00:44:37.396
+Which is already installed.
+
+00:44:37.396 --> 00:44:39.739
+And with the help of this what you can do
+
+00:44:39.739 --> 00:44:41.708
+Simply you can use this to
+
+00:44:41.708 --> 00:44:44.183
+send emails with Gmail.
+
+00:44:44.587 --> 00:44:46.446
+You can send it with with ease.
+
+00:44:46.895 --> 00:44:50.808
+Less secured apps in Gmail.
+
+00:44:50.808 --> 00:44:52.152
+You have to search for this
+
+00:44:52.152 --> 00:44:54.170
+And whichever account you are using for sending mails
+
+00:44:54.170 --> 00:44:56.921
+You have to allow less secure apps in that mail.
+
+00:44:57.190 --> 00:45:00.000
+You will ask why would I allow less secure apps?
+
+00:45:00.000 --> 00:45:01.686
+But it wont work
+
+00:45:01.686 --> 00:45:03.933
+If you don't allow less secure apps.
+
+00:45:03.933 --> 00:45:05.072
+So in your.  Gmail account
+
+00:45:05.072 --> 00:45:07.119
+Whichever account you are using for sending mail
+
+00:45:07.433 --> 00:45:09.522
+Atleast what you should do 
+
+00:45:09.522 --> 00:45:12.147
+Just enable less secure apps.
+
+00:45:12.327 --> 00:45:13.901
+And enabling this is important.
+
+00:45:13.901 --> 00:45:15.240
+There is no alternative for this.
+
+00:45:15.240 --> 00:45:17.509
+So you have to enable less secure apps. 
+
+00:45:17.509 --> 00:45:19.277
+Just refer here for how to enable it
+
+00:45:19.277 --> 00:45:20.802
+Go into your console
+
+00:45:20.802 --> 00:45:22.196
+And after that go in security
+
+00:45:22.196 --> 00:45:24.376
+You have to enable less secure apps.
+
+00:45:24.376 --> 00:45:26.519
+Once you have enabled it
+
+00:45:26.519 --> 00:45:28.457
+Now with Gmail
+
+00:45:28.457 --> 00:45:30.294
+You'll be able to send e-mails.
+
+00:45:30.518 --> 00:45:31.992
+So I am writing here send email
+
+00:45:31.992 --> 00:45:34.034
+And here I will write 
+
+00:45:34.258 --> 00:45:36.467
+First I will import this module. 
+
+00:45:36.961 --> 00:45:38.558
+I will write here.  
+
+00:45:38.558 --> 00:45:42.230
+import smtplib.
+
+00:45:42.410 --> 00:45:44.029
+smtplib.
+
+00:45:45.286 --> 00:45:48.608
+Now i will come to my send e-mail function
+
+00:45:48.608 --> 00:45:49.983
+And I will write here
+
+00:45:49.983 --> 00:45:54.547
+server is equal to smtplib.smtp
+
+00:45:54.547 --> 00:45:56.139
+And after that I will write
+
+00:45:56.139 --> 00:45:59.195
+smtp.gmail.com
+
+00:45:59.195 --> 00:46:01.913
+And the port will be 587. 
+
+00:46:02.592 --> 00:46:04.909
+So I will write here port 587.
+
+00:46:04.909 --> 00:46:06.179
+Along with that I will write 
+
+00:46:06.179 --> 00:46:10.466
+server.ehlo()
+
+00:46:10.466 --> 00:46:15.956
+And after that I will type, server.startttls().
+
+00:46:15.956 --> 00:46:17.726
+And after that I will write
+
+00:46:17.726 --> 00:46:20.539
+server.login() to be logged in
+
+00:46:20.539 --> 00:46:21.757
+And what I will write here. 
+
+00:46:21.757 --> 00:46:24.546
+yourEmail@gmail.com. 
+
+00:46:24.546 --> 00:46:27.085
+Whoever you're sending to you have to mention here. 
+
+00:46:27.085 --> 00:46:28.263
+And after that
+
+00:46:30.372 --> 00:46:32.680
+So here your password will come. 
+
+00:46:32.680 --> 00:46:34.011
+Do not write literal "password" here. 
+
+00:46:34.370 --> 00:46:36.325
+So here your password will come. 
+
+00:46:36.325 --> 00:46:38.377
+Here security concerns matters
+
+00:46:38.377 --> 00:46:40.308
+If you write your password here
+
+00:46:40.308 --> 00:46:41.308
+So it will be a issue
+
+00:46:41.308 --> 00:46:44.102
+So I want you store password in a text file
+
+00:46:44.102 --> 00:46:47.151
+And read password from that text file
+
+00:46:47.151 --> 00:46:50.000
+So no one can know your password in the. program
+
+00:46:50.000 --> 00:46:51.795
+And store text file in a location where
+
+00:46:51.795 --> 00:46:53.007
+It wont be easy to open
+
+00:46:53.187 --> 00:46:56.377
+Usually someone can open in VS code using control
+
+00:46:56.377 --> 00:47:00.716
+But still you have to think of some mechanism
+
+00:47:00.716 --> 00:47:03.348
+When you keep password in a plain text. 
+
+00:47:03.348 --> 00:47:04.817
+Then there is security concern
+
+00:47:04.817 --> 00:47:07.555
+Thats why I want you all to be secured
+
+00:47:08.722 --> 00:47:11.801
+If only you use your PC like me
+
+00:47:11.801 --> 00:47:13.046
+No one uses it
+
+00:47:13.046 --> 00:47:15.741
+So I am safe here 
+
+00:47:16.908 --> 00:47:19.170
+So I wrote here the email that I want to use
+
+00:47:19.170 --> 00:47:22.722
+That an after that to and after that content
+
+00:47:23.081 --> 00:47:25.739
+So it will send mail through your gmail account
+
+00:47:25.739 --> 00:47:27.902
+Then I will do server.close()
+
+00:47:27.902 --> 00:47:29.755
+That means I will close the server
+
+00:47:29.755 --> 00:47:31.558
+And then my email will be sent.
+
+00:47:31.872 --> 00:47:33.568
+Now we will do one thing here
+
+00:47:33.568 --> 00:47:35.608
+You will put your email here
+
+00:47:36.236 --> 00:47:38.415
+And here you will put your password
+
+00:47:38.415 --> 00:47:39.838
+I will put your password here
+
+00:47:40.377 --> 00:47:42.637
+I am telling you this again and again because
+
+00:47:42.637 --> 00:47:44.456
+People comment later on that
+
+00:47:44.456 --> 00:47:46.738
+That I write youEmail@gmail.com here
+
+00:47:46.738 --> 00:47:47.958
+And wrote your password here
+
+00:47:47.958 --> 00:47:49.728
+But my program did not work
+
+00:47:49.728 --> 00:47:52.213
+But my friend i just want to tell you 
+
+00:47:52.213 --> 00:47:54.867
+That here you have to put your gmail account 
+
+00:47:54.867 --> 00:47:56.557
+And here you have to put your password
+
+00:47:56.557 --> 00:47:59.230
+And after that you will put you gmail here
+
+00:47:59.230 --> 00:48:02.420
+Then your sendEmail function will work.
+
+00:48:02.420 --> 00:48:04.385
+So before running Jarvis
+
+00:48:04.385 --> 00:48:06.811
+This sendEmail function that we have written
+
+00:48:06.811 --> 00:48:08.600
+Just watch out whether it is working or not
+
+00:48:08.600 --> 00:48:10.964
+Because if you sendEmail function is not working. 
+
+00:48:10.964 --> 00:48:12.556
+Then it will raise an issue for you.
+
+00:48:12.556 --> 00:48:15.016
+Now what we have done here in Jarvis
+
+00:48:15.016 --> 00:48:18.856
+We have put our email ID and password
+
+00:48:18.856 --> 00:48:21.429
+We have created a program for sending Email
+
+00:48:21.429 --> 00:48:23.695
+We have created a program for working with wikipedia
+
+00:48:23.695 --> 00:48:26.171
+We have put a command for opening youtube,
+
+00:48:26.171 --> 00:48:29.293
+Opening google and opening stackoverflow, playing music 
+
+00:48:29.293 --> 00:48:30.758
+To see the time
+
+00:48:30.758 --> 00:48:32.119
+To open Visual Studio Code
+
+00:48:32.119 --> 00:48:33.508
+To Email someone
+
+00:48:33.508 --> 00:48:35.148
+You can program it do more work
+
+00:48:35.148 --> 00:48:37.487
+I just want to tell you all that
+
+00:48:37.487 --> 00:48:39.734
+Sky is the limit.
+
+00:48:39.734 --> 00:48:40.977
+So i will do one thing here.
+
+00:48:40.977 --> 00:48:43.524
+I will test this email part here.
+
+00:48:43.524 --> 00:48:45.879
+And to test this what I will do
+
+00:48:45.879 --> 00:48:48.122
+I will put email in this try block.
+
+00:48:48.122 --> 00:48:50.661
+And I will put my email and password here.
+
+00:48:50.661 --> 00:48:53.205
+And I will show I have received the email.
+
+00:48:53.205 --> 00:48:55.248
+So as you can see what I have done here
+
+00:48:55.248 --> 00:48:56.475
+I have collapsed my Try block here
+
+00:48:56.475 --> 00:48:59.071
+You also can collapse using the minus(-) symbol
+
+00:48:59.071 --> 00:49:01.834
+This try contains my email and password.
+
+00:49:01.834 --> 00:49:04.522
+And I have collapsed the sendEmail function.
+
+00:49:04.522 --> 00:49:06.492
+Because this contains my password
+
+00:49:06.492 --> 00:49:07.908
+And now I will run this.
+
+00:49:07.908 --> 00:49:09.056
+So what I will do here 
+
+00:49:09.056 --> 00:49:10.617
+I will click F3 here
+
+00:49:10.617 --> 00:49:13.036
+That I have created shortcut for running the program
+
+00:49:13.350 --> 00:49:15.036
+You all can run from here also
+
+00:49:15.036 --> 00:49:17.313
+*JARVIS RESPONDS*
+
+00:49:17.313 --> 00:49:19.087
+"SEND EMAIL TO HARRY"
+
+00:49:20.389 --> 00:49:22.822
+So it has spelled it as Hari. Sometime it happens
+
+00:49:22.822 --> 00:49:24.678
+I will command it again.
+
+00:49:24.678 --> 00:49:28.637
+*JARVIS RESPONDS*
+
+00:49:28.637 --> 00:49:30.689
+"SEND EMAIL TO HARRY"
+
+00:49:30.689 --> 00:49:32.646
+*JARVIS RESPONDS*
+
+00:49:32.646 --> 00:49:39.191
+"I AM A GOOD BOT AND THIS TUTORIAL IS BEST TUTORIAL FOR JARVIS"
+
+00:49:39.191 --> 00:49:43.433
+*JARVIS RESPONDS*
+
+00:49:43.433 --> 00:49:46.418
+So it has failed; Me sending email has failed.
+
+00:49:46.418 --> 00:49:49.642
+So there was some issue thats why the email wasn't sent.
+
+00:49:49.642 --> 00:49:50.765
+So my mistake was
+
+00:49:50.765 --> 00:49:53.259
+i wrote smntp instead of smtp here
+
+00:49:53.259 --> 00:49:54.682
+I will change it to smtp.
+
+00:49:54.682 --> 00:49:56.041
+And I will collapse this.
+
+00:49:56.041 --> 00:49:57.817
+And the moment I collapse this
+
+00:49:57.817 --> 00:49:58.640
+Now what I will do here
+
+00:49:58.640 --> 00:49:59.809
+I will send Email now.
+
+00:49:59.809 --> 00:50:01.904
+Now I will run this program again.
+
+00:50:01.904 --> 00:50:02.819
+And I will say
+
+00:50:02.819 --> 00:50:06.929
+*JARVIS RESPONDS*
+
+00:50:06.929 --> 00:50:09.159
+"SEND EMAIL TO HARRY"
+
+00:50:09.159 --> 00:50:10.604
+*JARVIS RESPONDS*
+
+00:50:10.604 --> 00:50:14.956
+"SAY THIS THIS TUTORIAL WAS UPLOADED ON CODE WITH HARRY
+
+00:50:14.956 --> 00:50:17.943
+AS A PART OF PYTHON PROGRAMMING COURSE". 
+
+00:50:17.943 --> 00:50:20.194
+So it has written codes instead of course.
+
+00:50:20.194 --> 00:50:21.805
+No worries, It happens sometimes.
+
+00:50:21.805 --> 00:50:24.125
+Now it is sending my Email.
+
+00:50:24.753 --> 00:50:26.245
+It said my email has been sent.
+
+00:50:26.245 --> 00:50:27.437
+So now lets verify it ourselves
+
+00:50:27.437 --> 00:50:28.916
+Whether the email has been sent or not.
+
+00:50:28.916 --> 00:50:30.579
+Or it is just making a fool of us.
+
+00:50:30.579 --> 00:50:32.767
+So here I have received the Email
+
+00:50:32.767 --> 00:50:34.585
+And as you can see
+
+00:50:34.585 --> 00:50:37.924
+It is saying "SAY THIS THIS TUTORIAL WAS UPLOADED ON CODE WITH HARRY
+
+00:50:37.924 --> 00:50:39.699
+AS A PART OF PYTHON PROGRAMMING COURSE".  
+
+00:50:39.699 --> 00:50:41.363
+It has written codes but I said codes
+
+00:50:41.363 --> 00:50:44.034
+I said it maybe in a funny way thats why.
+
+00:50:44.034 --> 00:50:45.630
+But guys whether you enjoyed it or not
+
+00:50:45.630 --> 00:50:47.442
+Let me know in the comment section
+
+00:50:47.442 --> 00:50:51.264
+And let me know whether you have accessed my course. 
+
+00:50:51.847 --> 00:50:53.428
+So if you haven't accessed this course
+
+00:50:53.428 --> 00:50:55.850
+So you are missing out on some good stuff
+
+00:50:55.850 --> 00:50:57.715
+Whatever things I have showed you here. 
+
+00:50:57.715 --> 00:50:59.734
+By any change you all didn't understood that
+
+00:50:59.734 --> 00:51:01.352
+Then I want to say you that
+
+00:51:01.352 --> 00:51:04.240
+If you watch my python programming course
+
+00:51:04.240 --> 00:51:06.286
+Then you will understand it perfectly
+
+00:51:06.286 --> 00:51:09.104
+And along with that you can get this code
+
+00:51:09.104 --> 00:51:11.674
+And I will give you this whole code
+
+00:51:11.674 --> 00:51:13.118
+In sendEmail function
+
+00:51:13.118 --> 00:51:16.762
+You have to put your email and password.
+
+00:51:16.762 --> 00:51:18.298
+And who you want to send email to 
+
+00:51:18.298 --> 00:51:19.490
+That has to be entered below
+
+00:51:19.490 --> 00:51:20.955
+That I have entered below
+
+00:51:20.955 --> 00:51:22.758
+So I will send you this code
+
+00:51:22.758 --> 00:51:25.241
+I hope you all understood this.
+
+00:51:25.241 --> 00:51:28.543
+I will give you a recap quickly.
+
+00:51:28.543 --> 00:51:31.037
+I will show you again what we have done
+
+00:51:31.037 --> 00:51:32.741
+In this mega project.
+
+00:51:32.741 --> 00:51:36.646
+So first our function starts here
+
+00:51:36.646 --> 00:51:38.362
+The main function starts here
+
+00:51:38.362 --> 00:51:41.081
+I will activate my while loop here
+
+00:51:41.081 --> 00:51:42.751
+First this program wishes you.
+
+00:51:42.751 --> 00:51:45.110
+We wrote a function named wishme.
+
+00:51:45.110 --> 00:51:48.273
+That will wish you according to the time
+
+00:51:48.273 --> 00:51:52.390
+It will say good morning, evening and afternoon 
+
+00:51:52.390 --> 00:51:53.531
+And after that it will say
+
+00:51:53.531 --> 00:51:56.026
+I am Jarvis sir please tell me how may I help you.
+
+00:51:56.026 --> 00:51:57.731
+To make your program cooler
+
+00:51:57.731 --> 00:51:59.077
+You can write
+
+00:51:59.077 --> 00:52:00.350
+Hi this is Jarvis, speed.... 
+
+00:52:00.350 --> 00:52:02.453
+Like that movie of Rajnikanth
+
+00:52:02.453 --> 00:52:05.900
+He said speed terabyte, zetabyte something like that
+
+00:52:05.900 --> 00:52:07.404
+You can program it to say like that
+
+00:52:07.404 --> 00:52:09.610
+And after that we have written a speak function
+
+00:52:09.610 --> 00:52:11.774
+Speak takes a string
+
+00:52:11.774 --> 00:52:14.801
+and after taking that string, it speaks that string
+
+00:52:15.340 --> 00:52:16.706
+So what we have done here
+
+00:52:16.706 --> 00:52:19.327
+We wrote wishme, in which we used speak function.
+
+00:52:19.327 --> 00:52:20.784
+And then we came in while true. 
+
+00:52:20.784 --> 00:52:22.962
+We have written a function named takecommand here
+
+00:52:22.962 --> 00:52:24.045
+that takes a command
+
+00:52:24.045 --> 00:52:26.562
+And converts that to string
+
+00:52:26.562 --> 00:52:29.090
+It converts input into string and returns it.
+
+00:52:29.798 --> 00:52:33.154
+So after takecommand what we did?
+
+00:52:33.154 --> 00:52:37.365
+After that we converted it into lowercase
+
+00:52:37.365 --> 00:52:39.829
+And after converting it into lowercase
+
+00:52:39.829 --> 00:52:42.230
+Whether it contains wikipedia?
+
+00:52:42.230 --> 00:52:44.842
+If yes then remove wikipedia from string.
+
+00:52:44.842 --> 00:52:45.896
+Ans whatever remains
+
+00:52:45.896 --> 00:52:47.820
+Search that on wikipedia
+
+00:52:47.820 --> 00:52:49.646
+And make Jarvis speak that.
+
+00:52:49.646 --> 00:52:51.264
+If it contains open Youtube
+
+00:52:51.264 --> 00:52:52.541
+Then open Youtube.
+
+00:52:53.085 --> 00:52:54.616
+If it contains "open google" then open google
+
+00:52:54.616 --> 00:52:56.841
+If it contains "open stackoverflow" then open stackoverflow. 
+
+00:52:56.841 --> 00:53:00.861
+If it contains "play music" the play then first music. 
+
+00:53:00.861 --> 00:53:06.324
+But we can use random module to play random music.
+
+00:53:07.491 --> 00:53:08.989
+ You can ask Jarvis time
+
+00:53:08.989 --> 00:53:10.989
+We have used datetime module
+
+00:53:10.989 --> 00:53:12.837
+You can open VS code
+
+00:53:12.837 --> 00:53:14.318
+And you all can
+
+00:53:14.318 --> 00:53:15.616
+If you say email to Harry 
+
+00:53:15.616 --> 00:53:16.853
+It will send email to Harry.
+
+00:53:16.853 --> 00:53:19.784
+And we can add more functionalities
+
+00:53:19.784 --> 00:53:23.619
+That is I want to allot you as a challenge or an exercise.
+
+00:53:23.619 --> 00:53:26.492
+So you all just write challenge accepted in the comments
+
+00:53:26.492 --> 00:53:28.295
+If you accept this challenge.
+
+00:53:28.295 --> 00:53:32.000
+Challenge is you have to add atleast one more functionality.
+
+00:53:32.000 --> 00:53:33.633
+Now what is that functionality?
+
+00:53:33.633 --> 00:53:34.430
+That you all will let me know.
+
+00:53:34.430 --> 00:53:34.930
+And i will analyse how 
+
+00:53:34.930 --> 00:53:37.539
+How many viewers are watching this tutorial seriously
+
+00:53:37.539 --> 00:53:39.869
+How many viewers listened to me
+
+00:53:39.869 --> 00:53:42.682
+Half of the people will just run the code
+
+00:53:42.682 --> 00:53:44.099
+And they will be satisfied.
+
+00:53:44.099 --> 00:53:45.794
+But the real python programmer
+
+00:53:45.794 --> 00:53:47.847
+He/she will try to understand how things work
+
+00:53:47.847 --> 00:53:49.874
+And will try to improve the system.
+
+00:53:49.874 --> 00:53:52.690
+That is the sign of real python programmer.
+
+00:53:52.690 --> 00:53:54.825
+So guys what we will do here now is
+
+00:53:54.825 --> 00:53:58.013
+Simply we will note what modules we will install.
+
+00:53:59.045 --> 00:54:02.658
+So this is pip install wikipedia
+
+00:54:02.658 --> 00:54:04.621
+So I will do one thing here
+
+00:54:04.621 --> 00:54:06.683
+I will click slash like this
+
+00:54:06.683 --> 00:54:13.104
+This will be our pip install speechRecognition
+
+00:54:13.604 --> 00:54:15.944
+So if someone hasn't installed the module
+
+00:54:15.944 --> 00:54:18.079
+So he/she can atleast install the module.
+
+00:54:18.483 --> 00:54:19.986
+And after that here..
+
+00:54:19.986 --> 00:54:22.958
+pyttsx
+
+00:54:22.958 --> 00:54:26.760
+So I will write here pip install pyttsx3.
+
+00:54:26.760 --> 00:54:29.932
+So this will be installed with pip install pyttsx3.
+
+00:54:29.932 --> 00:54:32.298
+And our program is completed now.
+
+00:54:32.298 --> 00:54:34.298
+I hope you all understood this.
+
+00:54:34.298 --> 00:54:36.055
+And you all can appreciate this
+
+00:54:36.055 --> 00:54:38.055
+That what a fascinating program we have created.
+
+00:54:38.055 --> 00:54:40.031
+I was very excited for creating this
+
+00:54:40.031 --> 00:54:41.358
+And I will use this.
+
+00:54:41.358 --> 00:54:44.166
+And it will work well in my computer.
+
+00:54:44.166 --> 00:54:45.538
+And this will be working for me everyday.
+
+00:54:45.538 --> 00:54:47.134
+It will say things like good afternoon.
+
+00:54:47.134 --> 00:54:49.134
+And It will impress people.
+
+00:54:49.134 --> 00:54:50.595
+"OPEN GOOGLE"
+
+00:54:51.358 --> 00:54:52.595
+See it has opened google.
+
+00:54:52.595 --> 00:54:54.127
+And now i can search here anything.
+
+00:54:54.531 --> 00:54:57.577
+Now I will say my next query that is play music.
+
+00:54:58.834 --> 00:55:01.477
+So it has already played music for me
+
+00:55:01.836 --> 00:55:04.286
+And my music is started. Very good.
+
+00:55:04.286 --> 00:55:07.812
+*Playing Music*
+
+00:55:07.812 --> 00:55:09.334
+So I have only one mp3 here.
+
+00:55:09.783 --> 00:55:10.873
+I will close this.
+
+00:55:10.873 --> 00:55:13.610
+So I have only one mp3 so only that is played.
+
+00:55:13.610 --> 00:55:16.290
+You all avoid print statements in your program.
+
+00:55:16.290 --> 00:55:19.455
+Program becomes messy due to that.
+
+00:55:19.455 --> 00:55:21.718
+So now only like this video
+
+00:55:21.718 --> 00:55:23.363
+If you enjoyed it.
+
+00:55:23.363 --> 00:55:25.124
+And Let me know in comments
+
+00:55:25.124 --> 00:55:26.775
+I keep interacting in pinned comment.
+
+00:55:26.775 --> 00:55:28.616
+Let me know the review of this code.
+
+00:55:28.616 --> 00:55:30.474
+And how will you all enhance this.
+
+00:55:30.474 --> 00:55:33.581
+So Guys I hope you all understood this video
+
+00:55:33.581 --> 00:55:36.046
+And you all were able to write this code with me.
+
+00:55:36.046 --> 00:55:37.686
+I want to tell you something. 
+
+00:55:37.686 --> 00:55:40.898
+That in Jarvis, the quit functionality
+
+00:55:40.898 --> 00:55:43.427
+That you all say quit and Jarvis Quits.
+
+00:55:43.427 --> 00:55:44.372
+I haven't done that
+
+00:55:44.372 --> 00:55:47.374
+I want you all to implement that on your own.
+
+00:55:47.374 --> 00:55:49.937
+Simply you have to write if "quit" in query
+
+00:55:49.937 --> 00:55:51.569
+After that you can write exit.
+
+00:55:51.569 --> 00:55:54.055
+Exit is a function in python if you all can remember.
+
+00:55:54.055 --> 00:55:57.331
+I have included that in my python programming for absolute beginners.
+
+00:55:57.331 --> 00:55:59.699
+If you all haven't accessed this course playlist
+
+00:55:59.699 --> 00:56:03.180
+Then you can find the link in description and access it.
+
+00:56:03.180 --> 00:56:05.943
+Playlist is like index of a book
+
+00:56:05.943 --> 00:56:08.347
+In which all the course details
+
+00:56:08.347 --> 00:56:10.482
+Its all in front of you
+
+00:56:10.482 --> 00:56:11.882
+and complete your course.
+
+00:56:11.882 --> 00:56:14.299
+Thats why this course playlist is very important.
+
+00:56:14.299 --> 00:56:15.760
+One more thing I want to show you is that
+
+00:56:15.760 --> 00:56:17.356
+many people will argue that 
+
+00:56:17.356 --> 00:56:19.670
+This is not AI or artificial intelligence
+
+00:56:19.670 --> 00:56:21.402
+This is a bunch of if else statements
+
+00:56:21.402 --> 00:56:25.063
+But if we go in basic definition of artificial intelligence
+
+00:56:25.063 --> 00:56:26.435
+Then that goes like
+
+00:56:26.435 --> 00:56:28.704
+Whatever work a person do
+
+00:56:28.704 --> 00:56:30.569
+That work a computer can do
+
+00:56:30.569 --> 00:56:32.479
+So it is called as artificial intelligence.
+
+00:56:32.479 --> 00:56:36.364
+So if this isn't a good example of artificial intelligence
+
+00:56:36.364 --> 00:56:38.569
+But this is artificial intelligence
+
+00:56:38.569 --> 00:56:41.332
+We haven't used machine learning algorithms here
+
+00:56:41.332 --> 00:56:45.441
+But by using this architecture 
+
+00:56:45.441 --> 00:56:47.800
+Machine learning package like
+
+00:56:47.800 --> 00:56:50.000
+scikit, tensorflow can be implemented.
+
+00:56:50.000 --> 00:56:51.686
+We can create chatbots
+
+00:56:51.686 --> 00:56:54.853
+We can create out computer emotionally fit
+
+00:56:54.853 --> 00:56:58.065
+We can make it understand things emotionally.
+
+00:56:58.065 --> 00:57:00.379
+So this all things we can implement in this
+
+00:57:00.379 --> 00:57:02.379
+This all things we can do sometime else
+
+00:57:02.379 --> 00:57:04.379
+Thats why I tell you subscribe below
+
+00:57:04.379 --> 00:57:06.484
+So whenever that video come you'll get it.
+
+00:57:06.484 --> 00:57:08.484
+I have many plans for this channel.
+
+00:57:08.484 --> 00:57:10.843
+And we will develop good projects
+
+00:57:10.843 --> 00:57:13.696
+We developed todays project, like this we will create more projects.
+
+00:57:13.696 --> 00:57:16.036
+Just like this video now only
+
+00:57:16.036 --> 00:57:18.216
+If you all want to see more projects like this
+
+00:57:18.216 --> 00:57:19.686
+And I want to 
+
+00:57:19.686 --> 00:57:20.924
+This course of mine
+
+00:57:20.924 --> 00:57:22.789
+Python tutorial for absolute beginner
+
+00:57:22.789 --> 00:57:24.789
+Share it with your friends
+
+00:57:24.789 --> 00:57:26.475
+Because i have put a lot of work in this
+
+00:57:26.475 --> 00:57:28.879
+And I want more people to access this course
+
+00:57:28.879 --> 00:57:30.570
+And more people should benefit from this
+
+00:57:30.570 --> 00:57:32.705
+So I hope you all have liked this
+
+00:57:32.705 --> 00:57:35.142
+And I want to say you thankyou in advance
+
+00:57:35.142 --> 00:57:36.693
+That was all for this video.
+
+00:57:36.693 --> 00:57:38.065
+What do you feel about Jarvis
+
+00:57:38.065 --> 00:57:40.873
+and whatever additional functionality you will add
+
+00:57:40.873 --> 00:57:42.424
+Let me know in the comments
+
+00:57:42.424 --> 00:57:45.950
+I want to see people who add additional functionality
+
+00:57:45.950 --> 00:57:47.412
+I will give those people a heart.
+
+00:57:47.412 --> 00:57:49.502
+And honestly I will appreciate this
+
+00:57:49.502 --> 00:57:51.951
+If you all write something in the comments
+
+00:57:51.951 --> 00:57:53.682
+You all enhanced Jarvis
+
+00:57:53.682 --> 00:57:57.522
+I am using Jarvis personally to be honest. 
+
+00:57:57.522 --> 00:57:59.122
+I am personally using this. 
+
+00:57:59.122 --> 00:58:00.808
+I don't want to type youtube.com
+
+00:58:00.808 --> 00:58:02.584
+I will just say open youtube.
+
+00:58:02.584 --> 00:58:04.090
+And Youtube will be opened.
+
+00:58:04.090 --> 00:58:06.763
+Along with this you want to create Jarvis in Hindi
+
+00:58:06.763 --> 00:58:07.911
+So you all can create it in hindi
+
+00:58:07.911 --> 00:58:11.213
+If out engine understands Hindi convieniently
+
+00:58:11.213 --> 00:58:15.278
+So you all can make it speak and understand hindi.
+
+00:58:15.278 --> 00:58:16.874
+I want you all to do that also.
+
+00:58:16.874 --> 00:58:21.163
+Mention all the enhancements in the comments.
+
+00:58:21.163 --> 00:58:24.061
+And I will be be very happy if you all do something like this.
+
+00:58:24.061 --> 00:58:26.061
+So that was all for this video.
+
+00:58:26.061 --> 00:58:27.478
+Please like this video.
+
+00:58:27.478 --> 00:58:29.254
+Thankyou so much guys for watching this video.
+
+00:58:29.254 --> 00:58:31.703
+And I will see you next time.
+
+00:58:31.703 --> 00:58:47.257
+*Outro Music*
+

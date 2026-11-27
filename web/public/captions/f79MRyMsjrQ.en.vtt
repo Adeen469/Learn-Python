@@ -1,0 +1,4457 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:01.010 --> 00:00:05.009
+In this course, you're going to learn
+everything you need to get started with
+
+00:00:05.009 --> 00:00:09.210
+Python just be aware that I have to
+design this course for developers so if
+
+00:00:09.210 --> 00:00:13.049
+you have very little or no programming
+experience check out my other Python
+
+00:00:13.049 --> 00:00:17.039
+course for beginners you can see the
+link on the top right corner of this
+
+00:00:17.039 --> 00:00:21.689
+video python is the world's
+fastest-growing and most popular
+
+00:00:21.689 --> 00:00:26.779
+programming language not just amongst
+software developers but also amongst
+
+00:00:26.779 --> 00:00:33.329
+mathematicians data analysts scientists
+accountants network engineers and even
+
+00:00:33.329 --> 00:00:38.670
+kids in fact it's the ideal programming
+language to learn first but what makes
+
+00:00:38.670 --> 00:00:44.010
+Python so special here are six reasons
+with Python you can solve complex
+
+00:00:44.010 --> 00:00:49.170
+problems in less time with fewer lines
+of code than many other languages
+
+00:00:49.170 --> 00:00:55.289
+that's why huge companies like Google
+Spotify Dropbox and Facebook have
+
+00:00:55.289 --> 00:01:00.750
+embraced this beautiful and powerful
+language here is an example let's say we
+
+00:01:00.750 --> 00:01:05.880
+want to extract the first three
+characters of the text hello world this
+
+00:01:05.880 --> 00:01:10.080
+is the code we would have to write in
+c-sharp this is how we would do this in
+
+00:01:10.080 --> 00:01:15.780
+JavaScript and here's how we would do it
+in Python see how clean and simple the
+
+00:01:15.780 --> 00:01:18.210
+language is and that's just the
+beginning
+
+00:01:18.210 --> 00:01:22.619
+Python is a multi-purpose language and
+you can use it for a wide range of jobs
+
+00:01:22.619 --> 00:01:28.250
+such as data analysis AI and machine
+learning writing automation scripts
+
+00:01:28.250 --> 00:01:33.540
+building web mobile and desktop
+applications as well as software testing
+
+00:01:33.540 --> 00:01:38.850
+or even hacking so if you want a
+high-paying long lasting career in any
+
+00:01:38.850 --> 00:01:44.909
+of these areas especially AI and machine
+learning Python is the language to put
+
+00:01:44.909 --> 00:01:49.829
+those opportunities at your fingertips
+in fact according to indeed.com
+
+00:01:49.829 --> 00:01:55.140
+the average salary of a Python developer
+in the US was over one hundred and
+
+00:01:55.140 --> 00:02:01.020
+fifteen thousand dollars in March 2018
+and here are four more reasons that make
+
+00:02:01.020 --> 00:02:05.909
+Python the most desirable language
+Python is a high-level language so you
+
+00:02:05.909 --> 00:02:10.619
+don't have to worry about complex tasks
+such as memory management as you do in
+
+00:02:10.619 --> 00:02:14.499
+C++
+it's cross platform which means we can
+
+00:02:14.499 --> 00:02:20.859
+build and run Python apps on Windows Mac
+and Linux it has a huge community so
+
+00:02:20.859 --> 00:02:25.359
+whenever you get stuck there is someone
+out there to help and it has a large
+
+00:02:25.359 --> 00:02:30.849
+ecosystem of libraries frameworks and
+tools whatever you want to do it is
+
+00:02:30.849 --> 00:02:34.659
+likely that someone else has done it
+before because python has been around
+
+00:02:34.659 --> 00:02:40.719
+for over 20 years there are two versions
+of Python out there Python 2 which is
+
+00:02:40.719 --> 00:02:45.219
+the legacy version of Python and is
+going to be supported until year 2020
+
+00:02:45.219 --> 00:02:50.469
+and Python 3 which is Python for the
+future in this course you're gonna learn
+
+00:02:50.469 --> 00:02:55.449
+Python 3 hi my name is Muhammed Ani and
+I'm going to be your instructor in this
+
+00:02:55.449 --> 00:03:00.669
+course I'm a software engineer with 18
+years of experience and I've taught way
+
+00:03:00.669 --> 00:03:06.129
+over a million people how to code or how
+to become top professional software
+
+00:03:06.129 --> 00:03:10.989
+engineers to learn more about me and my
+courses head over to code with mass comm
+
+00:03:10.989 --> 00:03:22.840
+alright now let's get started
+
+00:03:22.840 --> 00:03:27.010
+alright now we're ready to download and
+install Python the first thing I want
+
+00:03:27.010 --> 00:03:33.459
+you to do is to open up your browser and
+head over to python org on this page
+
+00:03:33.459 --> 00:03:37.780
+under the downloads you can see the
+latest version of python currently the
+
+00:03:37.780 --> 00:03:42.700
+latest version is 3.7 chances are in the
+future when you're watching this video
+
+00:03:42.700 --> 00:03:46.330
+there is a newer version available don't
+worry all the materials in this course
+
+00:03:46.330 --> 00:03:51.220
+will continue to apply with the future
+versions of Python so go ahead and
+
+00:03:51.220 --> 00:03:54.030
+download Python
+
+00:03:55.220 --> 00:03:59.620
+then run it if you're on Windows we're
+going to see this checkbox here add
+
+00:03:59.620 --> 00:04:03.710
+Python to path
+this is very important make sure to take
+
+00:04:03.710 --> 00:04:08.150
+it otherwise you're not going to be able
+to follow the course so now go ahead and
+
+00:04:08.150 --> 00:04:10.750
+install it
+
+00:04:11.920 --> 00:04:16.750
+now let's verify that we have installed
+Python properly if you're on Windows
+
+00:04:16.750 --> 00:04:24.370
+here in this search bar type CMD which
+is short for command prompt now here in
+
+00:04:24.370 --> 00:04:30.669
+command prompt type Python you can see
+we have successfully installed Python
+
+00:04:30.669 --> 00:04:39.030
+version 3.7 now to exit press ctrl-z
+and then enter
+
+00:04:39.190 --> 00:04:46.090
+if you're on Mac press command and space
+this opens up the spotlight search so
+
+00:04:46.090 --> 00:04:51.820
+here type terminal
+terminal and Mac is like command prompt
+
+00:04:51.820 --> 00:04:55.960
+on Windows now Mac and Linux
+why default come with an older version
+
+00:04:55.960 --> 00:05:01.030
+of Python that is version 2 so if you
+type Python you can see Python 2 here
+
+00:05:01.030 --> 00:05:08.050
+let's type what we want so press ctrl D
+to exit and then run Python 3 and this
+
+00:05:08.050 --> 00:05:14.020
+verifies that we have successfully
+installed Python 3.7 so this environment
+
+00:05:14.020 --> 00:05:17.500
+you see here is what we call Python
+interpreter here we have this
+
+00:05:17.500 --> 00:05:21.520
+interactive shell that is really useful
+for experimenting with some Python code
+
+00:05:21.520 --> 00:05:26.590
+so here we can write expressions like
+2+2 or any kind of valid Python
+
+00:05:26.590 --> 00:05:31.240
+expressions this is similar to your
+JavaScript console in the browser so if
+
+00:05:31.240 --> 00:05:35.200
+you want to quickly experiment with
+something can simply do it here but to
+
+00:05:35.200 --> 00:05:38.770
+build real programs we need a code
+editor and that's what I'm going to talk
+
+00:05:38.770 --> 00:05:41.400
+about next
+
+00:05:45.850 --> 00:05:51.410
+to build Python programs you have two
+options you can use a code editor or an
+
+00:05:51.410 --> 00:05:56.510
+IDE which is short for integrated
+development environment an IDE is
+
+00:05:56.510 --> 00:06:00.940
+basically a code editor with some fancy
+features such as Auto completion
+
+00:06:00.940 --> 00:06:06.170
+debugging unit testing and so on for
+both editors and IDs there are lots of
+
+00:06:06.170 --> 00:06:11.090
+options out there the most popular
+editors are Visual Studio code or yes
+
+00:06:11.090 --> 00:06:16.730
+code atom and sublime you can use the
+editor that you prefer the most popular
+
+00:06:16.730 --> 00:06:21.950
+IDE is PyCharm which is a JetBrains
+product in this course I'm gonna use the
+
+00:06:21.950 --> 00:06:26.150
+S code because that's my favorite code
+editor and later I'm gonna show you how
+
+00:06:26.150 --> 00:06:30.980
+to install an extension to convert the s
+code into a powerful IDE for building
+
+00:06:30.980 --> 00:06:36.530
+Python programs so if you don't have V s
+code head over to code dot visual studio
+
+00:06:36.530 --> 00:06:43.580
+comm and download the latest version of
+V ESCO
+
+00:06:46.690 --> 00:06:54.260
+now it vs code open on the top go to the
+file menu and then open somewhere on
+
+00:06:54.260 --> 00:06:57.920
+your desk create a new folder let's call
+that folder
+
+00:06:57.920 --> 00:07:03.230
+hello world as usual now open this
+folder
+
+00:07:03.230 --> 00:07:07.760
+now here on the left side we have the
+Explorer panel where you will see all
+
+00:07:07.760 --> 00:07:13.700
+the files and folders in your project so
+let's add a new file here and call it
+
+00:07:13.700 --> 00:07:19.550
+app dot pi now you may see an error on
+the bottom right corner of the screen
+
+00:07:19.550 --> 00:07:24.280
+don't worry about that we're gonna fix
+that later in this section so close this
+
+00:07:24.280 --> 00:07:29.480
+now let's write a simple Python program
+once again I've designed this course for
+
+00:07:29.480 --> 00:07:33.080
+people with some programming experience
+so you should know your variables
+
+00:07:33.080 --> 00:07:38.840
+functions conditional statements like if
+else for loops while loops you should
+
+00:07:38.840 --> 00:07:42.740
+know the basics if you don't please look
+at my other Python course for beginners
+
+00:07:42.740 --> 00:07:47.900
+you can find a link on the top right
+corner of this screen so in Python we
+
+00:07:47.900 --> 00:07:52.400
+have a bunch of built-in functions one
+of them is print which we can use to
+
+00:07:52.400 --> 00:07:58.910
+print something on the terminal let's
+add a string here hello world but let's
+
+00:07:58.910 --> 00:08:04.100
+make it more fun by adding a happy
+Persian cat here now let me show you
+
+00:08:04.100 --> 00:08:09.920
+something cool let's add another print
+statement here we add a string like an
+
+00:08:09.920 --> 00:08:16.190
+asterisk in Python you can multiply a
+string by a number like 10 and this will
+
+00:08:16.190 --> 00:08:22.460
+repeat that string 10 times take a look
+so save the changes once again you may
+
+00:08:22.460 --> 00:08:26.870
+see this error popping up don't worry
+about it we'll fix that later now we
+
+00:08:26.870 --> 00:08:31.190
+need to go back to the terminal to run
+this program however we don't have to
+
+00:08:31.190 --> 00:08:36.200
+constantly switch back and forth between
+vs code and the terminal because here we
+
+00:08:36.200 --> 00:08:42.800
+have an integrated terminal you can open
+that by pressing ctrl and backtick that
+
+00:08:42.800 --> 00:08:47.150
+is the key before number one on your
+keyboard it's right below the escape
+
+00:08:47.150 --> 00:08:53.300
+button so here's our integrated terminal
+so if you're on Windows type Python if
+
+00:08:53.300 --> 00:08:59.860
+you're on Mac Python 3 and an app that
+PI and here's the output of our program
+
+00:08:59.860 --> 00:09:04.970
+next I'm gonna show you how to convert
+vs code into a powerful idea for
+
+00:09:04.970 --> 00:09:08.380
+building Python programs
+
+00:09:13.800 --> 00:09:19.420
+in this lecture I'm gonna show you how
+to convert vs code to a powerful IDE by
+
+00:09:19.420 --> 00:09:24.670
+using an extension called Python with
+this extension or plugin we get a number
+
+00:09:24.670 --> 00:09:29.740
+of features such as linting which
+basically means analyzing our code for
+
+00:09:29.740 --> 00:09:33.610
+potential errors
+you also get debugging which involves
+
+00:09:33.610 --> 00:09:38.230
+finding and fixing errors we'll look at
+this later in the course you also get
+
+00:09:38.230 --> 00:09:42.970
+auto completion which basically helps us
+write code faster so we don't have to
+
+00:09:42.970 --> 00:09:47.440
+type every character we get code
+formatting which is all about making our
+
+00:09:47.440 --> 00:09:53.440
+code clean and readable just like how we
+format our articles newspapers books to
+
+00:09:53.440 --> 00:09:58.300
+make them clean and readable we get unit
+testing which involves writing a bunch
+
+00:09:58.300 --> 00:10:03.280
+of tests for our code we can run these
+tests in an automated fashion to make
+
+00:10:03.280 --> 00:10:08.680
+sure our code is behaving correctly and
+finally we get code snippets which are
+
+00:10:08.680 --> 00:10:13.150
+reusable code blocks and we can quickly
+generate so we don't have to type them
+
+00:10:13.150 --> 00:10:17.260
+all by hand now don't worry about
+memorizing any of these as we go through
+
+00:10:17.260 --> 00:10:21.670
+the course you're going to learn about
+these features now here in vs code on
+
+00:10:21.670 --> 00:10:27.430
+the left side click this icon this opens
+the extensions tab so these are the
+
+00:10:27.430 --> 00:10:31.020
+extensions that we can install in vs
+code to bring in additional
+
+00:10:31.020 --> 00:10:36.760
+functionality here under the recommended
+tab you can see the python extension if
+
+00:10:36.760 --> 00:10:41.470
+you don't see this simply type Python
+here on the top
+
+00:10:41.470 --> 00:10:47.440
+and here's the extension to go ahead and
+install this and then you'll have to
+
+00:10:47.440 --> 00:10:50.910
+reload vs code
+
+00:10:51.910 --> 00:10:56.830
+now here on the bottom right corner you
+can see this message linter pilant is
+
+00:10:56.830 --> 00:11:01.660
+not in stock so as I told you before
+linting is about finding potential
+
+00:11:01.660 --> 00:11:07.090
+errors in our code linter is a program
+or a tool that analyzes our code and
+
+00:11:07.090 --> 00:11:11.880
+finds these potential problems now for
+Python there are several enters a fter
+
+00:11:11.880 --> 00:11:17.110
+pilant is one of the most popular ones
+that this Python extension uses by
+
+00:11:17.110 --> 00:11:22.090
+default so we need to go ahead and
+install pylons as well now to do this
+
+00:11:22.090 --> 00:11:26.500
+first we need to change our Python
+environment so if you look here on the
+
+00:11:26.500 --> 00:11:30.550
+bottom left corner you can see the
+current python that is used in vs code
+
+00:11:30.550 --> 00:11:34.420
+that is python 2 point 6 point 9 on my
+machine
+
+00:11:34.420 --> 00:11:40.180
+chances are you see a different version
+here so click here and in this list make
+
+00:11:40.180 --> 00:11:47.200
+sure to select python 3 point 7 so these
+changes our python environment to python
+
+00:11:47.200 --> 00:11:55.990
+3 point 7 and then we can install pilant
+by clicking this button ok pilant is
+
+00:11:55.990 --> 00:12:01.860
+installed beautiful in the next lecture
+I will show you how linting works
+
+00:12:08.380 --> 00:12:13.130
+in this lecture I'm gonna show you
+linting and action so let's start by
+
+00:12:13.130 --> 00:12:19.399
+writing some invalid code like this
+print space with no parentheses and then
+
+00:12:19.399 --> 00:12:25.130
+hello work earlier I told you that print
+is a built-in function and whenever you
+
+00:12:25.130 --> 00:12:29.839
+want to use or call a function you
+should always use parentheses now to be
+
+00:12:29.839 --> 00:12:33.950
+more precise this is actually valid
+Python 2 code but because we're using
+
+00:12:33.950 --> 00:12:40.130
+Python 3 here this is invalid code from
+Python 3 point of view so now when I
+
+00:12:40.130 --> 00:12:45.610
+save the changes you can see this red
+underline here let's hover our mouse
+
+00:12:45.610 --> 00:12:50.959
+over this underline you can see this
+tooltip it's coming from Pyland and
+
+00:12:50.959 --> 00:12:55.820
+here's the error message missing
+parenthesis in call to print did you
+
+00:12:55.820 --> 00:13:00.740
+mean print with parentheses that this is
+the benefit of linting as you're writing
+
+00:13:00.740 --> 00:13:05.089
+code you can see potential problems in
+your code you don't have to wait to run
+
+00:13:05.089 --> 00:13:12.560
+your program to see these errors so now
+if we put parentheses here and save the
+
+00:13:12.560 --> 00:13:18.790
+changes you can see that red underline
+is gone let's look at another error
+
+00:13:18.790 --> 00:13:24.370
+let's type two plus and then save the
+changes earlier we run this code in
+
+00:13:24.370 --> 00:13:27.910
+Python interpreters interactive shell
+there
+
+00:13:27.910 --> 00:13:33.670
+we got a syntax or grammar error so if
+you hover your mouse here one more time
+
+00:13:33.670 --> 00:13:38.620
+you can see pylons is telling us that
+this is invalid syntax or invalid
+
+00:13:38.620 --> 00:13:44.290
+grammar it's like an incomplete sentence
+so this is linting in action now let me
+
+00:13:44.290 --> 00:13:50.620
+show you a couple useful shortcuts here
+on the top look at the View menu here we
+
+00:13:50.620 --> 00:13:56.380
+have these problems menu look at the
+shortcut on Mac is shift command and M
+
+00:13:56.380 --> 00:14:02.200
+on Windows is probably shift control M
+so as you're working with vs code try to
+
+00:14:02.200 --> 00:14:07.480
+memorize these shortcuts because they
+really help you write code faster now
+
+00:14:07.480 --> 00:14:13.570
+let's take a look at these problems
+panel so this problems panel lists all
+
+00:14:13.570 --> 00:14:18.040
+the issues in your code in one place so
+if you have an application with multiple
+
+00:14:18.040 --> 00:14:22.720
+files this is really useful because some
+of those files may not currently be open
+
+00:14:22.720 --> 00:14:27.280
+so this linter Pyland
+will analyze all your files and if it
+
+00:14:27.280 --> 00:14:31.630
+finds any issues it will list them here
+in the problems panel now you can also
+
+00:14:31.630 --> 00:14:37.360
+put this on the right side of your
+screen so let's put it here so as you
+
+00:14:37.360 --> 00:14:41.920
+write code these problems will appear
+here now let's fix this issue so I'm
+
+00:14:41.920 --> 00:14:46.960
+gonna add three here save the changes
+and you can see the problem disappear
+
+00:14:46.960 --> 00:14:52.300
+and one last thing before we finish this
+lecture once again on the top let's go
+
+00:14:52.300 --> 00:14:57.730
+to the View menu the first item is
+command palette this is a very important
+
+00:14:57.730 --> 00:15:02.740
+feature in vs code once again look at
+the shortcut that is shift command and P
+
+00:15:02.740 --> 00:15:07.410
+on Mac or shift control P on Windows
+
+00:15:07.440 --> 00:15:12.150
+this command palette you can execute
+various commands in vs Co if you type
+
+00:15:12.150 --> 00:15:17.700
+lint here you can see all commands
+related to linting as you can see all
+
+00:15:17.700 --> 00:15:23.070
+these commands are prefixed with Python
+because these commands come with a
+
+00:15:23.070 --> 00:15:26.730
+Python extension that we installed
+earlier so these are additional features
+
+00:15:26.730 --> 00:15:33.720
+available to us in vs code the first
+command here is select linter in this
+
+00:15:33.720 --> 00:15:37.920
+list you can see various linters
+available for pilot so as you're reading
+
+00:15:37.920 --> 00:15:42.570
+tutorials or talking to other people you
+will hear about linter such as flake ate
+
+00:15:42.570 --> 00:15:48.360
+my pie pep 8 and so on different
+developers prefer different linters I
+
+00:15:48.360 --> 00:15:53.310
+personally prefer pilant that is the
+most popular one and that's the default
+
+00:15:53.310 --> 00:15:59.340
+linter set and the Python extension of
+vs code if you're adventurous we can try
+
+00:15:59.340 --> 00:16:03.720
+using other linters on your own the
+difference between these linters is in
+
+00:16:03.720 --> 00:16:08.850
+how they find and report errors some
+error messages are more meaningful or
+
+00:16:08.850 --> 00:16:14.070
+more friendly the others are more
+ambiguous so that's all about linting in
+
+00:16:14.070 --> 00:16:18.590
+the next lecture we'll talk about
+formatting code
+
+00:16:24.230 --> 00:16:30.120
+in Python community we have a bunch of
+documents called Python enhancement
+
+00:16:30.120 --> 00:16:35.780
+proposals or peps here on Google if you
+search for Python peps
+
+00:16:35.780 --> 00:16:42.410
+you can see the list of all these paps
+under python.org slash dev slash paps
+
+00:16:42.410 --> 00:16:48.940
+let's have a quick look here
+so here are the paps you can see each
+
+00:16:48.940 --> 00:16:54.550
+PAP has a number and a title the one
+that is very popular amongst Python
+
+00:16:54.550 --> 00:17:00.160
+developers is pep 8 which is a style
+guide for Python code a style guide is
+
+00:17:00.160 --> 00:17:04.360
+basically a document that defines a
+bunch of rules for formatting and
+
+00:17:04.360 --> 00:17:08.890
+styling our code if you follow these
+conventions the code that you write will
+
+00:17:08.890 --> 00:17:13.390
+end up being consistent with other
+people's code now if you have time you
+
+00:17:13.390 --> 00:17:17.770
+can go ahead and read this PAP 8
+documentation but if not don't worry
+
+00:17:17.770 --> 00:17:22.929
+because throughout this course I'm gonna
+explain the key things in pep 8 in this
+
+00:17:22.929 --> 00:17:26.919
+lecture I'm gonna show you a tool that
+helps you automatically format your code
+
+00:17:26.919 --> 00:17:31.910
+according to pap 8
+so back in vs code let's write some
+
+00:17:31.910 --> 00:17:37.610
+Python code x equals one here I'm
+declaring a variable and setting it to
+
+00:17:37.610 --> 00:17:40.610
+one if you're not familiar with
+variables don't worry
+
+00:17:40.610 --> 00:17:44.539
+in the next section you're going to
+learn about that so according to peb 8
+
+00:17:44.539 --> 00:17:50.299
+this code is considered ugly because by
+convention we should add a space around
+
+00:17:50.299 --> 00:17:55.490
+this equal sign or the assignment
+operator now since you're starting out
+
+00:17:55.490 --> 00:17:58.880
+with Python you probably don't know
+these rules so let me show you a tool
+
+00:17:58.880 --> 00:18:03.380
+that helps you automatically format your
+code let's revert this back to its
+
+00:18:03.380 --> 00:18:08.809
+original state now we need to go back to
+the command palette remember so it's
+
+00:18:08.809 --> 00:18:15.289
+right here under view and the shortcut
+is shift command and P here if you
+
+00:18:15.289 --> 00:18:20.419
+search for format you can see this
+command format document the first time
+
+00:18:20.419 --> 00:18:25.730
+you execute this command you're going to
+see this message here formatter Auto
+
+00:18:25.730 --> 00:18:30.530
+kept 8 is not installed so there are a
+bunch of tools for formatting Python
+
+00:18:30.530 --> 00:18:35.990
+code the most popular one is Auto kept 8
+and this is the tool that this Python
+
+00:18:35.990 --> 00:18:40.580
+extension we installed uses to format
+our code so let's go ahead and install
+
+00:18:40.580 --> 00:18:48.530
+this good now one more time let's open
+up the command palette and execute
+
+00:18:48.530 --> 00:18:54.350
+format document see is tool
+automatically formats our code beautiful
+
+00:18:54.350 --> 00:18:59.270
+let's take a look at another example I'm
+going to declare another variable Y and
+
+00:18:59.270 --> 00:19:05.510
+set it to 2 and a variable with a long
+name like unit underlined price I'm set
+
+00:19:05.510 --> 00:19:11.030
+this to 3 now some developers have this
+habit of formatting their variable
+
+00:19:11.030 --> 00:19:17.990
+declarations like this so they put all
+these equal signs in the same column
+
+00:19:17.990 --> 00:19:24.429
+according to pep 8 this is considered
+ugly so once again let's format our code
+
+00:19:24.429 --> 00:19:30.380
+that is better beautiful now let me show
+you a trick opening up this command
+
+00:19:30.380 --> 00:19:34.280
+palette and searching for format
+document every time is a little bit
+
+00:19:34.280 --> 00:19:38.630
+time-consuming so I want to show you how
+to have your file automatically
+
+00:19:38.630 --> 00:19:41.750
+formatted as soon as you save the
+changes
+
+00:19:41.750 --> 00:19:49.760
+on the top let's go to the code menu
+preferences and settings here in the
+
+00:19:49.760 --> 00:19:57.230
+search box search for format on save
+so we have this option editor format on
+
+00:19:57.230 --> 00:20:02.180
+save
+take this now back to apt at PI I'm
+
+00:20:02.180 --> 00:20:07.760
+gonna change the formatting of these
+lines make them really ugly now as soon
+
+00:20:07.760 --> 00:20:14.770
+as I save the changes you can see my
+code is reformatted beautiful
+
+00:20:20.710 --> 00:20:25.429
+so you have learned that in order to run
+this Python program we'll have to open
+
+00:20:25.429 --> 00:20:31.280
+up the terminal window and run Python on
+windows or Python 3 on Mac and an app
+
+00:20:31.280 --> 00:20:37.340
+that pi this is a little bit tedious so
+let me show you a shortcut once again
+
+00:20:37.340 --> 00:20:44.020
+let's go to the extensions panel here
+search for code runner
+
+00:20:44.210 --> 00:20:48.050
+there are multiple code runners out
+there the one that I'm talking about is
+
+00:20:48.050 --> 00:20:54.950
+this one with the yellow icon so go
+ahead and install this and then reload
+
+00:20:54.950 --> 00:21:02.150
+vs code now instead of opening up the
+terminal and manually typing python
+
+00:21:02.150 --> 00:21:08.720
+after pi all you have to do is to press
+ctrl alt and in
+
+00:21:08.720 --> 00:21:13.100
+you can see the output here beautiful
+just be aware that if you make any
+
+00:21:13.100 --> 00:21:17.690
+changes you'll have to save the changes
+before using this shortcut otherwise
+
+00:21:17.690 --> 00:21:22.700
+you're going to see the old result now
+there is a tiny problem here so you can
+
+00:21:22.700 --> 00:21:28.370
+see this is the command that is executed
+to run this Python program so by default
+
+00:21:28.370 --> 00:21:33.500
+this command is using Python
+- U and here is the name of our file if
+
+00:21:33.500 --> 00:21:37.580
+you're on Windows that's perfectly fine
+but if you're on Mac you know that
+
+00:21:37.580 --> 00:21:43.340
+Python refers to Python - here we want
+to change this to Python 3 this is very
+
+00:21:43.340 --> 00:21:48.970
+easy once again on the top under the
+code menu let's go to preferences
+
+00:21:48.970 --> 00:21:55.500
+settings and then here
+under this dot-dot-dot go to open
+
+00:21:55.500 --> 00:22:02.309
+settings that JSON
+now here in the search bar type code -
+
+00:22:02.309 --> 00:22:09.809
+runner dot executors map so these are
+the default settings used by this code
+
+00:22:09.809 --> 00:22:14.399
+runner extension you can see this
+extension support executing code in a
+
+00:22:14.399 --> 00:22:20.340
+lot of languages like JavaScript Java
+and so on now if you scroll down here
+
+00:22:20.340 --> 00:22:24.450
+you can see Python and in front of that
+you can see the command that is used to
+
+00:22:24.450 --> 00:22:28.919
+execute Python code we need to change
+this however we cannot change the
+
+00:22:28.919 --> 00:22:34.019
+default settings we should change the
+user settings so on the right side after
+
+00:22:34.019 --> 00:22:40.940
+the last setting type a comma and then
+in quotes type code - runner dot
+
+00:22:40.940 --> 00:22:47.070
+executors map and then press enter this
+will automatically copy all the settings
+
+00:22:47.070 --> 00:22:53.070
+on the left side to the right side now
+we can easily change one of this so
+
+00:22:53.070 --> 00:23:00.899
+here's Python let's change the command
+to Python 3 you only have to do this if
+
+00:23:00.899 --> 00:23:05.220
+you're on Mac and by the way sorry if we
+have mentioned Windows and Mac a few
+
+00:23:05.220 --> 00:23:08.129
+times throughout this course that's
+pretty much it we are not going to
+
+00:23:08.129 --> 00:23:12.870
+differentiate between Windows and Mac in
+the future so save the changes and we're
+
+00:23:12.870 --> 00:23:15.019
+done
+
+00:23:19.170 --> 00:23:23.700
+when we talk about Python we mean two
+separate things that are closely related
+
+00:23:23.700 --> 00:23:28.630
+python language and a particular
+implementation python as a language is
+
+00:23:28.630 --> 00:23:34.240
+just a specification that defines a set
+of rules and grammar for writing Python
+
+00:23:34.240 --> 00:23:39.430
+code a Python implementation is
+basically a program that understands
+
+00:23:39.430 --> 00:23:44.290
+those rules and can execute Python code
+earlier in the course we downloaded
+
+00:23:44.290 --> 00:23:49.000
+Python from python.org this is the
+default implementation of Python called
+
+00:23:49.000 --> 00:23:55.180
+C Python it's a program written in C
+that's why it's called C Python so here
+
+00:23:55.180 --> 00:24:00.160
+in terminal when we run Python we get
+this C Python this is the default
+
+00:24:00.160 --> 00:24:04.320
+implementation of Python there are a few
+other implementations out there such as
+
+00:24:04.320 --> 00:24:10.630
+JSON written in Java
+ironpython written in c-sharp and pi pi
+
+00:24:10.630 --> 00:24:15.760
+written in a subset of Python itself as
+new features are added to the Python
+
+00:24:15.760 --> 00:24:19.780
+language they are first supported by C
+Python because that's the default
+
+00:24:19.780 --> 00:24:23.550
+implementation and then they will
+gradually come to the other
+
+00:24:23.550 --> 00:24:28.150
+implementations in theory if we give
+some Python code to any of these
+
+00:24:28.150 --> 00:24:33.010
+implementations we should get the same
+result but in practice that's not always
+
+00:24:33.010 --> 00:24:37.450
+the case certain features may be
+available in one implementation but not
+
+00:24:37.450 --> 00:24:41.980
+another or they may just behave a little
+bit differently in a particular
+
+00:24:41.980 --> 00:24:46.960
+implementation now you might ask what is
+the point of this why do we have several
+
+00:24:46.960 --> 00:24:52.180
+implementations of Python wouldn't see
+Python be enough well it's for the same
+
+00:24:52.180 --> 00:24:56.620
+reason that we have multiple operating
+systems or multiple browsers or multiple
+
+00:24:56.620 --> 00:25:01.330
+programming languages after all these
+years B programmers haven't agreed on a
+
+00:25:01.330 --> 00:25:05.110
+single programming language and that's
+the same story with Python
+
+00:25:05.110 --> 00:25:10.000
+implementations however there is one
+technical reason behind these
+
+00:25:10.000 --> 00:25:15.670
+implementations that you should be aware
+of since JSON is implemented in Java it
+
+00:25:15.670 --> 00:25:21.370
+allows you to reuse some existing Java
+code in a Python program so if you're a
+
+00:25:21.370 --> 00:25:26.260
+Java developer and you want to import
+some Java code into a Python program you
+
+00:25:26.260 --> 00:25:30.680
+should use JSON instead of C Python
+similarly I
+
+00:25:30.680 --> 00:25:34.310
+Python is written in c-sharp so if
+you're a c-sharp developer and want to
+
+00:25:34.310 --> 00:25:38.150
+bring some c-sharp code into a Python
+program you will have to use
+
+00:25:38.150 --> 00:25:46.300
+ironpython next we'll look at how
+exactly C Python execute Python code
+
+00:25:50.929 --> 00:25:57.630
+the programming languages we use like C
+C sharp Java Python these are all simple
+
+00:25:57.630 --> 00:26:02.460
+text-based languages that we humans
+understand computers don't understand
+
+00:26:02.460 --> 00:26:07.889
+them they only understand machine code
+so if we have some code written in C we
+
+00:26:07.889 --> 00:26:12.840
+should convert it to machine code and
+that's the job of a C compiler so a C
+
+00:26:12.840 --> 00:26:17.909
+compiler is a program that knows how to
+convert or compile C code into machine
+
+00:26:17.909 --> 00:26:21.389
+code
+however this machine code is specific to
+
+00:26:21.389 --> 00:26:26.730
+the type of CPU of a computer so if we
+compile a C program on a Windows machine
+
+00:26:26.730 --> 00:26:31.649
+we can't execute it on a Mac because
+Windows and Mac have different machine
+
+00:26:31.649 --> 00:26:36.899
+code just like how people from different
+countries speak different languages Java
+
+00:26:36.899 --> 00:26:42.000
+came to solve this problem Java compiler
+doesn't compile Java code into machine
+
+00:26:42.000 --> 00:26:47.909
+code instead it compiles it into a
+portable language called Java bytecode
+
+00:26:47.909 --> 00:26:53.850
+which is not specific to a hardware
+platform like Windows or Mac now we
+
+00:26:53.850 --> 00:26:58.380
+still need to convert Java bytecode to
+machine code so Java also comes with a
+
+00:26:58.380 --> 00:27:04.380
+program called Java Virtual Machine or
+JVM for doing this when we run a Java
+
+00:27:04.380 --> 00:27:10.289
+program JVM kicks in it loads our Java
+bytecode and then at runtime it will
+
+00:27:10.289 --> 00:27:15.210
+convert each instruction to machine code
+with this model we can run Java bytecode
+
+00:27:15.210 --> 00:27:21.870
+on any platforms that have a JVM we have
+JVM implementations for Windows Mac and
+
+00:27:21.870 --> 00:27:27.690
+so on so the JVM implementation on
+Windows knows how to convert Java byte
+
+00:27:27.690 --> 00:27:32.370
+code into machine code that a Windows
+machine can understand c-sharp and
+
+00:27:32.370 --> 00:27:37.440
+Python have also taken the same route
+so there are platform-independent when
+
+00:27:37.440 --> 00:27:42.090
+we run a Python program using C Python
+first it will compile our Python code
+
+00:27:42.090 --> 00:27:48.059
+into Python bytecode then it will pass
+that bytecode to Python virtual machine
+
+00:27:48.059 --> 00:27:52.529
+which will in turn convert it into
+machine code and execute it this is how
+
+00:27:52.529 --> 00:27:57.090
+C Python works in the last lecture we
+talked about various Python
+
+00:27:57.090 --> 00:28:01.170
+implementation I told you that if you
+want to reuse some java code in a
+
+00:28:01.170 --> 00:28:06.960
+Python program you should use Java now
+let's see how JSON makes this possible
+
+00:28:06.960 --> 00:28:12.270
+when you use JSON to run a Python
+program instead of compiling your Python
+
+00:28:12.270 --> 00:28:17.730
+code into Python bytecode it will
+compile it to Java code so we can take
+
+00:28:17.730 --> 00:28:20.820
+this Java bytecode
+and run it using java virtual machine
+
+00:28:20.820 --> 00:28:25.890
+and that's why you can import some java
+code into a Python program when using
+
+00:28:25.890 --> 00:28:28.680
+jython
+because the end result is Java bytecode
+
+00:28:28.680 --> 00:28:36.299
+which will eventually be executed by
+Java Virtual Machine
+
+00:28:36.299 --> 00:28:40.559
+so that brings us to the end of the
+first section if you have enjoyed this
+
+00:28:40.559 --> 00:28:44.849
+course so far please like this video and
+share it with others in the next section
+
+00:28:44.849 --> 00:28:49.139
+you're going to learn Python Basics in
+only one hour I hope you enjoyed this
+
+00:28:49.139 --> 00:28:59.830
+section and thank you for watching
+
+00:28:59.830 --> 00:29:05.030
+well hello Marsh here thank you for
+watching my Python tutorial I wanted to
+
+00:29:05.030 --> 00:29:09.410
+let you know that this tutorial is the
+first two hours of my complete Python
+
+00:29:09.410 --> 00:29:13.460
+course where you will learn how to use
+Python in real-world scenarios such as
+
+00:29:13.460 --> 00:29:18.650
+data analysis and visualization
+automating repetitive boring tasks that
+
+00:29:18.650 --> 00:29:23.470
+involve working with files and folders
+spreadsheets PDFs data compression
+
+00:29:23.470 --> 00:29:28.940
+sending emails web crawling consuming
+API is like Yelp to get information
+
+00:29:28.940 --> 00:29:34.370
+about businesses and much much more this
+course comes with a 30 day no questions
+
+00:29:34.370 --> 00:29:38.510
+asked money back guarantee and a
+certificate of completion if you're
+
+00:29:38.510 --> 00:29:43.720
+interested click the link below this
+video to access the course
+
+00:29:48.730 --> 00:29:53.720
+all right let's start this section by a
+discussion of variables and the built-in
+
+00:29:53.720 --> 00:30:01.010
+primitive types in Python including
+integers floats boolean's and strings so
+
+00:30:01.010 --> 00:30:04.850
+here I'm gonna define a few variables
+starting with the first one
+
+00:30:04.850 --> 00:30:10.670
+students count note that here all the
+letters are lowercase and we're using an
+
+00:30:10.670 --> 00:30:15.590
+underscore to separate multiple words
+this is the naming convention we use in
+
+00:30:15.590 --> 00:30:21.530
+Python so here we said students count to
+let's say a thousand this is an example
+
+00:30:21.530 --> 00:30:24.470
+of an integer let's look at an example
+of a float
+
+00:30:24.470 --> 00:30:32.810
+so we said rating two for let's say 99
+here's another variable is published we
+
+00:30:32.810 --> 00:30:39.890
+set this to true or false note that the
+first letter is uppercase and finally
+
+00:30:39.890 --> 00:30:45.710
+let's take a look at an example of a
+string so we set course name to Python
+
+00:30:45.710 --> 00:30:51.710
+now in Python you can use either double
+quotes or single quotes or you can use
+
+00:30:51.710 --> 00:30:58.010
+triple quotes if your string is multiple
+lines for example here I can put triple
+
+00:30:58.010 --> 00:31:07.100
+quotes and in between them I can add a
+string that has multiple lights okay now
+
+00:31:07.100 --> 00:31:10.670
+one interesting feature in Python is
+that you can initialize multiple
+
+00:31:10.670 --> 00:31:16.010
+variables on the same line for example
+let's say we have coordinates like x and
+
+00:31:16.010 --> 00:31:20.030
+y we can initialize these two on the
+same line
+
+00:31:20.030 --> 00:31:27.890
+so we can set X comma Y we set it to 1
+comma 2 this line is exactly equivalent
+
+00:31:27.890 --> 00:31:34.370
+to these two lines so it's a shortcut
+and finally just like almost every
+
+00:31:34.370 --> 00:31:38.990
+programming language we can set multiple
+variables to the same value for example
+
+00:31:38.990 --> 00:31:45.920
+we can set x and y to 1 so these are the
+basics of variables next I'll talk about
+
+00:31:45.920 --> 00:31:50.110
+the dynamic nature of Python
+
+00:31:55.100 --> 00:31:59.940
+in terms of typing programming languages
+fall into two categories
+
+00:31:59.940 --> 00:32:06.570
+static languages like C++ C sharp and
+Java and dynamic languages like
+
+00:32:06.570 --> 00:32:12.600
+JavaScript Ruby and Python in static
+languages when declaring a variable we
+
+00:32:12.600 --> 00:32:17.580
+need to specify its type for example in
+c-sharp when declaring this variable we
+
+00:32:17.580 --> 00:32:22.950
+need to set its type to an integer so
+with this the type of this variable will
+
+00:32:22.950 --> 00:32:27.330
+always be an integer when we compile
+this program or compiler knows that
+
+00:32:27.330 --> 00:32:32.669
+students count is an integer so if you
+accidentally try to set it to let's say
+
+00:32:32.669 --> 00:32:38.730
+a boolean later on the compiler will
+complain this is how static languages
+
+00:32:38.730 --> 00:32:43.500
+work in dynamic languages like
+JavaScript and Python we don't have this
+
+00:32:43.500 --> 00:32:49.769
+behavior so we don't set a type when
+defining a variable we just define a
+
+00:32:49.769 --> 00:32:54.779
+variable by setting it to a value so in
+dynamic languages the type of a variable
+
+00:32:54.779 --> 00:32:59.990
+is determined at runtime
+now here if you hover your mouse over
+
+00:32:59.990 --> 00:33:04.769
+students count you can see this is an
+integer so when working on a large
+
+00:33:04.769 --> 00:33:08.970
+complex program if you want to know the
+type of a variable you can simply hover
+
+00:33:08.970 --> 00:33:14.789
+your mouse over it we also have this
+built-in function called type we can
+
+00:33:14.789 --> 00:33:21.539
+pass a variable or an object to it like
+students count and then print this on
+
+00:33:21.539 --> 00:33:27.539
+the console so let's run this program
+you can see the type of students count
+
+00:33:27.539 --> 00:33:33.960
+is a class of integer what is this
+Python is an object-oriented language so
+
+00:33:33.960 --> 00:33:38.039
+here we have the concept of classes if
+you're not familiar with classes don't
+
+00:33:38.039 --> 00:33:42.899
+worry I'm gonna talk about them in
+detail later in the course all I want
+
+00:33:42.899 --> 00:33:46.350
+you to know now is that in Python we
+have a class called
+
+00:33:46.350 --> 00:33:52.490
+int that represents integers so all
+integers are instances of this class
+
+00:33:52.490 --> 00:33:59.050
+let's take a look at a few more examples
+so here in this interactive shell let's
+
+00:33:59.050 --> 00:34:05.620
+look at the type of a float once again
+it's a class called float let's look at
+
+00:34:05.620 --> 00:34:12.370
+type of a boolean this is also a class
+called bool and finally let's look at
+
+00:34:12.370 --> 00:34:19.899
+type I'm a string that's a class called
+stir so here's the take away Python is a
+
+00:34:19.899 --> 00:34:25.149
+dynamic language which means the type of
+variables are determined at run time as
+
+00:34:25.149 --> 00:34:28.470
+opposed to compile time
+
+00:34:33.840 --> 00:34:38.650
+sorry the last lecture you learned that
+Python is a dynamic language which means
+
+00:34:38.650 --> 00:34:43.179
+the type of variables is determined at
+run time so here we have this variable
+
+00:34:43.179 --> 00:34:50.050
+age set to an integer now we can reset
+this to a string this is perfectly valid
+
+00:34:50.050 --> 00:34:56.950
+Python code so if we print a age and run
+this program you can see our program is
+
+00:34:56.950 --> 00:35:01.870
+running successfully now if you come to
+python from a static language like C
+
+00:35:01.870 --> 00:35:06.370
+sharp or Java you probably don't like
+this but the good news is that in Python
+
+00:35:06.370 --> 00:35:12.910
+3.6 we have a new feature called type
+annotation or type hinting so we can
+
+00:35:12.910 --> 00:35:19.600
+annotate our variables with their type
+so we had a colon here and then int for
+
+00:35:19.600 --> 00:35:24.040
+integer now when I save the changes
+everything is still valid if I run the
+
+00:35:24.040 --> 00:35:29.130
+program there are no errors because
+python is a dynamic language however
+
+00:35:29.130 --> 00:35:35.920
+there is a new lantern called my PI that
+checks for these type annotations so if
+
+00:35:35.920 --> 00:35:41.320
+you define a variable as an integer and
+then set it to a string my pie is gonna
+
+00:35:41.320 --> 00:35:48.570
+complain let me show you so open up the
+command palette and type select linter
+
+00:35:48.570 --> 00:35:55.120
+correctly you can see we are using pi
+lint in this list select my pi now the
+
+00:35:55.120 --> 00:35:58.720
+first time you do this you're gonna see
+a message on the bottom right corner of
+
+00:35:58.720 --> 00:36:03.100
+the screen telling you that my pine is
+not installed so go ahead and install
+
+00:36:03.100 --> 00:36:10.180
+that now on line two you can see a red
+line under H let's have a look here so
+
+00:36:10.180 --> 00:36:16.000
+my pi is giving us an error incompatible
+types in assignment so this is all about
+
+00:36:16.000 --> 00:36:20.190
+type annotation or type in ting
+
+00:36:25.540 --> 00:36:31.190
+so here we have this variable X set to 1
+when we run this program Python
+
+00:36:31.190 --> 00:36:37.010
+interpreter will allocate some memory to
+store this number 1 so our X variable is
+
+00:36:37.010 --> 00:36:41.990
+purely a label for that memory location
+let me show you so here we have this
+
+00:36:41.990 --> 00:36:47.930
+built-in function called ID we can pass
+the variable here like X and this will
+
+00:36:47.930 --> 00:36:53.450
+return the address of the memory
+location that X references so now let's
+
+00:36:53.450 --> 00:37:01.190
+print this on the console there you go
+so this is the address of the memory
+
+00:37:01.190 --> 00:37:06.320
+location where we have stored number one
+now one thing you need to know about the
+
+00:37:06.320 --> 00:37:10.190
+built-in primitive types that I've
+talked about so far like numbers strings
+
+00:37:10.190 --> 00:37:16.430
+and boolean is that all these types are
+immutable which means their value cannot
+
+00:37:16.430 --> 00:37:22.130
+change so here if we try to update X
+python interpreter is going to allocate
+
+00:37:22.130 --> 00:37:27.560
+some new memory to store the updated
+value in other words what we have at
+
+00:37:27.560 --> 00:37:32.060
+this original memory location will not
+be affected because integers are
+
+00:37:32.060 --> 00:37:39.290
+immutable let me show you this so here
+after we print the idea of X I'm gonna
+
+00:37:39.290 --> 00:37:47.600
+increment X and print its ID one more
+time see what we get we get two
+
+00:37:47.600 --> 00:37:53.660
+different addresses so our X variable or
+X label was originally referencing this
+
+00:37:53.660 --> 00:37:59.060
+memory location at this memory location
+we have the number one because integers
+
+00:37:59.060 --> 00:38:04.910
+are immutable we cannot change the value
+at this memory location so on line four
+
+00:38:04.910 --> 00:38:11.330
+when we update X python interpreter will
+allocate some new memory at this
+
+00:38:11.330 --> 00:38:17.090
+location and then X will reference this
+new memory location now because we don't
+
+00:38:17.090 --> 00:38:22.760
+have a reference to the original memory
+at some point Python garbage collector
+
+00:38:22.760 --> 00:38:28.580
+will automatically release this memory
+so this is how immutable types work now
+
+00:38:28.580 --> 00:38:33.740
+let's see what would happen
+if X was set to a mutable type here is
+
+00:38:33.740 --> 00:38:39.020
+an example so in Python we have
+a concept called lists for storing a
+
+00:38:39.020 --> 00:38:44.510
+list of objects so here we use square
+brackets to indicate that this is a list
+
+00:38:44.510 --> 00:38:51.920
+we can add multiple objects here now on
+line four let's add a new number to this
+
+00:38:51.920 --> 00:38:58.730
+list so we call X dot append and pass
+four here now let's run the program one
+
+00:38:58.730 --> 00:39:04.060
+more time so as we can see the address
+is not changed because lists are mutable
+
+00:39:04.060 --> 00:39:09.500
+so whenever we change them by adding new
+objects to them or removing existing
+
+00:39:09.500 --> 00:39:14.930
+ones the changes are applied at the same
+memory location so this is the
+
+00:39:14.930 --> 00:39:19.780
+difference between mutable and immutable
+types
+
+00:39:25.570 --> 00:39:30.950
+over the next few lectures we're going
+to take a closer look at strings so here
+
+00:39:30.950 --> 00:39:35.960
+we have a variable of type string to get
+the number of characters in this string
+
+00:39:35.960 --> 00:39:42.560
+we use the built-in Len function now
+look at the intellisense this function
+
+00:39:42.560 --> 00:39:46.760
+returns the number of items in a
+container so it's not specific to
+
+00:39:46.760 --> 00:39:52.460
+strings it's a generic reusable function
+we can pass the a string here and this
+
+00:39:52.460 --> 00:39:56.900
+will return the number of characters in
+the string or we can pass a list and
+
+00:39:56.900 --> 00:40:02.630
+this will return the number of items in
+the list so here let's pass this course
+
+00:40:02.630 --> 00:40:11.090
+variable and print the length so we have
+18 characters beautiful similar to many
+
+00:40:11.090 --> 00:40:16.119
+other languages we can access individual
+characters using square bracket notation
+
+00:40:16.119 --> 00:40:22.850
+so to get the first character we use
+square brackets 0 because the index of
+
+00:40:22.850 --> 00:40:31.420
+the first character here is 0 now let's
+print this run the program so we get P
+
+00:40:31.420 --> 00:40:36.650
+now one interesting feature in Python
+that I personally haven't seen in other
+
+00:40:36.650 --> 00:40:42.920
+programming languages is a negative
+index so here let's duplicate this line
+
+00:40:42.920 --> 00:40:49.850
+and pass negative 1 what do you think
+we're gonna get well if 0 represents the
+
+00:40:49.850 --> 00:40:55.910
+first character negative 1 takes us back
+to the end of the string so it returns
+
+00:40:55.910 --> 00:41:02.990
+the first character from the end of the
+string let's run this program so we get
+
+00:41:02.990 --> 00:41:09.080
+G similarly we could pass negative 2 and
+this will return the second character
+
+00:41:09.080 --> 00:41:15.230
+from the end very powerful now using a
+similar syntax we can also slice strings
+
+00:41:15.230 --> 00:41:21.950
+so let's duplicate this line to slice
+the string we need to pass two indexes
+
+00:41:21.950 --> 00:41:28.310
+the start index colon the end index so
+this will return all the characters
+
+00:41:28.310 --> 00:41:34.730
+starting from the start index all the
+way up to the end index but it doesn't
+
+00:41:34.730 --> 00:41:39.150
+include the character
+at the end index in this example it's
+
+00:41:39.150 --> 00:41:44.730
+going to return zero one and two these
+three characters but not the character
+
+00:41:44.730 --> 00:41:50.670
+at index 3 ok
+so let's run the program we get the
+
+00:41:50.670 --> 00:41:56.099
+first three characters beautiful now we
+can exclude either or both these indexes
+
+00:41:56.099 --> 00:42:02.099
+and Python will assume default values so
+let's duplicate this line and exclude
+
+00:42:02.099 --> 00:42:07.170
+the start index what do you think python
+is going to put here it's common sense
+
+00:42:07.170 --> 00:42:12.390
+it's going to pass zero as the start
+index so let's run the program you can
+
+00:42:12.390 --> 00:42:17.670
+see we get the same result so these last
+two expressions are exactly the same now
+
+00:42:17.670 --> 00:42:23.340
+what if we exclude the end index what do
+you think Python is going to put here
+
+00:42:23.340 --> 00:42:28.619
+it's going to pass the length of the
+string so let's run the program you can
+
+00:42:28.619 --> 00:42:36.420
+see this returns the entire string and
+finally if we exclude both the start and
+
+00:42:36.420 --> 00:42:43.109
+end index again we get the same result
+so let's verify this beautiful now one
+
+00:42:43.109 --> 00:42:48.180
+thing you need to take into account here
+is that whenever we access an individual
+
+00:42:48.180 --> 00:42:53.790
+character or a range of characters
+Python interpreter is going to allocate
+
+00:42:53.790 --> 00:42:58.980
+some new memory and copied those
+characters into that new memory location
+
+00:42:58.980 --> 00:43:04.320
+because as I told you before strings are
+immutable so the value that we have at
+
+00:43:04.320 --> 00:43:09.150
+the original memory location that is
+Python programming will not be affected
+
+00:43:09.150 --> 00:43:16.980
+we can verify this
+so let's print ID of course and then
+
+00:43:16.980 --> 00:43:22.920
+print ID of course of zero and then run
+the program you can see two different
+
+00:43:22.920 --> 00:43:28.800
+addresses here that is because strings
+and other primitive types like numbers
+
+00:43:28.800 --> 00:43:33.260
+and billions are immutable in Python
+
+00:43:38.640 --> 00:43:44.140
+here we have this message variable set
+to this string Python programming now
+
+00:43:44.140 --> 00:43:49.810
+let's say we want to display a double
+quote right here the problem we have is
+
+00:43:49.810 --> 00:43:54.760
+that this second double quote indicates
+the end of the string so python
+
+00:43:54.760 --> 00:43:58.810
+interpreter will not be able to run this
+code now there are two ways to solve
+
+00:43:58.810 --> 00:44:04.210
+this problem one way is to replace these
+double quotes at the beginning and end
+
+00:44:04.210 --> 00:44:10.300
+of our string with single quotes so
+single code here and one more here if we
+
+00:44:10.300 --> 00:44:15.580
+run this program we see this double code
+just before programming beautiful but
+
+00:44:15.580 --> 00:44:20.410
+let's say for whatever reason you want
+to use double quotes here perhaps to be
+
+00:44:20.410 --> 00:44:25.090
+consistent with the rest of our code so
+how can we display another double quote
+
+00:44:25.090 --> 00:44:29.680
+in the middle of this string well in
+Python we have a concept that is
+
+00:44:29.680 --> 00:44:35.590
+borrowed from the C language that is
+called escape character so in Python
+
+00:44:35.590 --> 00:44:40.780
+strings backslash has a special meaning
+and we refer to it as an escape
+
+00:44:40.780 --> 00:44:46.840
+character so Python interpreter sees
+this backslash as a special character it
+
+00:44:46.840 --> 00:44:51.100
+has a special meaning and depending on
+the character that comes after that it
+
+00:44:51.100 --> 00:44:55.900
+will interpret it differently let's see
+this in action so now when we run this
+
+00:44:55.900 --> 00:45:00.760
+program we can see our double code here
+but the backslash character is not there
+
+00:45:00.760 --> 00:45:06.670
+because backslash is an escape character
+so in this case it's used to escape the
+
+00:45:06.670 --> 00:45:12.630
+double code now we refer to these two
+characters as an escape sequence in
+
+00:45:12.630 --> 00:45:17.070
+Python we have a few other escape
+sequences that you should be aware of
+
+00:45:17.070 --> 00:45:21.790
+let me show you
+so this hash sign is an indication of a
+
+00:45:21.790 --> 00:45:27.640
+comment line so it's not executed you
+have seen backslash double quote we also
+
+00:45:27.640 --> 00:45:32.820
+have backslash single code for
+displaying a single quote in our string
+
+00:45:32.820 --> 00:45:38.920
+we also have double backslashes so if
+you really want to have a backslash in
+
+00:45:38.920 --> 00:45:45.060
+your string you should prefix it with
+another backslash here is an example
+
+00:45:45.060 --> 00:45:51.250
+let's run this program
+and here's our backslash and finally the
+
+00:45:51.250 --> 00:45:58.000
+last escape sequence is backslash n
+which is short for new light so here if
+
+00:45:58.000 --> 00:46:04.510
+I add a backslash N and run this program
+you can see programming is on the second
+
+00:46:04.510 --> 00:46:09.700
+line now this is OK for a simple string
+like Python programming here but if
+
+00:46:09.700 --> 00:46:14.260
+you're trying to format a complex string
+into multiple lines it's better to use
+
+00:46:14.260 --> 00:46:20.200
+triple quotes otherwise you'll end up
+with a lot of pack /n sequences and that
+
+00:46:20.200 --> 00:46:27.310
+looks pretty ugly so here we can use
+triple quotes and simply add Python
+
+00:46:27.310 --> 00:46:33.910
+newline programming so when we run this
+program we get exactly the same result
+
+00:46:33.910 --> 00:46:39.730
+as before but not quite exactly because
+here we have one new line on the top
+
+00:46:39.730 --> 00:46:44.590
+that is because I put Python on a new
+line if I put Python right in front of
+
+00:46:44.590 --> 00:46:49.420
+double quotes run the program again that
+new line disappears
+
+00:46:49.420 --> 00:46:54.660
+so here are the escape sequences in
+Python
+
+00:47:00.070 --> 00:47:05.570
+here we have two variables first and
+last let's say we want to print my full
+
+00:47:05.570 --> 00:47:12.280
+name on the console so we can define
+another variable full set it to first
+
+00:47:12.280 --> 00:47:20.810
+then concatenate it with a space and one
+more time concatenate it with last now
+
+00:47:20.810 --> 00:47:27.740
+when we print full we get my full name
+on the console beautiful now this
+
+00:47:27.740 --> 00:47:33.050
+approach are using concatenation to
+build a string is okay but there is a
+
+00:47:33.050 --> 00:47:38.840
+better and newer approach we can use
+formatted strings so here we can set
+
+00:47:38.840 --> 00:47:45.730
+full to this string and prefix it with
+an F which can be lowercase or uppercase
+
+00:47:45.730 --> 00:47:51.350
+it's formatted string doesn't have a
+constant value like these two strings
+
+00:47:51.350 --> 00:47:57.830
+here it's actually an expression that
+will be evaluated at runtime so here we
+
+00:47:57.830 --> 00:48:04.160
+want to add our first name we use curly
+braces to print the value of the first
+
+00:48:04.160 --> 00:48:10.460
+variable after that we add a space and
+then we add curly braces one more time
+
+00:48:10.460 --> 00:48:17.180
+to print the last name so at runtime
+this expression will be evaluated what
+
+00:48:17.180 --> 00:48:23.990
+we have in between curly braces will be
+replaced at runtime now let's run this
+
+00:48:23.990 --> 00:48:29.840
+program one more time we get the exact
+same result just be aware that you can
+
+00:48:29.840 --> 00:48:35.120
+put any valid expressions in between
+curly braces so earlier you learned
+
+00:48:35.120 --> 00:48:42.140
+about the built-in Len function we can
+call Len here to get the length of this
+
+00:48:42.140 --> 00:48:48.170
+string let's run this program one more
+time so we get four we can also replace
+
+00:48:48.170 --> 00:48:53.960
+last with an expression like there's two
+plus two let's run this program we get
+
+00:48:53.960 --> 00:48:59.870
+four and four so when using formatted
+strings you can put any valid
+
+00:48:59.870 --> 00:49:04.270
+expressions in between curly braces
+
+00:49:10.519 --> 00:49:15.509
+and it's lecture we're going to explore
+a few useful methods of string objects
+
+00:49:15.509 --> 00:49:20.459
+in Python so this course variable we
+have here is a string object which means
+
+00:49:20.459 --> 00:49:27.059
+we can use the dot notation to find all
+the methods or functions applicable on
+
+00:49:27.059 --> 00:49:32.579
+strings here we have a large list of
+functions or more accurately methods in
+
+00:49:32.579 --> 00:49:36.299
+this lecture I'm gonna quickly show you
+a few of them you can learn about the
+
+00:49:36.299 --> 00:49:40.829
+rest on your own so here let's say we
+want to convert this course to uppercase
+
+00:49:40.829 --> 00:49:48.119
+we can use the upper method and print
+the result and we'll get this uppercase
+
+00:49:48.119 --> 00:49:55.349
+string here similar to that we have
+lower to convert it to lowercase we also
+
+00:49:55.349 --> 00:50:00.749
+have title which will convert this to
+title case which means the first
+
+00:50:00.749 --> 00:50:05.699
+character of every word will be
+uppercase and this is useful for blog
+
+00:50:05.699 --> 00:50:12.390
+posts product titles courses and so on
+so let's run this one more time we get
+
+00:50:12.390 --> 00:50:19.349
+this string here another useful method
+is strip for trimming whitespace so if
+
+00:50:19.349 --> 00:50:24.929
+we have a couple of extra whitespace at
+the beginning or end of this string we
+
+00:50:24.929 --> 00:50:28.829
+can get rid of them using the strip
+method and this is useful when you get
+
+00:50:28.829 --> 00:50:35.279
+input from the user
+so a print course that strip save the
+
+00:50:35.279 --> 00:50:41.160
+changes note that in the previous
+examples you can see those extra white
+
+00:50:41.160 --> 00:50:45.809
+spaces at the beginning but when we call
+the strip method those spaces are gone
+
+00:50:45.809 --> 00:50:51.749
+we also have left and right strip for
+removing the whitespace from the
+
+00:50:51.749 --> 00:50:57.770
+beginning or end of this string
+now if you want to find the index of a
+
+00:50:57.770 --> 00:51:03.290
+character or a substring in your string
+you can use the find method so let's
+
+00:51:03.290 --> 00:51:12.740
+print course that find let's search for
+pro run the program so the index of pro
+
+00:51:12.740 --> 00:51:21.020
+here is 9 now if I change this to
+lowercase P we'll get negative 1 because
+
+00:51:21.020 --> 00:51:26.930
+string comparisons are case sensitive
+and we don't have these exact three
+
+00:51:26.930 --> 00:51:32.090
+characters in our course variable now if
+you want to replace a character or a
+
+00:51:32.090 --> 00:51:37.790
+sequence of characters you can use the
+replace method so let's print course
+
+00:51:37.790 --> 00:51:45.230
+that replace let's replace all capital
+pees ways a hyphen and with this we'll
+
+00:51:45.230 --> 00:51:51.680
+get this weird string here and finally
+to check for the existence of a
+
+00:51:51.680 --> 00:51:56.230
+character or a sequence of characters in
+your string you can use the in operator
+
+00:51:56.230 --> 00:52:06.200
+so let's see if we have programming in
+this course object let's run the program
+
+00:52:06.200 --> 00:52:13.430
+and we get false because I realize that
+I missed the letter R here so let's run
+
+00:52:13.430 --> 00:52:19.250
+the program one more time this time we
+get true now we also have the not
+
+00:52:19.250 --> 00:52:27.130
+operator so you can prefix this with not
+and this time we'll get false
+
+00:52:32.830 --> 00:52:37.880
+so we have covered strings now let's
+look at numbers we have a few different
+
+00:52:37.880 --> 00:52:42.890
+ways to represent numbers in Python we
+can use decimal numbers that you have
+
+00:52:42.890 --> 00:52:49.130
+seen before we can also represent them
+in binary format so we prefix the number
+
+00:52:49.130 --> 00:52:55.580
+with 0 B as in short for binary and then
+we'll add individual bits for example 0
+
+00:52:55.580 --> 00:53:04.849
+B 10 which is the number 2 in binary
+system now let's print X we'll get 2 if
+
+00:53:04.849 --> 00:53:08.030
+you want to print the binary
+representation of this number you can
+
+00:53:08.030 --> 00:53:16.660
+use the built in bin function so bin
+takes any numbers and returns its binary
+
+00:53:16.660 --> 00:53:22.970
+representation there you go we can also
+represent numbers in hexadecimal format
+
+00:53:22.970 --> 00:53:29.980
+so we said X - 0 X as the prefix and
+then we'll add our hexadecimal number
+
+00:53:29.980 --> 00:53:38.210
+let's print X so we get 300 which is in
+the decimal system if you want to print
+
+00:53:38.210 --> 00:53:45.440
+this in the hexadecimal format you would
+use the built-in hex function let's run
+
+00:53:45.440 --> 00:53:52.490
+this program one more time and now we
+get 0 X 12 C beautiful in Python we also
+
+00:53:52.490 --> 00:53:57.050
+have support for complex numbers so
+complex numbers in maths
+
+00:53:57.050 --> 00:54:03.050
+take the form a plus B I if you're not
+familiar with this don't worry this is a
+
+00:54:03.050 --> 00:54:08.030
+concept used in mathematics so if you
+want to use Python to build web
+
+00:54:08.030 --> 00:54:12.470
+applications you're never gonna use this
+but very briefly let me show you how you
+
+00:54:12.470 --> 00:54:20.480
+can represent complex numbers in Python
+so here we can set X - 1 + 2 J so J in
+
+00:54:20.480 --> 00:54:26.450
+Python is like I or imaginary number in
+math you can use either lowercase or
+
+00:54:26.450 --> 00:54:34.760
+uppercase J whatever you prefer now
+let's print X we'll get this complex
+
+00:54:34.760 --> 00:54:39.320
+number here
+you
+
+00:54:42.849 --> 00:54:48.529
+in Python we have all the arithmetic
+operators that you have probably seen
+
+00:54:48.529 --> 00:54:56.230
+before for example we can set X to 10
+plus 3 we have addition I have
+
+00:54:56.230 --> 00:55:02.869
+subtraction multiplication division but
+we actually have two kinds of division
+
+00:55:02.869 --> 00:55:10.010
+operators let's look at the first one so
+print X as you can see the result of
+
+00:55:10.010 --> 00:55:13.849
+this division operator is a
+floating-point number if you want an
+
+00:55:13.849 --> 00:55:19.250
+integer you would use a different
+division operator that is double slash
+
+00:55:19.250 --> 00:55:26.180
+let's run this program so we get 3 we
+also have modulus so that is the
+
+00:55:26.180 --> 00:55:35.059
+remainder of a division and finally we
+have exponent that is left ^ right so
+
+00:55:35.059 --> 00:55:41.779
+here 10 to the power of 3 'is a thousand
+now for all these operators here we have
+
+00:55:41.779 --> 00:55:45.950
+an Augmented assignment operator what do
+we mean by that
+
+00:55:45.950 --> 00:55:52.519
+let's say we want to add 1 to X we can
+write a statement like this so x equals
+
+00:55:52.519 --> 00:56:01.750
+x plus 1 or we can use an Augmented
+assignment operator so X plus equals 1
+
+00:56:01.750 --> 00:56:06.680
+these two statements are exactly the
+same and what we have on the left side
+
+00:56:06.680 --> 00:56:11.930
+of the assignment operator can be any of
+these arithmetic operators here and one
+
+00:56:11.930 --> 00:56:16.099
+last thing before we finish this lecture
+in Python unlike languages like
+
+00:56:16.099 --> 00:56:21.829
+JavaScript or C sharp we don't have the
+increment or decrement operators so we
+
+00:56:21.829 --> 00:56:27.160
+don't have X plus plus or X minus minus
+
+00:56:32.670 --> 00:56:37.180
+in this lecture I'm gonna show you a few
+useful functions for working with
+
+00:56:37.180 --> 00:56:46.090
+numbers so let's set X to 3.14 or
+actually let's rename this to PI note
+
+00:56:46.090 --> 00:56:51.030
+that here I have used uppercase letters
+to indicate that this is a constant in
+
+00:56:51.030 --> 00:56:56.260
+Python unlike languages like C sharp and
+JavaScript we don't have constants we
+
+00:56:56.260 --> 00:57:00.910
+only have variables so if we define this
+there is nothing that stops us from
+
+00:57:00.910 --> 00:57:07.060
+changing the value of this variable so
+by convention we use uppercase letters
+
+00:57:07.060 --> 00:57:11.530
+to tell other developers in the team
+that this pi is a constant and it
+
+00:57:11.530 --> 00:57:16.630
+shouldn't be modified now let me show
+you a few useful built-in functions to
+
+00:57:16.630 --> 00:57:21.460
+work with numbers if you want to round
+the number you can use the round
+
+00:57:21.460 --> 00:57:30.340
+function so let's pass PI here and print
+it so we get 3 we have another useful
+
+00:57:30.340 --> 00:57:35.830
+function ABS short for absolute and it
+returns the absolute value of a number
+
+00:57:35.830 --> 00:57:46.970
+so if you had a minus sign here when we
+print this will get 3.14 here you go
+
+00:57:46.970 --> 00:57:51.200
+now to see the complete list of built-in
+functions in Python here in Google
+
+00:57:51.200 --> 00:57:57.050
+search for Python 3 make sure to add the
+version number and then add built-in
+
+00:57:57.050 --> 00:58:05.210
+functions on this page you can see all
+the built-in functions in Python now in
+
+00:58:05.210 --> 00:58:09.079
+this list we only have a few functions
+to work with numbers if you want to
+
+00:58:09.079 --> 00:58:14.060
+perform complex mathematical
+computations we have a separate module
+
+00:58:14.060 --> 00:58:20.359
+for that that's the math module so back
+to our code on the top first we need to
+
+00:58:20.359 --> 00:58:26.450
+import the math module now mass is an
+object with a bunch of useful methods
+
+00:58:26.450 --> 00:58:31.640
+for performing mathematical computations
+so here we can use the dot notation to
+
+00:58:31.640 --> 00:58:38.170
+see all these methods available to us
+for example you can use mass dot floor
+
+00:58:38.170 --> 00:58:48.410
+to get the floor of pi and this returns
+-4 because here we are using a negative
+
+00:58:48.410 --> 00:58:51.690
+sign
+if you want to see the complete list of
+
+00:58:51.690 --> 00:58:59.969
+functions or methods in the math module
+search for Python 3 math module here on
+
+00:58:59.969 --> 00:59:06.890
+this page you can see all the functions
+and their description
+
+00:59:12.250 --> 00:59:17.660
+quite often when we receive input from
+the user that input comes as a string
+
+00:59:17.660 --> 00:59:21.260
+and there are times that we need to
+convert that string to a different type
+
+00:59:21.260 --> 00:59:27.410
+here is an example we have this built-in
+function input we can add a label here
+
+00:59:27.410 --> 00:59:33.280
+like X this returns the users input as a
+string so we store it in this variable
+
+00:59:33.280 --> 00:59:39.710
+now let's imagine why should be X plus 1
+now when we run this code we're gonna
+
+00:59:39.710 --> 00:59:43.430
+get an error let me show you don't run
+this using the code runner
+
+00:59:43.430 --> 00:59:47.690
+because code runner runs this code in
+the output window which is read-only so
+
+00:59:47.690 --> 00:59:52.430
+you won't be able to enter a value so
+open up the terminal by pressing ctrl +
+
+00:59:52.430 --> 00:59:59.590
+bhakti and run Python different windows
+or Python 3 if you're on Mac I've got PI
+
+00:59:59.590 --> 01:00:05.900
+let's add one here look we get this
+error type error this is happening
+
+01:00:05.900 --> 01:00:11.060
+because Python doesn't know how to
+interpret this expression because here
+
+01:00:11.060 --> 01:00:17.270
+we have two different outcomes if X is
+the string one one outcome is to convert
+
+01:00:17.270 --> 01:00:25.580
+this other operand here to a string and
+the result would be 11 the other outcome
+
+01:00:25.580 --> 01:00:31.790
+is to convert X to a number so we'll
+have 1 plus 1 and the outcome will be 2
+
+01:00:31.790 --> 01:00:36.920
+so Python doesn't know how to do type
+conversion here and that's the reason we
+
+01:00:36.920 --> 01:00:42.830
+say Python is a strongly typed language
+because it doesn't do any implicit type
+
+01:00:42.830 --> 01:00:48.080
+conversion on your behalf you have to
+explicitly tell Python how you want your
+
+01:00:48.080 --> 01:00:52.610
+objects to be converted to the right
+type Java Script on the other hand is a
+
+01:00:52.610 --> 01:00:59.210
+weakly typed language so it does perform
+implicit type conversion for you now to
+
+01:00:59.210 --> 01:01:03.890
+solve this problem we need to use one of
+the built-in type conversion functions
+
+01:01:03.890 --> 01:01:14.810
+we have int float pull and stir or
+string now in this case we don't need to
+
+01:01:14.810 --> 01:01:18.950
+use string here because we already have
+a string and there is no reason to
+
+01:01:18.950 --> 01:01:22.940
+convert a string to another but there
+are times that you may want to convert
+
+01:01:22.940 --> 01:01:27.290
+an object to your string so just be
+aware of this function now let's take a
+
+01:01:27.290 --> 01:01:32.710
+look at what this functions return
+
+01:01:33.089 --> 01:01:40.400
+and let's delayed line two because this
+is the bad boy here save the changes
+
+01:01:40.400 --> 01:01:45.709
+back in the terminal let's run the
+application one more time and enter one
+
+01:01:45.709 --> 01:01:51.929
+so here's what we get number one as an
+integer one point zero which is a float
+
+01:01:51.929 --> 01:01:59.189
+and true so int and float are pretty
+self-explanatory but bull requires a
+
+01:01:59.189 --> 01:02:03.959
+little bit more explanation because in
+Python similar to JavaScript we have
+
+01:02:03.959 --> 01:02:11.509
+this concept of truthy and falsy values
+so here are the list of false e values
+
+01:02:11.509 --> 01:02:20.640
+empty strings number zero empty lists
+and none which is an object that
+
+01:02:20.640 --> 01:02:26.640
+represents the absence of a value this
+is exactly like null in C based
+
+01:02:26.640 --> 01:02:32.309
+languages so if we have any of these
+values and we try to convert them to a
+
+01:02:32.309 --> 01:02:37.890
+boolean using the bull function the
+result will be boolean false anything
+
+01:02:37.890 --> 01:02:43.739
+else would be true let's take a look at
+a few examples so here in the
+
+01:02:43.739 --> 01:02:49.739
+interactive shell I told you that number
+zero is considered false II so when we
+
+01:02:49.739 --> 01:02:55.739
+convert it to bool we'll get false any
+other numbers are true or true the-- so
+
+01:02:55.739 --> 01:03:00.359
+here's an example
+bula one is true if we add a negative
+
+01:03:00.359 --> 01:03:07.499
+number we also get true ask for strings
+an empty string is false e so we get
+
+01:03:07.499 --> 01:03:15.929
+false any other strings is truth e so
+even if I had the string falls here the
+
+01:03:15.929 --> 01:03:20.520
+result is true because this is a non
+empty string
+
+01:03:20.520 --> 01:03:25.650
+so here are the faulty values in Python
+whenever these values are used in a
+
+01:03:25.650 --> 01:03:31.220
+boolean context they will be equivalent
+to boolean false
+
+01:03:36.710 --> 01:03:41.850
+alright now let's talk about conditional
+statements so I'm going to start by
+
+01:03:41.850 --> 01:03:49.560
+defining a variable H and sending it to
+22 now let's see if H is greater than or
+
+01:03:49.560 --> 01:03:55.350
+equal to 18 so in Python we have these
+comparison operators just like the other
+
+01:03:55.350 --> 01:04:02.670
+languages that you have worked with we
+also have equal and not equal now let's
+
+01:04:02.670 --> 01:04:07.080
+rewrite this back to greater than or
+equal to 18 now here's an interesting
+
+01:04:07.080 --> 01:04:13.620
+fact about Python in Python we don't
+have braces which means we're not gonna
+
+01:04:13.620 --> 01:04:19.170
+spend two decades fighting over where to
+put this braces shall we put them here
+
+01:04:19.170 --> 01:04:26.820
+or here no more nonsense like that it's
+over that's it no more so instead we put
+
+01:04:26.820 --> 01:04:33.120
+a colon at the end of this line now note
+that when I press ENTER this cursor is
+
+01:04:33.120 --> 01:04:39.120
+automatically indent so we use
+indentation to specify a code block here
+
+01:04:39.120 --> 01:04:45.600
+we can add a print statement adult we
+can have another print statement this is
+
+01:04:45.600 --> 01:04:50.070
+also part of this block now to terminate
+this block we simply remove the
+
+01:04:50.070 --> 01:04:56.670
+indentation now here we can have zero or
+more elseif blocks in python we call
+
+01:04:56.670 --> 01:05:04.040
+them Elif here we add another condition
+like if H is greater than or equal to 13
+
+01:05:04.040 --> 01:05:14.130
+once again we have indentation let's
+print teenager and finally optionally we
+
+01:05:14.130 --> 01:05:21.930
+can have an else block once again colon
+print with one or more statements in
+
+01:05:21.930 --> 01:05:29.730
+this case we want to print child finally
+we'll have let's say all done now note
+
+01:05:29.730 --> 01:05:35.430
+that currently we have two spaces for
+indentation but when I save the changes
+
+01:05:35.430 --> 01:05:41.040
+auto-pay page kicks in and reformat our
+code according to pay paid according to
+
+01:05:41.040 --> 01:05:45.920
+pap 8 we should use four spaces for
+indentation take a look
+
+01:05:45.920 --> 01:05:51.859
+save the changes now we have four spaces
+you can also use tabs but only if you're
+
+01:05:51.859 --> 01:05:55.910
+maintaining a code that is written with
+that style if you're starting a new
+
+01:05:55.910 --> 01:06:02.059
+project prefer four spaces as the
+standard but you cannot mix tabs and
+
+01:06:02.059 --> 01:06:05.119
+spaces in Python three that's not
+allowed
+
+01:06:05.119 --> 01:06:12.770
+now let me show you a shortcut so here
+in a new file let's just type if look at
+
+01:06:12.770 --> 01:06:18.650
+these three items with this square icon
+these are code snippets so here on
+
+01:06:18.650 --> 01:06:22.609
+if-else I press ENTER and this
+automatically generates this snippet
+
+01:06:22.609 --> 01:06:26.869
+this came with the Python extension that
+we installed at the beginning of the
+
+01:06:26.869 --> 01:06:30.770
+course so here you can change the
+condition to whatever X is greater than
+
+01:06:30.770 --> 01:06:34.280
+one
+what is this past keyword this is
+
+01:06:34.280 --> 01:06:39.440
+basically a statement that doesn't do
+anything it's here purely to fill this
+
+01:06:39.440 --> 01:06:44.420
+if block because we cannot have an empty
+if block like this I say have the
+
+01:06:44.420 --> 01:06:50.690
+changes look we have this red underlined
+here that is not valid Python code so if
+
+01:06:50.690 --> 01:06:57.369
+you want to have just an empty block you
+use the pass keyword
+
+01:07:01.700 --> 01:07:09.270
+in Python just like the other languages
+we have three logical operators we have
+
+01:07:09.270 --> 01:07:16.560
+the logical and the logical or and not
+let's take a look at a few examples so
+
+01:07:16.560 --> 01:07:21.570
+I'm gonna start by defining a variable
+name sending it to Maj now let's say
+
+01:07:21.570 --> 01:07:26.160
+this is the input that we get from the
+user we want to check to see if name is
+
+01:07:26.160 --> 01:07:32.550
+an empty string how do we do that well
+earlier I talked about the faulty values
+
+01:07:32.550 --> 01:07:41.130
+in Python so we have 0 empty of string
+nan and an empty list these are all
+
+01:07:41.130 --> 01:07:47.070
+considered false e so let's talk about
+an empty string if this is interpreted
+
+01:07:47.070 --> 01:07:54.690
+as false then if we apply the not
+operator on it will get true right
+
+01:07:54.690 --> 01:08:00.390
+so to check to see if name is an empty
+string we can simply write a statement
+
+01:08:00.390 --> 01:08:09.690
+like this if not named color that's it
+print name is empty now let's run this
+
+01:08:09.690 --> 01:08:15.060
+program obviously we don't get that
+message however if I change this to an
+
+01:08:15.060 --> 01:08:20.970
+empty string and rerun the program we
+get name is empty but what if I add a
+
+01:08:20.970 --> 01:08:25.050
+white space here
+well white space is not considered true
+
+01:08:25.050 --> 01:08:30.540
+see because it's not an empty string so
+look if I run the program we don't get
+
+01:08:30.540 --> 01:08:37.320
+the message to fix this issue we can
+simply call dot strip method to get rid
+
+01:08:37.320 --> 01:08:41.940
+of all the white space now let's run it
+one more time beautiful
+
+01:08:41.940 --> 01:08:48.030
+so this is our not operator let's take a
+look at an example of ant so I'm going
+
+01:08:48.030 --> 01:08:56.370
+to set H to 22 now let's see if H is
+greater than or equal to 18 and age is
+
+01:08:56.370 --> 01:09:06.779
+less than 65 we say you are eligible
+good pretty easy right now here
+
+01:09:06.779 --> 01:09:14.539
+a question how do we write that
+expression in math we write it like this
+
+01:09:15.409 --> 01:09:21.509
+well more accurately we should add the
+equal sign here so age is between 18 and
+
+01:09:21.509 --> 01:09:26.940
+65 right I have good news for you
+in Python you can simply write this
+
+01:09:26.940 --> 01:09:32.219
+expression that's perfectly fine this is
+what we call chaining comparison
+
+01:09:32.219 --> 01:09:37.170
+operators so we can rewrite this
+expression in a simpler and more
+
+01:09:37.170 --> 01:09:41.730
+meaningful way this is one of the
+reasons that Python is a highly popular
+
+01:09:41.730 --> 01:09:46.230
+language because the syntax is so clean
+without any clutter it's easy to
+
+01:09:46.230 --> 01:09:50.849
+understand and it comes with all these
+best practices and standards for writing
+
+01:09:50.849 --> 01:09:59.929
+clean code so let's rewrite this to 18
+like this good now let's run the program
+
+01:09:59.929 --> 01:10:05.119
+obviously this person is eligible
+
+01:10:10.520 --> 01:10:14.550
+so here we have this piece of code
+similar to what we wrote in the last
+
+01:10:14.550 --> 01:10:19.860
+lecture if the person is 18 years or
+older we set the message to eligible
+
+01:10:19.860 --> 01:10:25.440
+otherwise we set it to not eligible in C
+based languages we have this operator
+
+01:10:25.440 --> 01:10:31.260
+called ternary operator that allows us
+to rewrite this piece of code in a more
+
+01:10:31.260 --> 01:10:38.130
+compact way let me show you how that
+looks like so we set message to we add
+
+01:10:38.130 --> 01:10:42.330
+our condition so if age is greater than
+or equal to 18
+
+01:10:42.330 --> 01:10:48.050
+we add a question mark if that is true
+we set the message to eligible otherwise
+
+01:10:48.050 --> 01:10:53.760
+indicated by a colon we set it to not
+eligible if you have worked with C sharp
+
+01:10:53.760 --> 01:10:59.910
+JavaScript C++ Java you have seen this
+before if not don't worry let me show
+
+01:10:59.910 --> 01:11:05.670
+you the Python way so in Python we can
+rewrite this expression almost in plain
+
+01:11:05.670 --> 01:11:15.630
+English so message is eligible if age is
+greater than or equal to 18 otherwise
+
+01:11:15.630 --> 01:11:24.440
+it's not eligible isn't that easy so
+this is the ternary operator in Python
+
+01:11:29.530 --> 01:11:36.050
+in Python we have two types of loops so
+unlike some languages that have four or
+
+01:11:36.050 --> 01:11:40.820
+five different kinds of loops here we
+only have two types we have four loops
+
+01:11:40.820 --> 01:11:47.060
+and while loops their syntax is very
+simple and clean let me show you so we
+
+01:11:47.060 --> 01:11:51.950
+start with the four loops with four
+loops we can iterate over any object
+
+01:11:51.950 --> 01:11:58.010
+that is a trouble here are a few
+examples we can iterate over strings so
+
+01:11:58.010 --> 01:12:05.240
+for X in Python because strings in
+Python are a trouble which means we can
+
+01:12:05.240 --> 01:12:10.850
+iterate over them so in each iteration
+our loop variable X will hold one
+
+01:12:10.850 --> 01:12:15.350
+character let me show you so we
+terminate this line with a colon
+
+01:12:15.350 --> 01:12:20.900
+just like our if clauses now use
+indentation to specify the block of
+
+01:12:20.900 --> 01:12:29.030
+statements so we simply print X run the
+program this is what we get here's
+
+01:12:29.030 --> 01:12:37.070
+another example we can loop over lists
+so let's say we have a list of names a b
+
+01:12:37.070 --> 01:12:46.850
+and c colon print x there you go so we
+get ABC here now what if you want to
+
+01:12:46.850 --> 01:12:52.490
+loop over a sequence of numbers that's
+when we use the built-in range function
+
+01:12:52.490 --> 01:13:01.490
+let me show you so for x in we call the
+range function pass a number like 5 look
+
+01:13:01.490 --> 01:13:07.580
+at what happens now to keep this example
+clear I'm gonna comment out these few
+
+01:13:07.580 --> 01:13:13.660
+lines so the shortcut on Mac is command
+and slash on Windows is control slash
+
+01:13:13.660 --> 01:13:20.660
+now let's run this program
+so when we call range of 5 we get
+
+01:13:20.660 --> 01:13:28.490
+numbers 0 to 4 we can pass a starting
+number like 2 to 5 let's run this one
+
+01:13:28.490 --> 01:13:35.150
+more time so now we get to 3 4 we can
+also pass a third argument here called
+
+01:13:35.150 --> 01:13:39.340
+step let me show you so I'm going to
+change this
+
+01:13:39.340 --> 01:13:45.820
+zero to ten let's say we want to display
+all the even numbers between zero to ten
+
+01:13:45.820 --> 01:13:51.250
+so we passed two here that is our step
+now when we run the program we get zero
+
+01:13:51.250 --> 01:13:54.580
+to four and so on
+now one thing you need to understand
+
+01:13:54.580 --> 01:13:59.889
+about this range function is that it
+does not return and list let me show you
+
+01:13:59.889 --> 01:14:07.840
+so I'm gonna comment out these two lines
+as well let's just print range of 5 what
+
+01:14:07.840 --> 01:14:15.010
+do we see we see range of 0 to 5 we
+don't see a list object in contrast if
+
+01:14:15.010 --> 01:14:24.940
+we had a list like 1 2 3 4 5 see this is
+how we see a list printed in the
+
+01:14:24.940 --> 01:14:29.349
+terminal so what is returned from the
+range function is not a list it's a
+
+01:14:29.349 --> 01:14:34.869
+different kind of object it's a range
+object let me show you so here I'm gonna
+
+01:14:34.869 --> 01:14:42.210
+call the built-in type function now
+let's look at the type of this object
+
+01:14:42.210 --> 01:14:49.750
+it's an instance of a class called
+range so our range function returns a
+
+01:14:49.750 --> 01:14:56.949
+range object range objects in Python are
+iterable like strings and lists so we
+
+01:14:56.949 --> 01:15:02.020
+can use them in for loops now what is
+interesting about this range objects is
+
+01:15:02.020 --> 01:15:08.969
+that they take a very small amount of
+memory so here if we pass let's say 5
+
+01:15:08.969 --> 01:15:14.770
+billion we are not gonna get a list of 5
+billion elements you have a small object
+
+01:15:14.770 --> 01:15:20.020
+that can be iterated over in each
+iteration it will produce a new number
+
+01:15:20.020 --> 01:15:27.010
+like 1 2 3 4 and so on in contrast if we
+had a list of 5 billion items that list
+
+01:15:27.010 --> 01:15:31.270
+would take significant amount of memory
+so this is the difference between list
+
+01:15:31.270 --> 01:15:34.560
+and range objects
+
+01:15:39.810 --> 01:15:44.920
+so here we have a list of names let's
+write a simple program and check to see
+
+01:15:44.920 --> 01:15:50.980
+if you have a name that starts with J in
+this list so we can use our for loop for
+
+01:15:50.980 --> 01:16:00.610
+name in names now if name that starts
+with J perhaps we want to display a
+
+01:16:00.610 --> 01:16:07.720
+message like found now if this list has
+a million objects as soon as we find the
+
+01:16:07.720 --> 01:16:12.010
+first object we want to jump out of this
+loop we don't want to continue looping
+
+01:16:12.010 --> 01:16:17.470
+for performance reasons so this is where
+we use the break statement you have
+
+01:16:17.470 --> 01:16:20.920
+probably seen this before when python
+interpreter
+
+01:16:20.920 --> 01:16:26.140
+sees this statement it will terminate
+this iteration so now we jump out of
+
+01:16:26.140 --> 01:16:32.080
+this loop let's add another scenario to
+this program if we loop over all the
+
+01:16:32.080 --> 01:16:36.760
+names in this list and we don't find a
+name that matches our criteria perhaps
+
+01:16:36.760 --> 01:16:40.600
+we want to display a different message
+to the user like hey we couldn't find a
+
+01:16:40.600 --> 01:16:46.480
+name that starts with J so typically how
+we implement this in other programming
+
+01:16:46.480 --> 01:16:53.500
+languages is like this on the top we
+define a flag like found and set it to
+
+01:16:53.500 --> 01:17:00.400
+false then here as soon as we find an
+object that matches our criteria we set
+
+01:17:00.400 --> 01:17:10.120
+this flag to true and then after our for
+block we check to see if not found we
+
+01:17:10.120 --> 01:17:18.340
+print not found let's save the changes
+good run the program obviously we have a
+
+01:17:18.340 --> 01:17:23.320
+name that starts with J so found
+beautiful now let's change this to a
+
+01:17:23.320 --> 01:17:30.280
+John around the program not found so our
+algorithm is working properly but in
+
+01:17:30.280 --> 01:17:34.720
+Python there is a cleaner way to
+implement this scenario we don't need
+
+01:17:34.720 --> 01:17:42.460
+this found flag so let's delete it from
+here and here all we have to do is to
+
+01:17:42.460 --> 01:17:49.270
+get the same result is to change the
+statement to else so we have four else
+
+01:17:49.270 --> 01:17:53.449
+blocks
+in Python this else Clause is executed
+
+01:17:53.449 --> 01:18:00.590
+if our for loop completes successfully
+without an immediate break so if we
+
+01:18:00.590 --> 01:18:06.920
+iterate over all the objects in this
+iterable then this else Clause will be
+
+01:18:06.920 --> 01:18:14.800
+executed so now when we run this program
+we get the exact same result
+
+01:18:20.160 --> 01:18:25.180
+the other type of loose we have in
+Python our while loops so let's build a
+
+01:18:25.180 --> 01:18:32.380
+simple guessing game I'm going to define
+two variables yes set to zero and answer
+
+01:18:32.380 --> 01:18:40.870
+set to five now we can write a while
+loop like this while answer is not equal
+
+01:18:40.870 --> 01:18:45.310
+to guess
+once again : here we have indentation we
+
+01:18:45.310 --> 01:18:50.140
+can get the input from the user
+make a guess now as you know this
+
+01:18:50.140 --> 01:18:56.489
+returns a string so we need to convert
+this to an integer and then store it and
+
+01:18:56.489 --> 01:19:02.320
+the guest variable now as I told you
+before this code runner extension runs
+
+01:19:02.320 --> 01:19:07.150
+our code in the output window which is
+read-only so we cannot enter values
+
+01:19:07.150 --> 01:19:15.780
+there to fix this issue on the top let's
+go to preferences settings then click
+
+01:19:15.780 --> 01:19:21.760
+here and open settings at JSON
+now here we need to add a new setting
+
+01:19:21.760 --> 01:19:29.140
+that is code - runner that run in
+terminal by default it's false we need
+
+01:19:29.140 --> 01:19:34.810
+to set this to true save the changes now
+when we run this program using code
+
+01:19:34.810 --> 01:19:40.960
+runner it runs it in terminal so here in
+terminal window let's add a number like
+
+01:19:40.960 --> 01:19:50.350
+1 2 3 4 as soon as we enter 5 the game
+stops so this is our while loop similar
+
+01:19:50.350 --> 01:19:56.020
+to for loops we have an else block here
+we can optionally use that this is only
+
+01:19:56.020 --> 01:20:00.880
+executed if the while loop completes
+successfully without using a break
+
+01:20:00.880 --> 01:20:05.200
+statement
+you
+
+01:20:08.840 --> 01:20:15.450
+to define a function we start with the
+keyword def which is short for define or
+
+01:20:15.450 --> 01:20:21.090
+function definition here you can see we
+have a few code snippets the first one
+
+01:20:21.090 --> 01:20:24.260
+is for defining a function so just press
+Enter
+
+01:20:24.260 --> 01:20:31.080
+so here's the basic syntax we start with
+a function name like increment now press
+
+01:20:31.080 --> 01:20:37.350
+tab in parenthesis we define parameters
+if they exist in this case let's have a
+
+01:20:37.350 --> 01:20:44.730
+couple of parameters like number and why
+so we want to increment a number by a
+
+01:20:44.730 --> 01:20:49.850
+given value right also you can see in
+this line is terminated by a colon and
+
+01:20:49.850 --> 01:20:55.680
+right after that we are using
+indentation to specify the body of this
+
+01:20:55.680 --> 01:21:00.660
+function just like our if and four
+classes now we can call this function
+
+01:21:00.660 --> 01:21:06.270
+like this so increment parenthesis give
+it a couple of values like two and three
+
+01:21:06.270 --> 01:21:11.070
+now note that when I save the changes
+you're going to see two line breaks
+
+01:21:11.070 --> 01:21:16.350
+after this function so save there you go
+so you have two line breaks because
+
+01:21:16.350 --> 01:21:21.090
+that's the style that pepp eight defines
+so we should always have two line breaks
+
+01:21:21.090 --> 01:21:27.720
+after our functions now these functions
+by default return the non or a null
+
+01:21:27.720 --> 01:21:31.950
+value so even though we don't have a
+return statement here this function is
+
+01:21:31.950 --> 01:21:37.800
+still returning a value let me show you
+so print the return value of increment
+
+01:21:37.800 --> 01:21:46.400
+and run the program look we get not now
+let's return a value like number plus by
+
+01:21:46.400 --> 01:21:52.410
+run the program again now we get five
+beautiful in Python unlike many other
+
+01:21:52.410 --> 01:21:57.060
+languages out there we can return
+multiple values from our functions we
+
+01:21:57.060 --> 01:22:02.370
+simply put them in parentheses so here
+we add parentheses let's say we want to
+
+01:22:02.370 --> 01:22:08.270
+return the original number as well as
+the updated number so number comma
+
+01:22:08.270 --> 01:22:15.390
+number plus PI now let's see what we get
+when we run this program serve run it so
+
+01:22:15.390 --> 01:22:19.590
+in parentheses we get two which is the
+original number and
+
+01:22:19.590 --> 01:22:24.960
+the updated number what is this this is
+what we call a top-up which is basically
+
+01:22:24.960 --> 01:22:31.710
+a read-only list so earlier in the
+course you have seen lists like numbers
+
+01:22:31.710 --> 01:22:37.230
+we use square brackets 1 2 3 this is a
+list we can add new objects to it we can
+
+01:22:37.230 --> 01:22:43.050
+remove existing objects a topple is like
+a list but we cannot modify it so we
+
+01:22:43.050 --> 01:22:47.700
+cannot add new objects to it we cannot
+remove existing objects now to convert
+
+01:22:47.700 --> 01:22:53.820
+this list with topple we use parentheses
+instead of square brackets okay
+
+01:22:53.820 --> 01:23:00.210
+delete another useful feature we have
+here is called keyword arguments so
+
+01:23:00.210 --> 01:23:04.620
+currently if someone looks at this code
+they may not be able to tell what
+
+01:23:04.620 --> 01:23:09.900
+exactly these arguments are for we can
+use keyword arguments to make our code
+
+01:23:09.900 --> 01:23:16.290
+more readable for example here we can
+prefix the second argument with
+
+01:23:16.290 --> 01:23:22.140
+something like this by equals now we can
+read this code like plain English
+
+01:23:22.140 --> 01:23:28.410
+increment two by three so this is what
+we call a keyword argument it's just a
+
+01:23:28.410 --> 01:23:33.720
+way to make our code more readable also
+similar to a lot of languages out there
+
+01:23:33.720 --> 01:23:39.030
+we can assign default values to these
+parameters for example we can set a
+
+01:23:39.030 --> 01:23:44.940
+default value for the by parameter so
+now we don't have to pass a second
+
+01:23:44.940 --> 01:23:51.150
+argument here and when we run this
+program the value of y will be set to 1
+
+01:23:51.150 --> 01:23:56.490
+by default and one last thing before we
+finish this lecture earlier I talked
+
+01:23:56.490 --> 01:24:02.070
+about type annotation or type hinting we
+can use that feature in our functions as
+
+01:24:02.070 --> 01:24:07.170
+well so here we can annotate these
+parameters as well as the increment
+
+01:24:07.170 --> 01:24:16.950
+function itself so here we had : int for
+integer and here also : int and finally
+
+01:24:16.950 --> 01:24:22.260
+for the function itself before this :
+that terminus this line we need to add
+
+01:24:22.260 --> 01:24:29.720
+an arrow and then we'll add the return
+type of this function so integer as well
+
+01:24:29.720 --> 01:24:33.600
+now in this case we have a red underline
+here we
+
+01:24:33.600 --> 01:24:39.060
+i annotated this function to return an
+integer but I'm returning a topple so
+
+01:24:39.060 --> 01:24:46.970
+more accurately this should be topple
+save the changes and the error is gone
+
+01:24:52.260 --> 01:24:57.280
+there are times that you may want to
+pass an arbitrary number of arguments to
+
+01:24:57.280 --> 01:25:03.430
+a function here is an example let's say
+we have a function called multiply that
+
+01:25:03.430 --> 01:25:09.520
+currently takes two parameters a and B
+and this function would simply return a
+
+01:25:09.520 --> 01:25:14.850
+times B and then we can call it like
+this
+
+01:25:14.850 --> 01:25:20.190
+so far so good but what if you want to
+pass a variable number of arguments here
+
+01:25:20.190 --> 01:25:29.010
+like four and five well one way is to
+put these arguments in a list then we
+
+01:25:29.010 --> 01:25:34.440
+need to replace these two parameters
+with a list and we should also change
+
+01:25:34.440 --> 01:25:39.090
+the implementation of this function here
+we need a loop to iterate over this list
+
+01:25:39.090 --> 01:25:46.290
+and multiply all its elements that is
+perfectly fine however this syntax is a
+
+01:25:46.290 --> 01:25:50.120
+little bit noisy
+wouldn't that be nicer if we could pass
+
+01:25:50.120 --> 01:25:56.310
+these numbers or these arguments here
+without these additional square brackets
+
+01:25:56.310 --> 01:26:02.520
+let me show you how to do this so all we
+have to do is to prefix this parameter
+
+01:26:02.520 --> 01:26:11.220
+with an asterisk now let's print list
+and see what we get when we call the
+
+01:26:11.220 --> 01:26:17.430
+multiply function so save the changes
+run the program what do we get here we
+
+01:26:17.430 --> 01:26:21.750
+get a top hole because of these
+parentheses so when we add an asterisk
+
+01:26:21.750 --> 01:26:28.080
+before a parameter Python will see that
+parameter as a topple so when we pass an
+
+01:26:28.080 --> 01:26:33.420
+arbitrary number of arguments Python
+will automatically package them into a
+
+01:26:33.420 --> 01:26:37.260
+topple
+as I told you before a topple is like a
+
+01:26:37.260 --> 01:26:42.900
+list so we can loop over it get all the
+numbers and multiply them together let
+
+01:26:42.900 --> 01:26:48.420
+me show you real quick so we start by
+defining a variable total we set it to
+
+01:26:48.420 --> 01:26:57.600
+one next with a loop so for number in
+list : here we simply do total times
+
+01:26:57.600 --> 01:27:07.290
+equal number and finally we return total
+the changes good run the program
+
+01:27:07.290 --> 01:27:12.630
+actually I forgot to print the results
+so let's print it here run it one more
+
+01:27:12.630 --> 01:27:16.040
+time so here's the total
+
+01:27:21.200 --> 01:27:26.400
+in the last lecture you'll learn about
+the syntax for passing a variable number
+
+01:27:26.400 --> 01:27:31.170
+of arguments to a function we have a
+variation of this syntax and that's what
+
+01:27:31.170 --> 01:27:36.360
+I'm gonna show you in this lecture so
+let's start by defining a function call
+
+01:27:36.360 --> 01:27:43.650
+it save user here we add one parameter
+user but instead of one asterisk we use
+
+01:27:43.650 --> 01:27:49.230
+double asterisks
+so first let's print this user parameter
+
+01:27:49.230 --> 01:27:56.730
+here and see what we get when we call
+this function so save underline user now
+
+01:27:56.730 --> 01:28:01.260
+instead of passing an arbitrary number
+of arguments here we should pass an
+
+01:28:01.260 --> 01:28:06.690
+arbitrary number of keyword arguments
+remember keyword arguments name a codes
+
+01:28:06.690 --> 01:28:12.420
+value so here we can pass multiple
+properties about a user for example we
+
+01:28:12.420 --> 01:28:20.190
+can pass ID equals 1 name equals admin
+and so on so here we have two keyword
+
+01:28:20.190 --> 01:28:24.800
+arguments let's run this program and see
+what we get when we call this function
+
+01:28:24.800 --> 01:28:32.100
+I'll save the changes and run this is
+what we get look at the syntax here we
+
+01:28:32.100 --> 01:28:38.880
+have curly braces and in between them we
+have multiple key value pairs here's the
+
+01:28:38.880 --> 01:28:42.960
+first one here is the second one this is
+what we call a dictionary
+
+01:28:42.960 --> 01:28:46.770
+if you're a JavaScript developer this
+syntax is familiar too
+
+01:28:46.770 --> 01:28:51.450
+this is like an object in JavaScript now
+if you're not familiar with JavaScript
+
+01:28:51.450 --> 01:28:56.520
+objects or dictionaries in general
+don't worry later in the course you have
+
+01:28:56.520 --> 01:29:00.990
+a comprehensive section about data
+structures in Python and there I'm gonna
+
+01:29:00.990 --> 01:29:08.400
+cover lists tuples dictionaries and so
+on now to finish up this example here we
+
+01:29:08.400 --> 01:29:14.250
+can use square bracket notation to get
+the ID or name of a user let's run this
+
+01:29:14.250 --> 01:29:22.160
+program one more time so ID is 1 and
+name is admin beautiful
+
+01:29:26.930 --> 01:29:33.090
+in Python we have two types of variables
+local variables with the function scope
+
+01:29:33.090 --> 01:29:38.580
+and global variables with the file scope
+so in this example this message variable
+
+01:29:38.580 --> 01:29:43.230
+is a local variable in the greet
+function its scope is the greet function
+
+01:29:43.230 --> 01:29:47.580
+so we can access it anywhere in this
+function now in Python
+
+01:29:47.580 --> 01:29:51.900
+unlike languages like C sharp or
+JavaScript we don't have block level
+
+01:29:51.900 --> 01:29:57.450
+scope so if we define this variable
+inside of an if block it is still
+
+01:29:57.450 --> 01:30:03.570
+accessible outside of that block let me
+show you so here I'm gonna add if true
+
+01:30:03.570 --> 01:30:09.390
+colon inside of this if block you're
+defining the message variable but still
+
+01:30:09.390 --> 01:30:15.900
+accessible outside of the if block so
+here we can print message the same
+
+01:30:15.900 --> 01:30:21.360
+applies if we have a loop here a for
+loop or a while loop so in Python we
+
+01:30:21.360 --> 01:30:26.160
+don't have block level scope no matter
+where we define a variable in a function
+
+01:30:26.160 --> 01:30:31.740
+it is always accessible in that function
+after it is defined so that's all about
+
+01:30:31.740 --> 01:30:37.860
+our local variables now let's talk about
+global variables if we put this message
+
+01:30:37.860 --> 01:30:43.560
+variable outside of this function now
+it's a global variable so it's
+
+01:30:43.560 --> 01:30:47.940
+accessible anywhere in this point in any
+functions so here in the greet function
+
+01:30:47.940 --> 01:30:54.840
+we can print it on the terminal let's
+take a look so here recall greet run the
+
+01:30:54.840 --> 01:31:00.540
+program we get a now let me show you
+something interesting here the greet
+
+01:31:00.540 --> 01:31:05.910
+function I'm gonna assign a new value to
+the message variable let's set it to be
+
+01:31:05.910 --> 01:31:13.530
+run the program again obviously we get B
+however if I bring this print statement
+
+01:31:13.530 --> 01:31:19.740
+outside of this function and run the
+program again let's see what happens we
+
+01:31:19.740 --> 01:31:24.600
+get a what's going on here didn't we
+change the value of the message variable
+
+01:31:24.600 --> 01:31:31.200
+not really in this case this message
+variable becomes a local variable in the
+
+01:31:31.200 --> 01:31:36.270
+greet function because by default python
+enforces good programming practices as
+
+01:31:36.270 --> 01:31:40.469
+you probably know
+global variables are evil we shouldn't
+
+01:31:40.469 --> 01:31:44.519
+change them in a function because this
+can cause a side effect in other
+
+01:31:44.519 --> 01:31:48.149
+functions so in this case when python
+interpreter
+
+01:31:48.149 --> 01:31:53.699
+sees line 5 it will create a new local
+variable called message even though it
+
+01:31:53.699 --> 01:31:58.559
+has the same name as our global variable
+on line 1 these two are completely
+
+01:31:58.559 --> 01:32:03.659
+separate now I've seen some tutorials
+and books teaching you bad programming
+
+01:32:03.659 --> 01:32:09.419
+practices they show you how to modify
+the value of a global variable inside of
+
+01:32:09.419 --> 01:32:15.389
+a function so this is how we do it we
+use the global keyword and reference the
+
+01:32:15.389 --> 01:32:20.459
+message variable when Python interpreter
+sees this it will realize that in this
+
+01:32:20.459 --> 01:32:25.530
+function we don't want to create a local
+variable we want to use the global
+
+01:32:25.530 --> 01:32:30.899
+message variable that we defined earlier
+now if we run this code instead of a
+
+01:32:30.899 --> 01:32:36.989
+we're gonna get B because the changes
+will be visible after we exit this
+
+01:32:36.989 --> 01:32:42.119
+function and that is the reason I said
+you should avoid using global variables
+
+01:32:42.119 --> 01:32:46.769
+or if you really want to use them make
+sure not to modify them inside of a
+
+01:32:46.769 --> 01:32:51.329
+function because this can create a side
+effect in other functions maybe other
+
+01:32:51.329 --> 01:32:56.789
+functions rely on the original value of
+that variable so avoid using the global
+
+01:32:56.789 --> 01:33:01.609
+statement it's a bad practice it's evil
+
+01:33:06.989 --> 01:33:12.460
+alright let's finish up this section by
+looking at debugging in vs Co so I had
+
+01:33:12.460 --> 01:33:17.079
+this simple program with this multiply
+function that we talked about earlier if
+
+01:33:17.079 --> 01:33:20.199
+you want to follow along with me head
+over to bit
+
+01:33:20.199 --> 01:33:27.300
+Dudley /pi gist GIS T
+
+01:33:27.570 --> 01:33:33.389
+here on github you can see my guest
+simply copy paste this code we're going
+
+01:33:33.389 --> 01:33:38.610
+to use this code to explore debug in vs
+Co so below this function we have three
+
+01:33:38.610 --> 01:33:44.130
+statements to print start the result of
+calling the multiply function and print
+
+01:33:44.130 --> 01:33:49.920
+finish so to start debugging first we
+need to add a breakpoint so here on line
+
+01:33:49.920 --> 01:33:54.599
+eight you can use your mouse to put a
+breakpoint here or if you have taken any
+
+01:33:54.599 --> 01:33:58.739
+of my courses before you know that I
+always put a lot of emphasis on using
+
+01:33:58.739 --> 01:34:02.849
+your keyboard because professional
+developers use their keyboard not their
+
+01:34:02.849 --> 01:34:08.159
+mouse
+so using f9 you can add or remove a
+
+01:34:08.159 --> 01:34:15.869
+breakpoint now open up the debugging
+panel here on the top click this icon
+
+01:34:15.869 --> 01:34:22.139
+here this will create a JSON file called
+launch that JSON with a bunch of
+
+01:34:22.139 --> 01:34:28.500
+configuration for debugging you can see
+this file in the project folder inside
+
+01:34:28.500 --> 01:34:33.420
+of this vs code folder here is launched
+at JSON now you never have to touch this
+
+01:34:33.420 --> 01:34:38.340
+file we just have to create it the first
+time now let's close this back to the
+
+01:34:38.340 --> 01:34:43.560
+debugging panel now after this file is
+created in this drop-down list you can
+
+01:34:43.560 --> 01:34:49.710
+see various configuration options for a
+debugging session from this list select
+
+01:34:49.710 --> 01:34:55.020
+python current file integrated terminal
+so we're going to debug the current file
+
+01:34:55.020 --> 01:35:00.449
+in the terminal that is integrated
+inside of vs code there is also another
+
+01:35:00.449 --> 01:35:08.329
+one with an external terminal now to
+start a debugging session press f5
+
+01:35:08.329 --> 01:35:12.380
+so here on the right side you can see my
+integrated terminal I'm going to close
+
+01:35:12.380 --> 01:35:17.510
+this because it's cluttering the view so
+so here is the breakpoint activate it
+
+01:35:17.510 --> 01:35:23.150
+now we are on this line we can step over
+eight by pressing f10 if you're on a Mac
+
+01:35:23.150 --> 01:35:26.929
+keyboard you should hold the function
+key that is on the bottom left corner of
+
+01:35:26.929 --> 01:35:32.960
+your keyboard so step over now on line 9
+we are calling a function so we want to
+
+01:35:32.960 --> 01:35:40.429
+step into this function to see what is
+going on there for this press f11 now
+
+01:35:40.429 --> 01:35:44.960
+here we are inside of the multiply
+function on the left side inside the
+
+01:35:44.960 --> 01:35:49.610
+variables panel you can see the
+variables that are local in this scope
+
+01:35:49.610 --> 01:35:55.099
+so we have numbers which is the argument
+passed to this function let's step over
+
+01:35:55.099 --> 01:36:00.760
+one more time at f10 now we are at the
+beginning of our loop one more time f10
+
+01:36:00.760 --> 01:36:04.940
+now at this point you can see a few
+other variables here so we have our
+
+01:36:04.940 --> 01:36:10.730
+total we have the current number that is
+picked in this iteration you can also
+
+01:36:10.730 --> 01:36:14.599
+create watches here if you want to look
+at the value of a variable that is not
+
+01:36:14.599 --> 01:36:19.130
+listed in this panel now let's say you
+inspected all the variables and you want
+
+01:36:19.130 --> 01:36:24.099
+to step out of this function to do that
+press shift and f11
+
+01:36:24.099 --> 01:36:31.699
+now we are out back on line 9 f10 one
+more time and one more time and the
+
+01:36:31.699 --> 01:36:35.110
+debugging session is finished
+
+01:36:40.829 --> 01:36:45.639
+alright let's finish up this section by
+looking at a few very useful shortcuts
+
+01:36:45.639 --> 01:36:50.110
+for writing code fast first I'm going to
+show you the shortcuts for Windows users
+
+01:36:50.110 --> 01:36:54.250
+and in the next lecture we will look at
+the shortcuts for Mac so if you're a Mac
+
+01:36:54.250 --> 01:36:59.110
+user feel free to skip this lecture so
+here we are on line 9 and my cursor is
+
+01:36:59.110 --> 01:37:02.829
+right at the beginning of the line let's
+say you want to move the cursor to the
+
+01:37:02.829 --> 01:37:07.150
+end of the line instead of pressing the
+right arrow to go all the way to the end
+
+01:37:07.150 --> 01:37:12.610
+we can simply press the end key and here
+is the cursor or if you want to move the
+
+01:37:12.610 --> 01:37:17.250
+cursor to the beginning of the line
+simply press the HOME key there you go
+
+01:37:17.250 --> 01:37:21.849
+similarly if you want to move the cursor
+to the beginning of the file press ctrl
+
+01:37:21.849 --> 01:37:29.079
++ home here it is or ctrl + end/2 go to
+the end of the file now let's say we
+
+01:37:29.079 --> 01:37:33.730
+want to move this line up instead of
+cutting it from here and then copying it
+
+01:37:33.730 --> 01:37:40.960
+somewhere else we can simply move it up
+by pressing Alt + the up or down arrows
+
+01:37:40.960 --> 01:37:45.639
+or if you want to move these two lines
+up and down simply select them then hold
+
+01:37:45.639 --> 01:37:51.280
+alt and then up or down very easy now if
+you want to duplicate a line or multiple
+
+01:37:51.280 --> 01:37:58.719
+lines simply select them now hold down
+shift alt and then press a down key we
+
+01:37:58.719 --> 01:38:03.969
+can duplicate it as many times as you
+want there you go here's another useful
+
+01:38:03.969 --> 01:38:08.050
+shortcut if you want to convert this
+line or maybe these two lines into a
+
+01:38:08.050 --> 01:38:14.500
+comment simply hold down control and
+press slash using the same shortcut you
+
+01:38:14.500 --> 01:38:19.360
+can remove the comment so you can toggle
+it very easy and finally if you want to
+
+01:38:19.360 --> 01:38:24.130
+type the name of a variable or a
+function like multiplied you don't have
+
+01:38:24.130 --> 01:38:29.500
+to type all characters here are a few
+ways to type this quickly we can just
+
+01:38:29.500 --> 01:38:34.150
+type the first few characters and here
+in the intellisense you can see that so
+
+01:38:34.150 --> 01:38:37.360
+if you press ENTER this is what we call
+auto-completion
+
+01:38:37.360 --> 01:38:43.510
+here's another way so instead of writing
+the first few letters you can just pick
+
+01:38:43.510 --> 01:38:51.480
+any letters in sequence and type them so
+I can type mty or I can just type mpy or
+
+01:38:51.480 --> 01:38:56.400
+why there you go here it is so I hope
+you enjoyed these shortcuts and thank
+
+01:38:56.400 --> 01:38:58.790
+you for watching
+
+01:39:04.320 --> 01:39:09.370
+alright now let's take a look at the
+shortcuts for a Mac keyboard so here we
+
+01:39:09.370 --> 01:39:14.110
+are on line 9 and my cursor is right at
+the beginning of the line if you want to
+
+01:39:14.110 --> 01:39:18.219
+move the cursor to the end of the line
+instead of using the right arrow to go
+
+01:39:18.219 --> 01:39:24.190
+all the way simply hold down the
+function key and press right here it is
+
+01:39:24.190 --> 01:39:29.130
+or you can press function and left to
+jump to the beginning of the line
+
+01:39:29.130 --> 01:39:35.260
+similarly you can press function and up
+to go to the top of the file or function
+
+01:39:35.260 --> 01:39:40.840
+and down to jump to the end of the file
+pretty useful now let's say you want to
+
+01:39:40.840 --> 01:39:45.489
+move this line up instead of cutting it
+from here and then copying it somewhere
+
+01:39:45.489 --> 01:39:50.739
+else you can simply move it up by
+holding down alt or option and then
+
+01:39:50.739 --> 01:39:57.070
+pressing the up arrow or down very easy
+or we can select these two lines hold
+
+01:39:57.070 --> 01:40:00.989
+down the alt or option key move it up or
+down
+
+01:40:00.989 --> 01:40:05.830
+here's another useful shortcut we can
+convert these two lines into a comment
+
+01:40:05.830 --> 01:40:10.960
+by pressing command and slash and then
+we can remove the comment using the same
+
+01:40:10.960 --> 01:40:16.510
+shortcut so we can toggle it and finally
+if you want to type the name of a
+
+01:40:16.510 --> 01:40:21.120
+variable or a function like multiply you
+don't have to type all the letters like
+
+01:40:21.120 --> 01:40:27.250
+multiply that is very slow you can type
+the first few letters like mult and here
+
+01:40:27.250 --> 01:40:31.960
+in the intellisense you can see it's
+selected so press Enter or you can pick
+
+01:40:31.960 --> 01:40:39.400
+any characters in sequence and type them
+like mty here it is or we can type an py
+
+01:40:39.400 --> 01:40:45.910
+or m TP so you can abbreviate it any way
+you want I hope you enjoyed these
+
+01:40:45.910 --> 01:40:49.710
+shortcuts and thank you for watching
+
+01:40:55.420 --> 01:41:00.710
+one of the questions that often comes in
+programming interviews is the fizzbuzz
+
+01:41:00.710 --> 01:41:04.880
+algorithm you might be surprised that
+there are a lot of developers out there
+
+01:41:04.880 --> 01:41:09.199
+with even years of experience but they
+don't know how to solve this simple
+
+01:41:09.199 --> 01:41:14.239
+programming problem that's why I decided
+to include this in my course so let's
+
+01:41:14.239 --> 01:41:18.739
+see how this algorithm works and then
+you can spend 10 to 15 minutes on this
+
+01:41:18.739 --> 01:41:24.170
+exercise on your own so here we have a
+function fizz buzz that takes an input
+
+01:41:24.170 --> 01:41:29.900
+and depending on the input we give it it
+returns different results here are the
+
+01:41:29.900 --> 01:41:35.570
+rules if the input that we give it is
+divisible by 3 it will return the string
+
+01:41:35.570 --> 01:41:40.449
+fist let me show you so we run this
+program we get fizz
+
+01:41:40.449 --> 01:41:45.830
+if the input is divisible by 5 it will
+return buzz
+
+01:41:45.830 --> 01:41:52.639
+take a look here's buzz now the third
+rule if the input is divisible by both 3
+
+01:41:52.639 --> 01:42:02.420
+and 5 it will return fizzbuzz so let's
+pass 15 here we'll get fizzbuzz for any
+
+01:42:02.420 --> 01:42:08.179
+other numbers it will return the same
+input so if I pass 7 it's not divisible
+
+01:42:08.179 --> 01:42:17.000
+by 3 or 5 it will return 7 itself so
+spend 10 to 15 minutes on this exercise
+
+01:42:17.000 --> 01:42:20.860
+you will see my solution next
+
+01:42:25.590 --> 01:42:30.159
+all right let's see how we can solve
+this problem so we get the input and
+
+01:42:30.159 --> 01:42:37.840
+check to see if input is divisible by 3
+then we can set a variable like result
+
+01:42:37.840 --> 01:42:42.010
+to phase
+now let me temporarily simplify these
+
+01:42:42.010 --> 01:42:46.749
+rules because I want to show you a
+really cool technique so let's imagine
+
+01:42:46.749 --> 01:42:52.239
+if the input is divisible by 3
+we'll return fizz otherwise we'll return
+
+01:42:52.239 --> 01:43:01.840
+bus so elves : we set the result to buzz
+and finally we'll return this result
+
+01:43:01.840 --> 01:43:06.560
+variable
+this is one way to implement these rules
+
+01:43:06.560 --> 01:43:10.790
+but it's not the best way there is a
+better and cleaner way let me show you
+
+01:43:10.790 --> 01:43:16.250
+so instead of defining this result
+variable and then returning it we can
+
+01:43:16.250 --> 01:43:24.860
+simply return this string here and also
+here and then we can get rid of line six
+
+01:43:24.860 --> 01:43:30.890
+so we remove one unnecessary line of
+code this was one technique the other
+
+01:43:30.890 --> 01:43:36.260
+technique I want to show you is when you
+have an if statement and in your if
+
+01:43:36.260 --> 01:43:38.750
+block
+you're returning a value you don't
+
+01:43:38.750 --> 01:43:45.500
+really need an else clause because if
+this condition is evaluated to false the
+
+01:43:45.500 --> 01:43:50.600
+control moves to the else clause and all
+we're doing here is returning a
+
+01:43:50.600 --> 01:43:55.580
+different value so this is the only
+possible outcome so here we can remove
+
+01:43:55.580 --> 01:44:03.050
+this else clause and simply return bus
+so with this technique I remove an
+
+01:44:03.050 --> 01:44:08.780
+unnecessary indentation as well I've
+made our code more linear okay now let's
+
+01:44:08.780 --> 01:44:13.340
+go back to our original algorithm so if
+the input is divisible by three we'll
+
+01:44:13.340 --> 01:44:18.980
+return fizz now we check to see if the
+input is divisible by five we'll return
+
+01:44:18.980 --> 01:44:25.850
+buzz so here we don't really need an
+Elif because if this condition is false
+
+01:44:25.850 --> 01:44:31.700
+we'll get here anyway
+so we can check if input is divisible by
+
+01:44:31.700 --> 01:44:39.140
+five we will return buzz once again if
+this condition is false the control
+
+01:44:39.140 --> 01:44:46.760
+moves here now we check to see if the
+input is divisible by three and it is
+
+01:44:46.760 --> 01:44:55.610
+also divisible by five then we will
+return fizz buzz now this expression is
+
+01:44:55.610 --> 01:45:00.320
+a little bit long I would prefer to make
+it more readable by putting parentheses
+
+01:45:00.320 --> 01:45:09.230
+around the first and second parts like
+this that is cleaner now if this
+
+01:45:09.230 --> 01:45:13.970
+condition is also false the control
+moves here that means our number is not
+
+01:45:13.970 --> 01:45:17.770
+divisible by three or five so we should
+simply return
+
+01:45:17.770 --> 01:45:23.400
+input once again we don't need an else
+or another if we simply return the input
+
+01:45:23.400 --> 01:45:28.600
+now let's run this program and see if
+it's working properly or not so we call
+
+01:45:28.600 --> 01:45:35.560
+our function with three and we get fizz
+beautiful let's call it with five we get
+
+01:45:35.560 --> 01:45:42.730
+Buzz perfect what if we call it with 15
+we should get fizz bus however we get
+
+01:45:42.730 --> 01:45:47.800
+fees what is going on here the reason
+this happened was because when we pass
+
+01:45:47.800 --> 01:45:53.440
+15 here line two is executed
+obviously 15 is divisible by three so
+
+01:45:53.440 --> 01:45:59.290
+that is why we immediately return fizz
+to solve this problem we need to move
+
+01:45:59.290 --> 01:46:04.480
+this condition which is more specific to
+the top so I've selected these two lines
+
+01:46:04.480 --> 01:46:11.140
+using alt + up I move these lines up
+beautiful all right now let's run the
+
+01:46:11.140 --> 01:46:16.030
+program one more time
+so we get fizzbuzz once again let's test
+
+01:46:16.030 --> 01:46:22.240
+it with three now we get fares let's
+test it with five when writing functions
+
+01:46:22.240 --> 01:46:26.050
+don't assume that your function is
+working make sure to test it with all
+
+01:46:26.050 --> 01:46:31.330
+different kinds of values let's test it
+with five we get Buzz beautiful what if
+
+01:46:31.330 --> 01:46:37.840
+you pass seven which is not divisible by
+three or five we get seven beautiful so
+
+01:46:37.840 --> 01:46:42.100
+what you see here is the simplest and
+most elegant implementation of the
+
+01:46:42.100 --> 01:46:46.570
+fizzbuzz algorithm and that brings us to
+the end of this section in the next
+
+01:46:46.570 --> 01:46:49.780
+lecture we're going to explore data
+structures in Python
+
+01:46:49.780 --> 01:46:54.940
+you're going to learn about lists tuples
+sets and dictionaries I hope you enjoyed
+
+01:46:54.940 --> 01:46:59.110
+this section and thank you for watching
+
+01:46:59.110 --> 01:47:05.500
+you
+
+01:47:05.500 --> 01:47:09.250
+you made it this far and that makes me
+think that you're really enthusiastic
+
+01:47:09.250 --> 01:47:14.140
+about learning Python so I highly
+encourage you to enroll in my complete
+
+01:47:14.140 --> 01:47:18.580
+Python course where we go way beyond
+this crash course you will learn how to
+
+01:47:18.580 --> 01:47:23.040
+use Python in real-world scenarios such
+as data analysis and visualization
+
+01:47:23.040 --> 01:47:28.290
+automating repetitive boring tasks that
+involve working with files and folders
+
+01:47:28.290 --> 01:47:34.840
+spreadsheets PDFs data compression
+sending emails web crawling consuming
+
+01:47:34.840 --> 01:47:39.910
+api's and much much more this course
+comes with a 30 day no questions asked
+
+01:47:39.910 --> 01:47:44.500
+money back guarantee and a certificate
+of completion if you're interested click
+
+01:47:44.500 --> 01:47:48.550
+the link below this video to access the
+course once again thank you for watching
+
+01:47:48.550 --> 01:47:52.840
+please support me by liking and sharing
+this video and also subscribe to my
+
+01:47:52.840 --> 01:47:59.400
+channel to get free new videos every
+week thank you and have a great day
+

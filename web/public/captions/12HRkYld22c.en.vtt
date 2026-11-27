@@ -1,0 +1,2068 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:00.000 --> 00:00:01.550 align:start position:0%
+ 
+If <00:00:00.255><c>you've </c><00:00:00.510><c>heard </c><00:00:00.765><c>of </c><00:00:01.020><c>object-oriented</c>
+
+00:00:01.550 --> 00:00:01.560 align:start position:0%
+If you've heard of object-oriented
+ 
+
+00:00:01.560 --> 00:00:02.869 align:start position:0%
+If you've heard of object-oriented
+programming <00:00:01.919><c>in </c><00:00:02.278><c>any </c><00:00:02.637><c>language,</c>
+
+00:00:02.869 --> 00:00:02.879 align:start position:0%
+programming in any language,
+ 
+
+00:00:02.879 --> 00:00:04.010 align:start position:0%
+programming in any language,
+you'll
+
+00:00:04.010 --> 00:00:04.020 align:start position:0%
+you'll
+ 
+
+00:00:04.020 --> 00:00:05.809 align:start position:0%
+you'll
+know <00:00:04.320><c>about </c><00:00:04.620><c>constructors. </c><00:00:04.920><c>If </c><00:00:05.220><c>you </c><00:00:05.520><c>have</c>
+
+00:00:05.809 --> 00:00:05.819 align:start position:0%
+know about constructors. If you have
+ 
+
+00:00:05.819 --> 00:00:07.369 align:start position:0%
+know about constructors. If you have
+n't, <00:00:06.083><c>I'd </c><00:00:06.347><c>like </c><00:00:06.611><c>to </c><00:00:06.875><c>tell </c><00:00:07.139><c>you</c>
+
+00:00:07.369 --> 00:00:07.379 align:start position:0%
+n't, I'd like to tell you
+ 
+
+00:00:07.379 --> 00:00:09.470 align:start position:0%
+n't, I'd like to tell you
+that <00:00:07.859><c>constructors </c><00:00:08.339><c>help </c><00:00:08.819><c>create </c><00:00:09.299><c>objects.</c>
+
+00:00:09.470 --> 00:00:09.480 align:start position:0%
+that constructors help create objects.
+ 
+
+00:00:09.480 --> 00:00:10.970 align:start position:0%
+that constructors help create objects.
+Sometimes <00:00:10.920><c>we</c>
+
+00:00:10.970 --> 00:00:12.709 align:start position:0%
+Sometimes we
+ 
+
+00:00:12.709 --> 00:00:12.719 align:start position:0%
+ 
+ 
+
+00:00:12.719 --> 00:00:14.930 align:start position:0%
+ 
+want <00:00:12.899><c>to </c><00:00:13.079><c>create </c><00:00:13.259><c>objects </c><00:00:13.439><c>by </c><00:00:13.619><c>passing </c><00:00:13.799><c>arguments, </c><00:00:13.979><c>and </c><00:00:14.159><c>in </c><00:00:14.339><c>such </c><00:00:14.519><c>cases, </c><00:00:14.699><c>constructors</c>
+
+00:00:14.930 --> 00:00:14.940 align:start position:0%
+want to create objects by passing arguments, and in such cases, constructors
+ 
+
+00:00:14.940 --> 00:00:17.150 align:start position:0%
+want to create objects by passing arguments, and in such cases, constructors
+help <00:00:15.450><c>us </c><00:00:15.960><c>perform </c><00:00:16.470><c>some </c><00:00:16.980><c>initialization.</c>
+
+00:00:17.150 --> 00:00:17.160 align:start position:0%
+help us perform some initialization.
+ 
+
+00:00:17.160 --> 00:00:18.590 align:start position:0%
+help us perform some initialization.
+Exactly <00:00:17.520><c>what </c><00:00:17.880><c>the </c><00:00:18.240><c>syntax </c><00:00:18.600><c>is,</c>
+
+00:00:18.590 --> 00:00:18.600 align:start position:0%
+Exactly what the syntax is,
+ 
+
+00:00:18.600 --> 00:00:21.050 align:start position:0%
+Exactly what the syntax is,
+what <00:00:18.951><c>an </c><00:00:19.302><c>underscore </c><00:00:19.653><c>in </c><00:00:20.004><c>a </c><00:00:20.355><c>binary </c><00:00:20.706><c>method </c><00:00:21.057><c>is,</c>
+
+00:00:21.050 --> 00:00:21.060 align:start position:0%
+what an underscore in a binary method is,
+ 
+
+00:00:21.060 --> 00:00:23.029 align:start position:0%
+what an underscore in a binary method is,
+all <00:00:21.195><c>of </c><00:00:21.330><c>this </c><00:00:21.465><c>is </c><00:00:21.600><c>going </c><00:00:21.735><c>to </c><00:00:21.870><c>be </c><00:00:22.005><c>seen </c><00:00:22.140><c>in </c><00:00:22.275><c>this </c><00:00:22.410><c>video </c><00:00:22.545><c>on </c><00:00:22.680><c>the</c>
+
+00:00:23.029 --> 00:00:23.039 align:start position:0%
+all of this is going to be seen in this video on the
+ 
+
+00:00:23.039 --> 00:00:24.590 align:start position:0%
+all of this is going to be seen in this video on the
+computer <00:00:23.519><c>screen. </c><00:00:23.999><c>Let's </c><00:00:24.479><c>get</c>
+
+00:00:24.590 --> 00:00:24.600 align:start position:0%
+computer screen. Let's get
+ 
+
+00:00:24.600 --> 00:00:26.050 align:start position:0%
+computer screen. Let's get
+started.
+
+00:00:26.050 --> 00:00:26.060 align:start position:0%
+started.
+ 
+
+00:00:26.060 --> 00:00:34.190 align:start position:0%
+started.
+[Music]
+
+00:00:34.190 --> 00:00:34.200 align:start position:0%
+[Music]
+ 
+
+00:00:34.200 --> 00:00:36.110 align:start position:0%
+[Music]
+So, <00:00:34.536><c>in </c><00:00:34.872><c>the </c><00:00:35.208><c>previous </c><00:00:35.544><c>video, </c><00:00:35.880><c>we</c>
+
+00:00:36.110 --> 00:00:36.120 align:start position:0%
+So, in the previous video, we
+ 
+
+00:00:36.120 --> 00:00:37.729 align:start position:0%
+So, in the previous video, we
+created <00:00:36.420><c>our </c><00:00:36.720><c>first </c><00:00:37.020><c>class. </c><00:00:37.320><c>We </c><00:00:37.620><c>saw</c>
+
+00:00:37.729 --> 00:00:37.739 align:start position:0%
+created our first class. We saw
+ 
+
+00:00:37.739 --> 00:00:40.190 align:start position:0%
+created our first class. We saw
+why <00:00:38.016><c>classes </c><00:00:38.293><c>are </c><00:00:38.570><c>needed, </c><00:00:38.847><c>how </c><00:00:39.124><c>to </c><00:00:39.401><c>use </c><00:00:39.678><c>them, </c><00:00:39.955><c>and</c>
+
+00:00:40.190 --> 00:00:40.200 align:start position:0%
+why classes are needed, how to use them, and
+ 
+
+00:00:40.200 --> 00:00:42.350 align:start position:0%
+why classes are needed, how to use them, and
+now <00:00:40.607><c>we'll </c><00:00:41.014><c>look </c><00:00:41.421><c>at </c><00:00:41.828><c>constructors, </c><00:00:42.235><c>which</c>
+
+00:00:42.350 --> 00:00:42.360 align:start position:0%
+now we'll look at constructors, which
+ 
+
+00:00:42.360 --> 00:00:43.610 align:start position:0%
+now we'll look at constructors, which
+solve <00:00:42.599><c>a </c><00:00:42.838><c>huge </c><00:00:43.077><c>problem. </c><00:00:43.316><c>There </c><00:00:43.555><c>were</c>
+
+00:00:43.610 --> 00:00:43.620 align:start position:0%
+solve a huge problem. There were
+ 
+
+00:00:43.620 --> 00:00:45.590 align:start position:0%
+solve a huge problem. There were
+some <00:00:43.885><c>comments </c><00:00:44.150><c>in </c><00:00:44.415><c>the </c><00:00:44.680><c>previous </c><00:00:44.945><c>video, </c><00:00:45.210><c>in </c><00:00:45.475><c>which</c>
+
+00:00:45.590 --> 00:00:45.600 align:start position:0%
+some comments in the previous video, in which
+ 
+
+00:00:45.600 --> 00:00:47.389 align:start position:0%
+some comments in the previous video, in which
+people <00:00:46.409><c>said, </c><00:00:47.218><c>"Dude,</c>
+
+00:00:47.389 --> 00:00:47.399 align:start position:0%
+people said, "Dude,
+ 
+
+00:00:47.399 --> 00:00:49.850 align:start position:0%
+people said, "Dude,
+you <00:00:47.579><c>didn't </c><00:00:47.759><c>tell </c><00:00:47.939><c>us </c><00:00:48.119><c>about </c><00:00:48.299><c>constructors," </c><00:00:48.479><c>but </c><00:00:48.659><c>I </c><00:00:48.839><c>wanted </c><00:00:49.019><c>to</c>
+
+00:00:49.850 --> 00:00:49.860 align:start position:0%
+you didn't tell us about constructors," but I wanted to
+ 
+
+00:00:49.860 --> 00:00:51.590 align:start position:0%
+you didn't tell us about constructors," but I wanted to
+tell <00:00:50.040><c>you </c><00:00:50.220><c>about </c><00:00:50.400><c>constructors </c><00:00:50.580><c>in </c><00:00:50.760><c>this </c><00:00:50.940><c>video. </c><00:00:51.120><c>So, </c><00:00:51.300><c>the </c><00:00:51.480><c>method</c>
+
+00:00:51.590 --> 00:00:51.600 align:start position:0%
+tell you about constructors in this video. So, the method
+ 
+
+00:00:51.600 --> 00:00:53.029 align:start position:0%
+tell you about constructors in this video. So, the method
+I <00:00:52.040><c>told </c><00:00:52.480><c>you </c><00:00:52.920><c>to</c>
+
+00:00:53.029 --> 00:00:53.039 align:start position:0%
+I told you to
+ 
+
+00:00:53.039 --> 00:00:56.810 align:start position:0%
+I told you to
+create <00:00:53.879><c>a </c><00:00:54.719><c>class, </c><00:00:55.559><c>Person, </c><00:00:56.399><c>is</c>
+
+00:00:56.810 --> 00:00:56.820 align:start position:0%
+create a class, Person, is
+ 
+
+00:00:56.820 --> 00:00:59.029 align:start position:0%
+create a class, Person, is
+fine <00:00:56.976><c>in </c><00:00:57.132><c>its </c><00:00:57.288><c>own </c><00:00:57.444><c>way, </c><00:00:57.600><c>but </c><00:00:57.756><c>here </c><00:00:57.912><c>I'm </c><00:00:58.068><c>going </c><00:00:58.224><c>to </c><00:00:58.380><c>tell </c><00:00:58.536><c>you </c><00:00:58.692><c>about </c><00:00:58.848><c>a</c>
+
+00:00:59.029 --> 00:00:59.039 align:start position:0%
+fine in its own way, but here I'm going to tell you about a
+ 
+
+00:00:59.039 --> 00:01:00.650 align:start position:0%
+fine in its own way, but here I'm going to tell you about a
+better <00:00:59.205><c>method.  </c><00:00:59.371><c>I </c><00:00:59.537><c>will </c><00:00:59.703><c>tell </c><00:00:59.869><c>you </c><00:01:00.035><c>what </c><00:01:00.201><c>I </c><00:01:00.367><c>did </c><00:01:00.533><c>here,</c>
+
+00:01:00.650 --> 00:01:00.660 align:start position:0%
+better method.  I will tell you what I did here,
+ 
+
+00:01:00.660 --> 00:01:02.930 align:start position:0%
+better method.  I will tell you what I did here,
+I <00:01:01.092><c>said </c><00:01:01.524><c>brother </c><00:01:01.956><c>take </c><00:01:02.388><c>the </c><00:01:02.820><c>name</c>
+
+00:01:02.930 --> 00:01:02.940 align:start position:0%
+I said brother take the name
+ 
+
+00:01:02.940 --> 00:01:06.710 align:start position:0%
+I said brother take the name
+Harry <00:01:03.428><c>and </c><00:01:03.916><c>we </c><00:01:04.404><c>created </c><00:01:04.892><c>an </c><00:01:05.380><c>occupation </c><00:01:05.868><c>and </c><00:01:06.356><c>I</c>
+
+00:01:06.710 --> 00:01:06.720 align:start position:0%
+Harry and we created an occupation and I
+ 
+
+00:01:06.720 --> 00:01:10.429 align:start position:0%
+Harry and we created an occupation and I
+said <00:01:07.416><c>take </c><00:01:08.112><c>it </c><00:01:08.808><c>developer, </c><00:01:09.504><c>okay </c><00:01:10.200><c>and</c>
+
+00:01:10.429 --> 00:01:10.439 align:start position:0%
+said take it developer, okay and
+ 
+
+00:01:10.439 --> 00:01:13.550 align:start position:0%
+said take it developer, okay and
+after <00:01:10.700><c>this </c><00:01:10.961><c>we </c><00:01:11.222><c>made </c><00:01:11.483><c>a </c><00:01:11.744><c>def </c><00:01:12.005><c>info </c><00:01:12.266><c>inside </c><00:01:12.527><c>this </c><00:01:12.788><c>class, </c><00:01:13.049><c>so </c><00:01:13.310><c>you</c>
+
+00:01:13.550 --> 00:01:13.560 align:start position:0%
+after this we made a def info inside this class, so you
+ 
+
+00:01:13.560 --> 00:01:15.830 align:start position:0%
+after this we made a def info inside this class, so you
+stay <00:01:14.240><c>inside </c><00:01:14.920><c>this </c><00:01:15.600><c>class,</c>
+
+00:01:15.830 --> 00:01:15.840 align:start position:0%
+stay inside this class,
+ 
+
+00:01:15.840 --> 00:01:17.510 align:start position:0%
+stay inside this class,
+when <00:01:15.993><c>you </c><00:01:16.146><c>are </c><00:01:16.299><c>creating </c><00:01:16.452><c>this </c><00:01:16.605><c>method, </c><00:01:16.758><c>this </c><00:01:16.911><c>indication </c><00:01:17.064><c>is </c><00:01:17.217><c>necessary,</c>
+
+00:01:17.510 --> 00:01:17.520 align:start position:0%
+when you are creating this method, this indication is necessary,
+ 
+
+00:01:17.520 --> 00:01:18.469 align:start position:0%
+when you are creating this method, this indication is necessary,
+
+
+00:01:18.469 --> 00:01:18.479 align:start position:0%
+ 
+ 
+
+00:01:18.479 --> 00:01:21.469 align:start position:0%
+ 
+then <00:01:18.890><c>the </c><00:01:19.301><c>function </c><00:01:19.712><c>will </c><00:01:20.123><c>come </c><00:01:20.534><c>automatically, </c><00:01:20.945><c>so </c><00:01:21.356><c>I</c>
+
+00:01:21.469 --> 00:01:21.479 align:start position:0%
+then the function will come automatically, so I
+ 
+
+00:01:21.479 --> 00:01:23.810 align:start position:0%
+then the function will come automatically, so I
+will <00:01:21.819><c>try </c><00:01:22.159><c>an </c><00:01:22.499><c>app </c><00:01:22.839><c>here </c><00:01:23.179><c>print </c><00:01:23.519><c>and</c>
+
+00:01:23.810 --> 00:01:23.820 align:start position:0%
+will try an app here print and
+ 
+
+00:01:23.820 --> 00:01:28.550 align:start position:0%
+will try an app here print and
+I <00:01:24.281><c>will </c><00:01:24.742><c>say </c><00:01:25.203><c>self </c><00:01:25.664><c>dot </c><00:01:26.125><c>name </c><00:01:26.586><c>of </c><00:01:27.047><c>d, </c><00:01:27.508><c>I </c><00:01:27.969><c>will </c><00:01:28.430><c>call</c>
+
+00:01:28.550 --> 00:01:28.560 align:start position:0%
+I will say self dot name of d, I will call
+ 
+
+00:01:28.560 --> 00:01:30.249 align:start position:0%
+I will say self dot name of d, I will call
+it
+
+00:01:30.249 --> 00:01:30.259 align:start position:0%
+it
+ 
+
+00:01:30.259 --> 00:01:34.370 align:start position:0%
+it
+self.occ, <00:01:30.661><c>okay </c><00:01:31.063><c>and </c><00:01:31.465><c>obviously </c><00:01:31.867><c>I </c><00:01:32.269><c>will </c><00:01:32.671><c>have </c><00:01:33.073><c>to </c><00:01:33.475><c>give</c>
+
+00:01:34.370 --> 00:01:34.380 align:start position:0%
+self.occ, okay and obviously I will have to give
+ 
+
+00:01:34.380 --> 00:01:37.130 align:start position:0%
+self.occ, okay and obviously I will have to give
+self <00:01:34.896><c>here, </c><00:01:35.412><c>today </c><00:01:35.928><c>you </c><00:01:36.444><c>will </c><00:01:36.960><c>use</c>
+
+00:01:37.130 --> 00:01:37.140 align:start position:0%
+self here, today you will use
+ 
+
+00:01:37.140 --> 00:01:39.050 align:start position:0%
+self here, today you will use
+any <00:01:37.476><c>method, </c><00:01:37.812><c>you </c><00:01:38.148><c>will </c><00:01:38.484><c>write </c><00:01:38.820><c>it</c>
+
+00:01:39.050 --> 00:01:39.060 align:start position:0%
+any method, you will write it
+ 
+
+00:01:39.060 --> 00:01:40.969 align:start position:0%
+any method, you will write it
+in <00:01:39.291><c>the </c><00:01:39.522><c>class </c><00:01:39.753><c>with </c><00:01:39.984><c>exceptions, </c><00:01:40.215><c>for </c><00:01:40.446><c>that </c><00:01:40.677><c>we</c>
+
+00:01:40.969 --> 00:01:40.979 align:start position:0%
+in the class with exceptions, for that we
+ 
+
+00:01:40.979 --> 00:01:42.950 align:start position:0%
+in the class with exceptions, for that we
+will <00:01:41.189><c>talk </c><00:01:41.399><c>about </c><00:01:41.609><c>those </c><00:01:41.819><c>exceptions </c><00:01:42.029><c>later, </c><00:01:42.239><c>but</c>
+
+00:01:42.950 --> 00:01:42.960 align:start position:0%
+will talk about those exceptions later, but
+ 
+
+00:01:42.960 --> 00:01:45.590 align:start position:0%
+will talk about those exceptions later, but
+in <00:01:43.274><c>most </c><00:01:43.588><c>of </c><00:01:43.902><c>the </c><00:01:44.216><c>cases, </c><00:01:44.530><c>any </c><00:01:44.844><c>method </c><00:01:45.158><c>that </c><00:01:45.472><c>you</c>
+
+00:01:45.590 --> 00:01:45.600 align:start position:0%
+in most of the cases, any method that you
+ 
+
+00:01:45.600 --> 00:01:48.469 align:start position:0%
+in most of the cases, any method that you
+write, <00:01:45.951><c>it </c><00:01:46.302><c>will </c><00:01:46.653><c>definitely </c><00:01:47.004><c>need </c><00:01:47.355><c>a </c><00:01:47.706><c>self </c><00:01:48.057><c>argument,</c>
+
+00:01:48.469 --> 00:01:48.479 align:start position:0%
+write, it will definitely need a self argument,
+ 
+
+00:01:48.479 --> 00:01:51.469 align:start position:0%
+write, it will definitely need a self argument,
+okay, <00:01:48.959><c>when </c><00:01:49.439><c>you </c><00:01:49.919><c>call </c><00:01:50.399><c>it, </c><00:01:50.879><c>there </c><00:01:51.359><c>is</c>
+
+00:01:51.469 --> 00:01:51.479 align:start position:0%
+okay, when you call it, there is
+ 
+
+00:01:51.479 --> 00:01:53.870 align:start position:0%
+okay, when you call it, there is
+no <00:01:51.659><c>need </c><00:01:51.839><c>to </c><00:01:52.019><c>give </c><00:01:52.199><c>it, </c><00:01:52.379><c>but </c><00:01:52.559><c>you </c><00:01:52.739><c>have </c><00:01:52.919><c>to </c><00:01:53.099><c>give </c><00:01:53.279><c>self </c><00:01:53.459><c>here</c>
+
+00:01:53.870 --> 00:01:53.880 align:start position:0%
+no need to give it, but you have to give self here
+ 
+
+00:01:53.880 --> 00:01:55.550 align:start position:0%
+no need to give it, but you have to give self here
+when <00:01:55.439><c>you</c>
+
+00:01:55.550 --> 00:01:55.560 align:start position:0%
+when you
+ 
+
+00:01:55.560 --> 00:01:58.010 align:start position:0%
+when you
+are <00:01:55.733><c>defining </c><00:01:55.906><c>your </c><00:01:56.079><c>method </c><00:01:56.252><c>inside </c><00:01:56.425><c>the </c><00:01:56.598><c>class, </c><00:01:56.771><c>okay </c><00:01:56.944><c>now </c><00:01:57.117><c>let </c><00:01:57.290><c>me</c>
+
+00:01:58.010 --> 00:01:58.020 align:start position:0%
+are defining your method inside the class, okay now let me
+ 
+
+00:01:58.020 --> 00:01:59.929 align:start position:0%
+are defining your method inside the class, okay now let me
+tell <00:01:58.460><c>you, </c><00:01:58.900><c>I </c><00:01:59.340><c>have</c>
+
+00:01:59.929 --> 00:01:59.939 align:start position:0%
+tell you, I have
+ 
+
+00:01:59.939 --> 00:02:02.929 align:start position:0%
+tell you, I have
+written <00:02:00.264><c>it </c><00:02:00.589><c>equal </c><00:02:00.914><c>to </c><00:02:01.239><c>here </c><00:02:01.564><c>Person, </c><00:02:01.889><c>okay </c><00:02:02.214><c>and</c>
+
+00:02:02.929 --> 00:02:02.939 align:start position:0%
+written it equal to here Person, okay and
+ 
+
+00:02:02.939 --> 00:02:05.090 align:start position:0%
+written it equal to here Person, okay and
+if <00:02:03.152><c>you </c><00:02:03.365><c>just </c><00:02:03.578><c>do </c><00:02:03.791><c>this  </c><00:02:04.004><c>People </c><00:02:04.217><c>are </c><00:02:04.430><c>using </c><00:02:04.643><c>Java </c><00:02:04.856><c>C++,</c>
+
+00:02:05.090 --> 00:02:05.100 align:start position:0%
+if you just do this  People are using Java C++,
+ 
+
+00:02:05.100 --> 00:02:06.469 align:start position:0%
+if you just do this  People are using Java C++,
+so <00:02:05.580><c>we </c><00:02:06.060><c>do</c>
+
+00:02:06.469 --> 00:02:06.479 align:start position:0%
+so we do
+ 
+
+00:02:06.479 --> 00:02:07.969 align:start position:0%
+so we do
+n't <00:02:06.666><c>need </c><00:02:06.853><c>to </c><00:02:07.040><c>use </c><00:02:07.227><c>the </c><00:02:07.414><c>new </c><00:02:07.601><c>keyword </c><00:02:07.788><c>in </c><00:02:07.975><c>Python.</c>
+
+00:02:07.969 --> 00:02:07.979 align:start position:0%
+n't need to use the new keyword in Python.
+ 
+
+00:02:07.979 --> 00:02:10.790 align:start position:0%
+n't need to use the new keyword in Python.
+Now <00:02:08.237><c>you </c><00:02:08.495><c>can </c><00:02:08.753><c>directly </c><00:02:09.011><c>write </c><00:02:09.269><c>a </c><00:02:09.527><c>= </c><00:02:09.785><c>personal </c><00:02:10.043><c>and </c><00:02:10.301><c>this </c><00:02:10.559><c>will</c>
+
+00:02:10.790 --> 00:02:10.800 align:start position:0%
+Now you can directly write a = personal and this will
+ 
+
+00:02:10.800 --> 00:02:13.729 align:start position:0%
+Now you can directly write a = personal and this will
+become <00:02:11.352><c>your </c><00:02:11.904><c>objective. </c><00:02:12.456><c>Okay, </c><00:02:13.008><c>now </c><00:02:13.560><c>I</c>
+
+00:02:13.729 --> 00:02:13.739 align:start position:0%
+become your objective. Okay, now I
+ 
+
+00:02:13.739 --> 00:02:15.050 align:start position:0%
+become your objective. Okay, now I
+can <00:02:13.896><c>do </c><00:02:14.053><c>something </c><00:02:14.210><c>like </c><00:02:14.367><c>this </c><00:02:14.524><c>here. </c><00:02:14.681><c>I </c><00:02:14.838><c>can </c><00:02:14.995><c>say</c>
+
+00:02:15.050 --> 00:02:15.060 align:start position:0%
+can do something like this here. I can say
+ 
+
+00:02:15.060 --> 00:02:17.510 align:start position:0%
+can do something like this here. I can say
+print <00:02:15.345><c>a.dot </c><00:02:15.630><c>name </c><00:02:15.915><c>and </c><00:02:16.200><c>if </c><00:02:16.485><c>I </c><00:02:16.770><c>do </c><00:02:17.055><c>this, </c><00:02:17.340><c>then</c>
+
+00:02:17.510 --> 00:02:17.520 align:start position:0%
+print a.dot name and if I do this, then
+ 
+
+00:02:17.520 --> 00:02:21.530 align:start position:0%
+print a.dot name and if I do this, then
+simply <00:02:17.910><c>what </c><00:02:18.300><c>will </c><00:02:18.690><c>happen </c><00:02:19.080><c>to </c><00:02:19.470><c>me </c><00:02:19.860><c>is </c><00:02:20.250><c>that </c><00:02:20.640><c>Harry </c><00:02:21.030><c>will </c><00:02:21.420><c>be</c>
+
+00:02:21.530 --> 00:02:21.540 align:start position:0%
+simply what will happen to me is that Harry will be
+ 
+
+00:02:21.540 --> 00:02:23.410 align:start position:0%
+simply what will happen to me is that Harry will be
+printed <00:02:21.672><c>and </c><00:02:21.804><c>I </c><00:02:21.936><c>will </c><00:02:22.068><c>get </c><00:02:22.200><c>it.</c>
+
+00:02:23.410 --> 00:02:23.420 align:start position:0%
+printed and I will get it.
+ 
+
+00:02:23.420 --> 00:02:26.869 align:start position:0%
+printed and I will get it.
+Instead <00:02:23.723><c>of </c><00:02:24.026><c>using </c><00:02:24.329><c>a.name, </c><00:02:24.632><c>instead </c><00:02:24.935><c>of </c><00:02:25.238><c>printing </c><00:02:25.541><c>the </c><00:02:25.844><c>name </c><00:02:26.147><c>of </c><00:02:26.450><c>the </c><00:02:26.753><c>a.dot</c>
+
+00:02:26.869 --> 00:02:26.879 align:start position:0%
+Instead of using a.name, instead of printing the name of the a.dot
+ 
+
+00:02:26.879 --> 00:02:28.790 align:start position:0%
+Instead of using a.name, instead of printing the name of the a.dot
+I <00:02:27.104><c>can </c><00:02:27.329><c>also </c><00:02:27.554><c>directly </c><00:02:27.779><c>call </c><00:02:28.004><c>the </c><00:02:28.229><c>a.dot </c><00:02:28.454><c>info </c><00:02:28.679><c>method</c>
+
+00:02:28.790 --> 00:02:28.800 align:start position:0%
+I can also directly call the a.dot info method
+ 
+
+00:02:28.800 --> 00:02:30.290 align:start position:0%
+I can also directly call the a.dot info method
+and <00:02:28.997><c>Harry </c><00:02:29.194><c>will </c><00:02:29.391><c>be </c><00:02:29.588><c>called </c><00:02:29.785><c>the </c><00:02:29.982><c>developer </c><00:02:30.179><c>here.</c>
+
+00:02:30.290 --> 00:02:30.300 align:start position:0%
+and Harry will be called the developer here.
+ 
+
+00:02:30.300 --> 00:02:32.990 align:start position:0%
+and Harry will be called the developer here.
+Okay, <00:02:31.589><c>so </c><00:02:32.878><c>you</c>
+
+00:02:32.990 --> 00:02:33.000 align:start position:0%
+Okay, so you
+ 
+
+00:02:33.000 --> 00:02:35.270 align:start position:0%
+Okay, so you
+can <00:02:33.220><c>see </c><00:02:33.440><c>here </c><00:02:33.660><c>that </c><00:02:33.880><c>Harry </c><00:02:34.100><c>will </c><00:02:34.320><c>be </c><00:02:34.540><c>called </c><00:02:34.760><c>the </c><00:02:34.980><c>developer</c>
+
+00:02:35.270 --> 00:02:35.280 align:start position:0%
+can see here that Harry will be called the developer
+ 
+
+00:02:35.280 --> 00:02:38.630 align:start position:0%
+can see here that Harry will be called the developer
+here. <00:02:36.780><c>Okay, </c><00:02:38.280><c>we</c>
+
+00:02:38.630 --> 00:02:38.640 align:start position:0%
+here. Okay, we
+ 
+
+00:02:38.640 --> 00:02:41.449 align:start position:0%
+here. Okay, we
+talked <00:02:39.017><c>about </c><00:02:39.394><c>this </c><00:02:39.771><c>earlier, </c><00:02:40.148><c>but </c><00:02:40.525><c>let's </c><00:02:40.902><c>say </c><00:02:41.279><c>I</c>
+
+00:02:41.449 --> 00:02:41.459 align:start position:0%
+talked about this earlier, but let's say I
+ 
+
+00:02:41.459 --> 00:02:44.509 align:start position:0%
+talked about this earlier, but let's say I
+want <00:02:41.751><c>to </c><00:02:42.043><c>change </c><00:02:42.335><c>the </c><00:02:42.627><c>name </c><00:02:42.919><c>of </c><00:02:43.211><c>one </c><00:02:43.503><c>and </c><00:02:43.795><c>I</c>
+
+00:02:44.509 --> 00:02:44.519 align:start position:0%
+want to change the name of one and I
+ 
+
+00:02:44.519 --> 00:02:47.930 align:start position:0%
+want to change the name of one and I
+want <00:02:44.777><c>to </c><00:02:45.035><c>name </c><00:02:45.293><c>one </c><00:02:45.551><c>Divya. </c><00:02:45.809><c>And </c><00:02:46.067><c>who </c><00:02:46.325><c>is </c><00:02:46.583><c>Divya, </c><00:02:46.841><c>let </c><00:02:47.099><c>me</c>
+
+00:02:47.930 --> 00:02:49.430 align:start position:0%
+want to name one Divya. And who is Divya, let me
+ 
+
+00:02:49.430 --> 00:02:49.440 align:start position:0%
+ 
+ 
+
+00:02:49.440 --> 00:02:55.210 align:start position:0%
+ 
+tell <00:02:49.739><c>you </c><00:02:50.038><c>who </c><00:02:50.337><c>Divya </c><00:02:50.636><c>is. </c><00:02:50.935><c>1 </c><00:02:51.234><c>minute</c>
+
+00:02:55.210 --> 00:02:55.220 align:start position:0%
+ 
+ 
+
+00:02:55.220 --> 00:02:58.610 align:start position:0%
+ 
+Divya <00:02:55.483><c>and </c><00:02:55.746><c>a.dot </c><00:02:56.009><c>OCC </c><00:02:56.272><c>is </c><00:02:56.535><c>equal </c><00:02:56.798><c>to </c><00:02:57.061><c>yours. </c><00:02:57.324><c>Okay, </c><00:02:57.587><c>I </c><00:02:57.850><c>have </c><00:02:58.113><c>done </c><00:02:58.376><c>it</c>
+
+00:02:58.610 --> 00:02:58.620 align:start position:0%
+Divya and a.dot OCC is equal to yours. Okay, I have done it
+ 
+
+00:02:58.620 --> 00:03:02.150 align:start position:0%
+Divya and a.dot OCC is equal to yours. Okay, I have done it
+here. <00:02:59.292><c>Now </c><00:02:59.964><c>if </c><00:03:00.636><c>I </c><00:03:01.308><c>do </c><00:03:01.980><c>this,</c>
+
+00:03:02.150 --> 00:03:02.160 align:start position:0%
+here. Now if I do this,
+ 
+
+00:03:02.160 --> 00:03:05.150 align:start position:0%
+here. Now if I do this,
+Divya <00:03:02.712><c>will </c><00:03:03.264><c>be </c><00:03:03.816><c>written </c><00:03:04.368><c>here. </c><00:03:04.920><c>Okay,</c>
+
+00:03:05.150 --> 00:03:05.160 align:start position:0%
+Divya will be written here. Okay,
+ 
+
+00:03:05.160 --> 00:03:07.809 align:start position:0%
+Divya will be written here. Okay,
+but <00:03:05.406><c>why </c><00:03:05.652><c>am </c><00:03:05.898><c>I </c><00:03:06.144><c>giving </c><00:03:06.390><c>Harry </c><00:03:06.636><c>and </c><00:03:06.882><c>development </c><00:03:07.128><c>here? </c><00:03:07.374><c>I</c>
+
+00:03:07.809 --> 00:03:07.819 align:start position:0%
+but why am I giving Harry and development here? I
+ 
+
+00:03:07.819 --> 00:03:11.509 align:start position:0%
+but why am I giving Harry and development here? I
+mean, <00:03:08.313><c>I </c><00:03:08.807><c>would </c><00:03:09.301><c>like </c><00:03:09.795><c>a </c><00:03:10.289><c>way </c><00:03:10.783><c>by </c><00:03:11.277><c>which</c>
+
+00:03:11.509 --> 00:03:11.519 align:start position:0%
+mean, I would like a way by which
+ 
+
+00:03:11.519 --> 00:03:13.490 align:start position:0%
+mean, I would like a way by which
+I <00:03:11.759><c>can </c><00:03:11.999><c>get </c><00:03:12.239><c>this </c><00:03:12.479><c>information </c><00:03:12.719><c>of </c><00:03:12.959><c>Divya</c>
+
+00:03:13.490 --> 00:03:13.500 align:start position:0%
+I can get this information of Divya
+ 
+
+00:03:13.500 --> 00:03:16.009 align:start position:0%
+I can get this information of Divya
+and <00:03:13.766><c>Hari.  </c><00:03:14.032><c>By </c><00:03:14.298><c>passing </c><00:03:14.564><c>it </c><00:03:14.830><c>in </c><00:03:15.096><c>a </c><00:03:15.362><c>convenient </c><00:03:15.628><c>way, </c><00:03:15.894><c>I</c>
+
+00:03:16.009 --> 00:03:16.019 align:start position:0%
+and Hari.  By passing it in a convenient way, I
+ 
+
+00:03:16.019 --> 00:03:18.710 align:start position:0%
+and Hari.  By passing it in a convenient way, I
+can <00:03:16.319><c>tell </c><00:03:16.619><c>this </c><00:03:16.919><c>class </c><00:03:17.219><c>that </c><00:03:17.519><c>there </c><00:03:17.819><c>is </c><00:03:18.119><c>a</c>
+
+00:03:18.710 --> 00:03:18.720 align:start position:0%
+can tell this class that there is a
+ 
+
+00:03:18.720 --> 00:03:21.110 align:start position:0%
+can tell this class that there is a
+glass. <00:03:18.942><c>I </c><00:03:19.164><c>can </c><00:03:19.386><c>tell </c><00:03:19.608><c>this </c><00:03:19.830><c>class </c><00:03:20.052><c>that </c><00:03:20.274><c>there </c><00:03:20.496><c>is </c><00:03:20.718><c>a </c><00:03:20.940><c>class</c>
+
+00:03:21.110 --> 00:03:21.120 align:start position:0%
+glass. I can tell this class that there is a class
+ 
+
+00:03:21.120 --> 00:03:23.110 align:start position:0%
+glass. I can tell this class that there is a class
+Person. <00:03:21.370><c>I </c><00:03:21.620><c>want </c><00:03:21.870><c>to </c><00:03:22.120><c>give </c><00:03:22.370><c>you </c><00:03:22.620><c>Divya.</c>
+
+00:03:23.110 --> 00:03:23.120 align:start position:0%
+Person. I want to give you Divya.
+ 
+
+00:03:23.120 --> 00:03:25.130 align:start position:0%
+Person. I want to give you Divya.
+What <00:03:23.292><c>do </c><00:03:23.464><c>I </c><00:03:23.636><c>want </c><00:03:23.808><c>to </c><00:03:23.980><c>give </c><00:03:24.152><c>you </c><00:03:24.324><c>Divya </c><00:03:24.496><c>and </c><00:03:24.668><c>pickle </c><00:03:24.840><c>as</c>
+
+00:03:25.130 --> 00:03:25.140 align:start position:0%
+What do I want to give you Divya and pickle as
+ 
+
+00:03:25.140 --> 00:03:28.369 align:start position:0%
+What do I want to give you Divya and pickle as
+arguments? <00:03:26.670><c>Okay, </c><00:03:28.200><c>I</c>
+
+00:03:28.369 --> 00:03:28.379 align:start position:0%
+arguments? Okay, I
+ 
+
+00:03:28.379 --> 00:03:30.350 align:start position:0%
+arguments? Okay, I
+want <00:03:28.521><c>to </c><00:03:28.663><c>give </c><00:03:28.805><c>you </c><00:03:28.947><c>Divya </c><00:03:29.089><c>and </c><00:03:29.231><c>pickle </c><00:03:29.373><c>as </c><00:03:29.515><c>arguments.</c>
+
+00:03:30.350 --> 00:03:30.360 align:start position:0%
+want to give you Divya and pickle as arguments.
+ 
+
+00:03:30.360 --> 00:03:33.110 align:start position:0%
+want to give you Divya and pickle as arguments.
+And <00:03:30.646><c>I </c><00:03:30.932><c>want </c><00:03:31.218><c>you </c><00:03:31.504><c>to </c><00:03:31.790><c>store </c><00:03:32.076><c>it </c><00:03:32.362><c>in </c><00:03:32.648><c>name </c><00:03:32.934><c>and</c>
+
+00:03:33.110 --> 00:03:33.120 align:start position:0%
+And I want you to store it in name and
+ 
+
+00:03:33.120 --> 00:03:36.410 align:start position:0%
+And I want you to store it in name and
+occ. <00:03:33.899><c>So </c><00:03:34.678><c>now </c><00:03:35.457><c>I </c><00:03:36.236><c>do</c>
+
+00:03:36.410 --> 00:03:36.420 align:start position:0%
+occ. So now I do
+ 
+
+00:03:36.420 --> 00:03:37.670 align:start position:0%
+occ. So now I do
+n't <00:03:36.591><c>need </c><00:03:36.762><c>to </c><00:03:36.933><c>do </c><00:03:37.104><c>this. </c><00:03:37.275><c>I </c><00:03:37.446><c>can </c><00:03:37.617><c>write</c>
+
+00:03:37.670 --> 00:03:37.680 align:start position:0%
+n't need to do this. I can write
+ 
+
+00:03:37.680 --> 00:03:39.890 align:start position:0%
+n't need to do this. I can write
+construct <00:03:38.360><c>here. </c><00:03:39.040><c>And </c><00:03:39.720><c>to</c>
+
+00:03:39.890 --> 00:03:39.900 align:start position:0%
+construct here. And to
+ 
+
+00:03:39.900 --> 00:03:42.830 align:start position:0%
+construct here. And to
+write <00:03:40.125><c>a </c><00:03:40.350><c>constructor, </c><00:03:40.575><c>we </c><00:03:40.800><c>have </c><00:03:41.025><c>to </c><00:03:41.250><c>use </c><00:03:41.475><c>a </c><00:03:41.700><c>special</c>
+
+00:03:42.830 --> 00:03:42.840 align:start position:0%
+write a constructor, we have to use a special
+ 
+
+00:03:42.840 --> 00:03:46.550 align:start position:0%
+write a constructor, we have to use a special
+keyword <00:03:44.019><c>here. </c><00:03:45.198><c>And </c><00:03:46.377><c>this</c>
+
+00:03:46.550 --> 00:03:46.560 align:start position:0%
+keyword here. And this
+ 
+
+00:03:46.560 --> 00:03:48.110 align:start position:0%
+keyword here. And this
+self <00:03:46.836><c>rule </c><00:03:47.112><c>is </c><00:03:47.388><c>also </c><00:03:47.664><c>there </c><00:03:47.940><c>here.</c>
+
+00:03:48.110 --> 00:03:48.120 align:start position:0%
+self rule is also there here.
+ 
+
+00:03:48.120 --> 00:03:50.809 align:start position:0%
+self rule is also there here.
+We <00:03:48.659><c>call </c><00:03:49.198><c>it </c><00:03:49.737><c>the </c><00:03:50.276><c>danda </c><00:03:50.815><c>method.</c>
+
+00:03:50.809 --> 00:03:50.819 align:start position:0%
+We call it the danda method.
+ 
+
+00:03:50.819 --> 00:03:53.330 align:start position:0%
+We call it the danda method.
+Underscore <00:03:51.539><c>unit </c><00:03:52.259><c>underscore </c><00:03:52.979><c>underscore</c>
+
+00:03:53.330 --> 00:03:53.340 align:start position:0%
+Underscore unit underscore underscore
+ 
+
+00:03:53.340 --> 00:03:55.850 align:start position:0%
+Underscore unit underscore underscore
+is <00:03:53.834><c>a </c><00:03:54.328><c>special </c><00:03:54.822><c>method </c><00:03:55.316><c>which</c>
+
+00:03:55.850 --> 00:03:55.860 align:start position:0%
+is a special method which
+ 
+
+00:03:55.860 --> 00:03:57.890 align:start position:0%
+is a special method which
+helps <00:03:56.029><c>us </c><00:03:56.198><c>in </c><00:03:56.367><c>creating </c><00:03:56.536><c>a </c><00:03:56.705><c>constructor. </c><00:03:56.874><c>What </c><00:03:57.043><c>will </c><00:03:57.212><c>I </c><00:03:57.381><c>do </c><00:03:57.550><c>inside </c><00:03:57.719><c>this?</c>
+
+00:03:57.890 --> 00:03:57.900 align:start position:0%
+helps us in creating a constructor. What will I do inside this?
+ 
+
+00:03:57.900 --> 00:04:00.970 align:start position:0%
+helps us in creating a constructor. What will I do inside this?
+I <00:03:58.260><c>will </c><00:03:58.620><c>simply </c><00:03:58.980><c>show </c><00:03:59.340><c>here </c><00:03:59.700><c>that</c>
+
+00:04:00.970 --> 00:04:00.980 align:start position:0%
+I will simply show here that
+ 
+
+00:04:00.980 --> 00:04:04.910 align:start position:0%
+I will simply show here that
+self.nem <00:04:01.525><c>is </c><00:04:02.070><c>equal </c><00:04:02.615><c>to </c><00:04:03.160><c>you. </c><00:04:03.705><c>And </c><00:04:04.250><c>if </c><00:04:04.795><c>I</c>
+
+00:04:04.910 --> 00:04:04.920 align:start position:0%
+self.nem is equal to you. And if I
+ 
+
+00:04:04.920 --> 00:04:08.449 align:start position:0%
+self.nem is equal to you. And if I
+write <00:04:05.286><c>name </c><00:04:05.652><c>here, </c><00:04:06.018><c>then </c><00:04:06.384><c>I </c><00:04:06.750><c>can </c><00:04:07.116><c>pass </c><00:04:07.482><c>a </c><00:04:07.848><c>name </c><00:04:08.214><c>argument.</c>
+
+00:04:08.449 --> 00:04:08.459 align:start position:0%
+write name here, then I can pass a name argument.
+ 
+
+00:04:08.459 --> 00:04:10.850 align:start position:0%
+write name here, then I can pass a name argument.
+But <00:04:08.744><c>let </c><00:04:09.029><c>me </c><00:04:09.314><c>give </c><00:04:09.599><c>it </c><00:04:09.884><c>simple. </c><00:04:10.169><c>Just </c><00:04:10.454><c>let </c><00:04:10.739><c>me</c>
+
+00:04:10.850 --> 00:04:10.860 align:start position:0%
+But let me give it simple. Just let me
+ 
+
+00:04:10.860 --> 00:04:13.309 align:start position:0%
+But let me give it simple. Just let me
+digest <00:04:13.140><c>what</c>
+
+00:04:13.309 --> 00:04:13.319 align:start position:0%
+digest what
+ 
+
+00:04:13.319 --> 00:04:16.629 align:start position:0%
+digest what
+this <00:04:13.789><c>is. </c><00:04:14.259><c>I </c><00:04:14.729><c>am </c><00:04:15.199><c>an </c><00:04:15.669><c>Person. </c><00:04:16.139><c>Okay,</c>
+
+00:04:16.629 --> 00:04:16.639 align:start position:0%
+this is. I am an Person. Okay,
+ 
+
+00:04:16.639 --> 00:04:19.849 align:start position:0%
+this is. I am an Person. Okay,
+whenever <00:04:16.862><c>I </c><00:04:17.085><c>write </c><00:04:17.308><c>this </c><00:04:17.531><c>equal </c><00:04:17.754><c>to  </c><00:04:17.977><c>I </c><00:04:18.200><c>will </c><00:04:18.423><c>say </c><00:04:18.646><c>"tu </c><00:04:18.869><c>person" </c><00:04:19.092><c>which </c><00:04:19.315><c>means</c>
+
+00:04:19.849 --> 00:04:19.859 align:start position:0%
+whenever I write this equal to  I will say "tu person" which means
+ 
+
+00:04:19.859 --> 00:04:22.250 align:start position:0%
+whenever I write this equal to  I will say "tu person" which means
+I <00:04:20.099><c>don't </c><00:04:20.339><c>even </c><00:04:20.579><c>need </c><00:04:20.819><c>to </c><00:04:21.059><c>do </c><00:04:21.299><c>all </c><00:04:21.539><c>this.</c>
+
+00:04:22.250 --> 00:04:22.260 align:start position:0%
+I don't even need to do all this.
+ 
+
+00:04:22.260 --> 00:04:25.010 align:start position:0%
+I don't even need to do all this.
+Whenever <00:04:22.406><c>I </c><00:04:22.552><c>will </c><00:04:22.698><c>say </c><00:04:22.844><c>this </c><00:04:22.990><c>equal </c><00:04:23.136><c>to </c><00:04:23.282><c>"tu </c><00:04:23.428><c>person" </c><00:04:23.574><c>and </c><00:04:23.720><c>run </c><00:04:23.866><c>it, </c><00:04:24.012><c>"hi </c><00:04:24.158><c>I </c><00:04:24.304><c>am </c><00:04:24.450><c>an </c><00:04:24.596><c>person" </c><00:04:24.742><c>is </c><00:04:24.888><c>given</c>
+
+00:04:25.010 --> 00:04:26.530 align:start position:0%
+Whenever I will say this equal to "tu person" and run it, "hi I am an person" is given
+ 
+
+00:04:26.530 --> 00:04:26.540 align:start position:0%
+ 
+ 
+
+00:04:26.540 --> 00:04:30.530 align:start position:0%
+ 
+here. <00:04:29.639><c>This</c>
+
+00:04:30.530 --> 00:04:30.540 align:start position:0%
+here. This
+ 
+
+00:04:30.540 --> 00:04:32.450 align:start position:0%
+here. This
+means <00:04:30.840><c>this </c><00:04:31.140><c>constructor </c><00:04:31.440><c>is </c><00:04:31.740><c>getting </c><00:04:32.040><c>called. </c><00:04:32.340><c>Whenever</c>
+
+00:04:32.450 --> 00:04:32.460 align:start position:0%
+means this constructor is getting called. Whenever
+ 
+
+00:04:32.460 --> 00:04:34.730 align:start position:0%
+means this constructor is getting called. Whenever
+I <00:04:32.800><c>am </c><00:04:33.140><c>creating </c><00:04:33.480><c>an </c><00:04:33.820><c>object, </c><00:04:34.160><c>whether </c><00:04:34.500><c>I</c>
+
+00:04:34.730 --> 00:04:34.740 align:start position:0%
+I am creating an object, whether I
+ 
+
+00:04:34.740 --> 00:04:36.350 align:start position:0%
+I am creating an object, whether I
+create <00:04:34.906><c>another </c><00:04:35.072><c>object </c><00:04:35.238><c>with </c><00:04:35.404><c>the </c><00:04:35.570><c>name </c><00:04:35.736><c>"b" </c><00:04:35.902><c>then </c><00:04:36.068><c>also </c><00:04:36.234><c>this</c>
+
+00:04:36.350 --> 00:04:36.360 align:start position:0%
+create another object with the name "b" then also this
+ 
+
+00:04:36.360 --> 00:04:38.749 align:start position:0%
+create another object with the name "b" then also this
+call <00:04:36.518><c>will </c><00:04:36.676><c>be </c><00:04:36.834><c>made. </c><00:04:36.992><c>Let's </c><00:04:37.150><c>find </c><00:04:37.308><c>out, </c><00:04:37.466><c>I </c><00:04:37.624><c>don't </c><00:04:37.782><c>know </c><00:04:37.940><c>whether </c><00:04:38.098><c>it </c><00:04:38.256><c>will </c><00:04:38.414><c>happen </c><00:04:38.572><c>or</c>
+
+00:04:38.749 --> 00:04:38.759 align:start position:0%
+call will be made. Let's find out, I don't know whether it will happen or
+ 
+
+00:04:38.759 --> 00:04:40.490 align:start position:0%
+call will be made. Let's find out, I don't know whether it will happen or
+not. <00:04:39.099><c>Let's </c><00:04:39.439><c>find </c><00:04:39.779><c>out.</c>
+
+00:04:40.490 --> 00:04:40.500 align:start position:0%
+not. Let's find out.
+ 
+
+00:04:40.500 --> 00:04:42.350 align:start position:0%
+not. Let's find out.
+So <00:04:40.905><c>here, </c><00:04:41.310><c>as </c><00:04:41.715><c>you </c><00:04:42.120><c>saw,</c>
+
+00:04:42.350 --> 00:04:42.360 align:start position:0%
+So here, as you saw,
+ 
+
+00:04:42.360 --> 00:04:45.469 align:start position:0%
+So here, as you saw,
+both <00:04:42.563><c>the </c><00:04:42.766><c>methods </c><00:04:42.969><c>are </c><00:04:43.172><c>called, </c><00:04:43.375><c>okay, </c><00:04:43.578><c>he </c><00:04:43.781><c>I </c><00:04:43.984><c>am </c><00:04:44.187><c>an </c><00:04:44.390><c>person, </c><00:04:44.593><c>he </c><00:04:44.796><c>I </c><00:04:44.999><c>am </c><00:04:45.202><c>an </c><00:04:45.405><c>person,</c>
+
+00:04:45.469 --> 00:04:45.479 align:start position:0%
+both the methods are called, okay, he I am an person, he I am an person,
+ 
+
+00:04:45.479 --> 00:04:47.749 align:start position:0%
+both the methods are called, okay, he I am an person, he I am an person,
+understand <00:04:46.119><c>its </c><00:04:46.759><c>meaning. </c><00:04:47.399><c>This</c>
+
+00:04:47.749 --> 00:04:47.759 align:start position:0%
+understand its meaning. This
+ 
+
+00:04:47.759 --> 00:04:52.249 align:start position:0%
+understand its meaning. This
+means <00:04:48.114><c>that </c><00:04:48.469><c>he </c><00:04:48.824><c>I </c><00:04:49.179><c>am </c><00:04:49.534><c>an </c><00:04:49.889><c>person, </c><00:04:50.244><c>that </c><00:04:50.599><c>is, </c><00:04:50.954><c>this </c><00:04:51.309><c>method </c><00:04:51.664><c>is </c><00:04:52.019><c>getting</c>
+
+00:04:52.249 --> 00:04:52.259 align:start position:0%
+means that he I am an person, that is, this method is getting
+ 
+
+00:04:52.259 --> 00:04:55.670 align:start position:0%
+means that he I am an person, that is, this method is getting
+called
+
+00:04:55.670 --> 00:04:55.680 align:start position:0%
+called
+ 
+
+00:04:55.680 --> 00:04:57.890 align:start position:0%
+called
+every <00:04:56.100><c>time </c><00:04:56.520><c>and </c><00:04:56.940><c>creating </c><00:04:57.360><c>a </c><00:04:57.780><c>new</c>
+
+00:04:57.890 --> 00:04:57.900 align:start position:0%
+every time and creating a new
+ 
+
+00:04:57.900 --> 00:05:02.210 align:start position:0%
+every time and creating a new
+object <00:04:58.362><c>out </c><00:04:58.824><c>of </c><00:04:59.286><c>this </c><00:04:59.748><c>Person </c><00:05:00.210><c>class, </c><00:05:00.672><c>okay, </c><00:05:01.134><c>you</c>
+
+00:05:02.210 --> 00:05:02.220 align:start position:0%
+object out of this Person class, okay, you
+ 
+
+00:05:02.220 --> 00:05:06.650 align:start position:0%
+object out of this Person class, okay, you
+understood <00:05:02.613><c>it </c><00:05:03.006><c>well, </c><00:05:03.399><c>friend. </c><00:05:03.792><c>So, </c><00:05:04.185><c>we </c><00:05:04.578><c>created </c><00:05:04.971><c>the </c><00:05:05.364><c>Person </c><00:05:05.757><c>class</c>
+
+00:05:06.650 --> 00:05:06.660 align:start position:0%
+understood it well, friend. So, we created the Person class
+ 
+
+00:05:06.660 --> 00:05:10.129 align:start position:0%
+understood it well, friend. So, we created the Person class
+here <00:05:06.940><c>and </c><00:05:07.220><c>here </c><00:05:07.500><c>you </c><00:05:07.780><c>can </c><00:05:08.060><c>see </c><00:05:08.340><c>that </c><00:05:08.620><c>"hi </c><00:05:08.900><c>I </c><00:05:09.180><c>am </c><00:05:09.460><c>an </c><00:05:09.740><c>person" </c><00:05:10.020><c>is</c>
+
+00:05:10.129 --> 00:05:10.139 align:start position:0%
+here and here you can see that "hi I am an person" is
+ 
+
+00:05:10.139 --> 00:05:12.469 align:start position:0%
+here and here you can see that "hi I am an person" is
+printed <00:05:10.859><c>in </c><00:05:11.579><c>the </c><00:05:12.299><c>console</c>
+
+00:05:12.469 --> 00:05:12.479 align:start position:0%
+printed in the console
+ 
+
+00:05:12.479 --> 00:05:14.930 align:start position:0%
+printed in the console
+whenever <00:05:12.787><c>we </c><00:05:13.095><c>created </c><00:05:13.403><c>the </c><00:05:13.711><c>Person </c><00:05:14.019><c>class. </c><00:05:14.327><c>So, </c><00:05:14.635><c>this</c>
+
+00:05:14.930 --> 00:05:14.940 align:start position:0%
+whenever we created the Person class. So, this
+ 
+
+00:05:14.940 --> 00:05:17.090 align:start position:0%
+whenever we created the Person class. So, this
+means <00:05:15.250><c>that </c><00:05:15.560><c>this </c><00:05:15.870><c>method </c><00:05:16.180><c>will </c><00:05:16.490><c>always </c><00:05:16.800><c>be</c>
+
+00:05:17.090 --> 00:05:17.100 align:start position:0%
+means that this method will always be
+ 
+
+00:05:17.100 --> 00:05:20.030 align:start position:0%
+means that this method will always be
+invoked <00:05:17.540><c>whenever </c><00:05:17.980><c>an </c><00:05:18.420><c>object </c><00:05:18.860><c>is </c><00:05:19.300><c>created. </c><00:05:19.740><c>So,</c>
+
+00:05:20.030 --> 00:05:22.550 align:start position:0%
+invoked whenever an object is created. So,
+ 
+
+00:05:22.550 --> 00:05:22.560 align:start position:0%
+ 
+ 
+
+00:05:22.560 --> 00:05:25.670 align:start position:0%
+ 
+taking <00:05:22.866><c>advantage </c><00:05:23.172><c>of </c><00:05:23.478><c>this, </c><00:05:23.784><c>can </c><00:05:24.090><c>I </c><00:05:24.396><c>name </c><00:05:24.702><c>it </c><00:05:25.008><c>self </c><00:05:25.314><c>dot</c>
+
+00:05:25.670 --> 00:05:25.680 align:start position:0%
+taking advantage of this, can I name it self dot
+ 
+
+00:05:25.680 --> 00:05:30.830 align:start position:0%
+taking advantage of this, can I name it self dot
+equal <00:05:26.295><c>to </c><00:05:26.910><c>name </c><00:05:27.525><c>and </c><00:05:28.140><c>self </c><00:05:28.755><c>dot </c><00:05:29.370><c>and </c><00:05:29.985><c>self </c><00:05:30.600><c>dot</c>
+
+00:05:30.830 --> 00:05:30.840 align:start position:0%
+equal to name and self dot and self dot
+ 
+
+00:05:30.840 --> 00:05:32.350 align:start position:0%
+equal to name and self dot and self dot
+occ <00:05:31.028><c>I </c><00:05:31.216><c>can </c><00:05:31.404><c>make </c><00:05:31.592><c>it </c><00:05:31.780><c>equal </c><00:05:31.968><c>to </c><00:05:32.156><c>occ</c>
+
+00:05:32.350 --> 00:05:32.360 align:start position:0%
+occ I can make it equal to occ
+ 
+
+00:05:32.360 --> 00:05:35.270 align:start position:0%
+occ I can make it equal to occ
+or <00:05:32.664><c>I </c><00:05:32.968><c>can </c><00:05:33.272><c>reduce </c><00:05:33.576><c>self </c><00:05:33.880><c>dot </c><00:05:34.184><c>name </c><00:05:34.488><c>and </c><00:05:34.792><c>make </c><00:05:35.096><c>it</c>
+
+00:05:35.270 --> 00:05:35.280 align:start position:0%
+or I can reduce self dot name and make it
+ 
+
+00:05:35.280 --> 00:05:37.629 align:start position:0%
+or I can reduce self dot name and make it
+equal <00:05:35.594><c>to </c><00:05:35.908><c>n </c><00:05:36.222><c>and </c><00:05:36.536><c>I</c>
+
+00:05:37.629 --> 00:05:37.639 align:start position:0%
+equal to n and I
+ 
+
+00:05:37.639 --> 00:05:41.830 align:start position:0%
+equal to n and I
+wrote <00:05:37.882><c>this </c><00:05:38.125><c>I </c><00:05:38.368><c>had </c><00:05:38.611><c>to </c><00:05:38.854><c>write </c><00:05:39.097><c>n </c><00:05:39.340><c>and </c><00:05:39.583><c>I </c><00:05:39.826><c>will </c><00:05:40.069><c>make </c><00:05:40.312><c>it </c><00:05:40.555><c>0</c>
+
+00:05:41.830 --> 00:05:41.840 align:start position:0%
+wrote this I had to write n and I will make it 0
+ 
+
+00:05:41.840 --> 00:05:44.629 align:start position:0%
+wrote this I had to write n and I will make it 0
+from <00:05:42.286><c>the </c><00:05:42.732><c>arguments </c><00:05:43.178><c>which </c><00:05:43.624><c>I </c><00:05:44.070><c>passed </c><00:05:44.516><c>here</c>
+
+00:05:44.629 --> 00:05:44.639 align:start position:0%
+from the arguments which I passed here
+ 
+
+00:05:44.639 --> 00:05:47.330 align:start position:0%
+from the arguments which I passed here
+okay <00:05:44.899><c>so </c><00:05:45.159><c>what </c><00:05:45.419><c>will </c><00:05:45.679><c>I </c><00:05:45.939><c>do </c><00:05:46.199><c>here </c><00:05:46.459><c>I </c><00:05:46.719><c>will </c><00:05:46.979><c>add</c>
+
+00:05:47.330 --> 00:05:47.340 align:start position:0%
+okay so what will I do here I will add
+ 
+
+00:05:47.340 --> 00:05:49.610 align:start position:0%
+okay so what will I do here I will add
+here <00:05:47.940><c>Har</c>
+
+00:05:49.610 --> 00:05:49.620 align:start position:0%
+here Har
+ 
+
+00:05:49.620 --> 00:05:53.710 align:start position:0%
+here Har
+and <00:05:50.060><c>Harry </c><00:05:50.500><c>what </c><00:05:50.940><c>is</c>
+
+00:05:53.710 --> 00:05:53.720 align:start position:0%
+ 
+ 
+
+00:05:53.720 --> 00:05:57.249 align:start position:0%
+ 
+lazy <00:05:54.268><c>developer </c><00:05:54.816><c>and </c><00:05:55.364><c>Divya </c><00:05:55.912><c>what </c><00:05:56.460><c>is</c>
+
+00:05:57.249 --> 00:05:57.259 align:start position:0%
+lazy developer and Divya what is
+ 
+
+00:05:57.259 --> 00:06:00.950 align:start position:0%
+lazy developer and Divya what is
+Divya <00:05:57.650><c>is </c><00:05:58.041><c>a </c><00:05:58.432><c>hard </c><00:05:58.823><c>working </c><00:05:59.214><c>pickle </c><00:05:59.605><c>who </c><00:05:59.996><c>is </c><00:06:00.387><c>a </c><00:06:00.778><c>hard</c>
+
+00:06:00.950 --> 00:06:00.960 align:start position:0%
+Divya is a hard working pickle who is a hard
+ 
+
+00:06:00.960 --> 00:06:04.210 align:start position:0%
+Divya is a hard working pickle who is a hard
+working
+
+00:06:04.210 --> 00:06:04.220 align:start position:0%
+ 
+ 
+
+00:06:04.220 --> 00:06:07.010 align:start position:0%
+ 
+and <00:06:04.443><c>she </c><00:06:04.666><c>stays </c><00:06:04.889><c>till </c><00:06:05.112><c>5:00 </c><00:06:05.335><c>in </c><00:06:05.558><c>the </c><00:06:05.781><c>evening </c><00:06:06.004><c>and </c><00:06:06.227><c>stays </c><00:06:06.450><c>even </c><00:06:06.673><c>after </c><00:06:06.896><c>that</c>
+
+00:06:07.010 --> 00:06:07.020 align:start position:0%
+and she stays till 5:00 in the evening and stays even after that
+ 
+
+00:06:07.020 --> 00:06:08.450 align:start position:0%
+and she stays till 5:00 in the evening and stays even after that
+sometimes <00:06:07.480><c>now </c><00:06:07.940><c>look </c><00:06:08.400><c>here</c>
+
+00:06:08.450 --> 00:06:08.460 align:start position:0%
+sometimes now look here
+ 
+
+00:06:08.460 --> 00:06:11.510 align:start position:0%
+sometimes now look here
+I <00:06:08.854><c>wrote </c><00:06:09.248><c>Harry </c><00:06:09.642><c>and </c><00:06:10.036><c>developer </c><00:06:10.430><c>Divya </c><00:06:10.824><c>and </c><00:06:11.218><c>Har</c>
+
+00:06:11.510 --> 00:06:11.520 align:start position:0%
+I wrote Harry and developer Divya and Har
+ 
+
+00:06:11.520 --> 00:06:14.689 align:start position:0%
+I wrote Harry and developer Divya and Har
+I <00:06:11.965><c>did </c><00:06:12.410><c>not </c><00:06:12.855><c>do </c><00:06:13.300><c>anything </c><00:06:13.745><c>I </c><00:06:14.190><c>am </c><00:06:14.635><c>an</c>
+
+00:06:14.689 --> 00:06:14.699 align:start position:0%
+I did not do anything I am an
+ 
+
+00:06:14.699 --> 00:06:17.570 align:start position:0%
+I did not do anything I am an
+person <00:06:15.069><c>that </c><00:06:15.439><c>means </c><00:06:15.809><c>this </c><00:06:16.179><c>method </c><00:06:16.549><c>is </c><00:06:16.919><c>unit</c>
+
+00:06:17.570 --> 00:06:17.580 align:start position:0%
+person that means this method is unit
+ 
+
+00:06:17.580 --> 00:06:20.150 align:start position:0%
+person that means this method is unit
+method <00:06:17.837><c>construct </c><00:06:18.094><c>and </c><00:06:18.351><c>method </c><00:06:18.608><c>is </c><00:06:18.865><c>engineered </c><00:06:19.122><c>it </c><00:06:19.379><c>was</c>
+
+00:06:20.150 --> 00:06:20.160 align:start position:0%
+method construct and method is engineered it was
+ 
+
+00:06:20.160 --> 00:06:21.730 align:start position:0%
+method construct and method is engineered it was
+called <00:06:20.520><c>for </c><00:06:20.880><c>this</c>
+
+00:06:21.730 --> 00:06:21.740 align:start position:0%
+called for this
+ 
+
+00:06:21.740 --> 00:06:26.090 align:start position:0%
+called for this
+also <00:06:22.160><c>and </c><00:06:22.580><c>for </c><00:06:23.000><c>this </c><00:06:23.420><c>also </c><00:06:23.840><c>okay </c><00:06:24.260><c>now </c><00:06:24.680><c>let </c><00:06:25.100><c>us</c>
+
+00:06:26.090 --> 00:06:26.100 align:start position:0%
+also and for this also okay now let us
+ 
+
+00:06:26.100 --> 00:06:28.070 align:start position:0%
+also and for this also okay now let us
+see <00:06:26.365><c>if </c><00:06:26.630><c>I </c><00:06:26.895><c>will </c><00:06:27.160><c>do </c><00:06:27.425><c>a </c><00:06:27.690><c>dot </c><00:06:27.955><c>info</c>
+
+00:06:28.070 --> 00:06:28.080 align:start position:0%
+see if I will do a dot info
+ 
+
+00:06:28.080 --> 00:06:30.830 align:start position:0%
+see if I will do a dot info
+and <00:06:28.387><c>b </c><00:06:28.694><c>dot </c><00:06:29.001><c>info </c><00:06:29.308><c>so </c><00:06:29.615><c>what </c><00:06:29.922><c>is </c><00:06:30.229><c>Divya </c><00:06:30.536><c>and</c>
+
+00:06:30.830 --> 00:06:30.840 align:start position:0%
+and b dot info so what is Divya and
+ 
+
+00:06:30.840 --> 00:06:32.629 align:start position:0%
+and b dot info so what is Divya and
+Hari
+
+00:06:32.629 --> 00:06:32.639 align:start position:0%
+Hari
+ 
+
+00:06:32.639 --> 00:06:44.770 align:start position:0%
+Hari
+that <00:06:32.894><c>info </c><00:06:33.149><c>in </c><00:06:33.404><c>front </c><00:06:33.659><c>of</c>
+
+00:06:44.770 --> 00:06:44.780 align:start position:0%
+ 
+ 
+
+00:06:44.780 --> 00:06:48.830 align:start position:0%
+ 
+Divya <00:06:45.765><c>and </c><00:06:46.750><c>come </c><00:06:47.735><c>from </c><00:06:48.720><c>D</c>
+
+00:06:48.830 --> 00:06:48.840 align:start position:0%
+Divya and come from D
+ 
+
+00:06:48.840 --> 00:06:52.670 align:start position:0%
+Divya and come from D
+inside <00:06:49.213><c>A </c><00:06:49.586><c>OCC </c><00:06:49.959><c>developer </c><00:06:50.332><c>and </c><00:06:50.705><c>OCC </c><00:06:51.078><c>which </c><00:06:51.451><c>is </c><00:06:51.824><c>Har </c><00:06:52.197><c>is</c>
+
+00:06:52.670 --> 00:06:52.680 align:start position:0%
+inside A OCC developer and OCC which is Har is
+ 
+
+00:06:52.680 --> 00:06:55.430 align:start position:0%
+inside A OCC developer and OCC which is Har is
+gone <00:06:53.109><c>it </c><00:06:53.538><c>means </c><00:06:53.967><c>when </c><00:06:54.396><c>I </c><00:06:54.825><c>write </c><00:06:55.254><c>this</c>
+
+00:06:55.430 --> 00:06:55.440 align:start position:0%
+gone it means when I write this
+ 
+
+00:06:55.440 --> 00:06:57.529 align:start position:0%
+gone it means when I write this
+function  <00:06:55.824><c>When </c><00:06:56.208><c>I'm </c><00:06:56.592><c>calling </c><00:06:56.976><c>this, </c><00:06:57.360><c>both</c>
+
+00:06:57.529 --> 00:06:57.539 align:start position:0%
+function  When I'm calling this, both
+ 
+
+00:06:57.539 --> 00:06:59.629 align:start position:0%
+function  When I'm calling this, both
+arguments <00:06:57.822><c>are </c><00:06:58.105><c>being </c><00:06:58.388><c>passed </c><00:06:58.671><c>to </c><00:06:58.954><c>the </c><00:06:59.237><c>"and" </c><00:06:59.520><c>form.</c>
+
+00:06:59.629 --> 00:06:59.639 align:start position:0%
+arguments are being passed to the "and" form.
+ 
+
+00:06:59.639 --> 00:07:01.670 align:start position:0%
+arguments are being passed to the "and" form.
+Now, <00:07:00.029><c>"Congress </c><00:07:00.419><c>Self" </c><00:07:00.809><c>means </c><00:07:01.199><c>it's</c>
+
+00:07:01.670 --> 00:07:01.680 align:start position:0%
+Now, "Congress Self" means it's
+ 
+
+00:07:01.680 --> 00:07:04.370 align:start position:0%
+Now, "Congress Self" means it's
+taking <00:07:02.010><c>three </c><00:07:02.340><c>arguments, </c><00:07:02.670><c>it's </c><00:07:03.000><c>taking </c><00:07:03.330><c>two. </c><00:07:03.660><c>So,</c>
+
+00:07:04.370 --> 00:07:04.380 align:start position:0%
+taking three arguments, it's taking two. So,
+ 
+
+00:07:04.380 --> 00:07:08.210 align:start position:0%
+taking three arguments, it's taking two. So,
+when <00:07:04.770><c>you </c><00:07:05.160><c>do </c><00:07:05.550><c>"a </c><00:07:05.940><c>= </c><00:07:06.330><c>personal" </c><00:07:06.720><c>like </c><00:07:07.110><c>this, </c><00:07:07.500><c>the</c>
+
+00:07:08.210 --> 00:07:08.220 align:start position:0%
+when you do "a = personal" like this, the
+ 
+
+00:07:08.220 --> 00:07:10.850 align:start position:0%
+when you do "a = personal" like this, the
+object <00:07:08.640><c>in </c><00:07:09.060><c>the </c><00:07:09.480><c>"self" </c><00:07:09.900><c>form </c><00:07:10.320><c>is </c><00:07:10.740><c>automatically</c>
+
+00:07:10.850 --> 00:07:10.860 align:start position:0%
+object in the "self" form is automatically
+ 
+
+00:07:10.860 --> 00:07:12.050 align:start position:0%
+object in the "self" form is automatically
+passed. <00:07:11.370><c>This </c><00:07:11.880><c>happens</c>
+
+00:07:12.050 --> 00:07:12.060 align:start position:0%
+passed. This happens
+ 
+
+00:07:12.060 --> 00:07:15.290 align:start position:0%
+passed. This happens
+automatically. <00:07:12.335><c>All </c><00:07:12.610><c>you </c><00:07:12.885><c>have </c><00:07:13.160><c>to </c><00:07:13.435><c>do </c><00:07:13.710><c>is </c><00:07:13.985><c>write </c><00:07:14.260><c>"Harry" </c><00:07:14.535><c>and </c><00:07:14.810><c>"Developer"</c>
+
+00:07:15.290 --> 00:07:15.300 align:start position:0%
+automatically. All you have to do is write "Harry" and "Developer"
+ 
+
+00:07:15.300 --> 00:07:16.969 align:start position:0%
+automatically. All you have to do is write "Harry" and "Developer"
+in <00:07:15.820><c>the </c><00:07:16.340><c>"people" </c><00:07:16.860><c>form.</c>
+
+00:07:16.969 --> 00:07:16.979 align:start position:0%
+in the "people" form.
+ 
+
+00:07:16.979 --> 00:07:19.430 align:start position:0%
+in the "people" form.
+Ignore <00:07:17.387><c>"self," </c><00:07:17.795><c>just </c><00:07:18.203><c>like </c><00:07:18.611><c>we </c><00:07:19.019><c>did</c>
+
+00:07:19.430 --> 00:07:19.440 align:start position:0%
+Ignore "self," just like we did
+ 
+
+00:07:19.440 --> 00:07:20.749 align:start position:0%
+Ignore "self," just like we did
+in <00:07:19.620><c>"Info," </c><00:07:19.800><c>"Ignore."</c>
+
+00:07:20.749 --> 00:07:20.759 align:start position:0%
+in "Info," "Ignore."
+ 
+
+00:07:20.759 --> 00:07:22.909 align:start position:0%
+in "Info," "Ignore."
+Now, <00:07:20.981><c>let </c><00:07:21.203><c>me </c><00:07:21.425><c>show </c><00:07:21.647><c>you </c><00:07:21.869><c>something. </c><00:07:22.091><c>If </c><00:07:22.313><c>I</c>
+
+00:07:22.909 --> 00:07:22.919 align:start position:0%
+Now, let me show you something. If I
+ 
+
+00:07:22.919 --> 00:07:26.210 align:start position:0%
+Now, let me show you something. If I
+write <00:07:23.459><c>"a </c><00:07:23.999><c>= </c><00:07:24.539><c>impact" </c><00:07:25.079><c>here, </c><00:07:25.619><c>I'll </c><00:07:26.159><c>do</c>
+
+00:07:26.210 --> 00:07:26.220 align:start position:0%
+write "a = impact" here, I'll do
+ 
+
+00:07:26.220 --> 00:07:28.730 align:start position:0%
+write "a = impact" here, I'll do
+it <00:07:27.020><c>with </c><00:07:27.820><c>"c." </c><00:07:28.620><c>I'll</c>
+
+00:07:28.730 --> 00:07:28.740 align:start position:0%
+it with "c." I'll
+ 
+
+00:07:28.740 --> 00:07:33.110 align:start position:0%
+it with "c." I'll
+write <00:07:29.172><c>"c </c><00:07:29.604><c>= </c><00:07:30.036><c>person" </c><00:07:30.468><c>here </c><00:07:30.900><c>and </c><00:07:31.332><c>run </c><00:07:31.764><c>it </c><00:07:32.196><c>like </c><00:07:32.628><c>this, </c><00:07:33.060><c>"done."</c>
+
+00:07:33.110 --> 00:07:33.120 align:start position:0%
+write "c = person" here and run it like this, "done."
+ 
+
+00:07:33.120 --> 00:07:35.809 align:start position:0%
+write "c = person" here and run it like this, "done."
+If <00:07:33.371><c>I </c><00:07:33.622><c>run </c><00:07:33.873><c>it </c><00:07:34.124><c>like </c><00:07:34.375><c>this, </c><00:07:34.626><c>"done." </c><00:07:34.877><c>See, </c><00:07:35.128><c>it's </c><00:07:35.379><c>saying </c><00:07:35.630><c>that</c>
+
+00:07:35.809 --> 00:07:35.819 align:start position:0%
+If I run it like this, "done." See, it's saying that
+ 
+
+00:07:35.819 --> 00:07:37.790 align:start position:0%
+If I run it like this, "done." See, it's saying that
+this <00:07:36.299><c>"unit" </c><00:07:36.779><c>method </c><00:07:37.259><c>is</c>
+
+00:07:37.790 --> 00:07:37.800 align:start position:0%
+this "unit" method is
+ 
+
+00:07:37.800 --> 00:07:41.830 align:start position:0%
+this "unit" method is
+missing <00:07:38.429><c>two </c><00:07:39.058><c>position </c><00:07:39.687><c>arguments. </c><00:07:40.316><c>It's</c>
+
+00:07:41.830 --> 00:07:41.840 align:start position:0%
+missing two position arguments. It's
+ 
+
+00:07:41.840 --> 00:07:45.830 align:start position:0%
+missing two position arguments. It's
+missing <00:07:42.486><c>"and" </c><00:07:43.132><c>and </c><00:07:43.778><c>"o." </c><00:07:44.424><c>Now, </c><00:07:45.070><c>if </c><00:07:45.716><c>I</c>
+
+00:07:45.830 --> 00:07:45.840 align:start position:0%
+missing "and" and "o." Now, if I
+ 
+
+00:07:45.840 --> 00:07:48.469 align:start position:0%
+missing "and" and "o." Now, if I
+write <00:07:46.269><c>"1, </c><00:07:46.698><c>2, </c><00:07:47.127><c>3" </c><00:07:47.556><c>here, </c><00:07:47.985><c>okay. </c><00:07:48.414><c>If</c>
+
+00:07:48.469 --> 00:07:48.479 align:start position:0%
+write "1, 2, 3" here, okay. If
+ 
+
+00:07:48.479 --> 00:07:51.529 align:start position:0%
+write "1, 2, 3" here, okay. If
+I <00:07:48.846><c>write </c><00:07:49.213><c>"person, </c><00:07:49.580><c>one, </c><00:07:49.947><c>two," </c><00:07:50.314><c>then </c><00:07:50.681><c>do </c><00:07:51.048><c>you </c><00:07:51.415><c>know</c>
+
+00:07:51.529 --> 00:07:51.539 align:start position:0%
+I write "person, one, two," then do you know
+ 
+
+00:07:51.539 --> 00:07:53.629 align:start position:0%
+I write "person, one, two," then do you know
+what <00:07:52.019><c>will </c><00:07:52.499><c>happen? </c><00:07:52.979><c>It's</c>
+
+00:07:53.629 --> 00:07:53.639 align:start position:0%
+what will happen? It's
+ 
+
+00:07:53.639 --> 00:07:55.850 align:start position:0%
+what will happen? It's
+telling <00:07:53.969><c>me </c><00:07:54.299><c>that </c><00:07:54.629><c>"unit" </c><00:07:54.959><c>takes </c><00:07:55.289><c>three </c><00:07:55.619><c>position</c>
+
+00:07:55.850 --> 00:07:55.860 align:start position:0%
+telling me that "unit" takes three position
+ 
+
+00:07:55.860 --> 00:07:57.969 align:start position:0%
+telling me that "unit" takes three position
+arguments.  <00:07:56.195><c>But </c><00:07:56.530><c>you </c><00:07:56.865><c>have </c><00:07:57.200><c>given </c><00:07:57.535><c>four,</c>
+
+00:07:57.969 --> 00:07:57.979 align:start position:0%
+arguments.  But you have given four,
+ 
+
+00:07:57.979 --> 00:08:00.710 align:start position:0%
+arguments.  But you have given four,
+I <00:07:58.217><c>have </c><00:07:58.455><c>given </c><00:07:58.693><c>three, </c><00:07:58.931><c>one, </c><00:07:59.169><c>two </c><00:07:59.407><c>and </c><00:07:59.645><c>three, </c><00:07:59.883><c>four, </c><00:08:00.121><c>one </c><00:08:00.359><c>is </c><00:08:00.597><c>being</c>
+
+00:08:00.710 --> 00:08:00.720 align:start position:0%
+I have given three, one, two and three, four, one is being
+ 
+
+00:08:00.720 --> 00:08:03.529 align:start position:0%
+I have given three, one, two and three, four, one is being
+passed <00:08:01.229><c>automatically, </c><00:08:01.738><c>one </c><00:08:02.247><c>is </c><00:08:02.756><c>being</c>
+
+00:08:03.529 --> 00:08:03.539 align:start position:0%
+passed automatically, one is being
+ 
+
+00:08:03.539 --> 00:08:05.270 align:start position:0%
+passed automatically, one is being
+passed <00:08:03.944><c>automatically, </c><00:08:04.349><c>what </c><00:08:04.754><c>is </c><00:08:05.159><c>that,</c>
+
+00:08:05.270 --> 00:08:05.280 align:start position:0%
+passed automatically, what is that,
+ 
+
+00:08:05.280 --> 00:08:07.189 align:start position:0%
+passed automatically, what is that,
+c <00:08:05.537><c>is </c><00:08:05.794><c>being </c><00:08:06.051><c>passed </c><00:08:06.308><c>as </c><00:08:06.565><c>self, </c><00:08:06.822><c>when </c><00:08:07.079><c>I</c>
+
+00:08:07.189 --> 00:08:07.199 align:start position:0%
+c is being passed as self, when I
+ 
+
+00:08:07.199 --> 00:08:10.670 align:start position:0%
+c is being passed as self, when I
+c <00:08:07.514><c>= </c><00:08:07.829><c>c </c><00:08:08.144><c>it </c><00:08:08.459><c>is </c><00:08:08.774><c>passed </c><00:08:09.089><c>automatically </c><00:08:09.404><c>because </c><00:08:09.719><c>it</c>
+
+00:08:10.670 --> 00:08:10.680 align:start position:0%
+c = c it is passed automatically because it
+ 
+
+00:08:10.680 --> 00:08:12.890 align:start position:0%
+c = c it is passed automatically because it
+goes <00:08:11.030><c>as </c><00:08:11.380><c>self, </c><00:08:11.730><c>do </c><00:08:12.080><c>you </c><00:08:12.430><c>understand </c><00:08:12.780><c>this,</c>
+
+00:08:12.890 --> 00:08:12.900 align:start position:0%
+goes as self, do you understand this,
+ 
+
+00:08:12.900 --> 00:08:15.050 align:start position:0%
+goes as self, do you understand this,
+you <00:08:13.132><c>will </c><00:08:13.364><c>have </c><00:08:13.596><c>to </c><00:08:13.828><c>digest </c><00:08:14.060><c>this </c><00:08:14.292><c>a </c><00:08:14.524><c>little </c><00:08:14.756><c>bit</c>
+
+00:08:15.050 --> 00:08:15.060 align:start position:0%
+you will have to digest this a little bit
+ 
+
+00:08:15.060 --> 00:08:16.790 align:start position:0%
+you will have to digest this a little bit
+and <00:08:15.282><c>you </c><00:08:15.504><c>will </c><00:08:15.726><c>feel </c><00:08:15.948><c>that </c><00:08:16.170><c>friend, </c><00:08:16.392><c>I </c><00:08:16.614><c>have</c>
+
+00:08:16.790 --> 00:08:16.800 align:start position:0%
+and you will feel that friend, I have
+ 
+
+00:08:16.800 --> 00:08:18.650 align:start position:0%
+and you will feel that friend, I have
+passed <00:08:17.089><c>three </c><00:08:17.378><c>arguments, </c><00:08:17.667><c>why </c><00:08:17.956><c>am </c><00:08:18.245><c>I </c><00:08:18.534><c>lying,</c>
+
+00:08:18.650 --> 00:08:18.660 align:start position:0%
+passed three arguments, why am I lying,
+ 
+
+00:08:18.660 --> 00:08:20.330 align:start position:0%
+passed three arguments, why am I lying,
+oh <00:08:18.960><c>brother, </c><00:08:19.260><c>Python </c><00:08:19.560><c>is </c><00:08:19.860><c>not </c><00:08:20.160><c>lying,</c>
+
+00:08:20.330 --> 00:08:20.930 align:start position:0%
+oh brother, Python is not lying,
+ 
+
+00:08:20.930 --> 00:08:20.940 align:start position:0%
+ 
+ 
+
+00:08:20.940 --> 00:08:24.710 align:start position:0%
+ 
+okay, <00:08:21.179><c>okay, </c><00:08:21.418><c>you </c><00:08:21.657><c>will </c><00:08:21.896><c>say </c><00:08:22.135><c>if </c><00:08:22.374><c>you </c><00:08:22.613><c>have </c><00:08:22.852><c>passed </c><00:08:23.091><c>three, </c><00:08:23.330><c>yes, </c><00:08:23.569><c>this </c><00:08:23.808><c>is </c><00:08:24.047><c>how </c><00:08:24.286><c>it </c><00:08:24.525><c>happens,</c>
+
+00:08:24.710 --> 00:08:24.720 align:start position:0%
+okay, okay, you will say if you have passed three, yes, this is how it happens,
+ 
+
+00:08:24.720 --> 00:08:28.189 align:start position:0%
+okay, okay, you will say if you have passed three, yes, this is how it happens,
+okay, <00:08:25.840><c>this </c><00:08:26.960><c>world </c><00:08:28.080><c>is</c>
+
+00:08:28.189 --> 00:08:28.199 align:start position:0%
+okay, this world is
+ 
+
+00:08:28.199 --> 00:08:29.350 align:start position:0%
+okay, this world is
+like <00:08:28.319><c>this, </c><00:08:28.439><c>I </c><00:08:28.559><c>have</c>
+
+00:08:29.350 --> 00:08:29.360 align:start position:0%
+like this, I have
+ 
+
+00:08:29.360 --> 00:08:32.690 align:start position:0%
+like this, I have
+passed <00:08:29.734><c>123, </c><00:08:30.108><c>I </c><00:08:30.482><c>have </c><00:08:30.856><c>passed </c><00:08:31.230><c>three, </c><00:08:31.604><c>Python </c><00:08:31.978><c>will</c>
+
+00:08:32.690 --> 00:08:32.700 align:start position:0%
+passed 123, I have passed three, Python will
+ 
+
+00:08:32.700 --> 00:08:35.149 align:start position:0%
+passed 123, I have passed three, Python will
+say <00:08:32.921><c>no, </c><00:08:33.142><c>you </c><00:08:33.363><c>have </c><00:08:33.584><c>passed </c><00:08:33.805><c>four, </c><00:08:34.026><c>one </c><00:08:34.247><c>self </c><00:08:34.468><c>is </c><00:08:34.689><c>being </c><00:08:34.910><c>passed</c>
+
+00:08:35.149 --> 00:08:35.159 align:start position:0%
+say no, you have passed four, one self is being passed
+ 
+
+00:08:35.159 --> 00:08:37.490 align:start position:0%
+say no, you have passed four, one self is being passed
+automatically, <00:08:35.739><c>okay, </c><00:08:36.319><c>so </c><00:08:36.899><c>one</c>
+
+00:08:37.490 --> 00:08:37.500 align:start position:0%
+automatically, okay, so one
+ 
+
+00:08:37.500 --> 00:08:39.290 align:start position:0%
+automatically, okay, so one
+self <00:08:37.725><c>is </c><00:08:37.950><c>the </c><00:08:38.175><c>password </c><00:08:38.400><c>for </c><00:08:38.625><c>the </c><00:08:38.850><c>first </c><00:08:39.075><c>argument </c><00:08:39.300><c>automatically,</c>
+
+00:08:39.290 --> 00:08:39.300 align:start position:0%
+self is the password for the first argument automatically,
+ 
+
+00:08:39.300 --> 00:08:40.790 align:start position:0%
+self is the password for the first argument automatically,
+so <00:08:39.480><c>two </c><00:08:39.660><c>you </c><00:08:39.840><c>have </c><00:08:40.020><c>to </c><00:08:40.200><c>enter </c><00:08:40.380><c>the </c><00:08:40.560><c>password,</c>
+
+00:08:40.790 --> 00:08:40.800 align:start position:0%
+so two you have to enter the password,
+ 
+
+00:08:40.800 --> 00:08:42.709 align:start position:0%
+so two you have to enter the password,
+the <00:08:41.017><c>way </c><00:08:41.234><c>I </c><00:08:41.451><c>have </c><00:08:41.668><c>done </c><00:08:41.885><c>it </c><00:08:42.102><c>here </c><00:08:42.319><c>that </c><00:08:42.536><c>every</c>
+
+00:08:42.709 --> 00:08:42.719 align:start position:0%
+the way I have done it here that every
+ 
+
+00:08:42.719 --> 00:08:46.370 align:start position:0%
+the way I have done it here that every
+developer, <00:08:43.024><c>now </c><00:08:43.329><c>this </c><00:08:43.634><c>is </c><00:08:43.939><c>the </c><00:08:44.244><c>rule, </c><00:08:44.549><c>okay, </c><00:08:44.854><c>why </c><00:08:45.159><c>was </c><00:08:45.464><c>such </c><00:08:45.769><c>a </c><00:08:46.074><c>rule</c>
+
+00:08:46.370 --> 00:08:46.380 align:start position:0%
+developer, now this is the rule, okay, why was such a rule
+ 
+
+00:08:46.380 --> 00:08:48.949 align:start position:0%
+developer, now this is the rule, okay, why was such a rule
+made, <00:08:46.779><c>just </c><00:08:47.178><c>think, </c><00:08:47.577><c>if </c><00:08:47.976><c>I </c><00:08:48.375><c>have </c><00:08:48.774><c>to</c>
+
+00:08:48.949 --> 00:08:48.959 align:start position:0%
+made, just think, if I have to
+ 
+
+00:08:48.959 --> 00:08:50.230 align:start position:0%
+made, just think, if I have to
+pass <00:08:49.119><c>one </c><00:08:49.279><c>more </c><00:08:49.439><c>again, </c><00:08:49.599><c>it </c><00:08:49.759><c>is </c><00:08:49.919><c>happening</c>
+
+00:08:50.230 --> 00:08:50.240 align:start position:0%
+pass one more again, it is happening
+ 
+
+00:08:50.240 --> 00:08:52.130 align:start position:0%
+pass one more again, it is happening
+automatically <00:08:50.608><c>here, </c><00:08:50.976><c>then </c><00:08:51.344><c>it </c><00:08:51.712><c>is </c><00:08:52.080><c>good,</c>
+
+00:08:52.130 --> 00:08:52.140 align:start position:0%
+automatically here, then it is good,
+ 
+
+00:08:52.140 --> 00:08:55.730 align:start position:0%
+automatically here, then it is good,
+right, <00:08:52.453><c>so </c><00:08:52.766><c>this </c><00:08:53.079><c>thing  </c><00:08:53.392><c>You </c><00:08:53.705><c>guys </c><00:08:54.018><c>keep </c><00:08:54.331><c>in </c><00:08:54.644><c>mind </c><00:08:54.957><c>that</c>
+
+00:08:55.730 --> 00:08:55.740 align:start position:0%
+right, so this thing  You guys keep in mind that
+ 
+
+00:08:55.740 --> 00:08:58.070 align:start position:0%
+right, so this thing  You guys keep in mind that
+constructor <00:08:55.970><c>is </c><00:08:56.200><c>a </c><00:08:56.430><c>special </c><00:08:56.660><c>method </c><00:08:56.890><c>of </c><00:08:57.120><c>a</c>
+
+00:08:58.070 --> 00:08:58.080 align:start position:0%
+constructor is a special method of a
+ 
+
+00:08:58.080 --> 00:08:59.870 align:start position:0%
+constructor is a special method of a
+class, <00:08:58.343><c>it </c><00:08:58.606><c>is </c><00:08:58.869><c>initialized </c><00:08:59.132><c>as </c><00:08:59.395><c>an</c>
+
+00:08:59.870 --> 00:08:59.880 align:start position:0%
+class, it is initialized as an
+ 
+
+00:08:59.880 --> 00:09:01.670 align:start position:0%
+class, it is initialized as an
+object <00:09:00.204><c>in </c><00:09:00.528><c>a </c><00:09:00.852><c>class, </c><00:09:01.176><c>okay, </c><00:09:01.500><c>whenever</c>
+
+00:09:01.670 --> 00:09:01.680 align:start position:0%
+object in a class, okay, whenever
+ 
+
+00:09:01.680 --> 00:09:03.350 align:start position:0%
+object in a class, okay, whenever
+initialization <00:09:01.980><c>of </c><00:09:02.280><c>an </c><00:09:02.580><c>object </c><00:09:02.880><c>happens, </c><00:09:03.180><c>we</c>
+
+00:09:03.350 --> 00:09:03.360 align:start position:0%
+initialization of an object happens, we
+ 
+
+00:09:03.360 --> 00:09:05.030 align:start position:0%
+initialization of an object happens, we
+can <00:09:03.496><c>do </c><00:09:03.632><c>it, </c><00:09:03.768><c>okay, </c><00:09:03.904><c>I </c><00:09:04.040><c>want </c><00:09:04.176><c>to </c><00:09:04.312><c>say </c><00:09:04.448><c>one </c><00:09:04.584><c>thing </c><00:09:04.720><c>here, </c><00:09:04.856><c>ca</c>
+
+00:09:05.030 --> 00:09:05.040 align:start position:0%
+can do it, okay, I want to say one thing here, ca
+ 
+
+00:09:05.040 --> 00:09:06.650 align:start position:0%
+can do it, okay, I want to say one thing here, ca
+n't <00:09:05.290><c>I </c><00:09:05.540><c>name </c><00:09:05.790><c>it, </c><00:09:06.040><c>yes </c><00:09:06.290><c>I </c><00:09:06.540><c>can,</c>
+
+00:09:06.650 --> 00:09:06.660 align:start position:0%
+n't I name it, yes I can,
+ 
+
+00:09:06.660 --> 00:09:09.470 align:start position:0%
+n't I name it, yes I can,
+absolutely <00:09:07.680><c>I </c><00:09:08.700><c>can</c>
+
+00:09:09.470 --> 00:09:09.480 align:start position:0%
+absolutely I can
+ 
+
+00:09:09.480 --> 00:09:12.290 align:start position:0%
+absolutely I can
+name <00:09:09.930><c>it, </c><00:09:10.380><c>this </c><00:09:10.830><c>is </c><00:09:11.280><c>name, </c><00:09:11.730><c>when </c><00:09:12.180><c>I</c>
+
+00:09:12.290 --> 00:09:12.300 align:start position:0%
+name it, this is name, when I
+ 
+
+00:09:12.300 --> 00:09:14.030 align:start position:0%
+name it, this is name, when I
+say <00:09:12.600><c>just </c><00:09:12.900><c>dot </c><00:09:13.200><c>name, </c><00:09:13.500><c>this </c><00:09:13.800><c>name</c>
+
+00:09:14.030 --> 00:09:14.040 align:start position:0%
+say just dot name, this name
+ 
+
+00:09:14.040 --> 00:09:16.250 align:start position:0%
+say just dot name, this name
+is <00:09:14.302><c>a </c><00:09:14.564><c>property </c><00:09:14.826><c>of </c><00:09:15.088><c>this </c><00:09:15.350><c>object, </c><00:09:15.612><c>when </c><00:09:15.874><c>I </c><00:09:16.136><c>say</c>
+
+00:09:16.250 --> 00:09:16.260 align:start position:0%
+is a property of this object, when I say
+ 
+
+00:09:16.260 --> 00:09:18.590 align:start position:0%
+is a property of this object, when I say
+name, <00:09:16.632><c>this </c><00:09:17.004><c>is </c><00:09:17.376><c>a </c><00:09:17.748><c>simple </c><00:09:18.120><c>temporary</c>
+
+00:09:18.590 --> 00:09:18.600 align:start position:0%
+name, this is a simple temporary
+ 
+
+00:09:18.600 --> 00:09:20.329 align:start position:0%
+name, this is a simple temporary
+variable, <00:09:18.860><c>an </c><00:09:19.120><c>argument </c><00:09:19.380><c>is </c><00:09:19.640><c>passed </c><00:09:19.900><c>to </c><00:09:20.160><c>it</c>
+
+00:09:20.329 --> 00:09:20.339 align:start position:0%
+variable, an argument is passed to it
+ 
+
+00:09:20.339 --> 00:09:23.150 align:start position:0%
+variable, an argument is passed to it
+for <00:09:20.819><c>the </c><00:09:21.299><c>local </c><00:09:21.779><c>function, </c><00:09:22.259><c>so </c><00:09:22.739><c>I</c>
+
+00:09:23.150 --> 00:09:23.160 align:start position:0%
+for the local function, so I
+ 
+
+00:09:23.160 --> 00:09:24.949 align:start position:0%
+for the local function, so I
+can <00:09:23.357><c>also </c><00:09:23.554><c>write </c><00:09:23.751><c>OCC </c><00:09:23.948><c>like </c><00:09:24.145><c>this, </c><00:09:24.342><c>name </c><00:09:24.539><c>OCC,</c>
+
+00:09:24.949 --> 00:09:24.959 align:start position:0%
+can also write OCC like this, name OCC,
+ 
+
+00:09:24.959 --> 00:09:26.870 align:start position:0%
+can also write OCC like this, name OCC,
+okay, <00:09:25.207><c>so </c><00:09:25.455><c>don't </c><00:09:25.703><c>get </c><00:09:25.951><c>confused, </c><00:09:26.199><c>that's </c><00:09:26.447><c>why </c><00:09:26.695><c>I</c>
+
+00:09:26.870 --> 00:09:26.880 align:start position:0%
+okay, so don't get confused, that's why I
+ 
+
+00:09:26.880 --> 00:09:28.910 align:start position:0%
+okay, so don't get confused, that's why I
+wrote <00:09:27.073><c>'roz' </c><00:09:27.266><c>initialized </c><00:09:27.459><c>so </c><00:09:27.652><c>that </c><00:09:27.845><c>you </c><00:09:28.038><c>guys </c><00:09:28.231><c>don't </c><00:09:28.424><c>get </c><00:09:28.617><c>confused,</c>
+
+00:09:28.910 --> 00:09:28.920 align:start position:0%
+wrote 'roz' initialized so that you guys don't get confused,
+ 
+
+00:09:28.920 --> 00:09:31.490 align:start position:0%
+wrote 'roz' initialized so that you guys don't get confused,
+construction <00:09:29.239><c>note </c><00:09:29.558><c>is </c><00:09:29.877><c>called </c><00:09:30.196><c>automatically </c><00:09:30.515><c>when </c><00:09:30.834><c>an</c>
+
+00:09:31.490 --> 00:09:31.500 align:start position:0%
+construction note is called automatically when an
+ 
+
+00:09:31.500 --> 00:09:33.350 align:start position:0%
+construction note is called automatically when an
+object <00:09:31.700><c>of </c><00:09:31.900><c>any </c><00:09:32.100><c>class </c><00:09:32.300><c>is </c><00:09:32.500><c>called, </c><00:09:32.700><c>a</c>
+
+00:09:33.350 --> 00:09:33.360 align:start position:0%
+object of any class is called, a
+ 
+
+00:09:33.360 --> 00:09:35.210 align:start position:0%
+object of any class is called, a
+constructor <00:09:33.562><c>is </c><00:09:33.764><c>called </c><00:09:33.966><c>as </c><00:09:34.168><c>a </c><00:09:34.370><c>unique </c><00:09:34.572><c>function </c><00:09:34.774><c>that </c><00:09:34.976><c>gets</c>
+
+00:09:35.210 --> 00:09:35.220 align:start position:0%
+constructor is called as a unique function that gets
+ 
+
+00:09:35.220 --> 00:09:37.070 align:start position:0%
+constructor is called as a unique function that gets
+automatically <00:09:35.451><c>called </c><00:09:35.682><c>when </c><00:09:35.913><c>and </c><00:09:36.144><c>object </c><00:09:36.375><c>is </c><00:09:36.606><c>called, </c><00:09:36.837><c>this</c>
+
+00:09:37.070 --> 00:09:37.080 align:start position:0%
+automatically called when and object is called, this
+ 
+
+00:09:37.080 --> 00:09:39.230 align:start position:0%
+automatically called when and object is called, this
+we <00:09:37.400><c>saw </c><00:09:37.720><c>that </c><00:09:38.040><c>it </c><00:09:38.360><c>is </c><00:09:38.680><c>called </c><00:09:39.000><c>automatically,</c>
+
+00:09:39.230 --> 00:09:39.240 align:start position:0%
+we saw that it is called automatically,
+ 
+
+00:09:39.240 --> 00:09:41.329 align:start position:0%
+we saw that it is called automatically,
+this <00:09:39.465><c>is </c><00:09:39.690><c>the </c><00:09:39.915><c>person, </c><00:09:40.140><c>that's </c><00:09:40.365><c>why </c><00:09:40.590><c>it </c><00:09:40.815><c>was </c><00:09:41.040><c>printed,</c>
+
+00:09:41.329 --> 00:09:41.339 align:start position:0%
+this is the person, that's why it was printed,
+ 
+
+00:09:41.339 --> 00:09:43.670 align:start position:0%
+this is the person, that's why it was printed,
+what <00:09:41.579><c>is </c><00:09:41.819><c>the </c><00:09:42.059><c>barber, </c><00:09:42.299><c>the </c><00:09:42.539><c>values ​​</c><00:09:42.779><c>of </c><00:09:43.019><c>the </c><00:09:43.259><c>constructor </c><00:09:43.499><c>are</c>
+
+00:09:43.670 --> 00:09:43.680 align:start position:0%
+what is the barber, the values ​​of the constructor are
+ 
+
+00:09:43.680 --> 00:09:47.269 align:start position:0%
+what is the barber, the values ​​of the constructor are
+initialized <00:09:44.329><c>and </c><00:09:44.978><c>this  </c><00:09:45.627><c>It </c><00:09:46.276><c>always</c>
+
+00:09:47.269 --> 00:09:47.279 align:start position:0%
+initialized and this  It always
+ 
+
+00:09:47.279 --> 00:09:49.190 align:start position:0%
+initialized and this  It always
+returns <00:09:47.519><c>Nan. </c><00:09:47.759><c>Okay, </c><00:09:47.999><c>what </c><00:09:48.239><c>does </c><00:09:48.479><c>it </c><00:09:48.719><c>return </c><00:09:48.959><c>Nan?</c>
+
+00:09:49.190 --> 00:09:49.200 align:start position:0%
+returns Nan. Okay, what does it return Nan?
+ 
+
+00:09:49.200 --> 00:09:52.250 align:start position:0%
+returns Nan. Okay, what does it return Nan?
+Okay, <00:09:49.620><c>great. </c><00:09:50.040><c>Now, </c><00:09:50.460><c>there </c><00:09:50.880><c>are </c><00:09:51.300><c>two </c><00:09:51.720><c>types </c><00:09:52.140><c>of</c>
+
+00:09:52.250 --> 00:09:52.260 align:start position:0%
+Okay, great. Now, there are two types of
+ 
+
+00:09:52.260 --> 00:09:54.050 align:start position:0%
+Okay, great. Now, there are two types of
+constructors. <00:09:52.635><c>One </c><00:09:53.010><c>is </c><00:09:53.385><c>a </c><00:09:53.760><c>parameterized</c>
+
+00:09:54.050 --> 00:09:54.060 align:start position:0%
+constructors. One is a parameterized
+ 
+
+00:09:54.060 --> 00:09:55.970 align:start position:0%
+constructors. One is a parameterized
+constructor <00:09:54.290><c>in </c><00:09:54.520><c>which </c><00:09:54.750><c>parameters </c><00:09:54.980><c>are</c>
+
+00:09:55.970 --> 00:09:55.980 align:start position:0%
+constructor in which parameters are
+ 
+
+00:09:55.980 --> 00:09:57.769 align:start position:0%
+constructor in which parameters are
+given. <00:09:56.440><c>When </c><00:09:56.900><c>this </c><00:09:57.360><c>constructor</c>
+
+00:09:57.769 --> 00:09:57.779 align:start position:0%
+given. When this constructor
+ 
+
+00:09:57.779 --> 00:09:59.329 align:start position:0%
+given. When this constructor
+accepts <00:09:57.967><c>arguments </c><00:09:58.155><c>along </c><00:09:58.343><c>with </c><00:09:58.531><c>self, </c><00:09:58.719><c>it </c><00:09:58.907><c>is </c><00:09:59.095><c>an</c>
+
+00:09:59.329 --> 00:09:59.339 align:start position:0%
+accepts arguments along with self, it is an
+ 
+
+00:09:59.339 --> 00:10:01.790 align:start position:0%
+accepts arguments along with self, it is an
+aspirated <00:10:00.119><c>constructor. </c><00:10:00.899><c>And </c><00:10:01.679><c>here</c>
+
+00:10:01.790 --> 00:10:01.800 align:start position:0%
+aspirated constructor. And here
+ 
+
+00:10:01.800 --> 00:10:03.650 align:start position:0%
+aspirated constructor. And here
+I <00:10:02.112><c>told </c><00:10:02.424><c>you </c><00:10:02.736><c>guys </c><00:10:03.048><c>its </c><00:10:03.360><c>example.</c>
+
+00:10:03.650 --> 00:10:03.660 align:start position:0%
+I told you guys its example.
+ 
+
+00:10:03.660 --> 00:10:06.170 align:start position:0%
+I told you guys its example.
+Okay, <00:10:03.994><c>we </c><00:10:04.328><c>took </c><00:10:04.662><c>it. </c><00:10:04.996><c>And </c><00:10:05.330><c>before </c><00:10:05.664><c>this, </c><00:10:05.998><c>I</c>
+
+00:10:06.170 --> 00:10:06.180 align:start position:0%
+Okay, we took it. And before this, I
+ 
+
+00:10:06.180 --> 00:10:07.850 align:start position:0%
+Okay, we took it. And before this, I
+also <00:10:06.430><c>told </c><00:10:06.680><c>you </c><00:10:06.930><c>about </c><00:10:07.180><c>the </c><00:10:07.430><c>default </c><00:10:07.680><c>constructor</c>
+
+00:10:07.850 --> 00:10:07.860 align:start position:0%
+also told you about the default constructor
+ 
+
+00:10:07.860 --> 00:10:09.350 align:start position:0%
+also told you about the default constructor
+which <00:10:08.070><c>does </c><00:10:08.280><c>not </c><00:10:08.490><c>take </c><00:10:08.700><c>arguments, </c><00:10:08.910><c>it </c><00:10:09.120><c>only</c>
+
+00:10:09.350 --> 00:10:09.360 align:start position:0%
+which does not take arguments, it only
+ 
+
+00:10:09.360 --> 00:10:11.710 align:start position:0%
+which does not take arguments, it only
+takes <00:10:09.617><c>self. </c><00:10:09.874><c>In </c><00:10:10.131><c>which </c><00:10:10.388><c>I </c><00:10:10.645><c>only </c><00:10:10.902><c>said </c><00:10:11.159><c>that</c>
+
+00:10:11.710 --> 00:10:11.720 align:start position:0%
+takes self. In which I only said that
+ 
+
+00:10:11.720 --> 00:10:15.410 align:start position:0%
+takes self. In which I only said that
+if <00:10:12.097><c>it </c><00:10:12.474><c>does </c><00:10:12.851><c>not </c><00:10:13.228><c>take </c><00:10:13.605><c>name </c><00:10:13.982><c>and </c><00:10:14.359><c>cc, </c><00:10:14.736><c>then </c><00:10:15.113><c>which</c>
+
+00:10:15.410 --> 00:10:15.420 align:start position:0%
+if it does not take name and cc, then which
+ 
+
+00:10:15.420 --> 00:10:17.990 align:start position:0%
+if it does not take name and cc, then which
+function <00:10:15.683><c>constructor </c><00:10:15.946><c>would </c><00:10:16.209><c>it </c><00:10:16.472><c>be? </c><00:10:16.735><c>The </c><00:10:16.998><c>default</c>
+
+00:10:17.990 --> 00:10:18.000 align:start position:0%
+function constructor would it be? The default
+ 
+
+00:10:18.000 --> 00:10:20.810 align:start position:0%
+function constructor would it be? The default
+constructor takes
+
+00:10:20.810 --> 00:10:20.820 align:start position:0%
+ 
+ 
+
+00:10:20.820 --> 00:10:23.570 align:start position:0%
+ 
+arguments <00:10:21.171><c>from </c><00:10:21.522><c>the </c><00:10:21.873><c>object. </c><00:10:22.224><c>Only </c><00:10:22.575><c>one </c><00:10:22.926><c>argument </c><00:10:23.277><c>self.</c>
+
+00:10:23.570 --> 00:10:23.580 align:start position:0%
+arguments from the object. Only one argument self.
+ 
+
+00:10:23.580 --> 00:10:25.730 align:start position:0%
+arguments from the object. Only one argument self.
+In <00:10:25.560><c>this</c>
+
+00:10:25.730 --> 00:10:25.740 align:start position:0%
+In this
+ 
+
+00:10:25.740 --> 00:10:28.370 align:start position:0%
+In this
+constructor, <00:10:26.147><c>it </c><00:10:26.554><c>is </c><00:10:26.961><c>Nan. </c><00:10:27.368><c>Okay, </c><00:10:27.775><c>so</c>
+
+00:10:28.370 --> 00:10:28.380 align:start position:0%
+constructor, it is Nan. Okay, so
+ 
+
+00:10:28.380 --> 00:10:30.530 align:start position:0%
+constructor, it is Nan. Okay, so
+here <00:10:28.788><c>is </c><00:10:29.196><c>an </c><00:10:29.604><c>example </c><00:10:30.012><c>which </c><00:10:30.420><c>is</c>
+
+00:10:30.530 --> 00:10:30.540 align:start position:0%
+here is an example which is
+ 
+
+00:10:30.540 --> 00:10:34.310 align:start position:0%
+here is an example which is
+printing <00:10:31.089><c>whenever </c><00:10:31.638><c>an </c><00:10:32.187><c>object </c><00:10:32.736><c>is </c><00:10:33.285><c>created </c><00:10:33.834><c>of</c>
+
+00:10:34.310 --> 00:10:34.320 align:start position:0%
+printing whenever an object is created of
+ 
+
+00:10:34.320 --> 00:10:36.410 align:start position:0%
+printing whenever an object is created of
+that <00:10:34.594><c>class. </c><00:10:34.868><c>So, </c><00:10:35.142><c>this </c><00:10:35.416><c>is </c><00:10:35.690><c>a </c><00:10:35.964><c>deep </c><00:10:36.238><c>default</c>
+
+00:10:36.410 --> 00:10:36.420 align:start position:0%
+that class. So, this is a deep default
+ 
+
+00:10:36.420 --> 00:10:38.030 align:start position:0%
+that class. So, this is a deep default
+constructor <00:10:36.800><c>because </c><00:10:37.180><c>it </c><00:10:37.560><c>is</c>
+
+00:10:38.030 --> 00:10:38.040 align:start position:0%
+constructor because it is
+ 
+
+00:10:38.040 --> 00:10:40.009 align:start position:0%
+constructor because it is
+not <00:10:38.264><c>taking </c><00:10:38.488><c>any </c><00:10:38.712><c>arguments. </c><00:10:38.936><c>I </c><00:10:39.160><c>hope </c><00:10:39.384><c>you </c><00:10:39.608><c>guys </c><00:10:39.832><c>understood</c>
+
+00:10:40.009 --> 00:10:40.019 align:start position:0%
+not taking any arguments. I hope you guys understood
+ 
+
+00:10:40.019 --> 00:10:42.949 align:start position:0%
+not taking any arguments. I hope you guys understood
+what <00:10:40.336><c>this </c><00:10:40.653><c>thing </c><00:10:40.970><c>is. </c><00:10:41.287><c>What </c><00:10:41.604><c>is </c><00:10:41.921><c>a </c><00:10:42.238><c>parameter?</c>
+
+00:10:42.949 --> 00:10:42.959 align:start position:0%
+what this thing is. What is a parameter?
+ 
+
+00:10:42.959 --> 00:10:44.630 align:start position:0%
+what this thing is. What is a parameter?
+What <00:10:43.223><c>is </c><00:10:43.487><c>its </c><00:10:43.751><c>instruction?  </c><00:10:44.015><c>The </c><00:10:44.279><c>default</c>
+
+00:10:44.630 --> 00:10:44.640 align:start position:0%
+What is its instruction?  The default
+ 
+
+00:10:44.640 --> 00:10:46.370 align:start position:0%
+What is its instruction?  The default
+construct <00:10:45.030><c>is </c><00:10:45.420><c>Rock </c><00:10:45.810><c>Constructor </c><00:10:46.200><c>Engineal.</c>
+
+00:10:46.370 --> 00:10:46.380 align:start position:0%
+construct is Rock Constructor Engineal.
+ 
+
+00:10:46.380 --> 00:10:49.190 align:start position:0%
+construct is Rock Constructor Engineal.
+In <00:10:46.905><c>the </c><00:10:47.430><c>upcoming </c><00:10:47.955><c>videos </c><00:10:48.480><c>we</c>
+
+00:10:49.190 --> 00:10:49.200 align:start position:0%
+In the upcoming videos we
+ 
+
+00:10:49.200 --> 00:10:50.870 align:start position:0%
+In the upcoming videos we
+will <00:10:49.590><c>discuss </c><00:10:49.980><c>more </c><00:10:50.370><c>Objective </c><00:10:50.760><c>Indian</c>
+
+00:10:50.870 --> 00:10:50.880 align:start position:0%
+will discuss more Objective Indian
+ 
+
+00:10:50.880 --> 00:10:52.730 align:start position:0%
+will discuss more Objective Indian
+Programming. <00:10:51.128><c>That's </c><00:10:51.376><c>all </c><00:10:51.624><c>for </c><00:10:51.872><c>now </c><00:10:52.120><c>in </c><00:10:52.368><c>this </c><00:10:52.616><c>video.</c>
+
+00:10:52.730 --> 00:10:52.740 align:start position:0%
+Programming. That's all for now in this video.
+ 
+
+00:10:52.740 --> 00:10:55.310 align:start position:0%
+Programming. That's all for now in this video.
+Thank <00:10:53.129><c>you </c><00:10:53.518><c>so </c><00:10:53.907><c>much </c><00:10:54.296><c>for </c><00:10:54.685><c>watching </c><00:10:55.074><c>this</c>
+
+00:10:55.310 --> 00:10:55.320 align:start position:0%
+Thank you so much for watching this
+ 
+
+00:10:55.320 --> 00:10:58.740 align:start position:0%
+Thank you so much for watching this
+video <00:10:55.642><c>and </c><00:10:55.964><c>I </c><00:10:56.286><c>will </c><00:10:56.608><c>see </c><00:10:56.930><c>you </c><00:10:57.252><c>next </c><00:10:57.574><c>time. </c><00:10:57.896><c>[</c>
+
+00:10:58.740 --> 00:10:58.750 align:start position:0%
+video and I will see you next time. [
+ 
+
+00:10:58.750 --> 00:10:59.320 align:start position:0%
+video and I will see you next time. [
+Appreciation]
+
+00:10:59.320 --> 00:10:59.330 align:start position:0%
+Appreciation]
+ 
+
+00:10:59.330 --> 00:11:18.790 align:start position:0%
+Appreciation]
+[Music]
+
