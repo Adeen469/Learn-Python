@@ -1,0 +1,684 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:03.290 --> 00:00:08.400
+so here we have this course variable set
+to Python programming as I told you
+
+00:00:08.400 --> 00:00:12.599
+before whenever you work with text you
+should surround your text with quotes
+
+00:00:12.599 --> 00:00:17.340
+you can either use double quotes or
+single quotes that's more of a personal
+
+00:00:17.340 --> 00:00:20.580
+preference but quite often we use double
+quotes
+
+00:00:20.580 --> 00:00:26.730
+you also have triple quotes and we use
+them to format a long string for example
+
+00:00:26.730 --> 00:00:32.880
+if you have let's say a variable message
+that is the message we want to include
+
+00:00:32.880 --> 00:00:38.060
+in the body of an email
+you can use triple quotes to format it
+
+00:00:38.060 --> 00:00:47.060
+like this hi John this is Marsh from
+code with marsh comm blah blah blah so
+
+00:00:47.060 --> 00:00:52.400
+that's when we use triple quotes now we
+don't need this in this lecture so
+
+00:00:52.400 --> 00:00:57.470
+delete let me show you a few useful
+things you can do with strings first of
+
+00:00:57.470 --> 00:01:02.480
+all we have this built-in function in
+Python for getting the lengths of
+
+00:01:02.480 --> 00:01:08.180
+strings what is a function a function is
+basically a reusable piece of code that
+
+00:01:08.180 --> 00:01:14.210
+carries out a task as a metaphor think
+of the remote control of your TV on this
+
+00:01:14.210 --> 00:01:18.290
+remote control you have buttons for
+different functions like turn on turn
+
+00:01:18.290 --> 00:01:23.509
+off change the channel and so on these
+are the built-in functions in your TV in
+
+00:01:23.509 --> 00:01:27.860
+Python and many other programming
+languages we have the exact same concept
+
+00:01:27.860 --> 00:01:32.780
+so we have functions that are built into
+the language on the platform you can
+
+00:01:32.780 --> 00:01:37.640
+reuse these functions to perform various
+tasks so here we can use the built-in
+
+00:01:37.640 --> 00:01:42.020
+Len function to get the length of a
+string which means the number of
+
+00:01:42.020 --> 00:01:46.640
+characters in that string now whenever
+you want to use a function you should
+
+00:01:46.640 --> 00:01:52.039
+use parentheses now we say you're
+calling this function which basically
+
+00:01:52.039 --> 00:01:57.170
+means we are using this function now
+some functions take additional data
+
+00:01:57.170 --> 00:02:02.869
+which we refer to as arguments these
+arguments are inputs to these functions
+
+00:02:02.869 --> 00:02:09.770
+so this Len function takes an input or
+an argument here we pass our course
+
+00:02:09.770 --> 00:02:15.050
+variable and this will return the number
+of characters in this string so let's
+
+00:02:15.050 --> 00:02:22.910
+print that and see what we get run the
+program we get 18 because we have 18
+
+00:02:22.910 --> 00:02:28.550
+characters here let's look at another
+example if you want to get access to a
+
+00:02:28.550 --> 00:02:33.980
+specific character in this string you
+use the square bracket notation so here
+
+00:02:33.980 --> 00:02:41.630
+we add course square brackets to get the
+first character you use the index 0 so
+
+00:02:41.630 --> 00:02:47.480
+in Python like many other languages
+strings are 0 index which means the
+
+00:02:47.480 --> 00:02:52.110
+index of the first
+actor or the first element is zero so
+
+00:02:52.110 --> 00:02:55.280
+now when we print this
+
+00:02:55.489 --> 00:03:05.159
+we'll get P okay now you can also use a
+negative index like minus one what does
+
+00:03:05.159 --> 00:03:10.170
+that mean
+well if zero represents the first
+
+00:03:10.170 --> 00:03:15.239
+character here what do you think
+negative one represents that takes us
+
+00:03:15.239 --> 00:03:20.159
+back to the end of this string so that
+returns the first character from the end
+
+00:03:20.159 --> 00:03:27.109
+of this string let's run this program
+you will see it will get G there you go
+
+00:03:27.109 --> 00:03:33.510
+using a similar syntax you can slice
+strings let me show you so I'm gonna
+
+00:03:33.510 --> 00:03:39.450
+duplicate this line and remove negative
+one now let's say we want to extract the
+
+00:03:39.450 --> 00:03:44.970
+first string characters in this string
+so here we need two indexes the start
+
+00:03:44.970 --> 00:03:51.750
+index colon the end index so this will
+return a new string that contains the
+
+00:03:51.750 --> 00:03:58.500
+first three characters in this course
+variable that will be P Y and T so the
+
+00:03:58.500 --> 00:04:04.560
+index of these characters are 0 1 &amp; 2 so
+that means the character at the end
+
+00:04:04.560 --> 00:04:10.709
+index is not included ok let's run the
+program and make sure we get the right
+
+00:04:10.709 --> 00:04:15.629
+result there you go
+py T now what if we don't include the
+
+00:04:15.629 --> 00:04:20.789
+end index what do you think we're gonna
+get it's common sense
+
+00:04:20.789 --> 00:04:26.310
+we start from index 0 and go all the way
+to the end of this string so this will
+
+00:04:26.310 --> 00:04:31.949
+return a new string that is exactly the
+same as the original string let's take a
+
+00:04:31.949 --> 00:04:39.840
+look so we get python programming now
+what if we don't include the start index
+
+00:04:39.840 --> 00:04:45.599
+but include the end index what do you
+think we're gonna get once again it's
+
+00:04:45.599 --> 00:04:50.370
+common sense so by default Python will
+put 0 here so it will start from the
+
+00:04:50.370 --> 00:04:55.440
+beginning of this string so when I run
+this program we should get py t one more
+
+00:04:55.440 --> 00:05:01.610
+time there you go and finally as the
+last example if we don't include the
+
+00:05:01.610 --> 00:05:05.160
+start
+and the end index this will return a
+
+00:05:05.160 --> 00:05:13.290
+copy of the original string let's look
+at this so we get Python programming now
+
+00:05:13.290 --> 00:05:17.850
+you don't have to memorize any of these
+just remember we use the Len function to
+
+00:05:17.850 --> 00:05:22.260
+get the length of a string we use
+bracket notation to get access to a
+
+00:05:22.260 --> 00:05:27.570
+specific element or a specific character
+and we use this notation to a slice a
+
+00:05:27.570 --> 00:05:30.080
+string
+
+00:05:34.980 --> 00:05:40.180
+so we have this string here Python
+programming now let's say we want to put
+
+00:05:40.180 --> 00:05:45.060
+a double quote in the middle of this
+string there is a problem here
+
+00:05:45.060 --> 00:05:51.460
+Python interpreter sees this second
+string as the end of the string so the
+
+00:05:51.460 --> 00:05:56.100
+rest of the code is meaningless and
+invalid how do you solve this problem
+
+00:05:56.100 --> 00:06:03.010
+well there are two ways one way is to
+use single quotes for our string and
+
+00:06:03.010 --> 00:06:08.260
+then we can use a double quote in the
+middle of this string but what if for
+
+00:06:08.260 --> 00:06:13.150
+whatever reason perhaps for being
+consistent in our code we decided to use
+
+00:06:13.150 --> 00:06:18.310
+double quotes how can we add another
+double quote in the middle of this
+
+00:06:18.310 --> 00:06:25.660
+string well we can prefix this with a
+backslash backslash in Python strings is
+
+00:06:25.660 --> 00:06:29.380
+a special character we have a jargon for
+that called
+
+00:06:29.380 --> 00:06:35.950
+escape character we use it to escape the
+character after let me show you what I
+
+00:06:35.950 --> 00:06:44.200
+mean so let's print this course and run
+this program what's going on here we
+
+00:06:44.200 --> 00:06:49.000
+don't have the backslash because we use
+that to escape this double code and
+
+00:06:49.000 --> 00:06:56.380
+basically displayed here so backslash is
+an escape character and backslash double
+
+00:06:56.380 --> 00:07:01.210
+quote is an escape sequence in Python
+strings we have a few other escape
+
+00:07:01.210 --> 00:07:06.849
+sequences that you should be aware of
+let me show you so in Python we use a
+
+00:07:06.849 --> 00:07:12.160
+high sign to indicate a comment a
+comment is like additional note that we
+
+00:07:12.160 --> 00:07:16.419
+add to our program it's not executed by
+Python interpreter okay
+
+00:07:16.419 --> 00:07:22.389
+so here are the escape sequences you
+have seen backslash double quote we also
+
+00:07:22.389 --> 00:07:30.039
+have backslash single quote so we can
+use that to add a single code here let's
+
+00:07:30.039 --> 00:07:37.450
+run the program here it is beautiful we
+also have double backslash so if you
+
+00:07:37.450 --> 00:07:40.270
+want to include a backslash in your
+strings
+
+00:07:40.270 --> 00:07:45.340
+you should prefix it with another
+backslash let me show you so when we run
+
+00:07:45.340 --> 00:07:48.550
+this
+we get python one backslash programming
+
+00:07:48.550 --> 00:07:56.350
+and finally we have backslash n which is
+short for newline so now if I add a
+
+00:07:56.350 --> 00:08:04.750
+backslash n here see what we get we get
+a new line after Python so programming
+
+00:08:04.750 --> 00:08:12.030
+will end up on the second line so these
+are the escape sequences in Python
+
+00:08:16.990 --> 00:08:22.490
+here we have two variables first and
+last let's say we want to print my full
+
+00:08:22.490 --> 00:08:29.200
+name on the console so we can define
+another variable full set it to first
+
+00:08:29.200 --> 00:08:37.729
+then concatenate it with a space and one
+more time concatenate it with last now
+
+00:08:37.729 --> 00:08:44.660
+when we print full we get my full name
+on the console beautiful now this
+
+00:08:44.660 --> 00:08:49.970
+approach are using concatenation to
+build a string is okay but there is a
+
+00:08:49.970 --> 00:08:55.760
+better and newer approach we can use
+formatted strings so here we can set
+
+00:08:55.760 --> 00:09:02.620
+full to this string and prefix it with
+an F which can be lowercase or uppercase
+
+00:09:02.620 --> 00:09:08.270
+this formatted string doesn't have a
+constant value like these two strings
+
+00:09:08.270 --> 00:09:14.720
+here it's actually an expression that
+will be evaluated at runtime so here we
+
+00:09:14.720 --> 00:09:21.080
+want to add our first name we use curly
+braces to print the value of the first
+
+00:09:21.080 --> 00:09:27.380
+variable after that we had a space and
+then we add curly braces one more time
+
+00:09:27.380 --> 00:09:34.070
+to print the last name so at runtime
+this expression will be evaluated what
+
+00:09:34.070 --> 00:09:40.910
+we have in between curly braces will be
+replaced at runtime now let's run this
+
+00:09:40.910 --> 00:09:46.760
+program one more time we get the exact
+same result just be aware that you can
+
+00:09:46.760 --> 00:09:52.040
+put any valid expressions in between
+curly braces so earlier you learned
+
+00:09:52.040 --> 00:09:59.060
+about the built-in Len function we can
+call Len here to get the length of this
+
+00:09:59.060 --> 00:10:05.089
+string let's run this program one more
+time so we get four we can also replace
+
+00:10:05.089 --> 00:10:10.820
+last with an expression like there's two
+plus two let's run this program we get
+
+00:10:10.820 --> 00:10:16.790
+four and four so when using formatted
+strings you can put any valid
+
+00:10:16.790 --> 00:10:21.190
+expressions in between curly braces
+
+00:10:26.009 --> 00:10:31.690
+in this lecture we're going to look at a
+few useful functions available to work
+
+00:10:31.690 --> 00:10:37.269
+with strings so earlier you learned
+about this built-in Len function this
+
+00:10:37.269 --> 00:10:41.709
+function is general-purpose so it's not
+limited to strings later I will show you
+
+00:10:41.709 --> 00:10:46.899
+how to use this function with other kind
+of objects but in Python we have quite a
+
+00:10:46.899 --> 00:10:49.360
+few functions that are specific to
+strings
+
+00:10:49.360 --> 00:10:58.050
+let me show you so here if we type
+course dot C all these are functions
+
+00:10:58.050 --> 00:11:03.819
+available on strings now in precise
+terms we refer to these functions as
+
+00:11:03.819 --> 00:11:07.990
+methods this is a term in
+object-oriented programming that you
+
+00:11:07.990 --> 00:11:13.329
+will learn about later in the course for
+now what I want you to take away is that
+
+00:11:13.329 --> 00:11:19.360
+everything in Python is an object and
+objects have functions we call methods
+
+00:11:19.360 --> 00:11:25.600
+that we can access using the dot
+notation so here course is an object we
+
+00:11:25.600 --> 00:11:30.250
+use the dot notation to access its
+functions or more accurately methods
+
+00:11:30.250 --> 00:11:35.259
+let's take a look at a few of these
+methods we have upper to convert a
+
+00:11:35.259 --> 00:11:42.310
+string to uppercase now let's print this
+and run the program here is what we get
+
+00:11:42.310 --> 00:11:48.459
+beautiful now note that the metals that
+you call here return a new string so the
+
+00:11:48.459 --> 00:11:51.250
+original string is not affected let me
+show you
+
+00:11:51.250 --> 00:11:57.970
+so print course run the program one more
+time look this is our original string
+
+00:11:57.970 --> 00:12:04.779
+right so course the upper returns a new
+string a new value we can store it in a
+
+00:12:04.779 --> 00:12:12.310
+variable like chorus underline capital
+like this now to keep this demo simple
+
+00:12:12.310 --> 00:12:18.459
+and consistent I'm gonna revert this
+back and use a print statement we also
+
+00:12:18.459 --> 00:12:25.420
+have the lower method to convert a
+string to lowercase we also have title
+
+00:12:25.420 --> 00:12:29.290
+which will capitalize the first letter
+of every word
+
+00:12:29.290 --> 00:12:37.300
+so if our string was like this when we
+call the title method we get Python
+
+00:12:37.300 --> 00:12:44.140
+programming as you see here okay another
+useful method is strip and we use it to
+
+00:12:44.140 --> 00:12:49.089
+trim any white space at the beginning or
+end of a string this is particularly
+
+00:12:49.089 --> 00:12:52.029
+useful when we receive input from the
+user
+
+00:12:52.029 --> 00:12:58.720
+let me show you so let's imagine the
+user entered a couple of white spaces at
+
+00:12:58.720 --> 00:13:04.630
+the beginning of this string when we
+call course that strip those white
+
+00:13:04.630 --> 00:13:09.130
+spaces will be removed
+take a look so note that in the first
+
+00:13:09.130 --> 00:13:14.260
+three examples we have those white
+spaces but in the last one it is removed
+
+00:13:14.260 --> 00:13:19.240
+so a strip removed the whitespace from
+both the beginning and end of a string
+
+00:13:19.240 --> 00:13:25.390
+we also have L strip which is short for
+left strip and our strip which is short
+
+00:13:25.390 --> 00:13:29.829
+for right strip so it will remove the
+white space from the end of a string if
+
+00:13:29.829 --> 00:13:35.200
+you want to get the index of a character
+or a sequence of characters in your
+
+00:13:35.200 --> 00:13:43.420
+string you should use the find method &amp;
+masaya so course that find so as an
+
+00:13:43.420 --> 00:13:50.230
+argument here we pass another string we
+can pass a character or a series of
+
+00:13:50.230 --> 00:13:57.910
+characters let's find the index of Pro
+run the program so the index of Pro is 9
+
+00:13:57.910 --> 00:14:06.399
+so if you start from 0 here all the way
+to 9 this is the index of Pro ok now as
+
+00:14:06.399 --> 00:14:10.990
+I told you before python is a case
+sensitive language so if I pass a
+
+00:14:10.990 --> 00:14:17.470
+capital P here obviously we don't have
+these exact characters in our string so
+
+00:14:17.470 --> 00:14:23.500
+let's see what we get we get negative 1
+that means this string was not found in
+
+00:14:23.500 --> 00:14:30.990
+the original string another useful
+method is replace so we call replace
+
+00:14:30.990 --> 00:14:36.040
+with this we can replace a character or
+a sequence of characters with something
+
+00:14:36.040 --> 00:14:44.040
+else so let's say we want to replace all
+lowercase peas with J with this we get
+
+00:14:44.040 --> 00:14:50.350
+Jai Thunderer cramming whatever that
+means and finally if you want to check
+
+00:14:50.350 --> 00:14:53.800
+for the
+existence of a character or a sequence
+
+00:14:53.800 --> 00:15:00.390
+of characters in your string you can use
+the in operator let me show you so print
+
+00:15:00.390 --> 00:15:08.740
+rewrite an expression like this throw in
+course so this is an expression as I
+
+00:15:08.740 --> 00:15:13.540
+told you before an expression is a piece
+of code that produces a value so this
+
+00:15:13.540 --> 00:15:19.000
+expression checks to see if we have Pro
+in course the difference between this
+
+00:15:19.000 --> 00:15:23.890
+expression and calling the find method
+is that the find method returns the
+
+00:15:23.890 --> 00:15:30.130
+index of these characters in our string
+but as this expression returns a boolean
+
+00:15:30.130 --> 00:15:37.090
+so it's a true or false let me show you
+so run the program we get the boolean
+
+00:15:37.090 --> 00:15:43.330
+true and finally we have the not
+operator and we use that to see if our
+
+00:15:43.330 --> 00:15:51.340
+string does not contain a character or
+sequence of characters so let's change
+
+00:15:51.340 --> 00:15:59.920
+this to swift not in course when this
+expression is evaluated what do you
+
+00:15:59.920 --> 00:16:06.400
+think we're gonna get well we don't have
+Swift in this string so not in will
+
+00:16:06.400 --> 00:16:12.050
+return true let's take a look there you
+go
+
+00:16:12.050 --> 00:16:18.220
+so these are the useful string methods
+next we'll look at numbers
+
+00:16:20.030 --> 00:16:24.680
+hi guys thank you for watching this
+tutorial my name is muhammad ani and i
+
+00:16:24.680 --> 00:16:28.490
+have tons of tutorials like this for you
+on my channel so be sure to subscribe
+
+00:16:28.490 --> 00:16:32.720
+and also please like and share this
+video if you want to learn Python
+
+00:16:32.720 --> 00:16:37.400
+properly from scratch with depth I have
+a comprehensive python tutorial for you
+
+00:16:37.400 --> 00:16:41.840
+the link is below this video so click
+the link to get started thank you and
+
+00:16:41.840 --> 00:16:44.770
+have a fantastic day
+

@@ -1,0 +1,95 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:03.950 --> 00:00:09.660
+Alright! Time for an exercise. I want you
+to write a program to display the even
+
+00:00:09.660 --> 00:00:15.630
+numbers between 1 to 10. So when you run
+this program you should see 2 4 6 and 8
+
+00:00:15.630 --> 00:00:22.439
+and after these I want you to print this
+message we have 4 even numbers now here
+
+00:00:22.439 --> 00:00:26.670
+is a quick hint before you get started
+you should call the range function with
+
+00:00:26.670 --> 00:00:32.250
+1 and 10 do not use the third argument
+which is called step so basically I want
+
+00:00:32.250 --> 00:00:37.110
+you to iterate over all the numbers we
+can want to tab check if each number is
+
+00:00:37.110 --> 00:00:42.750
+an even number and then print it on the
+terminal so pause the video spend two
+
+00:00:42.750 --> 00:00:47.719
+minutes on this exercise when you're
+done come back continue watching
+
+00:00:49.370 --> 00:00:57.780
+so we started with a four loop for a
+number in range one to ten : we check to
+
+00:00:57.780 --> 00:01:02.340
+see if the remainder of division of this
+number by two equals zero
+
+00:01:02.340 --> 00:01:11.610
+so if number modulus 2 equals zero then
+we print this number
+
+00:01:11.610 --> 00:01:18.150
+now let's run this program so we get two
+four six eight beautiful now to count
+
+00:01:18.150 --> 00:01:23.150
+the even numbers we need a separate
+variable so let's call that count
+
+00:01:23.150 --> 00:01:28.380
+initially we set it to zero now in this
+if block every time we find an even
+
+00:01:28.380 --> 00:01:36.000
+number we need to increment count so we
+set count plus equals one and finally
+
+00:01:36.000 --> 00:01:44.130
+after our for loop we can print a
+formatted string we have count even
+
+00:01:44.130 --> 00:01:51.080
+numbers let's run the program and here's
+the result
+
+00:01:52.790 --> 00:01:57.410
+hi guys thank you for watching this
+tutorial my name is muhammad ani and i
+
+00:01:57.410 --> 00:02:01.280
+have tons of tutorials like this for you
+on my channel so be sure to subscribe
+
+00:02:01.280 --> 00:02:05.450
+and also please like and share this
+video if you want to learn Python
+
+00:02:05.450 --> 00:02:10.130
+properly from scratch with depth I have
+a comprehensive python tutorial for you
+
+00:02:10.130 --> 00:02:14.570
+the link is below this video so click
+the link to get started thank you and
+
+00:02:14.570 --> 00:02:17.530
+have a fantastic day
+

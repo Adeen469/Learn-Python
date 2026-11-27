@@ -1,0 +1,1760 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:00.000 --> 00:00:01.670 align:start position:0%
+ 
+In <00:00:00.188><c>Python, </c><00:00:00.376><c>there </c><00:00:00.564><c>are </c><00:00:00.752><c>several </c><00:00:00.940><c>types </c><00:00:01.128><c>of </c><00:00:01.316><c>lambda</c>
+
+00:00:01.670 --> 00:00:01.680 align:start position:0%
+In Python, there are several types of lambda
+ 
+
+00:00:01.680 --> 00:00:03.649 align:start position:0%
+In Python, there are several types of lambda
+functions, <00:00:02.145><c>which </c><00:00:02.610><c>are </c><00:00:03.075><c>very </c><00:00:03.540><c>useful</c>
+
+00:00:03.649 --> 00:00:03.659 align:start position:0%
+functions, which are very useful
+ 
+
+00:00:03.659 --> 00:00:06.110 align:start position:0%
+functions, which are very useful
+for <00:00:04.115><c>writing </c><00:00:04.571><c>anonyms. </c><00:00:05.027><c>That </c><00:00:05.483><c>is, </c><00:00:05.939><c>a</c>
+
+00:00:06.110 --> 00:00:06.120 align:start position:0%
+for writing anonyms. That is, a
+ 
+
+00:00:06.120 --> 00:00:07.730 align:start position:0%
+for writing anonyms. That is, a
+function <00:00:06.334><c>that </c><00:00:06.548><c>doesn't </c><00:00:06.762><c>have </c><00:00:06.976><c>a </c><00:00:07.190><c>name, </c><00:00:07.404><c>which </c><00:00:07.618><c>is</c>
+
+00:00:07.730 --> 00:00:07.740 align:start position:0%
+function that doesn't have a name, which is
+ 
+
+00:00:07.740 --> 00:00:09.470 align:start position:0%
+function that doesn't have a name, which is
+itself <00:00:08.016><c>an </c><00:00:08.292><c>expression. </c><00:00:08.568><c>Now, </c><00:00:08.844><c>what </c><00:00:09.120><c>am</c>
+
+00:00:09.470 --> 00:00:09.480 align:start position:0%
+itself an expression. Now, what am
+ 
+
+00:00:09.480 --> 00:00:11.390 align:start position:0%
+itself an expression. Now, what am
+I <00:00:10.019><c>talking </c><00:00:10.558><c>about </c><00:00:11.097><c>here?</c>
+
+00:00:11.390 --> 00:00:11.400 align:start position:0%
+I talking about here?
+ 
+
+00:00:11.400 --> 00:00:13.190 align:start position:0%
+I talking about here?
+How <00:00:11.602><c>to </c><00:00:11.804><c>write </c><00:00:12.006><c>an </c><00:00:12.208><c>expression? </c><00:00:12.410><c>Let's </c><00:00:12.612><c>go </c><00:00:12.814><c>to </c><00:00:13.016><c>the</c>
+
+00:00:13.190 --> 00:00:13.200 align:start position:0%
+How to write an expression? Let's go to the
+ 
+
+00:00:13.200 --> 00:00:16.170 align:start position:0%
+How to write an expression? Let's go to the
+computer <00:00:13.545><c>screen. </c><00:00:13.890><c>Let's </c><00:00:14.235><c>get </c><00:00:14.580><c>started.</c>
+
+00:00:16.170 --> 00:00:16.180 align:start position:0%
+computer screen. Let's get started.
+ 
+
+00:00:16.180 --> 00:00:24.230 align:start position:0%
+computer screen. Let's get started.
+[Music]
+
+00:00:24.230 --> 00:00:24.240 align:start position:0%
+[Music]
+ 
+
+00:00:24.240 --> 00:00:26.090 align:start position:0%
+[Music]
+Lambda <00:00:24.779><c>functions </c><00:00:25.318><c>are </c><00:00:25.857><c>single</c>
+
+00:00:26.090 --> 00:00:26.100 align:start position:0%
+Lambda functions are single
+ 
+
+00:00:26.100 --> 00:00:27.589 align:start position:0%
+Lambda functions are single
+expressions. <00:00:26.540><c>Okay, </c><00:00:26.980><c>like </c><00:00:27.420><c>if</c>
+
+00:00:27.589 --> 00:00:27.599 align:start position:0%
+expressions. Okay, like if
+ 
+
+00:00:27.599 --> 00:00:29.929 align:start position:0%
+expressions. Okay, like if
+we <00:00:27.789><c>have </c><00:00:27.979><c>a </c><00:00:28.169><c>+ </c><00:00:28.359><c>b, </c><00:00:28.549><c>if </c><00:00:28.739><c>there </c><00:00:28.929><c>is </c><00:00:29.119><c>only </c><00:00:29.309><c>one </c><00:00:29.499><c>value, </c><00:00:29.689><c>then </c><00:00:29.879><c>the</c>
+
+00:00:29.929 --> 00:00:29.939 align:start position:0%
+we have a + b, if there is only one value, then the
+ 
+
+00:00:29.939 --> 00:00:31.849 align:start position:0%
+we have a + b, if there is only one value, then the
+value <00:00:30.156><c>of </c><00:00:30.373><c>b </c><00:00:30.590><c>is </c><00:00:30.807><c>tau. </c><00:00:31.024><c>So, </c><00:00:31.241><c>a </c><00:00:31.458><c>+ </c><00:00:31.675><c>b</c>
+
+00:00:31.849 --> 00:00:31.859 align:start position:0%
+value of b is tau. So, a + b
+ 
+
+00:00:31.859 --> 00:00:33.830 align:start position:0%
+value of b is tau. So, a + b
+is <00:00:32.231><c>an </c><00:00:32.603><c>expression </c><00:00:32.975><c>whose </c><00:00:33.347><c>value </c><00:00:33.719><c>is</c>
+
+00:00:33.830 --> 00:00:33.840 align:start position:0%
+is an expression whose value is
+ 
+
+00:00:33.840 --> 00:00:36.410 align:start position:0%
+is an expression whose value is
+2 <00:00:34.079><c>+ </c><00:00:34.318><c>1 </c><00:00:34.557><c>= </c><00:00:34.796><c>3. </c><00:00:35.035><c>Okay, </c><00:00:35.274><c>now </c><00:00:35.513><c>what </c><00:00:35.752><c>is </c><00:00:35.991><c>there </c><00:00:36.230><c>here,</c>
+
+00:00:36.410 --> 00:00:36.420 align:start position:0%
+2 + 1 = 3. Okay, now what is there here,
+ 
+
+00:00:36.420 --> 00:00:38.750 align:start position:0%
+2 + 1 = 3. Okay, now what is there here,
+Lambda <00:00:36.697><c>functions </c><00:00:36.974><c>are </c><00:00:37.251><c>also </c><00:00:37.528><c>like </c><00:00:37.805><c>an </c><00:00:38.082><c>expression. </c><00:00:38.359><c>Let </c><00:00:38.636><c>me</c>
+
+00:00:38.750 --> 00:00:38.760 align:start position:0%
+Lambda functions are also like an expression. Let me
+ 
+
+00:00:38.760 --> 00:00:40.069 align:start position:0%
+Lambda functions are also like an expression. Let me
+show <00:00:39.199><c>you </c><00:00:39.638><c>guys. </c><00:00:40.077><c>Okay,</c>
+
+00:00:40.069 --> 00:00:40.079 align:start position:0%
+show you guys. Okay,
+ 
+
+00:00:40.079 --> 00:00:41.869 align:start position:0%
+show you guys. Okay,
+first <00:00:40.499><c>of </c><00:00:40.919><c>all, </c><00:00:41.339><c>I </c><00:00:41.759><c>will</c>
+
+00:00:41.869 --> 00:00:41.879 align:start position:0%
+first of all, I will
+ 
+
+00:00:41.879 --> 00:00:43.250 align:start position:0%
+first of all, I will
+create <00:00:42.089><c>a </c><00:00:42.299><c>function </c><00:00:42.509><c>here. </c><00:00:42.719><c>I </c><00:00:42.929><c>will </c><00:00:43.139><c>say,</c>
+
+00:00:43.250 --> 00:00:43.260 align:start position:0%
+create a function here. I will say,
+ 
+
+00:00:43.260 --> 00:00:45.530 align:start position:0%
+create a function here. I will say,
+look, <00:00:43.692><c>there </c><00:00:44.124><c>is </c><00:00:44.556><c>a </c><00:00:44.988><c>function </c><00:00:45.420><c>named</c>
+
+00:00:45.530 --> 00:00:45.540 align:start position:0%
+look, there is a function named
+ 
+
+00:00:45.540 --> 00:00:49.330 align:start position:0%
+look, there is a function named
+sam. <00:00:45.900><c>Okay, </c><00:00:46.260><c>if </c><00:00:46.620><c>you</c>
+
+00:00:49.330 --> 00:00:49.340 align:start position:0%
+ 
+ 
+
+00:00:49.340 --> 00:00:51.490 align:start position:0%
+ 
+create <00:00:49.793><c>one, </c><00:00:50.246><c>or </c><00:00:50.699><c>I</c>
+
+00:00:51.490 --> 00:00:51.500 align:start position:0%
+create one, or I
+ 
+
+00:00:51.500 --> 00:00:53.389 align:start position:0%
+create one, or I
+created <00:00:51.754><c>one </c><00:00:52.008><c>named </c><00:00:52.262><c>towel, </c><00:00:52.516><c>which </c><00:00:52.770><c>is </c><00:00:53.024><c>an </c><00:00:53.278><c>example,</c>
+
+00:00:53.389 --> 00:00:53.399 align:start position:0%
+created one named towel, which is an example,
+ 
+
+00:00:53.399 --> 00:00:55.430 align:start position:0%
+created one named towel, which is an example,
+I <00:00:53.616><c>have </c><00:00:53.833><c>also </c><00:00:54.050><c>done </c><00:00:54.267><c>that, </c><00:00:54.484><c>so </c><00:00:54.701><c>that </c><00:00:54.918><c>example </c><00:00:55.135><c>is</c>
+
+00:00:55.430 --> 00:00:55.440 align:start position:0%
+I have also done that, so that example is
+ 
+
+00:00:55.440 --> 00:00:59.510 align:start position:0%
+I have also done that, so that example is
+here.  <00:00:55.934><c>x </c><00:00:56.428><c>* </c><00:00:56.922><c>2 </c><00:00:57.416><c>ok </c><00:00:57.910><c>what </c><00:00:58.404><c>will </c><00:00:58.898><c>it </c><00:00:59.392><c>do</c>
+
+00:00:59.510 --> 00:00:59.520 align:start position:0%
+here.  x * 2 ok what will it do
+ 
+
+00:00:59.520 --> 00:01:02.510 align:start position:0%
+here.  x * 2 ok what will it do
+simply <00:01:00.095><c>if </c><00:01:00.670><c>I </c><00:01:01.245><c>print </c><00:01:01.820><c>5 </c><00:01:02.395><c>here</c>
+
+00:01:02.510 --> 00:01:02.520 align:start position:0%
+simply if I print 5 here
+ 
+
+00:01:02.520 --> 00:01:04.369 align:start position:0%
+simply if I print 5 here
+then <00:01:02.665><c>you </c><00:01:02.810><c>will </c><00:01:02.955><c>say </c><00:01:03.100><c>friend </c><00:01:03.245><c>please </c><00:01:03.390><c>teach </c><00:01:03.535><c>me </c><00:01:03.680><c>all </c><00:01:03.825><c>this </c><00:01:03.970><c>friend </c><00:01:04.115><c>I </c><00:01:04.260><c>know</c>
+
+00:01:04.369 --> 00:01:04.379 align:start position:0%
+then you will say friend please teach me all this friend I know
+ 
+
+00:01:04.379 --> 00:01:07.609 align:start position:0%
+then you will say friend please teach me all this friend I know
+all <00:01:04.807><c>this </c><00:01:05.235><c>it </c><00:01:05.663><c>will </c><00:01:06.091><c>print </c><00:01:06.519><c>5 </c><00:01:06.947><c>* </c><00:01:07.375><c>10</c>
+
+00:01:07.609 --> 00:01:07.619 align:start position:0%
+all this it will print 5 * 10
+ 
+
+00:01:07.619 --> 00:01:10.490 align:start position:0%
+all this it will print 5 * 10
+and <00:01:07.941><c>half </c><00:01:08.263><c>should </c><00:01:08.585><c>also </c><00:01:08.907><c>be </c><00:01:09.229><c>correct </c><00:01:09.551><c>ok </c><00:01:09.873><c>sorry </c><00:01:10.195><c>friend</c>
+
+00:01:10.490 --> 00:01:10.500 align:start position:0%
+and half should also be correct ok sorry friend
+ 
+
+00:01:10.500 --> 00:01:20.170 align:start position:0%
+and half should also be correct ok sorry friend
+I <00:01:10.716><c>had </c><00:01:10.932><c>to </c><00:01:11.148><c>write </c><00:01:11.364><c>double </c><00:01:11.580><c>five</c>
+
+00:01:20.170 --> 00:01:20.180 align:start position:0%
+ 
+ 
+
+00:01:20.180 --> 00:01:23.690 align:start position:0%
+ 
+ok <00:01:20.514><c>see </c><00:01:20.848><c>what </c><00:01:21.182><c>will </c><00:01:21.516><c>happen </c><00:01:21.850><c>instead </c><00:01:22.184><c>of </c><00:01:22.518><c>writing </c><00:01:22.852><c>double </c><00:01:23.186><c>like </c><00:01:23.520><c>this</c>
+
+00:01:23.690 --> 00:01:23.700 align:start position:0%
+ok see what will happen instead of writing double like this
+ 
+
+00:01:23.700 --> 00:01:26.570 align:start position:0%
+ok see what will happen instead of writing double like this
+I <00:01:23.999><c>can </c><00:01:24.298><c>write </c><00:01:24.597><c>it </c><00:01:24.896><c>like </c><00:01:25.195><c>this </c><00:01:25.494><c>also </c><00:01:25.793><c>ok</c>
+
+00:01:26.570 --> 00:01:26.580 align:start position:0%
+I can write it like this also ok
+ 
+
+00:01:26.580 --> 00:01:28.630 align:start position:0%
+I can write it like this also ok
+brother <00:01:26.940><c>I </c><00:01:27.300><c>can </c><00:01:27.660><c>say </c><00:01:28.020><c>double </c><00:01:28.380><c>is</c>
+
+00:01:28.630 --> 00:01:28.640 align:start position:0%
+brother I can say double is
+ 
+
+00:01:28.640 --> 00:01:32.510 align:start position:0%
+brother I can say double is
+equal <00:01:29.343><c>to </c><00:01:30.046><c>you </c><00:01:30.749><c>lambda </c><00:01:31.452><c>is </c><00:01:32.155><c>a</c>
+
+00:01:32.510 --> 00:01:32.520 align:start position:0%
+equal to you lambda is a
+ 
+
+00:01:32.520 --> 00:01:34.730 align:start position:0%
+equal to you lambda is a
+lambda <00:01:32.903><c>function </c><00:01:33.286><c>which </c><00:01:33.669><c>takes </c><00:01:34.052><c>x </c><00:01:34.435><c>and</c>
+
+00:01:34.730 --> 00:01:34.740 align:start position:0%
+lambda function which takes x and
+ 
+
+00:01:34.740 --> 00:01:38.569 align:start position:0%
+lambda function which takes x and
+returns <00:01:35.182><c>x </c><00:01:35.624><c>* </c><00:01:36.066><c>2 </c><00:01:36.508><c>you </c><00:01:36.950><c>will </c><00:01:37.392><c>say </c><00:01:37.834><c>is </c><00:01:38.276><c>this</c>
+
+00:01:38.569 --> 00:01:38.579 align:start position:0%
+returns x * 2 you will say is this
+ 
+
+00:01:38.579 --> 00:01:40.370 align:start position:0%
+returns x * 2 you will say is this
+and <00:01:38.759><c>this </c><00:01:38.939><c>are </c><00:01:39.119><c>equal </c><00:01:39.299><c>I </c><00:01:39.479><c>will </c><00:01:39.659><c>say </c><00:01:39.839><c>yes </c><00:01:40.019><c>and </c><00:01:40.199><c>you</c>
+
+00:01:40.370 --> 00:01:40.380 align:start position:0%
+and this are equal I will say yes and you
+ 
+
+00:01:40.380 --> 00:01:42.530 align:start position:0%
+and this are equal I will say yes and you
+can <00:01:40.600><c>also </c><00:01:40.820><c>see </c><00:01:41.040><c>with </c><00:01:41.260><c>your </c><00:01:41.480><c>eyes </c><00:01:41.700><c>this </c><00:01:41.920><c>is </c><00:01:42.140><c>what </c><00:01:42.360><c>happens</c>
+
+00:01:42.530 --> 00:01:42.540 align:start position:0%
+can also see with your eyes this is what happens
+ 
+
+00:01:42.540 --> 00:01:44.690 align:start position:0%
+can also see with your eyes this is what happens
+function <00:01:42.831><c>that's </c><00:01:43.122><c>it </c><00:01:43.413><c>now </c><00:01:43.704><c>stop </c><00:01:43.995><c>here </c><00:01:44.286><c>and </c><00:01:44.577><c>whatever</c>
+
+00:01:44.690 --> 00:01:44.700 align:start position:0%
+function that's it now stop here and whatever
+ 
+
+00:01:44.700 --> 00:01:46.609 align:start position:0%
+function that's it now stop here and whatever
+I <00:01:44.850><c>have </c><00:01:45.000><c>said </c><00:01:45.150><c>till </c><00:01:45.300><c>now </c><00:01:45.450><c>you </c><00:01:45.600><c>have </c><00:01:45.750><c>also </c><00:01:45.900><c>heard </c><00:01:46.050><c>it </c><00:01:46.200><c>so </c><00:01:46.350><c>now </c><00:01:46.500><c>you</c>
+
+00:01:46.609 --> 00:01:46.619 align:start position:0%
+I have said till now you have also heard it so now you
+ 
+
+00:01:46.619 --> 00:01:48.050 align:start position:0%
+I have said till now you have also heard it so now you
+know
+
+00:01:48.050 --> 00:01:48.060 align:start position:0%
+know
+ 
+
+00:01:48.060 --> 00:01:50.330 align:start position:0%
+know
+what <00:01:48.390><c>lambda </c><00:01:48.720><c>function </c><00:01:49.050><c>is </c><00:01:49.380><c>friend </c><00:01:49.710><c>I </c><00:01:50.040><c>have</c>
+
+00:01:50.330 --> 00:01:50.340 align:start position:0%
+what lambda function is friend I have
+ 
+
+00:01:50.340 --> 00:01:52.010 align:start position:0%
+what lambda function is friend I have
+created <00:01:50.465><c>a </c><00:01:50.590><c>variable </c><00:01:50.715><c>of </c><00:01:50.840><c>a </c><00:01:50.965><c>function </c><00:01:51.090><c>in </c><00:01:51.215><c>a </c><00:01:51.340><c>way </c><00:01:51.465><c>and </c><00:01:51.590><c>made </c><00:01:51.715><c>it </c><00:01:51.840><c>a</c>
+
+00:01:52.010 --> 00:01:52.020 align:start position:0%
+created a variable of a function in a way and made it a
+ 
+
+00:01:52.020 --> 00:01:54.109 align:start position:0%
+created a variable of a function in a way and made it a
+function <00:01:52.339><c>like </c><00:01:52.658><c>this </c><00:01:52.977><c>that </c><00:01:53.296><c>means </c><00:01:53.615><c>either </c><00:01:53.934><c>I</c>
+
+00:01:54.109 --> 00:01:54.119 align:start position:0%
+function like this that means either I
+ 
+
+00:01:54.119 --> 00:01:57.170 align:start position:0%
+function like this that means either I
+write <00:01:54.391><c>double </c><00:01:54.663><c>x </c><00:01:54.935><c>&gt; </c><00:01:55.207><c>x </c><00:01:55.479><c>* </c><00:01:55.751><c>2 </c><00:01:56.023><c>in </c><00:01:56.295><c>2 </c><00:01:56.567><c>lines </c><00:01:56.839><c>by </c><00:01:57.111><c>doing</c>
+
+00:01:57.170 --> 00:01:57.180 align:start position:0%
+write double x &gt; x * 2 in 2 lines by doing
+ 
+
+00:01:57.180 --> 00:02:00.170 align:start position:0%
+write double x &gt; x * 2 in 2 lines by doing
+so <00:01:57.497><c>many </c><00:01:57.814><c>Indonesia </c><00:01:58.131><c>etc. </c><00:01:58.448><c>by </c><00:01:58.765><c>doing </c><00:01:59.082><c>so </c><00:01:59.399><c>many</c>
+
+00:02:00.170 --> 00:02:00.180 align:start position:0%
+so many Indonesia etc. by doing so many
+ 
+
+00:02:00.180 --> 00:02:02.690 align:start position:0%
+so many Indonesia etc. by doing so many
+circus <00:02:00.426><c>here </c><00:02:00.672><c>I </c><00:02:00.918><c>can </c><00:02:01.164><c>write </c><00:02:01.410><c>it </c><00:02:01.656><c>in </c><00:02:01.902><c>one </c><00:02:02.148><c>line </c><00:02:02.394><c>directly </c><00:02:02.640><c>done</c>
+
+00:02:02.690 --> 00:02:02.700 align:start position:0%
+circus here I can write it in one line directly done
+ 
+
+00:02:02.700 --> 00:02:05.749 align:start position:0%
+circus here I can write it in one line directly done
+
+
+00:02:05.749 --> 00:02:05.759 align:start position:0%
+ 
+ 
+
+00:02:05.759 --> 00:02:07.670 align:start position:0%
+ 
+now <00:02:05.899><c>you  </c><00:02:06.039><c>You </c><00:02:06.179><c>will </c><00:02:06.319><c>say, </c><00:02:06.459><c>brother, </c><00:02:06.599><c>what </c><00:02:06.739><c>a </c><00:02:06.879><c>hit </c><00:02:07.019><c>you </c><00:02:07.159><c>have </c><00:02:07.299><c>made </c><00:02:07.439><c>by</c>
+
+00:02:07.670 --> 00:02:07.680 align:start position:0%
+now you  You will say, brother, what a hit you have made by
+ 
+
+00:02:07.680 --> 00:02:09.589 align:start position:0%
+now you  You will say, brother, what a hit you have made by
+writing <00:02:07.843><c>in </c><00:02:08.006><c>one </c><00:02:08.169><c>line, </c><00:02:08.332><c>I </c><00:02:08.495><c>can </c><00:02:08.658><c>write </c><00:02:08.821><c>it </c><00:02:08.984><c>in </c><00:02:09.147><c>two </c><00:02:09.310><c>lines </c><00:02:09.473><c>also</c>
+
+00:02:09.589 --> 00:02:09.599 align:start position:0%
+writing in one line, I can write it in two lines also
+ 
+
+00:02:09.599 --> 00:02:11.750 align:start position:0%
+writing in one line, I can write it in two lines also
+and <00:02:09.995><c>it </c><00:02:10.391><c>will </c><00:02:10.787><c>be </c><00:02:11.183><c>more </c><00:02:11.579><c>readable,</c>
+
+00:02:11.750 --> 00:02:11.760 align:start position:0%
+and it will be more readable,
+ 
+
+00:02:11.760 --> 00:02:13.729 align:start position:0%
+and it will be more readable,
+many <00:02:12.000><c>people </c><00:02:12.240><c>may </c><00:02:12.480><c>argue </c><00:02:12.720><c>that </c><00:02:12.960><c>this </c><00:02:13.200><c>is</c>
+
+00:02:13.729 --> 00:02:13.739 align:start position:0%
+many people may argue that this is
+ 
+
+00:02:13.739 --> 00:02:16.250 align:start position:0%
+many people may argue that this is
+more <00:02:14.069><c>readable, </c><00:02:14.399><c>but </c><00:02:14.729><c>according </c><00:02:15.059><c>to </c><00:02:15.389><c>me, </c><00:02:15.719><c>if</c>
+
+00:02:16.250 --> 00:02:16.260 align:start position:0%
+more readable, but according to me, if
+ 
+
+00:02:16.260 --> 00:02:19.610 align:start position:0%
+more readable, but according to me, if
+you <00:02:16.731><c>have </c><00:02:17.202><c>to </c><00:02:17.673><c>create </c><00:02:18.144><c>15-20 </c><00:02:18.615><c>such </c><00:02:19.086><c>mini </c><00:02:19.557><c>functions</c>
+
+00:02:19.610 --> 00:02:19.620 align:start position:0%
+you have to create 15-20 such mini functions
+ 
+
+00:02:19.620 --> 00:02:21.770 align:start position:0%
+you have to create 15-20 such mini functions
+in <00:02:19.960><c>your </c><00:02:20.300><c>program, </c><00:02:20.640><c>then </c><00:02:20.980><c>this </c><00:02:21.320><c>is </c><00:02:21.660><c>the</c>
+
+00:02:21.770 --> 00:02:21.780 align:start position:0%
+in your program, then this is the
+ 
+
+00:02:21.780 --> 00:02:23.930 align:start position:0%
+in your program, then this is the
+best <00:02:22.104><c>approach. </c><00:02:22.428><c>Lambda </c><00:02:22.752><c>functions. </c><00:02:23.076><c>Okay, </c><00:02:23.400><c>so</c>
+
+00:02:23.930 --> 00:02:23.940 align:start position:0%
+best approach. Lambda functions. Okay, so
+ 
+
+00:02:23.940 --> 00:02:26.150 align:start position:0%
+best approach. Lambda functions. Okay, so
+what <00:02:24.100><c>a </c><00:02:24.260><c>lambda </c><00:02:24.420><c>function </c><00:02:24.580><c>does </c><00:02:24.740><c>is </c><00:02:24.900><c>to </c><00:02:25.060><c>transform </c><00:02:25.220><c>a </c><00:02:25.380><c>value </c><00:02:25.540><c>into </c><00:02:25.700><c>something </c><00:02:25.860><c>a</c>
+
+00:02:26.150 --> 00:02:26.160 align:start position:0%
+what a lambda function does is to transform a value into something a
+ 
+
+00:02:26.160 --> 00:02:27.890 align:start position:0%
+what a lambda function does is to transform a value into something a
+little <00:02:26.820><c>bigger, </c><00:02:27.480><c>like</c>
+
+00:02:27.890 --> 00:02:27.900 align:start position:0%
+little bigger, like
+ 
+
+00:02:27.900 --> 00:02:30.710 align:start position:0%
+little bigger, like
+multiply <00:02:28.545><c>by </c><00:02:29.190><c>two, </c><00:02:29.835><c>square </c><00:02:30.480><c>it,</c>
+
+00:02:30.710 --> 00:02:30.720 align:start position:0%
+multiply by two, square it,
+ 
+
+00:02:30.720 --> 00:02:34.369 align:start position:0%
+multiply by two, square it,
+or <00:02:31.259><c>you </c><00:02:31.798><c>can </c><00:02:32.337><c>do </c><00:02:32.876><c>something </c><00:02:33.415><c>like </c><00:02:33.954><c>this,</c>
+
+00:02:34.369 --> 00:02:34.379 align:start position:0%
+or you can do something like this,
+ 
+
+00:02:34.379 --> 00:02:36.589 align:start position:0%
+or you can do something like this,
+like <00:02:36.060><c>I</c>
+
+00:02:36.589 --> 00:02:36.599 align:start position:0%
+like I
+ 
+
+00:02:36.599 --> 00:02:39.470 align:start position:0%
+like I
+can <00:02:36.869><c>create </c><00:02:37.139><c>a </c><00:02:37.409><c>function </c><00:02:37.679><c>called </c><00:02:37.949><c>'kab' </c><00:02:38.219><c>in </c><00:02:38.489><c>the </c><00:02:38.759><c>dep </c><00:02:39.029><c>method, </c><00:02:39.299><c>so</c>
+
+00:02:39.470 --> 00:02:39.480 align:start position:0%
+can create a function called 'kab' in the dep method, so
+ 
+
+00:02:39.480 --> 00:02:40.910 align:start position:0%
+can create a function called 'kab' in the dep method, so
+look, <00:02:39.626><c>you </c><00:02:39.772><c>can </c><00:02:39.918><c>also </c><00:02:40.064><c>create </c><00:02:40.210><c>it, </c><00:02:40.356><c>I </c><00:02:40.502><c>know </c><00:02:40.648><c>I </c><00:02:40.794><c>am</c>
+
+00:02:40.910 --> 00:02:40.920 align:start position:0%
+look, you can also create it, I know I am
+ 
+
+00:02:40.920 --> 00:02:43.190 align:start position:0%
+look, you can also create it, I know I am
+not <00:02:41.160><c>judging </c><00:02:41.400><c>you, </c><00:02:41.640><c>it </c><00:02:41.880><c>is </c><00:02:42.120><c>not </c><00:02:42.360><c>a </c><00:02:42.600><c>joke, </c><00:02:42.840><c>you </c><00:02:43.080><c>are</c>
+
+00:02:43.190 --> 00:02:43.200 align:start position:0%
+not judging you, it is not a joke, you are
+ 
+
+00:02:43.200 --> 00:02:45.110 align:start position:0%
+not judging you, it is not a joke, you are
+in <00:02:43.406><c>court </c><00:02:43.612><c>for </c><00:02:43.818><c>100 </c><00:02:44.024><c>days, </c><00:02:44.230><c>it </c><00:02:44.436><c>is </c><00:02:44.642><c>not </c><00:02:44.848><c>like </c><00:02:45.054><c>this</c>
+
+00:02:45.110 --> 00:02:45.120 align:start position:0%
+in court for 100 days, it is not like this
+ 
+
+00:02:45.120 --> 00:02:47.930 align:start position:0%
+in court for 100 days, it is not like this
+every <00:02:45.765><c>day, </c><00:02:46.410><c>so </c><00:02:47.055><c>just </c><00:02:47.700><c>do</c>
+
+00:02:47.930 --> 00:02:47.940 align:start position:0%
+every day, so just do
+ 
+
+00:02:47.940 --> 00:02:50.449 align:start position:0%
+every day, so just do
+x <00:02:48.408><c>and </c><00:02:48.876><c>return, </c><00:02:49.344><c>I </c><00:02:49.812><c>do </c><00:02:50.280><c>not</c>
+
+00:02:50.449 --> 00:02:50.459 align:start position:0%
+x and return, I do not
+ 
+
+00:02:50.459 --> 00:02:52.550 align:start position:0%
+x and return, I do not
+need <00:02:50.645><c>to </c><00:02:50.831><c>write </c><00:02:51.017><c>'return', </c><00:02:51.203><c>I </c><00:02:51.389><c>do </c><00:02:51.575><c>not </c><00:02:51.761><c>need </c><00:02:51.947><c>to </c><00:02:52.133><c>write </c><00:02:52.319><c>'kab',</c>
+
+00:02:52.550 --> 00:02:52.560 align:start position:0%
+need to write 'return', I do not need to write 'kab',
+ 
+
+00:02:52.560 --> 00:02:54.650 align:start position:0%
+need to write 'return', I do not need to write 'kab',
+I <00:02:52.792><c>do </c><00:02:53.024><c>not </c><00:02:53.256><c>need </c><00:02:53.488><c>to </c><00:02:53.720><c>pay </c><00:02:53.952><c>attention </c><00:02:54.184><c>to </c><00:02:54.416><c>indentation,</c>
+
+00:02:54.650 --> 00:02:54.660 align:start position:0%
+I do not need to pay attention to indentation,
+ 
+
+00:02:54.660 --> 00:02:58.430 align:start position:0%
+I do not need to pay attention to indentation,
+if <00:02:55.219><c>I </c><00:02:55.778><c>print </c><00:02:56.337><c>'kab' </c><00:02:56.896><c>of </c><00:02:57.455><c>five </c><00:02:58.014><c>here,</c>
+
+00:02:58.430 --> 00:02:58.440 align:start position:0%
+if I print 'kab' of five here,
+ 
+
+00:02:58.440 --> 00:03:00.830 align:start position:0%
+if I print 'kab' of five here,
+then <00:02:59.025><c>I </c><00:02:59.610><c>will </c><00:03:00.195><c>get </c><00:03:00.780><c>₹125,</c>
+
+00:03:00.830 --> 00:03:00.840 align:start position:0%
+then I will get ₹125,
+ 
+
+00:03:00.840 --> 00:03:04.369 align:start position:0%
+then I will get ₹125,
+okay  <00:03:01.200><c>So </c><00:03:01.560><c>you </c><00:03:01.920><c>see </c><00:03:02.280><c>here </c><00:03:02.640><c>10 </c><00:03:03.000><c>and </c><00:03:03.360><c>125. </c><00:03:03.720><c>Now</c>
+
+00:03:04.369 --> 00:03:04.379 align:start position:0%
+okay  So you see here 10 and 125. Now
+ 
+
+00:03:04.379 --> 00:03:07.610 align:start position:0%
+okay  So you see here 10 and 125. Now
+this <00:03:05.819><c>function </c><00:03:07.259><c>depth</c>
+
+00:03:07.610 --> 00:03:07.620 align:start position:0%
+this function depth
+ 
+
+00:03:07.620 --> 00:03:09.350 align:start position:0%
+this function depth
+can <00:03:07.740><c>also </c><00:03:07.860><c>be </c><00:03:07.980><c>created </c><00:03:08.100><c>by </c><00:03:08.220><c>doing </c><00:03:08.340><c>x </c><00:03:08.460><c>return </c><00:03:08.580><c>x </c><00:03:08.700><c>* </c><00:03:08.820><c>x </c><00:03:08.940><c>* </c><00:03:09.060><c>x. </c><00:03:09.180><c>The</c>
+
+00:03:09.350 --> 00:03:09.360 align:start position:0%
+can also be created by doing x return x * x * x. The
+ 
+
+00:03:09.360 --> 00:03:11.630 align:start position:0%
+can also be created by doing x return x * x * x. The
+indentation <00:03:09.496><c>has </c><00:03:09.632><c>to </c><00:03:09.768><c>be </c><00:03:09.904><c>given, </c><00:03:10.040><c>it </c><00:03:10.176><c>has </c><00:03:10.312><c>to </c><00:03:10.448><c>be </c><00:03:10.584><c>written </c><00:03:10.720><c>like </c><00:03:10.856><c>this. </c><00:03:10.992><c>So </c><00:03:11.128><c>this </c><00:03:11.264><c>is </c><00:03:11.400><c>the</c>
+
+00:03:11.630 --> 00:03:11.640 align:start position:0%
+indentation has to be given, it has to be written like this. So this is the
+ 
+
+00:03:11.640 --> 00:03:14.449 align:start position:0%
+indentation has to be given, it has to be written like this. So this is the
+Lambda <00:03:12.059><c>function. </c><00:03:12.478><c>Now </c><00:03:12.897><c>this </c><00:03:13.316><c>is </c><00:03:13.735><c>the</c>
+
+00:03:14.449 --> 00:03:14.459 align:start position:0%
+Lambda function. Now this is the
+ 
+
+00:03:14.459 --> 00:03:16.130 align:start position:0%
+Lambda function. Now this is the
+Lambda <00:03:14.969><c>function. </c><00:03:15.479><c>Now</c>
+
+00:03:16.130 --> 00:03:16.140 align:start position:0%
+Lambda function. Now
+ 
+
+00:03:16.140 --> 00:03:17.509 align:start position:0%
+Lambda function. Now
+many <00:03:16.309><c>of </c><00:03:16.478><c>you </c><00:03:16.647><c>will </c><00:03:16.816><c>say </c><00:03:16.985><c>that </c><00:03:17.154><c>my</c>
+
+00:03:17.509 --> 00:03:17.519 align:start position:0%
+many of you will say that my
+ 
+
+00:03:17.519 --> 00:03:19.490 align:start position:0%
+many of you will say that my
+complex <00:03:17.784><c>functions </c><00:03:18.049><c>are </c><00:03:18.314><c>15-20 </c><00:03:18.579><c>lines </c><00:03:18.844><c>long. </c><00:03:19.109><c>Should </c><00:03:19.374><c>I</c>
+
+00:03:19.490 --> 00:03:19.500 align:start position:0%
+complex functions are 15-20 lines long. Should I
+ 
+
+00:03:19.500 --> 00:03:21.890 align:start position:0%
+complex functions are 15-20 lines long. Should I
+write <00:03:19.715><c>them </c><00:03:19.930><c>like </c><00:03:20.145><c>this </c><00:03:20.360><c>too? </c><00:03:20.575><c>What </c><00:03:20.790><c>do </c><00:03:21.005><c>you </c><00:03:21.220><c>mean </c><00:03:21.435><c>by </c><00:03:21.650><c>this</c>
+
+00:03:21.890 --> 00:03:21.900 align:start position:0%
+write them like this too? What do you mean by this
+ 
+
+00:03:21.900 --> 00:03:23.690 align:start position:0%
+write them like this too? What do you mean by this
+that <00:03:22.025><c>writing </c><00:03:22.150><c>in </c><00:03:22.275><c>Lambda </c><00:03:22.400><c>function </c><00:03:22.525><c>is </c><00:03:22.650><c>not </c><00:03:22.775><c>something </c><00:03:22.900><c>that </c><00:03:23.025><c>has </c><00:03:23.150><c>to </c><00:03:23.275><c>be </c><00:03:23.400><c>done</c>
+
+00:03:23.690 --> 00:03:23.700 align:start position:0%
+that writing in Lambda function is not something that has to be done
+ 
+
+00:03:23.700 --> 00:03:25.070 align:start position:0%
+that writing in Lambda function is not something that has to be done
+today. <00:03:23.857><c>It </c><00:03:24.014><c>is </c><00:03:24.171><c>not </c><00:03:24.328><c>like </c><00:03:24.485><c>that </c><00:03:24.642><c>at </c><00:03:24.799><c>all. </c><00:03:24.956><c>Keep</c>
+
+00:03:25.070 --> 00:03:27.530 align:start position:0%
+today. It is not like that at all. Keep
+ 
+
+00:03:27.530 --> 00:03:27.540 align:start position:0%
+ 
+ 
+
+00:03:27.540 --> 00:03:30.770 align:start position:0%
+ 
+writing <00:03:27.822><c>the </c><00:03:28.104><c>function </c><00:03:28.386><c>the </c><00:03:28.668><c>way </c><00:03:28.950><c>you </c><00:03:29.232><c>do. </c><00:03:29.514><c>Learn </c><00:03:29.796><c>a </c><00:03:30.078><c>new </c><00:03:30.360><c>method</c>
+
+00:03:30.770 --> 00:03:30.780 align:start position:0%
+writing the function the way you do. Learn a new method
+ 
+
+00:03:30.780 --> 00:03:33.410 align:start position:0%
+writing the function the way you do. Learn a new method
+because <00:03:30.962><c>you </c><00:03:31.144><c>will </c><00:03:31.326><c>find </c><00:03:31.508><c>it </c><00:03:31.690><c>written </c><00:03:31.872><c>everywhere. </c><00:03:32.054><c>So </c><00:03:32.236><c>don't </c><00:03:32.418><c>get</c>
+
+00:03:33.410 --> 00:03:33.420 align:start position:0%
+because you will find it written everywhere. So don't get
+ 
+
+00:03:33.420 --> 00:03:35.750 align:start position:0%
+because you will find it written everywhere. So don't get
+confused. <00:03:34.160><c>This </c><00:03:34.900><c>is </c><00:03:35.640><c>it.</c>
+
+00:03:35.750 --> 00:03:35.760 align:start position:0%
+confused. This is it.
+ 
+
+00:03:35.760 --> 00:03:37.790 align:start position:0%
+confused. This is it.
+Okay, <00:03:36.155><c>this </c><00:03:36.550><c>is </c><00:03:36.945><c>the </c><00:03:37.340><c>function </c><00:03:37.735><c>now.</c>
+
+00:03:37.790 --> 00:03:37.800 align:start position:0%
+Okay, this is the function now.
+ 
+
+00:03:37.800 --> 00:03:39.229 align:start position:0%
+Okay, this is the function now.
+This <00:03:38.052><c>seemed </c><00:03:38.304><c>very </c><00:03:38.556><c>complicated </c><00:03:38.808><c>to </c><00:03:39.060><c>me</c>
+
+00:03:39.229 --> 00:03:39.239 align:start position:0%
+This seemed very complicated to me
+ 
+
+00:03:39.239 --> 00:03:42.470 align:start position:0%
+This seemed very complicated to me
+earlier. <00:03:39.511><c>It </c><00:03:39.783><c>is </c><00:03:40.055><c>so </c><00:03:40.327><c>easy. </c><00:03:40.599><c>Yes, </c><00:03:40.871><c>it </c><00:03:41.143><c>was </c><00:03:41.415><c>right. </c><00:03:41.687><c>It </c><00:03:41.959><c>is </c><00:03:42.231><c>as</c>
+
+00:03:42.470 --> 00:03:42.480 align:start position:0%
+earlier. It is so easy. Yes, it was right. It is as
+ 
+
+00:03:42.480 --> 00:03:43.610 align:start position:0%
+earlier. It is so easy. Yes, it was right. It is as
+easy <00:03:42.750><c>as </c><00:03:43.020><c>I </c><00:03:43.290><c>showed </c><00:03:43.560><c>you.</c>
+
+00:03:43.610 --> 00:03:43.620 align:start position:0%
+easy as I showed you.
+ 
+
+00:03:43.620 --> 00:03:47.030 align:start position:0%
+easy as I showed you.
+Okay, <00:03:44.170><c>so </c><00:03:44.720><c>can </c><00:03:45.270><c>it </c><00:03:45.820><c>take </c><00:03:46.370><c>multiple </c><00:03:46.920><c>values?</c>
+
+00:03:47.030 --> 00:03:47.040 align:start position:0%
+Okay, so can it take multiple values?
+ 
+
+00:03:47.040 --> 00:03:50.030 align:start position:0%
+Okay, so can it take multiple values?
+If <00:03:47.334><c>I </c><00:03:47.628><c>say </c><00:03:47.922><c>I </c><00:03:48.216><c>want </c><00:03:48.510><c>to </c><00:03:48.804><c>create </c><00:03:49.098><c>a </c><00:03:49.392><c>function </c><00:03:49.686><c>called </c><00:03:49.980><c>sam</c>
+
+00:03:50.030 --> 00:03:50.040 align:start position:0%
+If I say I want to create a function called sam
+ 
+
+00:03:50.040 --> 00:03:51.770 align:start position:0%
+If I say I want to create a function called sam
+or <00:03:50.271><c>a </c><00:03:50.502><c>function </c><00:03:50.733><c>called </c><00:03:50.964><c>main </c><00:03:51.195><c>low </c><00:03:51.426><c>average, </c><00:03:51.657><c>can</c>
+
+00:03:51.770 --> 00:03:51.780 align:start position:0%
+or a function called main low average, can
+ 
+
+00:03:51.780 --> 00:03:54.350 align:start position:0%
+or a function called main low average, can
+I
+
+00:03:54.350 --> 00:03:54.360 align:start position:0%
+I
+ 
+
+00:03:54.360 --> 00:03:57.350 align:start position:0%
+I
+do <00:03:54.727><c>something </c><00:03:55.094><c>like </c><00:03:55.461><c>this?  </c><00:03:55.828><c>Lambda </c><00:03:56.195><c>x </c><00:03:56.562><c>is </c><00:03:56.929><c>earned </c><00:03:57.296><c>and</c>
+
+00:03:57.350 --> 00:03:57.360 align:start position:0%
+do something like this?  Lambda x is earned and
+ 
+
+00:03:57.360 --> 00:04:00.770 align:start position:0%
+do something like this?  Lambda x is earned and
+return <00:03:57.760><c>this </c><00:03:58.160><c>x </c><00:03:58.560><c>+ </c><00:03:58.960><c>a </c><00:03:59.360><c>/ </c><00:03:59.760><c>2</c>
+
+00:04:00.770 --> 00:04:00.780 align:start position:0%
+return this x + a / 2
+ 
+
+00:04:00.780 --> 00:04:03.770 align:start position:0%
+return this x + a / 2
+what <00:04:01.001><c>will </c><00:04:01.222><c>this </c><00:04:01.443><c>also </c><00:04:01.664><c>happen </c><00:04:01.885><c>yes </c><00:04:02.106><c>friend </c><00:04:02.327><c>this </c><00:04:02.548><c>will </c><00:04:02.769><c>also </c><00:04:02.990><c>happen </c><00:04:03.211><c>I </c><00:04:03.432><c>give </c><00:04:03.653><c>you</c>
+
+00:04:03.770 --> 00:04:03.780 align:start position:0%
+what will this also happen yes friend this will also happen I give you
+ 
+
+00:04:03.780 --> 00:04:04.449 align:start position:0%
+what will this also happen yes friend this will also happen I give you
+
+
+00:04:04.449 --> 00:04:04.459 align:start position:0%
+ 
+ 
+
+00:04:04.459 --> 00:04:06.710 align:start position:0%
+ 
+the <00:04:04.782><c>good </c><00:04:05.105><c>news </c><00:04:05.428><c>this </c><00:04:05.751><c>will </c><00:04:06.074><c>also </c><00:04:06.397><c>happen </c><00:04:06.720><c>okay</c>
+
+00:04:06.710 --> 00:04:06.720 align:start position:0%
+the good news this will also happen okay
+ 
+
+00:04:06.720 --> 00:04:08.750 align:start position:0%
+the good news this will also happen okay
+so <00:04:06.933><c>if </c><00:04:07.146><c>I </c><00:04:07.359><c>take </c><00:04:07.572><c>the </c><00:04:07.785><c>average </c><00:04:07.998><c>of </c><00:04:08.211><c>three </c><00:04:08.424><c>and </c><00:04:08.637><c>five</c>
+
+00:04:08.750 --> 00:04:08.760 align:start position:0%
+so if I take the average of three and five
+ 
+
+00:04:08.760 --> 00:04:11.509 align:start position:0%
+so if I take the average of three and five
+it <00:04:09.200><c>will </c><00:04:09.640><c>give </c><00:04:10.080><c>me </c><00:04:10.520><c>four </c><00:04:10.960><c>as </c><00:04:11.400><c>you</c>
+
+00:04:11.509 --> 00:04:11.519 align:start position:0%
+it will give me four as you
+ 
+
+00:04:11.519 --> 00:04:14.210 align:start position:0%
+it will give me four as you
+can <00:04:11.753><c>see </c><00:04:11.987><c>4.0 </c><00:04:12.221><c>okay </c><00:04:12.455><c>so </c><00:04:12.689><c>this </c><00:04:12.923><c>will </c><00:04:13.157><c>also </c><00:04:13.391><c>happen </c><00:04:13.625><c>there </c><00:04:13.859><c>is </c><00:04:14.093><c>no</c>
+
+00:04:14.210 --> 00:04:14.220 align:start position:0%
+can see 4.0 okay so this will also happen there is no
+ 
+
+00:04:14.220 --> 00:04:17.090 align:start position:0%
+can see 4.0 okay so this will also happen there is no
+problem <00:04:14.879><c>will </c><00:04:15.538><c>it </c><00:04:16.197><c>take </c><00:04:16.856><c>three</c>
+
+00:04:17.090 --> 00:04:17.100 align:start position:0%
+problem will it take three
+ 
+
+00:04:17.100 --> 00:04:19.250 align:start position:0%
+problem will it take three
+values ​​<00:04:17.550><c>if </c><00:04:18.000><c>I </c><00:04:18.450><c>do </c><00:04:18.900><c>x</c>
+
+00:04:19.250 --> 00:04:22.069 align:start position:0%
+values ​​if I do x
+ 
+
+00:04:22.069 --> 00:04:22.079 align:start position:0%
+ 
+ 
+
+00:04:22.079 --> 00:04:25.249 align:start position:0%
+ 
++ <00:04:22.266><c>a </c><00:04:22.453><c>+ </c><00:04:22.640><c>c </c><00:04:22.827><c>here </c><00:04:23.014><c>and </c><00:04:23.201><c>divide </c><00:04:23.388><c>it </c><00:04:23.575><c>like </c><00:04:23.762><c>this </c><00:04:23.949><c>and </c><00:04:24.136><c>after </c><00:04:24.323><c>that </c><00:04:24.510><c>I </c><00:04:24.697><c>divide </c><00:04:24.884><c>it </c><00:04:25.071><c>by</c>
+
+00:04:25.249 --> 00:04:25.259 align:start position:0%
++ a + c here and divide it like this and after that I divide it by
+ 
+
+00:04:25.259 --> 00:04:29.510 align:start position:0%
++ a + c here and divide it like this and after that I divide it by
+three <00:04:25.790><c>and </c><00:04:26.321><c>after </c><00:04:26.852><c>this </c><00:04:27.383><c>here </c><00:04:27.914><c>3 </c><00:04:28.445><c>5 </c><00:04:28.976><c>and</c>
+
+00:04:29.510 --> 00:04:29.520 align:start position:0%
+three and after this here 3 5 and
+ 
+
+00:04:29.520 --> 00:04:32.090 align:start position:0%
+three and after this here 3 5 and
+from <00:04:29.749><c>the </c><00:04:29.978><c>letter </c><00:04:30.207><c>I </c><00:04:30.436><c>give </c><00:04:30.665><c>10 </c><00:04:30.894><c>done </c><00:04:31.123><c>what </c><00:04:31.352><c>will </c><00:04:31.581><c>happen </c><00:04:31.810><c>what </c><00:04:32.039><c>have</c>
+
+00:04:32.090 --> 00:04:32.100 align:start position:0%
+from the letter I give 10 done what will happen what have
+ 
+
+00:04:32.100 --> 00:04:34.790 align:start position:0%
+from the letter I give 10 done what will happen what have
+I <00:04:32.422><c>done </c><00:04:32.744><c>10 </c><00:04:33.066><c>so </c><00:04:33.388><c>here </c><00:04:33.710><c>I </c><00:04:34.032><c>am </c><00:04:34.354><c>adding </c><00:04:34.676><c>up</c>
+
+00:04:34.790 --> 00:04:34.800 align:start position:0%
+I done 10 so here I am adding up
+ 
+
+00:04:34.800 --> 00:04:36.890 align:start position:0%
+I done 10 so here I am adding up
+that <00:04:35.025><c>brother </c><00:04:35.250><c>10 </c><00:04:35.475><c>5 </c><00:04:35.700><c>is </c><00:04:35.925><c>15 </c><00:04:36.150><c>15 </c><00:04:36.375><c>is </c><00:04:36.600><c>three</c>
+
+00:04:36.890 --> 00:04:36.900 align:start position:0%
+that brother 10 5 is 15 15 is three
+ 
+
+00:04:36.900 --> 00:04:39.710 align:start position:0%
+that brother 10 5 is 15 15 is three
+18/3 <00:04:37.440><c>is </c><00:04:37.980><c>6 </c><00:04:38.520><c>so </c><00:04:39.060><c>will </c><00:04:39.600><c>this</c>
+
+00:04:39.710 --> 00:04:39.720 align:start position:0%
+18/3 is 6 so will this
+ 
+
+00:04:39.720 --> 00:04:42.950 align:start position:0%
+18/3 is 6 so will this
+give <00:04:39.992><c>me </c><00:04:40.264><c>six </c><00:04:40.536><c>this </c><00:04:40.808><c>is </c><00:04:41.080><c>the </c><00:04:41.352><c>answer </c><00:04:41.624><c>yes </c><00:04:41.896><c>so </c><00:04:42.168><c>yes </c><00:04:42.440><c>friend </c><00:04:42.712><c>you</c>
+
+00:04:42.950 --> 00:04:42.960 align:start position:0%
+give me six this is the answer yes so yes friend you
+ 
+
+00:04:42.960 --> 00:04:45.590 align:start position:0%
+give me six this is the answer yes so yes friend you
+can <00:04:43.270><c>give </c><00:04:43.580><c>many </c><00:04:43.890><c>values ​​</c><00:04:44.200><c>in </c><00:04:44.510><c>it </c><00:04:44.820><c>you</c>
+
+00:04:45.590 --> 00:04:45.600 align:start position:0%
+can give many values ​​in it you
+ 
+
+00:04:45.600 --> 00:04:47.810 align:start position:0%
+can give many values ​​in it you
+can <00:04:45.939><c>also </c><00:04:46.278><c>do </c><00:04:46.617><c>something </c><00:04:46.956><c>like </c><00:04:47.295><c>this </c><00:04:47.634><c>friend</c>
+
+00:04:47.810 --> 00:04:47.820 align:start position:0%
+can also do something like this friend
+ 
+
+00:04:47.820 --> 00:04:50.810 align:start position:0%
+can also do something like this friend
+if <00:04:48.080><c>you </c><00:04:48.340><c>have </c><00:04:48.600><c>to </c><00:04:48.860><c>give </c><00:04:49.120><c>values ​​</c><00:04:49.380><c>from </c><00:04:49.640><c>5 </c><00:04:49.900><c>should </c><00:04:50.160><c>I</c>
+
+00:04:50.810 --> 00:04:50.820 align:start position:0%
+if you have to give values ​​from 5 should I
+ 
+
+00:04:50.820 --> 00:04:53.090 align:start position:0%
+if you have to give values ​​from 5 should I
+put <00:04:51.021><c>brackets </c><00:04:51.222><c>have </c><00:04:51.423><c>you </c><00:04:51.624><c>done </c><00:04:51.825><c>multiple  </c><00:04:52.026><c>If </c><00:04:52.227><c>you </c><00:04:52.428><c>want </c><00:04:52.629><c>to </c><00:04:52.830><c>write </c><00:04:53.031><c>lines,</c>
+
+00:04:53.090 --> 00:04:53.100 align:start position:0%
+put brackets have you done multiple  If you want to write lines,
+ 
+
+00:04:53.100 --> 00:04:55.909 align:start position:0%
+put brackets have you done multiple  If you want to write lines,
+you <00:04:53.370><c>can </c><00:04:53.640><c>write </c><00:04:53.910><c>that </c><00:04:54.180><c>too. </c><00:04:54.450><c>Okay, </c><00:04:54.720><c>you </c><00:04:54.990><c>can </c><00:04:55.260><c>do </c><00:04:55.530><c>this </c><00:04:55.800><c>too.</c>
+
+00:04:55.909 --> 00:04:55.919 align:start position:0%
+you can write that too. Okay, you can do this too.
+ 
+
+00:04:55.919 --> 00:04:58.030 align:start position:0%
+you can write that too. Okay, you can do this too.
+You <00:04:56.340><c>might</c>
+
+00:04:58.030 --> 00:04:58.040 align:start position:0%
+You might
+ 
+
+00:04:58.040 --> 00:05:00.290 align:start position:0%
+You might
+want <00:04:58.300><c>to </c><00:04:58.560><c>do </c><00:04:58.820><c>this </c><00:04:59.080><c>when </c><00:04:59.340><c>you </c><00:04:59.600><c>have </c><00:04:59.860><c>multiple </c><00:05:00.120><c>lines.</c>
+
+00:05:00.290 --> 00:05:00.300 align:start position:0%
+want to do this when you have multiple lines.
+ 
+
+00:05:00.300 --> 00:05:01.310 align:start position:0%
+want to do this when you have multiple lines.
+
+
+00:05:01.310 --> 00:05:04.030 align:start position:0%
+ 
+ 
+
+00:05:04.030 --> 00:05:04.040 align:start position:0%
+ 
+ 
+
+00:05:04.040 --> 00:05:07.310 align:start position:0%
+ 
+Okay, <00:05:04.337><c>so </c><00:05:04.634><c>when </c><00:05:04.931><c>to </c><00:05:05.228><c>do </c><00:05:05.525><c>that </c><00:05:05.822><c>is </c><00:05:06.119><c>the </c><00:05:06.416><c>Lambda </c><00:05:06.713><c>function.</c>
+
+00:05:07.310 --> 00:05:07.320 align:start position:0%
+Okay, so when to do that is the Lambda function.
+ 
+
+00:05:07.320 --> 00:05:10.070 align:start position:0%
+Okay, so when to do that is the Lambda function.
+When <00:05:09.960><c>you</c>
+
+00:05:10.070 --> 00:05:10.080 align:start position:0%
+When you
+ 
+
+00:05:10.080 --> 00:05:11.930 align:start position:0%
+When you
+want <00:05:10.212><c>your </c><00:05:10.344><c>function </c><00:05:10.476><c>to </c><00:05:10.608><c>be </c><00:05:10.740><c>in </c><00:05:10.872><c>a </c><00:05:11.004><c>linear </c><00:05:11.136><c>way. </c><00:05:11.268><c>And </c><00:05:11.400><c>the</c>
+
+00:05:11.930 --> 00:05:11.940 align:start position:0%
+want your function to be in a linear way. And the
+ 
+
+00:05:11.940 --> 00:05:14.390 align:start position:0%
+want your function to be in a linear way. And the
+effect <00:05:12.372><c>that </c><00:05:12.804><c>comes </c><00:05:13.236><c>with </c><00:05:13.668><c>the </c><00:05:14.100><c>Lambda</c>
+
+00:05:14.390 --> 00:05:14.400 align:start position:0%
+effect that comes with the Lambda
+ 
+
+00:05:14.400 --> 00:05:16.010 align:start position:0%
+effect that comes with the Lambda
+function <00:05:14.880><c>comes </c><00:05:15.360><c>when </c><00:05:15.840><c>you</c>
+
+00:05:16.010 --> 00:05:16.020 align:start position:0%
+function comes when you
+ 
+
+00:05:16.020 --> 00:05:18.890 align:start position:0%
+function comes when you
+pass <00:05:16.357><c>an </c><00:05:16.694><c>argument </c><00:05:17.031><c>to </c><00:05:17.368><c>the </c><00:05:17.705><c>function. </c><00:05:18.042><c>Don't </c><00:05:18.379><c>get </c><00:05:18.716><c>confused,</c>
+
+00:05:18.890 --> 00:05:18.900 align:start position:0%
+pass an argument to the function. Don't get confused,
+ 
+
+00:05:18.900 --> 00:05:20.629 align:start position:0%
+pass an argument to the function. Don't get confused,
+we <00:05:19.087><c>also </c><00:05:19.274><c>pass </c><00:05:19.461><c>an </c><00:05:19.648><c>argument </c><00:05:19.835><c>to </c><00:05:20.022><c>the </c><00:05:20.209><c>function. </c><00:05:20.396><c>Can</c>
+
+00:05:20.629 --> 00:05:20.639 align:start position:0%
+we also pass an argument to the function. Can
+ 
+
+00:05:20.639 --> 00:05:23.390 align:start position:0%
+we also pass an argument to the function. Can
+we <00:05:21.069><c>pass </c><00:05:21.499><c>a </c><00:05:21.929><c>function </c><00:05:22.359><c>to </c><00:05:22.789><c>a </c><00:05:23.219><c>function?</c>
+
+00:05:23.390 --> 00:05:25.270 align:start position:0%
+we pass a function to a function?
+ 
+
+00:05:25.270 --> 00:05:25.280 align:start position:0%
+ 
+ 
+
+00:05:25.280 --> 00:05:28.610 align:start position:0%
+ 
+Okay, <00:05:25.652><c>like, </c><00:05:26.024><c>let's </c><00:05:26.396><c>say </c><00:05:26.768><c>I </c><00:05:27.140><c>create </c><00:05:27.512><c>a </c><00:05:27.884><c>function </c><00:05:28.256><c>called</c>
+
+00:05:28.610 --> 00:05:28.620 align:start position:0%
+Okay, like, let's say I create a function called
+ 
+
+00:05:28.620 --> 00:05:30.670 align:start position:0%
+Okay, like, let's say I create a function called
+apply.
+
+00:05:30.670 --> 00:05:30.680 align:start position:0%
+apply.
+ 
+
+00:05:30.680 --> 00:05:33.830 align:start position:0%
+apply.
+Okay, <00:05:31.379><c>and </c><00:05:32.078><c>I </c><00:05:32.777><c>say </c><00:05:33.476><c>give</c>
+
+00:05:33.830 --> 00:05:33.840 align:start position:0%
+Okay, and I say give
+ 
+
+00:05:33.840 --> 00:05:36.830 align:start position:0%
+Okay, and I say give
+it <00:05:34.177><c>a </c><00:05:34.514><c>function </c><00:05:34.851><c>called </c><00:05:35.188><c>apply. </c><00:05:35.525><c>And </c><00:05:35.862><c>it </c><00:05:36.199><c>will </c><00:05:36.536><c>return</c>
+
+00:05:36.830 --> 00:05:36.840 align:start position:0%
+it a function called apply. And it will return
+ 
+
+00:05:36.840 --> 00:05:40.249 align:start position:0%
+it a function called apply. And it will return
+six <00:05:37.710><c>plus </c><00:05:38.580><c>function</c>
+
+00:05:40.249 --> 00:05:40.259 align:start position:0%
+six plus function
+ 
+
+00:05:40.259 --> 00:05:43.670 align:start position:0%
+six plus function
+apex <00:05:40.799><c>off </c><00:05:41.339><c>and </c><00:05:41.879><c>x. </c><00:05:42.419><c>And </c><00:05:42.959><c>here </c><00:05:43.499><c>I</c>
+
+00:05:43.670 --> 00:05:43.680 align:start position:0%
+apex off and x. And here I
+ 
+
+00:05:43.680 --> 00:05:49.749 align:start position:0%
+apex off and x. And here I
+write <00:05:43.945><c>the </c><00:05:44.210><c>value. </c><00:05:44.475><c>So </c><00:05:44.740><c>what </c><00:05:45.005><c>will </c><00:05:45.270><c>it </c><00:05:45.535><c>do?</c>
+
+00:05:49.749 --> 00:05:49.759 align:start position:0%
+ 
+ 
+
+00:05:49.759 --> 00:05:52.010 align:start position:0%
+ 
+You <00:05:50.056><c>will </c><00:05:50.353><c>say, </c><00:05:50.650><c>friend, </c><00:05:50.947><c>I </c><00:05:51.244><c>want </c><00:05:51.541><c>to </c><00:05:51.838><c>print</c>
+
+00:05:52.010 --> 00:05:52.020 align:start position:0%
+You will say, friend, I want to print
+ 
+
+00:05:52.020 --> 00:05:54.830 align:start position:0%
+You will say, friend, I want to print
+APL. <00:05:52.605><c>I </c><00:05:53.190><c>want </c><00:05:53.775><c>to </c><00:05:54.360><c>give</c>
+
+00:05:54.830 --> 00:05:54.840 align:start position:0%
+APL. I want to give
+ 
+
+00:05:54.840 --> 00:05:56.629 align:start position:0%
+APL. I want to give
+a <00:05:55.026><c>function </c><00:05:55.212><c>called </c><00:05:55.398><c>when </c><00:05:55.584><c>and </c><00:05:55.770><c>I </c><00:05:55.956><c>want </c><00:05:56.142><c>to </c><00:05:56.328><c>give </c><00:05:56.514><c>it</c>
+
+00:05:56.629 --> 00:05:56.639 align:start position:0%
+a function called when and I want to give it
+ 
+
+00:05:56.639 --> 00:05:59.450 align:start position:0%
+a function called when and I want to give it
+2. <00:05:56.939><c>So </c><00:05:57.239><c>what </c><00:05:57.539><c>will </c><00:05:57.839><c>it </c><00:05:58.139><c>do? </c><00:05:58.439><c>When </c><00:05:58.739><c>will </c><00:05:59.039><c>you </c><00:05:59.339><c>go</c>
+
+00:05:59.450 --> 00:05:59.460 align:start position:0%
+2. So what will it do? When will you go
+ 
+
+00:05:59.460 --> 00:06:04.370 align:start position:0%
+2. So what will it do? When will you go
+into <00:05:59.854><c>this </c><00:06:00.248><c>function </c><00:06:00.642><c>and </c><00:06:01.036><c>how </c><00:06:01.430><c>much </c><00:06:01.824><c>will </c><00:06:02.218><c>you </c><00:06:02.612><c>get? </c><00:06:03.006><c>Six </c><00:06:03.400><c>plus </c><00:06:03.794><c>when </c><00:06:04.188><c>off.</c>
+
+00:06:04.370 --> 00:06:04.380 align:start position:0%
+into this function and how much will you get? Six plus when off.
+ 
+
+00:06:04.380 --> 00:06:08.450 align:start position:0%
+into this function and how much will you get? Six plus when off.
+How <00:06:04.739><c>much </c><00:06:05.098><c>will </c><00:06:05.457><c>8 </c><00:06:05.816><c>plus </c><00:06:06.175><c>6 </c><00:06:06.534><c>get?  </c><00:06:06.893><c>Will </c><00:06:07.252><c>it </c><00:06:07.611><c>be </c><00:06:07.970><c>14?</c>
+
+00:06:08.450 --> 00:06:08.460 align:start position:0%
+How much will 8 plus 6 get?  Will it be 14?
+ 
+
+00:06:08.460 --> 00:06:11.930 align:start position:0%
+How much will 8 plus 6 get?  Will it be 14?
+14 <00:06:08.819><c>will </c><00:06:09.178><c>be </c><00:06:09.537><c>printed. </c><00:06:09.896><c>The </c><00:06:10.255><c>answer </c><00:06:10.614><c>is </c><00:06:10.973><c>yes. </c><00:06:11.332><c>So, </c><00:06:11.691><c>you</c>
+
+00:06:11.930 --> 00:06:11.940 align:start position:0%
+14 will be printed. The answer is yes. So, you
+ 
+
+00:06:11.940 --> 00:06:14.090 align:start position:0%
+14 will be printed. The answer is yes. So, you
+can <00:06:12.239><c>pass </c><00:06:12.538><c>a </c><00:06:12.837><c>function </c><00:06:13.136><c>to </c><00:06:13.435><c>a </c><00:06:13.734><c>function. </c><00:06:14.033><c>In</c>
+
+00:06:14.090 --> 00:06:14.100 align:start position:0%
+can pass a function to a function. In
+ 
+
+00:06:14.100 --> 00:06:16.850 align:start position:0%
+can pass a function to a function. In
+such <00:06:14.358><c>a </c><00:06:14.616><c>situation, </c><00:06:14.874><c>instead </c><00:06:15.132><c>of </c><00:06:15.390><c>creating </c><00:06:15.648><c>a </c><00:06:15.906><c>function </c><00:06:16.164><c>by </c><00:06:16.422><c>decoding, </c><00:06:16.680><c>I</c>
+
+00:06:16.850 --> 00:06:16.860 align:start position:0%
+such a situation, instead of creating a function by decoding, I
+ 
+
+00:06:16.860 --> 00:06:18.650 align:start position:0%
+such a situation, instead of creating a function by decoding, I
+can <00:06:17.150><c>directly </c><00:06:17.440><c>pass </c><00:06:17.730><c>a </c><00:06:18.020><c>function </c><00:06:18.310><c>like </c><00:06:18.600><c>this.</c>
+
+00:06:18.650 --> 00:06:18.660 align:start position:0%
+can directly pass a function like this.
+ 
+
+00:06:18.660 --> 00:06:21.650 align:start position:0%
+can directly pass a function like this.
+Friend, <00:06:19.154><c>you </c><00:06:19.648><c>take </c><00:06:20.142><c>this </c><00:06:20.636><c>function</c>
+
+00:06:21.650 --> 00:06:21.660 align:start position:0%
+Friend, you take this function
+ 
+
+00:06:21.660 --> 00:06:23.809 align:start position:0%
+Friend, you take this function
+where <00:06:21.885><c>I </c><00:06:22.110><c>created </c><00:06:22.335><c>a </c><00:06:22.560><c>function </c><00:06:22.785><c>by </c><00:06:23.010><c>decoding, </c><00:06:23.235><c>then </c><00:06:23.460><c>I</c>
+
+00:06:23.809 --> 00:06:23.819 align:start position:0%
+where I created a function by decoding, then I
+ 
+
+00:06:23.819 --> 00:06:25.189 align:start position:0%
+where I created a function by decoding, then I
+pass <00:06:24.134><c>it. </c><00:06:24.449><c>Here </c><00:06:24.764><c>I </c><00:06:25.079><c>have</c>
+
+00:06:25.189 --> 00:06:25.199 align:start position:0%
+pass it. Here I have
+ 
+
+00:06:25.199 --> 00:06:28.010 align:start position:0%
+pass it. Here I have
+passed <00:06:25.463><c>it </c><00:06:25.727><c>in </c><00:06:25.991><c>a </c><00:06:26.255><c>single </c><00:06:26.519><c>line. </c><00:06:26.783><c>Now </c><00:06:27.047><c>see, </c><00:06:27.311><c>don't </c><00:06:27.575><c>get </c><00:06:27.839><c>confused</c>
+
+00:06:28.010 --> 00:06:28.020 align:start position:0%
+passed it in a single line. Now see, don't get confused
+ 
+
+00:06:28.020 --> 00:06:29.689 align:start position:0%
+passed it in a single line. Now see, don't get confused
+because <00:06:28.332><c>whatever </c><00:06:28.644><c>I </c><00:06:28.956><c>told </c><00:06:29.268><c>you </c><00:06:29.580><c>about</c>
+
+00:06:29.689 --> 00:06:29.699 align:start position:0%
+because whatever I told you about
+ 
+
+00:06:29.699 --> 00:06:31.309 align:start position:0%
+because whatever I told you about
+passing <00:06:29.975><c>a </c><00:06:30.251><c>function </c><00:06:30.527><c>to </c><00:06:30.803><c>a </c><00:06:31.079><c>function,</c>
+
+00:06:31.309 --> 00:06:31.319 align:start position:0%
+passing a function to a function,
+ 
+
+00:06:31.319 --> 00:06:33.409 align:start position:0%
+passing a function to a function,
+digest <00:06:31.574><c>it </c><00:06:31.829><c>slowly </c><00:06:32.084><c>and </c><00:06:32.339><c>say </c><00:06:32.594><c>to </c><00:06:32.849><c>yourself, </c><00:06:33.104><c>okay, </c><00:06:33.359><c>you</c>
+
+00:06:33.409 --> 00:06:33.419 align:start position:0%
+digest it slowly and say to yourself, okay, you
+ 
+
+00:06:33.419 --> 00:06:36.409 align:start position:0%
+digest it slowly and say to yourself, okay, you
+can <00:06:34.359><c>also </c><00:06:35.299><c>do </c><00:06:36.239><c>it.</c>
+
+00:06:36.409 --> 00:06:36.419 align:start position:0%
+can also do it.
+ 
+
+00:06:36.419 --> 00:06:38.870 align:start position:0%
+can also do it.
+Write <00:06:36.615><c>a </c><00:06:36.811><c>program, </c><00:06:37.007><c>it </c><00:06:37.203><c>is </c><00:06:37.399><c>not </c><00:06:37.595><c>like </c><00:06:37.791><c>you </c><00:06:37.987><c>are </c><00:06:38.183><c>watching </c><00:06:38.379><c>a </c><00:06:38.575><c>video</c>
+
+00:06:38.870 --> 00:06:38.880 align:start position:0%
+Write a program, it is not like you are watching a video
+ 
+
+00:06:38.880 --> 00:06:40.629 align:start position:0%
+Write a program, it is not like you are watching a video
+quietly, <00:06:39.040><c>do </c><00:06:39.200><c>not </c><00:06:39.360><c>watch </c><00:06:39.520><c>it </c><00:06:39.680><c>like </c><00:06:39.840><c>Netflix.</c>
+
+00:06:40.629 --> 00:06:40.639 align:start position:0%
+quietly, do not watch it like Netflix.
+ 
+
+00:06:40.639 --> 00:06:44.570 align:start position:0%
+quietly, do not watch it like Netflix.
+Stop <00:06:41.379><c>here, </c><00:06:42.119><c>take </c><00:06:42.859><c>notes, </c><00:06:43.599><c>watch </c><00:06:44.339><c>it.</c>
+
+00:06:44.570 --> 00:06:44.580 align:start position:0%
+Stop here, take notes, watch it.
+ 
+
+00:06:44.580 --> 00:06:47.270 align:start position:0%
+Stop here, take notes, watch it.
+Okay, <00:06:44.948><c>read </c><00:06:45.316><c>this. </c><00:06:45.684><c>What </c><00:06:46.052><c>I </c><00:06:46.420><c>have </c><00:06:46.788><c>written </c><00:06:47.156><c>with</c>
+
+00:06:47.270 --> 00:06:47.280 align:start position:0%
+Okay, read this. What I have written with
+ 
+
+00:06:47.280 --> 00:06:49.850 align:start position:0%
+Okay, read this. What I have written with
+so <00:06:47.466><c>much </c><00:06:47.652><c>hard </c><00:06:47.838><c>work </c><00:06:48.024><c>for </c><00:06:48.210><c>you </c><00:06:48.396><c>guys. </c><00:06:48.582><c>Now </c><00:06:48.768><c>see, </c><00:06:48.954><c>in</c>
+
+00:06:49.850 --> 00:06:49.860 align:start position:0%
+so much hard work for you guys. Now see, in
+ 
+
+00:06:49.860 --> 00:06:50.950 align:start position:0%
+so much hard work for you guys. Now see, in
+Python, a
+
+00:06:50.950 --> 00:06:50.960 align:start position:0%
+Python, a
+ 
+
+00:06:50.960 --> 00:06:52.969 align:start position:0%
+Python, a
+function <00:06:51.435><c>without </c><00:06:51.910><c>an </c><00:06:52.385><c>anime </c><00:06:52.860><c>is</c>
+
+00:06:52.969 --> 00:06:52.979 align:start position:0%
+function without an anime is
+ 
+
+00:06:52.979 --> 00:06:55.129 align:start position:0%
+function without an anime is
+not <00:06:53.226><c>called </c><00:06:53.473><c>a </c><00:06:53.720><c>defined </c><00:06:53.967><c>function, </c><00:06:54.214><c>which </c><00:06:54.461><c>we </c><00:06:54.708><c>have </c><00:06:54.955><c>seen.</c>
+
+00:06:55.129 --> 00:06:55.139 align:start position:0%
+not called a defined function, which we have seen.
+ 
+
+00:06:55.139 --> 00:07:00.249 align:start position:0%
+not called a defined function, which we have seen.
+This <00:06:55.579><c>is </c><00:06:56.019><c>its </c><00:06:56.459><c>syntax.</c>
+
+00:07:00.249 --> 00:07:00.259 align:start position:0%
+ 
+ 
+
+00:07:00.259 --> 00:07:03.890 align:start position:0%
+ 
+For <00:07:00.654><c>a </c><00:07:01.049><c>short </c><00:07:01.444><c>period </c><00:07:01.839><c>of </c><00:07:02.234><c>time, </c><00:07:02.629><c>they </c><00:07:03.024><c>are </c><00:07:03.419><c>commonly</c>
+
+00:07:03.890 --> 00:07:03.900 align:start position:0%
+For a short period of time, they are commonly
+ 
+
+00:07:03.900 --> 00:07:05.809 align:start position:0%
+For a short period of time, they are commonly
+used <00:07:04.102><c>as </c><00:07:04.304><c>arguments. </c><00:07:04.506><c>You </c><00:07:04.708><c>are </c><00:07:04.910><c>a </c><00:07:05.112><c>higher </c><00:07:05.314><c>order </c><00:07:05.516><c>function.</c>
+
+00:07:05.809 --> 00:07:05.819 align:start position:0%
+used as arguments. You are a higher order function.
+ 
+
+00:07:05.819 --> 00:07:07.490 align:start position:0%
+used as arguments. You are a higher order function.
+I <00:07:05.945><c>had </c><00:07:06.071><c>said </c><00:07:06.197><c>that </c><00:07:06.323><c>sometimes </c><00:07:06.449><c>we </c><00:07:06.575><c>have </c><00:07:06.701><c>to </c><00:07:06.827><c>mark </c><00:07:06.953><c>a </c><00:07:07.079><c>function,</c>
+
+00:07:07.490 --> 00:07:07.500 align:start position:0%
+I had said that sometimes we have to mark a function,
+ 
+
+00:07:07.500 --> 00:07:09.110 align:start position:0%
+I had said that sometimes we have to mark a function,
+then <00:07:07.740><c>we </c><00:07:07.980><c>will </c><00:07:08.220><c>do </c><00:07:08.460><c>it. </c><00:07:08.700><c>The </c><00:07:08.940><c>next</c>
+
+00:07:09.110 --> 00:07:09.120 align:start position:0%
+then we will do it. The next
+ 
+
+00:07:09.120 --> 00:07:11.330 align:start position:0%
+then we will do it. The next
+video <00:07:09.540><c>on </c><00:07:09.960><c>reduce </c><00:07:10.380><c>is </c><00:07:10.800><c>coming, </c><00:07:11.220><c>so</c>
+
+00:07:11.330 --> 00:07:11.340 align:start position:0%
+video on reduce is coming, so
+ 
+
+00:07:11.340 --> 00:07:13.670 align:start position:0%
+video on reduce is coming, so
+watch <00:07:11.536><c>it </c><00:07:11.732><c>in </c><00:07:11.928><c>that, </c><00:07:12.124><c>we </c><00:07:12.320><c>will </c><00:07:12.516><c>talk </c><00:07:12.712><c>about </c><00:07:12.908><c>the </c><00:07:13.104><c>next </c><00:07:13.300><c>step.  </c><00:07:13.496><c>But</c>
+
+00:07:13.670 --> 00:07:13.680 align:start position:0%
+watch it in that, we will talk about the next step.  But
+ 
+
+00:07:13.680 --> 00:07:15.770 align:start position:0%
+watch it in that, we will talk about the next step.  But
+now <00:07:13.962><c>the </c><00:07:14.244><c>example </c><00:07:14.526><c>that </c><00:07:14.808><c>I </c><00:07:15.090><c>have </c><00:07:15.372><c>given </c><00:07:15.654><c>is</c>
+
+00:07:15.770 --> 00:07:15.780 align:start position:0%
+now the example that I have given is
+ 
+
+00:07:15.780 --> 00:07:18.770 align:start position:0%
+now the example that I have given is
+written <00:07:16.296><c>here, </c><00:07:16.812><c>it </c><00:07:17.328><c>has </c><00:07:17.844><c>the </c><00:07:18.360><c>functionality</c>
+
+00:07:18.770 --> 00:07:18.780 align:start position:0%
+written here, it has the functionality
+ 
+
+00:07:18.780 --> 00:07:21.589 align:start position:0%
+written here, it has the functionality
+of <00:07:19.010><c>a </c><00:07:19.240><c>double </c><00:07:19.470><c>function </c><00:07:19.700><c>but </c><00:07:19.930><c>it </c><00:07:20.160><c>does</c>
+
+00:07:21.589 --> 00:07:21.599 align:start position:0%
+of a double function but it does
+ 
+
+00:07:21.599 --> 00:07:23.210 align:start position:0%
+of a double function but it does
+n't <00:07:21.929><c>have </c><00:07:22.259><c>any </c><00:07:22.589><c>name. </c><00:07:22.919><c>Like</c>
+
+00:07:23.210 --> 00:07:23.220 align:start position:0%
+n't have any name. Like
+ 
+
+00:07:23.220 --> 00:07:24.770 align:start position:0%
+n't have any name. Like
+here <00:07:23.508><c>we </c><00:07:23.796><c>named </c><00:07:24.084><c>it </c><00:07:24.372><c>as </c><00:07:24.660><c>Apple,</c>
+
+00:07:24.770 --> 00:07:24.780 align:start position:0%
+here we named it as Apple,
+ 
+
+00:07:24.780 --> 00:07:26.930 align:start position:0%
+here we named it as Apple,
+it <00:07:25.119><c>doesn't </c><00:07:25.458><c>have </c><00:07:25.797><c>any </c><00:07:26.136><c>name. </c><00:07:26.475><c>We </c><00:07:26.814><c>should</c>
+
+00:07:26.930 --> 00:07:26.940 align:start position:0%
+it doesn't have any name. We should
+ 
+
+00:07:26.940 --> 00:07:29.210 align:start position:0%
+it doesn't have any name. We should
+not <00:07:27.222><c>write </c><00:07:27.504><c>double </c><00:07:27.786><c>is </c><00:07:28.068><c>equal </c><00:07:28.350><c>to </c><00:07:28.632><c>two. </c><00:07:28.914><c>Like</c>
+
+00:07:29.210 --> 00:07:29.220 align:start position:0%
+not write double is equal to two. Like
+ 
+
+00:07:29.220 --> 00:07:31.129 align:start position:0%
+not write double is equal to two. Like
+in <00:07:29.413><c>this </c><00:07:29.606><c>function, </c><00:07:29.799><c>if </c><00:07:29.992><c>I </c><00:07:30.185><c>had </c><00:07:30.378><c>passed </c><00:07:30.571><c>it </c><00:07:30.764><c>directly, </c><00:07:30.957><c>then</c>
+
+00:07:31.129 --> 00:07:31.139 align:start position:0%
+in this function, if I had passed it directly, then
+ 
+
+00:07:31.139 --> 00:07:33.409 align:start position:0%
+in this function, if I had passed it directly, then
+why <00:07:31.365><c>would </c><00:07:31.591><c>it </c><00:07:31.817><c>be </c><00:07:32.043><c>a </c><00:07:32.269><c>function, </c><00:07:32.495><c>but </c><00:07:32.721><c>it </c><00:07:32.947><c>doesn't </c><00:07:33.173><c>have</c>
+
+00:07:33.409 --> 00:07:33.419 align:start position:0%
+why would it be a function, but it doesn't have
+ 
+
+00:07:33.419 --> 00:07:35.029 align:start position:0%
+why would it be a function, but it doesn't have
+any <00:07:34.800><c>name.</c>
+
+00:07:35.029 --> 00:07:35.039 align:start position:0%
+any name.
+ 
+
+00:07:35.039 --> 00:07:37.370 align:start position:0%
+any name.
+While <00:07:35.759><c>passing </c><00:07:36.479><c>it, </c><00:07:37.199><c>I</c>
+
+00:07:37.370 --> 00:07:37.380 align:start position:0%
+While passing it, I
+ 
+
+00:07:37.380 --> 00:07:39.050 align:start position:0%
+While passing it, I
+created <00:07:37.553><c>a </c><00:07:37.726><c>function </c><00:07:37.899><c>named </c><00:07:38.072><c>'when' </c><00:07:38.245><c>above. </c><00:07:38.418><c>Even </c><00:07:38.591><c>if </c><00:07:38.764><c>I </c><00:07:38.937><c>had</c>
+
+00:07:39.050 --> 00:07:39.060 align:start position:0%
+created a function named 'when' above. Even if I had
+ 
+
+00:07:39.060 --> 00:07:40.370 align:start position:0%
+created a function named 'when' above. Even if I had
+not <00:07:39.259><c>created </c><00:07:39.458><c>it, </c><00:07:39.657><c>I </c><00:07:39.856><c>would </c><00:07:40.055><c>have </c><00:07:40.254><c>written</c>
+
+00:07:40.370 --> 00:07:40.380 align:start position:0%
+not created it, I would have written
+ 
+
+00:07:40.380 --> 00:07:42.409 align:start position:0%
+not created it, I would have written
+it <00:07:40.586><c>directly </c><00:07:40.792><c>as </c><00:07:40.998><c>'lambda </c><00:07:41.204><c>x </c><00:07:41.410><c>colon </c><00:07:41.616><c>x </c><00:07:41.822><c>* </c><00:07:42.028><c>x </c><00:07:42.234><c>*</c>
+
+00:07:42.409 --> 00:07:42.419 align:start position:0%
+it directly as 'lambda x colon x * x *
+ 
+
+00:07:42.419 --> 00:07:45.050 align:start position:0%
+it directly as 'lambda x colon x * x *
+x'. <00:07:42.665><c>Then </c><00:07:42.911><c>it </c><00:07:43.157><c>would </c><00:07:43.403><c>have </c><00:07:43.649><c>been </c><00:07:43.895><c>reduced </c><00:07:44.141><c>right </c><00:07:44.387><c>away. </c><00:07:44.633><c>I </c><00:07:44.879><c>would</c>
+
+00:07:45.050 --> 00:07:45.060 align:start position:0%
+x'. Then it would have been reduced right away. I would
+ 
+
+00:07:45.060 --> 00:07:46.730 align:start position:0%
+x'. Then it would have been reduced right away. I would
+n't <00:07:45.213><c>have </c><00:07:45.366><c>needed </c><00:07:45.519><c>to </c><00:07:45.672><c>create </c><00:07:45.825><c>a </c><00:07:45.978><c>function </c><00:07:46.131><c>named </c><00:07:46.284><c>'when', </c><00:07:46.437><c>so</c>
+
+00:07:46.730 --> 00:07:46.740 align:start position:0%
+n't have needed to create a function named 'when', so
+ 
+
+00:07:46.740 --> 00:07:50.270 align:start position:0%
+n't have needed to create a function named 'when', so
+an <00:07:47.448><c>unnamed </c><00:07:48.156><c>function, </c><00:07:48.864><c>economy </c><00:07:49.572><c>function. </c><00:07:50.280><c>Okay,</c>
+
+00:07:50.270 --> 00:07:50.280 align:start position:0%
+an unnamed function, economy function. Okay,
+ 
+
+00:07:50.280 --> 00:07:52.550 align:start position:0%
+an unnamed function, economy function. Okay,
+let's <00:07:50.557><c>leave </c><00:07:50.834><c>'when' </c><00:07:51.111><c>aside, </c><00:07:51.388><c>I </c><00:07:51.665><c>created </c><00:07:51.942><c>a </c><00:07:52.219><c>function </c><00:07:52.496><c>called</c>
+
+00:07:52.550 --> 00:07:52.560 align:start position:0%
+let's leave 'when' aside, I created a function called
+ 
+
+00:07:52.560 --> 00:07:54.529 align:start position:0%
+let's leave 'when' aside, I created a function called
+square. <00:07:53.460><c>I </c><00:07:54.360><c>did</c>
+
+00:07:54.529 --> 00:07:54.539 align:start position:0%
+square. I did
+ 
+
+00:07:54.539 --> 00:07:56.689 align:start position:0%
+square. I did
+not <00:07:54.830><c>create </c><00:07:55.121><c>square </c><00:07:55.412><c>anywhere. </c><00:07:55.703><c>Square, </c><00:07:55.994><c>but </c><00:07:56.285><c>I </c><00:07:56.576><c>passed</c>
+
+00:07:56.689 --> 00:07:56.699 align:start position:0%
+not create square anywhere. Square, but I passed
+ 
+
+00:07:56.699 --> 00:07:58.610 align:start position:0%
+not create square anywhere. Square, but I passed
+this <00:07:56.987><c>function </c><00:07:57.275><c>called </c><00:07:57.563><c>square </c><00:07:57.851><c>here </c><00:07:58.139><c>which</c>
+
+00:07:58.610 --> 00:07:58.620 align:start position:0%
+this function called square here which
+ 
+
+00:07:58.620 --> 00:08:01.129 align:start position:0%
+this function called square here which
+reduces <00:08:01.020><c>square.</c>
+
+00:08:01.129 --> 00:08:01.139 align:start position:0%
+reduces square.
+ 
+
+00:08:01.139 --> 00:08:02.990 align:start position:0%
+reduces square.
+I <00:08:01.224><c>did </c><00:08:01.309><c>not </c><00:08:01.394><c>create </c><00:08:01.479><c>any </c><00:08:01.564><c>function </c><00:08:01.649><c>called </c><00:08:01.734><c>square, </c><00:08:01.819><c>you </c><00:08:01.904><c>can </c><00:08:01.989><c>check </c><00:08:02.074><c>it. </c><00:08:02.159><c>I </c><00:08:02.244><c>have </c><00:08:02.329><c>not </c><00:08:02.414><c>created </c><00:08:02.499><c>any </c><00:08:02.584><c>function </c><00:08:02.669><c>called </c><00:08:02.754><c>square,</c>
+
+00:08:02.990 --> 00:08:03.000 align:start position:0%
+I did not create any function called square, you can check it. I have not created any function called square,
+ 
+
+00:08:03.000 --> 00:08:04.189 align:start position:0%
+I did not create any function called square, you can check it. I have not created any function called square,
+you <00:08:03.216><c>can </c><00:08:03.432><c>see </c><00:08:03.648><c>if </c><00:08:03.864><c>anyone </c><00:08:04.080><c>has</c>
+
+00:08:04.189 --> 00:08:04.199 align:start position:0%
+you can see if anyone has
+ 
+
+00:08:04.199 --> 00:08:06.890 align:start position:0%
+you can see if anyone has
+created <00:08:04.514><c>it, </c><00:08:04.829><c>but </c><00:08:05.144><c>I </c><00:08:05.459><c>got </c><00:08:05.774><c>x² </c><00:08:06.089><c>+ </c><00:08:06.404><c>6 </c><00:08:06.719><c>here,</c>
+
+00:08:06.890 --> 00:08:06.900 align:start position:0%
+created it, but I got x² + 6 here,
+ 
+
+00:08:06.900 --> 00:08:10.129 align:start position:0%
+created it, but I got x² + 6 here,
+which <00:08:07.225><c>is </c><00:08:07.550><c>4 </c><00:08:07.875><c>+ </c><00:08:08.200><c>6.  </c><00:08:08.525><c>That </c><00:08:08.850><c>10 </c><00:08:09.175><c>I</c>
+
+00:08:10.129 --> 00:08:10.139 align:start position:0%
+which is 4 + 6.  That 10 I
+ 
+
+00:08:10.139 --> 00:08:13.010 align:start position:0%
+which is 4 + 6.  That 10 I
+passed <00:08:10.579><c>you </c><00:08:11.019><c>a </c><00:08:11.459><c>function, </c><00:08:11.899><c>that </c><00:08:12.339><c>function </c><00:08:12.779><c>was</c>
+
+00:08:13.010 --> 00:08:13.020 align:start position:0%
+passed you a function, that function was
+ 
+
+00:08:13.020 --> 00:08:14.270 align:start position:0%
+passed you a function, that function was
+not <00:08:13.189><c>created </c><00:08:13.358><c>with </c><00:08:13.527><c>any </c><00:08:13.696><c>name </c><00:08:13.865><c>but </c><00:08:14.034><c>that</c>
+
+00:08:14.270 --> 00:08:14.280 align:start position:0%
+not created with any name but that
+ 
+
+00:08:14.280 --> 00:08:16.370 align:start position:0%
+not created with any name but that
+function <00:08:14.571><c>was </c><00:08:14.862><c>also </c><00:08:15.153><c>passed </c><00:08:15.444><c>so </c><00:08:15.735><c>an </c><00:08:16.026><c>anonymous </c><00:08:16.317><c>function.</c>
+
+00:08:16.370 --> 00:08:16.380 align:start position:0%
+function was also passed so an anonymous function.
+ 
+
+00:08:16.380 --> 00:08:18.589 align:start position:0%
+function was also passed so an anonymous function.
+Who <00:08:16.811><c>is </c><00:08:17.242><c>anonymous? </c><00:08:17.673><c>Anonymous </c><00:08:18.104><c>is </c><00:08:18.535><c>someone</c>
+
+00:08:18.589 --> 00:08:18.599 align:start position:0%
+Who is anonymous? Anonymous is someone
+ 
+
+00:08:18.599 --> 00:08:20.270 align:start position:0%
+Who is anonymous? Anonymous is someone
+whose <00:08:18.813><c>name </c><00:08:19.027><c>is </c><00:08:19.241><c>not </c><00:08:19.455><c>known. </c><00:08:19.669><c>If </c><00:08:19.883><c>I </c><00:08:20.097><c>do</c>
+
+00:08:20.270 --> 00:08:20.280 align:start position:0%
+whose name is not known. If I do
+ 
+
+00:08:20.280 --> 00:08:22.369 align:start position:0%
+whose name is not known. If I do
+n't <00:08:20.442><c>have </c><00:08:20.604><c>a </c><00:08:20.766><c>mask </c><00:08:20.928><c>on, </c><00:08:21.090><c>then </c><00:08:21.252><c>I </c><00:08:21.414><c>am </c><00:08:21.576><c>very </c><00:08:21.738><c>cool </c><00:08:21.900><c>and</c>
+
+00:08:22.369 --> 00:08:22.379 align:start position:0%
+n't have a mask on, then I am very cool and
+ 
+
+00:08:22.379 --> 00:08:24.290 align:start position:0%
+n't have a mask on, then I am very cool and
+you <00:08:22.669><c>must </c><00:08:22.959><c>know </c><00:08:23.249><c>my </c><00:08:23.539><c>name, </c><00:08:23.829><c>but </c><00:08:24.119><c>if</c>
+
+00:08:24.290 --> 00:08:24.300 align:start position:0%
+you must know my name, but if
+ 
+
+00:08:24.300 --> 00:08:26.270 align:start position:0%
+you must know my name, but if
+anyone <00:08:24.479><c>else </c><00:08:24.658><c>wears </c><00:08:24.837><c>it, </c><00:08:25.016><c>then </c><00:08:25.195><c>how </c><00:08:25.374><c>will </c><00:08:25.553><c>you </c><00:08:25.732><c>know </c><00:08:25.911><c>his </c><00:08:26.090><c>name</c>
+
+00:08:26.270 --> 00:08:26.280 align:start position:0%
+anyone else wears it, then how will you know his name
+ 
+
+00:08:26.280 --> 00:08:28.850 align:start position:0%
+anyone else wears it, then how will you know his name
+unless <00:08:26.505><c>you </c><00:08:26.730><c>see </c><00:08:26.955><c>his </c><00:08:27.180><c>face. </c><00:08:27.405><c>It's </c><00:08:27.630><c>a </c><00:08:27.855><c>simple</c>
+
+00:08:28.850 --> 00:08:28.860 align:start position:0%
+unless you see his face. It's a simple
+ 
+
+00:08:28.860 --> 00:08:30.770 align:start position:0%
+unless you see his face. It's a simple
+thing. <00:08:29.160><c>Okay, </c><00:08:29.460><c>now </c><00:08:29.760><c>here </c><00:08:30.060><c>you </c><00:08:30.360><c>guys </c><00:08:30.660><c>see</c>
+
+00:08:30.770 --> 00:08:30.780 align:start position:0%
+thing. Okay, now here you guys see
+ 
+
+00:08:30.780 --> 00:08:33.529 align:start position:0%
+thing. Okay, now here you guys see
+that <00:08:31.980><c>the </c><00:08:33.180><c>non-include</c>
+
+00:08:33.529 --> 00:08:33.539 align:start position:0%
+that the non-include
+ 
+
+00:08:33.539 --> 00:08:35.029 align:start position:0%
+that the non-include
+multiple <00:08:33.692><c>statements </c><00:08:33.845><c>of </c><00:08:33.998><c>Lambda </c><00:08:34.151><c>functions, </c><00:08:34.304><c>I </c><00:08:34.457><c>told </c><00:08:34.610><c>you </c><00:08:34.763><c>this </c><00:08:34.916><c>here</c>
+
+00:08:35.029 --> 00:08:35.039 align:start position:0%
+multiple statements of Lambda functions, I told you this here
+ 
+
+00:08:35.039 --> 00:08:37.670 align:start position:0%
+multiple statements of Lambda functions, I told you this here
+and <00:08:35.469><c>they </c><00:08:35.899><c>are </c><00:08:36.329><c>just </c><00:08:36.759><c>like </c><00:08:37.189><c>regular </c><00:08:37.619><c>functions,</c>
+
+00:08:37.670 --> 00:08:37.680 align:start position:0%
+and they are just like regular functions,
+ 
+
+00:08:37.680 --> 00:08:39.589 align:start position:0%
+and they are just like regular functions,
+I <00:08:37.860><c>have </c><00:08:38.040><c>just </c><00:08:38.220><c>put </c><00:08:38.400><c>the </c><00:08:38.580><c>differences </c><00:08:38.760><c>in </c><00:08:38.940><c>front </c><00:08:39.120><c>of </c><00:08:39.300><c>you.</c>
+
+00:08:39.589 --> 00:08:39.599 align:start position:0%
+I have just put the differences in front of you.
+ 
+
+00:08:39.599 --> 00:08:41.750 align:start position:0%
+I have just put the differences in front of you.
+Okay, <00:08:39.983><c>so </c><00:08:40.367><c>here </c><00:08:40.751><c>you </c><00:08:41.135><c>guys </c><00:08:41.519><c>watch,</c>
+
+00:08:41.750 --> 00:08:41.760 align:start position:0%
+Okay, so here you guys watch,
+ 
+
+00:08:41.760 --> 00:08:44.930 align:start position:0%
+Okay, so here you guys watch,
+digest <00:08:42.042><c>it </c><00:08:42.324><c>a </c><00:08:42.606><c>little. </c><00:08:42.888><c>Okay, </c><00:08:43.170><c>and </c><00:08:43.452><c>we </c><00:08:43.734><c>are </c><00:08:44.016><c>going </c><00:08:44.298><c>to </c><00:08:44.580><c>see</c>
+
+00:08:44.930 --> 00:08:44.940 align:start position:0%
+digest it a little. Okay, and we are going to see
+ 
+
+00:08:44.940 --> 00:08:46.670 align:start position:0%
+digest it a little. Okay, and we are going to see
+Map <00:08:45.150><c>Filter </c><00:08:45.360><c>Reduce </c><00:08:45.570><c>in </c><00:08:45.780><c>the </c><00:08:45.990><c>next </c><00:08:46.200><c>video.</c>
+
+00:08:46.670 --> 00:08:46.680 align:start position:0%
+Map Filter Reduce in the next video.
+ 
+
+00:08:46.680 --> 00:08:48.350 align:start position:0%
+Map Filter Reduce in the next video.
+If <00:08:47.200><c>you </c><00:08:47.720><c>guys </c><00:08:48.240><c>have</c>
+
+00:08:48.350 --> 00:08:48.360 align:start position:0%
+If you guys have
+ 
+
+00:08:48.360 --> 00:08:49.670 align:start position:0%
+If you guys have
+n't <00:08:48.600><c>accessed </c><00:08:48.840><c>the </c><00:08:49.080><c>playlist </c><00:08:49.320><c>yet, </c><00:08:49.560><c>then</c>
+
+00:08:49.670 --> 00:08:49.680 align:start position:0%
+n't accessed the playlist yet, then
+ 
+
+00:08:49.680 --> 00:08:51.050 align:start position:0%
+n't accessed the playlist yet, then
+definitely <00:08:49.980><c>access </c><00:08:50.280><c>this </c><00:08:50.580><c>playlist </c><00:08:50.880><c>and</c>
+
+00:08:51.050 --> 00:08:51.060 align:start position:0%
+definitely access this playlist and
+ 
+
+00:08:51.060 --> 00:08:52.730 align:start position:0%
+definitely access this playlist and
+go <00:08:51.220><c>to </c><00:08:51.380><c>the </c><00:08:51.540><c>first </c><00:08:51.700><c>video </c><00:08:51.860><c>and </c><00:08:52.020><c>definitely </c><00:08:52.180><c>leave </c><00:08:52.340><c>a </c><00:08:52.500><c>review.</c>
+
+00:08:52.730 --> 00:08:52.740 align:start position:0%
+go to the first video and definitely leave a review.
+ 
+
+00:08:52.740 --> 00:08:54.769 align:start position:0%
+go to the first video and definitely leave a review.
+So <00:08:52.942><c>much </c><00:08:53.144><c>gas </c><00:08:53.346><c>in </c><00:08:53.548><c>this </c><00:08:53.750><c>video </c><00:08:53.952><c>for </c><00:08:54.154><c>now, </c><00:08:54.356><c>thank</c>
+
+00:08:54.769 --> 00:08:54.779 align:start position:0%
+So much gas in this video for now, thank
+ 
+
+00:08:54.779 --> 00:08:57.290 align:start position:0%
+So much gas in this video for now, thank
+you <00:08:54.975><c>so </c><00:08:55.171><c>much </c><00:08:55.367><c>gas </c><00:08:55.563><c>watching </c><00:08:55.759><c>this </c><00:08:55.955><c>video </c><00:08:56.151><c>and </c><00:08:56.347><c>I </c><00:08:56.543><c>will </c><00:08:56.739><c>see </c><00:08:56.935><c>you</c>
+
+00:08:57.290 --> 00:08:57.300 align:start position:0%
+you so much gas watching this video and I will see you
+ 
+
+00:08:57.300 --> 00:08:59.370 align:start position:0%
+you so much gas watching this video and I will see you
+next <00:08:58.500><c>time.</c>
+
+00:08:59.370 --> 00:08:59.380 align:start position:0%
+next time.
+ 
+
+00:08:59.380 --> 00:08:59.670 align:start position:0%
+next time.
+[Prasha]
+
+00:08:59.670 --> 00:08:59.680 align:start position:0%
+[Prasha]
+ 
+
+00:08:59.680 --> 00:09:19.149 align:start position:0%
+[Prasha]
+[Music]
+

@@ -1,0 +1,601 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:03.380 --> 00:00:08.400
+there are times that we may want to
+repeat a task a number of times for
+
+00:00:08.400 --> 00:00:13.349
+example let's say we send a message to a
+user if that message cannot be delivered
+
+00:00:13.349 --> 00:00:19.289
+perhaps we want to retry three times now
+for simplicity let's imagine this print
+
+00:00:19.289 --> 00:00:25.500
+statement is equivalent to sending a
+message in a real work program to send a
+
+00:00:25.500 --> 00:00:29.550
+message to a user we have to write five
+to ten lines of code now if you want to
+
+00:00:29.550 --> 00:00:34.230
+retry three times we don't want to
+repeat all that code that is ugly that's
+
+00:00:34.230 --> 00:00:39.540
+when we use a loop we use loops to
+create repetition so here is how it
+
+00:00:39.540 --> 00:00:46.020
+works we start with four number in we
+have a built-in function called
+
+00:00:46.020 --> 00:00:50.850
+range now how many times we want to
+repeat this task let's say three times
+
+00:00:50.850 --> 00:00:56.520
+so we call range and pass three as an
+argument now similar to our if
+
+00:00:56.520 --> 00:01:02.010
+statements we need to terminate this
+line with a colon enter we get
+
+00:01:02.010 --> 00:01:06.840
+indentation so in this block we can
+write all the statements that should be
+
+00:01:06.840 --> 00:01:13.369
+repeated three times let's do a print a
+message like attempt save the changes
+
+00:01:13.369 --> 00:01:19.439
+run the program so we have attempt
+printed three times beautiful now what
+
+00:01:19.439 --> 00:01:26.369
+is this number let's take a look it's a
+variable of type integer so let's pass
+
+00:01:26.369 --> 00:01:32.939
+it as the second argument to the print
+function number run the program this is
+
+00:01:32.939 --> 00:01:39.360
+what we get zero one two so here we have
+a for loop this for loop is executed
+
+00:01:39.360 --> 00:01:45.000
+three times in each iteration number
+will have a different value initially it
+
+00:01:45.000 --> 00:01:49.110
+will be zero in the second iteration it
+will be one and finally in the last
+
+00:01:49.110 --> 00:01:56.149
+iteration it will be two now here we can
+do something fun we can add one to this
+
+00:01:56.149 --> 00:02:00.810
+run the program and now the message is
+that the print are kind of more
+
+00:02:00.810 --> 00:02:05.280
+meaningful or more user-friendly like
+attempting number one attempting number
+
+00:02:05.280 --> 00:02:10.020
+two and so on we can take this to the
+next level so we can pass another
+
+00:02:10.020 --> 00:02:13.319
+argument here I'm going to add an
+expression one more
+
+00:02:13.319 --> 00:02:18.239
+time number plus one so we'll get one
+two three now I want to put this
+
+00:02:18.239 --> 00:02:23.999
+expression in parenthesis so let's
+select this put it in parenthesis and
+
+00:02:23.999 --> 00:02:31.530
+then multiply it by a dot so here we
+have a string that is multiplied by a
+
+00:02:31.530 --> 00:02:36.599
+number the result will be that string
+repeated that number of times let's take
+
+00:02:36.599 --> 00:02:41.599
+a look so run the program see that's
+pretty cool isn't it
+
+00:02:41.599 --> 00:02:45.840
+now let me show you one more thing
+before you finish this lecture as you
+
+00:02:45.840 --> 00:02:49.799
+saw this range function generates
+numbers starting from zero all the way
+
+00:02:49.799 --> 00:02:54.120
+up to this number here but it doesn't
+include this number here we can pass
+
+00:02:54.120 --> 00:03:01.620
+another argument say start from one and
+finish before four with this change we
+
+00:03:01.620 --> 00:03:06.449
+don't need to add one to number every
+time because in the first iteration this
+
+00:03:06.449 --> 00:03:11.189
+number variable will be set to one so we
+can simplify our code and make it
+
+00:03:11.189 --> 00:03:17.519
+cleaner let's run it one more time we
+get the exact same result we can also
+
+00:03:17.519 --> 00:03:22.290
+pass a third argument as a step so I'm
+going to change the second argument to
+
+00:03:22.290 --> 00:03:29.939
+ten and pass two as a step look at the
+result these are the numbers we get 1 3
+
+00:03:29.939 --> 00:03:34.650
+5 and so on so pretty useful you're
+going to use this function a lot in
+
+00:03:34.650 --> 00:03:37.759
+real-world applications
+
+00:03:42.969 --> 00:03:47.120
+continuing with the example from the
+last lecture let's imagine the scenario
+
+00:03:47.120 --> 00:03:51.950
+where after the first attempt we can
+successfully send the message in that
+
+00:03:51.950 --> 00:03:57.170
+case you want to jump out of this loop
+we don't want to repeat this task of
+
+00:03:57.170 --> 00:04:01.730
+sending a message three times let me
+show you how to implement this so in
+
+00:04:01.730 --> 00:04:05.780
+this demo I'm gonna simulate the
+scenario where we can successfully send
+
+00:04:05.780 --> 00:04:12.010
+a message so we define a variable
+successful and set it to true
+
+00:04:12.010 --> 00:04:19.419
+now here after this print statement
+we'll have an if statement if successful
+
+00:04:19.419 --> 00:04:27.740
+: then perhaps we can print successful
+now here we want to jump out of this
+
+00:04:27.740 --> 00:04:32.539
+loop for that we use the break statement
+let's run this program and see what
+
+00:04:32.539 --> 00:04:36.889
+happens
+so there you go after the first attempt
+
+00:04:36.889 --> 00:04:43.039
+we are successful and there are no more
+attempts so once again I want you to pay
+
+00:04:43.039 --> 00:04:47.120
+great attention to the indentation here
+because that's one of the common issues
+
+00:04:47.120 --> 00:04:53.120
+amongst beginners so here's our for loop
+these two lines are indented with four
+
+00:04:53.120 --> 00:04:58.550
+spaces and they belong to our for loop
+in every iteration these two lines will
+
+00:04:58.550 --> 00:05:05.570
+be executed now when we get to line four
+if this condition is true then these two
+
+00:05:05.570 --> 00:05:11.479
+lines will be executed because both
+these lines are indented below this if
+
+00:05:11.479 --> 00:05:16.849
+statement now let's take this program to
+the next level what if we attempt three
+
+00:05:16.849 --> 00:05:21.020
+times and we still cannot send an email
+perhaps we want to display a different
+
+00:05:21.020 --> 00:05:26.870
+message to the user we say hey we tried
+three times but it didn't work so I'm
+
+00:05:26.870 --> 00:05:33.800
+gonna change successful to false now at
+the end here we can add an else
+
+00:05:33.800 --> 00:05:39.020
+statement this is what we call a for
+else statement what we put under this
+
+00:05:39.020 --> 00:05:44.180
+else statement will only be executed if
+this loop completes without an early
+
+00:05:44.180 --> 00:05:49.610
+termination so if we never break out of
+this loop then the else statement will
+
+00:05:49.610 --> 00:05:53.300
+be executed so here we can print a
+message like
+
+00:05:53.300 --> 00:06:01.330
+attempt at three times and failed so run
+the program
+
+00:06:01.439 --> 00:06:06.330
+see what we get three attempts followed
+by this message attempted three times
+
+00:06:06.330 --> 00:06:13.110
+and failed in contrast if we change
+successful to true because we terminate
+
+00:06:13.110 --> 00:06:18.149
+this loop using this break statement
+what we have in the else block will not
+
+00:06:18.149 --> 00:06:22.019
+be executed
+take a look run the program we have one
+
+00:06:22.019 --> 00:06:25.849
+attempt successful done
+
+00:06:30.849 --> 00:06:35.960
+in programming we have this concept
+called nested loops so we can put one
+
+00:06:35.960 --> 00:06:40.210
+loop inside of another loop and with
+this we can get some interesting results
+
+00:06:40.210 --> 00:06:49.520
+let me show you so I'm going to start
+with this loop for X in range 5 : now
+
+00:06:49.520 --> 00:06:58.099
+inside of this loop I'm gonna add
+another loop so for Y in range 3 :
+
+00:06:58.099 --> 00:07:03.909
+and then in our second loop I'm gonna
+add a print statement here we can use
+
+00:07:03.909 --> 00:07:10.159
+formatted strings to display coordinates
+remember formatted string so we have F
+
+00:07:10.159 --> 00:07:16.250
+followed by quotes now here we add
+parentheses for our coordinate first we
+
+00:07:16.250 --> 00:07:23.000
+want to display X and then comma
+followed by Y let's run this program and
+
+00:07:23.000 --> 00:07:27.409
+see what happens there you go pretty
+cool isn't it
+
+00:07:27.409 --> 00:07:36.229
+so we get 0 + 0 0 1 0 &amp; 2 then we get 1
+&amp; 0 1 &amp; 1 1 &amp; 2 and so on now let me
+
+00:07:36.229 --> 00:07:41.719
+explain how exactly Python interpreter
+executes this code so here we have two
+
+00:07:41.719 --> 00:07:47.870
+loops this is what we call the outer
+loop and this is the inner loop so the
+
+00:07:47.870 --> 00:07:53.270
+execution of our program starts here in
+the first iteration of this loop X is 0
+
+00:07:53.270 --> 00:08:00.349
+now we get to this statement which is a
+child of this for statement because it's
+
+00:08:00.349 --> 00:08:06.589
+indented four times this statement
+itself is a loop so what we have inside
+
+00:08:06.589 --> 00:08:13.370
+of this loop will be executed three
+times in the first iteration X is 0
+
+00:08:13.370 --> 00:08:17.810
+because we're still in the first
+iteration of the outer loop and Y is
+
+00:08:17.810 --> 00:08:22.520
+also 0 because we're in the first
+iteration of the inner loop that is why
+
+00:08:22.520 --> 00:08:29.089
+we get 0 and 0 now we go to the second
+iteration of this inner loop in this
+
+00:08:29.089 --> 00:08:35.360
+iteration Y will be 1 whereas X is still
+0 that is why we get 0 and 1 and
+
+00:08:35.360 --> 00:08:41.669
+similarly in the third iteration of our
+inner loop we'll get 0 and 2 in
+
+00:08:41.669 --> 00:08:46.920
+now we're done with the execution of the
+inner loop so the control moves back to
+
+00:08:46.920 --> 00:08:52.439
+our outer loop here we'll be in the
+second iteration so X will be 1 and then
+
+00:08:52.439 --> 00:08:58.379
+we start here again so we have to
+execute this inner loop 3 times in the
+
+00:08:58.379 --> 00:09:04.350
+first iteration Y will be 0 and X is 1
+so here we have 1 and 0 then we'll get
+
+00:09:04.350 --> 00:09:11.660
+one on one and one and two you got the
+point so this is all about nested loops
+
+00:09:16.840 --> 00:09:21.920
+so you have learned how to use four
+loops to repeat one or more statements
+
+00:09:21.920 --> 00:09:26.860
+in your programs now let's dive deeper
+and see what this range function returns
+
+00:09:26.860 --> 00:09:33.860
+so earlier you learn about the built in
+type function with this function we can
+
+00:09:33.860 --> 00:09:40.580
+get the type of an object so if I pass
+five here and run this program this is
+
+00:09:40.580 --> 00:09:46.850
+what we get so the type of this number
+or this object is int or integer now
+
+00:09:46.850 --> 00:09:52.970
+let's look at the type of the value that
+we get from the range function so as an
+
+00:09:52.970 --> 00:10:00.130
+argument we pass range of a number let's
+run this program so this range function
+
+00:10:00.130 --> 00:10:07.220
+returns an object of type range so in
+Python we have primitive types like
+
+00:10:07.220 --> 00:10:13.280
+numbers strings and boolean but we also
+have complex types range is an example
+
+00:10:13.280 --> 00:10:17.000
+one of those complex types throughout
+this course you're going to learn about
+
+00:10:17.000 --> 00:10:22.730
+a lot of other complex types now what is
+interesting about this range object is
+
+00:10:22.730 --> 00:10:29.200
+that it's iterable which means we can
+iterate over it or use it in a for loop
+
+00:10:29.200 --> 00:10:37.850
+that is why we can write code like this
+so this range function returns a range
+
+00:10:37.850 --> 00:10:43.850
+object which is eatable which means we
+can iterate over it in each iteration X
+
+00:10:43.850 --> 00:10:49.280
+will have a different value now range
+objects are not the only iterable
+
+00:10:49.280 --> 00:10:55.870
+objects in Python strings are also
+iterable so here we can add a string
+
+00:10:55.870 --> 00:11:04.100
+like Python now in each iteration X will
+hold one character in this string let me
+
+00:11:04.100 --> 00:11:08.390
+show you so print
+Peg's and I'm gonna delete these two
+
+00:11:08.390 --> 00:11:15.230
+lines here let's run this program so in
+each iteration we'll get one character
+
+00:11:15.230 --> 00:11:21.860
+and print it we have another complex
+type called list which we use to store a
+
+00:11:21.860 --> 00:11:27.440
+list of objects so we add square
+brackets this indicates a list
+
+00:11:27.440 --> 00:11:32.269
+now we can add a list of numbers or a
+list of strings like a list of names you
+
+00:11:32.269 --> 00:11:36.800
+will learn about lists later in the
+course so let's run this one more time
+
+00:11:36.800 --> 00:11:43.160
+as we can see we can iterate over lists
+in each iteration we'll get one object
+
+00:11:43.160 --> 00:11:47.899
+in this list now later in the course I
+will show you how to create your own
+
+00:11:47.899 --> 00:11:52.910
+custom objects that are eatable for
+example you will learn how to write code
+
+00:11:52.910 --> 00:12:02.300
+like this for item in shopping cart
+print item so shopping cart is going to
+
+00:12:02.300 --> 00:12:06.170
+be a custom object that you will create
+it's not going to be an integer or a
+
+00:12:06.170 --> 00:12:11.269
+string or boolean it's a custom object
+it has a different structure and we'll
+
+00:12:11.269 --> 00:12:15.920
+make it eatable so we can use it in a
+for loop and in each iteration we can
+
+00:12:15.920 --> 00:12:21.519
+get one item in the shopping cart and
+print it on a terminal
+
+00:12:27.089 --> 00:12:32.800
+alright time for an exercise I want you
+to write a program to display the even
+
+00:12:32.800 --> 00:12:38.769
+numbers between 1 to 10 so when you run
+this program you should see 2 4 6 and 8
+
+00:12:38.769 --> 00:12:45.579
+and after these I want you to print this
+message we have 4 even numbers now here
+
+00:12:45.579 --> 00:12:49.810
+is a quick hint before you get started
+you should call the range function with
+
+00:12:49.810 --> 00:12:55.390
+1 and 10 do not use the third argument
+which is called step so basically I want
+
+00:12:55.390 --> 00:13:00.250
+you to iterate over all the numbers
+between 1 to 10 check if each number is
+
+00:13:00.250 --> 00:13:05.890
+an even number and then print it on the
+terminal so pause the video spend two
+
+00:13:05.890 --> 00:13:10.860
+minutes on this exercise when you're
+done come back continue watching
+
+00:13:12.500 --> 00:13:20.940
+so it started with a four loop for a
+number in range one to ten : we check to
+
+00:13:20.940 --> 00:13:25.470
+see if the remainder of division of this
+number by two equals zero
+
+00:13:25.470 --> 00:13:34.740
+so if number modulus two equals zero
+then we print this number
+
+00:13:34.740 --> 00:13:41.280
+now let's run this program so we get two
+four six eight beautiful now to count
+
+00:13:41.280 --> 00:13:46.280
+the even numbers we need a separate
+variable so let's call that count
+
+00:13:46.280 --> 00:13:51.390
+initially we set it to zero now in this
+if block every time we find an even
+
+00:13:51.390 --> 00:13:59.130
+number we need to increment count so we
+set count plus equals one and finally
+
+00:13:59.130 --> 00:14:07.260
+after our for loop we can print a
+formatted string we have count even
+
+00:14:07.260 --> 00:14:14.210
+numbers let's run the program and here's
+the result
+
+00:14:15.920 --> 00:14:20.569
+hi guys thank you for watching this
+tutorial my name is Mohammad Ani and I
+
+00:14:20.569 --> 00:14:24.379
+have tons of tutorials like this for you
+on my channel so be sure to subscribe
+
+00:14:24.379 --> 00:14:28.579
+and also please like and share this
+video if you want to learn Python
+
+00:14:28.579 --> 00:14:33.290
+properly from scratch with depth I have
+a comprehensive Python tutorial for you
+
+00:14:33.290 --> 00:14:37.730
+the link is below this video so click
+the link to get started thank you and
+
+00:14:37.730 --> 00:14:40.779
+have a fantastic day
+

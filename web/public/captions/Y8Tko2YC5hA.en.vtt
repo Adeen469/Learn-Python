@@ -1,0 +1,190 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:00.000 --> 00:00:04.000
+In this video, I'm going to answer the top 3 questions
+
+00:00:04.000 --> 00:00:08.000
+my students ask me about Python. What is Python? What 
+
+00:00:08.000 --> 00:00:12.000
+can you do with it? And why is it so popular? In other words, what
+
+00:00:12.000 --> 00:00:16.000
+does it do that other programming languages don't? Python is the 
+
+00:00:16.000 --> 00:00:20.000
+world's fastest growing and most popular programming language, not just 
+
+00:00:20.000 --> 00:00:24.000
+amongst software engineers, but also amongst mathematicians, 
+
+00:00:24.000 --> 00:00:28.000
+data analysts, scientists, accountants, networking engineers,
+
+00:00:28.000 --> 00:00:32.000
+and even kids! Because it's a very beginner friendly programming 
+
+00:00:32.000 --> 00:00:36.000
+language. So people from different disciplines use Python
+
+00:00:36.000 --> 00:00:40.000
+for a variety of different tasks, such as data analysis and visualization, 
+
+00:00:40.000 --> 00:00:44.000
+artificial intelligence and machine learning, automation 
+
+00:00:44.000 --> 00:00:48.000
+in fact this is one of the big uses of Python amongst people who are not software
+
+00:00:48.000 --> 00:00:52.000
+developers. If you constantly have to do boring, repetitive 
+
+00:00:52.000 --> 00:00:56.000
+tasks, such as copying files and folders around, renaming them, 
+
+00:00:56.000 --> 00:01:00.000
+uploading them to a server, you can easily write a Python script to
+
+00:01:00.000 --> 00:01:04.000
+automate all that and save your time. And that's just one example, if you
+
+00:01:04.000 --> 00:01:08.000
+continuously have to work with excel spreadsheets, PDF's, CS
+
+00:01:08.000 --> 00:01:12.000
+View files, download websites and parse them, you can automate all
+
+00:01:12.000 --> 00:01:16.000
+that stuff with Python. So you don't have to be a software developer to use Python.
+
+00:01:16.000 --> 00:01:20.000
+You could be an accountant, a mathematician, or a scientist, and use Python 
+
+00:01:20.000 --> 00:01:24.000
+to make your life easier. You can also use Python to build 
+
+00:01:24.000 --> 00:01:28.000
+web, mobile and desktop applications as well as software 
+
+00:01:28.000 --> 00:01:32.000
+testing or even hacking. So Python is a multi purpose language. 
+
+00:01:32.000 --> 00:01:36.000
+Now if you have some programming experience you may say, "But Mosh
+
+00:01:36.000 --> 00:01:40.000
+we can do all this stuff with other programming languages, so what's the big deal 
+
+00:01:40.000 --> 00:01:44.000
+about Python?" Here are a few reasons. With Python you can 
+
+00:01:44.000 --> 00:01:48.000
+solve complex problems in less time with fewer lines of code. 
+
+00:01:48.000 --> 00:01:52.000
+Here's an example. Let's say we want to extract the first three 
+
+00:01:52.000 --> 00:01:56.000
+letters of the text Hello World. This is the code we have to write 
+
+00:01:56.000 --> 00:02:00.000
+in C# this is how we do it in JavaScript and here's how we 
+
+00:02:00.000 --> 00:02:04.000
+do it in Python. See how short and clean the language is?
+
+00:02:04.000 --> 00:02:08.000
+And that's just the beginning. Python makes a lot of trivial things
+
+00:02:08.000 --> 00:02:12.000
+really easy with a simple yet powerful syntax. Here are a few
+
+00:02:12.000 --> 00:02:16.000
+other reasons Python is so popular. It's a high level language
+
+00:02:16.000 --> 00:02:20.000
+so you don't have to worry about complex tasks such as memory management, 
+
+00:02:20.000 --> 00:02:24.000
+like you do in C++. It's cross platform which means 
+
+00:02:24.000 --> 00:02:28.000
+you can build and run Python applications on Windows, Mac, 
+
+00:02:28.000 --> 00:02:32.000
+and Linux. It has a huge community so whenever you get 
+
+00:02:32.000 --> 00:02:36.000
+stuck, there is someone out there to help. It has a large ecosystem 
+
+00:02:36.000 --> 00:02:40.000
+of libraries, frameworks and tools which means whatever you wanna do
+
+00:02:40.000 --> 00:02:44.000
+it is likely that someone else has done it before because Python has been around 
+
+00:02:44.000 --> 00:02:48.000
+for over 20 years. So in a nutshell, Python
+
+00:02:48.000 --> 00:02:52.000
+is a multi-purpose language with a simple, clean, and beginner-friendly 
+
+00:02:52.000 --> 00:02:56.000
+syntax. All of that means Python is awesome.
+
+00:02:56.000 --> 00:03:00.000
+Technically everything you do with Python you can do with other programming languages, 
+
+00:03:00.000 --> 00:03:04.000
+but Python's simplicity and elegance has made it grow way 
+
+00:03:04.000 --> 00:03:08.000
+more than other programming languages. That's why it's the number onne
+
+00:03:08.000 --> 00:03:12.000
+language employers are looking for. So whether you're a programmer or 
+
+00:03:12.000 --> 00:03:16.000
+an absolute beginner, learning Python opens up lots of job opportunities 
+
+00:03:16.000 --> 00:03:20.000
+to you. In fact, the average Python developer earns a whopping
+
+00:03:20.000 --> 00:03:24.000
+116,000 dollars a year. If you
+
+00:03:24.000 --> 00:03:28.000
+found this video helpful, please support my hard work by liking and sharing it with others. 
+
+00:03:28.000 --> 00:03:32.000
+Also, be sure to subscribe to my channel, because I have a couple of
+
+00:03:32.000 --> 00:03:36.000
+awesome Python tutorials for you, you're going to see them on the screen now. 
+
+00:03:36.000 --> 00:03:40.000
+Here's my Python tutorial for beginners, it's a great starting point if you 
+
+00:03:40.000 --> 00:03:44.000
+have limited or no programming experience. On the other hand, if you 
+
+00:03:44.000 --> 00:03:48.000
+do have some programming experience and want to quickly get up to speed with Python, 
+
+00:03:48.000 --> 00:03:52.000
+I have another tutorial just for you. I'm not going to waste your time 
+
+00:03:52.000 --> 00:03:56.000
+telling you what a variable or a function is. I will talk to you like a programmer.
+
+00:03:56.000 --> 00:04:00.000
+There's never been a better time to master Python programming,
+
+00:04:00.000 --> 00:04:04.000
+so click on the tutorial that is right for you and get started. Thank you for
+
+00:04:04.000 --> 00:04:06.633
+watching!
+

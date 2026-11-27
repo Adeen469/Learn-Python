@@ -1,0 +1,1286 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:03.410 --> 00:00:08.550
+so far you have learned how to use some
+of the built-in functions in Python such
+
+00:00:08.550 --> 00:00:14.130
+as print round and so on in this section
+you're gonna learn how to write your own
+
+00:00:14.130 --> 00:00:18.390
+functions now you might ask but why do
+you even need to write our own functions
+
+00:00:18.390 --> 00:00:24.630
+well when you build a real program that
+program is going to consist hundreds or
+
+00:00:24.630 --> 00:00:29.189
+thousands of lines of code you shouldn't
+write all that code in one file like we
+
+00:00:29.189 --> 00:00:34.130
+have done so far you should break that
+code into smaller more maintainable and
+
+00:00:34.130 --> 00:00:40.079
+potentially more reusable chunks we
+refer to these chunks as functions so
+
+00:00:40.079 --> 00:00:45.300
+let me show you how to create your own
+custom functions we start with the DEF
+
+00:00:45.300 --> 00:00:51.149
+keyword which is short for define next
+we need to give our function and name so
+
+00:00:51.149 --> 00:00:55.110
+let's call this greet all the best
+practices you'll learn about naming your
+
+00:00:55.110 --> 00:00:59.280
+variables also apply to naming your
+functions so make sure your function
+
+00:00:59.280 --> 00:01:04.619
+names are meaningful descriptive use
+lowercase letters to name your functions
+
+00:01:04.619 --> 00:01:10.770
+and an underscore to separate multiple
+words now after the name we need to add
+
+00:01:10.770 --> 00:01:17.250
+parentheses you will see why shortly and
+then we'll add a colon now what is going
+
+00:01:17.250 --> 00:01:21.990
+to happen you know it you're gonna get
+indentation which means the following
+
+00:01:21.990 --> 00:01:28.710
+statements will belong to this function
+so here I'm gonna add two statements hi
+
+00:01:28.710 --> 00:01:36.390
+there and welcome aboard both designs
+belong to this function because they're
+
+00:01:36.390 --> 00:01:42.150
+indented now we're done with this
+function we need to call it so we remove
+
+00:01:42.150 --> 00:01:47.610
+the indentation and we add two line
+breaks after this function this is what
+
+00:01:47.610 --> 00:01:52.470
+Papp 8 recommends to keep our code clean
+and maintainable now if you forget to
+
+00:01:52.470 --> 00:01:56.520
+add two line breaks don't worry as soon
+as you save the changes auto-pay of
+
+00:01:56.520 --> 00:02:00.570
+eight will automatically add these line
+breaks for you let me show you so I'm
+
+00:02:00.570 --> 00:02:06.299
+gonna remove these line breaks and call
+this function create with parentheses
+
+00:02:06.299 --> 00:02:12.209
+just like how we call the built-in
+functions now save the changes there you
+
+00:02:12.209 --> 00:02:16.530
+go so we get
+two line breaks after our function now
+
+00:02:16.530 --> 00:02:24.110
+let's run this program so we get these
+two messages on a terminal
+
+00:02:29.099 --> 00:02:34.049
+now here is a question for you what is
+the difference between the greed and
+
+00:02:34.049 --> 00:02:39.700
+trent functions the difference is that
+this print function takes an input
+
+00:02:39.700 --> 00:02:45.069
+whereas our greet function doesn't take
+any inputs so let me show you how to
+
+00:02:45.069 --> 00:02:50.170
+pass inputs like first name and last
+names of this function when defining a
+
+00:02:50.170 --> 00:02:55.659
+function in between parentheses will
+list our parameters so here we add two
+
+00:02:55.659 --> 00:03:02.500
+parameters like first under like name
+and last underline name now when calling
+
+00:03:02.500 --> 00:03:07.569
+this function we need to supply two
+values for those parameters we refer to
+
+00:03:07.569 --> 00:03:15.189
+them as arguments so maash Hamadan e
+these are the arguments to the greet
+
+00:03:15.189 --> 00:03:18.879
+function that's one of the terms that a
+lot of developers out there don't know
+
+00:03:18.879 --> 00:03:23.590
+they don't know the difference between
+parameters and arguments a parameter is
+
+00:03:23.590 --> 00:03:28.209
+the input that you define for your
+function whereas an argument is the
+
+00:03:28.209 --> 00:03:34.900
+actual value for a given parameter okay
+now let's change line two and instead of
+
+00:03:34.900 --> 00:03:39.430
+saying hi there we can greet a person by
+their full name so we can convert this
+
+00:03:39.430 --> 00:03:47.519
+to a formatted string and has two fields
+here first name as well as last name
+
+00:03:47.519 --> 00:03:53.919
+save the changes run the program and
+this is what we get in terminal now this
+
+00:03:53.919 --> 00:03:58.000
+function is more useful we can reuse it
+and call it with different arguments
+
+00:03:58.000 --> 00:04:06.549
+so let's greet John Smith as well run
+the program so we get hi Muhammad on e
+
+00:04:06.549 --> 00:04:11.709
+and hi John Smith now note that by
+default all the parameters that you
+
+00:04:11.709 --> 00:04:16.599
+define for a function are required so
+here our greet function takes two
+
+00:04:16.599 --> 00:04:22.900
+parameters if I exclude one of these
+arguments and save the changes you can
+
+00:04:22.900 --> 00:04:27.580
+see we have this red underline so pilant
+is complaining and saying there is no
+
+00:04:27.580 --> 00:04:32.800
+value for argument last name also if we
+run the program we get this type error
+
+00:04:32.800 --> 00:04:38.449
+greet missing one required positional
+argument
+
+00:04:38.449 --> 00:04:43.639
+so let's put this back now later I will
+show you how to define optional
+
+00:04:43.639 --> 00:04:46.180
+parameters
+
+00:04:51.080 --> 00:04:55.620
+so this is the simplified version of
+this greet function with created earlier
+
+00:04:55.620 --> 00:05:02.130
+now in programming we have two types of
+functions functions that perform a task
+
+00:05:02.130 --> 00:05:10.230
+and functions that calculate and return
+a value here are some examples both the
+
+00:05:10.230 --> 00:05:16.200
+print and greet functions are examples
+of type 1 the performing a task which is
+
+00:05:16.200 --> 00:05:22.950
+printing something on the terminal
+in contrast the brown function is an
+
+00:05:22.950 --> 00:05:28.110
+example of a function that calculates
+and returns a value so the functions
+
+00:05:28.110 --> 00:05:32.520
+that you create fall into these two
+categories now let me show you how to
+
+00:05:32.520 --> 00:05:37.320
+rewrite this great function but in the
+second form so instead of printing this
+
+00:05:37.320 --> 00:05:43.320
+string on the terminal we simply return
+it let me show you so I'm gonna delete
+
+00:05:43.320 --> 00:05:51.510
+all this code define a new function but
+call it get underline greeting we add
+
+00:05:51.510 --> 00:05:59.039
+the name parameter and simply return
+this formatted string high name that's
+
+00:05:59.039 --> 00:06:03.150
+all we have to do so we use the return
+statement to return a value from this
+
+00:06:03.150 --> 00:06:11.010
+function now we can call this function
+get underlined greeting pass a name like
+
+00:06:11.010 --> 00:06:16.740
+Maj because it returns a value we can
+store that value and a separate variable
+
+00:06:16.740 --> 00:06:22.169
+like message now you might be curious
+which form of this greeting functions is
+
+00:06:22.169 --> 00:06:26.940
+better well with this first
+implementation we are locked to printing
+
+00:06:26.940 --> 00:06:31.200
+something in the terminal in the future
+if you want to write that message in a
+
+00:06:31.200 --> 00:06:36.389
+file or send it in an email we have to
+create another function so we cannot
+
+00:06:36.389 --> 00:06:42.479
+reuse this greet function in other
+scenarios in contrast this second form
+
+00:06:42.479 --> 00:06:48.389
+is not tied to printing something on the
+terminal it simply returns a value now
+
+00:06:48.389 --> 00:06:53.130
+we get this value and we can do whatever
+we want with it we can print it on the
+
+00:06:53.130 --> 00:07:00.120
+terminal or we can use the built-in open
+function to write this message to a file
+
+00:07:00.120 --> 00:07:06.470
+so we can create a
+I like Content txt open it for writing
+
+00:07:06.470 --> 00:07:12.770
+this returns a file object and then we
+can call file the right message now
+
+00:07:12.770 --> 00:07:16.310
+don't worry about these two lines later
+in the course I'm gonna talk about
+
+00:07:16.310 --> 00:07:20.750
+working with files but what I want you
+to take away here is that we have this
+
+00:07:20.750 --> 00:07:24.710
+message variable and we can do whatever
+we want with it we can print it on the
+
+00:07:24.710 --> 00:07:30.080
+terminal write it to a file send it in
+an email and so on and one more thing
+
+00:07:30.080 --> 00:07:34.190
+before we finish this lecture so here's
+our greet function and as you can see
+
+00:07:34.190 --> 00:07:41.450
+we're simply printing a string now if we
+call great give it a name run the
+
+00:07:41.450 --> 00:07:47.840
+program we get this message hi Maj but
+what if we put this inside of a call to
+
+00:07:47.840 --> 00:07:55.370
+the print function let's see what we get
+we get high Marsh followed by none what
+
+00:07:55.370 --> 00:08:00.919
+is this none is the return value of the
+greet function so in Python all
+
+00:08:00.919 --> 00:08:06.020
+functions by default return the non
+value none is an object that represents
+
+00:08:06.020 --> 00:08:10.490
+the absence of a value later in the
+course you're gonna learn more about not
+
+00:08:10.490 --> 00:08:15.979
+what matters now is that all functions
+return non by default unless you
+
+00:08:15.979 --> 00:08:25.340
+specifically return a value so here if
+we return some string none will no
+
+00:08:25.340 --> 00:08:29.419
+longer be returned now I just want to
+clarify something earlier I told you
+
+00:08:29.419 --> 00:08:33.289
+that we have two types of functions in
+programming functions that carry out the
+
+00:08:33.289 --> 00:08:38.839
+tasks or functions that calculate and
+return a value so back to the code we
+
+00:08:38.839 --> 00:08:44.660
+previously had so even though this
+function returns none by default it is
+
+00:08:44.660 --> 00:08:49.930
+still classified as a function that
+carries out a task
+
+00:08:55.200 --> 00:09:01.390
+let's create another function we call it
+increment you want to use this function
+
+00:09:01.390 --> 00:09:10.710
+to increment a number by a given value
+so here we simply return number plus by
+
+00:09:10.710 --> 00:09:17.260
+now we can call this function like this
+increment two and one this returns a
+
+00:09:17.260 --> 00:09:23.020
+value so we can store it in a variable
+like result and then print it on the
+
+00:09:23.020 --> 00:09:28.900
+terminal let's run the program we get
+three beautiful now we can simplify this
+
+00:09:28.900 --> 00:09:34.840
+code we have used this result variable
+only in a single place that is line six
+
+00:09:34.840 --> 00:09:41.620
+so we don't really need it so on line
+six we can replace result with a call to
+
+00:09:41.620 --> 00:09:47.890
+increment function like this so when
+python interpreter executes this code
+
+00:09:47.890 --> 00:09:52.600
+first it will call the increment
+function it will get the result and
+
+00:09:52.600 --> 00:09:57.130
+temporary store it in a variable for us
+we don't see that variable and then it
+
+00:09:57.130 --> 00:10:02.920
+will pass that variable as an argument
+to the print function now if we run this
+
+00:10:02.920 --> 00:10:08.140
+program we get the exact same result
+beautiful now we can make this code more
+
+00:10:08.140 --> 00:10:13.720
+readable if someone else looks at line
+five they may not know exactly what
+
+00:10:13.720 --> 00:10:19.330
+these arguments are for we can use a
+keyword argument to make this code more
+
+00:10:19.330 --> 00:10:26.700
+readable so this one here is the value
+of this by parameter we can prefix it
+
+00:10:26.700 --> 00:10:32.740
+with the name of the parameter like this
+now we can read this code almost like
+
+00:10:32.740 --> 00:10:38.140
+playing English increment two by one so
+if you're calling a function with
+
+00:10:38.140 --> 00:10:43.120
+multiple arguments and it's not quite
+clear what is arguments are for you can
+
+00:10:43.120 --> 00:10:48.880
+make your code more readable by using
+keyword arguments so here y equals one
+
+00:10:48.880 --> 00:10:52.350
+is a keyword argument
+
+00:10:57.490 --> 00:11:01.279
+earlier I told you that all the
+parameters that you define for a
+
+00:11:01.279 --> 00:11:06.410
+function are required by default in this
+lecture I'm gonna show you how to make
+
+00:11:06.410 --> 00:11:13.160
+the by parameter optional so let's say
+we don't want to explicitly pass by
+
+00:11:13.160 --> 00:11:17.899
+equals one every time we want to call
+this increment function you want to use
+
+00:11:17.899 --> 00:11:24.319
+this function to increment a value by
+one so we remove the second argument now
+
+00:11:24.319 --> 00:11:30.290
+we need to give this parameter a default
+value so we set it to one now if we call
+
+00:11:30.290 --> 00:11:34.850
+this function and don't supply the
+second argument this default value will
+
+00:11:34.850 --> 00:11:39.050
+be used otherwise the value that we
+specify here will be used let me show
+
+00:11:39.050 --> 00:11:46.370
+you so we run this program the result is
+three but if we pass the second argument
+
+00:11:46.370 --> 00:11:53.269
+here we'll increment two by five so we
+will get seven so you can see it's
+
+00:11:53.269 --> 00:11:58.220
+pretty easy to make a parameter optional
+just be aware that all these optional
+
+00:11:58.220 --> 00:12:04.130
+parameters should come after the
+required parameters in other words I
+
+00:12:04.130 --> 00:12:10.190
+cannot add another required parameter
+here let's call that another I cannot
+
+00:12:10.190 --> 00:12:16.519
+add that here if I save the changes you
+can see we get a red underline here so
+
+00:12:16.519 --> 00:12:22.730
+all the optional parameters should come
+after the required parameters now
+
+00:12:22.730 --> 00:12:28.720
+obviously in this case we don't need the
+second parameter so let's delete it
+
+00:12:34.000 --> 00:12:38.660
+there are times that you may want to
+create a function that takes a variable
+
+00:12:38.660 --> 00:12:43.750
+number of arguments here is an example
+let's define this function multiplied
+
+00:12:43.750 --> 00:12:52.730
+that takes two parameters x and y and
+simply returns x times y now we can call
+
+00:12:52.730 --> 00:12:58.750
+this function like this
+so far so good but what if you want to
+
+00:12:58.750 --> 00:13:04.390
+pass one or two more arguments here that
+doesn't work because our multiply
+
+00:13:04.390 --> 00:13:09.370
+function takes only two parameters to
+solve this problem we need to replace
+
+00:13:09.370 --> 00:13:14.829
+these two parameters with a single
+parameter we use a plural name here to
+
+00:13:14.829 --> 00:13:20.110
+indicate that this is a collection of
+arguments and then we prefix it with an
+
+00:13:20.110 --> 00:13:25.209
+asterisk this is the magical part let me
+show you what happens when you use an
+
+00:13:25.209 --> 00:13:30.190
+asterisk here so temporarily let's
+delete this line and simply print
+
+00:13:30.190 --> 00:13:36.339
+numbers let's see what we get here so
+run the program we can see all our
+
+00:13:36.339 --> 00:13:42.820
+arguments and they're packed in
+parentheses what is this well earlier
+
+00:13:42.820 --> 00:13:47.410
+you learned about lists I briefly
+mentioned that you can use square
+
+00:13:47.410 --> 00:13:53.019
+brackets to create a list of objects
+like 2 3 4 5 now later in the course we
+
+00:13:53.019 --> 00:13:56.950
+have a comprehensive section about lists
+so don't worry about the details of
+
+00:13:56.950 --> 00:14:01.570
+lists and how they work but what I want
+you to note here is that the only
+
+00:14:01.570 --> 00:14:07.540
+difference between this list and what we
+have here is in the notation so use
+
+00:14:07.540 --> 00:14:12.880
+square brackets to create lists and
+parentheses to create topples some
+
+00:14:12.880 --> 00:14:17.829
+people call it two poles or two poles so
+a top pole is similar to a list in that
+
+00:14:17.829 --> 00:14:21.940
+it's a collection of objects the
+difference is that we cannot modify this
+
+00:14:21.940 --> 00:14:26.560
+collection we cannot add a new object to
+this topple once again
+
+00:14:26.560 --> 00:14:30.399
+later in the course we're going to have
+a comprehensive section about lists
+
+00:14:30.399 --> 00:14:36.010
+tuples and other data structures what
+matters now is that these topples
+
+00:14:36.010 --> 00:14:41.019
+just like lists are each ruble so we can
+each rate over them which means we can
+
+00:14:41.019 --> 00:14:49.769
+use them in loops let me show you so
+let's write for number in numbers :
+
+00:14:49.769 --> 00:14:56.649
+let's just print one number at a time
+actually we don't need this line delete
+
+00:14:56.649 --> 00:15:03.040
+and run the program so we iterate over
+this topple and in each iteration we get
+
+00:15:03.040 --> 00:15:07.420
+one number and print it on the terminal
+so now with a simple change we can
+
+00:15:07.420 --> 00:15:13.130
+calculate the product of all
+numbers all we have to do is to define a
+
+00:15:13.130 --> 00:15:19.910
+variable like total initially we set it
+to 1 and then in each iteration we get
+
+00:15:19.910 --> 00:15:26.110
+total and multiplied by the current
+number or we can rewrite this statement
+
+00:15:26.110 --> 00:15:35.600
+using an Augmented assignment operator
+so total times equal number line 5 and 4
+
+00:15:35.600 --> 00:15:40.760
+are exactly identical so I'm gonna use
+line 5 because it's shorter and cleaner
+
+00:15:40.760 --> 00:15:48.200
+delete and finally we'll return the
+total now one of the issues I see often
+
+00:15:48.200 --> 00:15:53.750
+in beginners code is that they don't use
+this indentation properly so they put
+
+00:15:53.750 --> 00:15:57.980
+the return statement here and then they
+wonder why their function doesn't work
+
+00:15:57.980 --> 00:16:02.950
+properly if you put the return statement
+here it will be part of the for loop so
+
+00:16:02.950 --> 00:16:08.709
+it will be executed in each iteration in
+this case after the first iteration
+
+00:16:08.709 --> 00:16:13.910
+because of this return statement we'll
+return from this multiply function so
+
+00:16:13.910 --> 00:16:18.440
+the total will not be calculated
+properly we need to put this at the same
+
+00:16:18.440 --> 00:16:24.320
+level of indentation as other statements
+in this function so here we have our for
+
+00:16:24.320 --> 00:16:30.200
+statement we loop over all the numbers
+we calculate the total and then finally
+
+00:16:30.200 --> 00:16:36.620
+return it so with this implementation we
+can get the result and printed on the
+
+00:16:36.620 --> 00:16:42.880
+terminal let's run the program and you
+can see the product of these numbers is
+
+00:16:42.880 --> 00:16:45.880
+120
+
+00:16:50.630 --> 00:16:55.920
+so in the last lecture you learned the
+syntax to pass a variable number of
+
+00:16:55.920 --> 00:17:01.080
+arguments to a function we have a
+variation of this syntax with double
+
+00:17:01.080 --> 00:17:05.430
+asterisk and that's what I'm going to
+show you in this lecture so for this
+
+00:17:05.430 --> 00:17:12.180
+demo let's rename this function to save
+underline user and rename the argument
+
+00:17:12.180 --> 00:17:17.790
+to user so let's imagine we're gonna use
+this function to save information about
+
+00:17:17.790 --> 00:17:25.260
+a user now in this function let's just
+print this user argument we're done with
+
+00:17:25.260 --> 00:17:30.360
+our function let's call it save
+underline user now instead of passing
+
+00:17:30.360 --> 00:17:36.030
+arbitrary arguments here we can pass
+arbitrary keyword arguments remember
+
+00:17:36.030 --> 00:17:41.370
+keyword arguments so we have name equals
+value so here we can add multiple
+
+00:17:41.370 --> 00:17:50.760
+keyword arguments like ID equals 1 name
+equals John age equals 22 and so on so
+
+00:17:50.760 --> 00:17:55.490
+we are passing 3 keyword arguments to
+this function now let's run this program
+
+00:17:55.490 --> 00:18:01.350
+this is what we get look at the syntax
+we have these curly braces and in
+
+00:18:01.350 --> 00:18:07.560
+between them we have multiple key value
+pairs so key colon value comma
+
+00:18:07.560 --> 00:18:13.920
+here's another key value pair and here
+is the last one this object you see here
+
+00:18:13.920 --> 00:18:17.940
+is called a dictionary
+it's another complex type or a data
+
+00:18:17.940 --> 00:18:21.810
+structure in Python and I'm going to
+talk about that in detail later in the
+
+00:18:21.810 --> 00:18:27.060
+course for now all I want you to take
+away is that when we use double asterisk
+
+00:18:27.060 --> 00:18:32.250
+here we can pass multiple key value
+pairs or multiple keyword arguments to a
+
+00:18:32.250 --> 00:18:37.860
+function and Python will automatically
+package them into a dictionary so this
+
+00:18:37.860 --> 00:18:43.140
+user object here is a dictionary now
+using the bracket notation we can get
+
+00:18:43.140 --> 00:18:48.750
+the value of various keys in this
+dictionary so we can print user square
+
+00:18:48.750 --> 00:18:54.030
+brackets we pass a string and this is
+the name of our key like ID let's run
+
+00:18:54.030 --> 00:19:01.110
+the program we get 1 or we can access
+the value of name key
+
+00:19:01.110 --> 00:19:07.250
+the program so name is John so this is
+how deeksha Mary's work
+
+00:19:11.730 --> 00:19:18.190
+in programming we have a very important
+concept called scope which refers to the
+
+00:19:18.190 --> 00:19:23.230
+region of the code where a variable is
+defined so in this example we have this
+
+00:19:23.230 --> 00:19:28.360
+message variable the scope of this
+variable is the greet function it only
+
+00:19:28.360 --> 00:19:34.240
+exists inside of this function so if we
+go outside of this function and try to
+
+00:19:34.240 --> 00:19:39.850
+print message see what happens as soon
+as I save the changes we get this red
+
+00:19:39.850 --> 00:19:46.929
+underlined undefined variable message
+and if we run our program we get this
+
+00:19:46.929 --> 00:19:53.230
+name error name message is not defined
+the same rule applies to the parameters
+
+00:19:53.230 --> 00:19:58.690
+of our functions so if you add a name
+parameter here and then try to print it
+
+00:19:58.690 --> 00:20:04.570
+outside of the greet function we get the
+same error so the scope of the name and
+
+00:20:04.570 --> 00:20:09.700
+message variables are the greet function
+and we refer to these variables as local
+
+00:20:09.700 --> 00:20:13.990
+variables in this function they're local
+in this function which means they don't
+
+00:20:13.990 --> 00:20:18.610
+exist anywhere else
+and that means we can have another
+
+00:20:18.610 --> 00:20:25.389
+function let's say send email with a
+parameter with the same name here we can
+
+00:20:25.389 --> 00:20:31.360
+have a message variable but this message
+variable is completely different from
+
+00:20:31.360 --> 00:20:35.200
+the message variable we have in the
+greet function and of course the same
+
+00:20:35.200 --> 00:20:39.399
+rule applies to the name parameters in
+these functions they are completely
+
+00:20:39.399 --> 00:20:42.970
+separate these local variables have a
+short lifetime
+
+00:20:42.970 --> 00:20:49.629
+so when we call let's say the greet
+function and pass a name Python
+
+00:20:49.629 --> 00:20:54.759
+interpreter will allocate some memory
+and have the name and message variables
+
+00:20:54.759 --> 00:20:59.700
+reference those memory locations when we
+finish executing the greet function
+
+00:20:59.700 --> 00:21:03.480
+because these variables are not
+referenced or used anywhere else
+
+00:21:03.480 --> 00:21:08.529
+eventually they get garbage collector
+which means python interpreter will
+
+00:21:08.529 --> 00:21:13.240
+release the memory that allocated for
+these variables so these are the local
+
+00:21:13.240 --> 00:21:19.149
+variables in contrast to local variables
+we have global variables so if we move
+
+00:21:19.149 --> 00:21:24.380
+this message variable outside of
+great function now it's a global
+
+00:21:24.380 --> 00:21:29.360
+variable which means it's accessible
+anywhere in this file so the scope of
+
+00:21:29.360 --> 00:21:33.680
+this variable is this file we can use it
+anywhere in this file in any functions
+
+00:21:33.680 --> 00:21:38.960
+or outside of a function now for this
+reason global variables stay in memory
+
+00:21:38.960 --> 00:21:43.280
+for a longer period of time until they
+are garbage collected and you should not
+
+00:21:43.280 --> 00:21:47.000
+use them that often
+in fact global variables are really evil
+
+00:21:47.000 --> 00:21:52.250
+so as a best practice create functions
+with parameters and local variables
+
+00:21:52.250 --> 00:22:00.020
+now what if here in the greet function
+we set message to let's say B now let's
+
+00:22:00.020 --> 00:22:03.559
+delete this second function we don't
+really need it for now so we call the
+
+00:22:03.559 --> 00:22:07.280
+greet function in this function we
+assign a new value to the message
+
+00:22:07.280 --> 00:22:12.830
+variable now let's print this message
+and see what we get
+
+00:22:12.830 --> 00:22:18.980
+what do you think we're gonna get well
+let's take a look we get a but do we
+
+00:22:18.980 --> 00:22:24.950
+change the value of message variable to
+be not really because by default python
+
+00:22:24.950 --> 00:22:28.130
+interpreter
+treats this message variable as a local
+
+00:22:28.130 --> 00:22:32.720
+variable in the greet function even
+though it has the same name as the
+
+00:22:32.720 --> 00:22:38.330
+global variable and we have on line one
+so these two variables are separate now
+
+00:22:38.330 --> 00:22:43.220
+I've seen some tutorials or even books
+teaching you bad practices for example
+
+00:22:43.220 --> 00:22:48.950
+they show you how to modify the value of
+this global message variable inside of a
+
+00:22:48.950 --> 00:22:53.720
+function let me show you how to do that
+but remember this is a bad practice and
+
+00:22:53.720 --> 00:22:58.640
+you should avoid it at all times I will
+explain the reason in a second so these
+
+00:22:58.640 --> 00:23:05.210
+tutorials or books teach you to use the
+global keyword here and reference the
+
+00:23:05.210 --> 00:23:10.520
+message variable when python interpreter
+sees this line it will realize that in
+
+00:23:10.520 --> 00:23:15.620
+this function we want to use the global
+message variable so it will not define a
+
+00:23:15.620 --> 00:23:22.250
+local variable in this function now with
+this change if we run our program you
+
+00:23:22.250 --> 00:23:25.850
+can see we get beyond the terminal
+because in this function we are
+
+00:23:25.850 --> 00:23:31.580
+modifying the value of the global
+message variable why is this bad because
+
+00:23:31.580 --> 00:23:36.050
+it is possible that you might have
+multiple functions that rely on the
+
+00:23:36.050 --> 00:23:41.270
+of this global variable if you're
+accidentally or deliberately change the
+
+00:23:41.270 --> 00:23:45.980
+value of this global variable in one
+function this might have a side effect
+
+00:23:45.980 --> 00:23:51.260
+in other functions those functions may
+not behave properly and this way we can
+
+00:23:51.260 --> 00:23:57.140
+create a bug in our program so global
+variables have always been bad this is
+
+00:23:57.140 --> 00:24:01.550
+not a Python thing this is a discussion
+that's been going on for decades avoid
+
+00:24:01.550 --> 00:24:05.270
+them as much as you can or if there are
+situations that you really need to
+
+00:24:05.270 --> 00:24:10.130
+define a variable globally in a file
+that's okay but do not modify it in a
+
+00:24:10.130 --> 00:24:14.750
+function as you see here this is a
+really bad practice so that's all about
+
+00:24:14.750 --> 00:24:18.160
+local and global variables
+
+00:24:23.809 --> 00:24:29.129
+one of the questions that often comes in
+programming interviews is the fizzbuzz
+
+00:24:29.129 --> 00:24:33.269
+algorithm you might be surprised that
+there are a lot of developers out there
+
+00:24:33.269 --> 00:24:37.619
+with even years of experience but they
+don't know how to solve this simple
+
+00:24:37.619 --> 00:24:42.659
+programming problem that's why I decided
+to include this in my course so let's
+
+00:24:42.659 --> 00:24:47.159
+see how this algorithm works and then
+you can spend 10 to 15 minutes on this
+
+00:24:47.159 --> 00:24:52.769
+exercise on your own so here we have a
+function phase buzz that takes on input
+
+00:24:52.769 --> 00:24:58.289
+and depending on the input we give it it
+returns different results here are the
+
+00:24:58.289 --> 00:25:03.989
+rules if the input that we give it is
+divisible by 3 it will return the string
+
+00:25:03.989 --> 00:25:10.469
+fist let me show you so we run this
+program we get Fitz if the input is
+
+00:25:10.469 --> 00:25:18.269
+divisible by 5 it will return Buzz take
+a look here's buzz now the third rule if
+
+00:25:18.269 --> 00:25:26.849
+the input is divisible by both 3 &amp; 5 it
+will return fizzbuzz so let's pass 15
+
+00:25:26.849 --> 00:25:34.109
+here we'll get fizzbuzz for any other
+numbers it will return the same input so
+
+00:25:34.109 --> 00:25:44.009
+if I pass 7 it's not divisible by 3 or 5
+it will return 7 itself so spend 10 to
+
+00:25:44.009 --> 00:25:49.429
+15 minutes on this exercise you will see
+my solution next
+
+00:25:53.630 --> 00:25:58.169
+all right let's see how we can solve
+this problem so we get the input and
+
+00:25:58.169 --> 00:26:05.880
+check to see if input is divisible by 3
+then we can set a variable like result
+
+00:26:05.880 --> 00:26:09.900
+to phase
+now let me temporarily simplify these
+
+00:26:09.900 --> 00:26:14.789
+rules because I want to show you a
+really cool technique so let's imagine
+
+00:26:14.789 --> 00:26:20.309
+if the input is divisible by 3
+we'll return fizz otherwise we'll return
+
+00:26:20.309 --> 00:26:30.120
+bus so LS : we set the result to buzz
+and finally we'll return this resolved
+
+00:26:30.120 --> 00:26:34.580
+variable
+this is one way to implement these rules
+
+00:26:34.580 --> 00:26:38.840
+but it's not the best way there is a
+better and cleaner way let me show you
+
+00:26:38.840 --> 00:26:44.300
+so instead of defining this result
+variable and then returning it we can
+
+00:26:44.300 --> 00:26:52.910
+simply return this string here and also
+here and then we can get rid of line six
+
+00:26:52.910 --> 00:26:58.940
+so we remove one unnecessary line of
+code this was one technique the other
+
+00:26:58.940 --> 00:27:04.610
+technique I want to show you is when you
+have an if statement and in your a flock
+
+00:27:04.610 --> 00:27:10.730
+you're returning a value you don't
+really need an else clause because if
+
+00:27:10.730 --> 00:27:15.830
+this condition is evaluated to false the
+control moves to the else clause and all
+
+00:27:15.830 --> 00:27:20.390
+we're doing here
+is returning a different value so this
+
+00:27:20.390 --> 00:27:26.380
+is the only possible outcome so here we
+can remove this else clause and simply
+
+00:27:26.380 --> 00:27:32.810
+return bus so with this technique I
+remove an unnecessary indentation as
+
+00:27:32.810 --> 00:27:37.690
+well I've made our code more linear okay
+now let's go back to our original
+
+00:27:37.690 --> 00:27:41.240
+algorithm so if the input is divisible
+by three
+
+00:27:41.240 --> 00:27:46.820
+we'll return fizz now we check to see if
+the input is divisible by five we'll
+
+00:27:46.820 --> 00:27:53.060
+return buzz so here we don't really need
+an Elif because if this condition is
+
+00:27:53.060 --> 00:27:59.720
+false we'll get here anyway
+so we can check if input is divisible by
+
+00:27:59.720 --> 00:28:07.190
+five we will return buzz once again if
+this condition is false the control
+
+00:28:07.190 --> 00:28:14.930
+moves here now we check to see if the
+input is divisible by three and it is
+
+00:28:14.930 --> 00:28:23.660
+also divisible by five then we will
+return fizz buzz now this expression is
+
+00:28:23.660 --> 00:28:28.370
+a little bit long I would prefer to make
+it more readable by putting parentheses
+
+00:28:28.370 --> 00:28:37.250
+around the first and second parts like
+this that is cleaner now if this
+
+00:28:37.250 --> 00:28:42.020
+condition is also false the control
+moves here that means our number is not
+
+00:28:42.020 --> 00:28:45.779
+divisible by three or five so we should
+simply return the
+
+00:28:45.779 --> 00:28:51.440
+input once again we don't need an else
+or another if we simply return the input
+
+00:28:51.440 --> 00:28:56.639
+now let's run this program and see if
+it's working properly or not so we call
+
+00:28:56.639 --> 00:29:03.629
+our function with three and we get fizz
+beautiful let's call it with five we get
+
+00:29:03.629 --> 00:29:10.769
+buzz perfect what if we call it with 15
+we should get fizz bus however we get
+
+00:29:10.769 --> 00:29:13.769
+fizz
+what is going on here the reason this
+
+00:29:13.769 --> 00:29:19.889
+happened was because when we pass 15
+here line two is executed obviously 15
+
+00:29:19.889 --> 00:29:25.889
+is divisible by three so that is why we
+immediately return fizz to solve this
+
+00:29:25.889 --> 00:29:31.289
+problem we need to move this condition
+which is more specific to the top so
+
+00:29:31.289 --> 00:29:37.679
+I've selected these two lines using alt
++ up I move these lines up beautiful
+
+00:29:37.679 --> 00:29:43.559
+alright now let's run the program one
+more time so we get fizzbuzz once again
+
+00:29:43.559 --> 00:29:49.440
+let's test it with three now we get
+fares let's test it with five when
+
+00:29:49.440 --> 00:29:53.789
+writing functions don't assume that your
+function is working make sure to test it
+
+00:29:53.789 --> 00:29:58.679
+with all different kinds of values let's
+test it but five we get Buzz beautiful
+
+00:29:58.679 --> 00:30:04.169
+what if you pass seven which is not
+divisible by three or five we get seven
+
+00:30:04.169 --> 00:30:06.799
+beautiful
+
+00:30:08.299 --> 00:30:12.919
+hi guys thank you for watching this
+tutorial my name is Mohammad Ani and I
+
+00:30:12.919 --> 00:30:16.729
+have tons of tutorials like this for you
+on my channel so be sure to subscribe
+
+00:30:16.729 --> 00:30:20.929
+and also please like and share this
+video if you want to learn Python
+
+00:30:20.929 --> 00:30:25.639
+properly from scratch with depth I have
+a comprehensive python tutorial for you
+
+00:30:25.639 --> 00:30:30.080
+the link is below this video so click
+the link to get started thank you and
+
+00:30:30.080 --> 00:30:33.129
+have a fantastic day
+

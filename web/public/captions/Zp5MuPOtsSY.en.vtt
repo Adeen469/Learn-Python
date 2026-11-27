@@ -1,0 +1,669 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:03.259 --> 00:00:08.280
+In almost every program, there are times
+you need to make decisions and that's
+
+00:00:08.280 --> 00:00:13.530
+when you use an if statement here is an
+example let's say we have a variable
+
+00:00:13.530 --> 00:00:19.619
+called temperature we set it to 35 now
+if temperature is greater than 30
+
+00:00:19.619 --> 00:00:25.279
+perhaps we want to display a message to
+the user so we use an if statement if
+
+00:00:25.279 --> 00:00:30.390
+after if we add a condition which is
+basically a boolean expression an
+
+00:00:30.390 --> 00:00:36.420
+expression that produces a boolean value
+so if temperature is greater than 30
+
+00:00:36.420 --> 00:00:42.030
+here we have a boolean expression if
+this expression evaluates to true the
+
+00:00:42.030 --> 00:00:46.079
+following statements will be executed
+let me show you now here is the
+
+00:00:46.079 --> 00:00:50.700
+important part that a lot of beginners
+miss when you use an if statement
+
+00:00:50.700 --> 00:00:56.070
+you should always terminate your
+statement with a colon now let's see
+
+00:00:56.070 --> 00:01:01.590
+what happens when I press ENTER our
+cursor is indented so here we have two
+
+00:01:01.590 --> 00:01:06.869
+white spaces this is very important
+because using these indentations Python
+
+00:01:06.869 --> 00:01:11.820
+interpreter will know what statements
+should be executed if this condition is
+
+00:01:11.820 --> 00:01:18.930
+true here we want to print a message
+like it's warm we can print another
+
+00:01:18.930 --> 00:01:24.630
+message as well drink water so we can
+have as many statements as we want here
+
+00:01:24.630 --> 00:01:31.200
+as long as they are indented they belong
+to this if block now when we finish here
+
+00:01:31.200 --> 00:01:36.900
+we should remove indentation to indicate
+the end of this if block so here we can
+
+00:01:36.900 --> 00:01:41.880
+add a print statement with a message
+like done this statement will always be
+
+00:01:41.880 --> 00:01:47.790
+executed whether this condition is true
+or not now note that when I save the
+
+00:01:47.790 --> 00:01:52.890
+changes this indentation you see here is
+going to be doubled up take a look
+
+00:01:52.890 --> 00:01:58.770
+save there you go so when we save the
+changes auto kept eight reformat our
+
+00:01:58.770 --> 00:02:04.560
+code and uses four white spaces for
+indentation so one two three four it
+
+00:02:04.560 --> 00:02:09.899
+uses four white spaces because that's
+what pepp eight recommends alright now
+
+00:02:09.899 --> 00:02:13.370
+let's run this program so because
+temperature
+
+00:02:13.370 --> 00:02:18.739
+is greater than 30 we see the first two
+messages and we see the dawn message
+
+00:02:18.739 --> 00:02:24.349
+regardless so if I change the
+temperature to let's say 15 and run the
+
+00:02:24.349 --> 00:02:29.209
+program one more time
+look this dawn message is executed
+
+00:02:29.209 --> 00:02:33.500
+whether our condition is true or not so
+pay great attention to these
+
+00:02:33.500 --> 00:02:38.269
+indentations that's one of the issues I
+see in beginners code let's say they
+
+00:02:38.269 --> 00:02:42.370
+want both these print statements to be
+executed if the condition is true
+
+00:02:42.370 --> 00:02:47.900
+accidentally they remove the indentation
+on the fourth line and that's why their
+
+00:02:47.900 --> 00:02:53.299
+program doesn't work as they expect so
+be careful about this now what if you
+
+00:02:53.299 --> 00:03:00.049
+want to have multiple conditions we use
+an elephant so L if that is short for
+
+00:03:00.049 --> 00:03:05.390
+else/if here we can add another
+condition another expression so
+
+00:03:05.390 --> 00:03:09.579
+temperature is greater than 20 once
+again :
+
+00:03:09.579 --> 00:03:15.530
+enter a by default here vs code is using
+two white spaces so don't worry about
+
+00:03:15.530 --> 00:03:20.090
+this as soon as you save the changes
+those two white spaces will be converted
+
+00:03:20.090 --> 00:03:24.019
+to four white spaces so let's print a
+different message
+
+00:03:24.019 --> 00:03:32.510
+it's nice save the changes now look all
+these lines are indented consistently
+
+00:03:32.510 --> 00:03:37.669
+you can have as many Elif statements as
+you want and optionally you can also
+
+00:03:37.669 --> 00:03:44.329
+have an else statement so if none of the
+previous conditions are true then what
+
+00:03:44.329 --> 00:03:49.120
+you have in the else block will be
+executed once again we add the colon
+
+00:03:49.120 --> 00:03:56.120
+annotation print here we can add a
+message like it's called saying the
+
+00:03:56.120 --> 00:04:02.419
+changes in this case temperature is 15
+so none of these two conditions will be
+
+00:04:02.419 --> 00:04:09.370
+true and we will see it's called let's
+run the program there you go
+
+00:04:14.170 --> 00:04:19.699
+in this lecture I'm going to show you a
+technique for writing cleaner code so
+
+00:04:19.699 --> 00:04:23.930
+let's say we're building an application
+for university and we want to check to
+
+00:04:23.930 --> 00:04:28.850
+see if the person who's applying for
+this university program is eligible or
+
+00:04:28.850 --> 00:04:36.949
+not so we start by defining a variable
+called age set it to 22 now if H is
+
+00:04:36.949 --> 00:04:46.360
+greater than or equal to 18 colon print
+eligible remove the indentation else
+
+00:04:46.360 --> 00:04:55.940
+colon print not eligible let's run a
+program make sure it works beautiful now
+
+00:04:55.940 --> 00:04:59.990
+there is nothing wrong in this piece of
+code but I want to show you a cleaner
+
+00:04:59.990 --> 00:05:05.750
+way to achieve the same result instead
+of having a print statement here we can
+
+00:05:05.750 --> 00:05:12.289
+define a variable like message and set
+it to this string that is the first step
+
+00:05:12.289 --> 00:05:21.440
+so message equals this string and then
+we will print this message now when you
+
+00:05:21.440 --> 00:05:25.729
+have an if-else statement with this
+structure where you're basically
+
+00:05:25.729 --> 00:05:32.449
+assigning a value to a variable you can
+rewrite this in a simpler way so this is
+
+00:05:32.449 --> 00:05:37.910
+how it works all we want to do over
+these few lines is to assign a value to
+
+00:05:37.910 --> 00:05:45.199
+this message variable right so we start
+with message we set it to eligible if H
+
+00:05:45.199 --> 00:05:51.520
+is greater than or equal to 18 else we
+set it to not eligible
+
+00:05:51.520 --> 00:05:57.340
+this statement is almost like plain
+English so what we have on line 7 is
+
+00:05:57.340 --> 00:06:01.639
+exactly equivalent to these 4 lines of
+code
+
+00:06:01.639 --> 00:06:08.720
+delete save the changes run the program
+you can see this person is eligible if I
+
+00:06:08.720 --> 00:06:15.030
+change the age to 12 and run the program
+we get not eligible
+
+00:06:15.030 --> 00:06:20.090
+so what we have here is called ternary
+operator
+
+00:06:24.370 --> 00:06:30.800
+in Python we have three logical
+operators and we use these operators to
+
+00:06:30.800 --> 00:06:39.410
+model more complex conditions so these
+operators are and or and not let's see a
+
+00:06:39.410 --> 00:06:43.400
+real-world example of using these
+operators so imagine we're building an
+
+00:06:43.400 --> 00:06:50.300
+application for processing loans so we
+need two variables high income we can
+
+00:06:50.300 --> 00:06:57.980
+set this to true and good underline
+credit we set it to true now here's the
+
+00:06:57.980 --> 00:07:03.380
+condition we want to implement if the
+applicant has high income and good
+
+00:07:03.380 --> 00:07:06.770
+credit score then they are eligible for
+the loan
+
+00:07:06.770 --> 00:07:17.660
+so if high income and good credit we add
+the colon and print eligible now note
+
+00:07:17.660 --> 00:07:22.970
+that here I have not compared the value
+of this variable with true that is one
+
+00:07:22.970 --> 00:07:26.690
+of the issues I see in a lot of
+beginners code this is redundant and
+
+00:07:26.690 --> 00:07:32.600
+unprofessional because high income is a
+boolean so it's either true or false we
+
+00:07:32.600 --> 00:07:38.810
+don't need to compare true with true so
+if this condition is true and this
+
+00:07:38.810 --> 00:07:45.440
+second condition is true then we will
+print eligible in the terminal so save
+
+00:07:45.440 --> 00:07:49.660
+the changes and run the program
+obviously this person is eligible
+
+00:07:49.660 --> 00:07:56.150
+however if one of these conditions is
+false we will not see eligible in the
+
+00:07:56.150 --> 00:08:05.330
+terminal so let's add an else statement
+here and print not eligible run the
+
+00:08:05.330 --> 00:08:11.720
+program we see not eligible so this is
+how the and operator works with an
+
+00:08:11.720 --> 00:08:17.960
+operator if both conditions are true the
+result will be true in contrast with the
+
+00:08:17.960 --> 00:08:23.000
+or operator as long as at least one of
+the conditions is true the result will
+
+00:08:23.000 --> 00:08:30.530
+be true so if I replace and with or here
+we should see eligible and the terminal
+
+00:08:30.530 --> 00:08:36.140
+let's run it one more time there you go
+so these are the and an or operator
+
+00:08:36.140 --> 00:08:40.580
+now let's take a look at an example of
+the nut operator so I'm gonna define
+
+00:08:40.580 --> 00:08:46.460
+another variable steel and set it to
+true temporarily I'm gonna remove this
+
+00:08:46.460 --> 00:08:51.830
+expression and simplify it we'll come
+back to this later so let's say if the
+
+00:08:51.830 --> 00:08:54.920
+person is eligible if they are not a
+student
+
+00:08:54.920 --> 00:09:00.530
+the nut operator basically inverses the
+value of a boolean so in this case
+
+00:09:00.530 --> 00:09:07.010
+student is true when we apply the not
+operator the result will be false so in
+
+00:09:07.010 --> 00:09:11.720
+this case our condition will be false
+and that's why this print statement will
+
+00:09:11.720 --> 00:09:18.650
+not be executed let me show you so save
+run the program they are not eligible if
+
+00:09:18.650 --> 00:09:24.800
+student was false when we apply the nut
+operator will get true so our condition
+
+00:09:24.800 --> 00:09:29.830
+will be true and we'll see it eligible
+let's run it one more time there you go
+
+00:09:29.830 --> 00:09:35.180
+with this operators we can model even
+more complex conditions here is an
+
+00:09:35.180 --> 00:09:41.840
+example a person can be eligible if they
+have either high income or good credit
+
+00:09:41.840 --> 00:09:47.150
+and they should not be used to do that
+let me show you how to implement this
+
+00:09:47.150 --> 00:09:55.070
+condition so if high income or good
+credit we want at least one of these
+
+00:09:55.070 --> 00:10:01.280
+conditions to be true so we put these in
+parentheses we want to separate these
+
+00:10:01.280 --> 00:10:06.710
+from the other condition which is not a
+student now the result of this should be
+
+00:10:06.710 --> 00:10:11.810
+true which means at least one of these
+conditions should be true after that
+
+00:10:11.810 --> 00:10:19.639
+we'll add and not student
+and finally caught so we this operators
+
+00:10:19.639 --> 00:10:24.370
+you can model all kinds of real-world
+scenarios
+
+00:10:29.280 --> 00:10:34.180
+so here's the example from the last
+lecture a person is eligible for a loan
+
+00:10:34.180 --> 00:10:40.570
+if they have high income and good credit
+and they are not a student
+
+00:10:40.570 --> 00:10:44.650
+now one thing you need to know about
+these boolean operators is that their
+
+00:10:44.650 --> 00:10:49.690
+short circuit what do we mean by that
+well when python interpreter
+
+00:10:49.690 --> 00:10:55.510
+wants to evaluate this expression it
+starts from the first argument if this
+
+00:10:55.510 --> 00:11:00.370
+is true it continues the evaluation to
+see if the second argument is also true
+
+00:11:00.370 --> 00:11:05.280
+so it continues the evaluation all the
+way to the end of this expression
+
+00:11:05.280 --> 00:11:11.170
+however as soon as one of these
+arguments is false the evaluation stops
+
+00:11:11.170 --> 00:11:16.750
+let me show you what I mean so if I
+change high-income to false when Python
+
+00:11:16.750 --> 00:11:22.720
+interpreter sees this expression it
+starts here it knows that high-income is
+
+00:11:22.720 --> 00:11:28.150
+false so it doesn't matter what comes
+after the result of this entire
+
+00:11:28.150 --> 00:11:33.070
+expression will always be false because
+at least one of the arguments or one of
+
+00:11:33.070 --> 00:11:38.050
+the operands is false this is what we
+call short-circuiting just like the
+
+00:11:38.050 --> 00:11:43.150
+short-circuit concept we have in
+electronics so the evaluation stops as
+
+00:11:43.150 --> 00:11:49.780
+soon as one of these arguments evaluates
+to false we have the same concept with
+
+00:11:49.780 --> 00:11:56.280
+the or operator so if I change these and
+operators to or let's see what happens
+
+00:11:56.280 --> 00:12:01.150
+with the or operator we know that at
+least one of the arguments should be
+
+00:12:01.150 --> 00:12:06.280
+true so the evaluation stops as soon as
+we find an argument that evaluates to
+
+00:12:06.280 --> 00:12:11.140
+true in this case when Python
+interpreter evaluates this expression it
+
+00:12:11.140 --> 00:12:16.000
+sees that high-income is false so it
+continues the evaluation hoping that the
+
+00:12:16.000 --> 00:12:22.300
+next argument will be true here good
+credit is true so evaluation stops and
+
+00:12:22.300 --> 00:12:26.590
+the result of this entire expression
+will be true
+
+00:12:26.590 --> 00:12:32.580
+so in Python logical operators are
+short-circuit
+
+00:12:36.889 --> 00:12:42.629
+in this lecture I'm gonna show you how
+to chain comparison operators this is a
+
+00:12:42.629 --> 00:12:47.069
+very powerful technique for writing
+clean code here is an example let's say
+
+00:12:47.069 --> 00:12:54.540
+we want to implement a rule that says
+age should be between 18 and 65 here's
+
+00:12:54.540 --> 00:13:00.480
+how we can implement it so we define a
+variable like age set it to 22 now if
+
+00:13:00.480 --> 00:13:08.449
+age is greater than or equal to 18 and
+age is less than 65 then we print
+
+00:13:08.449 --> 00:13:14.220
+eligible now here's a question for you
+how do we write this rule in mass we can
+
+00:13:14.220 --> 00:13:16.879
+write it like this
+
+00:13:17.530 --> 00:13:23.230
+well more accurately we should have an
+equal sign here so age should be between
+
+00:13:23.230 --> 00:13:29.470
+18 and 65 this is how we write this rule
+in math now I've got some good news for
+
+00:13:29.470 --> 00:13:33.220
+you we can write the exact same
+expression in Python
+
+00:13:33.220 --> 00:13:41.230
+so I'm going to move this up put an if
+statement here line 4 and line 3 are
+
+00:13:41.230 --> 00:13:46.680
+exactly equivalent but as you can see
+line 4 is cleaner and easier to read so
+
+00:13:46.680 --> 00:13:53.190
+let's get rid of line 3
+this is what we call chaining comparison
+
+00:13:53.190 --> 00:13:55.820
+operators
+
+00:14:00.860 --> 00:14:06.689
+all right here is a little quiz for you
+I want you to pause the video and think
+
+00:14:06.689 --> 00:14:10.769
+about this quiz for 10 to 20 seconds
+what do you think we'll see on the
+
+00:14:10.769 --> 00:14:15.660
+terminal when we run this program so
+pause the video figure out the answer
+
+00:14:15.660 --> 00:14:19.730
+when you're ready come back continue
+watching
+
+00:14:21.209 --> 00:14:25.619
+all right let's see what happens when we
+run this program first we get this if
+
+00:14:25.619 --> 00:14:29.970
+statement in this case we're comparing
+two different objects for equality and
+
+00:14:29.970 --> 00:14:34.490
+these objects have different types we
+have a number compared for this string
+
+00:14:34.490 --> 00:14:40.740
+so number 10 and string 10 are not equal
+that is why a will not be printed on the
+
+00:14:40.740 --> 00:14:46.980
+terminal so the control moves to the
+Elif part here we have two boolean
+
+00:14:46.980 --> 00:14:52.199
+expressions here's the first one here's
+the second one and they are combined
+
+00:14:52.199 --> 00:14:58.230
+using the logical end so if both these
+expressions are evaluated to true then
+
+00:14:58.230 --> 00:15:03.480
+this entire expression will be true and
+we will see beyond the terminal let's
+
+00:15:03.480 --> 00:15:07.819
+see if both these expressions are
+evaluated to true here's the first part
+
+00:15:07.819 --> 00:15:13.769
+bag is greater than Apple that is true
+because when we sort this words bag
+
+00:15:13.769 --> 00:15:19.649
+comes after Apple but look at the second
+part this expression is evaluated to
+
+00:15:19.649 --> 00:15:24.689
+false because bag is not greater than
+cat so when we applied the logical end
+
+00:15:24.689 --> 00:15:31.170
+between true and false the result will
+be false that is why this statement will
+
+00:15:31.170 --> 00:15:36.299
+not be executed so to control moves to
+the else part and when we run this
+
+00:15:36.299 --> 00:15:40.999
+program the letter C will be printed on
+the terminal
+
+00:15:42.870 --> 00:15:47.520
+hi guys thank you for watching this
+tutorial my name is Mohammad Ani and I
+
+00:15:47.520 --> 00:15:51.360
+have tons of tutorials like this for you
+on my channel so be sure to subscribe
+
+00:15:51.360 --> 00:15:55.530
+and also please like and share this
+video if you want to learn Python
+
+00:15:55.530 --> 00:16:00.240
+properly from scratch with depth I have
+a comprehensive python tutorial for you
+
+00:16:00.240 --> 00:16:04.680
+the link is below this video so click
+the link to get started thank you and
+
+00:16:04.680 --> 00:16:07.610
+have a fantastic day
+

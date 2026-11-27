@@ -1,0 +1,1144 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:03.470 --> 00:00:05.960 align:start position:0%
+ 
+here<00:00:04.470><c> we</c><00:00:04.589><c> have</c><00:00:04.740><c> this</c><00:00:04.830><c> list</c><00:00:05.100><c> with</c><00:00:05.580><c> a</c><00:00:05.609><c> bunch</c><00:00:05.850><c> of</c>
+
+00:00:05.960 --> 00:00:05.970 align:start position:0%
+here we have this list with a bunch of
+ 
+
+00:00:05.970 --> 00:00:07.730 align:start position:0%
+here we have this list with a bunch of
+numbers<00:00:06.420><c> that</c><00:00:06.750><c> are</c><00:00:06.810><c> not</c><00:00:07.020><c> in</c><00:00:07.259><c> any</c><00:00:07.470><c> particular</c>
+
+00:00:07.730 --> 00:00:07.740 align:start position:0%
+numbers that are not in any particular
+ 
+
+00:00:07.740 --> 00:00:11.330 align:start position:0%
+numbers that are not in any particular
+order<00:00:08.309><c> to</c><00:00:09.300><c> sort</c><00:00:09.540><c> this</c><00:00:09.690><c> list</c><00:00:09.750><c> we</c><00:00:10.230><c> call</c><00:00:10.500><c> numbers</c>
+
+00:00:11.330 --> 00:00:11.340 align:start position:0%
+order to sort this list we call numbers
+ 
+
+00:00:11.340 --> 00:00:16.129 align:start position:0%
+order to sort this list we call numbers
+that's<00:00:12.059><c> sort</c><00:00:12.679><c> now</c><00:00:13.679><c> let's</c><00:00:13.980><c> print</c><00:00:14.280><c> it</c><00:00:14.580><c> and</c><00:00:15.139><c> you</c>
+
+00:00:16.129 --> 00:00:16.139 align:start position:0%
+that's sort now let's print it and you
+ 
+
+00:00:16.139 --> 00:00:17.930 align:start position:0%
+that's sort now let's print it and you
+can<00:00:16.289><c> see</c><00:00:16.470><c> our</c><00:00:16.650><c> numbers</c><00:00:17.039><c> are</c><00:00:17.220><c> sorted</c><00:00:17.789><c> in</c>
+
+00:00:17.930 --> 00:00:17.940 align:start position:0%
+can see our numbers are sorted in
+ 
+
+00:00:17.940 --> 00:00:20.480 align:start position:0%
+can see our numbers are sorted in
+ascending<00:00:18.420><c> order</c><00:00:19.020><c> what</c><00:00:19.859><c> if</c><00:00:19.980><c> you</c><00:00:20.070><c> want</c><00:00:20.220><c> to</c><00:00:20.250><c> sort</c>
+
+00:00:20.480 --> 00:00:20.490 align:start position:0%
+ascending order what if you want to sort
+ 
+
+00:00:20.490 --> 00:00:23.620 align:start position:0%
+ascending order what if you want to sort
+these<00:00:20.670><c> items</c><00:00:21.029><c> in</c><00:00:21.270><c> descending</c><00:00:21.960><c> order</c><00:00:22.100><c> well</c>
+
+00:00:23.620 --> 00:00:23.630 align:start position:0%
+these items in descending order well
+ 
+
+00:00:23.630 --> 00:00:26.509 align:start position:0%
+these items in descending order well
+this<00:00:24.630><c> sort</c><00:00:24.930><c> method</c><00:00:25.080><c> takes</c><00:00:25.560><c> two</c><00:00:25.949><c> parameters</c>
+
+00:00:26.509 --> 00:00:26.519 align:start position:0%
+this sort method takes two parameters
+ 
+
+00:00:26.519 --> 00:00:28.460 align:start position:0%
+this sort method takes two parameters
+key<00:00:27.210><c> which</c><00:00:27.480><c> we'll</c><00:00:27.660><c> look</c><00:00:27.810><c> at</c><00:00:27.930><c> later</c><00:00:27.990><c> and</c>
+
+00:00:28.460 --> 00:00:28.470 align:start position:0%
+key which we'll look at later and
+ 
+
+00:00:28.470 --> 00:00:30.890 align:start position:0%
+key which we'll look at later and
+reverse<00:00:29.310><c> which</c><00:00:29.640><c> we</c><00:00:29.789><c> can</c><00:00:29.970><c> use</c><00:00:30.150><c> to</c><00:00:30.390><c> change</c><00:00:30.660><c> the</c>
+
+00:00:30.890 --> 00:00:30.900 align:start position:0%
+reverse which we can use to change the
+ 
+
+00:00:30.900 --> 00:00:33.560 align:start position:0%
+reverse which we can use to change the
+sort<00:00:31.230><c> order</c><00:00:31.460><c> so</c><00:00:32.460><c> here</c><00:00:32.730><c> we</c><00:00:32.820><c> can</c><00:00:32.940><c> use</c><00:00:33.000><c> a</c><00:00:33.149><c> keyword</c>
+
+00:00:33.560 --> 00:00:33.570 align:start position:0%
+sort order so here we can use a keyword
+ 
+
+00:00:33.570 --> 00:00:36.770 align:start position:0%
+sort order so here we can use a keyword
+argument<00:00:34.140><c> to</c><00:00:34.440><c> set</c><00:00:34.649><c> a</c><00:00:34.770><c> value</c><00:00:35.450><c> for</c><00:00:36.450><c> the</c><00:00:36.540><c> reverse</c>
+
+00:00:36.770 --> 00:00:36.780 align:start position:0%
+argument to set a value for the reverse
+ 
+
+00:00:36.780 --> 00:00:41.119 align:start position:0%
+argument to set a value for the reverse
+parameter<00:00:37.350><c> we</c><00:00:37.950><c> set</c><00:00:38.160><c> this</c><00:00:38.280><c> to</c><00:00:38.489><c> true</c><00:00:38.670><c> and</c><00:00:40.129><c> with</c>
+
+00:00:41.119 --> 00:00:41.129 align:start position:0%
+parameter we set this to true and with
+ 
+
+00:00:41.129 --> 00:00:43.100 align:start position:0%
+parameter we set this to true and with
+this<00:00:41.280><c> you</c><00:00:41.460><c> can</c><00:00:41.640><c> see</c><00:00:41.790><c> our</c><00:00:42.059><c> numbers</c><00:00:42.450><c> are</c><00:00:42.660><c> sorted</c>
+
+00:00:43.100 --> 00:00:43.110 align:start position:0%
+this you can see our numbers are sorted
+ 
+
+00:00:43.110 --> 00:00:45.830 align:start position:0%
+this you can see our numbers are sorted
+in<00:00:43.260><c> descending</c><00:00:43.590><c> order</c><00:00:44.040><c> so</c><00:00:45.000><c> this</c><00:00:45.120><c> is</c><00:00:45.270><c> the</c><00:00:45.360><c> basic</c>
+
+00:00:45.830 --> 00:00:45.840 align:start position:0%
+in descending order so this is the basic
+ 
+
+00:00:45.840 --> 00:00:49.160 align:start position:0%
+in descending order so this is the basic
+of<00:00:45.960><c> sorting</c><00:00:46.379><c> lists</c><00:00:46.910><c> however</c><00:00:47.910><c> in</c><00:00:48.239><c> addition</c><00:00:48.780><c> to</c>
+
+00:00:49.160 --> 00:00:49.170 align:start position:0%
+of sorting lists however in addition to
+ 
+
+00:00:49.170 --> 00:00:51.020 align:start position:0%
+of sorting lists however in addition to
+the<00:00:49.289><c> sort</c><00:00:49.500><c> method</c><00:00:49.710><c> we</c><00:00:50.430><c> have</c><00:00:50.579><c> a</c><00:00:50.610><c> built-in</c>
+
+00:00:51.020 --> 00:00:51.030 align:start position:0%
+the sort method we have a built-in
+ 
+
+00:00:51.030 --> 00:00:54.680 align:start position:0%
+the sort method we have a built-in
+function<00:00:51.510><c> called</c><00:00:52.129><c> sorted</c><00:00:53.129><c> as</c><00:00:53.670><c> you</c><00:00:54.390><c> can</c><00:00:54.539><c> see</c>
+
+00:00:54.680 --> 00:00:54.690 align:start position:0%
+function called sorted as you can see
+ 
+
+00:00:54.690 --> 00:00:57.350 align:start position:0%
+function called sorted as you can see
+this<00:00:54.930><c> function</c><00:00:55.170><c> takes</c><00:00:55.530><c> an</c><00:00:55.800><c> iterable</c><00:00:56.579><c> so</c><00:00:57.239><c> we</c>
+
+00:00:57.350 --> 00:00:57.360 align:start position:0%
+this function takes an iterable so we
+ 
+
+00:00:57.360 --> 00:00:59.420 align:start position:0%
+this function takes an iterable so we
+can<00:00:57.480><c> pass</c><00:00:57.660><c> any</c><00:00:57.960><c> eatables</c><00:00:58.559><c> here</c><00:00:58.890><c> and</c><00:00:59.100><c> it</c><00:00:59.250><c> will</c>
+
+00:00:59.420 --> 00:00:59.430 align:start position:0%
+can pass any eatables here and it will
+ 
+
+00:00:59.430 --> 00:01:03.110 align:start position:0%
+can pass any eatables here and it will
+sort<00:00:59.699><c> it</c><00:00:59.850><c> for</c><00:00:59.879><c> us</c><00:01:00.120><c> so</c><00:01:01.219><c> we</c><00:01:02.219><c> can</c><00:01:02.370><c> pass</c><00:01:02.579><c> our</c>
+
+00:01:03.110 --> 00:01:03.120 align:start position:0%
+sort it for us so we can pass our
+ 
+
+00:01:03.120 --> 00:01:06.920 align:start position:0%
+sort it for us so we can pass our
+numbers<00:01:03.809><c> list</c><00:01:04.110><c> and</c><00:01:04.670><c> this</c><00:01:05.670><c> will</c><00:01:05.850><c> return</c><00:01:06.180><c> a</c><00:01:06.420><c> new</c>
+
+00:01:06.920 --> 00:01:06.930 align:start position:0%
+numbers list and this will return a new
+ 
+
+00:01:06.930 --> 00:01:09.740 align:start position:0%
+numbers list and this will return a new
+list<00:01:06.960><c> that</c><00:01:07.530><c> is</c><00:01:07.860><c> sorted</c><00:01:08.369><c> so</c><00:01:08.970><c> unlike</c><00:01:09.299><c> the</c><00:01:09.479><c> sort</c>
+
+00:01:09.740 --> 00:01:09.750 align:start position:0%
+list that is sorted so unlike the sort
+ 
+
+00:01:09.750 --> 00:01:12.620 align:start position:0%
+list that is sorted so unlike the sort
+method<00:01:09.780><c> this</c><00:01:10.290><c> will</c><00:01:10.530><c> not</c><00:01:10.860><c> modify</c><00:01:11.549><c> the</c><00:01:11.820><c> original</c>
+
+00:01:12.620 --> 00:01:12.630 align:start position:0%
+method this will not modify the original
+ 
+
+00:01:12.630 --> 00:01:15.649 align:start position:0%
+method this will not modify the original
+list<00:01:12.869><c> it</c><00:01:13.200><c> will</c><00:01:13.439><c> return</c><00:01:13.770><c> a</c><00:01:13.979><c> new</c><00:01:14.280><c> sorted</c><00:01:14.790><c> list</c><00:01:15.030><c> so</c>
+
+00:01:15.649 --> 00:01:15.659 align:start position:0%
+list it will return a new sorted list so
+ 
+
+00:01:15.659 --> 00:01:18.350 align:start position:0%
+list it will return a new sorted list so
+let<00:01:15.810><c> me</c><00:01:15.900><c> comment</c><00:01:16.200><c> out</c><00:01:16.439><c> this</c><00:01:16.560><c> line</c><00:01:16.830><c> and</c><00:01:17.360><c> print</c>
+
+00:01:18.350 --> 00:01:18.360 align:start position:0%
+let me comment out this line and print
+ 
+
+00:01:18.360 --> 00:01:21.710 align:start position:0%
+let me comment out this line and print
+the<00:01:19.110><c> result</c><00:01:19.560><c> of</c><00:01:19.740><c> calling</c><00:01:20.009><c> this</c><00:01:20.250><c> function</c><00:01:20.720><c> now</c>
+
+00:01:21.710 --> 00:01:21.720 align:start position:0%
+the result of calling this function now
+ 
+
+00:01:21.720 --> 00:01:24.170 align:start position:0%
+the result of calling this function now
+let's<00:01:22.080><c> run</c><00:01:22.229><c> this</c><00:01:22.320><c> program</c><00:01:22.560><c> you</c><00:01:22.979><c> can</c><00:01:23.400><c> see</c><00:01:23.549><c> here</c>
+
+00:01:24.170 --> 00:01:24.180 align:start position:0%
+let's run this program you can see here
+ 
+
+00:01:24.180 --> 00:01:27.109 align:start position:0%
+let's run this program you can see here
+is<00:01:24.270><c> our</c><00:01:24.420><c> new</c><00:01:24.900><c> list</c><00:01:25.229><c> that</c><00:01:25.380><c> is</c><00:01:25.590><c> sorted</c><00:01:26.009><c> and</c><00:01:26.189><c> below</c>
+
+00:01:27.109 --> 00:01:27.119 align:start position:0%
+is our new list that is sorted and below
+ 
+
+00:01:27.119 --> 00:01:29.060 align:start position:0%
+is our new list that is sorted and below
+that<00:01:27.150><c> we</c><00:01:27.330><c> have</c><00:01:27.479><c> our</c><00:01:27.930><c> original</c><00:01:28.110><c> list</c><00:01:28.680><c> that</c><00:01:28.950><c> is</c>
+
+00:01:29.060 --> 00:01:29.070 align:start position:0%
+that we have our original list that is
+ 
+
+00:01:29.070 --> 00:01:31.969 align:start position:0%
+that we have our original list that is
+not<00:01:29.310><c> sorted</c><00:01:30.020><c> also</c><00:01:31.020><c> similar</c><00:01:31.470><c> to</c><00:01:31.619><c> the</c><00:01:31.710><c> sort</c>
+
+00:01:31.969 --> 00:01:31.979 align:start position:0%
+not sorted also similar to the sort
+ 
+
+00:01:31.979 --> 00:01:34.249 align:start position:0%
+not sorted also similar to the sort
+method<00:01:32.130><c> if</c><00:01:32.729><c> you</c><00:01:32.790><c> want</c><00:01:33.030><c> to</c><00:01:33.090><c> change</c><00:01:33.390><c> the</c><00:01:33.900><c> sort</c>
+
+00:01:34.249 --> 00:01:34.259 align:start position:0%
+method if you want to change the sort
+ 
+
+00:01:34.259 --> 00:01:37.130 align:start position:0%
+method if you want to change the sort
+order<00:01:34.439><c> you</c><00:01:34.770><c> can</c><00:01:34.920><c> simply</c><00:01:35.280><c> set</c><00:01:36.119><c> the</c><00:01:36.390><c> reverse</c>
+
+00:01:37.130 --> 00:01:37.140 align:start position:0%
+order you can simply set the reverse
+ 
+
+00:01:37.140 --> 00:01:41.030 align:start position:0%
+order you can simply set the reverse
+argument<00:01:37.799><c> to</c><00:01:38.579><c> true</c><00:01:39.409><c> let's</c><00:01:40.409><c> run</c><00:01:40.590><c> it</c><00:01:40.710><c> one</c><00:01:40.890><c> more</c>
+
+00:01:41.030 --> 00:01:41.040 align:start position:0%
+argument to true let's run it one more
+ 
+
+00:01:41.040 --> 00:01:44.749 align:start position:0%
+argument to true let's run it one more
+time<00:01:41.280><c> and</c><00:01:41.960><c> here's</c><00:01:42.960><c> the</c><00:01:43.079><c> result</c><00:01:43.409><c> beautiful</c><00:01:43.920><c> so</c>
+
+00:01:44.749 --> 00:01:44.759 align:start position:0%
+time and here's the result beautiful so
+ 
+
+00:01:44.759 --> 00:01:47.240 align:start position:0%
+time and here's the result beautiful so
+sorting<00:01:45.450><c> numbers</c><00:01:45.659><c> and</c><00:01:46.140><c> strings</c><00:01:46.470><c> is</c><00:01:46.770><c> pretty</c>
+
+00:01:47.240 --> 00:01:47.250 align:start position:0%
+sorting numbers and strings is pretty
+ 
+
+00:01:47.250 --> 00:01:49.249 align:start position:0%
+sorting numbers and strings is pretty
+easy<00:01:47.430><c> but</c><00:01:47.970><c> what</c><00:01:48.210><c> if</c><00:01:48.299><c> you're</c><00:01:48.479><c> dealing</c><00:01:48.899><c> with</c><00:01:49.079><c> a</c>
+
+00:01:49.249 --> 00:01:49.259 align:start position:0%
+easy but what if you're dealing with a
+ 
+
+00:01:49.259 --> 00:01:52.190 align:start position:0%
+easy but what if you're dealing with a
+list<00:01:49.500><c> of</c><00:01:49.619><c> complex</c><00:01:50.189><c> objects</c><00:01:50.759><c> for</c><00:01:51.420><c> example</c><00:01:51.840><c> what</c>
+
+00:01:52.190 --> 00:01:52.200 align:start position:0%
+list of complex objects for example what
+ 
+
+00:01:52.200 --> 00:01:54.859 align:start position:0%
+list of complex objects for example what
+if<00:01:52.290><c> we</c><00:01:52.470><c> have</c><00:01:52.649><c> a</c><00:01:52.860><c> list</c><00:01:53.130><c> of</c><00:01:53.310><c> tuples</c><00:01:53.600><c> let</c><00:01:54.600><c> me</c><00:01:54.720><c> show</c>
+
+00:01:54.859 --> 00:01:54.869 align:start position:0%
+if we have a list of tuples let me show
+ 
+
+00:01:54.869 --> 00:01:57.230 align:start position:0%
+if we have a list of tuples let me show
+you<00:01:55.640><c> so</c><00:01:56.640><c> I'm</c><00:01:56.729><c> going</c><00:01:56.880><c> to</c><00:01:56.939><c> delete</c><00:01:57.119><c> everything</c>
+
+00:01:57.230 --> 00:01:57.240 align:start position:0%
+you so I'm going to delete everything
+ 
+
+00:01:57.240 --> 00:01:59.539 align:start position:0%
+you so I'm going to delete everything
+here<00:01:57.750><c> let's</c><00:01:58.469><c> imagine</c><00:01:58.710><c> we</c><00:01:59.009><c> are</c><00:01:59.040><c> building</c><00:01:59.430><c> an</c>
+
+00:01:59.539 --> 00:01:59.549 align:start position:0%
+here let's imagine we are building an
+ 
+
+00:01:59.549 --> 00:02:02.060 align:start position:0%
+here let's imagine we are building an
+application<00:01:59.670><c> for</c><00:02:00.299><c> processing</c><00:02:00.930><c> orders</c><00:02:01.140><c> and</c><00:02:01.590><c> we</c>
+
+00:02:02.060 --> 00:02:02.070 align:start position:0%
+application for processing orders and we
+ 
+
+00:02:02.070 --> 00:02:05.690 align:start position:0%
+application for processing orders and we
+have<00:02:02.280><c> this</c><00:02:02.430><c> list</c><00:02:02.729><c> of</c><00:02:02.939><c> order</c><00:02:03.600><c> items</c><00:02:04.340><c> every</c><00:02:05.340><c> item</c>
+
+00:02:05.690 --> 00:02:05.700 align:start position:0%
+have this list of order items every item
+ 
+
+00:02:05.700 --> 00:02:08.440 align:start position:0%
+have this list of order items every item
+in<00:02:05.820><c> this</c><00:02:05.939><c> list</c><00:02:06.000><c> is</c><00:02:06.420><c> a</c><00:02:06.750><c> topple</c><00:02:07.350><c> with</c><00:02:07.740><c> two</c><00:02:07.860><c> items</c>
+
+00:02:08.440 --> 00:02:08.450 align:start position:0%
+in this list is a topple with two items
+ 
+
+00:02:08.450 --> 00:02:13.590 align:start position:0%
+in this list is a topple with two items
+the<00:02:09.450><c> product</c><00:02:09.869><c> name</c><00:02:10.819><c> followed</c><00:02:11.819><c> by</c><00:02:11.849><c> the</c>
+
+00:02:13.590 --> 00:02:13.600 align:start position:0%
+the product name followed by the
+ 
+
+00:02:13.600 --> 00:02:16.650 align:start position:0%
+the product name followed by the
+so<00:02:14.440><c> here's</c><00:02:14.590><c> the</c><00:02:14.740><c> first</c><00:02:14.920><c> item</c><00:02:15.310><c> now</c><00:02:16.060><c> let's</c><00:02:16.450><c> add</c>
+
+00:02:16.650 --> 00:02:16.660 align:start position:0%
+so here's the first item now let's add
+ 
+
+00:02:16.660 --> 00:02:19.550 align:start position:0%
+so here's the first item now let's add
+another<00:02:16.990><c> item</c><00:02:17.800><c> with</c><00:02:18.250><c> a</c><00:02:18.280><c> different</c><00:02:18.610><c> price</c><00:02:18.880><c> and</c>
+
+00:02:19.550 --> 00:02:19.560 align:start position:0%
+another item with a different price and
+ 
+
+00:02:19.560 --> 00:02:23.700 align:start position:0%
+another item with a different price and
+finally<00:02:20.560><c> the</c><00:02:21.070><c> third</c><00:02:21.430><c> item</c><00:02:22.080><c> what</c><00:02:23.080><c> happens</c><00:02:23.500><c> if</c>
+
+00:02:23.700 --> 00:02:23.710 align:start position:0%
+finally the third item what happens if
+ 
+
+00:02:23.710 --> 00:02:26.310 align:start position:0%
+finally the third item what happens if
+we<00:02:23.860><c> try</c><00:02:24.010><c> to</c><00:02:24.640><c> sort</c><00:02:24.970><c> this</c><00:02:25.060><c> list</c><00:02:25.120><c> let's</c><00:02:26.110><c> take</c><00:02:26.290><c> a</c>
+
+00:02:26.310 --> 00:02:26.320 align:start position:0%
+we try to sort this list let's take a
+ 
+
+00:02:26.320 --> 00:02:29.310 align:start position:0%
+we try to sort this list let's take a
+look<00:02:26.590><c> so</c><00:02:26.770><c> items</c><00:02:27.130><c> the</c><00:02:27.280><c> sort</c><00:02:27.610><c> and</c><00:02:28.000><c> then</c><00:02:28.720><c> we</c><00:02:28.900><c> print</c>
+
+00:02:29.310 --> 00:02:29.320 align:start position:0%
+look so items the sort and then we print
+ 
+
+00:02:29.320 --> 00:02:34.080 align:start position:0%
+look so items the sort and then we print
+the<00:02:30.310><c> items</c><00:02:31.710><c> so</c><00:02:32.710><c> nothing</c><00:02:33.130><c> is</c><00:02:33.250><c> changed</c><00:02:33.760><c> here</c>
+
+00:02:34.080 --> 00:02:34.090 align:start position:0%
+the items so nothing is changed here
+ 
+
+00:02:34.090 --> 00:02:36.510 align:start position:0%
+the items so nothing is changed here
+because<00:02:34.810><c> python</c><00:02:35.260><c> doesn't</c><00:02:35.680><c> know</c><00:02:35.800><c> how</c><00:02:36.040><c> to</c><00:02:36.070><c> sort</c>
+
+00:02:36.510 --> 00:02:36.520 align:start position:0%
+because python doesn't know how to sort
+ 
+
+00:02:36.520 --> 00:02:39.180 align:start position:0%
+because python doesn't know how to sort
+this<00:02:36.670><c> list</c><00:02:36.730><c> in</c><00:02:37.510><c> situations</c><00:02:38.290><c> like</c><00:02:38.320><c> this</c><00:02:38.590><c> we</c>
+
+00:02:39.180 --> 00:02:39.190 align:start position:0%
+this list in situations like this we
+ 
+
+00:02:39.190 --> 00:02:41.460 align:start position:0%
+this list in situations like this we
+need<00:02:39.340><c> to</c><00:02:39.430><c> define</c><00:02:39.700><c> a</c><00:02:39.880><c> function</c><00:02:40.180><c> that</c><00:02:40.870><c> Python</c><00:02:41.320><c> we</c>
+
+00:02:41.460 --> 00:02:41.470 align:start position:0%
+need to define a function that Python we
+ 
+
+00:02:41.470 --> 00:02:44.460 align:start position:0%
+need to define a function that Python we
+use<00:02:41.710><c> for</c><00:02:42.190><c> sorting</c><00:02:42.670><c> lists</c><00:02:43.060><c> let</c><00:02:43.780><c> me</c><00:02:43.900><c> show</c><00:02:44.050><c> you</c><00:02:44.110><c> so</c>
+
+00:02:44.460 --> 00:02:44.470 align:start position:0%
+use for sorting lists let me show you so
+ 
+
+00:02:44.470 --> 00:02:46.610 align:start position:0%
+use for sorting lists let me show you so
+here<00:02:44.710><c> I'm</c><00:02:45.280><c> going</c><00:02:45.400><c> to</c><00:02:45.460><c> define</c><00:02:45.760><c> a</c><00:02:45.790><c> function</c>
+
+00:02:46.610 --> 00:02:46.620 align:start position:0%
+here I'm going to define a function
+ 
+
+00:02:46.620 --> 00:02:50.310 align:start position:0%
+here I'm going to define a function
+let's<00:02:47.620><c> call</c><00:02:47.680><c> it</c><00:02:47.950><c> sort</c><00:02:48.310><c> under</c><00:02:49.030><c> line</c><00:02:49.210><c> item</c><00:02:49.600><c> this</c>
+
+00:02:50.310 --> 00:02:50.320 align:start position:0%
+let's call it sort under line item this
+ 
+
+00:02:50.320 --> 00:02:53.370 align:start position:0%
+let's call it sort under line item this
+function<00:02:50.800><c> should</c><00:02:51.040><c> take</c><00:02:51.280><c> an</c><00:02:51.520><c> item</c><00:02:52.390><c> like</c><00:02:53.320><c> this</c>
+
+00:02:53.370 --> 00:02:53.380 align:start position:0%
+function should take an item like this
+ 
+
+00:02:53.380 --> 00:02:57.420 align:start position:0%
+function should take an item like this
+topple<00:02:54.480><c> there</c><00:02:55.480><c> you</c><00:02:55.600><c> go</c><00:02:55.780><c> and</c><00:02:56.080><c> it</c><00:02:56.980><c> should</c><00:02:57.010><c> return</c>
+
+00:02:57.420 --> 00:02:57.430 align:start position:0%
+topple there you go and it should return
+ 
+
+00:02:57.430 --> 00:03:00.240 align:start position:0%
+topple there you go and it should return
+a<00:02:57.610><c> value</c><00:02:57.940><c> that</c><00:02:58.360><c> will</c><00:02:58.510><c> be</c><00:02:58.540><c> used</c><00:02:58.900><c> for</c><00:02:59.170><c> sorting</c><00:02:59.740><c> in</c>
+
+00:03:00.240 --> 00:03:00.250 align:start position:0%
+a value that will be used for sorting in
+ 
+
+00:03:00.250 --> 00:03:02.580 align:start position:0%
+a value that will be used for sorting in
+this<00:03:00.820><c> example</c><00:03:01.180><c> let's</c><00:03:01.600><c> imagine</c><00:03:01.750><c> we</c><00:03:02.350><c> want</c><00:03:02.500><c> to</c>
+
+00:03:02.580 --> 00:03:02.590 align:start position:0%
+this example let's imagine we want to
+ 
+
+00:03:02.590 --> 00:03:06.210 align:start position:0%
+this example let's imagine we want to
+sort<00:03:02.830><c> these</c><00:03:03.070><c> items</c><00:03:03.460><c> based</c><00:03:04.210><c> on</c><00:03:04.570><c> their</c><00:03:05.110><c> price</c><00:03:05.410><c> so</c>
+
+00:03:06.210 --> 00:03:06.220 align:start position:0%
+sort these items based on their price so
+ 
+
+00:03:06.220 --> 00:03:09.060 align:start position:0%
+sort these items based on their price so
+if<00:03:06.520><c> each</c><00:03:06.760><c> item</c><00:03:07.180><c> is</c><00:03:07.330><c> a</c><00:03:07.360><c> topple</c><00:03:07.900><c> we</c><00:03:08.560><c> can</c><00:03:08.740><c> get</c><00:03:08.920><c> the</c>
+
+00:03:09.060 --> 00:03:09.070 align:start position:0%
+if each item is a topple we can get the
+ 
+
+00:03:09.070 --> 00:03:13.350 align:start position:0%
+if each item is a topple we can get the
+price<00:03:09.340><c> using</c><00:03:10.230><c> square</c><00:03:11.230><c> brackets</c><00:03:11.710><c> of</c><00:03:11.890><c> one</c><00:03:12.360><c> so</c>
+
+00:03:13.350 --> 00:03:13.360 align:start position:0%
+price using square brackets of one so
+ 
+
+00:03:13.360 --> 00:03:16.350 align:start position:0%
+price using square brackets of one so
+we'll<00:03:13.510><c> return</c><00:03:13.930><c> item</c><00:03:14.800><c> of</c><00:03:14.980><c> one</c><00:03:15.430><c> so</c><00:03:15.970><c> all</c><00:03:16.000><c> these</c>
+
+00:03:16.350 --> 00:03:16.360 align:start position:0%
+we'll return item of one so all these
+ 
+
+00:03:16.360 --> 00:03:18.180 align:start position:0%
+we'll return item of one so all these
+function<00:03:16.750><c> does</c><00:03:16.930><c> is</c><00:03:17.200><c> that</c><00:03:17.350><c> it</c><00:03:17.500><c> takes</c><00:03:17.710><c> an</c><00:03:17.890><c> item</c>
+
+00:03:18.180 --> 00:03:18.190 align:start position:0%
+function does is that it takes an item
+ 
+
+00:03:18.190 --> 00:03:20.430 align:start position:0%
+function does is that it takes an item
+and<00:03:18.820><c> it</c><00:03:18.940><c> returns</c><00:03:19.360><c> its</c><00:03:19.780><c> price</c>
+
+00:03:20.430 --> 00:03:20.440 align:start position:0%
+and it returns its price
+ 
+
+00:03:20.440 --> 00:03:22.740 align:start position:0%
+and it returns its price
+now<00:03:21.070><c> Python</c><00:03:21.550><c> is</c><00:03:21.640><c> dealing</c><00:03:21.940><c> with</c><00:03:22.120><c> a</c><00:03:22.390><c> list</c><00:03:22.600><c> of</c>
+
+00:03:22.740 --> 00:03:22.750 align:start position:0%
+now Python is dealing with a list of
+ 
+
+00:03:22.750 --> 00:03:24.810 align:start position:0%
+now Python is dealing with a list of
+numbers<00:03:22.930><c> and</c><00:03:23.350><c> it</c><00:03:23.410><c> can</c><00:03:23.590><c> easily</c><00:03:23.860><c> sort</c><00:03:24.340><c> that</c><00:03:24.520><c> list</c>
+
+00:03:24.810 --> 00:03:24.820 align:start position:0%
+numbers and it can easily sort that list
+ 
+
+00:03:24.820 --> 00:03:27.570 align:start position:0%
+numbers and it can easily sort that list
+now<00:03:25.810><c> finally</c><00:03:26.320><c> we</c><00:03:26.440><c> need</c><00:03:26.560><c> to</c><00:03:26.650><c> pass</c><00:03:26.860><c> this</c>
+
+00:03:27.570 --> 00:03:27.580 align:start position:0%
+now finally we need to pass this
+ 
+
+00:03:27.580 --> 00:03:30.420 align:start position:0%
+now finally we need to pass this
+function<00:03:27.850><c> when</c><00:03:28.840><c> sorting</c><00:03:29.290><c> our</c><00:03:29.500><c> list</c><00:03:29.890><c> of</c><00:03:30.070><c> items</c>
+
+00:03:30.420 --> 00:03:30.430 align:start position:0%
+function when sorting our list of items
+ 
+
+00:03:30.430 --> 00:03:32.430 align:start position:0%
+function when sorting our list of items
+so<00:03:31.180><c> once</c><00:03:31.360><c> again</c><00:03:31.510><c> look</c><00:03:31.840><c> at</c><00:03:31.900><c> this</c><00:03:32.050><c> sort</c><00:03:32.320><c> method</c>
+
+00:03:32.430 --> 00:03:32.440 align:start position:0%
+so once again look at this sort method
+ 
+
+00:03:32.440 --> 00:03:36.000 align:start position:0%
+so once again look at this sort method
+the<00:03:33.130><c> first</c><00:03:33.430><c> parameter</c><00:03:33.700><c> is</c><00:03:34.240><c> key</c><00:03:34.930><c> and</c><00:03:35.200><c> this</c><00:03:35.830><c> is</c>
+
+00:03:36.000 --> 00:03:36.010 align:start position:0%
+the first parameter is key and this is
+ 
+
+00:03:36.010 --> 00:03:38.010 align:start position:0%
+the first parameter is key and this is
+where<00:03:36.220><c> we</c><00:03:36.430><c> need</c><00:03:36.550><c> to</c><00:03:36.580><c> pass</c><00:03:36.850><c> our</c><00:03:37.240><c> sorting</c>
+
+00:03:38.010 --> 00:03:38.020 align:start position:0%
+where we need to pass our sorting
+ 
+
+00:03:38.020 --> 00:03:42.210 align:start position:0%
+where we need to pass our sorting
+function<00:03:38.610><c> so</c><00:03:39.610><c> we</c><00:03:39.760><c> pass</c><00:03:39.970><c> sort</c><00:03:40.830><c> underlying</c><00:03:41.830><c> item</c>
+
+00:03:42.210 --> 00:03:42.220 align:start position:0%
+function so we pass sort underlying item
+ 
+
+00:03:42.220 --> 00:03:44.610 align:start position:0%
+function so we pass sort underlying item
+but<00:03:42.910><c> note</c><00:03:43.150><c> that</c><00:03:43.360><c> I'm</c><00:03:43.510><c> not</c><00:03:43.570><c> calling</c><00:03:44.500><c> this</c>
+
+00:03:44.610 --> 00:03:44.620 align:start position:0%
+but note that I'm not calling this
+ 
+
+00:03:44.620 --> 00:03:47.280 align:start position:0%
+but note that I'm not calling this
+function<00:03:44.830><c> I'm</c><00:03:45.250><c> simply</c><00:03:45.880><c> passing</c><00:03:46.390><c> a</c><00:03:46.510><c> reference</c>
+
+00:03:47.280 --> 00:03:47.290 align:start position:0%
+function I'm simply passing a reference
+ 
+
+00:03:47.290 --> 00:03:50.430 align:start position:0%
+function I'm simply passing a reference
+to<00:03:47.680><c> this</c><00:03:47.800><c> function</c><00:03:48.120><c> when</c><00:03:49.120><c> python</c><00:03:49.570><c> attempts</c><00:03:50.050><c> to</c>
+
+00:03:50.430 --> 00:03:50.440 align:start position:0%
+to this function when python attempts to
+ 
+
+00:03:50.440 --> 00:03:53.250 align:start position:0%
+to this function when python attempts to
+sort<00:03:50.800><c> this</c><00:03:50.950><c> list</c><00:03:51.010><c> the</c><00:03:51.670><c> list</c><00:03:51.850><c> of</c><00:03:52.000><c> items</c><00:03:52.330><c> it</c><00:03:52.900><c> gets</c>
+
+00:03:53.250 --> 00:03:53.260 align:start position:0%
+sort this list the list of items it gets
+ 
+
+00:03:53.260 --> 00:03:55.980 align:start position:0%
+sort this list the list of items it gets
+each<00:03:53.440><c> item</c><00:03:53.920><c> and</c><00:03:54.100><c> it</c><00:03:54.580><c> will</c><00:03:54.730><c> pass</c><00:03:54.940><c> each</c><00:03:55.270><c> item</c><00:03:55.780><c> to</c>
+
+00:03:55.980 --> 00:03:55.990 align:start position:0%
+each item and it will pass each item to
+ 
+
+00:03:55.990 --> 00:03:59.850 align:start position:0%
+each item and it will pass each item to
+our<00:03:56.350><c> sort</c><00:03:56.710><c> function</c><00:03:57.090><c> okay</c><00:03:58.090><c> so</c><00:03:58.750><c> let's</c><00:03:59.590><c> run</c><00:03:59.770><c> this</c>
+
+00:03:59.850 --> 00:03:59.860 align:start position:0%
+our sort function okay so let's run this
+ 
+
+00:03:59.860 --> 00:04:03.180 align:start position:0%
+our sort function okay so let's run this
+program<00:04:00.070><c> and</c><00:04:00.370><c> see</c><00:04:00.460><c> what</c><00:04:00.700><c> happens</c><00:04:01.920><c> we</c><00:04:02.920><c> get</c><00:04:03.040><c> a</c>
+
+00:04:03.180 --> 00:04:03.190 align:start position:0%
+program and see what happens we get a
+ 
+
+00:04:03.190 --> 00:04:06.420 align:start position:0%
+program and see what happens we get a
+type<00:04:03.520><c> error</c><00:04:03.730><c> sort</c><00:04:04.630><c> takes</c><00:04:05.260><c> no</c><00:04:05.800><c> positional</c>
+
+00:04:06.420 --> 00:04:06.430 align:start position:0%
+type error sort takes no positional
+ 
+
+00:04:06.430 --> 00:04:08.910 align:start position:0%
+type error sort takes no positional
+arguments<00:04:06.790><c> which</c><00:04:07.600><c> basically</c><00:04:07.990><c> means</c><00:04:08.290><c> here</c><00:04:08.800><c> we</c>
+
+00:04:08.910 --> 00:04:08.920 align:start position:0%
+arguments which basically means here we
+ 
+
+00:04:08.920 --> 00:04:11.970 align:start position:0%
+arguments which basically means here we
+can<00:04:09.070><c> only</c><00:04:09.280><c> use</c><00:04:09.600><c> keyword</c><00:04:10.600><c> arguments</c><00:04:11.260><c> so</c><00:04:11.800><c> we</c>
+
+00:04:11.970 --> 00:04:11.980 align:start position:0%
+can only use keyword arguments so we
+ 
+
+00:04:11.980 --> 00:04:14.550 align:start position:0%
+can only use keyword arguments so we
+need<00:04:12.100><c> to</c><00:04:12.220><c> specify</c><00:04:12.760><c> our</c><00:04:13.060><c> argument</c><00:04:13.959><c> that</c><00:04:14.050><c> is</c><00:04:14.260><c> key</c>
+
+00:04:14.550 --> 00:04:14.560 align:start position:0%
+need to specify our argument that is key
+ 
+
+00:04:14.560 --> 00:04:18.690 align:start position:0%
+need to specify our argument that is key
+we<00:04:15.190><c> set</c><00:04:15.459><c> it</c><00:04:15.580><c> to</c><00:04:15.690><c> sort</c><00:04:16.690><c> item</c><00:04:17.380><c> now</c><00:04:18.250><c> let's</c><00:04:18.549><c> run</c>
+
+00:04:18.690 --> 00:04:18.700 align:start position:0%
+we set it to sort item now let's run
+ 
+
+00:04:18.700 --> 00:04:21.659 align:start position:0%
+we set it to sort item now let's run
+this<00:04:18.790><c> program</c><00:04:19.150><c> one</c><00:04:19.390><c> more</c><00:04:19.540><c> time</c><00:04:19.780><c> okay</c><00:04:20.739><c> look</c><00:04:21.370><c> our</c>
+
+00:04:21.659 --> 00:04:21.669 align:start position:0%
+this program one more time okay look our
+ 
+
+00:04:21.669 --> 00:04:24.690 align:start position:0%
+this program one more time okay look our
+list<00:04:22.419><c> of</c><00:04:22.570><c> items</c><00:04:22.840><c> is</c><00:04:23.020><c> sorted</c><00:04:23.470><c> by</c><00:04:23.890><c> the</c><00:04:23.950><c> price</c><00:04:24.370><c> of</c>
+
+00:04:24.690 --> 00:04:24.700 align:start position:0%
+list of items is sorted by the price of
+ 
+
+00:04:24.700 --> 00:04:25.310 align:start position:0%
+list of items is sorted by the price of
+each<00:04:24.820><c> item</c>
+
+00:04:25.310 --> 00:04:25.320 align:start position:0%
+each item
+ 
+
+00:04:25.320 --> 00:04:26.970 align:start position:0%
+each item
+however<00:04:26.320><c> the</c>
+
+00:04:26.970 --> 00:04:26.980 align:start position:0%
+however the
+ 
+
+00:04:26.980 --> 00:04:29.190 align:start position:0%
+however the
+we<00:04:27.130><c> have</c><00:04:27.280><c> implemented</c><00:04:27.850><c> this</c><00:04:28.510><c> sort</c><00:04:28.780><c> function</c>
+
+00:04:29.190 --> 00:04:29.200 align:start position:0%
+we have implemented this sort function
+ 
+
+00:04:29.200 --> 00:04:31.080 align:start position:0%
+we have implemented this sort function
+is<00:04:29.350><c> a</c><00:04:29.380><c> little</c><00:04:29.680><c> bit</c><00:04:29.800><c> ugly</c><00:04:30.130><c> there</c><00:04:30.670><c> is</c><00:04:30.790><c> a</c><00:04:30.820><c> better</c>
+
+00:04:31.080 --> 00:04:31.090 align:start position:0%
+is a little bit ugly there is a better
+ 
+
+00:04:31.090 --> 00:04:32.790 align:start position:0%
+is a little bit ugly there is a better
+way<00:04:31.180><c> and</c><00:04:31.540><c> that's</c><00:04:32.200><c> what</c><00:04:32.320><c> I'm</c><00:04:32.440><c> gonna</c><00:04:32.530><c> show</c><00:04:32.740><c> you</c>
+
+00:04:32.790 --> 00:04:32.800 align:start position:0%
+way and that's what I'm gonna show you
+ 
+
+00:04:32.800 --> 00:04:39.450 align:start position:0%
+way and that's what I'm gonna show you
+next
+
+00:04:39.450 --> 00:04:39.460 align:start position:0%
+ 
+ 
+
+00:04:39.460 --> 00:04:42.280 align:start position:0%
+ 
+if<00:04:40.460><c> you</c><00:04:41.090><c> have</c><00:04:41.210><c> any</c><00:04:41.360><c> experience</c><00:04:41.840><c> with</c><00:04:41.930><c> other</c>
+
+00:04:42.280 --> 00:04:42.290 align:start position:0%
+if you have any experience with other
+ 
+
+00:04:42.290 --> 00:04:44.380 align:start position:0%
+if you have any experience with other
+programming<00:04:42.830><c> languages</c><00:04:43.340><c> you've</c><00:04:43.940><c> probably</c>
+
+00:04:44.380 --> 00:04:44.390 align:start position:0%
+programming languages you've probably
+ 
+
+00:04:44.390 --> 00:04:46.840 align:start position:0%
+programming languages you've probably
+heard<00:04:44.780><c> of</c><00:04:44.960><c> the</c><00:04:45.080><c> term</c><00:04:45.160><c> lambda</c><00:04:46.160><c> expression</c><00:04:46.670><c> or</c>
+
+00:04:46.840 --> 00:04:46.850 align:start position:0%
+heard of the term lambda expression or
+ 
+
+00:04:46.850 --> 00:04:49.570 align:start position:0%
+heard of the term lambda expression or
+lambda<00:04:47.540><c> function</c><00:04:48.080><c> it's</c><00:04:48.680><c> basically</c><00:04:49.130><c> a</c><00:04:49.250><c> simple</c>
+
+00:04:49.570 --> 00:04:49.580 align:start position:0%
+lambda function it's basically a simple
+ 
+
+00:04:49.580 --> 00:04:52.330 align:start position:0%
+lambda function it's basically a simple
+one-line<00:04:50.410><c> anonymous</c><00:04:51.410><c> function</c><00:04:51.830><c> that</c><00:04:52.010><c> we</c><00:04:52.160><c> can</c>
+
+00:04:52.330 --> 00:04:52.340 align:start position:0%
+one-line anonymous function that we can
+ 
+
+00:04:52.340 --> 00:04:55.300 align:start position:0%
+one-line anonymous function that we can
+pass<00:04:52.640><c> to</c><00:04:53.030><c> other</c><00:04:53.420><c> functions</c><00:04:53.990><c> so</c><00:04:54.800><c> here</c><00:04:55.010><c> on</c><00:04:55.130><c> line</c>
+
+00:04:55.300 --> 00:04:55.310 align:start position:0%
+pass to other functions so here on line
+ 
+
+00:04:55.310 --> 00:04:58.180 align:start position:0%
+pass to other functions so here on line
+12<00:04:55.610><c> we're</c><00:04:55.940><c> passing</c><00:04:56.450><c> a</c><00:04:56.540><c> reference</c><00:04:56.990><c> to</c><00:04:57.650><c> our</c><00:04:57.770><c> sort</c>
+
+00:04:58.180 --> 00:04:58.190 align:start position:0%
+12 we're passing a reference to our sort
+ 
+
+00:04:58.190 --> 00:05:00.940 align:start position:0%
+12 we're passing a reference to our sort
+under<00:04:58.760><c> line</c><00:04:58.910><c> item</c><00:04:59.270><c> function</c><00:04:59.690><c> we</c><00:05:00.290><c> can</c><00:05:00.440><c> improve</c>
+
+00:05:00.940 --> 00:05:00.950 align:start position:0%
+under line item function we can improve
+ 
+
+00:05:00.950 --> 00:05:03.670 align:start position:0%
+under line item function we can improve
+this<00:05:01.100><c> code</c><00:05:01.370><c> and</c><00:05:01.610><c> make</c><00:05:02.180><c> it</c><00:05:02.300><c> cleaner</c><00:05:02.600><c> by</c><00:05:03.140><c> using</c><00:05:03.440><c> a</c>
+
+00:05:03.670 --> 00:05:03.680 align:start position:0%
+this code and make it cleaner by using a
+ 
+
+00:05:03.680 --> 00:05:06.280 align:start position:0%
+this code and make it cleaner by using a
+lambda<00:05:04.100><c> expression</c><00:05:04.340><c> or</c><00:05:04.940><c> an</c><00:05:05.290><c> anonymous</c>
+
+00:05:06.280 --> 00:05:06.290 align:start position:0%
+lambda expression or an anonymous
+ 
+
+00:05:06.290 --> 00:05:08.290 align:start position:0%
+lambda expression or an anonymous
+function<00:05:06.470><c> so</c><00:05:07.100><c> we</c><00:05:07.220><c> don't</c><00:05:07.370><c> have</c><00:05:07.580><c> to</c><00:05:07.730><c> define</c><00:05:08.060><c> this</c>
+
+00:05:08.290 --> 00:05:08.300 align:start position:0%
+function so we don't have to define this
+ 
+
+00:05:08.300 --> 00:05:11.260 align:start position:0%
+function so we don't have to define this
+function<00:05:08.510><c> first</c><00:05:08.960><c> and</c><00:05:09.260><c> then</c><00:05:09.710><c> pass</c><00:05:09.950><c> it</c><00:05:10.160><c> here</c><00:05:10.400><c> so</c>
+
+00:05:11.260 --> 00:05:11.270 align:start position:0%
+function first and then pass it here so
+ 
+
+00:05:11.270 --> 00:05:16.240 align:start position:0%
+function first and then pass it here so
+we<00:05:12.140><c> remove</c><00:05:12.410><c> this</c><00:05:12.560><c> and</c><00:05:12.830><c> add</c><00:05:14.200><c> lambda</c><00:05:15.200><c> with</c><00:05:16.070><c> this</c>
+
+00:05:16.240 --> 00:05:16.250 align:start position:0%
+we remove this and add lambda with this
+ 
+
+00:05:16.250 --> 00:05:18.340 align:start position:0%
+we remove this and add lambda with this
+per<00:05:16.400><c> telling</c><00:05:16.700><c> Python</c><00:05:17.210><c> that</c><00:05:17.570><c> we're</c><00:05:17.750><c> defining</c><00:05:18.080><c> a</c>
+
+00:05:18.340 --> 00:05:18.350 align:start position:0%
+per telling Python that we're defining a
+ 
+
+00:05:18.350 --> 00:05:21.550 align:start position:0%
+per telling Python that we're defining a
+lambda<00:05:18.740><c> or</c><00:05:19.130><c> anonymous</c><00:05:20.060><c> function</c><00:05:20.480><c> the</c><00:05:21.320><c> syntax</c>
+
+00:05:21.550 --> 00:05:21.560 align:start position:0%
+lambda or anonymous function the syntax
+ 
+
+00:05:21.560 --> 00:05:23.500 align:start position:0%
+lambda or anonymous function the syntax
+for<00:05:21.920><c> writing</c><00:05:22.070><c> a</c><00:05:22.430><c> lambda</c><00:05:22.820><c> function</c><00:05:23.210><c> is</c><00:05:23.360><c> like</c>
+
+00:05:23.500 --> 00:05:23.510 align:start position:0%
+for writing a lambda function is like
+ 
+
+00:05:23.510 --> 00:05:26.760 align:start position:0%
+for writing a lambda function is like
+this<00:05:23.570><c> we</c><00:05:24.290><c> add</c><00:05:24.470><c> parameters</c><00:05:25.070><c> colon</c><00:05:25.850><c> expression</c>
+
+00:05:26.760 --> 00:05:26.770 align:start position:0%
+this we add parameters colon expression
+ 
+
+00:05:26.770 --> 00:05:30.340 align:start position:0%
+this we add parameters colon expression
+so<00:05:27.770><c> using</c><00:05:28.100><c> this</c><00:05:28.220><c> syntax</c><00:05:28.490><c> we</c><00:05:29.360><c> can</c><00:05:29.540><c> rewrite</c><00:05:29.900><c> this</c>
+
+00:05:30.340 --> 00:05:30.350 align:start position:0%
+so using this syntax we can rewrite this
+ 
+
+00:05:30.350 --> 00:05:32.650 align:start position:0%
+so using this syntax we can rewrite this
+function<00:05:30.700><c> how</c><00:05:31.700><c> many</c><00:05:31.880><c> parameters</c><00:05:32.060><c> do</c><00:05:32.420><c> we</c><00:05:32.510><c> have</c>
+
+00:05:32.650 --> 00:05:32.660 align:start position:0%
+function how many parameters do we have
+ 
+
+00:05:32.660 --> 00:05:36.540 align:start position:0%
+function how many parameters do we have
+here<00:05:32.900><c> only</c><00:05:33.230><c> one</c><00:05:34.040><c> so</c><00:05:34.370><c> we</c><00:05:34.640><c> add</c><00:05:34.790><c> that</c><00:05:34.820><c> here</c><00:05:35.240><c> item</c>
+
+00:05:36.540 --> 00:05:36.550 align:start position:0%
+here only one so we add that here item
+ 
+
+00:05:36.550 --> 00:05:40.030 align:start position:0%
+here only one so we add that here item
+then<00:05:37.550><c> after</c><00:05:37.970><c> the</c><00:05:38.090><c> colon</c><00:05:38.480><c> we</c><00:05:39.380><c> should</c><00:05:39.560><c> add</c><00:05:39.770><c> an</c>
+
+00:05:40.030 --> 00:05:40.040 align:start position:0%
+then after the colon we should add an
+ 
+
+00:05:40.040 --> 00:05:43.450 align:start position:0%
+then after the colon we should add an
+expression<00:05:40.850><c> what</c><00:05:41.780><c> are</c><00:05:41.900><c> we</c><00:05:42.020><c> returning</c><00:05:42.230><c> in</c><00:05:42.950><c> our</c>
+
+00:05:43.450 --> 00:05:43.460 align:start position:0%
+expression what are we returning in our
+ 
+
+00:05:43.460 --> 00:05:45.520 align:start position:0%
+expression what are we returning in our
+sort<00:05:43.820><c> under</c><00:05:44.210><c> an</c><00:05:44.330><c> item</c><00:05:44.600><c> function</c><00:05:44.990><c> we</c><00:05:45.470><c> are</c>
+
+00:05:45.520 --> 00:05:45.530 align:start position:0%
+sort under an item function we are
+ 
+
+00:05:45.530 --> 00:05:48.520 align:start position:0%
+sort under an item function we are
+returning<00:05:45.860><c> item</c><00:05:46.640><c> of</c><00:05:46.820><c> one</c><00:05:47.300><c> so</c><00:05:47.960><c> we</c><00:05:48.110><c> simply</c><00:05:48.410><c> add</c>
+
+00:05:48.520 --> 00:05:48.530 align:start position:0%
+returning item of one so we simply add
+ 
+
+00:05:48.530 --> 00:05:52.180 align:start position:0%
+returning item of one so we simply add
+that<00:05:48.680><c> here</c><00:05:49.150><c> item</c><00:05:50.150><c> of</c><00:05:50.360><c> one</c><00:05:50.780><c> now</c><00:05:51.710><c> you</c><00:05:51.770><c> can</c><00:05:52.040><c> see</c>
+
+00:05:52.180 --> 00:05:52.190 align:start position:0%
+that here item of one now you can see
+ 
+
+00:05:52.190 --> 00:05:53.770 align:start position:0%
+that here item of one now you can see
+with<00:05:52.370><c> this</c><00:05:52.520><c> syntax</c><00:05:52.760><c> we</c><00:05:53.210><c> don't</c><00:05:53.390><c> need</c><00:05:53.480><c> to</c><00:05:53.600><c> use</c>
+
+00:05:53.770 --> 00:05:53.780 align:start position:0%
+with this syntax we don't need to use
+ 
+
+00:05:53.780 --> 00:05:56.710 align:start position:0%
+with this syntax we don't need to use
+def<00:05:54.530><c> for</c><00:05:55.040><c> defining</c><00:05:55.370><c> a</c><00:05:55.520><c> function</c><00:05:55.600><c> we</c><00:05:56.600><c> don't</c>
+
+00:05:56.710 --> 00:05:56.720 align:start position:0%
+def for defining a function we don't
+ 
+
+00:05:56.720 --> 00:06:00.040 align:start position:0%
+def for defining a function we don't
+need<00:05:56.870><c> to</c><00:05:57.020><c> give</c><00:05:57.170><c> our</c><00:05:57.290><c> function</c><00:05:57.710><c> and</c><00:05:57.890><c> name</c><00:05:59.050><c> we</c>
+
+00:06:00.040 --> 00:06:00.050 align:start position:0%
+need to give our function and name we
+ 
+
+00:06:00.050 --> 00:06:02.200 align:start position:0%
+need to give our function and name we
+don't<00:06:00.230><c> need</c><00:06:00.380><c> these</c><00:06:00.560><c> parentheses</c><00:06:00.860><c> here</c><00:06:01.610><c> and</c><00:06:01.790><c> we</c>
+
+00:06:02.200 --> 00:06:02.210 align:start position:0%
+don't need these parentheses here and we
+ 
+
+00:06:02.210 --> 00:06:04.210 align:start position:0%
+don't need these parentheses here and we
+don't<00:06:02.390><c> need</c><00:06:02.480><c> the</c><00:06:02.660><c> return</c><00:06:02.990><c> statement</c><00:06:03.260><c> so</c><00:06:03.950><c> this</c>
+
+00:06:04.210 --> 00:06:04.220 align:start position:0%
+don't need the return statement so this
+ 
+
+00:06:04.220 --> 00:06:07.390 align:start position:0%
+don't need the return statement so this
+is<00:06:04.370><c> a</c><00:06:04.520><c> shorter</c><00:06:05.030><c> and</c><00:06:05.240><c> cleaner</c><00:06:05.990><c> way</c><00:06:06.230><c> to</c><00:06:06.470><c> define</c><00:06:07.220><c> a</c>
+
+00:06:07.390 --> 00:06:07.400 align:start position:0%
+is a shorter and cleaner way to define a
+ 
+
+00:06:07.400 --> 00:06:09.220 align:start position:0%
+is a shorter and cleaner way to define a
+function<00:06:07.730><c> that</c><00:06:07.970><c> we're</c><00:06:08.270><c> going</c><00:06:08.300><c> to</c><00:06:08.540><c> use</c><00:06:08.720><c> only</c>
+
+00:06:09.220 --> 00:06:09.230 align:start position:0%
+function that we're going to use only
+ 
+
+00:06:09.230 --> 00:06:12.090 align:start position:0%
+function that we're going to use only
+once<00:06:09.560><c> as</c><00:06:09.800><c> an</c><00:06:10.070><c> argument</c><00:06:10.760><c> to</c><00:06:11.030><c> another</c><00:06:11.360><c> function</c>
+
+00:06:12.090 --> 00:06:12.100 align:start position:0%
+once as an argument to another function
+ 
+
+00:06:12.100 --> 00:06:17.320 align:start position:0%
+once as an argument to another function
+now<00:06:13.150><c> let's</c><00:06:14.150><c> delete</c><00:06:14.450><c> these</c><00:06:15.260><c> two</c><00:06:15.320><c> lines</c><00:06:16.210><c> run</c><00:06:17.210><c> our</c>
+
+00:06:17.320 --> 00:06:17.330 align:start position:0%
+now let's delete these two lines run our
+ 
+
+00:06:17.330 --> 00:06:21.250 align:start position:0%
+now let's delete these two lines run our
+program<00:06:17.690><c> again</c><00:06:18.850><c> we'll</c><00:06:19.850><c> get</c><00:06:20.090><c> the</c><00:06:20.330><c> exact</c><00:06:20.750><c> same</c>
+
+00:06:21.250 --> 00:06:21.260 align:start position:0%
+program again we'll get the exact same
+ 
+
+00:06:21.260 --> 00:06:24.160 align:start position:0%
+program again we'll get the exact same
+result<00:06:21.650><c> our</c><00:06:22.220><c> items</c><00:06:22.760><c> are</c><00:06:22.910><c> sorted</c><00:06:23.510><c> by</c><00:06:23.660><c> their</c>
+
+00:06:24.160 --> 00:06:24.170 align:start position:0%
+result our items are sorted by their
+ 
+
+00:06:24.170 --> 00:06:28.130 align:start position:0%
+result our items are sorted by their
+price
+
+00:06:28.130 --> 00:06:28.140 align:start position:0%
+ 
+ 
+
+00:06:28.140 --> 00:06:30.410 align:start position:0%
+ 
+hi<00:06:29.010><c> guys</c><00:06:29.250><c> thank</c><00:06:29.670><c> you</c><00:06:29.730><c> for</c><00:06:29.790><c> watching</c><00:06:30.330><c> this</c>
+
+00:06:30.410 --> 00:06:30.420 align:start position:0%
+hi guys thank you for watching this
+ 
+
+00:06:30.420 --> 00:06:32.750 align:start position:0%
+hi guys thank you for watching this
+tutorial<00:06:31.050><c> my</c><00:06:31.380><c> name</c><00:06:31.530><c> is</c><00:06:31.650><c> Mohamad</c><00:06:32.160><c> ani</c><00:06:32.280><c> and</c><00:06:32.580><c> I</c>
+
+00:06:32.750 --> 00:06:32.760 align:start position:0%
+tutorial my name is Mohamad ani and I
+ 
+
+00:06:32.760 --> 00:06:34.610 align:start position:0%
+tutorial my name is Mohamad ani and I
+have<00:06:32.940><c> tons</c><00:06:33.240><c> of</c><00:06:33.510><c> tutorials</c><00:06:33.720><c> like</c><00:06:34.140><c> this</c><00:06:34.170><c> for</c><00:06:34.530><c> you</c>
+
+00:06:34.610 --> 00:06:34.620 align:start position:0%
+have tons of tutorials like this for you
+ 
+
+00:06:34.620 --> 00:06:36.590 align:start position:0%
+have tons of tutorials like this for you
+on<00:06:34.650><c> my</c><00:06:34.920><c> channel</c><00:06:35.370><c> so</c><00:06:35.730><c> be</c><00:06:35.970><c> sure</c><00:06:36.000><c> to</c><00:06:36.390><c> subscribe</c>
+
+00:06:36.590 --> 00:06:36.600 align:start position:0%
+on my channel so be sure to subscribe
+ 
+
+00:06:36.600 --> 00:06:39.050 align:start position:0%
+on my channel so be sure to subscribe
+and<00:06:37.020><c> also</c><00:06:37.470><c> please</c><00:06:37.800><c> like</c><00:06:38.310><c> and</c><00:06:38.550><c> share</c><00:06:38.610><c> this</c>
+
+00:06:39.050 --> 00:06:39.060 align:start position:0%
+and also please like and share this
+ 
+
+00:06:39.060 --> 00:06:40.760 align:start position:0%
+and also please like and share this
+video<00:06:39.270><c> if</c><00:06:39.660><c> you</c><00:06:40.140><c> want</c><00:06:40.290><c> to</c><00:06:40.320><c> learn</c><00:06:40.470><c> Python</c>
+
+00:06:40.760 --> 00:06:40.770 align:start position:0%
+video if you want to learn Python
+ 
+
+00:06:40.770 --> 00:06:43.190 align:start position:0%
+video if you want to learn Python
+properly<00:06:41.670><c> from</c><00:06:41.820><c> scratch</c><00:06:42.240><c> please</c><00:06:42.540><c> depth</c><00:06:42.930><c> I</c>
+
+00:06:43.190 --> 00:06:43.200 align:start position:0%
+properly from scratch please depth I
+ 
+
+00:06:43.200 --> 00:06:45.380 align:start position:0%
+properly from scratch please depth I
+have<00:06:43.470><c> a</c><00:06:43.500><c> comprehensive</c><00:06:44.070><c> Python</c><00:06:44.790><c> tutorial</c><00:06:45.210><c> for</c>
+
+00:06:45.380 --> 00:06:45.390 align:start position:0%
+have a comprehensive Python tutorial for
+ 
+
+00:06:45.390 --> 00:06:47.450 align:start position:0%
+have a comprehensive Python tutorial for
+you<00:06:45.480><c> the</c><00:06:45.870><c> link</c><00:06:46.140><c> is</c><00:06:46.320><c> below</c><00:06:46.650><c> this</c><00:06:46.890><c> video</c><00:06:47.220><c> so</c>
+
+00:06:47.450 --> 00:06:47.460 align:start position:0%
+you the link is below this video so
+ 
+
+00:06:47.460 --> 00:06:49.670 align:start position:0%
+you the link is below this video so
+click<00:06:47.670><c> the</c><00:06:47.880><c> link</c><00:06:48.090><c> to</c><00:06:48.180><c> get</c><00:06:48.420><c> started</c><00:06:48.500><c> thank</c><00:06:49.500><c> you</c>
+
+00:06:49.670 --> 00:06:49.680 align:start position:0%
+click the link to get started thank you
+ 
+
+00:06:49.680 --> 00:06:52.970 align:start position:0%
+click the link to get started thank you
+and<00:06:49.920><c> have</c><00:06:50.040><c> a</c><00:06:50.070><c> fantastic</c><00:06:50.400><c> day</c>
+
