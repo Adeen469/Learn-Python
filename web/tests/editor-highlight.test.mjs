@@ -333,8 +333,14 @@ describe("editor fixes — static checks", () => {
       "Enter in the terminal input must run the command"
     );
     assert.ok(
-      terminalPanel.includes("disabled={!engine.pyodideReady || engine.terminalBusy || engine.isRunning}"),
-      "the terminal input must stay disabled until the runtime is ready and while a command or file run is in flight"
+      terminalPanel.includes("disabled={!engine.terminalReady || engine.terminalBusy || engine.isRunning}"),
+      "the terminal input must stay disabled until a runtime is ready and while a command or file run is in flight"
+    );
+    // terminalReady is the browser runtime OR the PC runner — in PC
+    // mode the terminal works without Pyodide loaded.
+    assert.ok(
+      hook.includes('terminalReady: pyodideReady || runMode === "pc"'),
+      "terminalReady must cover the PC runner too"
     );
     // The Program-input box and the >>> line are gone — one line only.
     assert.ok(!page.includes("t.editorPage.programInputLabel"), "the Program input box must be gone");

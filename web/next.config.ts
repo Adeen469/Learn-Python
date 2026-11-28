@@ -53,7 +53,11 @@ const cspDirectives = [
   // file." (image/video/audio render from blob: URLs through
   // img-src/media-src, which is why only the PDF broke). blob: URLs
   // are same-origin by construction, so this stays narrow.
-  "connect-src 'self' blob: https://cdn.jsdelivr.net https://pypi.org https://files.pythonhosted.org",
+  // http://127.0.0.1:8765 + http://localhost:8765: the local runner
+  // (web/local-runner/runner.py) the editor's "Run on my PC" mode
+  // talks to. Loopback only — the runner binds 127.0.0.1 and refuses
+  // any other website's Origin, so this opens nothing to the network.
+  "connect-src 'self' blob: https://cdn.jsdelivr.net https://pypi.org https://files.pythonhosted.org http://127.0.0.1:8765 http://localhost:8765",
   "worker-src 'self' blob:",
   "media-src 'self' blob:",
   // youtube-nocookie embeds the course videos that don't have a

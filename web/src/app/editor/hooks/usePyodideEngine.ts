@@ -8,6 +8,12 @@ import type { Strings } from "@/lib/i18n";
 import { loadPyodideRuntime, withTimeout } from "@/lib/pyodide-install";
 import { restoreStoredPackages } from "@/lib/package-storage";
 import { parsePythonError, parsePythonWarnings, writeLocalJson } from "../lib/editor-utils";
+import {
+  LOCAL_RUNNER_NOT_RUNNING,
+  needsLocalRunner,
+  pingLocalRunner,
+  runOnLocalRunner,
+} from "../lib/local-runner";
 import type { WorkspaceItem } from "../lib/editor-types";
 
 // Pyodide virtual filesystem root (shared with the editor page,
@@ -39,6 +45,23 @@ export function usePyodideEngine(opts: {
   const [terminalInput, setTerminalInput] = useState<string>("");
   const [terminalBusy, setTerminalBusy] = useState(false);
   const [pyodideError, setPyodideError] = useState<string | null>(null);
+
+  // "Run on my PC": run with the real Python on the user's PC via the
+  // local runner instead of Pyodide. Browser stays the default; the
+  // choice persists per browser.
+  const [runMode, setRunModeState] = useState<"browser" | "pc">(() => {
+    try {
+      return window.localStorage.getItem("lp_run_mode") === "pc" ? "pc" : "browser";
+    } catch {
+      return "browser";
+    }
+  });
+  function setRunMode(mode: "browser" | "pc") {
+    setRunModeState(mode);
+    try {
+      window.localStorage.setItem("lp_run_mode", mode);
+    } catch {}
+  }
 
   // Diagnostics from the last run (error line + warning lines, if
   // any) — the page turns these into Monaco markers on the run
@@ -223,6 +246,12 @@ export function usePyodideEngine(opts: {
   }
 
   function stopRunning() {
+    // No interrupt channel to the PC yet (ponytail: a /stop endpoint is
+    // the upgrade path) — the run ends on its own at the 2-min limit.
+    if (runMode === "pc") {
+      setOutput((prev) => prev + "Stop isn't available for 'Run on my PC' yet — the run ends on its own (2 min limit).\n");
+      return;
+    }
     const buf = interruptBufferRef.current;
     if (buf) {
       buf[0] = 2; // SIGINT — interrupts the running Python code.
@@ -306,6 +335,45 @@ export function usePyodideEngine(opts: {
     }
   }
 
+  // "Run on my PC": send the whole workspace to the local runner and
+  // print what the PC's real Python prints. No Pyodide involved — the
+  // runner writes the files to a temp dir, so local imports work too.
+  async function runOnPc(files: WorkspaceItem[], targetFile: WorkspaceItem) {
+    setIsRunning(true);
+    setRunDiagnostics(null);
+    setOutput(`=== Executing ${targetFile.path} on your PC ===\n`);
+    try {
+      if (!(await pingLocalRunner())) {
+        setOutput((prev) => prev + LOCAL_RUNNER_NOT_RUNNING + "\n");
+        return;
+      }
+      const payload = files
+        .filter((f) => f.type === "file")
+        .map((f) => ({ path: f.path, content: f.content ?? "" }));
+      const result = await runOnLocalRunner(payload, targetFile.path);
+      const err = parsePythonError(result.stderr);
+      if (err) {
+        setRunDiagnostics({ path: targetFile.path, items: [{ ...err, severity: "error" as const }] });
+      }
+      setOutput(
+        (prev) =>
+          prev +
+          (result.stdout ? result.stdout + (result.stdout.endsWith("\n") ? "" : "\n") : "") +
+          (result.stderr ? result.stderr + (result.stderr.endsWith("\n") ? "" : "\n") : "") +
+          (result.timedOut
+            ? "=== Timed out (2 min limit) — close any open window and run again ===\n"
+            : result.exitCode === 0
+              ? "=== Finished (Exit 0) ===\n"
+              : `=== Finished (Exit ${result.exitCode}) ===\n`)
+      );
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setOutput((prev) => prev + `Local runner error: ${msg}\n` + LOCAL_RUNNER_NOT_RUNNING + "\n");
+    } finally {
+      setIsRunning(false);
+    }
+  }
+
   async function compileAndRun(file?: WorkspaceItem) {
     // A file may be passed in (the terminal's `python <file>`)
     // — otherwise the active file runs.
@@ -324,6 +392,12 @@ export function usePyodideEngine(opts: {
     setNeedsSaveWarning(null);
     const code = targetFile.content ?? "";
 
+    // "Run on my PC": skip Pyodide entirely — the code runs on the PC.
+    if (runMode === "pc") {
+      await runOnPc(toRun, targetFile);
+      return;
+    }
+
     if (!pyodideRef.current) {
       setOutput((prev) => prev + "Python runtime is loading, please wait...\n");
       const py = await initPyodide();
@@ -333,6 +407,20 @@ export function usePyodideEngine(opts: {
     setIsRunning(true);
     setRunDiagnostics(null);
     setOutput(`=== Executing ${targetFile.path} ===\n`);
+
+    // Browser Python cannot run tkinter/turtle: warn up front instead
+    // of leaving the user with a bare ModuleNotFoundError. The ping
+    // (1.5s max) decides whether to point at the toggle or the setup.
+    const unsupported = needsLocalRunner(code);
+    if (unsupported) {
+      const up = await pingLocalRunner();
+      setOutput((prev) =>
+        prev +
+        (up
+          ? `This code imports '${unsupported}', which the browser Python cannot run — turn on 'Run on my PC' to run it with real Python.\n`
+          : LOCAL_RUNNER_NOT_RUNNING + "\n")
+      );
+    }
 
     try {
       const py = pyodideRef.current;
@@ -528,6 +616,9 @@ _lp_term_result
   return {
     pyodideRef,
     pyodideReady,
+    runMode,
+    setRunMode,
+    terminalReady: pyodideReady || runMode === "pc",
     loadingEngine,
     engineStage,
     engineElapsed,

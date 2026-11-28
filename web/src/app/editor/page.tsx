@@ -30,6 +30,7 @@ import {
   Folder,
   History,
   Loader2,
+  Monitor,
   Package,
   Pin,
   Save,
@@ -1363,6 +1364,21 @@ export default function CodeEditorPage() {
           }
           right={
             <>
+              {/* Run on my PC: real Python on the user's PC via the local
+                  runner (tkinter, real terminal). Browser Python stays
+                  the default; plain English, not an i18n key. */}
+              <button
+                type="button"
+                onClick={() => engine.setRunMode(engine.runMode === "pc" ? "browser" : "pc")}
+                title="Run on my PC — runs code with the real Python on your computer (needs the local runner)"
+                aria-pressed={engine.runMode === "pc"}
+                className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition ${
+                  engine.runMode === "pc" ? "bg-neutral-800 text-white" : "text-neutral-300 hover:bg-neutral-800 hover:text-white"
+                }`}
+              >
+                <Monitor className="h-3.5 w-3.5" />
+                {engine.runMode === "pc" ? "On my PC" : "Run on my PC"}
+              </button>
               <button
                 type="button"
                 onClick={() => setShowAi((v) => !v)}

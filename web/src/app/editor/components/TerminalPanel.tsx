@@ -64,11 +64,11 @@ export function TerminalPanel(props: TerminalPanelProps) {
               if (e.key === "Enter") engine.runTerminalCommand();
             }}
             placeholder={
-              engine.pyodideReady
+              engine.terminalReady
                 ? t.editorPage.terminalCommandPlaceholder
                 : t.editorPage.terminalInputLoadingPlaceholder
             }
-            disabled={!engine.pyodideReady || engine.terminalBusy || engine.isRunning}
+            disabled={!engine.terminalReady || engine.terminalBusy || engine.isRunning}
             className="w-full min-w-0 bg-transparent font-mono text-xs text-white placeholder-neutral-600 focus:outline-none disabled:opacity-50"
           />
         </div>
