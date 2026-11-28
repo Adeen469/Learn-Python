@@ -6,6 +6,7 @@ import OfflineRegister from "@/components/OfflineRegister";
 import OfflineBanner from "@/components/OfflineBanner";
 import OfflineWarmer from "@/components/OfflineWarmer";
 import { VirtualTutor } from "@/components/VirtualTutor";
+import { ProgressSync } from "@/components/ProgressSync";
 import { cspMeta } from "../../next.config";
 
 import { SITE_URL, SITE_NAME } from "@/lib/site";
@@ -113,6 +114,7 @@ export default async function RootLayout({
           <OfflineBanner />
           <OfflineWarmer />
           <VirtualTutor />
+          <ProgressSync />
           {children}
         </LanguageProvider>
       </body>

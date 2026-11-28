@@ -376,9 +376,11 @@ test("R3-L16: the middleware mints the nonce CSP on all document routes", () => 
   assert.ok(mw.includes('requestHeaders.set("x-nonce", nonce)'), "layout must still get the nonce");
   assert.ok(mw.includes('res.headers.set("Content-Security-Policy", nonceCsp)'), "the response must enforce the nonce CSP");
   // Guests are NOT bounced by the middleware any more: /learn,
-  // /logic-builder and /settings are public, and the gated pages
-  // (/courses, /editor, /github) render their own sign-in gate
-  // screen — a middleware redirect to "/" would hide that gate.
+  // /logic-builder and /settings are public, courses has a free
+  // preview (first 3 videos per collection, the rest locked behind
+  // a sign-in prompt), and the gated pages (/editor, /github)
+  // render their own sign-in gate screen — a middleware redirect
+  // to "/" would hide that gate.
   assert.ok(!mw.includes("isProtectedPath"), "the middleware must not redirect guests off any page");
   assert.ok(!mw.includes("PROTECTED_PATHS"), "no protected-paths list may remain in the middleware");
   assert.ok(!mw.includes('new URL("/", req.url)'), "no silent bounce to the landing page may remain");

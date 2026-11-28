@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode, type TouchEvent } from "react";
 import { Captions, Check, Download, HardDrive, Loader2, Maximize, Minimize, Pause, Play, RotateCcw, RotateCw, Settings, Trash2, Volume2, VolumeX, Wifi, WifiOff } from "lucide-react";
 import ElasticSlider from "@/components/ElasticSlider";
-import { WATCH_QUALIFY_FRACTION } from "@/lib/progress";
+import { PROGRESS_UPDATED_EVENT, WATCH_QUALIFY_FRACTION } from "@/lib/progress";
+import { PROGRESS_SYNCED_EVENT } from "@/lib/progress-sync";
 import { useLanguage } from "@/lib/i18n";
 import {
   VIDEO_CACHE as CACHE_NAME,
@@ -418,6 +419,8 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
       // Storage full or blocked — coverage just won't survive a reload.
     }
     lastPersistedAtRef.current = Date.now();
+    // Coverage changed — the progress sync saver (debounced) picks it up.
+    window.dispatchEvent(new Event(PROGRESS_UPDATED_EVENT));
   }
 
   function currentCoverage(): { fraction: number; seconds: number } {
@@ -722,8 +725,21 @@ export function VideoPlayer({ lessonId, videoId, title, autoplay = true, onAutop
 
     loadSource();
 
+    // A server sync merged coverage from another device — union the
+    // merged buckets with this session's not-yet-persisted ones (never
+    // replace: replacing would drop the last few seconds watched here).
+    const onSynced = () => {
+      const merged = loadWatched(lessonId);
+      for (const s of watchedRef.current) merged.add(s);
+      watchedRef.current = merged;
+      persistWatched(lessonId);
+      reportCoverage(true);
+    };
+    window.addEventListener(PROGRESS_SYNCED_EVENT, onSynced);
+
     return () => {
       cancelled = true;
+      window.removeEventListener(PROGRESS_SYNCED_EVENT, onSynced);
       persistWatched(lessonId);
       if (activeObjectUrl) URL.revokeObjectURL(activeObjectUrl);
     };

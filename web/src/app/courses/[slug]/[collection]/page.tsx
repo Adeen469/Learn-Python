@@ -3,10 +3,9 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { ArrowLeft, CheckCircle2, Circle, Pause, Play } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Circle, Lock, Pause, Play } from "lucide-react";
 import { fetchSessionUser } from "@/lib/auth-client";
 import { AppNavbar } from "@/components/AppNavbar";
-import SignInGate from "@/components/SignInGate";
 import { useLanguage } from "@/lib/i18n";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import AnimatedList, { type AnimatedListEntry } from "@/components/AnimatedList";
@@ -37,6 +36,14 @@ import {
   playlistListId,
   type CourseVideo,
 } from "@/lib/courses/data";
+
+/**
+ * Free preview: the first FREE_VIDEO_COUNT videos of every
+ * collection are free for guests; the rest are locked behind a
+ * sign-in prompt (a guest picking one sees the lock panel instead
+ * of the player). Signed-in users watch everything.
+ */
+const FREE_VIDEO_COUNT = 3;
 
 /**
  * The key a watched video is completed under. A video with a MEGA
@@ -73,8 +80,9 @@ const AL_DARK_OVERRIDES = {
  * Course player — the old course UI: video + Today's Progress +
  * lesson list. Videos play from MEGA/Drive through
  * /api/video/[lessonId]; a video with no MEGA link yet shows the
- * coming-soon box. Gated: a guest sees the sign-in gate screen,
- * not a silent bounce home.
+ * coming-soon box. Free preview: guests watch the first
+ * FREE_VIDEO_COUNT videos of the collection; later videos show a
+ * sign-in prompt instead of the player.
  */
 export default function CoursePlayerPage({
   params,
@@ -99,6 +107,31 @@ export default function CoursePlayerPage({
   // list can say "Paused" (not "Not started") when it is stopped
   // mid-way. Reset whenever a different lesson is picked.
   const [hasPlayed, setHasPlayed] = useState(false);
+  // True when a guest tried to play a locked video — the player
+  // section shows the sign-in prompt instead of the video.
+  const [lockedPrompt, setLockedPrompt] = useState(false);
+  // The session check lives in a ref (like activeIndexRef) so the
+  // voice-event handler — which closes over the first render — still
+  // reads the current guest/signed-in state when it fires.
+  const isGuestRef = useRef(false);
+  isGuestRef.current = auth.checked && !auth.signedIn;
+  const isLockedIndex = (index: number) =>
+    isGuestRef.current && index >= FREE_VIDEO_COUNT;
+  // Try to play the video at index. A guest picking a locked video
+  // does not switch — the sign-in prompt shows instead. Returns true
+  // when the video starts playing.
+  function tryPlay(index: number): boolean {
+    if (isLockedIndex(index)) {
+      setLockedPrompt(true);
+      return false;
+    }
+    setLockedPrompt(false);
+    setActiveIndex(index);
+    setIsPlaying(false);
+    setHasPlayed(false);
+    setActiveCoverage({ fraction: 0, seconds: 0 });
+    return true;
+  }
 
   function handlePlayStateChange(playing: boolean) {
     setIsPlaying(playing);
@@ -129,10 +162,12 @@ export default function CoursePlayerPage({
       const list = videosRef.current;
       if (list.length === 0) return;
       const clamped = Math.max(0, Math.min(index, list.length - 1));
-      setActiveIndex(clamped);
-      setIsPlaying(false);
-      setHasPlayed(false);
-      setActiveCoverage({ fraction: 0, seconds: 0 });
+      if (!tryPlay(clamped)) {
+        // Locked for a guest: the prompt is showing, so the tutor
+        // reports the same failure as reaching the end.
+        reply({ ok: false });
+        return;
+      }
       reply({ ok: true, title: list[clamped].title });
     };
     const onVoice = (event: Event) => {
@@ -161,8 +196,10 @@ export default function CoursePlayerPage({
   }, []);
   // Pending video index from a cross-page voice command (the tutor
   // navigated here first): play that video instead of the first one.
+  // Waits for the session check, so a guest asking for a locked
+  // video gets the sign-in prompt instead of the video.
   useEffect(() => {
-    if (!route || pendingVideoConsumedRef.current) return;
+    if (!route || !auth.checked || pendingVideoConsumedRef.current) return;
     pendingVideoConsumedRef.current = true;
     try {
       const raw = sessionStorage.getItem(PENDING_VIDEO_INDEX_KEY);
@@ -170,15 +207,12 @@ export default function CoursePlayerPage({
       const index = Number(raw);
       sessionStorage.removeItem(PENDING_VIDEO_INDEX_KEY);
       if (Number.isInteger(index) && index >= 0 && index < videosRef.current.length) {
-        setActiveIndex(index);
-        setIsPlaying(false);
-        setHasPlayed(false);
-        setActiveCoverage({ fraction: 0, seconds: 0 });
+        tryPlay(index);
       }
     } catch {
       // Private mode — the page just starts at the first video.
     }
-  }, [route]);
+  }, [route, auth.checked]);
 
   // The lessons list follows the app theme (same pattern as the editor).
   useEffect(() => {
@@ -217,7 +251,6 @@ export default function CoursePlayerPage({
   }, []);
 
   if (!auth.checked || route === null) return null;
-  if (!auth.signedIn) return <SignInGate />;
 
   const creator = COURSE_CREATORS.find((c) => c.slug === route.slug);
   if (!creator) {
@@ -288,12 +321,21 @@ export default function CoursePlayerPage({
     setHasPlayed(false);
     if (!autoplay) return;
     const nextIndex = activeIndex + 1;
-    if (nextIndex < videos.length) {
-      setActiveIndex(nextIndex);
-      setActiveCoverage({ fraction: 0, seconds: 0 });
+    if (nextIndex >= videos.length) return;
+    // Autoplay must not carry a guest past the free preview — the
+    // sign-in prompt shows instead of the locked video.
+    if (isLockedIndex(nextIndex)) {
+      setLockedPrompt(true);
+      return;
     }
+    setActiveIndex(nextIndex);
+    setActiveCoverage({ fraction: 0, seconds: 0 });
   }
 
+  // The lock panel shows when a guest hit a locked video — or when
+  // the active video is itself locked (defensive: no path switches
+  // a guest onto one, but the player must never play it).
+  const showLockedPrompt = lockedPrompt || isLockedIndex(activeIndex);
   const goalPct = progressPercent(progress);
   const isDone = completedIds.includes(completionId(activeVideo));
   // YouTube videos can't report watch coverage, so their Mark Complete
@@ -363,6 +405,7 @@ export default function CoursePlayerPage({
   // watched one shows its %, a finished one says "Completed".
   const listItems: AnimatedListEntry[] = videos.map((video, index) => {
     const done = completedIds.includes(completionId(video));
+    const locked = isLockedIndex(index);
     const pct = Math.max(
       index === activeIndex ? Math.round(activeCoverage.fraction * 100) : 0,
       storedCoveragePct(video),
@@ -371,17 +414,25 @@ export default function CoursePlayerPage({
     const paused = index === activeIndex && hasPlayed && !isPlaying;
     return {
       id: completionId(video),
-      icon: playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />,
+      icon: locked ? (
+        <Lock className="h-4 w-4" />
+      ) : playing ? (
+        <Pause className="h-4 w-4" />
+      ) : (
+        <Play className="h-4 w-4" />
+      ),
       title: videoTitle(video.videoId, video.title),
-      description: playing
-        ? t.course.playingLabel
-        : paused
-          ? t.course.pausedLabel
-          : done
-            ? t.common.completed
-            : pct > 0
-              ? t.common.watchedPct(pct)
-              : t.common.notStarted,
+      description: locked
+        ? "Sign in to continue"
+        : playing
+          ? t.course.playingLabel
+          : paused
+            ? t.course.pausedLabel
+            : done
+              ? t.common.completed
+              : pct > 0
+                ? t.common.watchedPct(pct)
+                : t.common.notStarted,
       meta:
         video.durationSeconds === undefined
           ? ""
@@ -408,7 +459,27 @@ export default function CoursePlayerPage({
         <main className="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Left: Video Player & title */}
           <section className="space-y-4 lg:col-span-2">
-            {activeVideo.megaLessonId ? (
+            {showLockedPrompt ? (
+              <div className="overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950">
+                <div className="flex flex-col items-center justify-center px-4 py-16 text-center">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-neutral-800 bg-black">
+                    <Lock className="h-8 w-8 text-white" />
+                  </div>
+                  <h2 className="mt-6 text-2xl font-bold tracking-tight">
+                    Sign in to continue
+                  </h2>
+                  <p className="mt-3 max-w-md text-sm leading-relaxed text-neutral-400">
+                    {`The first ${FREE_VIDEO_COUNT} videos are free — sign in to watch the rest of this course.`}
+                  </p>
+                  <a
+                    href="/auth/email"
+                    className="mt-6 rounded-lg bg-white px-5 py-2.5 text-sm font-medium text-black transition hover:bg-neutral-200"
+                  >
+                    {t.common.signIn}
+                  </a>
+                </div>
+              </div>
+            ) : activeVideo.megaLessonId ? (
               <VideoPlayer
                 lessonId={activeVideo.megaLessonId}
                 videoId={activeVideo.videoId}
@@ -501,10 +572,7 @@ export default function CoursePlayerPage({
                   initialSelectedIndex={activeIndex}
                   selectedIndex={activeIndex}
                   onItemSelect={(_item, index) => {
-                    setActiveIndex(index);
-                    setIsPlaying(false);
-                    setHasPlayed(false);
-                    setActiveCoverage({ fraction: 0, seconds: 0 });
+                    tryPlay(index);
                   }}
                   frame={false}
                   width="100%"

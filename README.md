@@ -44,10 +44,11 @@ Run these in the Supabase dashboard SQL editor, in order:
    an optional `quiz` jsonb column, and anon + authenticated `SELECT`
    policies for published courses, their modules, and their lessons.
    Re-runnable (drop-if-exists guards).
-3. `supabase/seed_lessons.sql` — inserts the "Python for Beginners
-   (Full Course)" course, its "100 Days of Code" module, and all 100
-   lessons (Day 1 to Day 100, video URLs empty until the
-   MEGA links are pasted in). Re-runnable (upserts on slug).
+4. `web/supabase/migrations/014_user_progress.sql` — per-user progress
+   tables (`lp_user_progress`, `lp_user_daily`), keyed by the signed-in
+   user's email. RLS is ON with zero policies (service-role key only).
+   Re-runnable. Without it, `GET`/`POST /api/progress` answer 503 and
+   progress stays on-device only.
 
 ### Adding a lesson (no redeploy)
 
@@ -92,6 +93,7 @@ secrets, never paste them in chat):
 | `SESSION_SECRET` | Required for sign-in | ≥32 random chars; HMAC key for the session cookie. **Missing/short → all auth endpoints fail closed with 503.** Generate with `openssl rand -hex 32` and add it as a Fly secret (see below). |
 | `GEMINI_API_KEY` | Required for AI | Gemini (first provider). Without it AND `GROQ_API_KEY`, `/api/ai` answers 503 and the AI panels show "AI unavailable". |
 | `GROQ_API_KEY` | Required for AI fallback | Groq (fallback provider, models `openai/gpt-oss-120b` then `openai/gpt-oss-20b`). |
+| `SUPABASE_SERVICE_ROLE_KEY` | Required for progress sync (already set for BYOK) | Supabase **Secret (service-role) key** — server-side only, never `NEXT_PUBLIC_`, never in client code. Without it, progress stays on-device only. Get it from Supabase → Settings → API → "Secret key". |
 
 ## Authentication (Google sign-in)
 
@@ -165,11 +167,51 @@ incomplete stage as the current one. There is no single "course
 complete" gate — the course is finished one stage at a time. Extras
 never count toward stage completion.
 
+## Per-user progress sync
+
+Progress (watch %, completed lessons, streaks, daily goal) is saved on
+the **user's account**, not on the device only — it follows the learner
+across phones and laptops. localStorage stays the offline cache and the
+source of truth while signed out; once signed in, the app loads the
+server copy once and merges it with the local copy (union — a lesson
+completed or credited on either side stays completed/credited), then
+saves back to the server, debounced (at most once per 10s, plus a flush
+when the tab is hidden or closed).
+
+How it works:
+
+- Coverage travels as **ranges** (`[start, end]` inclusive seconds),
+  not per-second buckets — a 10-hour lesson is a handful of pairs.
+  Ranges merge exactly, so two devices that watched different halves
+  combine to the true total.
+- The daily total is the **sum of the credited lessons' seconds** (each
+  lesson credited once per day, at 95% watched) — never a free counter —
+  so merging two devices can never double-count a lesson. A lesson the
+  merge itself completes is credited to today with its merged watched
+  seconds; a lesson completed long ago is never re-credited. Completion
+  is recomputed from the 95% rule wherever the duration is known.
+- Text-lesson completions (`lp_learn_completed`) sync as a plain id
+  list; streak restores stay per-browser by design (only the restored
+  active dates flow into the synced record).
+- Tables: `lp_user_progress` (one row per user email + lesson slug) and
+  `lp_user_daily` (one row per user email + date), migration `014`.
+  Rows are keyed by the verified session email. RLS is ON with **zero
+  policies**: the public anon key can read/write nothing; only the
+  service-role key reaches these tables, through the session-gated
+  `GET`/`POST /api/progress` route (401 when logged out, 20/min POST +
+  60/min GET per IP).
+- **Setup:** run migration `014_user_progress.sql` (the
+  `SUPABASE_SERVICE_ROLE_KEY` is already set for BYOK — no new env var).
+  Until the migration runs the app keeps working on localStorage-only —
+  `GET`/`POST /api/progress` answer 503 and the client silently stays
+  local.
+
 ## API endpoints
 
 | Endpoint | Notes |
 | --- | --- |
 | `POST /api/ai` | `{ reply, provider, quiz? }`. Modes: `tutor` \| `explain` \| `debug` \| `quiz`. Session-required (401); rate-limited 20/min per IP; 503 when no AI keys are configured or both providers fail. |
+| `GET` / `POST /api/progress` | Per-user progress sync. Session-required (401); GET 60/min, POST 20/min per IP; 503 (fail-soft, local-only) when sync is not configured or the store is unreachable. |
 | `GET /api/lessons` | `{ lessons, source: "supabase" \| "seed" }`. Rate-limited 60/min per IP. Public. |
 | `GET /api/health` | `{ status: "ok", supabase: "configured" \| "not_configured", lessons: "supabase" \| "seed", uptime_seconds }`. Uses the cached lesson fetch — no fresh DB ping per call. Not rate-limited (Fly probes it every 30s). |
 | `GET /api/video/[lessonId]` | Range-capable video stream (MEGA or Drive). Rate-limited 120/min per IP. Errors are logged as one structured JSON line `{ lessonId, source, code, status }` plus the original error. |

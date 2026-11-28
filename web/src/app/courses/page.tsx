@@ -1,11 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { ChevronRight, MonitorPlay } from "lucide-react";
-import { fetchSessionUser } from "@/lib/auth-client";
 import { AppNavbar } from "@/components/AppNavbar";
 import ChromaGrid from "@/components/ChromaGrid";
-import SignInGate from "@/components/SignInGate";
 import { useLanguage, type Strings } from "@/lib/i18n";
 import { COURSE_CREATORS, CREATOR_ACCENTS, totalCourseVideos, type CourseCreator } from "@/lib/courses/data";
 
@@ -44,29 +41,13 @@ function creatorVideoCount(creator: CourseCreator): number {
  * Video Courses — three teachers, one card each. Tap a card to see
  * that teacher's courses (one card per playlist, plus one-shots),
  * then tap a course to watch it in the player. Videos play from
- * MEGA/Drive, never YouTube. Gated: a guest sees the sign-in gate
- * screen (warning + Sign in button), not a silent bounce home.
+ * MEGA/Drive, never YouTube. Free preview: guests can browse the
+ * hub and watch the first FREE_VIDEO_COUNT videos of every
+ * collection; the rest of a collection needs an account (the player
+ * page locks those videos behind a sign-in prompt).
  */
 export default function CoursesPage() {
   const { t } = useLanguage();
-  const [auth, setAuth] = useState<{ checked: boolean; signedIn: boolean }>({
-    checked: false,
-    signedIn: false,
-  });
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchSessionUser().then((user) => {
-      if (cancelled) return;
-      setAuth({ checked: true, signedIn: !!user });
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  if (!auth.checked) return null;
-  if (!auth.signedIn) return <SignInGate />;
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col pb-20 md:pb-0">

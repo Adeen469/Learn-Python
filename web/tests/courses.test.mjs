@@ -331,3 +331,105 @@ test("the card arrow pulses (grows and shrinks) while its card is hovered", () =
     "the creator card's arrow must pulse on card hover (motion-safe)"
   );
 });
+
+// Free preview (Maalik's order, 2026-11-28): the first 3 videos of
+// every collection are free for guests; the rest stay gated behind
+// a sign-in prompt. The hub and creator pages no longer gate guests
+// at all — the gate moved onto each locked video in the player.
+
+test("free preview: hub and creator pages let guests browse (no whole-page gate)", () => {
+  const hub = read(hubPath);
+  const creator = read(creatorPath);
+  for (const [name, text] of [["hub", hub], ["creator", creator]]) {
+    assert.ok(!text.includes("SignInGate"), `${name} must not render the sign-in gate for guests`);
+    assert.ok(!text.includes("fetchSessionUser"), `${name} needs no session check to browse`);
+    assert.ok(!text.includes("signedIn"), `${name} must not branch on signed-in state`);
+  }
+  // The hub still renders the creator cards, the creator page still
+  // links each collection into the player.
+  assert.ok(hub.includes("COURSE_CREATORS"), "the hub must still list the creators");
+  assert.ok(hub.includes("ChromaGrid"), "the hub must still render creator cards");
+  assert.ok(creator.includes("/courses/${creator.slug}/"), "the creator page must still link to collections");
+});
+
+test("free preview: the player defines 3 free videos and locks the rest per video", () => {
+  const player = read(playerPath);
+  assert.ok(
+    player.includes("const FREE_VIDEO_COUNT = 3;"),
+    "the player must define FREE_VIDEO_COUNT = 3"
+  );
+  assert.ok(!player.includes("SignInGate"), "the player must not whole-page gate guests any more");
+  // The page still waits for the session check before deciding what
+  // is locked — a guest must never flash the signed-in view.
+  assert.ok(
+    player.includes("if (!auth.checked || route === null) return null;"),
+    "the player must wait for the session check before rendering"
+  );
+  assert.ok(player.includes("isLockedIndex"), "the player must have a per-video lock check");
+  assert.ok(player.includes("lockedPrompt"), "the player must track the locked-video prompt");
+  assert.ok(
+    player.includes("function tryPlay(index: number): boolean"),
+    "video selection must go through tryPlay (free plays, locked prompts)"
+  );
+});
+
+test("free preview: locked rows show a lock and locked selection shows the sign-in prompt", () => {
+  const player = read(playerPath);
+  assert.ok(
+    player.includes('<Lock className="h-4 w-4" />'),
+    "locked list rows must show a Lock icon instead of Play"
+  );
+  assert.ok(
+    player.includes('<Play className="h-4 w-4" />'),
+    "free list rows must keep the Play icon"
+  );
+  assert.ok(
+    player.includes('"Sign in to continue"'),
+    "locked list rows must say Sign in to continue"
+  );
+  assert.ok(player.includes("showLockedPrompt"), "the player section must switch to the lock panel");
+  assert.ok(
+    player.includes("The first ${FREE_VIDEO_COUNT} videos are free"),
+    "the lock panel must say the first videos are free"
+  );
+  assert.ok(
+    player.includes('href="/auth/email"'),
+    "the lock panel must link its Sign in button to the login page"
+  );
+  // Picking a free video clears the prompt; picking a locked one
+  // shows it instead of switching the video.
+  assert.ok(
+    player.includes("onItemSelect={(_item, index) => {\n                    tryPlay(index);\n                  }}"),
+    "list clicks must go through tryPlay"
+  );
+});
+
+test("free preview: autoplay stops at the free boundary instead of playing a locked video", () => {
+  const player = read(playerPath);
+  assert.ok(
+    player.includes("if (isLockedIndex(nextIndex)) {"),
+    "autoplay must check whether the next video is locked"
+  );
+  assert.ok(
+    player.includes("setLockedPrompt(true);"),
+    "autoplay into a locked video must show the sign-in prompt"
+  );
+});
+
+test("free preview: voice pick into a locked video fails without switching", () => {
+  const player = read(playerPath);
+  assert.ok(
+    player.includes("reply({ ok: false })"),
+    "a locked voice pick must reply ok:false (like reaching the end)"
+  );
+  // The pending-video effect waits for the session check, so a guest
+  // asking the tutor for a locked video gets the prompt, not the video.
+  assert.ok(
+    player.includes("}, [route, auth.checked]);"),
+    "the pending-video effect must wait for the session check"
+  );
+  assert.ok(
+    player.includes("tryPlay(index);"),
+    "the pending-video effect must play through tryPlay"
+  );
+});

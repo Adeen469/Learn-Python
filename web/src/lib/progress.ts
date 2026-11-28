@@ -165,3 +165,213 @@ export function progressPercent(state: ProgressState): number {
 export function wholeMinutes(seconds: number): number {
   return Math.floor(seconds / 60);
 }
+
+// ---------------------------------------------------------------------------
+// Per-user progress sync (server-side, Supabase).
+//
+// The local record above stays the offline cache; the server copy is keyed
+// by the signed-in user's email and is the shared truth across devices.
+// Coverage travels as RANGES ([start, end] inclusive integer seconds)
+// instead of per-second buckets: a 10-hour lesson is a handful of pairs,
+// not ~39k numbers. Ranges merge exactly (union), so two devices that
+// watched different halves combine to the true total — and a lesson
+// completed on either device stays completed.
+// ---------------------------------------------------------------------------
+
+export type CoverageRange = [number, number];
+
+/** One lesson's syncable state (wire format, shared client <-> server). */
+export interface LessonProgressWire {
+  lessonId: string;
+  ranges: CoverageRange[];
+  testPassed: boolean;
+  /**
+   * Client-computed at save time (coverage >=95% when the duration is
+   * known). The server stores it as a hint; the client recomputes
+   * completion on merge whenever the duration is known, so a stored
+   * `true` with <95% coverage is corrected, never trusted. For lessons
+   * with no known duration (e.g. a bare YouTube id) the merged value
+   * is the OR of both sides' flags.
+   */
+  completed: boolean;
+}
+
+/** One lesson credited toward a day, with the exact seconds credited. */
+export interface CreditedLessonWire {
+  lessonId: string;
+  seconds: number;
+}
+
+/** One day's aggregate (wire format). Daily seconds are the SUM of the
+ *  credited lessons' seconds — never a free counter — so merging two
+ *  devices can never double-count a lesson. */
+export interface DailyProgressWire {
+  date: string; // YYYY-MM-DD
+  goalMinutes: number;
+  credited: CreditedLessonWire[];
+}
+
+/** What GET /api/progress returns. `dailyRows` carries the last few days
+ *  so the client can pick the row matching its own local date. */
+export interface ServerProgressSnapshot {
+  lessons: LessonProgressWire[];
+  dailyRows: DailyProgressWire[];
+  activeDates: string[]; // every date with server-side activity, newest last
+  /** Manually completed text lessons (lp_learn_completed) — no coverage. */
+  completedIds: string[];
+}
+
+/** Collapse a set of watched second-buckets into sorted, coalesced ranges. */
+export function rangesFromBuckets(buckets: Iterable<number>): CoverageRange[] {
+  const sorted = [...new Set(buckets)]
+    .filter((n) => Number.isInteger(n) && n >= 0)
+    .sort((a, b) => a - b);
+  const ranges: CoverageRange[] = [];
+  for (const n of sorted) {
+    const last = ranges[ranges.length - 1];
+    if (last && n <= last[1] + 1) {
+      if (n > last[1]) last[1] = n;
+    } else {
+      ranges.push([n, n]);
+    }
+  }
+  return ranges;
+}
+
+/** Union of two range sets (sorted, overlapping/adjacent coalesced). */
+export function mergeRanges(a: CoverageRange[], b: CoverageRange[]): CoverageRange[] {
+  const all = [...a, ...b]
+    .filter(
+      (pair): pair is CoverageRange =>
+        Array.isArray(pair) &&
+        pair.length === 2 &&
+        Number.isInteger(pair[0]) &&
+        Number.isInteger(pair[1]) &&
+        pair[0] >= 0 &&
+        pair[1] >= pair[0]
+    )
+    .sort((x, y) => x[0] - y[0] || x[1] - y[1]);
+  const out: CoverageRange[] = [];
+  for (const [s, e] of all) {
+    const last = out[out.length - 1];
+    if (last && s <= last[1] + 1) {
+      if (e > last[1]) last[1] = e;
+    } else {
+      out.push([s, e]);
+    }
+  }
+  return out;
+}
+
+/** Total unique seconds covered by a set of ranges. */
+export function rangeWatchedSeconds(ranges: CoverageRange[]): number {
+  let total = 0;
+  for (const [s, e] of ranges) total += e - s + 1;
+  return total;
+}
+
+/** Expand ranges back into per-second buckets (for the local player cache). */
+export function bucketsFromRanges(ranges: CoverageRange[]): number[] {
+  const out: number[] = [];
+  for (const [s, e] of ranges) {
+    for (let n = s; n <= e; n += 1) out.push(n);
+  }
+  return out;
+}
+
+/**
+ * Sanitize ranges: drop malformed pairs, clamp to [0, maxSecond],
+ * coalesce. `maxSecond` is the lesson's floored duration — a bucket past
+ * the end of the video can never have been watched.
+ */
+export function clampRanges(ranges: unknown, maxSecond: number): CoverageRange[] {
+  if (!Array.isArray(ranges)) return [];
+  if (ranges.length > 500) return [];
+  const cleaned: CoverageRange[] = [];
+  for (const pair of ranges) {
+    if (!Array.isArray(pair) || pair.length !== 2) continue;
+    const [s, e] = pair;
+    if (!Number.isInteger(s) || !Number.isInteger(e)) continue;
+    const start = Math.max(0, s);
+    const end = Math.min(Math.max(0, Math.floor(maxSecond)), e);
+    if (start > end) continue;
+    cleaned.push([start, end]);
+  }
+  return mergeRanges(cleaned, []);
+}
+
+export interface MergedLessonProgress {
+  ranges: CoverageRange[];
+  watchedSeconds: number;
+  completed: boolean;
+  testPassed: boolean;
+}
+
+/**
+ * Merge one lesson's local + server progress. Coverage is the union;
+ * completion is RECOMPUTED from the 95% rule against the real duration
+ * (a stored `completed: true` with <95% coverage is corrected, never
+ * trusted); test-passed is an OR. When no duration is known (a bare
+ * YouTube id with no catalog entry) there is nothing to recompute
+ * against, so completion is the OR of both sides' flags instead.
+ */
+export function mergeLessonProgress(
+  local: { ranges: CoverageRange[]; testPassed: boolean; completed?: boolean },
+  server: { ranges: CoverageRange[]; testPassed: boolean; completed?: boolean },
+  durationSeconds: number
+): MergedLessonProgress {
+  const cap = durationSeconds > 0 ? Math.floor(durationSeconds) : 86400;
+  const ranges = mergeRanges(
+    clampRanges(local.ranges, cap),
+    clampRanges(server.ranges, cap)
+  );
+  const watchedSeconds = rangeWatchedSeconds(ranges);
+  return {
+    ranges,
+    watchedSeconds,
+    completed:
+      durationSeconds > 0
+        ? qualifiesForCredit(coverageFraction(watchedSeconds, durationSeconds))
+        : Boolean(local.completed || server.completed),
+    testPassed: local.testPassed || server.testPassed,
+  };
+}
+
+/** Sum of the credited lessons' seconds — the day's total, by definition. */
+export function dailySeconds(credited: CreditedLessonWire[]): number {
+  return credited.reduce((sum, c) => sum + c.seconds, 0);
+}
+
+/**
+ * Merge one day's local + server aggregate. Both must be for the same date
+ * (the caller only merges the server row matching the local date). The
+ * credited list is the union by lesson; per-lesson seconds take the MAX
+ * (the lesson's credited seconds can only grow as coverage grows). The
+ * server's goal wins — it is the last value the user set on any device.
+ * Returns null when there is no server row for this date.
+ */
+export function mergeDailyProgress(
+  local: DailyProgressWire,
+  server: DailyProgressWire | null
+): DailyProgressWire | null {
+  if (!server || server.date !== local.date) return null;
+  const byId = new Map<string, number>();
+  for (const c of local.credited) byId.set(c.lessonId, c.seconds);
+  for (const c of server.credited) {
+    byId.set(c.lessonId, Math.max(byId.get(c.lessonId) ?? 0, c.seconds));
+  }
+  const credited = [...byId.entries()]
+    .map(([lessonId, seconds]) => ({ lessonId, seconds }))
+    .sort((a, b) => a.lessonId.localeCompare(b.lessonId));
+  return { date: local.date, goalMinutes: server.goalMinutes, credited };
+}
+
+/** Union of two active-date lists, newest last, capped at 365 days. */
+export function mergeActiveDates(a: string[], b: string[]): string[] {
+  return [...new Set([...a, ...b])].sort().slice(-365);
+}
+
+/** Union of two manually-completed text-lesson lists, capped at 1000. */
+export function mergeCompletedIds(a: string[], b: string[]): string[] {
+  return [...new Set([...a, ...b])].sort().slice(0, 1000);
+}

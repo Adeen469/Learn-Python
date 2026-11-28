@@ -20,7 +20,8 @@ test("the lesson list shows Playing for the video that is playing", () => {
   assert.ok(page.includes("onPlayStateChange={handlePlayStateChange}"), "the page must learn the play state from the player");
   assert.ok(page.includes("const [isPlaying, setIsPlaying] = useState(false)"), "the page must track whether the video is playing");
   assert.ok(page.includes("setIsPlaying(playing)"), "the play-state handler must update isPlaying");
-  assert.ok(page.includes('description: playing'), "the list status must have a Playing branch");
+  assert.ok(page.includes('description: locked'), "locked videos must have their own list status first");
+  assert.ok(page.includes("? t.course.playingLabel"), "the list status must have a Playing branch");
   assert.ok(page.includes('"Playing"'), "the playing video must say Playing, not Not started");
   assert.ok(page.includes("const playing = index === activeIndex && isPlaying"), "Playing must mean the active video is actually playing");
   const vp = player();

@@ -33,6 +33,7 @@ import { useLanguage, type Strings } from "@/lib/i18n";
 import { highlightPython } from "@/lib/python-highlight";
 import { TextSelectionToolbar } from "@/components/TextSelectionToolbar";
 import { LessonOfflineButton } from "@/components/LessonOfflineButton";
+import { PROGRESS_UPDATED_EVENT } from "@/lib/progress";
 
 const COMPLETED_KEY = "lp_learn_completed";
 const LAST_VISITED_KEY = "lp_last_visited";
@@ -315,6 +316,8 @@ export default function LearnTopicPage() {
       // Ignore.
     }
     setCompletedSlugs(next);
+    // Completion changed — the progress sync saver (debounced) picks it up.
+    window.dispatchEvent(new Event(PROGRESS_UPDATED_EVENT));
   }
 
   const idx = ALL_LEARN_TOPICS.findIndex((t) => t.slug === slug);

@@ -72,7 +72,8 @@ test("middleware mints a per-request nonce and hands it to Next + layout (R2-L17
   // The Origin check and the matcher are untouched by the nonce work.
   assert.ok(mw.includes("isAllowedApiOrigin"));
   // No guest bounce lives in the middleware any more (the gated
-  // pages render their own sign-in gate screen instead) — the nonce
+  // pages render their own sign-in gate screen instead, and courses
+  // has a free preview with a per-video sign-in prompt) — the nonce
   // must still be minted for every document route, authed or not.
   assert.ok(!mw.includes("isProtectedPath"), "no guest redirect may remain in the middleware");
   assert.ok(mw.includes('"/api/:path*"'));
