@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://learn-python-programming.fly.dev/sitemap.xml
