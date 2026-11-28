@@ -113,7 +113,10 @@ export function LandingPage() {
               glow={1}
               followMouse
               proximity={250}
-              onClick={() => router.push("/auth/email")}
+              // Get started goes straight to the first lesson —
+              // lessons are free to read, no sign-in needed. (The
+              // header still has its own Sign in button.)
+              onClick={() => router.push("/learn/python-home")}
             >
               {t.landing.getStarted} <ArrowRight className="h-4 w-4" />
             </SpecularButton>

@@ -6,6 +6,7 @@ import { AppNavbar } from "@/components/AppNavbar";
 import CodeSlots from "@/components/CodeSlots";
 import { EditorContextMenu } from "@/components/EditorContextMenu";
 import { fetchSessionUser } from "@/lib/auth-client";
+import SignInGate from "@/components/SignInGate";
 import { useLanguage } from "@/lib/i18n";
 import type { Strings } from "@/lib/i18n";
 import {
@@ -96,15 +97,19 @@ export default function GitHubPage() {
   const router = useRouter();
   const [token, setToken] = useState("");
 
-  // Auth gate: guests see only the landing page (route /). Renders
-  // nothing until the session check resolves — no app UI flash.
+  // Auth gate: a guest sees the sign-in gate screen (warning +
+  // Sign in button), not a silent bounce to the landing page.
+  // Renders nothing until the session check resolves — no app UI
+  // flash, and no GitHub content for guests.
   const [enteredChecked, setEnteredChecked] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
   useEffect(() => {
     let cancelled = false;
     fetchSessionUser().then((user) => {
       if (cancelled) return;
       if (!user) {
-        router.replace("/");
+        setIsGuest(true);
+        setEnteredChecked(true);
         return;
       }
       setEnteredChecked(true);
@@ -572,8 +577,10 @@ export default function GitHubPage() {
   const tokenExplainerParts =
     t.githubPage.tokenExplainer.split("github.com/settings/tokens");
 
-  // Guests never see this page — the gate effect above redirects to /.
+  // Guests never see this page — the gate screen above replaces
+  // the old silent redirect to /.
   if (!enteredChecked) return null;
+  if (isGuest) return <SignInGate />;
 
   return (
     // pb-20 clears the mobile bottom nav bar (md:pb-0: PC has no bottom bar).

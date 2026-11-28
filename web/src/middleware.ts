@@ -1,35 +1,18 @@
-// Server-side route protection (defense in depth). The pages under
-// these paths also check the session themselves (layouts/pages),
-// but a guest must never even reach them: without the session
-// cookie, redirect to the landing page. This is a PRESENCE check
-// only — the cookie is HMAC-signed, and only the layouts and API
-// routes verify the signature (middleware runs on the Edge runtime,
-// where the Supabase client cannot run).
+// Middleware: nonce CSP on every document route + CSRF Origin check
+// on state-changing /api/* calls. It NO LONGER bounces guests off
+// any page: /learn, /logic-builder and /settings are public, and the
+// gated pages (/courses, /editor, /github) render their own sign-in
+// gate screen (warning + Sign in button) instead of a silent bounce
+// to the landing page — a guest must SEE the gate, and the middleware
+// redirect would hide it. The pages fetch no user data before their
+// gate resolves, and every /api/* route still 401s for guests, so
+// nothing leaks by letting a guest reach the page shell.
 //
-// SESSION_COOKIE comes from src/lib/auth.ts (the one source of
-// truth); auth.ts has no imports and uses WebCrypto only, so it is
-// safe to import into the Edge bundle.
+// SESSION_COOKIE is not read here any more (the pages check the
+// session themselves via /api/auth/me); auth.ts stays the source of
+// truth for the cookie name on the API side.
 import { NextRequest, NextResponse } from "next/server";
-import { SESSION_COOKIE } from "@/lib/auth";
 import { buildCspWithNonce } from "../next.config";
-
-// Pages a guest must never reach. The `:path*` patterns are the
-// matcher entries the middleware used to carry; the redirect below
-// checks them as prefixes (pathname === base, or under base/).
-const PROTECTED_PATHS = [
-  "/settings/:path*",
-  "/editor/:path*",
-  "/github/:path*",
-  "/courses/:path*",
-  "/learn/:path*",
-];
-
-function isProtectedPath(pathname: string): boolean {
-  return PROTECTED_PATHS.some((pattern) => {
-    const base = pattern.replace(/\/:path\*$/, "");
-    return pathname === base || pathname.startsWith(`${base}/`);
-  });
-}
 
 export const config = {
   matcher: [
@@ -91,12 +74,10 @@ export function middleware(req: NextRequest) {
     }
     return NextResponse.next();
   }
-  // Guests are redirected ONLY from the protected paths — the
-  // landing page, /auth/* and the other public pages are reachable
-  // without a session (they just get the nonce CSP below).
-  if (isProtectedPath(pathname) && !req.cookies.get(SESSION_COOKIE)?.value) {
-    return NextResponse.redirect(new URL("/", req.url));
-  }
+  // No guest redirect here: every document route is reachable, and
+  // the gated pages render their own sign-in gate (see the header
+  // comment). The landing page, /auth/* and the other public pages
+  // just get the nonce CSP below.
   // CSP nonce (R2-L17, extended to all documents in R3-L16): one
   // random nonce per document request. Next reads the nonce from
   // the CSP *request* header and puts it on its own inline scripts

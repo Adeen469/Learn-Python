@@ -1,9 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { Blocks } from "lucide-react";
-import { fetchSessionUser } from "@/lib/auth-client";
 import { AppNavbar } from "@/components/AppNavbar";
 import { useLanguage } from "@/lib/i18n";
 
@@ -11,18 +8,10 @@ import { useLanguage } from "@/lib/i18n";
  * Logic Builder (/logic-builder) — a placeholder for now. The navbar
  * button sits between Courses and Code Editor. The page says
  * "Coming Soon" in the centre and tells the user they'll get an
- * email when it's ready. Guests are redirected to the landing page,
- * like the other app pages.
+ * email when it's ready. Guests can view it, like the lessons.
  */
 export default function LogicBuilderPage() {
   const { t } = useLanguage();
-  const router = useRouter();
-
-  useEffect(() => {
-    fetchSessionUser().then((user) => {
-      if (!user) router.replace("/");
-    });
-  }, [router]);
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">

@@ -375,12 +375,13 @@ test("R3-L16: the middleware mints the nonce CSP on all document routes", () => 
   assert.ok(mw.includes("buildCspWithNonce(nonce)"), "the nonce CSP must be built per request");
   assert.ok(mw.includes('requestHeaders.set("x-nonce", nonce)'), "layout must still get the nonce");
   assert.ok(mw.includes('res.headers.set("Content-Security-Policy", nonceCsp)'), "the response must enforce the nonce CSP");
-  // Guests are still redirected ONLY from the protected paths —
-  // the landing page and /auth/* stay public.
-  for (const p of ['"/settings/:path*"', '"/editor/:path*"', '"/github/:path*"', '"/courses/:path*"', '"/learn/:path*"']) {
-    assert.ok(mw.includes(p), `the protected paths must still list ${p}`);
-  }
-  assert.ok(mw.includes("isProtectedPath(pathname)"), "the guest redirect must check the protected paths");
+  // Guests are NOT bounced by the middleware any more: /learn,
+  // /logic-builder and /settings are public, and the gated pages
+  // (/courses, /editor, /github) render their own sign-in gate
+  // screen — a middleware redirect to "/" would hide that gate.
+  assert.ok(!mw.includes("isProtectedPath"), "the middleware must not redirect guests off any page");
+  assert.ok(!mw.includes("PROTECTED_PATHS"), "no protected-paths list may remain in the middleware");
+  assert.ok(!mw.includes('new URL("/", req.url)'), "no silent bounce to the landing page may remain");
   // API routes still get no nonce CSP (no documents there).
   const apiBranch = mw.slice(mw.indexOf('startsWith("/api/")'));
   assert.ok(!apiBranch.slice(0, 400).includes("randomUUID"), "API routes must not mint a nonce");

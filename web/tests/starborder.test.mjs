@@ -23,7 +23,7 @@ describe("star border install", () => {
     assert.ok(css.includes(".star-border__light"), "CSS must define the light canvas");
   });
 
-  test("the landing page's Get started button is a SpecularButton that navigates to /auth/email", () => {
+  test("the landing page's Get started button is a SpecularButton that navigates to the first lesson", () => {
     // 2026-11-19: the hero Get Started button moved from StarBorder to
     // the React Bits SpecularButton (Maalik's order). StarBorder stays
     // vendored but is no longer used on the landing page.
@@ -32,8 +32,8 @@ describe("star border install", () => {
     assert.ok(!landing.includes("<StarBorder"), "Get started must no longer render StarBorder");
     assert.ok(landing.includes("<SpecularButton"), "Get started must render SpecularButton");
     assert.ok(
-      landing.includes('onClick={() => router.push("/auth/email")}'),
-      "Get started must navigate to the login/register page on click"
+      landing.includes('onClick={() => router.push("/learn/python-home")}'),
+      "Get started must take a guest straight to the first lesson (lessons are free to read)"
     );
     // The button label moved to i18n (en.ts landing.getStarted).
     assert.ok(landing.includes("t.landing.getStarted"), "the button must render the Get started key");

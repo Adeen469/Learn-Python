@@ -1,6 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -156,22 +156,23 @@ describe("settings language: a dropdown, not a flat list", () => {
   });
 });
 
-describe("settings route protection (middleware + server layout)", () => {
-  test("middleware redirects guests away from protected paths", () => {
+describe("settings is public for guests; account sections gate themselves", () => {
+  test("middleware does not bounce guests, and no server gate blocks /settings", () => {
     const mw = read("src/middleware.ts");
-    assert.ok(mw.includes("SESSION_COOKIE"), "the cookie name must come from auth.ts, not a guess");
-    assert.ok(mw.includes("req.cookies.get(SESSION_COOKIE)"), "guests are detected by the missing session cookie");
-    assert.ok(mw.includes('new URL("/", req.url)'), "guests go back to the landing page");
-    for (const p of ["/settings", "/editor", "/github", "/courses", "/learn"]) {
-      assert.ok(mw.includes(p), `middleware must cover ${p}`);
-    }
+    assert.ok(!mw.includes('new URL("/", req.url)'), "the middleware must not bounce guests to the landing page");
+    assert.ok(
+      !existsSync(new URL("../src/app/settings/layout.tsx", import.meta.url)),
+      "the old server-side settings gate must be gone — guests can view settings"
+    );
   });
 
-  test("settings has a real server-side gate", () => {
-    const layout = read("src/app/settings/layout.tsx");
-    assert.ok(!layout.includes('"use client"'), "the gate must run on the server, not in the browser");
-    assert.ok(layout.includes("verifySession"), "the gate must verify the session signature");
-    assert.ok(layout.includes("getSessionVersionByEmail"), "the gate must enforce the session version");
-    assert.ok(layout.includes('redirect("/")'), "guests must be redirected to the landing page");
+  test("account-only sections prompt guests to sign in inline", () => {
+    // TwoFactorSettings is the account section on the settings
+    // page: for a guest it shows a sign-in prompt + button instead
+    // of any account data or action.
+    const twoFa = read("src/components/TwoFactorSettings.tsx");
+    assert.ok(twoFa.includes("twoFactorSignInRequired"), "guests must be told to sign in for 2FA");
+    assert.ok(twoFa.includes('href="/auth/email"'), "the prompt must link to the sign-in page");
+    assert.ok(twoFa.includes("t.common.signIn"), "the prompt must carry a Sign in button");
   });
 });

@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, ChevronRight, Clock, Play } from "lucide-react";
 import { fetchSessionUser } from "@/lib/auth-client";
 import { AppNavbar } from "@/components/AppNavbar";
+import SignInGate from "@/components/SignInGate";
 import Tilt from "@/components/Tilt";
 import { useLanguage, type Strings } from "@/lib/i18n";
 import {
@@ -181,12 +182,15 @@ function CreatorAvatar({ creator, size }: { creator: CourseCreator; size: "lg" |
 /**
  * One teacher's courses: one card per playlist, plus one card for
  * their one-shot videos. Tap a card to watch it in the player.
- * Same auth gate as the hub.
+ * Gated: a guest sees the sign-in gate screen, not a silent bounce.
  */
 export default function CreatorPage({ params }: { params: Promise<{ slug: string }> }) {
   const router = useRouter();
   const { t } = useLanguage();
-  const [checked, setChecked] = useState(false);
+  const [auth, setAuth] = useState<{ checked: boolean; signedIn: boolean }>({
+    checked: false,
+    signedIn: false,
+  });
   const [slug, setSlug] = useState<string | null>(null);
   // Video ids the player marked complete (localStorage), so each
   // card can show its own watch progress. Read once on mount —
@@ -200,11 +204,7 @@ export default function CreatorPage({ params }: { params: Promise<{ slug: string
     });
     fetchSessionUser().then((user) => {
       if (cancelled) return;
-      if (!user) {
-        router.replace("/");
-        return;
-      }
-      setChecked(true);
+      setAuth({ checked: true, signedIn: !!user });
     });
     try {
       const saved = localStorage.getItem("lp_completed_lessons");
@@ -217,7 +217,8 @@ export default function CreatorPage({ params }: { params: Promise<{ slug: string
     };
   }, [params, router]);
 
-  if (!checked || slug === null) return null;
+  if (!auth.checked || slug === null) return null;
+  if (!auth.signedIn) return <SignInGate />;
 
   const creator = COURSE_CREATORS.find((c) => c.slug === slug);
   if (!creator) {

@@ -8,24 +8,48 @@ import OfflineWarmer from "@/components/OfflineWarmer";
 import { VirtualTutor } from "@/components/VirtualTutor";
 import { cspMeta } from "../../next.config";
 
-const SITE_URL = "https://learnpython.fly.dev";
+import { SITE_URL, SITE_NAME } from "@/lib/site";
+
+const TITLE = "LP — Learn & Practice Python Offline | Interactive Python Course";
 const DESCRIPTION =
-  "Learn Python free — 100+ video lessons from CodeWithHarry's Python for Beginners full course in Hindi, with offline video, daily goals and streaks.";
+  "Learn Python free — interactive lessons, offline practice, a built-in code editor, video courses and daily streaks. No install, works offline.";
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      name: SITE_NAME,
+      url: SITE_URL,
+      description: DESCRIPTION,
+      inLanguage: "en",
+    },
+    {
+      "@type": "Course",
+      name: "Learn Python — Interactive Python Course",
+      description: DESCRIPTION,
+      provider: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
+      isAccessibleForFree: true,
+      inLanguage: "en",
+    },
+  ],
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "LP — Learn Python",
+  title: TITLE,
   description: DESCRIPTION,
+  alternates: { canonical: "/" },
   icons: {
     icon: "/site-icon.png",
     shortcut: "/site-icon.png",
     apple: "/site-icon.png",
   },
   openGraph: {
-    title: "LP — Learn Python",
+    title: TITLE,
     description: DESCRIPTION,
     url: SITE_URL,
-    siteName: "Learn Python",
+    siteName: SITE_NAME,
     type: "website",
     images: [
       {
@@ -38,7 +62,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "LP — Learn Python",
+    title: TITLE,
     description: DESCRIPTION,
     images: ["/lp-logo.png"],
   },
@@ -70,6 +94,10 @@ export default async function RootLayout({
             meta tag. No visible effect; on the web build the header
             carries the same policy plus frame-ancestors. */}
         <meta httpEquiv="Content-Security-Policy" content={cspMeta} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
         {/* Apply the saved theme before first paint, so a light-mode
             user never sees a flash of dark. */}
         <script

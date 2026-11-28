@@ -127,8 +127,8 @@ describe("landing page — Get Started uses SpecularButton", () => {
       assert.ok(landing.includes(prop), `SpecularButton must carry ${prop}`);
     }
     assert.ok(
-      landing.includes('onClick={() => router.push("/auth/email")}'),
-      "Get Started must still navigate to /auth/email on click"
+      landing.includes('onClick={() => router.push("/learn/python-home")}'),
+      "Get Started must take a guest straight to the first lesson (lessons are free to read)"
     );
     assert.ok(landing.includes("{t.landing.getStarted}"), "the label must stay the i18n Get Started string");
   });
@@ -138,7 +138,8 @@ describe("Logic Builder — Coming Soon page", () => {
   test("the /logic-builder page exists, is a Coming Soon placeholder, and the navbar links it between Courses and Code Editor", () => {
     const page = read("src/app/logic-builder/page.tsx");
     assert.ok(page.includes("AppNavbar"), "the Logic Builder page must render the app navbar");
-    assert.ok(page.includes('router.replace("/")'), "guests must be redirected to the landing page");
+    assert.ok(!page.includes('router.replace("/")'), "guests must NOT be bounced off the Logic Builder page");
+    assert.ok(!page.includes("fetchSessionUser"), "the Logic Builder page needs no session check");
     assert.ok(page.includes("t.logicBuilder.comingSoon"), "the page must show the Coming Soon heading");
     assert.ok(page.includes("t.logicBuilder.notifyText"), "the page must show the email-notify sentence");
     assert.ok(page.includes("Blocks"), "the page must use the Blocks icon");

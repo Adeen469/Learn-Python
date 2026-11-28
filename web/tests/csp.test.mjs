@@ -71,7 +71,10 @@ test("middleware mints a per-request nonce and hands it to Next + layout (R2-L17
   assert.ok(mw.includes('res.headers.set("Content-Security-Policy", nonceCsp)'));
   // The Origin check and the matcher are untouched by the nonce work.
   assert.ok(mw.includes("isAllowedApiOrigin"));
-  assert.ok(mw.includes('"/settings/:path*"'));
+  // No guest bounce lives in the middleware any more (the gated
+  // pages render their own sign-in gate screen instead) — the nonce
+  // must still be minted for every document route, authed or not.
+  assert.ok(!mw.includes("isProtectedPath"), "no guest redirect may remain in the middleware");
   assert.ok(mw.includes('"/api/:path*"'));
   // API routes get no nonce CSP (no documents there).
   const apiBranch = mw.slice(mw.indexOf('startsWith("/api/")'));

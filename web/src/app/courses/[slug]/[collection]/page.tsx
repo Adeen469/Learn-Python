@@ -6,6 +6,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { ArrowLeft, CheckCircle2, Circle, Pause, Play } from "lucide-react";
 import { fetchSessionUser } from "@/lib/auth-client";
 import { AppNavbar } from "@/components/AppNavbar";
+import SignInGate from "@/components/SignInGate";
 import { useLanguage } from "@/lib/i18n";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import AnimatedList, { type AnimatedListEntry } from "@/components/AnimatedList";
@@ -72,7 +73,8 @@ const AL_DARK_OVERRIDES = {
  * Course player — the old course UI: video + Today's Progress +
  * lesson list. Videos play from MEGA/Drive through
  * /api/video/[lessonId]; a video with no MEGA link yet shows the
- * coming-soon box. Same auth gate as the hub.
+ * coming-soon box. Gated: a guest sees the sign-in gate screen,
+ * not a silent bounce home.
  */
 export default function CoursePlayerPage({
   params,
@@ -81,7 +83,10 @@ export default function CoursePlayerPage({
 }) {
   const router = useRouter();
   const { t, videoTitle } = useLanguage();
-  const [checked, setChecked] = useState(false);
+  const [auth, setAuth] = useState<{ checked: boolean; signedIn: boolean }>({
+    checked: false,
+    signedIn: false,
+  });
   const [route, setRoute] = useState<{ slug: string; collection: string } | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [completedIds, setCompletedIds] = useState<string[]>([]);
@@ -190,11 +195,7 @@ export default function CoursePlayerPage({
     });
     fetchSessionUser().then((user) => {
       if (cancelled) return;
-      if (!user) {
-        router.replace("/");
-        return;
-      }
-      setChecked(true);
+      setAuth({ checked: true, signedIn: !!user });
     });
     return () => {
       cancelled = true;
@@ -215,7 +216,8 @@ export default function CoursePlayerPage({
     localStorage.setItem(PROGRESS_KEY, JSON.stringify(loaded));
   }, []);
 
-  if (!checked || route === null) return null;
+  if (!auth.checked || route === null) return null;
+  if (!auth.signedIn) return <SignInGate />;
 
   const creator = COURSE_CREATORS.find((c) => c.slug === route.slug);
   if (!creator) {

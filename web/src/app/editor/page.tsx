@@ -10,6 +10,7 @@ import { EditorMenuBar, type EditorMenu } from "@/components/EditorMenuBar";
 import { EditorSplitter } from "@/components/EditorSplitter";
 import { ModulesPanel } from "@/components/ModulesPanel";
 import { fetchSessionUser } from "@/lib/auth-client";
+import SignInGate from "@/components/SignInGate";
 import { useLanguage } from "@/lib/i18n";
 import {
   THEME_CHANGED_EVENT,
@@ -96,15 +97,19 @@ export default function CodeEditorPage() {
     items.find((it) => it.type === "file" && it.path === activeFilePath) ||
     items.find((it) => it.type === "file");
 
-  // Auth gate: guests see only the landing page (route /). Renders
-  // nothing until the session check resolves — no app UI flash.
+  // Auth gate: a guest sees the sign-in gate screen (warning +
+  // Sign in button), not a silent bounce to the landing page.
+  // Renders nothing until the session check resolves — no app UI
+  // flash, and no editor content for guests.
   const [enteredChecked, setEnteredChecked] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
   useEffect(() => {
     let cancelled = false;
     fetchSessionUser().then((user) => {
       if (cancelled) return;
       if (!user) {
-        router.replace("/");
+        setIsGuest(true);
+        setEnteredChecked(true);
         return;
       }
       // Per-user (Fix C): the open-repo read in the viewer uses
@@ -1267,8 +1272,10 @@ export default function CodeEditorPage() {
     setShowNewFile, setShowNewFolder,
   });
 
-  // Guests never see the editor — the gate effect above redirects to /.
+  // Guests never see the editor — the gate screen above replaces
+  // the old silent redirect to /.
   if (!enteredChecked) return null;
+  if (isGuest) return <SignInGate />;
 
 
   // --- Dock panels (zone layout) ---
