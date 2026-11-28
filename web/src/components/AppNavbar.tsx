@@ -128,6 +128,11 @@ export function AppNavbar() {
   const [completedTopics, setCompletedTopics] = useState<string[]>([]);
   const [profileOpen, setProfileOpen] = useState(false);
   const [user, setUser] = useState<SessionUser | null>(null);
+  // Whether the session check has resolved. Guests get a visible
+  // Sign in button instead of the profile icon (which looked like a
+  // signed-in account with no name); while the check is pending the
+  // neutral icon stays, so signed-in users never see a Sign in flash.
+  const [sessionChecked, setSessionChecked] = useState(false);
   const [roadmapOpen, setRoadmapOpen] = useState(false);
   const [roadmapHintOpen, setRoadmapHintOpen] = useState(false);
   const [downloadPopupOpen, setDownloadPopupOpen] = useState(false);
@@ -146,7 +151,10 @@ export function AppNavbar() {
   useEffect(() => {
     let cancelled = false;
     fetchSessionUser().then((u) => {
-      if (!cancelled) setUser(u);
+      if (!cancelled) {
+        setUser(u);
+        setSessionChecked(true);
+      }
     });
     return () => {
       cancelled = true;
@@ -351,9 +359,18 @@ export function AppNavbar() {
                 account (picture + name) with Sign out; guests get a
                 sign-in link. */}
             <div className="relative hidden md:block">
-              <button
-                type="button"
-                data-profile-trigger
+              {sessionChecked && !user ? (
+                <a
+                  href="/auth/email"
+                  className="rounded-lg bg-white px-3.5 py-1.5 text-xs font-semibold text-black hover:bg-neutral-200 transition"
+                >
+                  {t.common.signIn}
+                </a>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    data-profile-trigger
                 onClick={() => setProfileOpen((v) => !v)}
                 aria-label={t.navbar.profileMenu}
                 aria-expanded={profileOpen}
@@ -387,6 +404,8 @@ export function AppNavbar() {
                   />
                 </div>
               )}
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -413,9 +432,18 @@ export function AppNavbar() {
           style={{ "--pn-h": "48px", "--pn-inner": "40px", "--pn-x": "14px", "--pn-font": "14px" } as CSSProperties}
         />
         <div className="relative">
-          <button
-            type="button"
-            data-profile-trigger
+          {sessionChecked && !user ? (
+            <a
+              href="/auth/email"
+              className="flex h-11 items-center rounded-full bg-white px-4 text-xs font-semibold text-black hover:bg-neutral-200 transition"
+            >
+              {t.common.signIn}
+            </a>
+          ) : (
+            <>
+              <button
+                type="button"
+                data-profile-trigger
             onClick={() => setProfileOpen((v) => !v)}
             aria-label={t.navbar.profileMenu}
             aria-expanded={profileOpen}
@@ -449,6 +477,8 @@ export function AppNavbar() {
                 onClose={() => setProfileOpen(false)}
               />
             </div>
+          )}
+            </>
           )}
         </div>
       </div>

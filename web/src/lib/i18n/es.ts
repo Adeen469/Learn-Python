@@ -262,6 +262,7 @@ export const es: Strings = {
     heroSubtitle:
       "Tutoriales tema por tema, cursos en vídeo y un editor de código real: desde tu primer print() hasta proyectos reales. Mira, programa y mantén la racha.",
     getStarted: "Empezar",
+    guestLogin: "Acceso de invitado",
     heroNote: "Gratis • Inicia sesión con correo electrónico o Google • Tu progreso se queda en este dispositivo",
     statTopics: "temas",
     statVideos: "vídeos",

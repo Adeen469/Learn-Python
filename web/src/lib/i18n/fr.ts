@@ -240,6 +240,7 @@ export const fr: Strings = {
     heroWordOffline: "hors ligne",
     heroSubtitle: "Tutoriels sujet par sujet, cours vidéo et un vrai éditeur de code — de votre premier print() aux vrais projets. Regardez, codez et entretenez votre série.",
     getStarted: "Commencer",
+    guestLogin: "Connexion invité",
     heroNote: "Gratuit • Connexion par e-mail ou Google • Votre progression reste sur cet appareil",
     statTopics: "sujets",
     statVideos: "vidéos",

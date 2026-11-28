@@ -169,4 +169,20 @@ describe("pill nav install", () => {
       "the header bar must be full width"
     );
   });
+
+  test("guests see a Sign in button in the navbar, not a profile icon", () => {
+    // A guest has no account, so the profile circle (which looked like
+    // a signed-in account with an initial) is wrong for them: once the
+    // session check resolves and there is no user, both the desktop
+    // top bar and the mobile dock show a Sign in button to /auth/email.
+    // The signed-in profile trigger stays exactly as it was.
+    const navbar = read("src/components/AppNavbar.tsx");
+    assert.ok(navbar.includes("sessionChecked"), "the navbar must wait for the session check before choosing the trigger");
+    assert.ok(navbar.includes("sessionChecked && !user"), "guests (checked, no user) must get the Sign in button");
+    assert.ok(navbar.includes('href="/auth/email"'), "the guest Sign in button must link to the login page");
+    assert.ok(navbar.includes("{t.common.signIn}"), "the guest button must use the i18n Sign in label");
+    assert.ok(navbar.includes("ProfileMenuItems"), "the signed-in profile dropdown must stay");
+    assert.ok(navbar.includes("data-profile-trigger"), "the signed-in profile trigger must stay");
+    assert.ok(navbar.includes("h-11 w-11"), "the signed-in mobile profile circle must stay");
+  });
 });

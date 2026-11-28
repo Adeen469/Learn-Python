@@ -310,6 +310,7 @@ export type Strings = {
     heroWordOffline: string;
     heroSubtitle: string;
     getStarted: string;
+    guestLogin: string;
     heroNote: string;
     statTopics: string;
     statVideos: string;

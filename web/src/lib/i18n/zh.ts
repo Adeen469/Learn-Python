@@ -258,6 +258,7 @@ export const zh: Strings = {
     heroSubtitle:
       "按主题编排的教程、视频课程和真正的代码编辑器 — 从第一个 print() 到实际项目。观看、编写代码、保持连续打卡。",
     getStarted: "开始学习",
+    guestLogin: "访客登录",
     heroNote: "免费 • 使用邮箱或 Google 登录 • 您的进度保存在此设备上",
     statTopics: "个主题",
     statVideos: "个视频",

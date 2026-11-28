@@ -104,6 +104,7 @@ describe("landing page — no 100-days, no creator, no video source", () => {
 describe("landing page — Get Started uses SpecularButton", () => {
   test("the hero Get Started button is a SpecularButton with the specified props", () => {
     const landing = read("src/components/LandingPage.tsx");
+    const en = read("src/lib/i18n/en.ts");
     assert.ok(landing.includes('import SpecularButton from "@/components/SpecularButton";'), "LandingPage must import SpecularButton");
     assert.ok(landing.includes("<SpecularButton"), "the Get Started button must be a SpecularButton");
     assert.ok(!landing.includes("<StarBorder"), "StarBorder must no longer be the Get Started button");
@@ -127,10 +128,29 @@ describe("landing page — Get Started uses SpecularButton", () => {
       assert.ok(landing.includes(prop), `SpecularButton must carry ${prop}`);
     }
     assert.ok(
-      landing.includes('onClick={() => router.push("/learn/python-home")}'),
-      "Get Started must take a guest straight to the first lesson (lessons are free to read)"
+      landing.includes('onClick={() => router.push("/auth/email")}'),
+      "Get Started must open the login/register page (the sign-up entry, as before the ungate change)"
     );
     assert.ok(landing.includes("{t.landing.getStarted}"), "the label must stay the i18n Get Started string");
+    // Guest Login sits beside Get Started: it takes a guest straight
+    // to the first lesson (lessons are free to read, no sign-in).
+    assert.ok(landing.includes("{t.landing.guestLogin}"), "the hero must render the Guest Login key");
+    assert.ok(
+      landing.includes('onClick={() => router.push("/learn/python-home")}'),
+      "Guest Login must take a guest straight to the first lesson"
+    );
+    assert.ok(
+      landing.includes('flex flex-wrap items-center justify-center gap-3'),
+      "the two hero buttons must sit side by side and wrap on small screens"
+    );
+    // i18n: the key must exist in the type and all 11 languages.
+    const index = read("src/lib/i18n/index.tsx");
+    assert.ok(index.includes("guestLogin: string;"), "the Strings type must have landing.guestLogin");
+    for (const lang of ["en", "hi-roman", "fr", "ja", "ko", "es", "de", "pt", "ru", "ar", "zh"]) {
+      const s = read(`src/lib/i18n/${lang}.ts`);
+      assert.ok(s.includes("guestLogin:"), `${lang} must have landing.guestLogin`);
+    }
+    assert.ok(en.includes('guestLogin: "Guest Login"'), "the English label must read Guest Login");
   });
 });
 

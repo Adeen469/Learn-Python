@@ -261,6 +261,7 @@ export const pt: Strings = {
     heroSubtitle:
       "Tutoriais por tópico, cursos em vídeo e um editor de código de verdade — do seu primeiro print() a projetos reais. Assista, programe e construa a sequência.",
     getStarted: "Começar",
+    guestLogin: "Login de convidado",
     heroNote: "Grátis • Entre com e-mail ou Google • Seu progresso fica neste dispositivo",
     statTopics: "tópicos",
     statVideos: "vídeos",

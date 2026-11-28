@@ -274,6 +274,7 @@ export const en: Strings = {
     heroSubtitle:
       "Topic-by-topic tutorials, video courses, and a real code editor — from your first print() to real projects. Watch, code, and build the streak.",
     getStarted: "Get started",
+    guestLogin: "Guest Login",
     heroNote: "Free • Sign in with email or Google • Your progress stays on this device",
     statTopics: "topics",
     statVideos: "videos",

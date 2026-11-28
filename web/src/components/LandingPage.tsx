@@ -96,7 +96,7 @@ export function LandingPage() {
           <p className="mt-4 max-w-xl text-sm leading-relaxed text-neutral-400 sm:text-base">
             {t.landing.heroSubtitle}
           </p>
-          <div className="mt-12">
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
             <SpecularButton
               size="lg"
               radius={18}
@@ -113,13 +113,20 @@ export function LandingPage() {
               glow={1}
               followMouse
               proximity={250}
-              // Get started goes straight to the first lesson —
-              // lessons are free to read, no sign-in needed. (The
-              // header still has its own Sign in button.)
-              onClick={() => router.push("/learn/python-home")}
+              // Get Started is the sign-up entry again (as before the
+              // ungate change): it opens the login/register page.
+              // Guests who just want to read use Guest Login beside it.
+              onClick={() => router.push("/auth/email")}
             >
               {t.landing.getStarted} <ArrowRight className="h-4 w-4" />
             </SpecularButton>
+            <button
+              type="button"
+              onClick={() => router.push("/learn/python-home")}
+              className="rounded-[18px] border border-neutral-700 bg-transparent px-6 py-3 text-sm font-semibold text-neutral-200 transition hover:border-neutral-400 hover:text-white"
+            >
+              {t.landing.guestLogin}
+            </button>
           </div>
           <p className="mt-3 text-xs text-neutral-500">
             {t.landing.heroNote}

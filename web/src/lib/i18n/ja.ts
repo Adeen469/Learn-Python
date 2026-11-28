@@ -266,6 +266,7 @@ export const ja: Strings = {
     heroSubtitle:
       "トピックごとのチュートリアル、動画コース、本物のコードエディタ — 初めてのprint()から実際のプロジェクトまで。見て、コードを書いて、連続記録を伸ばしましょう。",
     getStarted: "はじめる",
+    guestLogin: "ゲストログイン",
     heroNote: "無料 • メールアドレスまたはGoogleでサインイン • 進捗はこのデバイスに保存されます",
     statTopics: "トピック",
     statVideos: "動画",

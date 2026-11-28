@@ -237,6 +237,7 @@ export const ko: Strings = {
     heroWordOffline: "오프라인으로",
     heroSubtitle: "주제별 튜토리얼, 동영상 강좌, 그리고 실제 코드 에디터 — 첫 print()부터 실제 프로젝트까지. 시청하고, 코딩하고, 연속 학습 기록을 이어가세요.",
     getStarted: "시작하기",
+    guestLogin: "게스트 로그인",
     heroNote: "무료 • 이메일 또는 Google로 로그인 • 진도는 이 기기에 저장됩니다",
     statTopics: "개 주제",
     statVideos: "개 동영상",

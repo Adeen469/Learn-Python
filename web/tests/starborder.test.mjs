@@ -23,22 +23,30 @@ describe("star border install", () => {
     assert.ok(css.includes(".star-border__light"), "CSS must define the light canvas");
   });
 
-  test("the landing page's Get started button is a SpecularButton that navigates to the first lesson", () => {
+  test("the landing page's Get started button is a SpecularButton that opens the sign-up page", () => {
     // 2026-11-19: the hero Get Started button moved from StarBorder to
     // the React Bits SpecularButton (Maalik's order). StarBorder stays
     // vendored but is no longer used on the landing page.
+    // 2026-11-28: Get Started is the sign-up entry again (it opens the
+    // login/register page); Guest Login beside it is the one that takes
+    // a guest straight to the first lesson (lessons are free to read).
     const landing = read("src/components/LandingPage.tsx");
     const en = read("src/lib/i18n/en.ts");
     assert.ok(!landing.includes("<StarBorder"), "Get started must no longer render StarBorder");
     assert.ok(landing.includes("<SpecularButton"), "Get started must render SpecularButton");
     assert.ok(
+      landing.includes('onClick={() => router.push("/auth/email")}'),
+      "Get started must open the login/register page (the sign-up entry)"
+    );
+    assert.ok(
       landing.includes('onClick={() => router.push("/learn/python-home")}'),
-      "Get started must take a guest straight to the first lesson (lessons are free to read)"
+      "Guest Login must take a guest straight to the first lesson"
     );
     // The button label moved to i18n (en.ts landing.getStarted).
     assert.ok(landing.includes("t.landing.getStarted"), "the button must render the Get started key");
     assert.ok(en.includes('getStarted: "Get started"'), "the button must still say Get started");
-    assert.ok(landing.includes('<div className="mt-12">'), "Get started must sit lower with clean breathing room above it");
+    assert.ok(landing.includes("{t.landing.guestLogin}"), "the hero must render the Guest Login key");
+    assert.ok(landing.includes('mt-12 flex flex-wrap'), "Get started must sit lower with clean breathing room above it");
     assert.ok(!landing.includes("rounded-xl bg-white px-6 py-3"), "the old plain white hero button must be gone");
   });
 });

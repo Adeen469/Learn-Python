@@ -234,6 +234,7 @@ export const hiRoman: Strings = {
     heroWordOffline: "offline",
     heroSubtitle: "Topic-wise tutorials, video courses aur ek asli code editor — pehle print() se lekar asli projects tak. Dekho, code karo, aur streak banao.",
     getStarted: "Shuru karo",
+    guestLogin: "Guest Login",
     heroNote: "Free • Email ya Google se sign in karo • Tumhari progress isi device par rehti hai",
     statTopics: "topics",
     statVideos: "videos",
